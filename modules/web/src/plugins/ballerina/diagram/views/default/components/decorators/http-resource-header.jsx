@@ -129,7 +129,7 @@ class HttpResourceHeader extends React.Component {
                             {'*'}
                         </text>
                     </g>)
-            
+
                 }
                 {methods.length > 0 && methods.map((method) => {
                     return (
