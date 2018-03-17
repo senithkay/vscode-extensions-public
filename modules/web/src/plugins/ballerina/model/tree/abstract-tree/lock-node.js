@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import StatementNode from '../statement-node';
 
-class AbstractTransformNode extends StatementNode {
+class AbstractLockNode extends StatementNode {
 
 
     setBody(newValue, silent, title) {
@@ -48,54 +48,6 @@ class AbstractTransformNode extends StatementNode {
     }
 
 
-    setInputs(newValue, silent, title) {
-        const oldValue = this.inputs;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.inputs = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'inputs',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInputs() {
-        return this.inputs;
-    }
-
-
-    setOutputs(newValue, silent, title) {
-        const oldValue = this.outputs;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.outputs = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'outputs',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getOutputs() {
-        return this.outputs;
-    }
-
-
 }
 
-export default AbstractTransformNode;
+export default AbstractLockNode;

@@ -16,10 +16,34 @@
  * under the License.
  */
 
-import AbstractCommentNode from './abstract-tree/comment-node';
+import Plugin from 'core/plugin/plugin';
+import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { getMenuDefinitions } from './menus';
+import { PLUGIN_ID } from './constants';
 
-class CommentNode extends AbstractCommentNode {
+/**
+ * Help plugin.
+ *
+ * @class ToolsPlugin
+ */
+class ToolsPlugin extends Plugin {
 
+    /**
+     * @inheritdoc
+     */
+    getID() {
+        return PLUGIN_ID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    getContributions() {
+        const { MENUS } = CONTRIBUTIONS;
+        return {
+            [MENUS]: getMenuDefinitions(this),
+        };
+    }
 }
 
-export default CommentNode;
+export default ToolsPlugin;
