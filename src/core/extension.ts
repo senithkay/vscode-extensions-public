@@ -19,24 +19,24 @@
  */
 
 import {
-    workspace, window, commands, Uri,
+    workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext
+    Extension, ExtensionContext, IndentAction,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR,
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE,
 } from "./messages";
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE } from "vscode-languageclient";
-import { getServerOptions } from '../server';
-import { ExtendedLangClient } from "../lang-client";
-import { log } from '../logger';
+import { getServerOptions } from '../server/server';
+import { ExtendedLangClient } from './extended-language-client';
+import { log } from '../utils/index';
 import { AssertionError } from "assert";
 import * as compareVersions from 'compare-versions';
-class BallerinaExtension {
+export class BallerinaExtension {
 
     public ballerinaHome: string;
     public extention: Extension<any>;
@@ -58,8 +58,8 @@ class BallerinaExtension {
         this.context = context;
     }
 
-    init(): Promise<BallerinaExtension> {
-        return new Promise((resolve, reject) => {
+    init(): void {
+        try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
 
@@ -71,8 +71,7 @@ class BallerinaExtension {
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto ditection.
                     this.showMessageInvalidBallerinaHome();
-                    // Return error
-                    reject();
+                    return;
                 }
             } else {
                 // If ballerina home is not set try to auto ditect ballerina home.
@@ -81,7 +80,7 @@ class BallerinaExtension {
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
                     log("Unable to auto ditect ballerina home.");
-                    reject();
+                    return;
                 }
             }
 
@@ -90,7 +89,7 @@ class BallerinaExtension {
             this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
-            })
+            });
 
             // if Home is found load Language Server.
             this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
@@ -100,7 +99,6 @@ class BallerinaExtension {
             const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                 if (stateChangeEvent.newState === LS_STATE.Stopped) {
                     this.showPluginActivationError();
-                    reject();
                 }
             });
 
@@ -109,9 +107,19 @@ class BallerinaExtension {
             this.langClient.onReady().then(fullfilled => {
                 disposeDidChange.dispose();
                 this.context!.subscriptions.push(disposable);
-                resolve();
             });
-        });
+        } catch {
+            // If any failure occurs while intializing show an error messege
+            this.showPluginActivationError();
+        }
+    }
+
+    onReady(): Promise<void> {
+        if (!this.langClient) {
+            return Promise.reject('BallerinaExtension is not initialized');
+        }
+
+        return this.langClient.onReady();
     }
 
     showPluginActivationError(): any {
@@ -129,6 +137,18 @@ class BallerinaExtension {
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
+        });
+
+        languages.setLanguageConfiguration('ballerina', {
+            onEnterRules: [
+                {
+                    beforeText: new RegExp('^\\s*#'),
+                    action: {
+                        appendText: '# ',
+                        indentAction: IndentAction.None,
+                    }
+                }
+            ]
         });
     }
 
@@ -157,7 +177,7 @@ class BallerinaExtension {
     }
 
     getBallerinaVersion(ballerinaHome: string): Promise<string> {
-        if (!this.ballerinaHome) {
+        if (!ballerinaHome) {
             throw new AssertionError({
                 message: "Trying to get ballerina version without setting ballerina home."
             });
@@ -170,8 +190,8 @@ class BallerinaExtension {
             exec(command, (err, stdout, stderr) => {
                 const version = stdout.length > 0 ? stdout : stderr;
                 resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
-            })
-        })
+            });
+        });
     }
 
     showMessageInstallBallerina(): any {
@@ -223,9 +243,13 @@ class BallerinaExtension {
         });
     }
 
+    showMessageInvalidFile(): any {
+        window.showErrorMessage(INVALID_FILE);
+    }
+
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath, 'lib', 'resources', 'composer'))) {
+        if (fs.existsSync(path.join(homePath,'bin','ballerina'))) {
             return true;
         }
         return false;
@@ -251,7 +275,11 @@ class BallerinaExtension {
         let path = '';
         switch (platform) {
             case 'win32': // Windows
-                path = execSync('where ballerina').toString().trim();
+                try {
+                    path = execSync('where ballerina').toString().trim();
+                } catch (error) {
+                    return path;
+                }
                 if (path) {
                     path = path.replace(/bin\\ballerina.bat$/, '');
                 }
@@ -259,13 +287,17 @@ class BallerinaExtension {
             case 'darwin': // Mac OS
             case 'linux': // Linux
                 // lets see where the ballerina command is.
-                const output = execSync('which ballerina');
-                path = fs.realpathSync(output.toString().trim());
-                // remove ballerina bin from path
-                if (path) {
-                    path = path.replace(/bin\/ballerina$/, '');
+                try {
+                    const output = execSync('which ballerina');
+                    path = fs.realpathSync(output.toString().trim());
+                    // remove ballerina bin from path
+                    if (path) {
+                        path = path.replace(/bin\/ballerina$/, '');
+                    }
+                    break;
+                } catch {
+                    return path;
                 }
-                break;
         }
 
         // If we cannot find ballerina home return empty.
@@ -282,4 +314,4 @@ class BallerinaExtension {
 
 }
 
-export default new BallerinaExtension();
+export const ballerinaExtInstance = new BallerinaExtension();

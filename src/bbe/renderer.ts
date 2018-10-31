@@ -1,4 +1,4 @@
-import { ExtendedLangClient } from '../lang-client';
+import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent } from '../utils';
 
@@ -23,7 +23,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             });
         }
         function renderSamples() {
-            ballerinaDiagram.renderSamplesList(document.getElementById("examples"), getExamples, openExample, () => {});
+            ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, getExamples, () => {});
         }
         renderSamples();
         renderSamples();
