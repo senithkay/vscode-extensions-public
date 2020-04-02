@@ -2,9 +2,11 @@ import * as ws from "ws";
 import * as http from "http";
 import * as url from "url";
 import * as net from "net";
-import * as express from "express";
+// import {Express} from "express";
 import * as rpc from "vscode-ws-jsonrpc";
 import { launch } from "./launcher";
+
+const express = require("express");
 
 process.on('uncaughtException', function (err: any) {
     console.error('Uncaught Exception: ', err.toString());
