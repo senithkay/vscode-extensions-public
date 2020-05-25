@@ -20,7 +20,7 @@ RUN mkdir -p /ballerina/files \
     && apk update \
     && apk upgrade \
     && unzip /zip/${balDist} -d /ballerina/ > /dev/null 2>&1 \
-    && mv /ballerina/jballerina* /ballerina/runtime \
+    && mv /ballerina/ballerina-${balVersion}/distributions/jballerina-${balVersion} /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \
     && rm -rf /zip > /dev/null 2>&1 \
     && rm -rf /var/cache/apk/*
