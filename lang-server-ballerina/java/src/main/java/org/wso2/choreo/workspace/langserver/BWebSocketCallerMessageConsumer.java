@@ -64,7 +64,7 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
         Object isOpen = currentRuntime.getSyncMethodInvokeResult(webSocketCaller,"isOpen", 500);
         Boolean isConnectionOpen = (Boolean) isOpen;
         if (isConnectionOpen) {
-            currentRuntime.invokeMethodSync(webSocketCaller, "pushText", message, true);
+            Object isSuccess = currentRuntime.getSyncMethodInvokeResult(webSocketCaller, "pushText", 500, message, false);
         }
     }
 }

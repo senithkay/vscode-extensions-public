@@ -18,6 +18,7 @@ package org.wso2.choreo.workspace.langserver;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 
 import java.util.Collection;

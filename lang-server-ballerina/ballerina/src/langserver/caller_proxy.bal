@@ -13,12 +13,13 @@ public type WSCallerProxy object {
         return self.caller.isOpen();
     }
 
-    public function pushText(string msg) {
+    public function pushText(string msg) returns (boolean) {
         log:printInfo("responding to caller. " + msg);
         error? pushText = self.caller->pushText(msg);
         if (pushText is error) {
             log:printInfo("error responding to caller. " + pushText.reason());
         } 
+        return !(pushText is error);
     }
 
 };
