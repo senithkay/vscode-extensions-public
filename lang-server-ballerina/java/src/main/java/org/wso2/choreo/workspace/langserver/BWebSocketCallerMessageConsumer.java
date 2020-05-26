@@ -40,9 +40,11 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     private MessageJsonHandler jsonHandler;
 
     private ObjectValue webSocketCaller;
+    private BRuntime currentRuntime;
 
-    public BWebSocketCallerMessageConsumer(ObjectValue webSocketCaller) {
+    public BWebSocketCallerMessageConsumer(ObjectValue webSocketCaller, BRuntime currentRuntime) {
         this.webSocketCaller = webSocketCaller;
+        this.currentRuntime = currentRuntime;
     }
 
     public void configure(MessageJsonHandler jsonHandler) {
@@ -60,7 +62,6 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     }
 
     public void sendMessage(String message) throws MessageIssueException, JsonRpcException {
-        BRuntime currentRuntime = BRuntime.getCurrentRuntime();
         Object isOpen = currentRuntime.getSyncMethodInvokeResult(webSocketCaller,"isOpen", 500);
         Boolean isConnectionOpen = (Boolean) isOpen;
         if (isConnectionOpen) {

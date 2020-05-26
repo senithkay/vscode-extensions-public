@@ -15,10 +15,10 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 
 import java.util.Collection;
@@ -29,8 +29,10 @@ public class BWebSocketRPCHandler {
     private BallerinaLanguageServer languageServer;
     private BWebSocketCallerMessageHandler messageHandler;
     private BWebSocketCallerMessageConsumer messageConsumer;
+    private BRuntime currentRuntime;
 
     public BWebSocketRPCHandler(ObjectValue webSocketCaller) {
+        this.currentRuntime = BRuntime.getCurrentRuntime();
         this.webSocketCaller = webSocketCaller;
         this.init();
     }
@@ -40,7 +42,7 @@ public class BWebSocketRPCHandler {
         BWebSocketLauncherBuilder<ExtendedLanguageClient> builder =
                 new BWebSocketLauncherBuilder<>();
         messageHandler = new BWebSocketCallerMessageHandler();
-        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller);
+        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller, currentRuntime);
         builder
             .setMessageHandler(messageHandler)
             .setMessageConsumer(messageConsumer)
