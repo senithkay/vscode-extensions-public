@@ -61,6 +61,8 @@ app.post(fileAPIPath, (req, res) => {
     });
 });
 
+const serverInfoMap = new Map();
+
 async function startLangServer(orgId, appId, ws) {
     let firstMsg;
     ws.on('message', function incoming(data) {
@@ -72,7 +74,44 @@ async function startLangServer(orgId, appId, ws) {
     const projectPath = path.resolve(repoPath, orgId, appId, "app");
     const debBalDistPath = process.env.BALLERINA_DEV_HOME;
     console.log("Starting LangServer for workspace: " + workspaceID);
-    if (!debBalDistPath) {
+
+    function createMessageProxy(port) {
+        const wsClient = new WebSocket('ws://localhost:' + port + "/lang-server");
+        wsClient.on('open', function open() {
+            console.log("Opened connection to " + workspaceID + " LS.");
+            if (firstMsg) {
+                wsClient.send(firstMsg);
+            }
+            serverInfoMap.get(workspaceID).connections += 1;
+            // proxy messages from BE to FE
+            ws.on('message', function incoming(data) {
+                wsClient.send(data);
+            });
+            wsClient.on('message', function incoming(data) {
+                ws.send(data);
+            });
+        });
+        ws.on("close", () => {
+            const serverInfo = serverInfoMap.get(workspaceID);
+            serverInfo.connections -= 1;
+            if (serverInfo.connections === 0) {
+                serverInfo.serverProcess.kill();
+                serverInfoMap.delete(workspaceID);
+                console.log("Killed LangServer for workspace:" + workspaceID);
+            }
+        });
+    }
+
+    if (serverInfoMap.has(workspaceID)) {
+        console.log("Using existing server for new connection. " + workspaceID);
+        if (!serverInfoMap.get(workspaceID).isStarting) {
+            createMessageProxy(serverInfoMap.get(workspaceID).lsPort);
+        } else {
+            setTimeout(() => {
+                createMessageProxy(serverInfoMap.get(workspaceID).lsPort);
+            }, 5000);
+        }    
+    } else if (!debBalDistPath) {
         const msg = "Env variable $BALLERINA_DEV_HOME is not defined.";
         console.log(msg);
         ws.close();
@@ -95,29 +134,20 @@ async function startLangServer(orgId, appId, ws) {
                 serverProcess.kill();
             }
         });
+        serverInfoMap.set(workspaceID, {
+            lsPort,
+            debugPort,
+            connections: 0,
+            serverProcess,
+            isStarting: true
+        });
         serverProcess.stdout.on("data", (msg) => console.log("LS:STDOUT:" + workspaceID + ":" + msg));
         serverProcess.stderr.on("data", (msg) => {
             console.log("LS:STDERR:" + workspaceID + ":" + msg);
             if (msg.toString().includes("Interface starting on host 0.0.0.0 and port 9090")) {
-                const wsClient = new WebSocket('ws://localhost:' + lsPort + "/lang-server");
-                wsClient.on('open', function open() {
-                   console.log("Opened connection to " + workspaceID + " LS.");
-                   if (firstMsg) {
-                        wsClient.send(firstMsg);
-                   }
-                });
-                // proxy messages from BE to FE
-                ws.on('message', function incoming(data) {
-                    wsClient.send(data);
-                });
-                wsClient.on('message', function incoming(data) {
-                    ws.send(data);
-                });
+                serverInfoMap.get(workspaceID).isStarting = false;
+                createMessageProxy(lsPort);
             }
-        });
-        ws.on("close", () => {
-            serverProcess.kill();
-            console.log("Killed LangServer for workspace:" + workspaceID);
         });
     }
 }
