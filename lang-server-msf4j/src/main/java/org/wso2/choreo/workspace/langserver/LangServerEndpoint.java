@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@ServerEndpoint("/lang-server")
+@ServerEndpoint("/")
 public class LangServerEndpoint {
 
     private final static Logger LOGGER = Logger.getLogger(LangServerEndpoint.class.getName());

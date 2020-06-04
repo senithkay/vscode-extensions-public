@@ -26,6 +26,13 @@ task copyDependencies(type: Copy) {
     into 'build/dependencies'
 }
 
+def imageTag = 'workspace-lang-server:1.0.0'
+
 build {
     dependsOn copyDependencies
+}
+
+task buildDockerDev(type: Exec) {
+    dependsOn build
+    commandLine 'docker', 'build', '-f', 'Dockerfile.dev', '-t', imageTag, '.'
 }
