@@ -5,11 +5,13 @@ RUN gradle build --no-daemon
 
 FROM openjdk:8-jre-alpine
 
-# copy server artifacts
-WORKDIR /app
+RUN apk add --no-cache bash
 
-COPY --from=build /home/gradle/project/build/libs/ /app/
-COPY --from=build /home/gradle/project/build/dependencies/ /app/
+# copy server artifacts
+WORKDIR /ws-server
+
+COPY --from=build /home/gradle/project/build/libs/ /ws-server/
+COPY --from=build /home/gradle/project/build/dependencies/ /ws-server/
 
 EXPOSE 9090
 EXPOSE 5005
@@ -20,6 +22,6 @@ CMD [ \
         "-Dballerina.home=/ballerina/runtime", \
         "-Dballerina.version=$(./ballerina/runtime/bin/ballerina version | head -n 1 | cut -d' ' -f2)", \
         "-cp", \
-        "/ballerina/runtime/bre/lib/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/app/*", \
+        "/ballerina/runtime/bre/lib/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/ws-server/*", \
         "org.wso2.choreo.workspace.langserver.LangServer" \
     ]

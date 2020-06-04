@@ -1,21 +1,23 @@
 const express = require('express');
+const { spawn } = require('child_process');
 const path = require('path');
+const getPort = require('get-port');
 const fs = require('fs');
+const WebSocket = require('ws');
+const exitHook = require('exit-hook');
 
 const app = express();
+const expressWs = require('express-ws')(app);
 
 app.use(express.json());
 
 const port = 3000;
 
-const defaultContent = `
-    function myFunction() {
-
-    }
-`;
+const defaultContent = "function myFunction() {\n}";
 
 const repoPath = path.resolve(__dirname, "..", "repo");
 const fileAPIPath = "/orgs/:orgId/apps/:appId/workspace/files/*";
+const langServerPath = "/orgs/:orgId/apps/:appId/workspace/lang-server";
 
 function ensureDirectoryExistence(filePath) {
     var dirname = path.dirname(filePath);
@@ -26,6 +28,7 @@ function ensureDirectoryExistence(filePath) {
     fs.mkdirSync(dirname);
 }
 
+// file GET - retrieves files
 app.get(fileAPIPath, (req, res) => {
 
     const filePath =  path.resolve(repoPath, req.params.orgId,  req.params.appId, req.params[0]);
@@ -45,6 +48,7 @@ app.get(fileAPIPath, (req, res) => {
     });
 });
 
+// file POST - update files
 app.post(fileAPIPath, (req, res) => {
     const filePath =  path.resolve(repoPath, req.params.orgId,  req.params.appId, req.params[0]);
     const contentEncoded = req.body.content;
@@ -52,9 +56,77 @@ app.post(fileAPIPath, (req, res) => {
     res.send({
         content: contentEncoded,
         path: "/" + req.params[0],
-        size: 71,
+        size: req.body.content.length,
         type: "file"
     });
+});
+
+async function startLangServer(orgId, appId, ws) {
+    let firstMsg;
+    ws.on('message', function incoming(data) {
+        if (!firstMsg) {
+            firstMsg = data;
+        }
+    });
+    const workspaceID = orgId + ":" + appId;
+    const projectPath = path.resolve(repoPath, orgId, appId, "app");
+    const debBalDistPath = process.env.BALLERINA_DEV_HOME;
+    console.log("Starting LangServer for workspace: " + workspaceID);
+    if (!debBalDistPath) {
+        const msg = "Env variable $BALLERINA_DEV_HOME is not defined.";
+        console.log(msg);
+        ws.close();
+    } else {
+        const lsPort = await getPort({port: getPort.makeRange(9090, 9190)});
+        const debugPort = await getPort({port: getPort.makeRange(5005, 5105)});
+        console.log("Using " + lsPort + " for LS and " + debugPort + " for jvm debug");
+        const serverProcess = spawn("docker",
+                [   
+                    "run",
+                    "-p", debugPort + ":5005",
+                    "-p", lsPort + ":9090", 
+                    "-v", debBalDistPath + ":/ballerina/runtime",
+                    "-v", projectPath + ":/app",
+                    "workspace-lang-server:1.0.0"
+                ]
+            );
+        exitHook(() => {
+            if (serverProcess) {
+                serverProcess.kill();
+            }
+        });
+        serverProcess.stdout.on("data", (msg) => console.log("LS:STDOUT:" + workspaceID + ":" + msg));
+        serverProcess.stderr.on("data", (msg) => {
+            console.log("LS:STDERR:" + workspaceID + ":" + msg);
+            if (msg.toString().includes("Interface starting on host 0.0.0.0 and port 9090")) {
+                const wsClient = new WebSocket('ws://localhost:' + lsPort + "/lang-server");
+                wsClient.on('open', function open() {
+                   console.log("Opened connection to " + workspaceID + " LS.");
+                   if (firstMsg) {
+                        wsClient.send(firstMsg);
+                   }
+                });
+                // proxy messages from BE to FE
+                ws.on('message', function incoming(data) {
+                    wsClient.send(data);
+                });
+                wsClient.on('message', function incoming(data) {
+                    ws.send(data);
+                });
+            }
+        });
+        ws.on("close", () => {
+            serverProcess.kill();
+            console.log("Killed LangServer for workspace:" + workspaceID);
+        });
+    }
+}
+
+// workspace lang-server connection
+app.ws(langServerPath, async function(ws, req, next) {
+    const { appId, orgId } = req.params;
+    startLangServer(orgId, appId, ws);
+    next();
 });
 
 app.listen(port, () => console.log(`File Server listening at http://localhost:${port}`));
