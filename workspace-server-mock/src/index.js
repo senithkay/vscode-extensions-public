@@ -104,13 +104,14 @@ async function startLangServer(orgId, appId, ws) {
 
     if (serverInfoMap.has(workspaceID)) {
         console.log("Using existing server for new connection. " + workspaceID);
-        if (!serverInfoMap.get(workspaceID).isStarting) {
-            createMessageProxy(serverInfoMap.get(workspaceID).lsPort);
-        } else {
-            setTimeout(() => {
+        const startProxyInterval = setInterval(() => {
+            if (!serverInfoMap.get(workspaceID).isStarting) {
                 createMessageProxy(serverInfoMap.get(workspaceID).lsPort);
-            }, 5000);
-        }    
+                clearInterval(startProxyInterval);
+            } else {
+                console.log("Waiting for LS startup in . " + workspaceID);
+            }
+        }, 2000);
     } else if (!debBalDistPath) {
         const msg = "Env variable $BALLERINA_DEV_HOME is not defined.";
         console.log(msg);
