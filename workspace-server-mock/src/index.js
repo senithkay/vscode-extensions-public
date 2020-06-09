@@ -94,11 +94,16 @@ async function startLangServer(orgId, appId, ws) {
         ws.on("close", () => {
             const serverInfo = serverInfoMap.get(workspaceID);
             serverInfo.connections -= 1;
-            if (serverInfo.connections === 0) {
-                serverInfo.serverProcess.kill();
-                serverInfoMap.delete(workspaceID);
-                console.log("Killed LangServer for workspace:" + workspaceID);
-            }
+            // wait some time before killing lang-server
+            // as this can be a page refresh and starting for each
+            // refresh is killing dev experience.
+            setTimeout(() => {
+                if (serverInfo.connections === 0) {
+                    serverInfo.serverProcess.kill();
+                    serverInfoMap.delete(workspaceID);
+                    console.log("Killed LangServer for workspace:" + workspaceID);
+                }
+            }, 20000);
         });
     }
 
