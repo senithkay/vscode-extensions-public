@@ -124,17 +124,20 @@ async function startLangServer(orgId, appId, ws) {
     } else {
         const lsPort = await getPort({port: getPort.makeRange(9090, 9190)});
         const debugPort = await getPort({port: getPort.makeRange(5005, 5105)});
+        const currentFilePath = __dirname;
         console.log("Using " + lsPort + " for LS and " + debugPort + " for jvm debug");
         const serverProcess = spawn("docker",
-                [   
-                    "run",
-                    "-p", debugPort + ":5005",
-                    "-p", lsPort + ":9090", 
-                    "-v", debBalDistPath + ":/ballerina/runtime",
-                    "-v", projectPath + ":/app",
-                    "workspace-lang-server:1.0.0"
-                ]
-            );
+            [
+                "run",
+                "-p", debugPort + ":5005",
+                "-p", lsPort + ":9090",
+                "-v", currentFilePath + "/../connector:/ballerina/connector",
+                "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connector/connector.toml",
+                "-v", debBalDistPath + ":/ballerina/runtime",
+                "-v", projectPath + ":/app",
+                "workspace-lang-server:1.0.0"
+            ]
+        );
         exitHook(() => {
             if (serverProcess) {
                 serverProcess.kill();
