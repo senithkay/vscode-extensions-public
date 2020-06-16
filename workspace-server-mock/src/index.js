@@ -61,6 +61,62 @@ app.post(fileAPIPath, (req, res) => {
     });
 });
 
+// app ping
+app.post("/orgs/:orgId/apps/:appId/ping", (req, res) => {
+    res.send({
+        ping: "success"
+    });
+});
+
+// app runtime info
+app.get("/orgs/:orgId/apps/:appId/runtime", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    res.send({
+        prod: {
+            observabilityUrl: "obsurl",
+            accessUrl: "accessurl",
+            status: "stopped"
+        },
+        test: {
+            observabilityUrl: "obsurl",
+            accessUrl: "accessurl",
+            status: "stopped"
+        }
+    });
+});
+
+function getApp(orgId, appId) {
+    return {
+        id: 100,
+        name: appId,
+        displayName: appId,
+        workingFile: `/app/project/src/main-module/choreo.bal`,
+        org: orgId,
+        organizationId: 100,
+        template: "Service",
+        observabilityId: "obsid",
+        gitRemote: "gitUrl",
+        status: "string",
+        isPersisted: true
+    }
+}
+
+// get app info
+app.get("/orgs/:orgId/apps/:appId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    res.send(getApp(orgId, appId));
+});
+
+// get apps
+app.get("/orgs/:orgId/apps/", (req, res) => {
+    const orgId = req.params.orgId;
+    res.send([
+        getApp(orgId, "myfirstapp")
+    ]);
+});
+
 const serverInfoMap = new Map();
 
 async function startLangServer(orgId, appId, ws) {
