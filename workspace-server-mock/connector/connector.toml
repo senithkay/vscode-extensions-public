@@ -1,6 +1,6 @@
 connectors = [
-  { org = "ballerina", module = "nats", version= "2.0.0", name = "Producer"},
-  { org = "ballerina", module = "email", version= "2.0.0", name = "SmtpClient"},
+  { org = "wso2", module = "twitter", version= "0.9.26", name = "Twitter"},
+  { org = "ballerina", module = "http", version= "1.0.0", name = "HTTP"},
   { org = "ballerina", module = "email", version= "2.0.0", name = "PopClient"},
   { org = "ballerina", module = "email", version= "2.0.0", name = "ImapClient"},
 ]

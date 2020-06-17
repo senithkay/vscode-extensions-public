@@ -191,6 +191,7 @@ async function startLangServer(orgId, appId, ws) {
                 "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connector/connector.toml",
                 "-v", debBalDistPath + ":/ballerina/runtime",
                 "-v", projectPath + ":/app",
+                "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
                 "workspace-lang-server:1.0.0"
             ]
         );
