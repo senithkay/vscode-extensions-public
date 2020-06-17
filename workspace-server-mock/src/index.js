@@ -203,13 +203,20 @@ async function startLangServer(orgId, appId, ws) {
             serverProcess,
             isStarting: true
         });
-        serverProcess.stdout.on("data", (msg) => console.log("LS:STDOUT:" + workspaceID + ":" + msg));
-        serverProcess.stderr.on("data", (msg) => {
-            console.log("LS:STDERR:" + workspaceID + ":" + msg);
+
+        const checkStart = (msg) => {
             if (msg.toString().includes("Interface starting on host 0.0.0.0 and port 9090")) {
                 serverInfoMap.get(workspaceID).isStarting = false;
                 createMessageProxy(lsPort);
             }
+        }
+        serverProcess.stdout.on("data", (msg) => {
+            checkStart(msg);
+            console.log("LS:STDOUT:" + workspaceID + ":" + msg);
+        });
+        serverProcess.stderr.on("data", (msg) => {
+            checkStart(msg);
+            console.log("LS:STDERR:" + workspaceID + ":" + msg);
         });
     }
 }
