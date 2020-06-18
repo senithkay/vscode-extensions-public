@@ -140,11 +140,34 @@ async function startLangServer(orgId, appId, ws) {
             }
             serverInfoMap.get(workspaceID).connections += 1;
             // proxy messages from BE to FE
-            ws.on('message', function incoming(data) {
-                wsClient.send(data);
+            const onFEMsg = (data) => {
+                if (wsClient.readyState === 1) {
+                    wsClient.send(data);
+                } else {
+                    wsClient.on("open", () => {
+                        wsClient.send(data);
+                    });
+                }
+            }
+            const onBEMsg = (data) => {
+                if (ws.readyState === 1) {
+                    ws.send(data);
+                } else {
+                    ws.on("open", () => {
+                        ws.send(data);
+                    });
+                }
+            }
+            
+            ws.on('message', onFEMsg);
+            wsClient.on('message', onBEMsg);
+
+            // remove event listeners
+            ws.on("close", () => {
+                ws.removeEventListener("message", onFEMsg);
             });
-            wsClient.on('message', function incoming(data) {
-                ws.send(data);
+            wsClient.on("close", () => {
+                wsClient.removeEventListener("message", onBEMsg);
             });
         });
         ws.on("close", () => {
