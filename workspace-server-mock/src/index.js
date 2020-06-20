@@ -13,7 +13,7 @@ app.use(express.json());
 
 const port = 3000;
 
-const defaultContent = "function myFunction() {\n}";
+const defaultContent = "";
 
 const repoPath = path.resolve(__dirname, "..", "repo");
 const fileAPIPath = "/orgs/:orgId/apps/:appId/workspace/files/*";
