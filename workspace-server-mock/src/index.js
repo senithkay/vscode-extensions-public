@@ -95,7 +95,7 @@ function getApp(orgId, appId) {
         org: orgId,
         organizationId: 100,
         template: "Service",
-        observabilityId: "obsid",
+        observability: {observabilityId: "", latestVersion: "123"},
         gitRemote: "gitUrl",
         status: "string",
         isPersisted: true
