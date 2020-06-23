@@ -13,7 +13,7 @@ app.use(express.json());
 
 const port = 3000;
 
-const defaultContent = "function myFunction() {\n}";
+const defaultContent = "";
 
 const repoPath = path.resolve(__dirname, "..", "repo");
 const fileAPIPath = "/orgs/:orgId/apps/:appId/workspace/files/*";
@@ -140,11 +140,34 @@ async function startLangServer(orgId, appId, ws) {
             }
             serverInfoMap.get(workspaceID).connections += 1;
             // proxy messages from BE to FE
-            ws.on('message', function incoming(data) {
-                wsClient.send(data);
+            const onFEMsg = (data) => {
+                if (wsClient.readyState === 1) {
+                    wsClient.send(data);
+                } else {
+                    wsClient.on("open", () => {
+                        wsClient.send(data);
+                    });
+                }
+            }
+            const onBEMsg = (data) => {
+                if (ws.readyState === 1) {
+                    ws.send(data);
+                } else {
+                    ws.on("open", () => {
+                        ws.send(data);
+                    });
+                }
+            }
+            
+            ws.on('message', onFEMsg);
+            wsClient.on('message', onBEMsg);
+
+            // remove event listeners
+            ws.on("close", () => {
+                ws.removeEventListener("message", onFEMsg);
             });
-            wsClient.on('message', function incoming(data) {
-                ws.send(data);
+            wsClient.on("close", () => {
+                wsClient.removeEventListener("message", onBEMsg);
             });
         });
         ws.on("close", () => {
@@ -180,17 +203,21 @@ async function startLangServer(orgId, appId, ws) {
     } else {
         const lsPort = await getPort({port: getPort.makeRange(9090, 9190)});
         const debugPort = await getPort({port: getPort.makeRange(5005, 5105)});
+        const currentFilePath = __dirname;
         console.log("Using " + lsPort + " for LS and " + debugPort + " for jvm debug");
         const serverProcess = spawn("docker",
-                [   
-                    "run",
-                    "-p", debugPort + ":5005",
-                    "-p", lsPort + ":9090", 
-                    "-v", debBalDistPath + ":/ballerina/runtime",
-                    "-v", projectPath + ":/app",
-                    "workspace-lang-server:1.0.0"
-                ]
-            );
+            [
+                "run",
+                "-p", debugPort + ":5005",
+                "-p", lsPort + ":9090",
+                "-v", currentFilePath + "/../connector:/ballerina/connector",
+                "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connector/connector.toml",
+                "-v", debBalDistPath + ":/ballerina/runtime",
+                "-v", projectPath + ":/app",
+                "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
+                "workspace-lang-server:1.0.0"
+            ]
+        );
         exitHook(() => {
             if (serverProcess) {
                 serverProcess.kill();
