@@ -20,7 +20,7 @@ RUN mkdir -p /ballerina/files \
     && apk update \
     && apk upgrade \
     && unzip /zip/${balDist} -d /ballerina/ > /dev/null 2>&1 \
-    && mv /ballerina/ballerina-${balVersion}/distributions/jballerina-${balVersion} /ballerina/runtime \
+    && mv /ballerina/jballerina* /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \
     && rm -rf /zip > /dev/null 2>&1 \
     && rm -rf /var/cache/apk/*
@@ -30,6 +30,7 @@ WORKDIR /app
 
 COPY --from=build /home/gradle/project/build/libs/ /app/
 COPY --from=build /home/gradle/project/build/dependencies/ /app/
+COPY --from=build /home/gradle/project/connectors /app/connectors
 
 # configure user
 RUN addgroup choreo \
@@ -38,6 +39,10 @@ RUN addgroup choreo \
     && chown -R appuser:choreo /app
 
 USER appuser
+
+ENV DEFAULT_CONNECTOR_FILE /app/connectors/connectors.toml
+
+RUN /ballerina/runtime/bin/ballerina pull wso2/twitter
 
 EXPOSE 9090
 
