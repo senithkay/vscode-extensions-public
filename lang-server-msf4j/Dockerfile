@@ -26,21 +26,21 @@ RUN mkdir -p /ballerina/files \
     && rm -rf /var/cache/apk/*
 
 # copy server artifacts
-WORKDIR /app
+WORKDIR /lang-server
 
-COPY --from=build /home/gradle/project/build/libs/ /app/
-COPY --from=build /home/gradle/project/build/dependencies/ /app/
-COPY --from=build /home/gradle/project/connectors /app/connectors
+COPY --from=build /home/gradle/project/build/libs/ /lang-server/
+COPY --from=build /home/gradle/project/build/dependencies/ /lang-server/
+COPY --from=build /home/gradle/project/connectors /lang-server/connectors
 
 # configure user
 RUN addgroup choreo \
     && adduser -S -s /bin/bash -g 'appuser' -G choreo -D appuser \
     && chown -R appuser:choreo /ballerina \
-    && chown -R appuser:choreo /app
+    && chown -R appuser:choreo /lang-server
 
 USER appuser
 
-ENV DEFAULT_CONNECTOR_FILE /app/connectors/connectors.toml
+ENV DEFAULT_CONNECTOR_FILE /lang-server/connectors/connectors.toml
 
 RUN /ballerina/runtime/bin/ballerina pull wso2/twitter
 
@@ -51,6 +51,6 @@ CMD [ \
         "-Dballerina.home=/ballerina/runtime", \
         "-Dballerina.version=${BALLERINA_VERSION}", \
         "-cp", \
-        "/ballerina/runtime/bre/lib/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/app/*", \
+        "/ballerina/runtime/bre/lib/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/lang-server/*", \
         "org.wso2.choreo.workspace.langserver.LangServer" \
     ]
