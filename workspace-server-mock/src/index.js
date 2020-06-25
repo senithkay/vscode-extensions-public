@@ -109,6 +109,21 @@ app.get("/orgs/:orgId/apps/:appId", (req, res) => {
     res.send(getApp(orgId, appId));
 });
 
+// patch app info
+app.patch("/orgs/:orgId/apps/:appId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const appInfo = getApp(orgId, appId);
+    res.send({ ...appInfo, ...req.body });
+});
+
+// wait for workspace
+app.get("/orgs/:orgId/apps/:appId/wait-for-workspace", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    res.send(true);
+});
+
 // get apps
 app.get("/orgs/:orgId/apps/", (req, res) => {
     const orgId = req.params.orgId;
