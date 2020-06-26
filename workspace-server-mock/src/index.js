@@ -147,7 +147,8 @@ async function startLangServer(orgId, appId, ws) {
     console.log("Starting LangServer for workspace: " + workspaceID);
 
     function createMessageProxy(port) {
-        const wsClient = new WebSocket('ws://localhost:' + port + "/lang-server");
+        const lsURL = `ws://localhost:${port}/orgs/${orgId}/apps/${appId}/workspace/lang-server`;
+        const wsClient = new WebSocket(lsURL);
         wsClient.on('open', function open() {
             console.log("Opened connection to " + workspaceID + " LS.");
             if (firstMsg) {
