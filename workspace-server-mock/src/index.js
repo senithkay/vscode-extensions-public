@@ -132,6 +132,32 @@ app.get("/orgs/:orgId/apps/", (req, res) => {
     ]);
 });
 
+// IDP Redirect
+app.get("/oauth2/authorize", (req, res) => {
+    const state = req.query.state;
+    const redirectURI = req.query.redirect_uri;
+    res.redirect(301, redirectURI + '?code=mock-code'
+        + '&state=' + state
+        + '&AuthenticatedIdPs=mock-aidps'
+        + '&session_state=mock-session-state');
+});
+
+// Token validate
+app.post("/auth/token", (req, res) => {
+    // ignore real data and respond with mock user
+    res.send({
+        token: "mock-token",
+        userEmail: "mockuser@choreo.dev",
+        userProfilePictureUrl: "",
+        displayName: "Mock User",
+        organizations: [{
+            id: 101,
+            name: "myorg",
+            handle: "myorg"
+        }]
+    });
+});
+
 const serverInfoMap = new Map();
 
 async function startLangServer(orgId, appId, ws) {
