@@ -98,7 +98,9 @@ function getApp(orgId, appId) {
         observability: {observabilityId: "", latestVersion: "123"},
         gitRemote: "gitUrl",
         status: "string",
-        isPersisted: true
+        isPersisted: true,
+        deployType: "",
+        displayType: ""
     }
 }
 
