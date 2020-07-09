@@ -1,6 +1,0 @@
-connectors = [
-  { org = "wso2", module = "twitter", version= "0.9.26", name = "Client", displayName = "Twitter"},
-  { org = "ballerina", module = "http", version= "1.0.0", name = "Client", displayName = "Http"},
-  { org = "ballerina", module = "email", version= "2.0.0", name = "PopClient", displayName = "POP Email"},
-  { org = "ballerina", module = "email", version= "2.0.0", name = "ImapClient", displayName = "Imap Email"},
-]

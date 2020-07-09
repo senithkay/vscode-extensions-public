@@ -42,7 +42,11 @@ USER appuser
 
 ENV DEFAULT_CONNECTOR_FILE /lang-server/connectors/connectors.toml
 
-RUN /ballerina/runtime/bin/ballerina pull wso2/twitter
+RUN /ballerina/runtime/bin/ballerina pull wso2/twitter \
+    && /ballerina/runtime/bin/ballerina pull ballerinax/sfdc \
+    && /ballerina/runtime/bin/ballerina pull ballerinax/twilio \
+    && /ballerina/runtime/bin/ballerina pull ballerinax/netsuite \
+    && /ballerina/runtime/bin/ballerina pull ballerinax/slack
 
 EXPOSE 9090
 

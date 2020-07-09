@@ -16,6 +16,7 @@ const port = 3000;
 const defaultContent = "";
 
 const repoPath = path.resolve(__dirname, "..", "repo");
+const dumpPath = path.resolve(__dirname, "..", "dump");
 const fileAPIPath = "/orgs/:orgId/apps/:appId/workspace/files/*";
 const langServerPath = "/orgs/:orgId/apps/:appId/workspace/lang-server";
 
@@ -162,6 +163,24 @@ app.post("/auth/token", (req, res) => {
 
 const serverInfoMap = new Map();
 
+const dumpConnector = (msg) => {
+    const dump = process.env.DUMP_CONNECTOR;
+    if (dump && msg && ensureDirectoryExistence(dumpPath)) {
+        const rpcMsg = JSON.parse(msg);
+        if (!rpcMsg || !rpcMsg.result) {
+            return;
+        }
+        const { module, ast, name, org, version } = rpcMsg.result;
+        if (name && org && module && version && ast) {
+            const fileName = path.resolve(dumpPath, org, module, version, name, "ast.json");
+            if (!fs.existsSync(fileName)) {
+                ensureDirectoryExistence(fileName);
+                fs.writeFileSync(fileName, JSON.stringify(ast));
+            }
+        }
+    }
+}
+
 async function startLangServer(orgId, appId, ws) {
     let firstMsg;
     ws.on('message', function incoming(data) {
@@ -201,6 +220,7 @@ async function startLangServer(orgId, appId, ws) {
                         ws.send(data);
                     });
                 }
+                dumpConnector(data);
             }
             
             ws.on('message', onFEMsg);
@@ -254,8 +274,8 @@ async function startLangServer(orgId, appId, ws) {
                 "run",
                 "-p", debugPort + ":5005",
                 "-p", lsPort + ":9090",
-                "-v", currentFilePath + "/../connector:/ballerina/connector",
-                "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connector/connector.toml",
+                "-v", currentFilePath + "/../../lang-server-msf4j/connectors:/ballerina/connectors",
+                "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connectors/connectors.toml",
                 "-v", debBalDistPath + ":/ballerina/runtime",
                 "-v", projectPath + ":/app",
                 "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
