@@ -10,6 +10,7 @@ package org.wso2.choreo.workspace.langserver;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import javax.websocket.CloseReason;
@@ -46,7 +47,8 @@ public class LangServerEndpoint {
             .setMessageHandler(messageHandler)
             .setLocalService(languageServer)
             .setRemoteInterface(ExtendedLanguageClient.class);
-        builder.create();
+        Launcher<ExtendedLanguageClient> extendedLanguageClientLauncher = builder.create();
+        languageServer.connect(extendedLanguageClientLauncher.getRemoteProxy());
         languageServerMap.put(webSocketConnection.getChannelId(), languageServer);
         messageHandlerMap.put(webSocketConnection.getChannelId(), messageHandler);
     }
