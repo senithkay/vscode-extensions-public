@@ -1,3 +1,5 @@
+#!/bin/sh
+
 wget https://dist.ballerina.io/downloads/1.2.4/ballerina-1.2.4.zip
 docker build \
     --build-arg balDist=ballerina-1.2.4.zip \
