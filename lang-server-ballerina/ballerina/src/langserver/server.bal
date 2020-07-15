@@ -7,7 +7,7 @@ const RPC_HANDLER = "rpcHandler";
     subProtocols: ["json"],
     idleTimeoutInSeconds: 120
 }
-service serviceName on new http:Listener(3000) {
+service serviceName on new http:Listener(9090) {
     resource function onOpen(http:WebSocketCaller caller) {
         WSCallerProxy callerProxy = new(caller);
         BWebSocketRPCHandler rpcHandler = newBWebSocketRPCHandler1(callerProxy);
