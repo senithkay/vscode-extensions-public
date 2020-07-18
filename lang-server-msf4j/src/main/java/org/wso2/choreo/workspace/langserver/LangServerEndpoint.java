@@ -9,7 +9,7 @@
 package org.wso2.choreo.workspace.langserver;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
