@@ -120,6 +120,16 @@ app.patch("/orgs/:orgId/apps/:appId", (req, res) => {
     res.send({ ...appInfo, ...req.body });
 });
 
+// app AST cache
+app.get("/orgs/:orgId/apps/:appId/code", (req, res) => {
+    res.send(undefined);
+});
+
+app.put("/orgs/:orgId/apps/:appId/code", (req, res) => {
+    res.send(undefined);
+});
+
+
 // wait for workspace
 app.get("/orgs/:orgId/apps/:appId/wait-for-workspace", (req, res) => {
     const orgId = req.params.orgId;
