@@ -6,30 +6,23 @@ import { toSocket } from "vscode-ws-jsonrpc";
 import * as serverRPC from "vscode-ws-jsonrpc/lib/server";
 import { Server } from "ws";
 
-const LS_DEBUG = process.env.LS_DEBUG === "true";
-const LS_CUSTOM_CLASSPATH = process.env.LS_CUSTOM_CLASSPATH;
-
 export function spawnStdioServer(ballerinaHome: string): ChildProcess {
-    let cmd;
-    const cwd = path.join(ballerinaHome, "lib", "tools", "lang-server", "launcher");
-    const args: string[] = [];
-    if (process.platform === "win32") {
-        cmd = path.join(cwd, "language-server-launcher.bat");
-    } else {
-        cmd = "sh";
-        args.push(path.join(cwd, "language-server-launcher.sh"));
-    }
+    const cmd = path.join(ballerinaHome, "bin", (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'));
+    const args = ["start-language-server"];
 
-    // always run with experimental features enabled
-    args.push("--experimental");
-
-    if (LS_DEBUG) {
-        args.push("--debug");
+    const env = {...process.env};
+    if (process.env.LS_EXTENSIONS_PATH !== "") {
+        if (env.BALLERINA_CLASSPATH_EXT) {
+            env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;
+        } else {
+            env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
+        }
     }
-    if (LS_CUSTOM_CLASSPATH) {
-        args.push("--classpath", LS_CUSTOM_CLASSPATH);
+    if (process.env.LSDEBUG === "true") {
+        env.BAL_JAVA_DEBUG = "5005";
+        env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005,quiet=y";
     }
-    return spawn(cmd, args, { cwd });
+    return spawn(cmd, args, { env });
 }
 
 export function spawnWSServer(ballerinaHome: string, port: number)

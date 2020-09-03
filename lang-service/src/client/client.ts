@@ -6,7 +6,7 @@ import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GoToSourceParams,
-    IBallerinaLangClient, RevealRangeParams } from "./model";
+    IBallerinaLangClient, RevealRangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse } from "./model";
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
@@ -23,6 +23,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
                     this.isInitialized = true;
                     return resp;
                 });
+    }
+
+    public getSyntaxTree(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
+        return this.lsConnection.sendRequest<GetSyntaxTreeResponse>("ballerinaDocument/syntaxTree", params);
     }
 
     public getProjectAST(params: GetProjectASTParams): Thenable<GetProjectASTResponse> {

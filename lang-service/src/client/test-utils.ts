@@ -4,7 +4,9 @@ import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse, GetBallerinaProjectParams,
     GetProjectASTParams, GetProjectASTResponse, GoToSourceParams, IBallerinaLangClient,
-    RevealRangeParams } from "./model";
+    RevealRangeParams,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse} from "./model";
 
 // tslint:disable:no-object-literal-type-assertion
 export class EmptyLanguageClient implements IBallerinaLangClient {
@@ -20,6 +22,10 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     }
 
     public getAST(params: GetASTParams): Thenable<GetASTResponse> {
+        return Promise.reject();
+    }
+
+    public getSyntaxTree(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
         return Promise.reject();
     }
 

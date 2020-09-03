@@ -92,6 +92,17 @@ export interface GetBallerinaProjectParams {
     };
 }
 
+export interface GetSyntaxTreeParams {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface GetSyntaxTreeResponse {
+    syntaxTree: any;
+    parseSuccess: boolean;
+}
+
 export interface IBallerinaLangClient {
 
     isInitialized: boolean;
@@ -101,6 +112,8 @@ export interface IBallerinaLangClient {
     getProjectAST: (params: GetProjectASTParams) => Thenable<GetProjectASTResponse>;
 
     getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
+
+    getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
 
     astDidChange: (params: ASTDidChangeParams) => Thenable<ASTDidChangeResponse>;
 
