@@ -146,7 +146,7 @@ function getPropertyCode(model: any) {
         if (property.elementTypes) {
             const elementTypesFound: any = Object.keys(property.elementTypes).sort();
             if (elementTypesFound.length > 1) {
-                type = `Array<${elementTypesFound.join("|")}>`;
+                type = `${elementTypesFound.join("|")}[]`;
             } else if (elementTypesFound.length === 1) {
                 type = `${elementTypesFound[0]}[]`;
             }

@@ -6,9 +6,13 @@ import { findModelInfo, genBaseVisitorFileCode, genCheckKindUtilCode,
     genInterfacesFileCode } from "./generators";
 import { genSyntaxTree, shutdown } from "./lang-client";
 
-if (!fs.existsSync(path.join(process.cwd(), "..", "..", "..", "examples"))) {
+const sdkPath = process.env.BALLERINA_SDK_PATH;
+const repoPath = process.env.BALLERINA_REPO_PATH;
+const bbePath = process.env.BBE_PATH;
+
+if (!sdkPath || !repoPath || !bbePath) {
     // tslint:disable-next-line:no-console
-    console.log("please run from syntax-tree directory. you are in", process.cwd());
+    console.log("please define BALLERINA_SDK_PATH, BALLERINA_REPO_PATH and BBE_PATH env vars.");
     process.exit(1);
 }
 
@@ -18,8 +22,9 @@ const SYNTAX_TREE_INTERFACES_PATH = "./src/syntax-tree-interfaces.ts";
 const BASE_VISITOR_PATH = "./src/base-visitor.ts";
 const CHECK_KIND_UTIL_PATH = "./src/check-kind-util.ts";
 
-const balFiles = globSync(path.join(
-    process.cwd(), "..", "..", "..", "{examples,tests}", "**", "*.bal"), {});
+const bbeBalFiles = globSync(path.join(bbePath, "**", "*.bal"), {});
+const testBalFiles = globSync(path.join(repoPath, "tests", "**", "*.bal"), {});
+const balFiles = [ ...bbeBalFiles, ...testBalFiles ];
 
 const triedBalFiles: string[] = [];
 const notParsedBalFiles: string[] = [];

@@ -8,7 +8,7 @@ let client: any;
 const clientPromise = init();
 
 export async function init() {
-    server = new StdioBallerinaLangServer(process.env.BALLERINA_HOME);
+    server = new StdioBallerinaLangServer(process.env.BALLERINA_SDK_PATH);
     server.start();
 
     client = await createStdioLangClient(server.lsProcess as ChildProcess, () => {/**/}, () => {/**/});
