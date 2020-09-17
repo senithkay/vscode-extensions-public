@@ -5,6 +5,13 @@ export interface STNode {
   kind: string;
   value?: any;
   parent?: STNode;
+  viewState?: any;
+}
+
+export interface ModulePart extends STNode {
+  eofToken: EofToken;
+  imports: STNode[];
+  members: STNode[];
 }
 
 export interface AbstractKeyword extends STNode {
