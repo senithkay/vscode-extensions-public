@@ -6,7 +6,7 @@
     "publisher": "ballerina",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ballerina-platform/ballerina-lang"
+        "url": "https://github.com/ballerina-platform/plugin-vscode"
     },
     "icon": "resources/images/ballerina.png",
     "galleryBanner": {
@@ -235,7 +235,6 @@
     },
     "main": "./dist/extension",
     "scripts": {
-        "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch --info-verbosity verbose",
         "postinstall": "node ./node_modules/vscode/bin/install",

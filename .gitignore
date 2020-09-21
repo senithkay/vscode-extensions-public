@@ -6,3 +6,8 @@ node_modules
 resources/composer
 !.vscode
 coverage
+
+# gradle
+.gradle
+!gradle-wrapper.jar
+build

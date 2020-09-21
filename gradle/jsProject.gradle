@@ -17,54 +17,42 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply from: "$rootDir/gradle/jsProject.gradle"
+apply plugin: 'base'
 
-configurations {
-    ballerinaTools
-}
-
-npmBuild() {
-    PatternSet patternSet = new PatternSet();
-    patternSet.exclude("**/dist/**");
-	patternSet.exclude("**/out/**");
-    patternSet.exclude("**/*.vsix/**");
-    patternSet.exclude("**/coverage/**");
-
-    FileTree src = files('.').asFileTree;
-    inputs.files(src.matching(patternSet))
-
-    outputs.dir("out")
-    outputs.dir("dist")
-    outputs.cacheIf { true } 
-
+task npmInstall() {
+    dependsOn 'updateVersion'
+    inputs.file("package-lock.json")
+    outputs.dir("node_modules")
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'package'
+                commandLine 'cmd', '/c', 'npm', 'install'
             } else {
-                commandLine 'npm', 'run', 'package'
+                commandLine 'npm', 'install'
             }
         }
+        
     }
 }
 
-task assemble(overwrite: true) {
-    dependsOn 'npmBuild'
+task npmBuild() {
+    dependsOn npmInstall
 }
 
-task test(type: Exec) {
-    // mustRunAfter ':examples-test:test'
-    // dependsOn copyDistribution
-    dependsOn assemble
+assemble {
+    dependsOn npmBuild
+}
+
+
+task updateVersion(type: Exec) {
+    inputs.file("package.json")
+    outputs.file("package.json")
     doFirst {
+        println "update version to " + project.version + " in " + project.path
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'run', 'test'
+            commandLine 'cmd', '/c', 'npm', 'run', 'update-version', '--', project.version
         } else {
-            commandLine 'npm', 'run', 'test'
+            commandLine 'npm', 'run', 'update-version', '--', project.version
         }
     }
-}
-
-check {
-    dependsOn test
 }
