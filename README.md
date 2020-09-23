@@ -1,6 +1,6 @@
 # Ballerina extension for Visual Studio Code
 
-[![Build Status](https://travis-ci.org/ballerina-platform/plugin-vscode.svg?branch=master)](https://travis-ci.org/ballerina-platform/plugin-vscode)
+[![Build Status](https://travis-ci.com/ballerina-platform/plugin-vscode.svg?branch=master)](https://travis-ci.org/ballerina-platform/plugin-vscode)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ballerina-platform/plugin-vscode/blob/master/LICENSE)
 
 The VS Code Ballerina extension provides the Ballerina development capabilities in VS Code. 
