@@ -101,21 +101,20 @@ suite('Ballerina Debug Adapter', () => {
             });
         }).timeout(15000);
 
-        test('launch request', () => {
-            const PROGRAM = path.join(DATA_ROOT, 'hello_world.bal');
-            return Promise.all([
-                dc.launch({
-                    script: PROGRAM,
-                    "ballerina.home": ballerinaHome,
-                    request: "launch",
-                    name: "Ballerina Debug",
-                    "debugServer": DEBUG_PORT,
-                    "debuggeePort": "5010" 
-                }),
-                dc.waitForEvent("initialized", 10000)
-            ]);
-
-        }).timeout(10000);
+        // test('launch request', () => {
+        //     const PROGRAM = path.join(DATA_ROOT, 'hello_world.bal');
+        //     return Promise.all([
+        //         dc.launch({
+        //             script: PROGRAM,
+        //             "ballerina.home": ballerinaHome,
+        //             request: "launch",
+        //             name: "Ballerina Debug",
+        //             "debugServer": DEBUG_PORT,
+        //             "debuggeePort": "5010" 
+        //         }),
+        //         dc.waitForEvent("initialized", 10000)
+        //     ]);
+        // }).timeout(10000);
 
         test('should stop on a breakpoint, main function', function () {
             this.skip();

@@ -48,8 +48,16 @@ suite("Ballerina Extension Core Tests", function () {
     });
 
     test("Test getBallerinaVersion", function () {
-        ballerinaExtInstance.getBallerinaVersion(testBallerinaHome, true).then(detected=>{
-            assert.equal(detected, testBallerinaVersion);
+        ballerinaExtInstance.getBallerinaVersion(testBallerinaHome, true).then(detected => {
+            const regex = /(s|S)wan( |-)(l|L)ake/g;
+            if (detected.match(regex) && testBallerinaHome.match(regex)) {
+                let detectedLowerCase = detected.toLowerCase();
+                let balVersionLowerCase = testBallerinaVersion.toLowerCase();
+                assert.equal(detectedLowerCase.substring(detectedLowerCase.indexOf('lake') + 4).replace(/( |-)/g, ''),
+                    balVersionLowerCase.substring(balVersionLowerCase.indexOf('lake') + 4).replace(/( |-)/g, ''));
+            } else {
+                assert.equal(detected, testBallerinaVersion);
+            }
         });
     });
 
