@@ -1,7 +1,7 @@
 import { BallerinaProject, ballerinaExtInstance } from "../../core";
 import { window } from "vscode";
 
-export function getCurrentBallerinaProject() : Promise<BallerinaProject> {
+function getCurrentBallerinaProject(): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {
         const activeEditor = window.activeTextEditor;
         // if currently opened file is a bal file
@@ -23,3 +23,13 @@ export function getCurrentBallerinaProject() : Promise<BallerinaProject> {
         }
     });
 }
+
+function getCurrentBallerinaFile(): string {
+    const activeEditor = window.activeTextEditor;
+    if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
+        return activeEditor.document.fileName.toString();
+    }
+    throw new Error("Current file is not a Ballerina file");
+}
+
+export { getCurrentBallerinaProject, getCurrentBallerinaFile };
