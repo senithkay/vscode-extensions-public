@@ -1,5 +1,6 @@
 import { BallerinaProject, ballerinaExtInstance } from "../../core";
 import { window } from "vscode";
+import * as path from 'path';
 
 function getCurrentBallerinaProject(): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {
@@ -32,4 +33,12 @@ function getCurrentBallerinaFile(): string {
     throw new Error("Current file is not a Ballerina file");
 }
 
-export { getCurrentBallerinaProject, getCurrentBallerinaFile };
+function getCurrenDirectoryPath(): string {
+    const activeEditor = window.activeTextEditor;
+    if (activeEditor) {
+        return path.dirname(activeEditor.document.fileName);
+    }
+    throw new Error("There is no active editor");
+}
+
+export { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath };

@@ -21,3 +21,6 @@ export const TM_EVENT_RUN_PROJECT_TESTS = "run.project.tests";
 
 // event for running build for current project
 export const TM_EVENT_RUN_PROJECT_BUILD = "run.project.build";
+
+// event for executing the ballerina run command
+export const TM_EVENT_EXECUTE_BALLERINA_RUN = "execute.ballerina.run";
