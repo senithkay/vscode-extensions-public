@@ -47,6 +47,8 @@ export interface ConstructIdentifier {
     moduleName: string;
     constructName: string;
     subConstructName?: string;
+    startLine?: number;
+    startColumn?: number;
 }
 
 export class BallerinaExtension {
@@ -72,7 +74,7 @@ export class BallerinaExtension {
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
-            synchronize: {configurationSection: 'ballerina'},
+            synchronize: { configurationSection: 'ballerina' },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
@@ -137,7 +139,7 @@ export class BallerinaExtension {
                 this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
 
                 // if Home is found load Language Server.
-                let serverOptions:ServerOptions;
+                let serverOptions: ServerOptions;
                 if (this.isNewConfigChangeSupported) {
                     serverOptions = getServerOptions(this.ballerinaCmd);
                 } else if (this.isNewCLICmdSupported) {
@@ -206,7 +208,7 @@ export class BallerinaExtension {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
             // If it is older SDK less than 1.2.0, needs a server restart
-            if ((!ballerinaExtInstance.isNewConfigChangeSupported) && (params.affectsConfiguration(ALLOW_EXPERIMENTAL) 
+            if ((!ballerinaExtInstance.isNewConfigChangeSupported) && (params.affectsConfiguration(ALLOW_EXPERIMENTAL)
                 || params.affectsConfiguration(ENABLE_DEBUG_LOG) || params.affectsConfiguration(ENABLE_TRACE_LOG))) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -493,7 +495,7 @@ export class BallerinaExtension {
 
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
-            cmd: this.getBallerinaCmd(this.overrideBallerinaHome()? balHomeOutput: ''),
+            cmd: this.getBallerinaCmd(this.overrideBallerinaHome() ? balHomeOutput : ''),
             isBallerinaNotFound,
             isOldBallerinaDist
         };

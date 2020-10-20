@@ -28,6 +28,14 @@
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "ballerinaProjectTree",
+                    "name": "Ballerina Project Overview"
+                }
+            ]
+        },
         "languages": [
             {
                 "id": "ballerina",
@@ -229,9 +237,25 @@
                 "command": "ballerina.highlightSyntax",
                 "title": "Syntax Highlight",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.refreshProjectTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
             }
         ],
-        "menus": {}
+        "menus": {
+            "view/title": [
+                {
+                    "command": "ballerina.refreshProjectTree",
+                    "when": "view == ballerinaProjectTree",
+                    "group": "navigation"
+                }
+            ]
+        }
     },
     "main": "./dist/extension",
     "scripts": {

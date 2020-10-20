@@ -15,6 +15,12 @@ export interface ProjectTreeElement {
 
 	serviceName?: string;
 
+	filePath?: string;
+
+	startLine?: number;
+
+	startColumn?: number;
+
 	//only for services
 	resources?: ProjectTreeElement[];
 
