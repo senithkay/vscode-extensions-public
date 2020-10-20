@@ -11,8 +11,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         treeDataProvider: projectTreeProvider
     });
 
-    vscode.commands.registerCommand('ballerina.executeTreeElement',(sourceRoot, filePath, 
-        moduleName, constructName, subConstructName) => {
+    vscode.commands.registerCommand('ballerina.executeTreeElement', (sourceRoot, filePath,
+        moduleName, constructName, subConstructName, startLine, startColumn) => {
         reporter.sendTelemetryEvent(TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_TREE_VIEW, { component: CMP_PROJECT_OVERVIEW });
 
         console.log(sourceRoot, filePath);
@@ -22,6 +22,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             moduleName,
             constructName,
             subConstructName,
+            startLine,
+            startColumn
         });
     });
 

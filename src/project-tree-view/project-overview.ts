@@ -77,7 +77,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
 
     private refresh(): void {
         this._onDidChangeTreeData.fire();
-	}
+    }
 
     getChildren(element?: ProjectTreeElement | undefined): vscode.ProviderResult<ProjectTreeElement[]> {
         if (!element) {
@@ -107,7 +107,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             collapsibleState,
         };
 
-        const sourceRoot = element.sourceRoot? vscode.Uri.file(element.sourceRoot).toString(true): undefined;
+        const sourceRoot = element.sourceRoot ? vscode.Uri.file(element.sourceRoot).toString(true) : undefined;
 
         if (itemKindsWithIcons.indexOf(element.kind) > -1) {
             treeItem.iconPath = {
@@ -122,15 +122,25 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                 title: "Execute Tree Command",
                 arguments: [
                     sourceRoot,
+                    element.filePath,
+                    element.moduleName,
                     undefined,
-                    element.moduleName, element.name]
+                    element.name,
+                    element.startLine,
+                    element.startColumn
+                ]
             };
 
             if (element.kind === treeItemKinds.RESOURCE) {
                 treeItem.command.arguments = [
                     sourceRoot,
-                    undefined,
-                    element.moduleName, element.serviceName, element.name ];
+                    element.filePath,
+                    element.moduleName,
+                    element.serviceName,
+                    element.name,
+                    element.startLine,
+                    element.startColumn
+                ];
             }
         }
 
@@ -216,6 +226,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
 
             Object.keys(module.compilationUnits).forEach((cUnitName) => {
                 const cUnit = module.compilationUnits[cUnitName];
+                const filePathValue = `${sourceRoot}${path.sep}src${path.sep}${moduleName}${path.sep}${cUnitName}`;
                 cUnit.ast.topLevelNodes.forEach((topLevelNode: any) => {
                     if (topLevelNode.kind === 'Function') {
                         newModuleTopLevelNodes.push({
@@ -223,6 +234,9 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                             name: topLevelNode.name.value,
                             kind: 'Function',
                             moduleName,
+                            filePath: filePathValue,
+                            startLine: topLevelNode.name.position.startLine,
+                            startColumn: topLevelNode.name.position.startColumn
                         });
                         return;
                     }
@@ -233,6 +247,9 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                             name: topLevelNode.name.value,
                             kind: 'Service',
                             moduleName,
+                            filePath: filePathValue,
+                            startLine: topLevelNode.name.position.startLine,
+                            startColumn: topLevelNode.name.position.startColumn
                         };
 
                         serviceElement.resources = topLevelNode.resources.map((resource: any) => {
@@ -242,6 +259,9 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                                 kind: 'Resource',
                                 moduleName,
                                 serviceName: topLevelNode.name.value,
+                                filePath: filePathValue,
+                                startLine: topLevelNode.name.position.startLine,
+                                startColumn: topLevelNode.name.position.startColumn
                             };
                         });
 
@@ -266,7 +286,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
      * @param currentPath - current active path
      * @param root - root path
      */
-    private getSourceRoot(currentPath: string, root: string): string|undefined {
+    private getSourceRoot(currentPath: string, root: string): string | undefined {
         if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
             if (currentPath !== os.homedir()) {
                 return currentPath;

@@ -97,6 +97,8 @@ export function render(sourceRootUri?: string, fileUri?: string, construct?: Con
                             moduleName: args[2],
                             constructName: args[3],
                             subConstructName: args[4],
+                            startLine: args[5],
+                            startColumn: arg[6]
                         });
                         return Promise.resolve({});
                     });
@@ -122,6 +124,6 @@ export function render(sourceRootUri?: string, fileUri?: string, construct?: Con
         }
     `;
 
-    return getLibraryWebViewContent({...getComposerWebViewOptions(), body, scripts, styles, bodyCss});
+    return getLibraryWebViewContent({ ...getComposerWebViewOptions(), body, scripts, styles, bodyCss });
 }
 

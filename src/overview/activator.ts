@@ -16,164 +16,32 @@
  * under the License.
  *
  */
-import * as _ from 'lodash';
-
-import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier, ballerinaExtInstance } from '../core';
-import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
-	workspace, WebviewPanel } from 'vscode';
-
-import { render } from './renderer';
-import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
+import { BallerinaExtension, ConstructIdentifier } from '../core';
+import { commands, Uri, TextDocumentShowOptions, ViewColumn, Range, } from 'vscode';
 import { TM_EVENT_OPEN_FILE_OVERVIEW, CMP_FILE_OVERVIEW } from '../telemetry';
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
-
-const DEBOUNCE_WAIT = 500;
-
-let projectOverviewPanel: WebviewPanel | undefined;
-let fileOverviewPanel: WebviewPanel | undefined;
-let projectOverviewRpcHandler: WebViewRPCHandler;
-let fileOverviewRpcHandler: WebViewRPCHandler;
-
-function updateProjectOverview(docUri: Uri): void {
-	if (projectOverviewRpcHandler) {
-		projectOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
-	}
-}
-
-function updateFileOverview(docUri: Uri): void {
-	if (fileOverviewRpcHandler) {
-		fileOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
-	}
-}
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const reporter = ballerinaExtInstance.telemetryReporter;
-    const context = <ExtensionContext> ballerinaExtInstance.context;
-	const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
-
-	function updateSelectedConstruct(construct: ConstructIdentifier) {
-		// If Project Overview is already showing update it to show the selected construct
-		if (projectOverviewPanel) {
-			if (projectOverviewRpcHandler) {
-				const { sourceRoot, filePath, moduleName, constructName, subConstructName } = construct;
-				projectOverviewRpcHandler.invokeRemoteMethod("selectConstruct", [
-					sourceRoot, filePath, moduleName, constructName, subConstructName], () => {});
-			}
-		} else {
-			// If Project Overview is not yet opened open it and show the selected construct
-			openProjectOverview(langClient, construct);
-		}
-	}
 
 	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
-		if (projectOverviewPanel) {
-			projectOverviewPanel.reveal();
-		}
-		updateSelectedConstruct(construct);
+		openBallerinaFile(construct);
 	});
 
-	const fileOverviewDisposable = commands.registerCommand('ballerina.showFileOverview', () => {
-		reporter.sendTelemetryEvent(TM_EVENT_OPEN_FILE_OVERVIEW, { component: CMP_FILE_OVERVIEW });
-		return ballerinaExtInstance.onReady()
-		.then(() => {
-			openFileOverview(langClient);
-		}).catch((e) => {
-			reporter.sendTelemetryException(e, { component: CMP_FILE_OVERVIEW });
-		});
-	});
-
-    context.subscriptions.push(fileOverviewDisposable);
+	reporter.sendTelemetryEvent(TM_EVENT_OPEN_FILE_OVERVIEW, { component: CMP_FILE_OVERVIEW });
 }
 
-function openProjectOverview(langClient: ExtendedLangClient, construct: ConstructIdentifier) {
-	if (!projectOverviewPanel) {
-		projectOverviewPanel = window.createWebviewPanel(
-			'projectOverview',
-			'Project Overview',
-			{ viewColumn: ViewColumn.One, preserveFocus: true },
-			getCommonWebViewOptions()
-		);
+function openBallerinaFile(construct: ConstructIdentifier) {
+	if (construct.filePath) {
+		const showOptions: TextDocumentShowOptions = {
+			preserveFocus: false,
+			preview: false,
+			viewColumn: ViewColumn.Active,
+			selection: new Range(construct.startLine! - 1, construct.startColumn! - 1, construct.startLine! - 1, construct.startColumn! - 1)
+		};
 
-		ballerinaExtInstance.addWebviewPanel("overview", projectOverviewPanel);
-	}
-
-	projectOverviewRpcHandler = WebViewRPCHandler.create(projectOverviewPanel, langClient);
-	const html = render(construct.sourceRoot, construct.filePath, construct);
-	if (projectOverviewPanel && html) {
-		projectOverviewPanel.webview.html = html;
-	}
-
-	const didChangeDisposable = workspace.onDidChangeTextDocument(
-		_.debounce((e: TextDocumentChangeEvent) => {
-		updateProjectOverview(e.document.uri);
-	}, DEBOUNCE_WAIT));
-
-	projectOverviewPanel.onDidDispose(() => {
-		projectOverviewPanel = undefined;
-		didChangeDisposable.dispose();
-	});
-}
-
-function openFileOverview(langClient: ExtendedLangClient) {
-	if (!window.activeTextEditor) {
-		return;
-	}
-
-	const didChangeDisposable = workspace.onDidChangeTextDocument(
-		_.debounce((e: TextDocumentChangeEvent) => {
-		updateFileOverview(e.document.uri);
-	}, DEBOUNCE_WAIT));
-
-	const didChangeActiveEditorDisposable = window.onDidChangeActiveTextEditor((activeEditor) => {
-		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
-			return;
-		}
-		didChangeDisposable.dispose();
-		didChangeActiveEditorDisposable.dispose();
-		openFileOverview(langClient);
-	});
-
-	if (!fileOverviewPanel) {
-		fileOverviewPanel = window.createWebviewPanel(
-			'fileOverview',
-			'File Overview',
-			{ viewColumn: ViewColumn.Two, preserveFocus: true },
-			getCommonWebViewOptions()
-		);
-
-		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
-	}
-
-	const activePath = window.activeTextEditor.document.uri.fsPath;
-	const sourceRoot = getSourceRoot(activePath, path.parse(activePath).root);
-
-	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
-	const html = render(
-		sourceRoot ? Uri.file(sourceRoot).toString(true): undefined,
-		Uri.file(activePath).toString(true), undefined);
-	if (fileOverviewPanel && html) {
-		fileOverviewPanel.webview.html = html;
-	}
-
-	fileOverviewPanel.onDidDispose(() => {
-		fileOverviewPanel = undefined;
-		didChangeDisposable.dispose();
-		didChangeActiveEditorDisposable.dispose();
-	});
-}
-
-function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
-		if (currentPath !== os.homedir()) {
-			return currentPath;
+		const status = commands.executeCommand('vscode.open', Uri.file(construct.filePath), showOptions);
+		if (!status) {
+			throw new Error(`Unable to open ${construct.filePath}`);
 		}
 	}
-
-	if (currentPath === root) {
-		return;
-	}
-
-	return getSourceRoot(path.dirname(currentPath), root);
 }
