@@ -234,6 +234,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.run",
+                "title": "Run Project",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.highlightSyntax",
                 "title": "Syntax Highlight",
                 "category": "Ballerina"

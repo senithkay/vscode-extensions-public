@@ -7,5 +7,6 @@ export const CMP_FILE_OVERVIEW = "component.file.overview";
 export const CMP_PROJECT_SUPPORT = "component.project.support";
 export const CMP_PROJECT_TEST_RUNNER = "component.project.test.runner";
 export const CMP_PROJECT_BUILD = "component.project.test.runner";
+export const CMP_BALLERINA_RUN = "component.project.test.runner";
 export const CMP_TRACE_LOGS = "component.trace.logs";
 export const CMP_DEBUGGER = "component.debugger";

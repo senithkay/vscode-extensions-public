@@ -3,6 +3,7 @@ import { workspace, window, Uri } from "vscode";
 import { TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, CMP_PROJECT_SUPPORT } from "../telemetry";
 import { activateTestRunner } from "./cli-cmds/test";
 import { activateBuildCommand } from "./cli-cmds/build";
+import { activateRunCommand } from "./cli-cmds/run";
 
 function promptOpenFolder(path: string) {
     const reporter = ballerinaExtInstance.telemetryReporter;
@@ -20,7 +21,7 @@ function promptOpenFolder(path: string) {
         .then((selection) => {
             if (selection === action) {
                 reporter.sendTelemetryEvent(TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, { component: CMP_PROJECT_SUPPORT });
-                workspace.updateWorkspaceFolders(0, 0, { uri: Uri.file(path)});
+                workspace.updateWorkspaceFolders(0, 0, { uri: Uri.file(path) });
             }
         });
 }
@@ -47,4 +48,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     // activate ballerina build command
     activateBuildCommand();
+
+    // activate ballerina run command
+    activateRunCommand();
 }
