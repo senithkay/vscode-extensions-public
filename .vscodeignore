@@ -25,4 +25,6 @@ pull_request_template.md
 settings.gradle
 test/
 .gradle/
-.gitmodules/
+.gitmodules
+.github/
+build.gradle
