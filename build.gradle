@@ -37,6 +37,8 @@ npmBuild() {
     outputs.dir("dist")
     outputs.cacheIf { true } 
 
+    exec { commandLine 'git', 'submodule', 'update', '--init', '--recursive' }
+
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
