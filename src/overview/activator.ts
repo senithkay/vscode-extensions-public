@@ -36,7 +36,7 @@ function openBallerinaFile(construct: ConstructIdentifier) {
 			preserveFocus: false,
 			preview: false,
 			viewColumn: ViewColumn.Active,
-			selection: new Range(construct.startLine! - 1, construct.startColumn! - 1, construct.startLine! - 1, construct.startColumn! - 1)
+			selection: new Range(construct.startLine!, construct.startColumn!, construct.startLine!, construct.startColumn!)
 		};
 
 		const status = commands.executeCommand('vscode.open', Uri.file(construct.filePath), showOptions);
