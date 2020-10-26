@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { sync as globSync } from "glob";
 import * as path from "path";
 import { fix } from "prettier-tslint";
+
 import { findModelInfo, genBaseVisitorFileCode, genCheckKindUtilCode,
     genInterfacesFileCode } from "./generators";
 import { genSyntaxTree, shutdown } from "./lang-client";
