@@ -28,3 +28,16 @@ test/
 .gitmodules
 .github/
 build.gradle
+coverconfig.json
+grammar/ballerina-grammar/LICENSE
+grammar/ballerina-grammar/pull_request_template.md
+grammar/ballerina-grammar/package.json
+grammar/ballerina-grammar/package-lock.json
+grammar/ballerina-grammar/.gitignore
+grammar/ballerina-grammar/.git
+grammar/ballerina-grammar/issue_template.md
+grammar/ballerina-grammar/README.md
+grammar/ballerina-grammar/extract-keywords.js
+grammar/ballerina-grammar/build-tm.js
+grammar/ballerina-grammar/build-monarch.js
+scripts/
