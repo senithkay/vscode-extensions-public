@@ -16,20 +16,20 @@
  * under the License.
  *
  */
- 
+
 export default class Traces {
-    
+
     traces: Array<any>;
     constructor() {
         this.traces = [];
     }
 
-    addTrace (trace: any) {
+    addTrace(trace: any) {
         this.traces.push(trace);
     }
 
-    getTraces(){
-        const newTraces = [];
+    getTraces() {
+        const newTraces: string[] = [];
         if (this.traces.length < 2) {
             return this.traces;
         }
@@ -41,14 +41,14 @@ export default class Traces {
             if (trace.message.headers && trace.message.direction) {
                 newTraces.push(trace);
             }
-            
+
         }
         return newTraces;
-    };
+    }
     getPayLoad(index: number, trace: any): string {
         let nextTraces = this.traces.slice(index, this.traces.length);
-        const filteredNextTraces = nextTraces.filter((tmpTrace)=>{
-            return tmpTrace.message.payload 
+        const filteredNextTraces = nextTraces.filter((tmpTrace) => {
+            return tmpTrace.message.payload
                 && trace.message.id === tmpTrace.message.id
                 && trace.message.direction === tmpTrace.message.direction
                 && trace.logger === tmpTrace.logger;

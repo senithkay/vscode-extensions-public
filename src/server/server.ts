@@ -21,11 +21,11 @@ import * as path from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaCmd: string) : ServerOptions {
+export function getServerOptions(ballerinaCmd: string): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = ballerinaCmd;
     let args = ["start-language-server"];
-  
+
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
     if (process.env.LS_EXTENSIONS_PATH !== "") {
@@ -49,11 +49,11 @@ export function getServerOptions(ballerinaCmd: string) : ServerOptions {
     };
 }
 
-export function getOldCliServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean) : ServerOptions {
+export function getOldCliServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = ballerinaCmd;
     let args = ["start-language-server"];
-  
+
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
     if (process.env.LS_EXTENSIONS_PATH !== "") {
@@ -70,7 +70,7 @@ export function getOldCliServerOptions(ballerinaCmd: string, experimental: boole
         opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort + ",quiet=y";
     }
     if (debugLogsEnabled || traceLogsEnabled) {
-        let str = [];
+        let str: string[] = [];
         if (debugLogsEnabled) {
             str.push('debug');
             args.push('--debug-log');
@@ -79,7 +79,7 @@ export function getOldCliServerOptions(ballerinaCmd: string, experimental: boole
             str.push('trace');
             args.push('--trace-log');
         }
-        debug('Language Server ' + str.join(', ') +' logs enabled.');
+        debug('Language Server ' + str.join(', ') + ' logs enabled.');
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
@@ -95,13 +95,13 @@ export function getOldCliServerOptions(ballerinaCmd: string, experimental: boole
     };
 }
 
-export function getOldServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
+export function getOldServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean): ServerOptions {
     // Fallback into old way, TODO: Remove this in a later verison
     debug(`Using Ballerina installation at '${ballerinaHome}' for Language server.`);
 
     let cmd;
     const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');
-    let args = [];
+    let args: string[] = [];
     if (process.platform === 'win32') {
         cmd = path.join(cwd, 'language-server-launcher.bat');
     } else {
@@ -109,7 +109,7 @@ export function getOldServerOptions(ballerinaHome: string, experimental: boolean
         args.push(path.join(cwd, 'language-server-launcher.sh'));
     }
 
-    let opt: ExecutableOptions = {cwd: cwd};
+    let opt: ExecutableOptions = { cwd: cwd };
     opt.env = Object.assign({}, process.env);
     if (process.platform === "darwin") {
         opt.env.BALLERINA_HOME = ballerinaHome;
@@ -119,7 +119,7 @@ export function getOldServerOptions(ballerinaHome: string, experimental: boolean
         args.push('--debug');
     }
     if (debugLogsEnabled || traceLogsEnabled) {
-        let str = [];
+        let str: string[] = [];
         if (debugLogsEnabled) {
             str.push('debug');
             opt.env.DEBUG_LOG = debugLogsEnabled;
@@ -128,7 +128,7 @@ export function getOldServerOptions(ballerinaHome: string, experimental: boolean
             str.push('trace');
             opt.env.TRACE_LOG = traceLogsEnabled;
         }
-        debug('Language Server ' + str.join(', ') +' logs enabled.');
+        debug('Language Server ' + str.join(', ') + ' logs enabled.');
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);

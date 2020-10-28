@@ -3,21 +3,21 @@ import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
 export function getWebViewResourceRoot(): string {
-    return join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 
-    'resources');
+    return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
+        'resources');
 }
 
 export function getNodeModulesRoot(): string {
-    return join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 
-    'node_modules');
+    return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
+        'node_modules');
 }
 
 export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanelOptions> {
     return {
         enableScripts: true,
         retainContextWhenHidden: true,
-        localResourceRoots:[
-            Uri.file(join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library')), 
+        localResourceRoots: [
+            Uri.file(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs')),
             Uri.file(getWebViewResourceRoot()),
             Uri.file(getNodeModulesRoot())
         ],
@@ -44,20 +44,20 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         body,
         scripts,
         styles,
-        bodyCss 
+        bodyCss
     } = options;
     const resourceRoot = getVSCodeResourceURI(getWebViewResourceRoot());
     const nodeModulesRoot = getVSCodeResourceURI(getNodeModulesRoot());
-    const externalScripts = jsFiles 
-        ? jsFiles.map(jsFile => 
-            '<script charset="UTF-8" onload="loadedScript();" src="' + jsFile +'"></script>').join('\n')
+    const externalScripts = jsFiles
+        ? jsFiles.map(jsFile =>
+            '<script charset="UTF-8" onload="loadedScript();" src="' + jsFile + '"></script>').join('\n')
         : '';
-    const externalStyles = cssFiles 
-        ? cssFiles.map(cssFile => 
-            '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n') 
+    const externalStyles = cssFiles
+        ? cssFiles.map(cssFile =>
+            '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n')
         : '';
 
-    const fontDir = join(getDistributionComposerURI(), 'font');
+    const fontDir = join(getComposerURI(), 'font');
 
     // in windows fontdir path contains \ as separator. css does not like this.
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
@@ -103,23 +103,19 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         `;
 }
 
-export function getDistributionComposerURI(): string {
-    return getVSCodeResourceURI(getDistributionComposerPath());
-}
-
-function getDistributionComposerPath(): string {
-    return join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
+export function getComposerURI(): string {
+    return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs'));
 }
 
 export function getComposerPath(): string {
-    return process.env.COMPOSER_DEBUG === "true" 
+    return process.env.COMPOSER_DEBUG === "true"
         ? process.env.COMPOSER_DEV_HOST as string
-        : getDistributionComposerURI();
+        : getComposerURI();
 }
 
 export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        join(getDistributionComposerURI(), 'codepoints.js'),
+        join(getComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -128,7 +124,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 export function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getDistributionComposerURI(), 'font', 'font-ballerina.css')
+        join(getComposerURI(), 'font', 'font-ballerina.css')
     ];
 }
 
