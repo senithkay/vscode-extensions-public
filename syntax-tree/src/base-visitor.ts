@@ -6,6 +6,9 @@ export interface Visitor {
   beginVisitSTNode?(node: Ballerina.STNode, parent?: Ballerina.STNode): void;
   endVisitSTNode?(node: Ballerina.STNode, parent?: Ballerina.STNode): void;
 
+  beginVisitModulePart?(node: Ballerina.ModulePart, parent?: Ballerina.STNode): void;
+  endVisitModulePart?(node: Ballerina.ModulePart, parent?: Ballerina.STNode): void;
+
   beginVisitAbstractKeyword?(
     node: Ballerina.AbstractKeyword,
     parent?: Ballerina.STNode
