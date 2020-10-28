@@ -14,7 +14,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { isUnix } from "./osUtils";
 import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
-import { log, debug as debugLog} from "../utils";
+import { log, debug as debugLog } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
 
 const BALLERINA_COMMAND = "ballerina.command";
@@ -22,7 +22,7 @@ const BALLERINA_COMMAND = "ballerina.command";
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
         : Thenable<DebugConfiguration> {
-            return getModifiedConfigs(config);
+        return getModifiedConfigs(config);
     }
 
 };
@@ -30,7 +30,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
 async function getModifiedConfigs(config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
     if (!debuggeePort) {
-        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000});
+        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000 });
     }
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
@@ -59,7 +59,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         config.request = 'launch';
     }
 
-    if (!config.script || config.script == "${file}") {
+    if (!config.script || config.script === "${file}") {
         if (!window.activeTextEditor) {
             ballerinaExtInstance.showMessageInvalidFile();
             return config;
@@ -88,9 +88,9 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     config.debuggeePort = debuggeePort.toString();
 
-    
+
     if (!config.debugServer) {
-        const debugServer = await getPortPromise({port: 10001, stopPort: 20000});
+        const debugServer = await getPortPromise({ port: 10001, stopPort: 20000 });
         config.debugServer = debugServer.toString();
     }
     return config;
@@ -113,23 +113,23 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const cwd = this.getCurrentWorkingDir();
-        let args:string[] = [];
+        let args: string[] = [];
         const cmd = this.getScriptPath(args);
 
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug";
         const showDetails: string = 'Learn More';
         window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
-            showDetails).then((selection)=>{
-            if (showDetails === selection) {
-                commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
-            }
-        });
+            showDetails).then((selection) => {
+                if (showDetails === selection) {
+                    commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
+                }
+            });
 
         args.push(port.toString());
 
-        let opt: ExecutableOptions = {cwd: cwd};
+        let opt: ExecutableOptions = { cwd: cwd };
         opt.env = Object.assign({}, process.env);
-  
+
         const serverProcess = child_process.spawn(cmd, args, opt);
 
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
@@ -137,24 +137,24 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         } else {
             log("Starting debug adapter: '" + cmd + "'");
         }
-        
-        return new Promise((resolve)=>{
+
+        return new Promise((resolve) => {
             serverProcess.stdout.on('data', (data) => {
                 if (data.toString().includes('Debug server started')) {
                     resolve();
                 }
                 log(`${data}`);
             });
-    
+
             serverProcess.stderr.on('data', (data) => {
                 debugLog(`${data}`);
             });
-        }).then(()=>{
+        }).then(() => {
             ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
             return new DebugAdapterServer(port);
         });
     }
-    getScriptPath(args: string[]) :  string {
+    getScriptPath(args: string[]): string {
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
             let cmd = this.ballerinaExtInstance.ballerinaCmd;
             args.push('start-debugger-adapter');
@@ -172,7 +172,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             return startScriptPath;
         }
     }
-    getCurrentWorkingDir() :  string {
+    getCurrentWorkingDir(): string {
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
             return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
         } else {

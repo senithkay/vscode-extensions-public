@@ -89,7 +89,7 @@ export interface BallerinaOASRequest {
 }
 
 export interface BallerinaAstOasChangeRequest {
-    oasDefinition?: string,
+    oasDefinition?: string;
     documentIdentifier: {
         uri: string;
     };
@@ -190,7 +190,7 @@ export class ExtendedLangClient extends LanguageClient {
             documentIdentifier: {
                 uri: uri.toString()
             },
-        }
+        };
         return this.sendNotification("ballerinaDocument/apiDesignDidChange", req);
     }
 
@@ -199,8 +199,8 @@ export class ExtendedLangClient extends LanguageClient {
             documentIdentifier: {
                 uri: uri.toString()
             },
-        }
-        return this.sendRequest("ballerinaDocument/serviceList", req)
+        };
+        return this.sendRequest("ballerinaDocument/serviceList", req);
     }
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {

@@ -3,7 +3,7 @@ out
 node_modules
 .vscode-test/
 *.vsix
-resources/composer
+resources/jslibs
 !.vscode
 coverage
 extractedDistribution
