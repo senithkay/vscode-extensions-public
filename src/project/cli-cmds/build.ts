@@ -2,22 +2,55 @@ import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { TM_EVENT_RUN_PROJECT_BUILD, CMP_PROJECT_BUILD } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS } from "./cmd-runner";
-import { getCurrentBallerinaProject } from "./utils";
+import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile } from "./utils";
 
 export function activateBuildCommand() {
     const reporter = ballerinaExtInstance.telemetryReporter;
 
     // register run project build handler
-    commands.registerCommand('ballerina.project.build', () => {
-        reporter.sendTelemetryEvent(TM_EVENT_RUN_PROJECT_BUILD, { component: CMP_PROJECT_BUILD });
-        // get Ballerina Project path for current Ballerina file
-        getCurrentBallerinaProject().then((project) => {
-            if (project) {
-                runCommand(project, BALLERINA_COMMANDS.BUILD, "-a");
+    commands.registerCommand('ballerina.project.build', async () => {
+        try {
+            reporter.sendTelemetryEvent(TM_EVENT_RUN_PROJECT_BUILD, { component: CMP_PROJECT_BUILD });
+            let buildOptions: { description: string, label: string, id: string }[] = [
+                {
+                    description: "ballerina build <balfile>",
+                    label: "Build current file",
+                    id: "build-file"
+                }
+            ];
+
+            const currentProject = await getCurrentBallerinaProject();
+            if (currentProject.path) {
+                buildOptions.push({
+                    description: "ballerina build <module-name>",
+                    label: "Build module",
+                    id: "build-module"
+                }, {
+                    description: "ballerina build --all",
+                    label: "Build project",
+                    id: "build-all"
+                });
             }
-        }, (reason) => {
-            reporter.sendTelemetryException(reason, { component: CMP_PROJECT_BUILD });
-            window.showErrorMessage(reason);
-        });
+
+            const userSelection = await window.showQuickPick(buildOptions, { placeHolder: 'Select a build option.' });
+            if (userSelection!.id === 'build-file') {
+                runCommand(getCurrenDirectoryPath(), BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
+            }
+
+            if (userSelection!.id === 'build-module') {
+                let moduleName;
+                do {
+                    moduleName = await window.showInputBox({ placeHolder: 'Enter module name.' });
+                } while (!moduleName || moduleName && moduleName.trim().length === 0);
+                runCommand(currentProject, BALLERINA_COMMANDS.BUILD, moduleName);
+            }
+
+            if (userSelection!.id === 'build-all') {
+                runCommand(currentProject, BALLERINA_COMMANDS.BUILD, "--all");
+            }
+        } catch (error) {
+            reporter.sendTelemetryException(error, { component: CMP_PROJECT_BUILD });
+            window.showErrorMessage(error);
+        }
     });
 }
