@@ -12,22 +12,27 @@ function activateRunCommand() {
         try {
             reporter.sendTelemetryEvent(TM_EVENT_EXECUTE_BALLERINA_RUN, { component: CMP_BALLERINA_RUN });
 
-            const runOptions = [
+            let runOptions: { description: string, label: string, id: string }[] = [
                 {
-                    "description": "ballerina run <balfile>",
-                    "label": "Run on current file",
-                    "id": "run-file"
-                },
-                {
-                    "description": "ballerina run <module-name>",
-                    "label": "Run on module",
-                    "id": "run-module"
+                    description: "ballerina run <balfile>",
+                    label: "Run the current file",
+                    id: "run-file"
                 }
             ];
+            const currentProject = await getCurrentBallerinaProject();
+            if (currentProject.path) {
+                runOptions.push({
+                    description: "ballerina run <module-name>",
+                    label: "Run module",
+                    id: "run-module"
+                });
+            }
+
             const userSelection = await window.showQuickPick(runOptions, { placeHolder: 'Select a run option.' });
             if (userSelection!.id === 'run-file') {
                 runCommand(getCurrenDirectoryPath(), BALLERINA_COMMANDS.RUN, getCurrentBallerinaFile());
             }
+
             if (userSelection!.id === 'run-module') {
                 let moduleName;
                 do {
