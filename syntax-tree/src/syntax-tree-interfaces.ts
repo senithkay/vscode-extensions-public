@@ -3145,8 +3145,7 @@ export interface TrueKeyword extends STNode {
 
 export interface TupleTypeDesc extends STNode {
   closeBracketToken: CloseBracketToken;
-  memberTypeDesc:
-    | AnyTypeDesc
+  memberTypeDesc: (| AnyTypeDesc
     | AnydataTypeDesc
     | ArrayTypeDesc
     | BooleanTypeDesc
@@ -3175,7 +3174,7 @@ export interface TupleTypeDesc extends STNode {
     | TupleTypeDesc
     | TypedescTypeDesc
     | UnionTypeDesc
-    | XmlTypeDesc[];
+    | XmlTypeDesc) [];
   openBracketToken: OpenBracketToken;
 }
 
