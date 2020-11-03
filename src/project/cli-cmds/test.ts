@@ -11,11 +11,10 @@ export function activateTestRunner() {
     commands.registerCommand('ballerina.project.test', async () => {
         try {
             reporter.sendTelemetryEvent(TM_EVENT_RUN_PROJECT_TESTS, { component: CMP_PROJECT_TEST_RUNNER });
-            let testRunOptions: { description: string, label: string, id: string }[];
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
             if (currentProject.path) {
-                testRunOptions = [
+                const testRunOptions = [
                     {
                         description: "ballerina test <module-name>",
                         label: "Run module test",
@@ -27,32 +26,22 @@ export function activateTestRunner() {
                         id: "test-all"
                     }
                 ];
-            } else {
-                testRunOptions = [
-                    {
-                        description: "ballerina test <balfile>",
-                        label: "Run test on the current file",
-                        id: "test-file"
-                    }
-                ];
-            }
+                const userSelection = await window.showQuickPick(testRunOptions, { placeHolder: 'Select a test run option.' });
+                if (userSelection!.id === 'test-module') {
+                    let moduleName;
+                    do {
+                        moduleName = await window.showInputBox({ placeHolder: 'Enter module name.' });
+                    } while (!moduleName || moduleName && moduleName.trim().length === 0);
+                    runCommand(currentProject, BALLERINA_COMMANDS.TEST, moduleName);
+                }
 
-            const userSelection = await window.showQuickPick(testRunOptions, { placeHolder: 'Select a test run option.' });
-            if (userSelection!.id === 'test-file') {
+                if (userSelection!.id === 'test-all') {
+                    runCommand(currentProject, BALLERINA_COMMANDS.TEST, '--all');
+                }
+            } else {
                 runCommand(getCurrenDirectoryPath(), BALLERINA_COMMANDS.TEST, getCurrentBallerinaFile());
             }
 
-            if (userSelection!.id === 'test-module') {
-                let moduleName;
-                do {
-                    moduleName = await window.showInputBox({ placeHolder: 'Enter module name.' });
-                } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                runCommand(currentProject, BALLERINA_COMMANDS.TEST, moduleName);
-            }
-
-            if (userSelection!.id === 'test-all') {
-                runCommand(currentProject, BALLERINA_COMMANDS.TEST, '--all');
-            }
         } catch (error) {
             reporter.sendTelemetryException(error, { component: CMP_PROJECT_TEST_RUNNER });
             window.showErrorMessage(error);
