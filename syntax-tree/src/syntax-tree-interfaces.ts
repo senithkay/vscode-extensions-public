@@ -2319,7 +2319,7 @@ export interface ParenthesisedTypeDesc extends STNode {
 }
 
 export interface ParenthesizedArgList extends STNode {
-  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
+  arguments: (CommaToken | NamedArg | PositionalArg | RestArg)[];
   closeParenToken: CloseParenToken;
   openParenToken: OpenParenToken;
 }
