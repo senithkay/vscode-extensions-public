@@ -2,11 +2,12 @@
 import { IConnection } from "monaco-languageclient/lib/connection";
 import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
+
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GoToSourceParams,
-    IBallerinaLangClient, RevealRangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse } from "./model";
+    GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
+    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
