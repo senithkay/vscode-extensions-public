@@ -352,27 +352,26 @@ export interface BitwiseXorToken extends STNode {
 export interface BlockStatement extends STNode {
   closeBraceToken: CloseBraceToken;
   openBraceToken: OpenBraceToken;
-  statements:
-    | ActionStatement
-    | AssignmentStatement
-    | BlockStatement
-    | BreakStatement
-    | CallStatement
-    | CompoundAssignmentStatement
-    | ContinueStatement
-    | ForeachStatement
-    | ForkStatement
-    | IfElseStatement
-    | InvalidExpressionStatement
-    | LocalVarDecl
-    | LockStatement
-    | MatchStatement
-    | PanicStatement
-    | ReturnStatement
-    | RollbackStatement
-    | TransactionStatement
-    | WhileStatement
-    | XmlNamespaceDeclaration[];
+  statements: (| ActionStatement
+      | AssignmentStatement
+      | BlockStatement
+      | BreakStatement
+      | CallStatement
+      | CompoundAssignmentStatement
+      | ContinueStatement
+      | ForeachStatement
+      | ForkStatement
+      | IfElseStatement
+      | InvalidExpressionStatement
+      | LocalVarDecl
+      | LockStatement
+      | MatchStatement
+      | PanicStatement
+      | ReturnStatement
+      | RollbackStatement
+      | TransactionStatement
+      | WhileStatement
+      | XmlNamespaceDeclaration)[];
 }
 
 export interface BooleanKeyword extends STNode {
@@ -1133,27 +1132,26 @@ export interface FunctionBodyBlock extends STNode {
   closeBraceToken: CloseBraceToken;
   namedWorkerDeclarator?: NamedWorkerDeclarator;
   openBraceToken: OpenBraceToken;
-  statements:
-    | ActionStatement
-    | AssignmentStatement
-    | BlockStatement
-    | BreakStatement
-    | CallStatement
-    | CompoundAssignmentStatement
-    | ContinueStatement
-    | ForeachStatement
-    | ForkStatement
-    | IfElseStatement
-    | InvalidExpressionStatement
-    | LocalVarDecl
-    | LockStatement
-    | MatchStatement
-    | PanicStatement
-    | ReturnStatement
-    | RollbackStatement
-    | TransactionStatement
-    | WhileStatement
-    | XmlNamespaceDeclaration[];
+  statements: (| ActionStatement
+      | AssignmentStatement
+      | BlockStatement
+      | BreakStatement
+      | CallStatement
+      | CompoundAssignmentStatement
+      | ContinueStatement
+      | ForeachStatement
+      | ForkStatement
+      | IfElseStatement
+      | InvalidExpressionStatement
+      | LocalVarDecl
+      | LockStatement
+      | MatchStatement
+      | PanicStatement
+      | ReturnStatement
+      | RollbackStatement
+      | TransactionStatement
+      | WhileStatement
+      | XmlNamespaceDeclaration)[];
 }
 
 export interface FunctionCall extends STNode {
@@ -3055,16 +3053,15 @@ export interface SyncSendToken extends STNode {
 export interface SyntaxTree extends STNode {
   eofToken: EofToken;
   imports: ImportDeclaration[];
-  members:
-    | AnnotationDeclaration
-    | ConstDeclaration
-    | EnumDeclaration
-    | FunctionDefinition
-    | ListenerDeclaration
-    | ModuleVarDecl
-    | ModuleXmlNamespaceDeclaration
-    | ServiceDeclaration
-    | TypeDefinition[];
+  members: (| AnnotationDeclaration
+      | ConstDeclaration
+      | EnumDeclaration
+      | FunctionDefinition
+      | ListenerDeclaration
+      | ModuleVarDecl
+      | ModuleXmlNamespaceDeclaration
+      | ServiceDeclaration
+      | TypeDefinition)[];
 }
 
 export interface TableConstructor extends STNode {
@@ -3148,8 +3145,7 @@ export interface TrueKeyword extends STNode {
 
 export interface TupleTypeDesc extends STNode {
   closeBracketToken: CloseBracketToken;
-  memberTypeDesc:
-    | AnyTypeDesc
+  memberTypeDesc: (| AnyTypeDesc
     | AnydataTypeDesc
     | ArrayTypeDesc
     | BooleanTypeDesc
@@ -3178,7 +3174,7 @@ export interface TupleTypeDesc extends STNode {
     | TupleTypeDesc
     | TypedescTypeDesc
     | UnionTypeDesc
-    | XmlTypeDesc[];
+    | XmlTypeDesc) [];
   openBracketToken: OpenBracketToken;
 }
 
