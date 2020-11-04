@@ -1760,7 +1760,7 @@ export interface MappingBindingPattern extends STNode {
 
 export interface MappingConstructor extends STNode {
   closeBrace: CloseBraceToken;
-  fields: CommaToken | ComputedNameField | SpecificField | SpreadField[];
+  fields: (CommaToken | ComputedNameField | SpecificField | SpreadField)[];
   openBrace: OpenBraceToken;
 }
 
@@ -2588,7 +2588,7 @@ export interface RemoteKeyword extends STNode {
 }
 
 export interface RemoteMethodCallAction extends STNode {
-  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
+  arguments: (CommaToken | NamedArg | PositionalArg | RestArg)[];
   closeParenToken: CloseParenToken;
   expression:
     | CheckExpression
