@@ -24,6 +24,7 @@ configurations {
 }
 
 npmBuild() {
+    dependsOn ':composer:composerBuild'
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/dist/**");
 	patternSet.exclude("**/out/**");
