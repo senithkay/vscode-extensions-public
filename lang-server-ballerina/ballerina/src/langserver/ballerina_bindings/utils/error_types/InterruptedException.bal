@@ -7,5 +7,5 @@ type InterruptedExceptionData record {
     error cause?;
 };
 
-type InterruptedException error<INTERRUPTEDEXCEPTION, InterruptedExceptionData>;
+type InterruptedException distinct error<InterruptedExceptionData>;
 

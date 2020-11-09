@@ -15,24 +15,28 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 import java.util.Collection;
 
 public class BWebSocketRPCHandler {
 
-    private ObjectValue webSocketCaller;
+    private BObject webSocketCaller;
     private BallerinaLanguageServer languageServer;
     private BWebSocketCallerMessageHandler messageHandler;
     private BWebSocketCallerMessageConsumer messageConsumer;
-    private BRuntime currentRuntime;
+    private Environment currentEnv;
+    private Runtime currentRuntime;
 
-    public BWebSocketRPCHandler(ObjectValue webSocketCaller) {
-        this.currentRuntime = BRuntime.getCurrentRuntime();
+    public BWebSocketRPCHandler(BObject webSocketCaller) {
+        this.currentEnv = new Environment(Scheduler.getStrand());
+        this.currentRuntime = this.currentEnv.getRuntime();
         this.webSocketCaller = webSocketCaller;
         this.init();
     }

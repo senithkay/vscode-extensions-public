@@ -15,10 +15,9 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.values.BObject;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.MessageIssueException;
@@ -26,6 +25,8 @@ import org.eclipse.lsp4j.jsonrpc.MessageIssueHandler;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.websocket.WebSocketMessageConsumer;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -39,10 +40,10 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
 
     private MessageJsonHandler jsonHandler;
 
-    private ObjectValue webSocketCaller;
-    private BRuntime currentRuntime;
+    private BObject webSocketCaller;
+    private Runtime currentRuntime;
 
-    public BWebSocketCallerMessageConsumer(ObjectValue webSocketCaller, BRuntime currentRuntime) {
+    public BWebSocketCallerMessageConsumer(BObject webSocketCaller, Runtime currentRuntime) {
         this.webSocketCaller = webSocketCaller;
         this.currentRuntime = currentRuntime;
     }
@@ -62,10 +63,11 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     }
 
     public void sendMessage(String message) throws MessageIssueException, JsonRpcException {
-        Object isOpen = currentRuntime.getSyncMethodInvokeResult(webSocketCaller,"isOpen", 500);
+        Strand strand = Scheduler.getStrand();
+        Object isOpen = currentRuntime.invokeMethodAsync(webSocketCaller,"isOpen", null, null, null);
         Boolean isConnectionOpen = (Boolean) isOpen;
         if (isConnectionOpen) {
-            Object isSuccess = currentRuntime.getSyncMethodInvokeResult(webSocketCaller, "pushText", 500, message, false);
+            Object isSuccess = currentRuntime.invokeMethodAsync(webSocketCaller, "pushText", null, null, null, message);
         }
     }
 }

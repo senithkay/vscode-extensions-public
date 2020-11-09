@@ -7,29 +7,33 @@
 // E.g. $ ballerina bindgen java.lang.Object
 
 
+import ballerina/java;
 
-# Ballerina object mapping for Java class `java/lang/Object`.
+# Ballerina object mapping for Java class `java.lang.Object`.
 #
 # + _Object - The field that represents this Ballerina object, which is used for Java subtyping.
-public type Object object {
+@java:Binding {
+    'class: "java.lang.Object"
+}
+class Object {
 
-    *JObject;
+    *java:JObject;
 
-    public ObjectT _Object = ObjectT;
+    ObjectT _Object = ObjectT;
 
-    # The init function of the Ballerina object mapping `java/lang/Object` Java class.
+    # The init function of the Ballerina object mapping `java.lang.Object` Java class.
     #
     # + obj - The `handle` value containing the Java reference of the object.
-    public function __init(handle obj) {
+    function init(handle obj) {
         self.jObj = obj;
     }
 
     # The function to retrieve the string value of a Ballerina object mapping a Java class.
     #
     # + return - The `string` form of the object instance.
-    public function toString() returns string {
-        return jObjToString(self.jObj);
+    function toString() returns string {
+        return java:jObjToString(self.jObj);
     }
-};
+}
 
 
