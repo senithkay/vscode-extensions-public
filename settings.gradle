@@ -9,6 +9,6 @@
 
 rootProject.name = 'plugin-vscode'
 
-include(':composer-library')
+include(':composer')
 
-project(':composer-library').projectDir = file('composer')
+project(':composer').projectDir = file('composer')

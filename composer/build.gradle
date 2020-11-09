@@ -24,7 +24,7 @@ configurations {
     fonts
 }
 
-npmBuild {
+task composerBuild {
     dependsOn 'updateVersion'
     dependsOn 'updateLernaVersion'
     PatternSet patternSet = new PatternSet();
@@ -47,9 +47,21 @@ npmBuild {
                 commandLine 'npm', 'run', 'build'
             }
         }
+        copy {
+            from './packages/distribution/build'
+            into './../resources/jslibs'
+            include 'composer.js'
+            include 'themes/**'
+        }
+        copy {
+            from './packages/font/build'
+            into './../resources/jslibs'
+            include '*.js'
+            include 'codepoints.json'
+            include 'font/'
+        }
     }
 }
-
 
 task updateLernaVersion(type: Exec) {
     inputs.file("package.json")
@@ -63,14 +75,14 @@ task updateLernaVersion(type: Exec) {
     doFirst {
         println "update lerna version to " + project.version + " in " + project.path
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npx', 'lerna', 'version', project.version, '--yes', '--skip-git'
+            commandLine 'cmd', '/c', 'npx', 'lerna', 'version', project.version, '--yes', '--no-git-tag-version', '--no-push'
         } else {
-            commandLine 'npx', 'lerna', 'version', project.version, '--yes', '--skip-git'
+            commandLine 'npx', 'lerna', 'version', project.version, '--yes', '--no-git-tag-version', '--no-push'
         }
     }
 }
 
-task test() {
+task testComposer() {
     onlyIf {
         !assemble.state.upToDate
     }
@@ -88,21 +100,6 @@ task test() {
 artifacts.add('composer', file("packages/distribution/build/"))
 artifacts.add('fonts', file("packages/font/build/"))
 
-copy {
-    from './packages/distribution/build'
-    into './../resources/jslibs'
-    include 'composer.js'
-    include 'themes/**'
-}
-
-copy {
-    from './packages/font/build'
-    into './../resources/jslibs'
-    include '*.js'
-    include 'codepoints.json'
-    include 'font/'
-}
-
 check {
-    dependsOn test
+    dependsOn testComposer
 }
