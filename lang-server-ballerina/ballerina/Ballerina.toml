@@ -6,7 +6,7 @@ version= "1.0.0"
 target = "java11"
 
     [[platform.libraries]] 
-    path = "./libs/choreo-workspace-langserver.jar" 
+    path = "libs/choreo-workspace-langserver.jar" 
     modules = ["langserver"]
 
 [dependencies]

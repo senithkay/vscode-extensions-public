@@ -10,7 +10,7 @@ const RPC_HANDLER = "rpcHandler";
 service serviceName on new http:Listener(9090) {
     resource function onOpen(http:WebSocketCaller caller) {
         WSCallerProxy callerProxy = new WSCallerProxy(caller);
-        BWebSocketRPCHandler rpcHandler = new BWebSocketRPCHandler(callerProxy);
+        BWebSocketRPCHandler rpcHandler = newBWebSocketRPCHandler1(callerProxy);
         caller.setAttribute(RPC_HANDLER, rpcHandler);
     }
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {

@@ -60,9 +60,9 @@ class BWebSocketRPCHandler {
         return externalObj;
     }
 
-    # The function that maps to the `init` method of `org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler`.
-    function 'init() {
-        () obj = org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_init(self.jObj);
+    # The function that maps to the `initialize` method of `org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler`.
+    function initialize() {
+        () obj = org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_initialize(self.jObj);
     }
 
     # The function that maps to the `notify` method of `org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler`.
@@ -123,15 +123,15 @@ class BWebSocketRPCHandler {
 #
 # + arg0 - The `BObject` value required to map with the Java constructor parameter.
 # + return - The new `BWebSocketRPCHandler` object generated.
-function newBWebSocketRPCHandler1(BObject arg0) returns BWebSocketRPCHandler {
-    handle obj = org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_newBWebSocketRPCHandler1(arg0.jObj);
+function newBWebSocketRPCHandler1(WSCallerProxy arg0) returns BWebSocketRPCHandler {
+    handle obj = org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_newBWebSocketRPCHandler1(arg0);
     BWebSocketRPCHandler _bWebSocketRPCHandler = new(obj);
     return _bWebSocketRPCHandler;
 }
 
 // External interop functions for mapping public constructors.
 
-function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_newBWebSocketRPCHandler1(handle arg0) returns handle = @java:Constructor {
+function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_newBWebSocketRPCHandler1(WSCallerProxy arg0) returns handle = @java:Constructor {
     'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler",
     paramTypes: ["io.ballerina.runtime.api.values.BObject"]
 } external;
@@ -162,8 +162,8 @@ function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_hashCode(hand
     paramTypes: []
 } external;
 
-function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_init(handle receiver) = @java:Method {
-    name: "init",
+function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_initialize(handle receiver) = @java:Method {
+    name: "initialize",
     'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler",
     paramTypes: []
 } external;

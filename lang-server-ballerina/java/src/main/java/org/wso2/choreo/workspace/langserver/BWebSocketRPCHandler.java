@@ -38,10 +38,10 @@ public class BWebSocketRPCHandler {
         this.currentEnv = new Environment(Scheduler.getStrand());
         this.currentRuntime = this.currentEnv.getRuntime();
         this.webSocketCaller = webSocketCaller;
-        this.init();
+        this.initialize();
     }
 
-    public void init() {
+    public void initialize() {
         languageServer = new BallerinaLanguageServer();
         BWebSocketLauncherBuilder<ExtendedLanguageClient> builder =
                 new BWebSocketLauncherBuilder<>();
