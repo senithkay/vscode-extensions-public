@@ -15,20 +15,19 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.MessageIssueException;
-import org.eclipse.lsp4j.jsonrpc.MessageIssueHandler;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
-import org.eclipse.lsp4j.websocket.WebSocketMessageConsumer;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
 
-import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -36,12 +35,12 @@ import java.util.logging.Logger;
  */
 public class BWebSocketCallerMessageConsumer implements MessageConsumer {
 
-    private static final Logger LOG = Logger.getLogger(BWebSocketCallerMessageConsumer.class.getName());
+    private static final Logger logger = Logger.getLogger(BWebSocketCallerMessageConsumer.class.getName());
 
     private MessageJsonHandler jsonHandler;
 
-    private BObject webSocketCaller;
-    private Runtime currentRuntime;
+    private final BObject webSocketCaller;
+    private final Runtime currentRuntime;
 
     public BWebSocketCallerMessageConsumer(BObject webSocketCaller, Runtime currentRuntime) {
         this.webSocketCaller = webSocketCaller;
@@ -63,11 +62,19 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     }
 
     public void sendMessage(String message) throws MessageIssueException, JsonRpcException {
+        logger.log(Level.INFO, "Preparing to respond msg.\n" + message);
         Strand strand = Scheduler.getStrand();
-        Object isOpen = currentRuntime.invokeMethodAsync(webSocketCaller,"isOpen", null, null, null);
-        Boolean isConnectionOpen = (Boolean) isOpen;
-        if (isConnectionOpen) {
-            Object isSuccess = currentRuntime.invokeMethodAsync(webSocketCaller, "pushText", null, null, null, message);
-        }
+        currentRuntime.invokeMethodAsync(webSocketCaller, "pushText",
+                null, null,
+                new Callback() {
+                    @Override
+                    public void notifySuccess() {
+                        logger.log(Level.INFO, "Successfully responded.");
+                    }
+                    @Override
+                    public void notifyFailure(BError bError) {
+                        logger.log(Level.SEVERE, "Error while responding", bError);
+                    }
+        }, message);
     }
 }

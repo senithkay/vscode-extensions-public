@@ -24,8 +24,11 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import io.ballerina.runtime.scheduling.Scheduler;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 public class BWebSocketRPCHandler {
+
+    private static final Logger logger = Logger.getLogger(BWebSocketRPCHandler.class.getName());
 
     private BObject webSocketCaller;
     private BallerinaLanguageServer languageServer;
@@ -39,6 +42,7 @@ public class BWebSocketRPCHandler {
         this.currentRuntime = this.currentEnv.getRuntime();
         this.webSocketCaller = webSocketCaller;
         this.initialize();
+        logger.info("Starting LangServer session.");
     }
 
     public void initialize() {
@@ -61,6 +65,7 @@ public class BWebSocketRPCHandler {
     }
 
     public void close() {
+        logger.info("Shutting down LangServer session.");
         if (languageServer != null) {
             languageServer.shutdown();
             languageServer = null;
