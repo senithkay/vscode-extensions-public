@@ -2,7 +2,7 @@ import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { TM_EVENT_EXECUTE_BALLERINA_RUN, CMP_BALLERINA_RUN } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS } from "./cmd-runner";
-import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "./utils";
+import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 
 function activateRunCommand() {
     const reporter = ballerinaExtInstance.telemetryReporter;
