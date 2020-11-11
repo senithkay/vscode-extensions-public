@@ -16,6 +16,7 @@
 package org.wso2.choreo.workspace.langserver;
 
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -65,16 +66,17 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
         logger.log(Level.INFO, "Preparing to respond msg.\n" + message);
         Strand strand = Scheduler.getStrand();
         currentRuntime.invokeMethodAsync(webSocketCaller, "pushText",
-                null, null,
+                String.valueOf(strand.getName()), strand.getMetadata(),
                 new Callback() {
                     @Override
                     public void notifySuccess() {
                         logger.log(Level.INFO, "Successfully responded.");
                     }
+
                     @Override
                     public void notifyFailure(BError bError) {
                         logger.log(Level.SEVERE, "Error while responding", bError);
                     }
-        }, message);
+                }, StringUtils.fromString(message), true);
     }
 }
