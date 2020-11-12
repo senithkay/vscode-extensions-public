@@ -6,11 +6,6 @@
   visibility: hidden;
 }
 
-.documentation-container {
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 body .content-wrapper .method-content .main-method-title:hover a.url-link {
   visibility: hidden !important;
 }

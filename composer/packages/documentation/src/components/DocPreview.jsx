@@ -24,7 +24,7 @@ export default class DocPreview extends React.Component {
         if (this.props.nodeType === 'functions') {
             return (
                 <div className='cBallerina-io content-wrapper pusher main-wrapper constants'>
-                    <dev className='method-content'>{ReactHtmlParser(this.props.html)}</dev>
+                    <div className='method-content'>{ReactHtmlParser(this.props.html)}</div>
                 </div>
             );
         } else {

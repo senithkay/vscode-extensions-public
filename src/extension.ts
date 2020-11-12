@@ -110,7 +110,8 @@ export function activate(context: ExtensionContext): Promise<any> {
             });
 
             const docCodelensProvider = new CodelensProvider(langClient);
-            languages.registerCodeLensProvider("*", docCodelensProvider);
+            const documentSelector: DocumentSelector = [{ language: 'ballerina' }];
+            languages.registerCodeLensProvider(documentSelector, docCodelensProvider);
 
         });
     }).catch((e) => {

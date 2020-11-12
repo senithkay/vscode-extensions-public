@@ -27,6 +27,7 @@ import * as path from 'path';
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import { runCommandOnBackground, BALLERINA_COMMANDS } from '../project/cli-cmds/cmd-runner';
 import DOMParser = require('dom-parser');
+import * as fs from "fs";
 
 let previewPanel: WebviewPanel | undefined;
 
@@ -73,12 +74,6 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient, arg
 			return;
 		}
 
-		const result = runCommandOnBackground(currentProject, BALLERINA_COMMANDS.DOC, args.moduleName);
-		if (!result) {
-			window.showErrorMessage(`Error while generating docs for ${args.moduleName} module.`);
-			return;
-		}
-
 		let htmlFilePath;
 		if (args.nodeType === 'functions') {
 			htmlFilePath = path.join(currentProject.path!, 'target', 'apidocs', args.moduleName,
@@ -87,33 +82,47 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient, arg
 			htmlFilePath = path.join(currentProject.path!, 'target', 'apidocs', args.moduleName,
 				args.nodeType, `${args.nodeName}.html`);
 		}
-		const docsPathOnWorkspace = Uri.file(htmlFilePath);
 
-		let doc = await workspace.openTextDocument(docsPathOnWorkspace);
-		const parser = new DOMParser();
-		const dom = parser.parseFromString(doc.getText());
-		let elementToRender;
-		if (args.nodeType === 'functions') {
-			const elements: DOMParser.Node[] | null = dom.getElementsByClassName('method-content');
-			if (elements) {
-				for (let index = 0; index < elements.length; index++) {
-					const urlLinks: DOMParser.Node[] | null = elements[index].getElementsByClassName('url-link');
-					if (urlLinks && urlLinks[0].getAttribute('href') === `#${args.nodeName}`) {
-						elementToRender = elements[index];
-						break;
-					}
-				}
-			}
-		} else {
-			elementToRender = dom.getElementById('main');
+		fs.watchFile(htmlFilePath, () => {
+			extractHTMLToRender(htmlFilePath, args);
+			fs.unwatchFile(htmlFilePath);
+		});
+
+		const result = runCommandOnBackground(currentProject, BALLERINA_COMMANDS.DOC, args.moduleName);
+		if (!result) {
+			window.showErrorMessage(`Error while generating docs for ${args.moduleName} module.`);
+			return;
 		}
-
-		updateWebView(elementToRender.innerHTML, args.nodeType);
 	});
 
 	previewPanel.onDidDispose(() => {
 		previewPanel = undefined;
 	});
+}
+
+async function extractHTMLToRender(htmlFilePath: string, args: any) {
+	const docsPathOnWorkspace = Uri.file(htmlFilePath);
+	let doc = await workspace.openTextDocument(docsPathOnWorkspace);
+	const parser = new DOMParser();
+	const dom = parser.parseFromString(doc.getText());
+	let elementToRender;
+	if (args.nodeType === 'functions') {
+		const elements: DOMParser.Node[] | null = dom.getElementsByClassName('method-content');
+		if (elements) {
+			for (let index = 0; index < elements.length; index++) {
+				const urlLinks: DOMParser.Node[] | null = elements[index].getElementsByClassName('url-link');
+				if (urlLinks && urlLinks[0].getAttribute('href') === `#${args.nodeName}`) {
+					elementToRender = elements[index];
+					break;
+				}
+			}
+		}
+	} else {
+		elementToRender = dom.getElementById('main');
+	}
+
+	// update doc preview web view
+	updateWebView(elementToRender.innerHTML, args.nodeType);
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {

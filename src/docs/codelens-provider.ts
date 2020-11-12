@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { ExtendedLangClient } from '../core/extended-language-client';
 
+enum NODE_TYPES { FUNCTION = "Function", CLASS = "ClassDefn", TYPE = "TypeDefinition", RECORD = "RecordType" }
+enum API_DOC_DIR { FUNCTION = "functions", CLASS = "classes", RECORD = "records", OBJECT = "abstractobjects" }
+
 /**
  * CodelensProvider for API document generation.
  */
@@ -42,43 +45,45 @@ export class CodelensProvider implements vscode.CodeLensProvider {
             return codeLenses;
         }
 
-        const documentables = ['Function', 'TypeDefinition', 'ClassDefn'];
-
-        response.ast.topLevelNodes.forEach(node => {
+        const documentables = [NODE_TYPES.FUNCTION, NODE_TYPES.TYPE, NODE_TYPES.CLASS];
+        const topNodes = response.ast.topLevelNodes;
+        for (let nodeIndex = 0; nodeIndex < topNodes.length; nodeIndex++) {
+            const node = topNodes[nodeIndex];
             if (documentables.indexOf(node.kind) !== -1) {
-                let isAdded = false;
                 if (node.markdownDocumentationAttachment && node.public) {
                     codeLenses.push(this.createCodeLens(node));
-                    isAdded = true;
+                    continue;
                 }
 
-                if (!isAdded) {
-                    if (node.kind === 'ClassDefn' && node.public && node.functions) {
-                        node.functions.forEach(childFunction => {
-                            if (!isAdded && childFunction.markdownDocumentationAttachment && childFunction.public) {
-                                codeLenses.push(this.createCodeLens(node));
-                                isAdded = true;
-                            }
-                        });
-
-                        if (!isAdded && node.initFunction && node.initFunction.markdownDocumentationAttachment
-                            && node.initFunction.public) {
+                if (node.kind === NODE_TYPES.CLASS && node.public && node.functions) {
+                    const classChildrenArray = node.functions;
+                    let isAdded = false;
+                    for (let index = 0; index < classChildrenArray.length; index++) {
+                        const childFunction = classChildrenArray[index];
+                        if (!isAdded && childFunction.markdownDocumentationAttachment && childFunction.public) {
                             codeLenses.push(this.createCodeLens(node));
                             isAdded = true;
+                            break;
                         }
                     }
 
-                    if (node.kind === 'TypeDefinition' && node.public && node.typeNode && node.typeNode.functions) {
-                        node.typeNode.functions.forEach(childFunction => {
-                            if (!isAdded && childFunction.markdownDocumentationAttachment && childFunction.public) {
-                                codeLenses.push(this.createCodeLens(node));
-                                isAdded = true;
-                            }
-                        });
+                    if (!isAdded && node.initFunction && node.initFunction.markdownDocumentationAttachment
+                        && node.initFunction.public) {
+                        codeLenses.push(this.createCodeLens(node));
+                    }
+
+                } else if (node.kind === NODE_TYPES.TYPE && node.public && node.typeNode && node.typeNode.functions) {
+                    const typeChildrenArray = node.typeNode.functions;
+                    for (let index = 0; index < typeChildrenArray.length; index++) {
+                        const childFunction = typeChildrenArray[index];
+                        if (childFunction.markdownDocumentationAttachment && childFunction.public) {
+                            codeLenses.push(this.createCodeLens(node));
+                            break;
+                        }
                     }
                 }
             }
-        });
+        }
         return codeLenses;
     }
 
@@ -105,17 +110,17 @@ export class CodelensProvider implements vscode.CodeLensProvider {
     }
 
     private getNodeType(node): string {
-        if (node.kind === 'Function') {
-            return 'functions';
+        if (node.kind === NODE_TYPES.FUNCTION) {
+            return API_DOC_DIR.FUNCTION;
         }
-        if (node.kind === 'ClassDefn') {
-            return 'classes';
+        if (node.kind === NODE_TYPES.CLASS) {
+            return API_DOC_DIR.CLASS;
         }
-        if (node.kind === 'TypeDefinition') {
-            if (node.typeNode.kind === 'RecordType') {
-                return 'records';
+        if (node.kind === NODE_TYPES.TYPE) {
+            if (node.typeNode.kind === NODE_TYPES.RECORD) {
+                return API_DOC_DIR.RECORD;
             }
-            return 'abstractobjects';
+            return API_DOC_DIR.OBJECT;
         }
         return '';
     }
@@ -124,7 +129,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         if (node.typeInfo) {
             return node.typeInfo.modName;
         }
-        if (node.kind === 'TypeDefinition' && node.typeNode) {
+        if (node.kind === NODE_TYPES.TYPE && node.typeNode) {
             return node.typeNode.typeInfo.modName;
         }
         return '';
