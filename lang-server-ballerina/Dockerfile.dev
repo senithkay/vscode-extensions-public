@@ -25,6 +25,13 @@ CMD [ \
         "-Dballerina.home=/ballerina/runtime", \
         "-Dballerina.version=$(./ballerina/runtime/bin/ballerina version | head -n 1 | cut -d' ' -f2)", \
         "-cp", \
-        "/ws-server/*:/ballerina/runtime/bre/lib/*:/ballerina/runtime/lib/tools/lang-server/lib/*", \
+        "/ws-server/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/ballerina/runtime/bre/lib/*", \
         "choreo.langserver.1_0_0.$_init" \
     ]
+
+#    "java", \
+#    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", \ 
+#    "-Dballerina.home=/ballerina/runtime", \
+#    "-Dballerina.version=$(./ballerina/runtime/bin/ballerina version | head -n 1 | cut -d' ' -f2)", \
+#    "-cp", \
+#    '/ws-server/*:/ballerina/runtime/lib/tools/lang-server/lib/*:/ballerina/runtime/bre/lib/*' 'choreo.langserver.1_0_0.$_init'

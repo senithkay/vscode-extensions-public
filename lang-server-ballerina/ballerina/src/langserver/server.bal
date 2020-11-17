@@ -6,7 +6,7 @@ const RPC_HANDLER = "rpcHandler";
 @http:WebSocketServiceConfig {
     path: "/",
     subProtocols: ["json"],
-    idleTimeoutInSeconds: 120
+    idleTimeoutInSeconds: 100000
 }
 service serviceName on new http:Listener(9090) {
     resource function onOpen(http:WebSocketCaller caller) {
@@ -38,7 +38,7 @@ service serviceName on new http:Listener(9090) {
 
     resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
         io:println("\non close");
-        BWebSocketRPCHandler rpcHandler = <BWebSocketRPCHandler>caller.getAttribute(RPC_HANDLER);
-        rpcHandler.close();
+        // BWebSocketRPCHandler rpcHandler = <BWebSocketRPCHandler>caller.getAttribute(RPC_HANDLER);
+        // rpcHandler.close();
     }
 }
