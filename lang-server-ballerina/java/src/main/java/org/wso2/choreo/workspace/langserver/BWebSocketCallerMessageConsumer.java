@@ -41,11 +41,11 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     private MessageJsonHandler jsonHandler;
 
     private final BObject webSocketCaller;
-    private final Runtime currentRuntime;
+    private final BWebSocketRPCHandler handler;
 
-    public BWebSocketCallerMessageConsumer(BObject webSocketCaller, Runtime currentRuntime) {
-        this.webSocketCaller = webSocketCaller;
-        this.currentRuntime = currentRuntime;
+    public BWebSocketCallerMessageConsumer(BObject webSocketCaller, BWebSocketRPCHandler handler) {
+        this.webSocketCaller =  webSocketCaller;
+        this.handler = handler;
     }
 
     public void configure(MessageJsonHandler jsonHandler) {
@@ -64,9 +64,8 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
 
     public void sendMessage(String message) throws MessageIssueException, JsonRpcException {
         logger.log(Level.INFO, "Preparing to respond msg.\n" + message);
-        Strand strand = Scheduler.getStrand();
-        currentRuntime.invokeMethodAsync(webSocketCaller, "pushText",
-                String.valueOf(strand.getName()), strand.getMetadata(),
+        handler.currentRuntime.invokeMethodAsync(webSocketCaller, "pushText",
+                null, null,
                 new Callback() {
                     @Override
                     public void notifySuccess() {

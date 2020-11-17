@@ -19,14 +19,14 @@ service serviceName on new http:Listener(9090) {
         caller.setAttribute(RPC_HANDLER, rpcHandler);
     }
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
-        log:printDebug("Text message received: " + caller.getConnectionId());
+        log:printInfo("Text message received: " + caller.getConnectionId());
         log:printDebug(data);
         BWebSocketRPCHandler rpcHandler = <BWebSocketRPCHandler>caller.getAttribute(RPC_HANDLER);
         rpcHandler.onMessage(data);
     }
 
     resource function onPing(http:WebSocketCaller caller, byte[] data) {
-        log:printDebug("Sending PONG: " + caller.getConnectionId());
+        log:printInfo("Sending PONG: " + caller.getConnectionId());
         var err = caller->pong(data);
         if (err is http:WebSocketError) {
             log:printError("Error occurred when responding to PING.", err);
