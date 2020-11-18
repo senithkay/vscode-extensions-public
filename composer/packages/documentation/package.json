@@ -13,6 +13,7 @@
     "@ballerina/ast-model": "^2.0.0-Preview6-SNAPSHOT",
     "diff": "^3.5.0",
     "escape-html": "^1.0.3",
+    "react-html-parser": "^2.0.2",
     "react-markdown": "^4.0.0"
   },
   "devDependencies": {
