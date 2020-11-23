@@ -14,10 +14,10 @@ public class WSCallerProxy {
     }
 
     public function pushText(string msg) returns (boolean) {
-        log:printInfo("responding to caller. " + msg);
+        log:printInfo("responding to caller. " + self.caller.getConnectionId());
         error? pushTextError = self.caller->pushText(msg);
         if (pushTextError is error) {
-            log:printInfo("error responding to caller. " + pushTextError.message());
+            log:printError("error responding to caller. " + pushTextError.message());
         } 
         return !(pushTextError is error);
     }

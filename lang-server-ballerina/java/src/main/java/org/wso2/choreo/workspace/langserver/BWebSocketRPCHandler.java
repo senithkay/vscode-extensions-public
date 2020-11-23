@@ -35,11 +35,9 @@ public class BWebSocketRPCHandler {
     private BWebSocketCallerMessageHandler messageHandler;
     private BWebSocketCallerMessageConsumer messageConsumer;
     private Environment currentEnv;
-    private Runtime currentRuntime;
+    public Runtime currentRuntime;
 
     public BWebSocketRPCHandler(BObject webSocketCaller) {
-        this.currentEnv = new Environment(Scheduler.getStrand());
-        this.currentRuntime = this.currentEnv.getRuntime();
         this.webSocketCaller = webSocketCaller;
         this.initialize();
         logger.info("Starting LangServer session.");
@@ -50,7 +48,7 @@ public class BWebSocketRPCHandler {
         BWebSocketLauncherBuilder<ExtendedLanguageClient> builder =
                 new BWebSocketLauncherBuilder<>();
         messageHandler = new BWebSocketCallerMessageHandler();
-        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller, currentRuntime);
+        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller, this);
         builder
             .setMessageHandler(messageHandler)
             .setMessageConsumer(messageConsumer)
@@ -61,6 +59,8 @@ public class BWebSocketRPCHandler {
     }
 
     public void onMessage(String msg) {
+        this.currentEnv = new Environment(Scheduler.getStrand());
+        this.currentRuntime = this.currentEnv.getRuntime(); 
         messageHandler.onMessage(msg);
     }
 
