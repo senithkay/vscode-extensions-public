@@ -1,5 +1,6 @@
 import { InitializeParams, InitializeResult, Location, Position,
     Range, TextDocumentPositionParams} from "vscode-languageserver-protocol";
+
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment } from "./ast-models";
 
