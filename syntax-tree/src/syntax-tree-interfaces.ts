@@ -772,7 +772,7 @@ export interface FunctionDefinition extends STNode {
   functionName: IdentifierToken;
   functionSignature: FunctionSignature;
   metadata?: Metadata;
-  qualifierList: IsolatedKeyword | PublicKeyword | ResourceKeyword[];
+  qualifierList: (IsolatedKeyword | PublicKeyword | ResourceKeyword)[];
   source: string;
 }
 
