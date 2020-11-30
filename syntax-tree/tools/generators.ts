@@ -8,10 +8,29 @@ export function genInterfacesFileCode(modelInfo: any) {
         // This is an auto-generated file. Do not edit.
         // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-models' to generate.
         // tslint:disable:ban-types
+
+        export interface VisibleEndpoint {
+            caller: boolean;
+            isLocal: boolean;
+            kind: string;
+            name: string;
+            pkgAlias: string;
+            pkgName: string;
+            pkgOrgName: string;
+            position: any;
+            typeName: string;
+            viewState?: any;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;
             parent?: STNode;
+            viewState?: any;
+            position?: any;
+            typeData?: any;
+            VisibleEndpoints?: VisibleEndpoint[];
+            source: string;
         }
 
         ${interfaces.join("\n")}
