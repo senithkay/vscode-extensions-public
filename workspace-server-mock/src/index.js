@@ -202,12 +202,16 @@ app.post("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) =
     const newTest = {
         id: orgId,
         name: req.body.name,
+        orgSlug: orgId,
+        appSlug: appId,
         displayName: req.body.displayName,
         workingFile: `/app/project/src/main-module/choreo.bal`,
-        createdAt: "",
-        lastUpdated: ""
+        createdAt: "2020-10-28T11:10:17Z",
+        updatedAt: "2020-10-28T11:10:17Z"
     }
-    res.status(201).send(newTest);
+    setTimeout(function(){
+        res.status(201).send(newTest);
+    }, 2000);
 });
 
 //Get The List of Test Cases
@@ -218,7 +222,10 @@ app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) =>
     for(let x = 0; x < 10; x++) {
         response.push(getTestCase(x+1, orgId, appId))
     }
-    res.status(200).send(response);
+    setTimeout(function(){
+        res.status(200).send(response);
+    }, 2000);
+
 });
 
 //Delete Test Case
@@ -228,7 +235,9 @@ app.delete("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId"
     const response = {
         message: "Test Case Deleted Success",
     }
-    res.status(200).send(response);
+    setTimeout(function(){
+        res.status(200).send(response);
+    }, 2000);
 });
 
 //Get Single Test Case
@@ -236,7 +245,10 @@ app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (
     const orgId = req.params.orgId;
     const appId = req.params.appId;
     const testCaseId = req.params.testCaseId;
-    res.status(200).send(getTestCase(orgId, appId, testCaseId));
+
+    setTimeout(function(){
+        res.status(200).send(getTestCase(orgId, appId, testCaseId));
+    }, 2000);
 });
 
 //Update Test Case
@@ -253,24 +265,33 @@ app.patch("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId",
         createdAt: "2020-10-28T11:10:17Z",
         updatedAt: "2020-10-28T11:10:17Z"
     }
-    res.status(200).send(newTest);
+    setTimeout(function(){
+        res.status(200).send(newTest);
+    }, 2000);
+    
 });
 
 // Test Case ping
 app.post("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/ping", (req, res) => {
-    res.send({
-        ping: "success"
-    });
+    setTimeout(function(){
+        res.send({
+            ping: "success"
+        });
+    }, 2000);
 });
 
 // Test Case AST cache
 app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/code", (req, res) => {
-    res.send(testLowCode);
+    setTimeout(function(){
+        res.send(testLowCode);
+    }, 2000);
 });
 
 // Test Case AST cache Update
 app.put("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/code", (req, res) => {
-    res.send(undefined);
+    setTimeout(function(){
+        res.send(undefined);
+    }, 2000);
 });
 
 
