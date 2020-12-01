@@ -171,6 +171,87 @@ app.post("/auth/token", (req, res) => {
     });
 });
 
+/**
+ * TEST CASE RELATED MOCK API START
+ */
+
+//Single Test Case
+function getTestCase(orgId, appId, testCaseId) {
+    return {
+        id: orgId,
+        name: "DefaultTestCase",
+        displayName: "Default Test Case One",
+        workingFile: `/app/project/src/main-module/choreo.bal`,
+        createdAt: "",
+        lastUpdated: ""
+    }
+}
+
+//Create New Test Case
+app.post("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const newTest = {
+        id: orgId,
+        name: req.body.name,
+        displayName: req.body.displayName,
+        workingFile: `/app/project/src/main-module/choreo.bal`,
+        createdAt: "",
+        lastUpdated: ""
+    }
+    res.status(201).send(newTest);
+});
+
+//Get The List of Test Cases
+app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const response = [];
+    for(let x = 0; x < 10; x++) {
+        response.push(getTestCase(x+1, appId))
+    }
+    res.status(200).send(response);
+});
+
+//Delete Test Case
+app.delete("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const response = {
+        message: "Test Case Deleted Success",
+    }
+    res.status(200).send(response);
+});
+
+//Get Single Test Case
+app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const testCaseId = req.params.testCaseId;
+    res.status(200).send(getTestCase(orgId, appId, testCaseId));
+});
+
+//Update Test Case
+app.patch("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const newTest = {
+        id: orgId,
+        name: "DefaultTestCase",
+        displayName: req.body.displayName,
+        workingFile: `/app/project/src/main-module/choreo.bal`,
+        createdAt: "",
+        lastUpdated: ""
+    }
+    res.status(200).send(newTest);
+});
+
+/**
+ * TEST CASE RELATED MOCK API END
+ */
+
+
+
 const serverInfoMap = new Map();
 
 const dumpConnector = (msg) => {
