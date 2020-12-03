@@ -18,10 +18,10 @@ package org.wso2.choreo.workspace.langserver;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import io.ballerina.runtime.scheduling.Scheduler;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -58,8 +58,8 @@ public class BWebSocketRPCHandler {
         connect(builder.getLocalServices(), launcher.getRemoteProxy());
     }
 
-    public void onMessage(String msg) {
-        this.currentEnv = new Environment(Scheduler.getStrand());
+    public void onMessage(Environment env, String msg) {
+        this.currentEnv = env;
         this.currentRuntime = this.currentEnv.getRuntime(); 
         messageHandler.onMessage(msg);
     }

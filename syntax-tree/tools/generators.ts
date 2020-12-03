@@ -10,14 +10,11 @@ export function genInterfacesFileCode(modelInfo: any) {
         // tslint:disable:ban-types
 
         export interface VisibleEndpoint {
-            caller: boolean;
-            isLocal: boolean;
-            kind: string;
+            kind?: string;
+            isCaller: boolean;
+            moduleName: string;
             name: string;
-            pkgAlias: string;
-            pkgName: string;
-            pkgOrgName: string;
-            position: any;
+            orgName: string;
             typeName: string;
             viewState?: any;
         }

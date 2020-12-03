@@ -182,8 +182,7 @@ function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_notifyAll(han
 
 function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_onMessage(handle receiver, handle arg0) = @java:Method {
     name: "onMessage",
-    'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler",
-    paramTypes: ["java.lang.String"]
+    'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler"
 } external;
 
 function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_wait(handle receiver) returns error? = @java:Method {
@@ -202,6 +201,18 @@ function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_wait3(handle 
     name: "wait",
     'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler",
     paramTypes: ["long", "int"]
+} external;
+
+// External interop functions for mapping public fields.
+
+function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_getCurrentRuntime(handle receiver) returns handle = @java:FieldGet {
+    name: "currentRuntime",
+    'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler"
+} external;
+
+function org_wso2_choreo_workspace_langserver_BWebSocketRPCHandler_setCurrentRuntime(handle receiver, handle arg) = @java:FieldSet {
+    name: "currentRuntime",
+    'class: "org.wso2.choreo.workspace.langserver.BWebSocketRPCHandler"
 } external;
 
 
