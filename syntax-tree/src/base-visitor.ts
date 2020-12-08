@@ -2301,12 +2301,12 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
-  beginVisitSyntaxTree?(
-    node: Ballerina.SyntaxTree,
+  beginVisitModulePart?(
+    node: Ballerina.ModulePart,
     parent?: Ballerina.STNode
   ): void;
-  endVisitSyntaxTree?(
-    node: Ballerina.SyntaxTree,
+  endVisitModulePart?(
+    node: Ballerina.ModulePart,
     parent?: Ballerina.STNode
   ): void;
 

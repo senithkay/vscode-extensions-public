@@ -59,7 +59,6 @@ function processPart(start: number, count: number) {
                 return;
             }
             usedBalFiles.push(file);
-            syntaxTree.kind = "SyntaxTree";
             findModelInfo(syntaxTree, modelInfo);
         }).catch((err) => {
             notParsedBalFiles.push(file);

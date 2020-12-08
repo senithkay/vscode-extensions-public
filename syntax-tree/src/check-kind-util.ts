@@ -1541,10 +1541,10 @@ export class STKindChecker {
     return node.kind === "StringTypeDesc";
   }
 
-  public static isSyntaxTree(
+  public static isModulePart(
     node: Ballerina.STNode
-  ): node is Ballerina.SyntaxTree {
-    return node.kind === "SyntaxTree";
+  ): node is Ballerina.ModulePart {
+    return node.kind === "ModulePart";
   }
 
   public static isTableConstructor(

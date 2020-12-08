@@ -1998,7 +1998,7 @@ export interface StringTypeDesc extends STNode {
   source: string;
 }
 
-export interface SyntaxTree extends STNode {
+export interface ModulePart extends STNode {
   eofToken: EofToken;
   imports: ImportDeclaration[];
   members:
