@@ -19,6 +19,13 @@ export function genInterfacesFileCode(modelInfo: any) {
             viewState?: any;
         }
 
+        export interface NodePosition {
+            startLine?: number;
+            startColumn?: number;
+            endLine?: number;
+            endColumn?: number;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;

@@ -12,6 +12,13 @@ export interface VisibleEndpoint {
   viewState?: any;
 }
 
+export interface NodePosition {
+  startLine?: number;
+  startColumn?: number;
+  endLine?: number;
+  endColumn?: number;
+}
+
 export interface STNode {
   kind: string;
   value?: any;
