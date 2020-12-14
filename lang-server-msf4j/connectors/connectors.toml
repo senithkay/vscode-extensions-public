@@ -1,6 +1,11 @@
 connectors = [
+<<<<<<< Updated upstream
   { org = "ballerina", module = "http", version= "1.0.0", name = "Client", displayName = "Http", beta=false, category="http"},
   { org = "ballerina", module = "email", version= "0.6.0", name = "SmtpClient", displayName = "SMTP", beta=false, category="email"},
+=======
+  { org = "ballerina", module = "http", version= "1.0.3", name = "Client", displayName = "Http", beta=false, category="http"},
+  { org = "ballerina", module = "email", version= "1.0.3", name = "SmtpClient", displayName = "SMTP", beta=false, category="email"},
+>>>>>>> Stashed changes
   { org = "ballerina", module = "email", version= "0.6.0", name = "PopClient", displayName = "POP3", beta=true, category="email"},
   { org = "ballerina", module = "email", version= "0.6.0", name = "ImapClient", displayName = "IMAP", beta=true, category="email"},
   { org = "wso2", module = "twitter", version= "0.9.26", name = "Client", displayName = "Twitter", beta=true, category="socialMedia"},
