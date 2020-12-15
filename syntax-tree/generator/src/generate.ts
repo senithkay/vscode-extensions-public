@@ -19,9 +19,9 @@ if (!sdkPath || !repoPath || !bbePath) {
 
 const modelInfo: any = {};
 
-const SYNTAX_TREE_INTERFACES_PATH = "./src/syntax-tree-interfaces.ts";
-const BASE_VISITOR_PATH = "./src/base-visitor.ts";
-const CHECK_KIND_UTIL_PATH = "./src/check-kind-util.ts";
+const SYNTAX_TREE_INTERFACES_PATH = "../src/syntax-tree-interfaces.ts";
+const BASE_VISITOR_PATH = "../src/base-visitor.ts";
+const CHECK_KIND_UTIL_PATH = "../src/check-kind-util.ts";
 
 const bbeBalFiles = globSync(path.join(bbePath, "**", "*.bal"), {});
 const testBalFiles = globSync(path.join(repoPath, "tests", "**", "*.bal"), {});
@@ -69,7 +69,7 @@ function processPart(start: number, count: number) {
         const timeout = new Promise((resolve, reject) => {
             setTimeout(() => {
                 timedOutBalFiles.push(file);
-                resolve();
+                resolve(undefined);
             }, 20000);
         });
         syntaxTreePromises.push(Promise.race([promise, timeout]));
