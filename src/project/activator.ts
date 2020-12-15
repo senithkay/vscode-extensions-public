@@ -3,6 +3,7 @@ import { workspace, window, Uri } from "vscode";
 import { TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, CMP_PROJECT_SUPPORT } from "../telemetry";
 import { activateTestRunner } from "./cli-cmds/test";
 import { activateBuildCommand } from "./cli-cmds/build";
+import { activateK8sCommand } from "./cli-cmds/k8s";
 import { activateRunCommand } from "./cli-cmds/run";
 import { activateDocCommand } from "./cli-cmds/doc";
 import { PROJECT_TYPE } from "./cli-cmds/cmd-runner";
@@ -56,4 +57,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     // activate ballerina doc command
     activateDocCommand();
+
+    // activate the create kubernetes.toml command
+    activateK8sCommand();
 }

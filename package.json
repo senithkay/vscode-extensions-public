@@ -39,6 +39,16 @@
                     ".bal"
                 ],
                 "configuration": "./grammar/ballerina.configuration.json"
+            },
+            {
+                "id": "toml",
+                "aliases": [
+                    "Toml",
+                    "toml"
+                ],
+                "extensions": [
+                    ".toml"
+                ]
             }
         ],
         "grammars": [
@@ -111,6 +121,9 @@
         },
         "configurationDefaults": {
             "[ballerina]": {
+                "editor.wordBasedSuggestions": false
+            },
+            "[toml]": {
                 "editor.wordBasedSuggestions": false
             }
         },
@@ -223,6 +236,11 @@
             {
                 "command": "ballerina.project.run",
                 "title": "Run",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.create.k8s",
+                "title": "Create Kubernetes.toml",
                 "category": "Ballerina"
             },
             {
