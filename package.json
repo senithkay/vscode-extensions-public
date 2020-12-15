@@ -28,6 +28,14 @@
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "ballerinaProjectTree",
+                    "name": "Ballerina Project Overview"
+                }
+            ]
+        },
         "languages": [
             {
                 "id": "ballerina",
@@ -252,7 +260,16 @@
                     "dark": "./resources/images/icons/refresh-inverse.svg"
                 }
             }
-        ]
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "ballerina.refreshProjectTree",
+                    "when": "view == ballerinaProjectTree",
+                    "group": "navigation"
+                }
+            ]
+        }
     },
     "main": "./dist/extension",
     "scripts": {
