@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/log;
 
-public type WSCallerProxy object {
+public class WSCallerProxy {
 
     private http:WebSocketCaller caller;
 
-    public function __init(http:WebSocketCaller caller) {
+    public function init(http:WebSocketCaller caller) {
         self.caller = caller;
     }
 
@@ -14,12 +14,12 @@ public type WSCallerProxy object {
     }
 
     public function pushText(string msg) returns (boolean) {
-        log:printInfo("responding to caller. " + msg);
-        error? pushText = self.caller->pushText(msg);
-        if (pushText is error) {
-            log:printInfo("error responding to caller. " + pushText.reason());
+        log:printInfo("responding to caller. " + self.caller.getConnectionId());
+        error? pushTextError = self.caller->pushText(msg);
+        if (pushTextError is error) {
+            log:printError("error responding to caller. " + pushTextError.message());
         } 
-        return !(pushText is error);
+        return !(pushTextError is error);
     }
 
-};
+}

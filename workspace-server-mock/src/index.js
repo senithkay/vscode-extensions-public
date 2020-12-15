@@ -204,7 +204,7 @@ async function startLangServer(orgId, appId, ws) {
     console.log("Starting LangServer for workspace: " + workspaceID);
 
     function createMessageProxy(port) {
-        const lsURL = `ws://localhost:${port}/orgs/${orgId}/apps/${appId}/workspace/lang-server`;
+        const lsURL = `ws://localhost:${port}/`;
         const wsClient = new WebSocket(lsURL);
         wsClient.on('open', function open() {
             console.log("Opened connection to " + workspaceID + " LS.");
@@ -289,7 +289,7 @@ async function startLangServer(orgId, appId, ws) {
                 "-v", debBalDistPath + ":/ballerina/runtime",
                 "-v", projectPath + ":/app",
                 "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
-                "workspace-lang-server:1.0.0"
+                "workspace-lang-server:2.0.0"
             ]
         );
         exitHook(() => {
@@ -306,7 +306,7 @@ async function startLangServer(orgId, appId, ws) {
         });
 
         const checkStart = (msg) => {
-            if (msg.toString().includes("Interface starting on host 0.0.0.0 and port 9090")) {
+            if (msg.toString().includes("started HTTP/WS listener 0.0.0.0:9090")) {
                 serverInfoMap.get(workspaceID).isStarting = false;
                 createMessageProxy(lsPort);
             }

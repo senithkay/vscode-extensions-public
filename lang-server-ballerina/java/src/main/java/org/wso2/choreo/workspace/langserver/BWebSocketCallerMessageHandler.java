@@ -21,10 +21,15 @@ import org.eclipse.lsp4j.jsonrpc.MessageIssueHandler;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  */
 public class BWebSocketCallerMessageHandler {
+
+    private static final Logger logger = Logger.getLogger(BWebSocketCallerMessageHandler.class.getName());
 
     private MessageConsumer callback;
     private MessageJsonHandler jsonHandler;
@@ -37,12 +42,15 @@ public class BWebSocketCallerMessageHandler {
     }
 
     public void onMessage(String content) {
+        logger.info("Preparing to handle msg.\n" + content);
         try {
             Message message = jsonHandler.parseMessage(content);
             callback.consume(message);
+            logger.info("Successfully handled msg.");
         } catch (MessageIssueException exception) {
             // An issue was found while parsing or validating the message
             issueHandler.handle(exception.getRpcMessage(), exception.getIssues());
+            logger.log(Level.SEVERE, "Error while handling msg", exception);
         }
     }
 }
