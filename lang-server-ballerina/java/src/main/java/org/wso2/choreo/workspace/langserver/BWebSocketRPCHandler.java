@@ -15,34 +15,40 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 public class BWebSocketRPCHandler {
 
-    private ObjectValue webSocketCaller;
+    private static final Logger logger = Logger.getLogger(BWebSocketRPCHandler.class.getName());
+
+    private BObject webSocketCaller;
     private BallerinaLanguageServer languageServer;
     private BWebSocketCallerMessageHandler messageHandler;
     private BWebSocketCallerMessageConsumer messageConsumer;
-    private BRuntime currentRuntime;
+    private Environment currentEnv;
+    public Runtime currentRuntime;
 
-    public BWebSocketRPCHandler(ObjectValue webSocketCaller) {
-        this.currentRuntime = BRuntime.getCurrentRuntime();
+    public BWebSocketRPCHandler(BObject webSocketCaller) {
         this.webSocketCaller = webSocketCaller;
-        this.init();
+        this.initialize();
+        logger.info("Starting LangServer session.");
     }
 
-    public void init() {
+    public void initialize() {
         languageServer = new BallerinaLanguageServer();
         BWebSocketLauncherBuilder<ExtendedLanguageClient> builder =
                 new BWebSocketLauncherBuilder<>();
         messageHandler = new BWebSocketCallerMessageHandler();
-        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller, currentRuntime);
+        messageConsumer = new BWebSocketCallerMessageConsumer(webSocketCaller, this);
         builder
             .setMessageHandler(messageHandler)
             .setMessageConsumer(messageConsumer)
@@ -52,11 +58,14 @@ public class BWebSocketRPCHandler {
         connect(builder.getLocalServices(), launcher.getRemoteProxy());
     }
 
-    public void onMessage(String msg) {
+    public void onMessage(Environment env, String msg) {
+        this.currentEnv = env;
+        this.currentRuntime = this.currentEnv.getRuntime(); 
         messageHandler.onMessage(msg);
     }
 
     public void close() {
+        logger.info("Shutting down LangServer session.");
         if (languageServer != null) {
             languageServer.shutdown();
             languageServer = null;

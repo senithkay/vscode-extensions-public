@@ -15,19 +15,17 @@
  */
 package org.wso2.choreo.workspace.langserver;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.MessageIssueException;
-import org.eclipse.lsp4j.jsonrpc.MessageIssueHandler;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
-import org.eclipse.lsp4j.websocket.WebSocketMessageConsumer;
 
-import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -35,16 +33,16 @@ import java.util.logging.Logger;
  */
 public class BWebSocketCallerMessageConsumer implements MessageConsumer {
 
-    private static final Logger LOG = Logger.getLogger(BWebSocketCallerMessageConsumer.class.getName());
+    private static final Logger logger = Logger.getLogger(BWebSocketCallerMessageConsumer.class.getName());
 
     private MessageJsonHandler jsonHandler;
 
-    private ObjectValue webSocketCaller;
-    private BRuntime currentRuntime;
+    private final BObject webSocketCaller;
+    private final BWebSocketRPCHandler handler;
 
-    public BWebSocketCallerMessageConsumer(ObjectValue webSocketCaller, BRuntime currentRuntime) {
-        this.webSocketCaller = webSocketCaller;
-        this.currentRuntime = currentRuntime;
+    public BWebSocketCallerMessageConsumer(BObject webSocketCaller, BWebSocketRPCHandler handler) {
+        this.webSocketCaller =  webSocketCaller;
+        this.handler = handler;
     }
 
     public void configure(MessageJsonHandler jsonHandler) {
@@ -62,10 +60,19 @@ public class BWebSocketCallerMessageConsumer implements MessageConsumer {
     }
 
     public void sendMessage(String message) throws MessageIssueException, JsonRpcException {
-        Object isOpen = currentRuntime.getSyncMethodInvokeResult(webSocketCaller,"isOpen", 500);
-        Boolean isConnectionOpen = (Boolean) isOpen;
-        if (isConnectionOpen) {
-            Object isSuccess = currentRuntime.getSyncMethodInvokeResult(webSocketCaller, "pushText", 500, message, false);
-        }
+        logger.log(Level.INFO, "Preparing to respond msg.\n" + message);
+        handler.currentRuntime.invokeMethodAsync(webSocketCaller, "pushText",
+                null, null,
+                new Callback() {
+                    @Override
+                    public void notifySuccess() {
+                        logger.log(Level.INFO, "Successfully responded.");
+                    }
+
+                    @Override
+                    public void notifyFailure(BError bError) {
+                        logger.log(Level.SEVERE, "Error while responding", bError);
+                    }
+                }, StringUtils.fromString(message), true);
     }
 }
