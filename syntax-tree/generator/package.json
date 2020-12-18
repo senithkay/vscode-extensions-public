@@ -10,7 +10,7 @@
     "lint": "tslint -t stylish --project .",
     "build": "tsc --pretty",
     "watch": "tsc --pretty --watch",
-    "gen-models": "npm run build && node lib/tools/generate"
+    "gen-models": "npm run build && node lib/generate"
   },
   "dependencies": {
     "@ballerina/lang-service": "file:../../lang-service",
