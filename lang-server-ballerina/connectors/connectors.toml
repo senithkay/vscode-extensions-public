@@ -9,4 +9,3 @@ connectors = [
   { org = "ballerinax", module = "github", version = "0.99.7", name = "Client", displayName = "GitHub", beta = true, category = "service-connectors"},
   { org = "ballerinax", module = "googleapis.gmail", version = "0.99.2", name = "Client", displayName = "Gmail", beta = true, category = "service-connectors"}
 ]
-

@@ -20,7 +20,7 @@ export class StdioBallerinaLangServer implements IBallerinaLangServer {
 
     public shutdown(): void {
         if (this.lsProcess) {
-            treekill.default(this.lsProcess.pid);
+            treekill(this.lsProcess.pid);
         }
     }
 }

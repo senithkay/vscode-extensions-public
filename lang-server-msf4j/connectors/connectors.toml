@@ -1,4 +1,5 @@
 connectors = [
+
   { org = "ballerina", module = "http", version= "1.0.4", name = "Client", displayName = "Http", beta=false, category="generic-connectors"},
   { org = "ballerina", module = "email", version= "1.0.4", name = "SmtpClient", displayName = "SMTP", beta=false, category="generic-connectors"},
   { org = "ballerina", module = "email", version= "1.0.4", name = "PopClient", displayName = "POP3", beta=true, category="generic-connectors"},
