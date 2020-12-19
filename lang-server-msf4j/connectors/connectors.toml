@@ -1,12 +1,12 @@
 connectors = [
-  { org = "ballerina", module = "http", version= "1.0.0", name = "Client", displayName = "Http", beta=false, category="generic-connectors"},
-  { org = "ballerina", module = "email", version= "0.6.0", name = "SmtpClient", displayName = "SMTP", beta=false, category="generic-connectors"},
-  { org = "ballerina", module = "email", version= "0.6.0", name = "PopClient", displayName = "POP3", beta=true, category="generic-connectors"},
-  { org = "ballerina", module = "email", version= "0.6.0", name = "ImapClient", displayName = "IMAP", beta=true, category="generic-connectors"},
-  { org = "wso2", module = "twitter", version= "0.9.26", name = "Client", displayName = "Twitter", beta=true, category="service-connectors"},
-  { org = "ballerinax", module = "twilio", version= "0.99.0", name = "Client", displayName = "Twilio", beta=true, category="service-connectors"},
-  { org = "ballerinax", module = "slack", version= "0.9.1", name = "Client", displayName = "Slack", beta=true, category="service-connectors"},
-  { org = "ballerinax", module = "sfdc", version= "2.1.2", name = "QueryClient", displayName = "Salesforce Query", beta=false, category="service-connectors"},
-  { org = "ballerinax", module = "sfdc", version= "2.1.2", name = "BulkJob", displayName = "Salesforce Bulk", beta=false, category="service-connectors"},
-  { org = "ballerinax", module = "sfdc", version= "2.1.2", name = "SObjectClient", displayName = "Salesforce SObject", beta=false, category="service-connectors"}
+
+  { org = "ballerina", module = "http", version= "1.0.4", name = "Client", displayName = "Http", beta=false, category="generic-connectors"},
+  { org = "ballerina", module = "email", version= "1.0.4", name = "SmtpClient", displayName = "SMTP", beta=false, category="generic-connectors"},
+  { org = "ballerina", module = "email", version= "1.0.4", name = "PopClient", displayName = "POP3", beta=true, category="generic-connectors"},
+  { org = "ballerina", module = "email", version= "1.0.4", name = "ImapClient", displayName = "IMAP", beta=true, category="generic-connectors"},
+  { org = "ballerinax", module = "slack", version= "0.9.4", name = "Client", displayName = "Slack", beta=true, category="service-connectors"},
+  { org = "ballerinax", module = "sfdc", version= "2.1.3", name = "BaseClient", displayName = "Salesforce BaseClient", beta = true, category="service-connectors"},
+  { org = "ballerinax", module = "sfdc", version= "2.1.3", name = "BulkJob", displayName = "Salesforce BulkJob", beta = true, category="service-connectors"},
+  { org = "ballerinax", module = "github", version = "0.99.7", name = "Client", displayName = "GitHub", beta = true, category = "service-connectors"},
+  { org = "ballerinax", module = "googleapis.gmail", version = "0.99.2", name = "Client", displayName = "Gmail", beta = true, category = "service-connectors"}
 ]
