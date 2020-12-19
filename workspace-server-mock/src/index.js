@@ -92,7 +92,7 @@ function getApp(orgId, appId) {
         id: 100,
         name: appId,
         displayName: appId,
-        workingFile: `/app/project/src/main-module/choreo.bal`,
+        workingFile: `/app/project/choreo.bal`,
         org: orgId,
         organizationId: 100,
         template: "Service",
