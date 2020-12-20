@@ -6,8 +6,8 @@
   "files": [
     "lib"
   ],
-  "main": "lib/src/index.js",
-  "typings": "lib/src/index.d.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
