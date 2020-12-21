@@ -20,6 +20,7 @@ export interface NodePosition {
 }
 
 export interface STNode {
+  typedBindingPattern?: any;
   kind: string;
   value?: any;
   parent?: STNode;
