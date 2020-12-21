@@ -92,7 +92,7 @@ function getApp(orgId, appId) {
         id: 100,
         name: appId,
         displayName: appId,
-        workingFile: `/app/project/src/main-module/choreo.bal`,
+        workingFile: `/app/project/choreo.bal`,
         org: orgId,
         organizationId: 100,
         template: "Service",
@@ -284,12 +284,12 @@ async function startLangServer(orgId, appId, ws) {
                 "run",
                 "-p", debugPort + ":5005",
                 "-p", lsPort + ":9090",
-                "-v", currentFilePath + "/../../lang-server-msf4j/connectors:/ballerina/connectors",
+                // "-v", currentFilePath + "/../../lang-server-msf4j/connectors:/ballerina/connectors",
                 "--env", "DEFAULT_CONNECTOR_FILE=/ballerina/connectors/connectors.toml",
-                "-v", debBalDistPath + ":/ballerina/runtime",
+                // "-v", debBalDistPath + ":/ballerina/runtime",
                 "-v", projectPath + ":/app",
-                "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
-                "workspace-lang-server:2.0.0"
+                // "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
+                "choreoipaas/lang-server:v0.2.0"
             ]
         );
         exitHook(() => {
