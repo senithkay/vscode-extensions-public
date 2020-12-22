@@ -5,15 +5,34 @@ const getPort = require('get-port');
 const fs = require('fs');
 const WebSocket = require('ws');
 const exitHook = require('exit-hook');
-
+const cors = require('cors');
 const app = express();
 const expressWs = require('express-ws')(app);
 
 app.use(express.json());
 
+
+app.use(cors());
+app.options('*', cors());
+
 const port = 3000;
 
-const defaultContent = "";
+const defaultContent = `
+import ballerina/http;
+@http:ServiceConfig {
+    basePath: "/"
+}
+service hello on new http:Listener(8090) {
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/hello"
+    }
+    resource function hello(http:Caller caller, http:Request req) {
+        http:Client httpEndpoint = new ("");
+        var getResponse = checkpanic httpEndpoint->get("");
+        checkpanic caller->respond(<@untainted>"Hello");
+    }
+}`;
 
 const repoPath = path.resolve(__dirname, "..", "repo");
 const dumpPath = path.resolve(__dirname, "..", "dump");
@@ -170,6 +189,130 @@ app.post("/auth/token", (req, res) => {
         }]
     });
 });
+
+/**
+ * TEST CASE RELATED MOCK API START
+ */
+ 
+//Single Test Case
+function getTestCase(orgId, appId, testCaseId) {
+    return {
+        id: testCaseId,
+        name: testCaseId,
+        orgSlug: orgId,
+        appSlug: appId,
+        displayName: "Default Test Case " + testCaseId,
+        workingFile: `/app/project/src/main-module/tests/test.bal`,
+        createdAt: "2020-10-28T11:10:17Z",
+        updatedAt: "2020-10-28T11:10:17Z"
+    }
+}
+
+//Create New Test Case
+app.post("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const newTest = {
+        id: orgId,
+        name: req.body.name,
+        orgSlug: orgId,
+        appSlug: appId,
+        displayName: req.body.displayName,
+        workingFile: `/app/project/src/main-module/tests/test.bal`,
+        createdAt: "2020-10-28T11:10:17Z",
+        updatedAt: "2020-10-28T11:10:17Z"
+    }
+    setTimeout(function(){
+        res.status(201).send(newTest);
+    }, 2000);
+});
+
+//Get The List of Test Cases
+app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const response = [];
+    for(let x = 0; x < 10; x++) {
+        response.push(getTestCase(orgId, appId, x+1))
+    }
+    setTimeout(function(){
+        res.status(200).send(response);
+    }, 2000);
+
+});
+
+//Delete Test Case
+app.delete("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const response = {
+        message: "Test Case Deleted Success",
+    }
+    setTimeout(function(){
+        res.status(200).send(response);
+    }, 2000);
+});
+
+//Get Single Test Case
+app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const testCaseId = req.params.testCaseId;
+
+    setTimeout(function(){
+        res.status(200).send(getTestCase(orgId, appId, testCaseId));
+    }, 2000);
+});
+
+//Update Test Case
+app.patch("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId", (req, res) => {
+    const orgId = req.params.orgId;
+    const appId = req.params.appId;
+    const newTest = {
+        id: "2",
+        name: "DefaultTestCase",
+        orgSlug: orgId,
+        appSlug: appId,
+        displayName: req.body.displayName,
+        workingFile: `/app/project/src/main-module/tests/test.bal`,
+        createdAt: "2020-10-28T11:10:17Z",
+        updatedAt: "2020-10-28T11:10:17Z"
+    }
+    setTimeout(function(){
+        res.status(200).send(newTest);
+    }, 2000);
+    
+});
+
+// Test Case ping
+app.post("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/ping", (req, res) => {
+    setTimeout(function(){
+        res.send({
+            ping: "success"
+        });
+    }, 2000);
+});
+
+// Test Case AST cache
+app.get("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/code", (req, res) => {
+    setTimeout(function(){
+        res.send([]);
+    }, 2000);
+});
+
+// Test Case AST cache Update
+app.put("/testbase/testmanager/orgs/:orgId/apps/:appId/testcases/:testCaseId/code", (req, res) => {
+    setTimeout(function(){
+        res.send(undefined);
+    }, 2000);
+});
+
+
+/**
+ * TEST CASE RELATED MOCK API END
+ */
+
+
 
 const serverInfoMap = new Map();
 
