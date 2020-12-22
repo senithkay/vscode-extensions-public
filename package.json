@@ -80,11 +80,6 @@
                     "default": false,
                     "description": "If set to true debug msgs will be printed to Ballerina output channel"
                 },
-                "ballerina.goToDefinition.enableStandardLibraries": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If uncheck/set to false navigation for the standard library content will be disabled"
-                },
                 "ballerina.traceLog": {
                     "type": "boolean",
                     "default": false,
@@ -119,10 +114,6 @@
                     "type": "string",
                     "default": "https://datamapper.choreo.dev",
                     "description": "URL of the host for data mapper back end"
-                },
-                "codelens-docs.enableCodeLens": {
-                    "type": "boolean",
-                    "default": true
                 }
             }
         },
@@ -245,11 +236,6 @@
             {
                 "command": "ballerina.project.doc",
                 "title": "API Documentation",
-                "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.highlightSyntax",
-                "title": "Syntax Highlight",
                 "category": "Ballerina"
             },
             {
