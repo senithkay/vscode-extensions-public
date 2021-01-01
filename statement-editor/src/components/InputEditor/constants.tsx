@@ -21,6 +21,15 @@ export const acceptedCompletionKindForExpressions : number[] = [
     3,
     20];
 
+export const completionEditorTypeKinds : number[] = [
+    // Type
+    11,
+    // Record
+    22,
+    // Module
+    9
+]
+
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 

@@ -38,7 +38,7 @@ import {
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -125,7 +125,7 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
+    type: string, model: STNode, completions: SuggestionItem[], targetPosition: NodePosition, onChange: (code: string) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
@@ -133,6 +133,7 @@ export function getFormComponent(
     return (
         <FormComponent
             model={model}
+            completions={completions}
             targetPosition={targetPosition}
             onChange={onChange}
             onCancel={onCancel}
