@@ -22,17 +22,13 @@ import { ballerinaExtInstance } from './core';
 // import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
-import { activate as activateDocs } from './docs';
 // import { activate as activateTraceLogs } from './trace-logs';
-import { activate as activateTreeView } from './project-tree-view';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
-import { activate as activateOverview } from './overview';
 import { activate as activateSyntaxHighlighter } from './syntax-highlighter';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities, DidChangeConfigurationParams } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
-// import { CodelensProvider } from './docs/codelens-provider';
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
@@ -81,15 +77,10 @@ export function activate(context: ExtensionContext): Promise<any> {
         // activateTraceLogs(ballerinaExtInstance);
         // Enable Ballerina Debug Config Provider
         activateDebugConfigProvider(ballerinaExtInstance);
-        // Enable API Docs Live Preview
-        activateDocs(ballerinaExtInstance);
         // Enable Ballerina API Designer
         // activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures(ballerinaExtInstance);
-        activateOverview(ballerinaExtInstance);
-        // Enable Ballerina Project Overview
-        activateTreeView(ballerinaExtInstance);
         // Enable Ballerina Syntax Highlighter
         activateSyntaxHighlighter(ballerinaExtInstance);
 
@@ -108,11 +99,6 @@ export function activate(context: ExtensionContext): Promise<any> {
                     window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
                 }
             });
-
-            // const docCodelensProvider = new CodelensProvider(langClient);
-            // const documentSelector: DocumentSelector = [{ language: 'ballerina' }];
-            // languages.registerCodeLensProvider(documentSelector, docCodelensProvider);
-
         });
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
