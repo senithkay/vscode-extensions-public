@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview8",
+    "version": "2.0.0-Alpha-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -28,14 +28,6 @@
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {
-        "views": {
-            "explorer": [
-                {
-                    "id": "ballerinaProjectTree",
-                    "name": "Ballerina Project Overview"
-                }
-            ]
-        },
         "languages": [
             {
                 "id": "ballerina",
@@ -237,25 +229,8 @@
                 "command": "ballerina.project.doc",
                 "title": "API Documentation",
                 "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.refreshProjectTree",
-                "title": "Refresh",
-                "icon": {
-                    "light": "./resources/images/icons/refresh.svg",
-                    "dark": "./resources/images/icons/refresh-inverse.svg"
-                }
             }
-        ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "ballerina.refreshProjectTree",
-                    "when": "view == ballerinaProjectTree",
-                    "group": "navigation"
-                }
-            ]
-        }
+        ]
     },
     "main": "./dist/extension",
     "scripts": {
