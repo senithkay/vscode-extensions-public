@@ -33,12 +33,21 @@ export interface BallerinaSyntaxTreeResponse {
 }
 
 export interface BallerinaPackage {
+    name: string;
     kind: string;
     topLevelNodes: any[];
+    modules: BallerinaModule[];
+}
+
+export interface BallerinaModule {
+    name?: string;
+    default?: boolean;
+    functions?: any[];
+    services?: any[];
 }
 
 export interface BallerinaPackagesResponse {
-    packages?: BallerinaPackage;
+    packages?: BallerinaPackage[];
 }
 
 export interface GetSyntaxTreeRequest {
