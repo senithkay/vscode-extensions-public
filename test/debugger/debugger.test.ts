@@ -31,8 +31,8 @@ import { ExecutableOptions } from 'vscode-languageclient';
 
 suite('Ballerina Debug Adapter', () => {
 
-    const PROJECT_ROOT = path.join(__dirname, '../../../');
-    const DATA_ROOT = path.join(PROJECT_ROOT, 'test/data/');
+    const PROJECT_ROOT = path.join(__dirname, '..', '..', '..');
+    const DATA_ROOT = path.join(PROJECT_ROOT, 'test', 'data');
     const BALLERINA_HOME = getBallerinaHome();
     const DEBUG_PORT = 4711;
 
@@ -89,7 +89,7 @@ suite('Ballerina Debug Adapter', () => {
         test('Initialize request', async () => {
             const response = await dc.initializeRequest();
             response.body = response.body || {};
-            assert.equal(response.body.supportsConfigurationDoneRequest, true);
+            assert.equal(response.body.supportsConfigurationDoneRequest, true, 'Invalid config done rquest.');
         }).timeout(15000);
 
         test('launch request', async () => {
@@ -104,8 +104,8 @@ suite('Ballerina Debug Adapter', () => {
                 "debuggeePort": debuggeePort
             });
 
-            assert.equal(response.success, true);
-            assert.equal(response.command, 'launch');
+            assert.equal(response.success, true, 'Invalid response state.');
+            assert.equal(response.command, 'launch', 'Invalid response command.');
         }).timeout(10000);
 
         test('should stop on a breakpoint, main function', async () => {
@@ -203,12 +203,12 @@ suite('Ballerina Debug Adapter', () => {
                 }),
                 dc.launch(launchArgs),
                 dc.waitForEvent('stopped').then(async event => {
-                    assert.equal(event.body.reason, 'breakpoint');
+                    assert.equal(event.body.reason, 'breakpoint', 'Invalid \'breakpoint\' stopped event.');
                     await dc.stepInRequest({
                         threadId: event.body.threadId
                     });
                     const stepInEvent = await dc.waitForEvent('stopped', 12000);
-                    assert.equal(stepInEvent.body.reason, "step");
+                    assert.equal(stepInEvent.body.reason, "step", 'Invalid \'step\' stopped event.');
                     return await dc.stackTraceRequest({
                         threadId: stepInEvent.body.threadId,
                     });
