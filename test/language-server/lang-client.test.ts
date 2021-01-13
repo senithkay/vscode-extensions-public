@@ -56,8 +56,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getSyntaxTree", function (done): void {
-        const filePath = path.join(getBBEPath(), 'hello_world.bal');
-        let uri = Uri.file(filePath.toString());
+        const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 langClient.getSyntaxTree(uri).then((response) => {
@@ -153,30 +152,8 @@ suite("Language Server Tests", function () {
         });
     });
 
-
-    test("Test Folding Range - Single file", (done) => {
-        const filePath = path.join(PROJECT_ROOT, 'hello_world.bal');
-        let uri = Uri.file(filePath.toString());
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
-                const foldingRangeParam = {
-                    textDocument: {
-                        uri: uri.toString()
-                    }
-                };
-                langClient.sendRequest('textDocument/foldingRange', foldingRangeParam).then((response: any) => {
-                    assert.equal(response[0].startLine, 3, 'Invalid folding start position.');
-                    assert.equal(response[0].endLine, 4, 'Invalid folding end position.');
-                    assert.equal(response[0].kind, 'region', 'Invalid folding kind.');
-                    done();
-                });
-            });
-        });
-    });
-
     test("Test Folding Range - Ballerina project", (done) => {
-        const filePath = path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
-        let uri = Uri.file(filePath.toString());
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const foldingRangeParam = {
@@ -196,6 +173,170 @@ suite("Language Server Tests", function () {
                     assert.equal(response[3].endLine, 1, 'Invalid folding end position - 1.');
                     done();
                 });
+            });
+        });
+    });
+
+    test("Test Folding Range - Single file", (done) => {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                const foldingRangeParam = {
+                    textDocument: {
+                        uri: uri.toString()
+                    }
+                };
+                langClient.sendRequest('textDocument/foldingRange', foldingRangeParam).then((response: any) => {
+                    assert.equal(response[0].startLine, 3, 'Invalid folding start position - 3.');
+                    assert.equal(response[0].endLine, 4, 'Invalid folding end position - 4.');
+                    assert.equal(response[0].kind, 'region', 'Invalid folding kind.');
+                    assert.equal(response[1].startLine, 7, 'Invalid folding start position - 7.');
+                    assert.equal(response[1].endLine, 9, 'Invalid folding end position - 9.');
+                    assert.equal(response[1].kind, 'comment', 'Invalid folding kind.');
+                    done();
+                });
+            });
+        });
+    });
+
+    test("Test Goto Defition - Ballerina project", (done) => {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal'));
+        langClient.onReady().then(() => {
+            const definitionParam = {
+                textDocument: {
+                    uri: uri.toString()
+                }, position: {
+                    line: 5,
+                    character: 33
+                }
+            };
+            langClient.sendRequest('textDocument/definition', definitionParam).then((response: any) => {
+                const gotoDefFilePath = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello',
+                    'hello_service.bal').toString());
+                assert.equal(response[0].uri, gotoDefFilePath, 'Invalid goto definitopn file uri.');
+                assert.equal(response[0].range.start.line, 15, 'Invalid goto def start line.');
+                assert.equal(response[0].range.start.character, 16, 'Invalid goto def start character.');
+                assert.equal(response[0].range.end.line, 15, 'Invalid goto def end line.');
+                assert.equal(response[0].range.end.character, 26, 'Invalid goto def start character.');
+                done();
+            });
+        });
+    });
+
+    test("Test Goto Defition - Single file", (done) => {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        langClient.onReady().then(() => {
+            const definitionParam = {
+                textDocument: {
+                    uri: uri.toString()
+                }, position: {
+                    line: 4,
+                    character: 20
+                }
+            };
+            langClient.sendRequest('textDocument/definition', definitionParam).then((response: any) => {
+                assert.equal(response[0].uri, uri, 'Invalid goto definitopn file uri.');
+                assert.equal(response[0].range.start.line, 10, 'Invalid goto def start line.');
+                assert.equal(response[0].range.start.character, 16, 'Invalid goto def start character.');
+                assert.equal(response[0].range.end.line, 10, 'Invalid goto def end line.');
+                assert.equal(response[0].range.end.character, 26, 'Invalid goto def start character.');
+                done();
+            });
+        });
+    });
+
+    test("Test Hover - Ballerina project", (done) => {
+        langClient.onReady().then(() => {
+            const hoverParam = {
+                textDocument: {
+                    uri: Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
+                },
+                position: {
+                    line: 6,
+                    character: 10
+                }
+            };
+            langClient.sendRequest('textDocument/hover', hoverParam).then((response: any) => {
+                assert.equal(response.contents.kind, 'markdown', 'Invalid content kind.');
+                assert.equal(response.contents.value.includes('Prints'), true, 'Invalid hover value.');
+                done();
+            });
+        });
+    });
+
+    test("Test Hover - Single file", (done) => {
+        langClient.onReady().then(() => {
+            const hoverParam = {
+                textDocument: {
+                    uri: Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()
+                },
+                position: {
+                    line: 10,
+                    character: 20
+                }
+            };
+            langClient.sendRequest('textDocument/hover', hoverParam).then((response: any) => {
+                assert.equal(response.contents.kind, 'markdown', 'Invalid content kind.');
+                assert.equal(response.contents.value.includes('Returns a message'), true, 'Invalid hover value.');
+                done();
+            });
+        });
+    });
+
+    test("Test Code Action - Ballerina project", (done) => {
+        langClient.onReady().then(() => {
+            const actionParam = {
+                textDocument: {
+                    uri: Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
+                },
+                range: {
+                    start: {
+                        line: 4,
+                        character: 10
+                    },
+                    end: {
+                        line: 4,
+                        character: 11
+                    }
+                },
+                context: {
+                    diagnostics: []
+                }
+            };
+            langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
+                assert.equal(response.length, 2, 'Invalid number of code actions.');
+                assert.equal(response[0].command.command, 'ADD_DOC', 'Invalid \'Document this\' command.');
+                assert.equal(response[1].command.command, 'ADD_ALL_DOC', 'Invalid \'Document all\' command.');
+                done();
+            });
+        });
+    });
+
+    test("Test Code Action - Single file", (done) => {
+        langClient.onReady().then(() => {
+            const actionParam = {
+                textDocument: {
+                    uri: Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()
+                },
+                range: {
+                    start: {
+                        line: 10,
+                        character: 20
+                    },
+                    end: {
+                        line: 10,
+                        character: 22
+                    }
+                },
+                context: {
+                    diagnostics: []
+                }
+            };
+            langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
+                assert.equal(response.length, 2, 'Invalid number of code actions.');
+                assert.equal(response[0].command.command, 'ADD_DOC', 'Invalid \'Document this\' command.');
+                assert.equal(response[1].command.command, 'ADD_ALL_DOC', 'Invalid \'Document all\' command.');
+                done();
             });
         });
     });
