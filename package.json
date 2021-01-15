@@ -295,6 +295,7 @@
         "glob": "^7.1.3",
         "istanbul": "^0.4.5",
         "js-yaml": "^3.13.1",
+        "kill-port-process": "2.3.0",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
         "ts-loader": "^6.0.2",
