@@ -432,7 +432,7 @@ async function startLangServer(orgId, appId, ws) {
                 // "-v", debBalDistPath + ":/ballerina/runtime",
                 "-v", projectPath + ":/app",
                 // "-v", path.resolve(require("os").homedir(), ".ballerina") + ":/root/.ballerina",
-                "choreoipaas/lang-server:v0.2.0"
+                "choreoipaas/lang-server:v0.2.077"
             ]
         );
         exitHook(() => {
