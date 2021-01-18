@@ -184,7 +184,7 @@
                         "request": "launch",
                         "name": "Ballerina Debug",
                         "script": "${file}",
-                        "networkLogs": true
+                        "networkLogs": false
                     },
                     {
                         "type": "ballerina",

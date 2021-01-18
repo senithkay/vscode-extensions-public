@@ -81,7 +81,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         if (experimental && experimental.introspection && experimental.introspection.port > 0) {
             config.networkLogsPort = experimental.introspection.port;
             if (config.networkLogs === undefined) {
-                config.networkLogs = true;
+                config.networkLogs = false;
             }
         }
     }
