@@ -275,8 +275,8 @@ suite("Language Server Tests", function () {
             };
             langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
                 assert.equal(response.length, 2, 'Invalid number of code actions.');
-                assert.equal(response[0].command.command, 'ADD_DOC', 'Invalid \'Document this\' command.');
-                assert.equal(response[1].command.command, 'ADD_ALL_DOC', 'Invalid \'Document all\' command.');
+                assert.equal(response[0].command.title, 'Document all', 'Invalid \'Document all\' command.');
+                assert.equal(response[1].command.title, 'Document this', 'Invalid \'Document this\' command.');
                 done();
             });
         });
@@ -303,9 +303,8 @@ suite("Language Server Tests", function () {
                 }
             };
             langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                assert.equal(response.length, 2, 'Invalid number of code actions.');
-                assert.equal(response[0].command.command, 'ADD_DOC', 'Invalid \'Document this\' command.');
-                assert.equal(response[1].command.command, 'ADD_ALL_DOC', 'Invalid \'Document all\' command.');
+                assert.equal(response.length, 1, 'Invalid number of code actions.');
+                assert.equal(response[0].command.title, 'Document all', 'Invalid \'Document all\' command.');
                 done();
             });
         });
