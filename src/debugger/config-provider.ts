@@ -42,7 +42,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         const { isBallerinaNotFound } = ballerinaExtInstance.autoDetectBallerinaHome();
         if (isBallerinaNotFound) {
             ballerinaExtInstance.showMessageInstallBallerina();
-            return config;
+            return Promise.reject();
         } else {
             ballerinaCmd = ballerinaExtInstance.getBallerinaCmd();
         }
@@ -62,14 +62,14 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     if (!config.script || config.script === "${file}") {
         if (!window.activeTextEditor) {
             ballerinaExtInstance.showMessageInvalidFile();
-            return config;
+            return Promise.reject();
         }
 
         const activeDoc = window.activeTextEditor.document;
 
         if (!activeDoc.fileName.endsWith('.bal')) {
             ballerinaExtInstance.showMessageInvalidFile();
-            return config;
+            return Promise.reject();
         }
 
         config.script = window.activeTextEditor.document.uri.fsPath;
