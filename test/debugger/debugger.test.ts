@@ -48,9 +48,9 @@ suite('Ballerina Debug Adapter', () => {
         let cmd = '';
         let args: string[] = [];
         if (process.platform === 'win32') {
-            cmd = path.join(cwd, 'ballerina.bat');
+            cmd = path.join(cwd, 'bal.bat');
         } else {
-            cmd = path.join(cwd, 'ballerina');
+            cmd = path.join(cwd, 'bal');
         }
         args.push('start-debugger-adapter');
         args.push(DEBUG_PORT.toString());

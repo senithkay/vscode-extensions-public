@@ -29,9 +29,9 @@ const TEST_RESOURCES = __dirname + '/../../extractedDistribution/';
 const PLATFORM_PREFIX = /jballerina-tools-/;
 
 
-function findBallerinaDistribution(){
+function findBallerinaDistribution() {
     const directories = fs.readdirSync(TEST_RESOURCES);
-    if(directories.length !== 1){
+    if (directories.length !== 1) {
         throw new Error("Unable to find ballerina distribution in test resources.");
     }
     return directories[0];
@@ -45,11 +45,11 @@ export function getBallerinaHome(): string {
 export function getBallerinaCmd(): string {
     const ballerinaDistribution = TEST_RESOURCES + findBallerinaDistribution();
     const prefix = path.join(fs.realpathSync(ballerinaDistribution), "bin") + path.sep;
-    return prefix + (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina');
+    return prefix + (process.platform === 'win32' ? 'bal.bat' : 'bal');
 }
 
 export function getBallerinaVersion() {
-    return findBallerinaDistribution().replace(PLATFORM_PREFIX, '').replace('\n','').trim();
+    return findBallerinaDistribution().replace(PLATFORM_PREFIX, '').replace('\n', '').trim();
 }
 
 export function getBBEPath(): any {

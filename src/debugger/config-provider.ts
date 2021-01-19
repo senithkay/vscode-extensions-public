@@ -133,7 +133,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         const serverProcess = child_process.spawn(cmd, args, opt);
 
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            log("Starting debug adapter: 'ballerina start-debugger-adapter " + port.toString() + "'");
+            log("Starting debug adapter: 'bal start-debugger-adapter " + port.toString() + "'");
         } else {
             log("Starting debug adapter: '" + cmd + "'");
         }

@@ -12,14 +12,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         }
     },
     {
-        methodName: 'getPackages',
-        handler: (args: any[]) => {
-            return langClient.onReady().then(() => {
-                return langClient.getPackages(args[0]);
-            });
-        }
-    },
-    {
         methodName: 'getEndpoints',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {

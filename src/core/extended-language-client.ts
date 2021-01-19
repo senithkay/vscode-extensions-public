@@ -32,24 +32,6 @@ export interface BallerinaSyntaxTreeResponse {
     syntaxTree?: BallerinaSyntaxTree;
 }
 
-export interface BallerinaPackage {
-    name: string;
-    kind: string;
-    topLevelNodes: any[];
-    modules: BallerinaModule[];
-}
-
-export interface BallerinaModule {
-    name?: string;
-    default?: boolean;
-    functions?: any[];
-    services?: any[];
-}
-
-export interface BallerinaPackagesResponse {
-    packages?: BallerinaPackage[];
-}
-
 export interface GetSyntaxTreeRequest {
     documentIdentifier: {
         uri: string;
@@ -130,12 +112,6 @@ export interface GetSynRequest {
 }
 
 export class ExtendedLangClient extends LanguageClient {
-
-    getPackages(sourceRoot: string): Thenable<BallerinaPackagesResponse> {
-        const req = { sourceRoot };
-        return this.sendRequest("ballerinaProject/packages", req);
-    }
-
     getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {
         const req: GetSynRequest = {
             Params: params
