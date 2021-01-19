@@ -418,7 +418,7 @@ export class BallerinaExtension {
 
     getBallerinaCmd(ballerinaDistribution: string = "") {
         const prefix = ballerinaDistribution ? (path.join(ballerinaDistribution, "bin") + path.sep) : "";
-        return prefix + (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina');
+        return prefix + (process.platform === 'win32' ? 'bal.bat' : 'bal');
     }
 
     /**
@@ -464,12 +464,12 @@ export class BallerinaExtension {
             } else if (response.stderr.length > 0) {
                 let message = response.stderr.toString();
                 // ballerina is installed, but ballerina home command is not found
-                isOldBallerinaDist = message.includes("ballerina: unknown command 'home'");
+                isOldBallerinaDist = message.includes("bal: unknown command 'home'");
                 // ballerina is not installed
                 isBallerinaNotFound = message.includes('command not found')
                     || message.includes('unknown command')
                     || message.includes('is not recognized as an internal or external command');
-                log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n"
+                log("Error executing `bal home`. " + "\n<---- cmd output ---->\n"
                     + message + "<---- cmd output ---->\n");
             }
 
@@ -479,12 +479,12 @@ export class BallerinaExtension {
             }
         } catch ({ message }) {
             // ballerina is installed, but ballerina home command is not found
-            isOldBallerinaDist = message.includes("ballerina: unknown command 'home'");
+            isOldBallerinaDist = message.includes("bal: unknown command 'home'");
             // ballerina is not installed
             isBallerinaNotFound = message.includes('command not found')
                 || message.includes('unknown command')
                 || message.includes('is not recognized as an internal or external command');
-            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n"
+            log("Error executing `bal home`. " + "\n<---- cmd output ---->\n"
                 + message + "<---- cmd output ---->\n");
         }
 

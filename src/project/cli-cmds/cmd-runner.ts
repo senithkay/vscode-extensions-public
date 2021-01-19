@@ -10,14 +10,16 @@ export enum PROJECT_TYPE {
     SINGLE_FILE = "SINGLE_FILE_PROJECT", BUILD_PROJECT = "BUILD_PROJECT", BALR_PROJECT = "BALR_PROJECT"
 }
 
+const BAL_COMMAD = 'bal';
+
 export function runCommand(file: BallerinaProject | string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
     const outputChannel = getCLIOutputChannel();
     outputChannel.clear();
     outputChannel.show();
     let filePath = '';
     typeof file === 'string' ? filePath = file : filePath = file.path!;
-    outputChannel.appendLine("executing command: ballerina " + cmd + " at " + filePath + "\n");
-    const process = spawn("ballerina", [cmd, ...args], { cwd: filePath });
+    outputChannel.appendLine("executing command: bal " + cmd + " at " + filePath + "\n");
+    const process = spawn(BAL_COMMAD, [cmd, ...args], { cwd: filePath });
     process.stdout.on('data', (data) => {
         outputChannel.append(data.toString());
     });
@@ -25,14 +27,14 @@ export function runCommand(file: BallerinaProject | string, cmd: BALLERINA_COMMA
         outputChannel.append(data.toString());
     });
     process.on("exit", () => {
-        outputChannel.appendLine("Finished ballerina " + cmd + " command execution.");
+        outputChannel.appendLine("Finished bal " + cmd + " command execution.");
     });
 }
 
 export function runCommandOnBackground(file: BallerinaProject | string, cmd: BALLERINA_COMMANDS, ...args: string[]): boolean {
     let filePath = '';
     typeof file === 'string' ? filePath = file : filePath = file.path!;
-    const result = spawnSync("ballerina", [cmd, ...args], { cwd: filePath });
+    const result = spawnSync(BAL_COMMAD, [cmd, ...args], { cwd: filePath });
     if (result.status === 0) {
         return true;
     }
