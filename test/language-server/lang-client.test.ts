@@ -21,7 +21,7 @@
 import assert = require('assert');
 import { expect } from 'chai';
 import * as path from 'path';
-import { BallerinaModule, ExtendedLangClient } from "../../src/core/extended-language-client";
+import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, getBBEPath } from "../test-util";
 import { commands, Uri } from "vscode";
@@ -65,44 +65,6 @@ suite("Language Server Tests", function () {
                 }, (reason) => {
                     done(reason);
                 });
-            });
-        });
-    });
-
-    test("Test getPackages - Ballerina project", (done) => {
-        langClient.onReady().then(() => {
-            langClient.getPackages(Uri.file(path.join(PROJECT_ROOT, 'helloPackage')).toString()).then((response) => {
-                assert.equal(response.packages![0].name, 'helloproject', 'Invalid package name.');
-                assert.equal(response.packages![0].modules.length, 2, "Invalid module information.");
-                let helloModule: BallerinaModule;
-                let defaultModule: BallerinaModule;
-                if (response.packages![0].modules[0].default) {
-                    defaultModule = response.packages![0].modules[0];
-                    helloModule = response.packages![0].modules[1];
-                } else {
-                    defaultModule = response.packages![0].modules[1];
-                    helloModule = response.packages![0].modules[0];
-                }
-                assert.equal(helloModule.name, 'hello', 'Invalid module name.');
-                assert.equal(defaultModule.name, undefined, 'Default module has a name.');
-                assert.equal(defaultModule.functions![0].name, 'main', 'Invalid function name.');
-                assert.equal(defaultModule.services!.length, 0, 'Invalid services count.');
-                assert.equal(helloModule.functions![0].name, 'getMessage', 'Invalid function name.');
-                assert.equal(helloModule.services![0].resources[0].name, 'get', 'Invalid resource name.');
-                done();
-            }, (reason) => {
-                done(reason);
-            });
-        });
-    });
-
-    test("Test getPackages - Single file", (done) => {
-        langClient.onReady().then(() => {
-            langClient.getPackages(Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()).then((response) => {
-                assert.equal(response.packages!.length, 0, "Invalid package details for a single file project.");
-                done();
-            }, (reason) => {
-                done(reason);
             });
         });
     });
