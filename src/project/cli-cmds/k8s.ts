@@ -13,7 +13,7 @@ const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configer
 
 # Uncomment Any field below if you want to override the default value.
 #[container.image]
-#name = "Hello World"
+#name = "hello"
 #repository = "local"
 #tag = "v1.0.0"
 #base = "openjdk:slim"
