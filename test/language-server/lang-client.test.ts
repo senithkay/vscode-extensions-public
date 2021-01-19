@@ -99,7 +99,7 @@ suite("Language Server Tests", function () {
     test("Test getPackages - Single file", (done) => {
         langClient.onReady().then(() => {
             langClient.getPackages(Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()).then((response) => {
-                assert.equal(response.packages![0].name, '.', "Invalid package name.");
+                assert.equal(response.packages!.length, 0, "Invalid package details for a single file project.");
                 done();
             }, (reason) => {
                 done(reason);
@@ -108,35 +108,43 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getBallerinaProject - Ballerina project", (done) => {
-        langClient.onReady().then(() => {
-            const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-            const documentIdentifier = {
-                documentIdentifier: {
-                    uri: Uri.file(projectPath).toString()
-                }
-            };
-            langClient.getBallerinaProject(documentIdentifier).then((response) => {
-                assert.equal(response.packageName, 'helloproject', "Invalid package name.");
-                assert.equal(response.path, projectPath, 'Invalid project path');
-                done();
-            }, (reason) => {
-                done(reason);
+        const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+        const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+                const documentIdentifier = {
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                };
+                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                    assert.equal(response.packageName, 'helloproject', "Invalid package name.");
+                    assert.equal(response.path, projectPath, 'Invalid project path');
+                    assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
+                    done();
+                }, (reason) => {
+                    done(reason);
+                });
             });
         });
     });
 
     test("Test getBallerinaProject - Single file", (done) => {
-        langClient.onReady().then(() => {
-            const documentIdentifier = {
-                documentIdentifier: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()
-                }
-            };
-            langClient.getBallerinaProject(documentIdentifier).then((response) => {
-                assert.equal(response.packageName, '.', "Invalid package name.");
-                done();
-            }, (reason) => {
-                done(reason);
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                const documentIdentifier = {
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                };
+                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                    assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
+                    done();
+                }, (reason) => {
+                    done(reason);
+                });
             });
         });
     });

@@ -6,6 +6,10 @@ export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc"
 }
 
+export enum PROJECT_TYPE {
+    SINGLE_FILE = "SINGLE_FILE_PROJECT", BUILD_PROJECT = "BUILD_PROJECT", BALR_PROJECT = "BALR_PROJECT"
+}
+
 export function runCommand(file: BallerinaProject | string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
     const outputChannel = getCLIOutputChannel();
     outputChannel.clear();
