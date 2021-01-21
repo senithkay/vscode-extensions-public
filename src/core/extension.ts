@@ -72,7 +72,7 @@ export class BallerinaExtension {
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
-            documentSelector: [{ scheme: 'file', language: 'ballerina' }, { scheme: 'file', language: 'toml' }],
+            documentSelector: [{ scheme: 'file', language: 'ballerina' }],
             synchronize: { configurationSection: 'ballerina' },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,

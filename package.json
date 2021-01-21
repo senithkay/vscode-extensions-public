@@ -39,16 +39,6 @@
                     ".bal"
                 ],
                 "configuration": "./grammar/ballerina.configuration.json"
-            },
-            {
-                "id": "toml",
-                "aliases": [
-                    "Toml",
-                    "toml"
-                ],
-                "extensions": [
-                    ".toml"
-                ]
             }
         ],
         "grammars": [
@@ -121,9 +111,6 @@
         },
         "configurationDefaults": {
             "[ballerina]": {
-                "editor.wordBasedSuggestions": false
-            },
-            "[toml]": {
                 "editor.wordBasedSuggestions": false
             }
         },
