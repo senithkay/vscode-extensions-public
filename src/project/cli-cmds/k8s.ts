@@ -16,7 +16,7 @@ const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configer
 #name = "hello"
 #repository = "local"
 #tag = "v1.0.0"
-#base = "openjdk:slim"
+#base = "ballerina/jre11:v1"
 #
 #[[cloud.config.envs]]
 #key_ref = "FOO"
