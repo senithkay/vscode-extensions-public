@@ -135,6 +135,7 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
 
                 if (ballerinaVersion.match(SWAN_LAKE_REGEX)) {
+                    this.isNewCLICmdSupported = true;
                     this.isNewConfigChangeSupported = true;
                 } else {
                     // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
