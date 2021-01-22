@@ -39,6 +39,8 @@ import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEB
 import TelemetryReporter from "vscode-extension-telemetry";
 import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED } from "../telemetry";
 
+const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
+
 export const EXTENSION_ID = 'ballerina.ballerina';
 
 export interface ConstructIdentifier {
@@ -132,10 +134,14 @@ export class BallerinaExtension {
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
 
-                // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
-                this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
-                // versions higher than 1.2.0 are not accepting cli commands parameters
-                this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
+                if (ballerinaVersion.match(SWAN_LAKE_REGEX)) {
+                    this.isNewConfigChangeSupported = true;
+                } else {
+                    // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
+                    this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
+                    // versions higher than 1.2.0 are not accepting cli commands parameters
+                    this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
+                }
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
@@ -283,7 +289,7 @@ export class BallerinaExtension {
     }
 
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        if (pluginVersion === '2.0.0' && ballerinaVersion.match(/(s|S)wan( |-)(l|L)ake/g)) {
+        if (pluginVersion === '2.0.0' && ballerinaVersion.match(SWAN_LAKE_REGEX)) {
             return;
         }
         const versionCheck = this.compareVersions(pluginVersion, ballerinaVersion);
