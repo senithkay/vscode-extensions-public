@@ -283,6 +283,9 @@ export class BallerinaExtension {
     }
 
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
+        if (pluginVersion === '2.0.0' && ballerinaVersion.match(/(s|S)wan( |-)(l|L)ake/g)) {
+            return;
+        }
         const versionCheck = this.compareVersions(pluginVersion, ballerinaVersion);
 
         if (versionCheck > 0) {
