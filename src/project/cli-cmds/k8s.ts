@@ -61,7 +61,11 @@ export function activateK8sCommand() {
     commands.registerCommand('ballerina.create.k8s', async () => {
         try {
             reporter.sendTelemetryEvent(TM_EVENT_CREATE_K8S, { component: CMP_K8S });
-            const currentProject = await getCurrentBallerinaProject();
+            const currentProject = await getCurrentBallerinaProject(false);
+            if (!currentProject.kind) {
+                window.showErrorMessage("Active file does not belong to ballerina project")
+                return;
+            }
             const outputChannel = getCLIOutputChannel();
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 if (currentProject.path) {
