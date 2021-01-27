@@ -298,6 +298,7 @@
         "kill-port-process": "2.3.0",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
+        "rimraf": "^3.0.2",
         "ts-loader": "^6.0.2",
         "ts-node": "^8.0.3",
         "tslint": "^5.14.0",

@@ -69,22 +69,22 @@ export function activateK8sCommand() {
             const outputChannel = getCLIOutputChannel();
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 if (currentProject.path) {
-                    let k8sTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME
+                    let k8sTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME;
                     if (!fs.existsSync(k8sTomlPath)) {
                         fs.writeFile(k8sTomlPath, KUBERNETES_TOML_DEFAULT_CONTENT, (err) => {
                             if (err) {
                                 reporter.sendTelemetryException(err, { component: CMP_K8S });
                                 window.showErrorMessage(err.message);
                             } else {
-                                outputChannel.appendLine("Kubernetes.toml created in " + currentProject.path)
+                                outputChannel.appendLine("Kubernetes.toml created in " + currentProject.path);
                             }
                         });
                     } else {
-                        window.showErrorMessage("Kubernetes.toml already exists in the project")
+                        window.showErrorMessage("Kubernetes.toml already exists in the project");
                     }
                 }
             } else {
-                window.showErrorMessage("Kubernetes.toml is not supported for single file projects")
+                window.showErrorMessage("Kubernetes.toml is not supported for single file projects");
             }
         } catch (error) {
             reporter.sendTelemetryException(error, { component: CMP_K8S });
