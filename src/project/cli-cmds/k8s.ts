@@ -3,7 +3,7 @@ import { commands, window } from "vscode";
 import { getCLIOutputChannel } from "./output";
 import { TM_EVENT_CREATE_K8S, CMP_K8S } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-import { PROJECT_TYPE } from "./../cli-cmds/cmd-runner";
+import { MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
 
 const CLOUD_CONFIG_FILE_NAME = "/Kubernetes.toml"
@@ -61,8 +61,13 @@ export function activateK8sCommand() {
     commands.registerCommand('ballerina.create.k8s', async () => {
         try {
             reporter.sendTelemetryEvent(TM_EVENT_CREATE_K8S, { component: CMP_K8S });
+
             const currentProject = await getCurrentBallerinaProject(false);
-            if (!currentProject.kind) {
+            if (!ballerinaExtInstance.isSwanLake) {
+                window.showErrorMessage(MESSAGES.NOT_SUPPORT);
+                return;
+            }
+            if (ballerinaExtInstance.isSwanLake && !currentProject.kind) {
                 window.showErrorMessage("Active file does not belong to ballerina project")
                 return;
             }

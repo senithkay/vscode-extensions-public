@@ -76,7 +76,7 @@ export interface BallerinaAstOasChangeRequest {
 }
 
 export interface BallerinaProject {
-    kind: string;
+    kind?: string;
     path?: string;
     version?: string;
     author?: string;

@@ -12,7 +12,6 @@ import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
-import { isUnix } from "./osUtils";
 import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
 import { log, debug as debugLog } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
@@ -34,22 +33,8 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     }
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
-
-    let ballerinaCmd;
-    if (ballerinaExtInstance.overrideBallerinaHome()) {
-        ballerinaCmd = ballerinaExtInstance.getBallerinaCmd(ballerinaHome);
-    } else {
-        const { isBallerinaNotFound } = ballerinaExtInstance.autoDetectBallerinaHome();
-        if (isBallerinaNotFound) {
-            ballerinaExtInstance.showMessageInstallBallerina();
-            return Promise.reject();
-        } else {
-            ballerinaCmd = ballerinaExtInstance.getBallerinaCmd();
-        }
-    }
-
     config[BALLERINA_HOME] = ballerinaHome;
-    config[BALLERINA_COMMAND] = ballerinaCmd;
+    config[BALLERINA_COMMAND] = ballerinaExtInstance.ballerinaCmd;
 
     if (!config.type) {
         config.type = 'ballerina';
@@ -132,11 +117,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         const serverProcess = child_process.spawn(cmd, args, opt);
 
-        if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            log("Starting debug adapter: 'bal start-debugger-adapter " + port.toString() + "'");
-        } else {
-            log("Starting debug adapter: '" + cmd + "'");
-        }
+        log(`Starting debug adapter: '${this.ballerinaExtInstance.ballerinaCmd} start-debugger-adapter ${port.toString()}`);
 
         return new Promise<void>((resolve) => {
             serverProcess.stdout.on('data', (data) => {
@@ -155,29 +136,11 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         });
     }
     getScriptPath(args: string[]): string {
-        if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            let cmd = this.ballerinaExtInstance.ballerinaCmd;
-            args.push('start-debugger-adapter');
-            return cmd;
-        } else {
-            // Fallback into old way, TODO: Remove this in a later verison
-            const cwd = path.join(this.ballerinaExtInstance.ballerinaHome, "lib", "tools", "debug-adapter", "launcher");
-            let startScriptPath = path.resolve(cwd, "debug-adapter-launcher.sh");
-            // Ensure that start script can be executed
-            if (isUnix()) {
-                child_process.exec("chmod +x " + startScriptPath);
-            } else {
-                startScriptPath = path.resolve(cwd, "debug-adapter-launcher.bat");
-            }
-            return startScriptPath;
-        }
+        let cmd = this.ballerinaExtInstance.ballerinaCmd;
+        args.push('start-debugger-adapter');
+        return cmd;
     }
     getCurrentWorkingDir(): string {
-        if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
-        } else {
-            // Fallback into old way, TODO: Remove this in a later verison
-            return path.join(this.ballerinaExtInstance.ballerinaHome, "lib", "tools", "debug-adapter", "launcher");
-        }
+        return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
     }
 }
