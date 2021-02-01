@@ -7,7 +7,7 @@ public function main() {
 
 # Returns a message
 #
-# + return - 'Hello Worl' value
+# + return - 'Hello World' value
 public function getMessage() returns string {
     return "Hello, World!";
 }
