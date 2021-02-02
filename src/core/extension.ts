@@ -30,7 +30,7 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, spawnSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions, Command } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel, outputChannel } from '../utils/index';
