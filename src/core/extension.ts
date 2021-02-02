@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel,
+    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -63,6 +63,8 @@ export class BallerinaExtension {
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
+    private sdkVersion: StatusBarItem;
+
     private webviewPanels: {
         [name: string]: WebviewPanel;
     };
@@ -71,6 +73,9 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.webviewPanels = {};
+        this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+        this.sdkVersion.text = `Ballerina SDK: Detecting`;
+        this.sdkVersion.show();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
@@ -132,6 +137,8 @@ export class BallerinaExtension {
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
+                this.sdkVersion.text = `Ballerina SDK: ${ballerinaVersion}`;
+
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
 
                 if (ballerinaVersion.match(SWAN_LAKE_REGEX)) {
@@ -186,6 +193,7 @@ export class BallerinaExtension {
             // If any failure occurs while initializing show an error message
             this.showPluginActivationError();
             this.telemetryReporter.sendTelemetryException(ex, { error: msg });
+            this.sdkVersion.text = `Ballerina SDK: Unknown`;
             return Promise.reject(msg);
         }
     }
