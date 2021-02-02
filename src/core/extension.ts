@@ -30,10 +30,10 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, spawnSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions, Command } from "vscode-languageclient";
 import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { log, getOutputChannel } from '../utils/index';
+import { log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -75,6 +75,8 @@ export class BallerinaExtension {
         this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
+        this.sdkVersion.command = `ballerina.showLogs`
+
         this.sdkVersion.show();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -92,6 +94,12 @@ export class BallerinaExtension {
     }
 
     init(onBeforeInit: Function): Promise<void> {
+        // Register show logs command.
+        const showLogs = commands.registerCommand('ballerina.showLogs', () => {
+            outputChannel.show();
+        });
+        this.context!.subscriptions.push(showLogs);
+
         try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
