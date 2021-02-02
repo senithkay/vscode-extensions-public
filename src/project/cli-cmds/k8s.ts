@@ -6,7 +6,7 @@ import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
 
-const CLOUD_CONFIG_FILE_NAME = "/Kubernetes.toml"
+const CLOUD_CONFIG_FILE_NAME = "/Kubernetes.toml";
 const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configerations supported by Ballerina Code to Cloud
 # All the fields are optional. If these fields are not specified, default value will be taken from the compiler.
 # Full Code to Cloud specification can be accssed from https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md

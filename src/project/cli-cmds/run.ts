@@ -20,23 +20,12 @@ function activateRunCommand() {
                     currentProject.path!);
 
             } else if (ballerinaExtInstance.is12x && currentProject.path) {
-
-                const userSelection = await window.showQuickPick([{
-                    description: "ballerina run <module-name>",
-                    label: "Run Module",
-                    id: RUN_OPTIONS.RUN_MODULE
-                }], {
-                    placeHolder: MESSAGES.SELECT_OPTION
-                });
-
-                if (userSelection!.id === RUN_OPTIONS.RUN_MODULE) {
-                    let moduleName;
-                    do {
-                        moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                    } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                    runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.RUN,
-                        moduleName);
-                }
+                let moduleName;
+                do {
+                    moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
+                } while (!moduleName || moduleName && moduleName.trim().length === 0);
+                runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.RUN,
+                    moduleName);
 
             } else if (ballerinaExtInstance.isSwanLake || ballerinaExtInstance.is12x) {
                 runCurrentFile();

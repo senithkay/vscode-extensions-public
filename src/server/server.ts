@@ -43,19 +43,6 @@ export function getServerOptions(ballerinaCmd: string, experimental: boolean, de
         opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort + ",quiet=y";
     }
 
-    // if (!isSwanLake && (debugLogsEnabled || traceLogsEnabled)) {
-    //     let str: string[] = [];
-    //     if (debugLogsEnabled) {
-    //         str.push('debug');
-    //         args.push('--debug-log');
-    //     }
-    //     if (traceLogsEnabled) {
-    //         str.push('trace');
-    //         args.push('--trace-log');
-    //     }
-    //     debug('Language Server ' + str.join(', ') + ' logs enabled.');
-    // }
-
     if (experimental) {
         args.push('--experimental');
     }

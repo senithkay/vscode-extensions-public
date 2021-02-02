@@ -58,7 +58,6 @@ export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public ballerinaCmd: string;
-    public ballerinaVersion: string;
     public isSwanLake: boolean;
     public is12x: boolean;
     public extension: Extension<any>;
@@ -74,7 +73,6 @@ export class BallerinaExtension {
     constructor() {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
-        this.ballerinaVersion = '';
         this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
@@ -124,7 +122,6 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
-                this.ballerinaVersion = ballerinaVersion;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${ballerinaVersion}`;
 

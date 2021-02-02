@@ -26,11 +26,11 @@ function activateDocCommand() {
                 if (currentProject.path) {
                     const docOptions = [{
                         description: "ballerina build <module-name>",
-                        label: "Documentation Module",
+                        label: "Document Module",
                         id: DOC_OPTIONS.DOC_MODULE
                     }, {
                         description: "ballerina build --all",
-                        label: "Documentation Project",
+                        label: "Document Project",
                         id: DOC_OPTIONS.DOC_ALL
                     }];
 
@@ -52,10 +52,8 @@ function activateDocCommand() {
                     }
 
                 } else {
-                    if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE) {
-                        window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
-                        return;
-                    }
+                    window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                    return;
                 }
 
             } else {

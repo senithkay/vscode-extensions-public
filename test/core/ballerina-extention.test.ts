@@ -20,7 +20,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
-
+import * as fs from 'fs';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import { ballerinaExtInstance } from '../../src/core';
@@ -32,18 +32,11 @@ const testBallerinaVersion = getBallerinaVersion();
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("Ballerina Extension Core Tests", function () {
-
-
-    test("Test isValidBallerinaHome", function () {
-        assert.equal(ballerinaExtInstance.isValidBallerinaHome(testBallerinaHome), true);
-        assert.equal(ballerinaExtInstance.isValidBallerinaHome(__dirname), false);
-    });
-
     test("Test autoDetectBallerinaHome", function () {
         // Following should not throw an error all times.
         const { home } = ballerinaExtInstance.autoDetectBallerinaHome();
         if (home) {
-            assert.equal(ballerinaExtInstance.isValidBallerinaHome(home), true);
+            assert.equal(fs.existsSync(home), true);
         }
     });
 
