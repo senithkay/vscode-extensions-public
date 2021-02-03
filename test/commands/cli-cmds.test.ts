@@ -23,12 +23,13 @@ import * as http from 'http';
 import * as path from 'path';
 import { BallerinaProject } from "src/core";
 import { runCommand, BALLERINA_COMMANDS } from '../../src/project/cli-cmds/cmd-runner';
-import { killPort } from '../test-util';
+import { getBallerinaHome, killPort } from '../test-util';
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
 const HELLO_PACKAGE_TARGET_PATH = path.join(PROJECT_ROOT, 'helloPackage', 'target');
 const HELLO_SERVICE_TARGET_PATH = path.join(PROJECT_ROOT, 'helloServicePackage', 'target');
 const JAR_FILE_PATH = path.join(PROJECT_ROOT, 'hello_world.jar');
+const BALLERINA_CMD = path.join(getBallerinaHome(), 'bin', 'bal');
 
 suite("Ballerina Extension CLI Command Tests", () => {
     setup(done => {
@@ -60,7 +61,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
                 done();
             }
         });
-        runCommand(balProject, BALLERINA_COMMANDS.DOC, projectPath);
+        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.DOC, projectPath);
     }).timeout(15000);
 
     test("Test Build - Ballerina project", done => {
@@ -80,7 +81,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
                 done();
             }
         });
-        runCommand(balProject, BALLERINA_COMMANDS.BUILD, projectPath);
+        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.BUILD, projectPath);
     }).timeout(15000);
 
     test("Test Build - Single file", done => {
@@ -93,7 +94,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
                 done();
             }
         });
-        runCommand(PROJECT_ROOT, BALLERINA_COMMANDS.BUILD, filePath);
+        runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.BUILD, filePath);
     }).timeout(15000);
 
     test("Test Run - Ballerina project", done => {
@@ -105,7 +106,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
             kind: 'BUILD_PROJECT'
         };
 
-        runCommand(balProject, BALLERINA_COMMANDS.RUN, projectPath);
+        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, projectPath);
         const response = http.get('http://0.0.0.0:9091/hello/sayHello');
         if (response) {
             done();
@@ -115,7 +116,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
 
     test("Test Run - Single file", done => {
         const filePath = path.join(PROJECT_ROOT, 'hello_world_service.bal');
-        runCommand(PROJECT_ROOT, BALLERINA_COMMANDS.RUN, filePath);
+        runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, filePath);
         const response = http.get('http://0.0.0.0:9090/hello/sayHello');
         if (response) {
             done();

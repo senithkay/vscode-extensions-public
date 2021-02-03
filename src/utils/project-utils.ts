@@ -2,14 +2,11 @@ import { BallerinaProject, ballerinaExtInstance } from "../core";
 import { window } from "vscode";
 import * as path from 'path';
 
-function getCurrentBallerinaProject(checkBalExtension: boolean = true): Promise<BallerinaProject> {
+function getCurrentBallerinaProject(): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {
         const activeEditor = window.activeTextEditor;
         // if currently opened file is a bal file
         if (activeEditor) {
-            if (checkBalExtension && !activeEditor.document.fileName.endsWith('.bal')) {
-                reject("Current file is not a Ballerina file.");
-            }
             // get path of the current bal file
             const uri = activeEditor.document.uri.toString();
             if (ballerinaExtInstance.langClient) {
@@ -18,7 +15,13 @@ function getCurrentBallerinaProject(checkBalExtension: boolean = true): Promise<
                     documentIdentifier: {
                         uri,
                     }
-                }).then(resolve, reject);
+                }).then((project) => {
+                    if (ballerinaExtInstance.isSwanLake && !project.kind ||
+                        ballerinaExtInstance.is12x && !project.path && !activeEditor.document.fileName.endsWith('.bal')) {
+                        reject(`Current file does not belong to a ballerina project.`);
+                    }
+                    resolve(project);
+                });
             } else {
                 reject("Language Client is not available.");
             }

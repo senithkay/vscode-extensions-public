@@ -34,31 +34,31 @@ let rpcHandler: WebViewRPCHandler;
 
 function updateWebView(docUri: Uri): void {
 	if (rpcHandler) {
-		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
+		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => { });
 	}
 }
 
 function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangClient): void {
 	const didChangeDisposable = workspace.onDidChangeTextDocument(
-			_.debounce((e: TextDocumentChangeEvent) => {
-		if (activeEditor && (e.document === activeEditor.document) &&
-			e.document.fileName.endsWith('.bal')) {
-			if (preventDiagramUpdate) {
-				return;
+		_.debounce((e: TextDocumentChangeEvent) => {
+			if (activeEditor && (e.document === activeEditor.document) &&
+				e.document.fileName.endsWith('.bal')) {
+				if (preventDiagramUpdate) {
+					return;
+				}
+				updateWebView(e.document.uri);
 			}
-			updateWebView( e.document.uri);
-		}
-	}, DEBOUNCE_WAIT));
+		}, DEBOUNCE_WAIT));
 
-	const changeActiveEditorDisposable =  window.onDidChangeActiveTextEditor(
-			(activatedEditor: TextEditor | undefined) => {
-		if (window.activeTextEditor && activatedEditor 
-					&& (activatedEditor.document === window.activeTextEditor.document) 
-					&& activatedEditor.document.fileName.endsWith('.bal')) {
-			activeEditor = window.activeTextEditor;
-			updateWebView(activatedEditor.document.uri);
-		}
-	});
+	const changeActiveEditorDisposable = window.onDidChangeActiveTextEditor(
+		(activatedEditor: TextEditor | undefined) => {
+			if (window.activeTextEditor && activatedEditor
+				&& (activatedEditor.document === window.activeTextEditor.document)
+				&& activatedEditor.document.fileName.endsWith('.bal')) {
+				activeEditor = window.activeTextEditor;
+				updateWebView(activatedEditor.document.uri);
+			}
+		});
 
 	if (diagramViewPanel) {
 		diagramViewPanel.reveal(ViewColumn.Two, true);
@@ -68,7 +68,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	diagramViewPanel = window.createWebviewPanel(
 		'ballerinaDiagram',
 		"Ballerina Diagram",
-		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+		{ viewColumn: ViewColumn.Two, preserveFocus: true },
 		getCommonWebViewOptions()
 	);
 
@@ -78,7 +78,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	};
 
 	const editor = window.activeTextEditor;
-	if(!editor) {
+	if (!editor) {
 		return;
 	}
 	activeEditor = editor;
@@ -97,30 +97,26 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const reporter = ballerinaExtInstance.telemetryReporter;
-    const context = <ExtensionContext> ballerinaExtInstance.context;
-	const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	const context = <ExtensionContext>ballerinaExtInstance.context;
+	const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
 		reporter.sendTelemetryEvent(TM_EVENT_OPEN_DIAGRAM, { component: CMP_DIAGRAM_VIEW });
 		return ballerinaExtInstance.onReady()
-		.then(() => {
-			const { experimental } = langClient.initializeResult!.capabilities;
-			const serverProvidesAST = experimental && experimental.astProvider;
+			.then(() => {
+				const { experimental } = langClient.initializeResult!.capabilities;
+				const serverProvidesAST = experimental && experimental.astProvider;
 
-			if (!serverProvidesAST) {
-				ballerinaExtInstance.showMessageServerMissingCapability();
-				return {};
-			}
-			showDiagramEditor(context, langClient);
-		})
-		.catch((e) => {
-			if (!ballerinaExtInstance.isValidBallerinaHome()) {
-				ballerinaExtInstance.showMessageInvalidBallerinaHome();
-			} else {
+				if (!serverProvidesAST) {
+					ballerinaExtInstance.showMessageServerMissingCapability();
+					return {};
+				}
+				showDiagramEditor(context, langClient);
+			})
+			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
-			}
-			reporter.sendTelemetryException(e, { component: CMP_DIAGRAM_VIEW });
-		});
+				reporter.sendTelemetryException(e, { component: CMP_DIAGRAM_VIEW });
+			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
 }

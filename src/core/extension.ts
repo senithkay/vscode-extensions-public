@@ -24,22 +24,23 @@ import {
     Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
-    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
+    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
     CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE, INSTALL_NEW_BALLERINA,
 } from "./messages";
 import * as path from 'path';
-import * as fs from 'fs';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
-import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
+import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
-import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED } from "../telemetry";
+import { createTelemetryReporter, TM_EVENT_OLD_BAL_HOME } from "../telemetry";
+const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
+const PREV_REGEX = /1\.2\.[0-9]+/g;
 
 export const EXTENSION_ID = 'ballerina.ballerina';
 
@@ -57,8 +58,8 @@ export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public ballerinaCmd: string;
-    public isNewCLICmdSupported: boolean = false;
-    public isNewConfigChangeSupported: boolean = true;
+    public isSwanLake: boolean;
+    public is12x: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -75,9 +76,10 @@ export class BallerinaExtension {
         this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
-        this.sdkVersion.command = `ballerina.showLogs`
-
+        this.sdkVersion.command = `ballerina.showLogs`;
         this.sdkVersion.show();
+        this.isSwanLake = false;
+        this.is12x = false;
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
@@ -106,74 +108,47 @@ export class BallerinaExtension {
 
             // Check if ballerina home is set.
             if (this.overrideBallerinaHome()) {
+                if (!this.overrideBallerinaHome()) {
+                    throw new AssertionError({
+                        message: "Trying to get ballerina version without setting ballerina home."
+                    });
+                }
+
                 log("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getConfiguredBallerinaHome();
-                this.ballerinaCmd = this.getBallerinaCmd(this.ballerinaHome);
-                // Lets check if ballerina home is valid.
-                if (!this.isValidBallerinaHome(this.ballerinaHome)) {
-                    const msg = "Configured Ballerina home is not valid.";
-                    log(msg);
-                    // Ballerina home in setting is invalid show message and quit.
-                    // Prompt to correct the home. // TODO add auto detection.
-                    this.showMessageInvalidBallerinaHome();
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, { error: msg });
-                    return Promise.reject(msg);
-                }
-            } else {
-                log("Auto detecting Ballerina home.");
-                // If ballerina home is not set try to auto detect ballerina home.
-                const { isBallerinaNotFound, isOldBallerinaDist, home, cmd } = this.autoDetectBallerinaHome();
-                this.ballerinaHome = home;
-                this.ballerinaCmd = cmd;
-
-                if (isBallerinaNotFound) {
-                    this.showMessageInstallBallerina();
-                    const msg = "Unable to auto detect Ballerina home.";
-                    log(msg);
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, { error: msg });
-                    return Promise.reject(msg);
-                } else if (isOldBallerinaDist) {
-                    this.showMessageInstallLatestBallerina();
-                    const msg = "Found an incompatible Ballerina installation.";
-                    log(msg);
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, { error: msg });
-                    return Promise.reject(msg);
-                }
             }
+
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
+                if (!this.overrideBallerinaHome()) {
+                    const { home } = this.autoDetectBallerinaHome();
+                    this.ballerinaHome = home;
+                }
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${ballerinaVersion}`;
 
-                this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
-
                 if (ballerinaVersion.match(SWAN_LAKE_REGEX)) {
-                    this.isNewCLICmdSupported = true;
-                    this.isNewConfigChangeSupported = true;
-                } else {
-                    // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
-                    this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
-                    // versions higher than 1.2.0 are not accepting cli commands parameters
-                    this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
+                    this.isSwanLake = true;
+                } else if (ballerinaVersion.match(PREV_REGEX)) {
+                    this.is12x = true;
+                }
+
+                if (!this.isSwanLake && !this.is12x) {
+                    this.showMessageOldBallerina();
+                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_HOME);
+                    throw new AssertionError({
+                        message: `Ballerina version ${ballerinaVersion} is not supported. Please use a compatible VSCode extension version.`
+                    });
                 }
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                if (this.isNewConfigChangeSupported) {
-                    serverOptions = getServerOptions(this.ballerinaCmd);
-                } else if (this.isNewCLICmdSupported) {
-                    serverOptions = getOldCliServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
-                } else {
-                    serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
-                }
-                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions, this.clientOptions, false);
-
-                // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
-                if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
-                    onBeforeInit(this.langClient);
-                }
+                serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(),
+                    this.isTraceLogsEnabled(), this.isSwanLake);
+                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
+                    this.clientOptions, false);
 
                 // Following was put in to handle server startup failures.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
@@ -227,11 +202,6 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
-                this.showMsgAndRestart(CONFIG_CHANGED);
-            }
-            // If it is older SDK less than 1.2.0, needs a server restart
-            if ((!ballerinaExtInstance.isNewConfigChangeSupported) && (params.affectsConfiguration(ALLOW_EXPERIMENTAL)
-                || params.affectsConfiguration(ENABLE_DEBUG_LOG) || params.affectsConfiguration(ENABLE_TRACE_LOG))) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -305,54 +275,55 @@ export class BallerinaExtension {
         return 0;
     }
 
-    checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        if (pluginVersion === '2.0.0' && ballerinaVersion.match(SWAN_LAKE_REGEX)) {
-            return;
-        }
-        const versionCheck = this.compareVersions(pluginVersion, ballerinaVersion);
-
-        if (versionCheck > 0) {
-            // Plugin version is greater
-            this.showMessageOldBallerina();
-            this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_HOME);
-            return;
-        }
-
-        if (versionCheck < 0) {
-            // Ballerina version is greater
-            this.showMessageOldPlugin();
-            this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_PLUGIN);
-        }
-    }
-
-    getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
-        if (overrideBallerinaHome && !ballerinaHome) {
-            throw new AssertionError({
-                message: "Trying to get ballerina version without setting ballerina home."
-            });
-        }
+    async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
         // if ballerina home is overridden, use ballerina cmd inside distribution
         // otherwise use wrapper command
-        const balCmd = this.getBallerinaCmd(overrideBallerinaHome ? ballerinaHome : "");
-        return new Promise((resolve, reject) => {
-            exec(balCmd + ' version', (err, stdout, stderr) => {
+        let distPath = "";
+        if (overrideBallerinaHome) {
+            distPath = path.join(ballerinaHome, "bin") + path.sep;
+        }
+        let exeExtension = "";
+        if (process.platform === 'win32') {
+            exeExtension = ".bat";
+        }
+
+        let ballerinaExecutor = '';
+        const balPromise: Promise<string> = new Promise((resolve, reject) => {
+            exec(distPath + 'bal' + exeExtension + ' version', (_err, stdout, stderr) => {
                 const cmdOutput = stdout.length > 0 ? stdout : stderr;
-                if (cmdOutput.startsWith("Error:")) {
+                if (cmdOutput.startsWith(ERROR) || cmdOutput.includes(NO_SUCH_FILE) || cmdOutput.includes(COMMAND_NOT_FOUND)) {
                     reject(cmdOutput);
                     return;
                 }
-                try {
-                    const implVersionLine = cmdOutput.split('\n')[0];
-                    const replacePrefix = implVersionLine.startsWith("jBallerina")
-                        ? /jBallerina /
-                        : /Ballerina /;
-                    const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
-                    resolve(parsedVersion);
-                } catch (error) {
-                    reject(error);
-                }
+                ballerinaExecutor = 'bal';
+                log(`'bal' command is picked up from the plugin.`);
+                resolve(stdout);
             });
         });
+        const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
+            exec(distPath + 'ballerina' + exeExtension + ' version', (_err, stdout, stderr) => {
+                const cmdOutput = stdout.length > 0 ? stdout : stderr;
+                if (cmdOutput.startsWith(ERROR) || cmdOutput.includes(NO_SUCH_FILE) || cmdOutput.includes(COMMAND_NOT_FOUND)) {
+                    reject(cmdOutput);
+                    return;
+                }
+                ballerinaExecutor = 'ballerina';
+                log(`'ballerina' command is picked up from the plugin.`);
+                resolve(stdout);
+            });
+        });
+        const cmdOutput = await any([balPromise, ballerinaPromise]);
+        this.ballerinaCmd = distPath + ballerinaExecutor + exeExtension;
+        try {
+            const implVersionLine = cmdOutput.split('\n')[0];
+            const replacePrefix = implVersionLine.startsWith("jBallerina")
+                ? /jBallerina /
+                : /Ballerina /;
+            const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
+            return Promise.resolve(parsedVersion);
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 
     showMessageInstallBallerina(): any {
@@ -433,20 +404,6 @@ export class BallerinaExtension {
         window.showErrorMessage(INVALID_FILE);
     }
 
-
-    isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = this.getBallerinaCmd(homePath);
-        if (fs.existsSync(ballerinaCmd)) {
-            return true;
-        }
-        return false;
-    }
-
-    getBallerinaCmd(ballerinaDistribution: string = "") {
-        const prefix = ballerinaDistribution ? (path.join(ballerinaDistribution, "bin") + path.sep) : "";
-        return prefix + (process.platform === 'win32' ? 'bal.bat' : 'bal');
-    }
-
     /**
      * Get ballerina home path.
      *
@@ -479,12 +436,12 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
     }
 
-    autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
+    autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
         let balHomeOutput = "",
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
         try {
-            let response = spawnSync(this.getBallerinaCmd(), ['home']);
+            let response = spawnSync(this.ballerinaCmd, ['home']);
             if (response.stdout.length > 0) {
                 balHomeOutput = response.stdout.toString().trim();
             } else if (response.stderr.length > 0) {
@@ -516,7 +473,6 @@ export class BallerinaExtension {
 
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
-            cmd: this.getBallerinaCmd(this.overrideBallerinaHome() ? balHomeOutput : ''),
             isBallerinaNotFound,
             isOldBallerinaDist
         };

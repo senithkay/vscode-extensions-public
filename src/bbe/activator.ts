@@ -26,7 +26,7 @@ import { TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW } from '../telemetry';
 
 let examplesPanel: WebviewPanel | undefined;
 
-function showExamples(context: ExtensionContext, langClient: ExtendedLangClient) :void {
+function showExamples(context: ExtensionContext, langClient: ExtendedLangClient): void {
     if (examplesPanel) {
         examplesPanel.reveal();
         return;
@@ -35,7 +35,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
     examplesPanel = window.createWebviewPanel(
         'ballerinaExamples',
         "Ballerina Examples",
-        { viewColumn: ViewColumn.One, preserveFocus: false } ,
+        { viewColumn: ViewColumn.One, preserveFocus: false },
         getCommonWebViewOptions()
     );
     const remoteMethods: WebViewMethod[] = [
@@ -49,9 +49,9 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                     const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
                     workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                         window.showTextDocument(doc);
-                     }, (err: Error) => {
-                         window.showErrorMessage(err.message);
-                     }); 
+                    }, (err: Error) => {
+                        window.showErrorMessage(err.message);
+                    });
                 }
                 return Promise.resolve();
             }
@@ -69,31 +69,27 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;
-    const context = <ExtensionContext> ballerinaExtInstance.context;
-    const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+    const context = <ExtensionContext>ballerinaExtInstance.context;
+    const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
         reporter.sendTelemetryEvent(TM_EVENT_OPEN_EXAMPLES, { component: CMP_EXAMPLES_VIEW });
         ballerinaExtInstance.onReady()
-        .then(() => {
-            const { experimental } = langClient.initializeResult!.capabilities;
-            const serverProvidesExamples = experimental && experimental.examplesProvider;
+            .then(() => {
+                const { experimental } = langClient.initializeResult!.capabilities;
+                const serverProvidesExamples = experimental && experimental.examplesProvider;
 
-            if (!serverProvidesExamples) {
-                ballerinaExtInstance.showMessageServerMissingCapability();
-                return;
-            }
+                if (!serverProvidesExamples) {
+                    ballerinaExtInstance.showMessageServerMissingCapability();
+                    return;
+                }
 
-            showExamples(context, langClient);
-        })
-		.catch((e) => {
-			if (!ballerinaExtInstance.isValidBallerinaHome()) {
-				ballerinaExtInstance.showMessageInvalidBallerinaHome();
-			} else {
-				ballerinaExtInstance.showPluginActivationError();
-            }
-            reporter.sendTelemetryException(e, { component: CMP_EXAMPLES_VIEW });
-		});
+                showExamples(context, langClient);
+            })
+            .catch((e) => {
+                ballerinaExtInstance.showPluginActivationError();
+                reporter.sendTelemetryException(e, { component: CMP_EXAMPLES_VIEW });
+            });
     });
-    
+
     context.subscriptions.push(examplesListRenderer);
 }

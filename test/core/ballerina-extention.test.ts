@@ -20,7 +20,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
-
+import * as fs from 'fs';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import { ballerinaExtInstance } from '../../src/core';
@@ -32,18 +32,11 @@ const testBallerinaVersion = getBallerinaVersion();
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("Ballerina Extension Core Tests", function () {
-
-
-    test("Test isValidBallerinaHome", function () {
-        assert.equal(ballerinaExtInstance.isValidBallerinaHome(testBallerinaHome), true);
-        assert.equal(ballerinaExtInstance.isValidBallerinaHome(__dirname), false);
-    });
-
     test("Test autoDetectBallerinaHome", function () {
         // Following should not throw an error all times.
         const { home } = ballerinaExtInstance.autoDetectBallerinaHome();
         if (home) {
-            assert.equal(ballerinaExtInstance.isValidBallerinaHome(home), true);
+            assert.equal(fs.existsSync(home), true);
         }
     });
 
@@ -59,18 +52,5 @@ suite("Ballerina Extension Core Tests", function () {
                 assert.equal(detected, testBallerinaVersion);
             }
         });
-    });
-
-    test("Test compareVersions", function () {
-        assert(ballerinaExtInstance.compareVersions("0.100.5", "0.100.8") === 0);
-        assert(ballerinaExtInstance.compareVersions("0.101.0", "0.100.0") > 0);
-        assert(ballerinaExtInstance.compareVersions("1.100.0", "0.100.0") > 0);
-        assert(ballerinaExtInstance.compareVersions("0.100.0", "0.101.0") < 0);
-        assert(ballerinaExtInstance.compareVersions("0.100.0", "1.100.0") < 0);
-        assert(ballerinaExtInstance.compareVersions("0.100.5", "0.100-r8") === 0);
-        assert(ballerinaExtInstance.compareVersions("0.101.0", "0.100-r1") > 0);
-        assert(ballerinaExtInstance.compareVersions("1.100.0", "0.100-r1") > 0);
-        assert(ballerinaExtInstance.compareVersions("0.100.0", "0.101-r1") < 0);
-        assert(ballerinaExtInstance.compareVersions("0.100.0", "1.100-r1") < 0);
     });
 });
