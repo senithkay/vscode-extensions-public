@@ -247,6 +247,11 @@
                 "command": "ballerina.project.doc",
                 "title": "Document",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.add",
+                "title": "Add Module",
+                "category": "Ballerina"
             }
         ]
     },

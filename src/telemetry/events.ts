@@ -28,5 +28,8 @@ export const TM_EVENT_EXECUTE_BALLERINA_RUN = "execute.ballerina.run";
 // event for executing the ballerina doc command
 export const TM_EVENT_EXECUTE_BALLERINA_DOC = "execute.ballerina.doc";
 
+// event for executing the ballerina add command
+export const TM_EVENT_EXECUTE_BALLERINA_ADD = "execute.ballerina.add";
+
 // event for generating Kubernetes.toml for current project
 export const TM_EVENT_CREATE_K8S = "create.kubernetes.toml";

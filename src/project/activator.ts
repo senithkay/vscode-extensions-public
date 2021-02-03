@@ -6,6 +6,7 @@ import { activateBuildCommand } from "./cli-cmds/build";
 import { activateK8sCommand } from "./cli-cmds/k8s";
 import { activateRunCommand } from "./cli-cmds/run";
 import { activateDocCommand } from "./cli-cmds/doc";
+import { activateAddCommand } from "./cli-cmds/add";
 // import { PROJECT_TYPE } from "./cli-cmds/cmd-runner";
 
 // function promptOpenFolder(path: string) {
@@ -60,4 +61,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     // activate the create kubernetes.toml command
     activateK8sCommand();
+
+    // activate the add module command
+    activateAddCommand();
 }

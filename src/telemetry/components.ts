@@ -9,6 +9,7 @@ export const CMP_PROJECT_TEST_RUNNER = "component.project.test.runner";
 export const CMP_PROJECT_BUILD = "component.project.test.runner";
 export const CMP_BALLERINA_RUN = "component.project.test.runner";
 export const CMP_BALLERINA_DOC = "component.project.doc.runner";
+export const CMP_BALLERINA_ADD = "component.project.add.runner";
 export const CMP_TRACE_LOGS = "component.trace.logs";
 export const CMP_DEBUGGER = "component.debugger";
 export const CMP_K8S = "component.kubernetes.create";

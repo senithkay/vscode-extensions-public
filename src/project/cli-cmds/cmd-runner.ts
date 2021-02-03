@@ -3,7 +3,7 @@ import { getCLIOutputChannel } from "./output";
 import { spawn, spawnSync } from "child_process";
 
 export enum BALLERINA_COMMANDS {
-    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc"
+    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add"
 }
 
 export enum PROJECT_TYPE {
