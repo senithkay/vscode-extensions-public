@@ -18,7 +18,7 @@ export enum MESSAGES {
     NOT_SUPPORT = "Ballerina version is not supported by the VSCode plugin.",
     MODULE_NAME = "Enter module name.",
     SELECT_OPTION = "Select a build option.",
-    NOT_IN_PROJECT = "Open editor does not reside inside a Ballerina project."
+    NOT_IN_PROJECT = "Current file does not belong to a ballerina project."
 }
 
 export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {

@@ -76,7 +76,7 @@ export class BallerinaExtension {
         this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
-        this.sdkVersion.command = `ballerina.showLogs`
+        this.sdkVersion.command = `ballerina.showLogs`;
         this.sdkVersion.show();
         this.isSwanLake = false;
         this.is12x = false;
@@ -122,6 +122,10 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
+                if (!this.overrideBallerinaHome()) {
+                    const { home } = this.autoDetectBallerinaHome();
+                    this.ballerinaHome = home;
+                }
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${ballerinaVersion}`;
 
@@ -292,7 +296,7 @@ export class BallerinaExtension {
                     return;
                 }
                 ballerinaExecutor = 'bal';
-                log('bal command is picked up from the plugin.');
+                log(`'bal' command is picked up from the plugin.`);
                 resolve(stdout);
             });
         });
@@ -304,7 +308,7 @@ export class BallerinaExtension {
                     return;
                 }
                 ballerinaExecutor = 'ballerina';
-                log('ballerina command is picked up from the plugin.s');
+                log(`'ballerina' command is picked up from the plugin.`);
                 resolve(stdout);
             });
         });
@@ -432,7 +436,7 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
     }
 
-    autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
+    autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
         let balHomeOutput = "",
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
@@ -469,7 +473,6 @@ export class BallerinaExtension {
 
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
-            cmd: this.ballerinaCmd,
             isBallerinaNotFound,
             isOldBallerinaDist
         };
