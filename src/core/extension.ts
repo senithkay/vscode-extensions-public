@@ -289,9 +289,9 @@ export class BallerinaExtension {
 
         let ballerinaExecutor = '';
         const balPromise: Promise<string> = new Promise((resolve, reject) => {
-            exec(distPath + 'bal' + exeExtension + ' version', (_err, stdout, stderr) => {
-                if (_err) {
-                    reject(_err);
+            exec(distPath + 'bal' + exeExtension + ' version', (err, stdout, _stderr) => {
+                if (err) {
+                    reject(err);
                     return;
                 }
 
@@ -306,9 +306,9 @@ export class BallerinaExtension {
             });
         });
         const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
-            exec(distPath + 'ballerina' + exeExtension + ' version', (_err, stdout, stderr) => {
-                if (_err) {
-                    reject(_err);
+            exec(distPath + 'ballerina' + exeExtension + ' version', (err, stdout, _stderr) => {
+                if (err) {
+                    reject(err);
                     return;
                 }
 
