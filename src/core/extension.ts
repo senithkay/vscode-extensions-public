@@ -290,11 +290,16 @@ export class BallerinaExtension {
         let ballerinaExecutor = '';
         const balPromise: Promise<string> = new Promise((resolve, reject) => {
             exec(distPath + 'bal' + exeExtension + ' version', (_err, stdout, stderr) => {
-                const cmdOutput = stdout.length > 0 ? stdout : stderr;
-                if (cmdOutput.startsWith(ERROR) || cmdOutput.includes(NO_SUCH_FILE) || cmdOutput.includes(COMMAND_NOT_FOUND)) {
-                    reject(cmdOutput);
+                if (_err) {
+                    reject(_err);
                     return;
                 }
+
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                    reject(stdout);
+                    return;
+                }
+
                 ballerinaExecutor = 'bal';
                 log(`'bal' command is picked up from the plugin.`);
                 resolve(stdout);
@@ -302,11 +307,16 @@ export class BallerinaExtension {
         });
         const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
             exec(distPath + 'ballerina' + exeExtension + ' version', (_err, stdout, stderr) => {
-                const cmdOutput = stdout.length > 0 ? stdout : stderr;
-                if (cmdOutput.startsWith(ERROR) || cmdOutput.includes(NO_SUCH_FILE) || cmdOutput.includes(COMMAND_NOT_FOUND)) {
-                    reject(cmdOutput);
+                if (_err) {
+                    reject(_err);
                     return;
                 }
+
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                    reject(stdout);
+                    return;
+                }
+
                 ballerinaExecutor = 'ballerina';
                 log(`'ballerina' command is picked up from the plugin.`);
                 resolve(stdout);
