@@ -43,7 +43,7 @@ export function getServerOptions(ballerinaCmd: string, experimental: boolean, de
         opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort + ",quiet=y";
     }
 
-    if (experimental) {
+    if (!isSwanLake && experimental) {
         args.push('--experimental');
     }
 
