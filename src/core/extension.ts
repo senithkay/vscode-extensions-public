@@ -34,7 +34,7 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
+import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { createTelemetryReporter, TM_EVENT_OLD_BAL_HOME } from "../telemetry";
 const any = require('promise.any');
@@ -145,8 +145,7 @@ export class BallerinaExtension {
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(),
-                    this.isTraceLogsEnabled(), this.isSwanLake);
+                serverOptions = getServerOptions(this.ballerinaCmd);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, false);
 
@@ -422,18 +421,6 @@ export class BallerinaExtension {
      */
     getConfiguredBallerinaHome(): string {
         return <string>workspace.getConfiguration().get(BALLERINA_HOME);
-    }
-
-    isExperimental(): boolean {
-        return <boolean>workspace.getConfiguration().get(ALLOW_EXPERIMENTAL);
-    }
-
-    isDebugLogsEnabled(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_DEBUG_LOG);
-    }
-
-    isTraceLogsEnabled(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
     }
 
     autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {

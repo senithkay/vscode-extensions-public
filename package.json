@@ -65,57 +65,52 @@
                 "ballerina.plugin.dev.mod": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Enable plugin development mode"
+                    "description": "Enable plugin development mode."
                 },
                 "ballerina.home": {
                     "type": "string",
                     "default": "",
-                    "description": "Specifies the path to the ballerina home directory"
+                    "description": "Specify the Ballerina home directory path."
                 },
                 "ballerina.allowExperimental": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If set to true experimental ballerina features will be allowed"
+                    "description": "Enable experimental features.\n(Supports Ballerina 1.2.x versions)"
                 },
                 "ballerina.debugLog": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If set to true debug msgs will be printed to Ballerina output channel"
+                    "description": "Enable printing debug messages on to the Ballerina output channel."
                 },
                 "ballerina.traceLog": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If set to true trace msgs will be printed to Ballerina output channel"
+                    "description": "Enable printing trace messages on to the Ballerina output channel."
                 },
                 "ballerina.codeLens.all.enabled": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If set to true ballerina code lens features will be allowed"
+                    "description": "Enable all code lens features.\n(Supports Ballerina Swan Lake)"
                 },
                 "ballerina.codeLens.docs.enabled": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If set to true ballerina documentation code lens feature will be allowed"
-                },
-                "ballerina.codeLens.services.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If set to true ballerina services code lens feature will be allowed"
-                },
-                "ballerina.codeLens.endpoints.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If set to true ballerina endpoints code lens feature will be allowed"
+                    "description": "Enable documentation code lens feature.\n(Supports Ballerina Swan Lake)"
                 },
                 "ballerina.dataMapper.enabled": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If set to true ballerina data mapper code action feature will be allowed"
+                    "description": "Enable data mapper code actions."
                 },
                 "ballerina.dataMapper.url": {
                     "type": "string",
                     "default": "https://datamapper.choreo.dev",
-                    "description": "URL of the host for data mapper back end"
+                    "description": "Specify the URL of the data mapper backend host."
+                },
+                "ballerina.goToDefinition.enableStandardLibraries": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable navigation into standard library content with goto definition feature.\n(Supports Ballerina 1.2.x versions)"
                 }
             }
         },
