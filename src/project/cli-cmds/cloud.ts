@@ -1,13 +1,13 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { getCLIOutputChannel } from "./output";
-import { TM_EVENT_CREATE_K8S, CMP_K8S } from "../../telemetry";
+import { TM_EVENT_CREATE_CLOUD, CMP_CLOUD } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
 
-const CLOUD_CONFIG_FILE_NAME = "/Kubernetes.toml";
-const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configerations supported by Ballerina Code to Cloud
+const CLOUD_CONFIG_FILE_NAME = "/Cloud.toml";
+const CLOUD_TOML_DEFAULT_CONTENT = `# This file contains most used configerations supported by Ballerina Code to Cloud
 # All the fields are optional. If these fields are not specified, default value will be taken from the compiler.
 # Full Code to Cloud specification can be accssed from https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md
 
@@ -23,8 +23,8 @@ const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configer
 #config_name = "module-foo"
 #
 #[[cloud.config.files]]
-#file = "resource/ballerina.conf"
-#mount_path = "/home/ballerina/foo/ballerina.conf"
+#file = "resource/file.text"
+#mount_path = "/home/ballerina/foo/file.conf"
 #
 #[cloud.deployment]
 #external_accessible = true
@@ -42,11 +42,11 @@ const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configer
 #
 #[cloud.deployment.probes.readiness]
 #port = 9090
-#path = "/service/readyz"
+#path = "/probe/readyz"
 #
 #[cloud.deployment.probes.liveness]
 #port = 9090
-#path = "/service/live"
+#path = "/probe/live"
 #
 #[[cloud.deployment.storage.volumes]]
 #name = "volume1"
@@ -54,41 +54,41 @@ const KUBERNETES_TOML_DEFAULT_CONTENT = `# This file contains most used configer
 #size = "2Gi"
 `;
 
-export function activateK8sCommand() {
+export function activateCloudCommand() {
     const reporter = ballerinaExtInstance.telemetryReporter;
 
-    // register create kubernetes.toml command handler
-    commands.registerCommand('ballerina.create.k8s', async () => {
+    // register create Cloud.toml command handler
+    commands.registerCommand('ballerina.create.cloud', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_CREATE_K8S, { component: CMP_K8S });
+            reporter.sendTelemetryEvent(TM_EVENT_CREATE_CLOUD, { component: CMP_CLOUD });
 
             const currentProject = await getCurrentBallerinaProject();
             if (!ballerinaExtInstance.isSwanLake) {
-                window.showErrorMessage(`Ballerina version doesn't support Kubernetes.toml creation.`);
+                window.showErrorMessage(`Ballerina version doesn't support Cloud.toml creation.`);
                 return;
             }
             const outputChannel = getCLIOutputChannel();
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 if (currentProject.path) {
-                    let k8sTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME;
-                    if (!fs.existsSync(k8sTomlPath)) {
-                        fs.writeFile(k8sTomlPath, KUBERNETES_TOML_DEFAULT_CONTENT, (err) => {
+                    let cloudTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME;
+                    if (!fs.existsSync(cloudTomlPath)) {
+                        fs.writeFile(cloudTomlPath, CLOUD_TOML_DEFAULT_CONTENT, (err) => {
                             if (err) {
-                                reporter.sendTelemetryException(err, { component: CMP_K8S });
+                                reporter.sendTelemetryException(err, { component: CMP_CLOUD });
                                 window.showErrorMessage(err.message);
                             } else {
-                                outputChannel.appendLine(`Kubernetes.toml created in ${currentProject.path}`);
+                                outputChannel.appendLine(`Cloud.toml created in ${currentProject.path}`);
                             }
                         });
                     } else {
-                        window.showErrorMessage(`Kubernetes.toml already exists in the project.`);
+                        window.showErrorMessage(`Cloud.toml already exists in the project.`);
                     }
                 }
             } else {
-                window.showErrorMessage(`Kubernetes.toml is not supported for single file projects.`);
+                window.showErrorMessage(`Cloud.toml is not supported for single file projects.`);
             }
         } catch (error) {
-            reporter.sendTelemetryException(error, { component: CMP_K8S });
+            reporter.sendTelemetryException(error, { component: CMP_CLOUD });
             window.showErrorMessage(error);
         }
     });

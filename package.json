@@ -234,8 +234,8 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.create.k8s",
-                "title": "Create Kubernetes.toml",
+                "command": "ballerina.create.cloud",
+                "title": "Create Cloud.toml",
                 "category": "Ballerina"
             },
             {
