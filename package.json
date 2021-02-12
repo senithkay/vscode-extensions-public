@@ -116,7 +116,8 @@
         },
         "configurationDefaults": {
             "[ballerina]": {
-                "editor.wordBasedSuggestions": false
+                "editor.wordBasedSuggestions": false,
+                "editor.suggest.snippetsPreventQuickSuggestions": false
             },
             "[toml]": {
                 "editor.wordBasedSuggestions": false
