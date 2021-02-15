@@ -100,14 +100,7 @@ export function Diagram(props: DiagramProps) {
     if (h < window.innerHeight) {
         h = h + (window.innerHeight - h);
     }
-    // TODO: refer needed props from context
     return (
-        // <DiagramContextProvider
-        //     isReadOnly={isReadOnly || isCodeEditorActive}
-        //     dispatchMutations={dispatchMutations}
-        //     dispatchModifyTrigger={dispatchModifyTrigger}
-        //     size={{ height: h, width: w }}
-        // >
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
             {triggerType !== undefined && isWaitingOnWorkspace && textLoader}
@@ -126,6 +119,5 @@ export function Diagram(props: DiagramProps) {
                 </Container>
             </PanAndZoom>
         </div>
-        // </DiagramContextProvider>
     );
 }

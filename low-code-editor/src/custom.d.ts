@@ -33,7 +33,7 @@ declare module 'react-flame-graph' {
   export type ChartData = {
     height: number,
     levels: any[][],
-    nodes: { [uid: any]: ChartNode },
+    nodes: { [uid: string]: ChartNode },
     root: any,
   };
 
