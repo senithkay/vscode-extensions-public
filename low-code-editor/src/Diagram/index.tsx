@@ -28,6 +28,8 @@ import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 
+import { DiagramDisabled, DiagramEnabled } from "../assets/icons";
+
 export interface DiagramProps {
     isReadOnly: boolean;
     syntaxTree: STNode;
@@ -45,7 +47,7 @@ export interface DiagramProps {
 
 export function Diagram(props: DiagramProps) {
     const { isReadOnly, syntaxTree, isLoadingAST, error, isWaitingOnWorkspace, dispatchMutations,
-            dispatchModifyTrigger, isMutationInProgress, isCodeEditorActive, isConfigPanelOpen, isConfigOverlayFormOpen, triggerType } = props;
+        dispatchModifyTrigger, isMutationInProgress, isCodeEditorActive, isConfigPanelOpen, isConfigOverlayFormOpen, triggerType } = props;
     const classes = useStyles();
 
     const textLoader = (
@@ -56,13 +58,13 @@ export function Diagram(props: DiagramProps) {
 
     const diagramDisabledStatus = (
         <div>
-            <img src="../../assets/images/diagram-disabled.svg" alt="diagram-disabled" />
+            <DiagramDisabled />
         </div>
     );
 
     const diagramEnabledStatus = (
         <div>
-            <img src="../../assets/images/diagram-enabled.svg" alt="diagram-enabled" />
+            <DiagramEnabled />
         </div>
     );
 
