@@ -111,6 +111,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable navigation into standard library content with goto definition feature.\n(Supports Ballerina 1.2.x versions)"
+                },
+                "ballerina.enableFileWatcher": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable watching file change events of the project.\n(Supports Ballerina Swan Lake)"
                 }
             }
         },
