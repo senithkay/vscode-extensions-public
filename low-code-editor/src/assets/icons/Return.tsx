@@ -9,6 +9,5 @@ export default function ReturnIcon(props: any) {
                 <circle id="Oval" stroke="#CCD1F2" stroke-width="2" cx="11" cy="11" r="10"></circle>
             </g>
         </svg>
-
     )
 }

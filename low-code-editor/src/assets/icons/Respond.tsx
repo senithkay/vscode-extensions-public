@@ -9,6 +9,5 @@ export default function RespondIcon(props: any) {
                 <circle id="Oval-Copy" fill="#5567D5" cx="13.75" cy="10.45" r="1.65"></circle>
             </g>
         </svg>
-
     )
 }
