@@ -42,9 +42,9 @@ declare module 'react-flame-graph' {
     disableDefaultTooltips: boolean,
     focusedNode: ChartNode,
     focusNode: (chartNode: ChartNode, uid: any) => void,
-    handleMouseEnter: (event: SyntheticMouseEvent<*>, node: RawData) => void,
-    handleMouseLeave: (event: SyntheticMouseEvent<*>, node: RawData) => void,
-    handleMouseMove: (event: SyntheticMouseEvent<*>, node: RawData) => void,
+    // handleMouseEnter: (event: SyntheticMouseEvent<*>, node: RawData) => void,
+    // handleMouseLeave: (event: SyntheticMouseEvent<*>, node: RawData) => void,
+    // handleMouseMove: (event: SyntheticMouseEvent<*>, node: RawData) => void,
     scale: (value: number) => number,
   };
 }
