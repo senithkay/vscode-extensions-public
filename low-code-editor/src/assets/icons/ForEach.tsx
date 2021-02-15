@@ -1,0 +1,17 @@
+import React from 'react';
+
+export default function ForEachIcon(props: any) {
+    return (
+        <svg width="23px" height="22px" viewBox="0 0 23 22" version="1.1" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <circle id="Oval" fill="#5567D5" cx="4.95" cy="4.95" r="1.65"></circle>
+            <circle id="Oval-Copy-4" fill="#CCD1F2" cx="4.95" cy="11" r="1.65"></circle>
+            <circle id="Oval-Copy-7" fill="#CCD1F2" cx="4.95" cy="17.05" r="1.65"></circle>
+            <circle id="Oval-Copy-5" fill="#CCD1F2" cx="11" cy="11" r="1.65"></circle>
+            <circle id="Oval-Copy-8" fill="#5567D5" cx="11" cy="17.05" r="1.65"></circle>
+            <circle id="Oval-Copy" fill="#5567D5" cx="11" cy="4.95" r="1.65"></circle>
+            <circle id="Oval-Copy-3" fill="#5567D5" cx="17.05" cy="4.95" r="1.65"></circle>
+            <circle id="Oval-Copy-6" fill="#CCD1F2" cx="17.05" cy="11" r="1.65"></circle>
+            <circle id="Oval-Copy-9" fill="#5567D5" cx="17.05" cy="17.05" r="1.65"></circle>
+        </svg>
+    )
+}

@@ -31,6 +31,8 @@ import { genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
+import { ForEachIcon } from "../../../../../../assets/icons";
+
 interface Iterations {
     start?: string;
     end?: string;
@@ -48,7 +50,7 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
     const { state } = useContext(Context);
-    const { isMutationProgress : isMutationInProgress, stSymbolInfo } = state;
+    const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -138,7 +140,7 @@ export function AddForeachForm(props: ForeachProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <img src="../../../../../../images/Foreach.svg" />
+                            <ForEachIcon />
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
                             </Typography>

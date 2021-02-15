@@ -27,6 +27,8 @@ import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
+import { RespondIcon } from "../../../../../../assets/icons";
+
 interface RespondFormProps {
     config: EndConfig;
     onCancel: () => void;
@@ -79,7 +81,7 @@ export function AddRespondForm(props: RespondFormProps) {
                     />
 
                     <div className={formClasses.mainTitleWrapper}>
-                        <img src="../../../../../../images/Respond.svg" />
+                        <RespondIcon />
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Respond</Box>
                         </Typography>

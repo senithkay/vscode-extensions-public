@@ -24,6 +24,8 @@ import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
 
+import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } from "../../../../../../../../assets/icons";
+
 export const PROCESS_TYPES = [""];
 
 export interface StatementOptionsProps {
@@ -63,7 +65,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 >
                     <div className="sub-option enabled" data-testid="addLog" onClick={onSelect.bind(undefined, "Log")}>
                         <div className="icon-wrapper">
-                            <img src="../../../../../../images/Log.svg" />
+                            <LogIcon />
                         </div>
                         <div className="text-label">Log</div>
                     </div>
@@ -85,7 +87,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div className="sub-option enabled" data-testid="addVariable" onClick={onSelect.bind(undefined, "Variable")}>
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Property.svg" />
+                        <PropertyIcon />
                     </div>
                     <div className="text-label">Variable</div>
                 </div>
@@ -107,7 +109,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div className="sub-option enabled" data-testid="addIf" onClick={onSelect.bind(undefined, "If")}>
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/If.svg" />
+                        <IfIcon />
                     </div>
                     <div className="text-label">If</div>
                 </div>
@@ -129,7 +131,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div className="sub-option enabled" data-testid="addForeach" onClick={onSelect.bind(undefined, "ForEach")} >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Foreach.svg" />
+                        <ForEachIcon />
                     </div>
                     <div className="text-label">ForEach</div>
                 </ div>
@@ -156,7 +158,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={!isResource ? onSelect.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Return.svg" />
+                        <ReturnIcon />
                     </div>
                     <div className="text-label">Return</div>
                 </div>
@@ -183,7 +185,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={isResource ? onSelect.bind(undefined, 'Respond') : null}
                 >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Respond.svg" />
+                        <RespondIcon />
                     </div>
                     <div className="text-label">Respond</div>
                 </div>

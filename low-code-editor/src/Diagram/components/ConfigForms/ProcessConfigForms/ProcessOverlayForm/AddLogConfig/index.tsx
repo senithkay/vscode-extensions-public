@@ -29,6 +29,8 @@ import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
+import { LogIcon } from "../../../../../../assets/icons";
+
 interface LogConfigProps {
     config: ProcessConfig;
     onCancel: () => void;
@@ -43,7 +45,7 @@ export function AddLogConfig(props: LogConfigProps) {
     const overlayClasses = wizardStyles();
 
     const { state } = useContext(Context);
-    const { isMutationProgress : isMutationInProgress } = state;
+    const { isMutationProgress: isMutationInProgress } = state;
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
@@ -96,7 +98,7 @@ export function AddLogConfig(props: LogConfigProps) {
                     />
                     <div className={formClasses.formTitleWrapper}>
                         <div className={formClasses.mainTitleWrapper}>
-                            <img src="../../../../../../images/Log.svg" />
+                            <LogIcon />
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Log</Box>
                             </Typography>
@@ -113,18 +115,18 @@ export function AddLogConfig(props: LogConfigProps) {
                         label="Type"
                     />
                     <div className="exp-wrapper">
-                    <ExpressionEditor
-                        model={{ name: "expression", type: 'string' }}
-                        customProps={{
-                            validate: validateExpression,
-                            tooltipTitle: tooltipMessages.expressionEditor.title,
-                            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                            interactive: true
-                        }}
-                        onChange={onExpressionChange}
-                        defaultValue={expression}
-                    />
+                        <ExpressionEditor
+                            model={{ name: "expression", type: 'string' }}
+                            customProps={{
+                                validate: validateExpression,
+                                tooltipTitle: tooltipMessages.expressionEditor.title,
+                                tooltipActionText: tooltipMessages.expressionEditor.actionText,
+                                tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                interactive: true
+                            }}
+                            onChange={onExpressionChange}
+                            defaultValue={expression}
+                        />
                     </div>
                 </div>
                 <div className={overlayClasses.buttonWrapper}>

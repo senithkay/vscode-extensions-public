@@ -32,6 +32,8 @@ import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
+import { PropertyIcon } from "../../../../../../assets/icons";
+
 interface AddVariableConfigProps {
     config: ProcessConfig;
     onCancel: () => void;
@@ -152,7 +154,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <img src="../../../../../../images/Property.svg" />
+                            <PropertyIcon />
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Variable</Box>
                             </Typography>

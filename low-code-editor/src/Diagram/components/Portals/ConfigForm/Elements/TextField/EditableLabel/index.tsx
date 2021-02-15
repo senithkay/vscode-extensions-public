@@ -73,7 +73,7 @@ export function EditableLabel(props: FormElementProps<EditableLabelProps>) {
         <FormTextInput defaultValue={defaultText} />
       </div>
       <img
-        src="../../../../../../images/delete-variable-name.svg"
+        src="./images/delete-variable-name.svg"
         className="delete-icon"
         onClick={handleCancelClick}
       />
@@ -90,7 +90,7 @@ export function EditableLabel(props: FormElementProps<EditableLabelProps>) {
         />
       </div>
       <img
-        src="../../../../../../images/edit-variable-name.svg"
+        src="./images/edit-variable-name.svg"
         onClick={handleNameChange}
       />
     </div>

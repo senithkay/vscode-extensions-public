@@ -26,6 +26,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { IfIcon } from "../../../../../../assets/icons";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -91,7 +92,7 @@ export function AddIfForm(props: IfProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <img src="../../../../../../images/If.svg" />
+                            <IfIcon />
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>If</Box>
                             </Typography>

@@ -25,6 +25,8 @@ import { ConditionConfig } from "../../../../types";
 import { useStyles } from "../../../style";
 import { DEFINE_RANGE } from "../AddForeachForm";
 
+import { IfIcon } from "../../../../../../../../assets/icons";
+
 interface IfProps {
     condition: ConditionConfig;
     onCancel: () => void;
@@ -88,7 +90,7 @@ export function AddIfForm(props: IfProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>If Condition</Box>
                     </Typography>
-                    <img src="../../../../../../images/If.svg" />
+                    <IfIcon />
                 </div>
             </div>
             <div className={classes.formWrapper}>

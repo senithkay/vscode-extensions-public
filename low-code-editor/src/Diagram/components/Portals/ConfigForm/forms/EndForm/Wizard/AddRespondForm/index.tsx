@@ -26,6 +26,8 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { EndConfig, RespondConfig } from "../../../../types";
 import { useStyles as useFormStyles } from "../../../style";
 
+import { RespondIcon } from "../../../../../../../../assets/icons";
+
 interface RespondFormProps {
     config: EndConfig;
     onCancel: () => void;
@@ -39,7 +41,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isMutationInProgress } = state;
     const formClasses = useFormStyles();
-    const { config, onCancel, onSave  } = props;
+    const { config, onCancel, onSave } = props;
     let initIsExp = !(config.scopeSymbols.length > 0);
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
@@ -110,7 +112,7 @@ export function AddRespondForm(props: RespondFormProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>Respond</Box>
                     </Typography>
-                    <img src="../../../../../../images/Respond.svg" />
+                    <RespondIcon />
                 </div>
             </div>
             <div className={formClasses.formWrapper}>

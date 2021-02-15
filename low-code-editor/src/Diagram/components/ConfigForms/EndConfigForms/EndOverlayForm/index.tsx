@@ -10,12 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { ActionStatement, RemoteMethodCallAction, ReturnStatement, SimpleNameReference } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../ConfigurationSpec/types";
-import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { EndConfig, RespondConfig } from "../../../Portals/ConfigForm/types";
@@ -33,8 +32,6 @@ interface EndOverlayFormProps {
 }
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
-    const { state } = useContext(Context);
-    const { syntaxTree } = state;
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
 

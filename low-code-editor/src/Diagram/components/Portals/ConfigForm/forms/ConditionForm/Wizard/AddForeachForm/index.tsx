@@ -29,6 +29,8 @@ import { ConditionConfig, ForeachConfig } from "../../../../types";
 // import "../../../ConnectorInitForm/Wizard/style.scss";
 import { useStyles } from "../../../style";
 
+import { ForEachIcon } from "../../../../../../../../assets/icons";
+
 interface Iterations {
     start?: string;
     end?: string;
@@ -61,9 +63,9 @@ export function AddForeachForm(props: ForeachProps) {
             case 'BinaryExpression':
                 const expression = forEachModel.actionOrExpressionNode as BinaryExpression;
                 if (expression.operator.kind === 'EllipsisToken') {
-                   initCollectionDefined = false;
-                   initIterations.start = expression.lhsExpr.source.trim();
-                   initIterations.end = expression.rhsExpr.source.trim();
+                    initCollectionDefined = false;
+                    initIterations.start = expression.lhsExpr.source.trim();
+                    initIterations.end = expression.rhsExpr.source.trim();
                 }
 
                 break;
@@ -182,7 +184,7 @@ export function AddForeachForm(props: ForeachProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
                     </Typography>
-                    <img src="../../../../../../images/Foreach.svg"/>
+                    <ForEachIcon />
                 </div>
             </div>
             <div className={classes.formWrapper}>
@@ -217,7 +219,7 @@ export function AddForeachForm(props: ForeachProps) {
                         />
                     </div>
 
-                    <div className={classes.divider}/>
+                    <div className={classes.divider} />
 
                     <RadioControl
                         onChange={onDefineRadioBtnChange}
@@ -255,7 +257,7 @@ export function AddForeachForm(props: ForeachProps) {
                 </div>
 
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel}/>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
                         text="Save"
                         disabled={isMutationInProgress || !allTextFilled}
@@ -263,7 +265,7 @@ export function AddForeachForm(props: ForeachProps) {
                         onClick={onSave}
                     />
                 </div>
-                <div className={classes.formCreate}/>
+                <div className={classes.formCreate} />
             </div>
         </FormControl>
     );

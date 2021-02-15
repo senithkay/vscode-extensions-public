@@ -27,6 +27,8 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { EndConfig } from "../../../../types";
 import { useStyles } from "../../../style";
 
+import { ReturnIcon } from "../../../../../../../../assets/icons";
+
 interface ReturnFormProps {
     config: EndConfig;
     onCancel: () => void;
@@ -96,7 +98,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>Return</Box>
                     </Typography>
-                    <img src="../../../../../../images/Return.svg" />
+                    <ReturnIcon />
                 </div>
             </div>
             <div className={classes.formWrapper}>

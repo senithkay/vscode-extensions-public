@@ -3,7 +3,7 @@ import * as React from "react";
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
-import errorSvg from "../../assets/images/default-error.svg";
+import ErrorSvg from "./ErrorSvg";
 
 import { useStyles } from "./style";
 
@@ -20,7 +20,7 @@ export default function Default() {
                 className={classes.gridContainer}
             >
                 <Grid item={true}>
-                    <img src={errorSvg} alt="Oops! this is embarrassing" />
+                    <ErrorSvg />
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="h1" className={classes.errorTitle} component="div">

@@ -18,6 +18,8 @@ import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 
+import { InfoIcon } from "../../../../../../assets/icons";
+
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
 interface TooltipPropsExtended extends TooltipProps {
@@ -105,7 +107,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
 
-    const infoIcon = <img src="../../../../../../images/info.svg" />;
+    const infoIcon = <InfoIcon />;
     let iconComponent = infoIcon;
 
     const { title, children, ...restProps } = props;

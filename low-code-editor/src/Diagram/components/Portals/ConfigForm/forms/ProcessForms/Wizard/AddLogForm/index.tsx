@@ -26,6 +26,8 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { LogConfig, ProcessConfig } from "../../../../types";
 import { useStyles as useFormStyles } from "../../../style";
 
+import { LogIcon } from "../../../../../../../../assets/icons";
+
 interface LogFormProps {
     config: ProcessConfig;
     onCancel: () => void;
@@ -130,7 +132,7 @@ export function AddLogForm(props: LogFormProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>Log</Box>
                     </Typography>
-                    <img src="../../../../../../images/Log.svg" />
+                    <LogIcon />
                 </div>
             </div>
             <div className={formClasses.formWrapper}>

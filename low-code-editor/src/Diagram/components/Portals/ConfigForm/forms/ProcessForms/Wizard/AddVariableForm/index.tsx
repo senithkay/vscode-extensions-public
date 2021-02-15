@@ -23,7 +23,7 @@ import {
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { balTypes, FormField, WizardType } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext} from "../../../../../../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName, getParams } from "../../../../../utils";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
@@ -33,6 +33,8 @@ import ExpressionEditor from "../../../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../types";
 import { useStyles } from "../../../style";
+
+import { PropertyIcon } from "../../../../../../../../assets/icons"
 
 interface AddVariableProps {
     config: ProcessConfig;
@@ -197,7 +199,7 @@ export function AddVariableForm(props: AddVariableProps) {
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2}>Variable</Box>
                     </Typography>
-                    <img src="../../../../../../images/Property.svg" />
+                    <PropertyIcon />
                 </div>
             </div>
             <div className={classes.formWrapper}>

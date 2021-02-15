@@ -26,6 +26,8 @@ import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
+import { ReturnIcon } from "../../../../../../assets/icons";
+
 interface ReturnFormProps {
     config: EndConfig;
     onCancel: () => void;
@@ -67,7 +69,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         icon={<CloseRounded fontSize="small" />}
                     />
                     <div className={classes.mainTitleWrapper}>
-                        <img src="../../../../../../images/Return.svg" />
+                        <ReturnIcon />
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Return</Box>
                         </Typography>
