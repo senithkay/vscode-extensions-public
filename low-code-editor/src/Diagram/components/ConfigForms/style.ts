@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { formErrorSvg } from "../../../assets"
 
 export const wizardStyles = makeStyles(() =>
     createStyles({
@@ -105,7 +106,7 @@ export const wizardStyles = makeStyles(() =>
             marginLeft: '1rem',
         },
         formError: {
-            backgroundImage: "url('/images/form-error.svg')",
+            backgroundImage: `url('${formErrorSvg}')`,
             width: 276,
             height: 250,
             margin: '50% auto',

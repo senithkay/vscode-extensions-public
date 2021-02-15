@@ -172,36 +172,6 @@
                 padding-top: 5px;
                 padding-left: 0.5px;
             }
-
-            .email-icon {
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                vertical-align: sub;
-                padding-top: 5px;
-                padding-left: 0.5px;
-                background: url("../../../../../../assets/images/email.svg") no-repeat center;
-            }
-
-            .webhook-icon {
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                vertical-align: sub;
-                padding-top: 5px;
-                padding-left: 0.5px;
-                background: url("../../../../../../assets/images/webhook.svg") no-repeat center;
-            }
-
-            .custom-icon {
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                vertical-align: sub;
-                padding-top: 5px;
-                padding-left: 0.5px;
-                background: url("../../../../../../assets/images/custom.svg") no-repeat center;
-            }
         }
 
         .trigger-label {
@@ -224,18 +194,6 @@
 
             .icon-wrapper {
                 display: inline-block;
-
-                .email-icon {
-                    background: url("../../../../../../assets/images/email.svg") no-repeat center;
-                }
-
-                .webhook-icon {
-                    background: url("../../../../../../assets/images/webhook.svg") no-repeat center;
-                }
-
-                .custom-icon {
-                    background: url("../../../../../../assets/images/custom.svg") no-repeat center;
-                }
             }
 
             .trigger-label {

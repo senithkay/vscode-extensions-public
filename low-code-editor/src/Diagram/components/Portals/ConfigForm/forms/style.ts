@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { formCreateSvg  } from "../../../../../assets";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -117,7 +118,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         formCreate: {
             width: 191.2,
             height: 191.2,
-            backgroundImage: "url('/images/form-create.svg')",
+            backgroundImage: `url('${formCreateSvg}')`,
             margin: '10% auto',
         },
         helperText: {

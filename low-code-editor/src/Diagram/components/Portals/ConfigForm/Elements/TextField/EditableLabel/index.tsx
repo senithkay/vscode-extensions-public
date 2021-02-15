@@ -19,6 +19,7 @@ import cn from "classnames";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { FormTextInput } from "../FormTextInput";
+import { deleteVariableNameSvg, editVariableNameSvg } from "../../../../../../../assets";
 
 import "./style.scss";
 
@@ -73,7 +74,7 @@ export function EditableLabel(props: FormElementProps<EditableLabelProps>) {
         <FormTextInput defaultValue={defaultText} />
       </div>
       <img
-        src="./images/delete-variable-name.svg"
+        src={deleteVariableNameSvg}
         className="delete-icon"
         onClick={handleCancelClick}
       />
@@ -90,7 +91,7 @@ export function EditableLabel(props: FormElementProps<EditableLabelProps>) {
         />
       </div>
       <img
-        src="./images/edit-variable-name.svg"
+        src={editVariableNameSvg}
         onClick={handleNameChange}
       />
     </div>

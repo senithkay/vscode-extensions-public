@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { formErrorSvg } from "../../../assets";
 
 const drawerWidth = 350;
 
@@ -157,7 +158,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'none',
         },
         formError: {
-            backgroundImage: "url('/images/form-error.svg')",
+            backgroundImage: `url('${formErrorSvg}')`,
             width: 276,
             height: 250,
             margin: '50% auto',
