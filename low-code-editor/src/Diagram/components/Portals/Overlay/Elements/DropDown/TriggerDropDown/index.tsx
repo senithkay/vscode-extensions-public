@@ -18,8 +18,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
-import calenderIcon from '../../../../../../../assets/images/logo-g-calendar.svg';
-import githubIcon from '../../../../../../../assets/images/logo-github.svg';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 // import { dispatchModifyTriggerWizard } from '../../../../../../$store/actions';
@@ -32,6 +30,8 @@ import { ApiConfigureWizard } from '../ApiConfigureWizard';
 import { ScheduleConfigureWizard } from '../ScheduleConfigureWizard';
 import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
+
+import { ApiIcon, ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon } from "../../../../../../../assets/icons";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -145,7 +145,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     data-testid="api-trigger"
                                 >
                                     <div className="icon-wrapper">
-                                        <div className="api-icon" />
+                                        <ApiIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label">API</div>
                                 </div>
@@ -164,7 +164,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_MANUAL)}
                                 >
                                     <div className="icon-wrapper">
-                                        <div className="manual-icon" />
+                                        <ManualIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label "> Manual </div>
                                 </div>
@@ -183,7 +183,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.GITHUB)}
                                 >
                                     <div className="icon-wrapper">
-                                        <img src={githubIcon} />
+                                        <GitHubIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label ">GitHub</div>
                                 </div>
@@ -204,7 +204,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_SCHEDULE)}
                                 >
                                     <div className="icon-wrapper">
-                                        <div className="schedule-icon" />
+                                        <ScheduleIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label ">  Schedule </div>
                                 </div>
@@ -223,7 +223,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.G_CALENDAR)}
                                 >
                                     <div className="icon-wrapper">
-                                        <img src={calenderIcon} />
+                                        <CalendarIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label "> Calender </div>
                                 </div>

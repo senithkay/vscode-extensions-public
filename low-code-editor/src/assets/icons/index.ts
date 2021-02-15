@@ -1,2 +1,10 @@
+export { default as ApiIcon } from "./Api";
+export { default as CustomIcon } from "./Custom";
 export { default as DiagramEnabled } from "./DiagramEnabled";
 export { default as DiagramDisabled } from "./DiagramDisabled";
+export { default as EmailIcon } from "./Email";
+export { default as ManualIcon } from "./Manual";
+export { default as ScheduleIcon } from "./Schedule";
+export { default as WebhookIcon } from "./Webhook";
+export { default as CalendarIcon } from "./Calendar";
+export { default as GitHubIcon } from "./GitHub";
