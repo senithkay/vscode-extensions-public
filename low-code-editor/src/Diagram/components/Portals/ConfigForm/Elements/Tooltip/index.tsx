@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: ordered-imports
 import React from 'react';
 
 import { withStyles } from '@material-ui/core/styles';

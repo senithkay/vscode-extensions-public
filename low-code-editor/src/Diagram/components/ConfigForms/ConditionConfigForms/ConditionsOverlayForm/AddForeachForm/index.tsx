@@ -11,11 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+
+import { ForEachIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -30,8 +33,6 @@ import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Po
 import { genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-
-import { ForEachIcon } from "../../../../../../assets/icons";
 
 interface Iterations {
     start?: string;

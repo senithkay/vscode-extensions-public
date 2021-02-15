@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: ordered-imports
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { zoomInSvg, zoomInHoverSvg, zoomOutSvg, zoomOutHoverSvg, fitToScreenSvg, fitToScreenHoverSvg } from "../../../assets"
 

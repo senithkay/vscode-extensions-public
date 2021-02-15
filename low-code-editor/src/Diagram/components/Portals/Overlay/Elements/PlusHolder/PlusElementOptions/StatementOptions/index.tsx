@@ -10,12 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { ReactNode, useContext, useState } from "react";
 
 import { STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
+
+import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } from "../../../../../../../../assets/icons";
 
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -23,8 +25,6 @@ import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
-
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } from "../../../../../../../../assets/icons";
 
 export const PROCESS_TYPES = [""];
 

@@ -10,14 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js, ordered-imports
 import * as React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 
 import { STModification } from "../Definitions/lang-client-extended";
+
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
+
+import { DiagramDisabled, DiagramEnabled } from "../assets/icons";
 
 import { Canvas } from "./components/Canvas";
 import { OverlayBackground } from "./components/OverlayBackground";
@@ -27,8 +30,6 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
-
-import { DiagramDisabled, DiagramEnabled } from "../assets/icons";
 
 export interface DiagramProps {
     isReadOnly: boolean;
@@ -46,8 +47,18 @@ export interface DiagramProps {
 }
 
 export function Diagram(props: DiagramProps) {
-    const { isReadOnly, syntaxTree, isLoadingAST, error, isWaitingOnWorkspace, dispatchMutations,
-        dispatchModifyTrigger, isMutationInProgress, isCodeEditorActive, isConfigPanelOpen, isConfigOverlayFormOpen, triggerType } = props;
+    const {
+        isReadOnly,
+        syntaxTree,
+        isLoadingAST,
+        error,
+        isWaitingOnWorkspace,
+        isMutationInProgress,
+        isCodeEditorActive,
+        isConfigPanelOpen,
+        isConfigOverlayFormOpen,
+        triggerType
+    } = props;
     const classes = useStyles();
 
     const textLoader = (

@@ -11,8 +11,8 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from 'react';
-// import { connect } from 'react-redux';
 
 import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
@@ -20,7 +20,6 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
-// import { dispatchModifyTriggerWizard } from '../../../../../../$store/actions';
 import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';

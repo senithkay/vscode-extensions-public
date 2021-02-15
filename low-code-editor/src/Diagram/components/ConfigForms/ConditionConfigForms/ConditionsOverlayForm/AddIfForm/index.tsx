@@ -10,11 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+
+import { IfIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -26,7 +28,6 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-import { IfIcon } from "../../../../../../assets/icons";
 
 interface IfProps {
     condition: ConditionConfig;

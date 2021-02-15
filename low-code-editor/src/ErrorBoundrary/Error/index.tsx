@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
 import ErrorSvg from "./ErrorSvg";
-
 import { useStyles } from "./style";
 
 export default function Default() {
