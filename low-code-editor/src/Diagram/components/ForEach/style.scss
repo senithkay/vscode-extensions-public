@@ -1,0 +1,122 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+.foreach-block {
+    user-select: none;
+
+    .for-each-rect {
+        stroke-width: 1;
+        stroke: #5567d5;
+        fill: #f7f8fb;
+    }
+
+    .foreach-group {
+        rect {
+            stroke: #5567d5;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+            fill: url(#ForeachLinearGradient) #fafafc;
+            filter: url(#ForeachFilterDefault) #fafafc;
+        }
+
+        :hover {
+            rect {
+                cursor: pointer;
+                stroke: #5259d2;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                fill: url(#ForeachLinearGradient) #fafafc;
+                filter: url(#ForeachFilterHover) #fafafc;
+            }
+        }
+
+        :active {
+            rect {
+                cursor: pointer;
+                stroke: #c0ceff8a;
+                stroke-miterlimit: 10;
+                stroke-width: 9px;
+                filter: url(#ForeachFilterHover) #fafafc;
+                filter: none;
+            }
+
+            .click-effect {
+                stroke-width: 1px !important;
+                stroke: #5566d5 !important;
+            }
+        }
+    }
+
+    .foreach-polygon-wrapper {
+        .foreach-options-wrapper {
+            fill: none;
+            display: none;
+            width: 100px;
+            height: 30px;
+
+            .disable {
+                pointer-events: none !important;
+                opacity: 0.5;
+
+                &:hover {
+                    cursor: none !important;
+                }
+            }
+        }
+
+        &:hover {
+            .foreach-group {
+                rect {
+                    cursor: pointer;
+                    stroke: #c0ceff8a;
+                    stroke-miterlimit: 10;
+                    stroke-width: 9px;
+                    filter: url(#ForeachFilterHover) #fafafc;
+                    filter: none;
+                }
+
+                .click-effect {
+                    stroke-width: 1px !important;
+                    stroke: #5566d5 !important;
+                }
+            }
+
+            .foreach-options-wrapper {
+                fill: #fff !important;
+                display: inline !important;
+            }
+
+            .forech-rect {
+                fill: #fafafc;
+                height: 30px;
+                width: 55px;
+            }
+        }
+    }
+
+    .life-line {
+        stroke: #5567d5;
+        stroke-width: 1px;
+    }
+
+    .foreach-text {
+        tspan {
+            font-weight: 600;
+            fill: #32324d;
+            font-size: 10px;
+            font-family: inherit;
+            letter-spacing: 0.05em;
+            text-anchor: middle;
+            user-select: none;
+        }
+    }
+}

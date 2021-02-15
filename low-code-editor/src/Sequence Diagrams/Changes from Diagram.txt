@@ -1,0 +1,27 @@
+title Changes from Diagram
+
+participant Main
+participant App Service
+participant Language Sever
+participant Redux
+participant Local Store
+
+Main->Redux: updateConfigPanel()
+Main->Redux: DIAGRAM_AST_MUTATION_START
+Main->+Redux: waitForCurrentWorkspace()
+Redux-->-Main: 
+Main->+Language Sever: getLangClient()
+Language Sever-->-Main: lsClient
+Main->+Language Sever: lsClient.triggerModify()
+Language Sever-->-Main: resp
+opt resp.parseSuccess
+    Main->+App Service: updateAppFile()
+    App Service-->-Main: 
+    Main->Redux: FILE_SAVE_SUCCESS
+    Main->Redux: APP_PATCH_START
+    Main->+App Service: patchApp()
+    App Service-->-Main: 
+    Main->Redux: APP_PATCH_SUCCESS
+    Main->Redux: DIAGRAM_AST_MUTATION_SUCCESS
+    Main->Local Store: updatedCachedASTOfCurrentApp()
+end

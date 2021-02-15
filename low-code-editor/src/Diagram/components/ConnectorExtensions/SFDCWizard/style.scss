@@ -1,0 +1,143 @@
+.MuiStepLabel-alternativeLabel {
+    font-size: 10px !important;
+    margin-top: 0 !important;
+    color: #cbcedb !important;
+
+    .MuiStepLabel-active {
+        color: #5567d5 !important;
+    }
+}
+
+.MuiStepper-root {
+    display: flex;
+}
+
+.MuiStep-horizontal {
+    padding-left: 0 !important;
+    padding-right: 1px !important;
+}
+
+.current-step {
+    height: 6px;
+    width: 155px;
+}
+
+.step-wrapper {
+    height: 6px;
+    width: 155px;
+    z-index: 1;
+    font-size: 0;
+    background-color: #cbcedb;
+    overflow: 'hidden';
+}
+
+.step-wrapper.step-active {
+    .current-step {
+        background-color: #5567d5;
+    }
+}
+
+.completed-step {
+    z-index: 1;
+    height: 6px;
+    width: 155px;
+    font-size: 0;
+    background-color: #5567d5;
+    overflow: 'hidden';
+}
+
+.stepper-wrapper {
+    position: absolute;
+    background: #fff;
+    z-index: 900;
+    margin-top: -1rem;
+
+    .step-container:first-child {
+        .step-label {
+            .MuiStepLabel-iconContainer {
+                .step-wrapper {
+                    border-radius: 10px 0 0 10px !important;
+
+                    .current-step {
+                        border-radius: 10px 0 0 10px !important;
+                    }
+
+                    .completed-step {
+                        border-radius: 10px 0 0 10px !important;
+                    }
+                }
+            }
+        }
+    }
+
+    .step-container:last-child {
+        .step-label {
+            .MuiStepLabel-iconContainer {
+                .step-wrapper {
+                    border-radius: 0 10px 10px 0 !important;
+
+                    .current-step {
+                        border-radius: 0 10px 10px 0 !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.button-container {
+    position: absolute;
+    bottom: 5.7rem;
+    right: 1rem;
+}
+
+.union-dropdown {
+    margin-top: 0 !important;
+}
+
+.groupedForm {
+    box-sizing: border-box;
+    height: auto;
+    width: 100%;
+    border: 1px solid #dee0e7;
+    border-radius: 6px;
+    background-color: #fff;
+    padding: 0 1rem 1rem;
+    margin: 1rem 0;
+
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+        width: 265px !important;
+        margin-left: -15px !important;
+    }
+
+    .groupedForm {
+        padding: 0;
+        border: 0;
+        background-color: transparent;
+    }
+
+    .MuiInputBase-root {
+        width: 265px;
+        height: 40px;
+    }
+
+    .MuiTextField-root {
+        .MuiInput-root {
+            width: 265px;
+            height: 40px;
+        }
+    }
+
+    .MuiInput-formControl {
+        width: 265px;
+        height: 40px;
+    }
+}
+
+.MuiFormHelperText-root.Mui-error {
+    font-size: 13px;
+}
+
+.close-btn {
+    color: #a6a6a6;
+}
