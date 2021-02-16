@@ -175,13 +175,13 @@ export class BallerinaExtension {
             // If any failure occurs while initializing show an error message
             this.showPluginActivationError();
             this.telemetryReporter.sendTelemetryException(ex, { error: msg });
-            this.sdkVersion.text = `Ballerina SDK: Unknown`;
             return Promise.reject(msg);
         }
     }
 
     onReady(): Promise<void> {
         if (!this.langClient) {
+            this.sdkVersion.text = `Ballerina SDK: Error`;
             return Promise.reject('BallerinaExtension is not initialized');
         }
 
@@ -192,7 +192,7 @@ export class BallerinaExtension {
         // message to display on Unknown errors.
         // ask to enable debug logs.
         // we can ask the user to report the issue.
-
+        this.sdkVersion.text = `Ballerina SDK: Error`;
         window.showErrorMessage(UNKNOWN_ERROR);
     }
 
