@@ -11,19 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { FormHelperText } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
+import { CompletionItemKind, Diagnostic, InsertTextFormat } from "monaco-languageclient";
 
 import grammar from "../../../../../../ballerina.monarch.json";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ExpressionEditorState } from "../../../../../../Definitions";
-import { CompletionParams, CompletionResponse } from "../../../../../../Definitions/lang-client-definitions";
-import { expEditorClose, expEditorContentChange, expEditorStart } from "../../../../../utils/expression-editor-utils";
+import { CompletionParams, CompletionResponse } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
@@ -113,15 +111,29 @@ export interface ExpressionEditorProps {
     interactive?: boolean;
 }
 
+export interface ExpressionEditorState {
+    name?: string;
+    content?: string;
+    uri?: string;
+    diagnostic?: Diagnostic[];
+}
+
 export default function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
     const { index, defaultValue, model, onChange, customProps } = props;
     const diagramContext = useContext(Context);
     const { state } = diagramContext;
     const { diagnostics: mainDiagnostics, targetPosition: targetPositionDraft, currentFile,
-            currentApp, langClient, getWindowObject, syntaxTree } = state;
+            currentApp, langClient, syntaxTree } = state;
     const { validate } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [validSourceCode, setValidSourceCode] = useState(false);
+
+    const expressionEditorState: ExpressionEditorState = {
+        name: undefined,
+        content: undefined,
+        uri: undefined,
+        diagnostic: []
+    }
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -136,6 +148,7 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
     if (customProps?.clearInput) {
         if (monacoRef.current) {
             const editorModel = monacoRef.current.editor.getModel();
+
             if (editorModel) {
                 editorModel.setValue("");
                 customProps.clearInput = true;
@@ -170,8 +183,8 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
     }
 
     const handleDiagnostic = () => {
-        if (getWindowObject().expEditorObject?.name === model.name) {
-            const editorDiagnostics = getWindowObject().expEditorObject?.diagnostic;
+        if (expressionEditorState?.name === model.name) {
+            const editorDiagnostics = expressionEditorState.diagnostic;
             if (!editorDiagnostics) {
                 if (monacoRef.current) {
                     notValidExpEditor("Please wait for validation");
@@ -189,15 +202,39 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
     }
 
     // ExpEditor start
-    const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
+    const handleOnFocus = async () => {
+        const currentModel = monacoRef.current.editor.getModel();
+        const currentContent = currentModel.getValue();
+        const EOL = currentModel.getEOL();
+        const monacoEditor = monacoRef.current.editor;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (defaultCodeSnippet.length - 1), currentContent);
         const initContent: string = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-        const expEditorState: ExpressionEditorState = {
-            name: model.name,
-            content: initContent,
-            uri: monaco.Uri.file(currentApp?.workingFile).toString()
-        }
-        expEditorStart(expEditorState, diagramContext, handleDiagnostic)();
+        expressionEditorState.name = model.name;
+        expressionEditorState.content = initContent;
+        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+
+        await langClient.didChange({
+            contentChanges: [
+                {
+                    text: expressionEditorState.content
+                }
+            ],
+            textDocument: {
+                uri: expressionEditorState.uri,
+                version: 1
+            }
+        });
+        // resetEditorFunctions();
+        langClient.diagnostics({
+            documentIdentifier: {
+                uri: expressionEditorState.uri,
+            }
+        }).then((diagResp: any) => {
+            expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+            // resetEditorFunctions();
+            handleDiagnostic();
+        });
+
         if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
@@ -205,21 +242,41 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        if (getWindowObject().expEditorObject?.name === model.name) {
+        if (expressionEditorState.name === model.name) {
             // set the new model for the file
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (defaultCodeSnippet.length - 1), currentContent);
             const newModel: string = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-            const expEditorState: ExpressionEditorState = {
-                name: model.name,
-                content: newModel,
-                uri: getWindowObject().expEditorObject?.uri
-            }
+            expressionEditorState.content = newModel;
+
             // update the change of the field
-            model.value = monacoRef.current.editor.getModel().getValue();
+            model.value = currentContent;
             if (onChange) {
-                onChange(monacoRef.current.editor.getModel().getValue());
+                onChange(currentContent);
             }
-            expEditorContentChange(expEditorState, diagramContext, handleDiagnostic)();
+
+            await langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
+                }
+            });
+            // resetEditorFunctions();
+
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                // resetEditorFunctions();
+                handleDiagnostic();
+            });
+
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
@@ -229,13 +286,119 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
 
     // ExpEditor close
     const handleOnOutFocus = async () => {
-        if (getWindowObject().expEditorObject?.uri) {
+        if (expressionEditorState.uri) {
             const expEditorState: ExpressionEditorState = {
                 name: model.name,
                 content: atob(currentFile.content),
-                uri: getWindowObject().expEditorObject?.uri
+                uri: expressionEditorState.uri
             }
-            expEditorClose(expEditorState, diagramContext)();
+            await langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expEditorState.uri,
+                    version: 1
+                }
+            });
+        }
+    }
+
+    function getOnChangeListener() {
+        return () => {
+            notValidExpEditor("Please wait for validation");
+            const currentModel = monacoRef.current.editor.getModel();
+            if (currentModel.getValue().includes(currentModel.getEOL())) {
+                // Trim EOL chars onPasteEvent
+                const trimmedContent = currentModel.getValue().replace(currentModel.getEOL(), "");
+                currentModel.setValue(trimmedContent);
+                return;
+            }
+
+            debouncedContentChange(currentModel.getValue(), currentModel.getEOL());
+        };
+    }
+
+    function getCompletionItemHandler() {
+        const monacoEditor = monacoRef.current.editor;
+        if (expressionEditorState.name === model.name) {
+            const completionParams: CompletionParams = {
+                textDocument: {
+                    uri: expressionEditorState.uri
+                },
+                context: {
+                    triggerKind: 1
+                },
+                position: {
+                    character: monacoEditor.getPosition().column - 1 + (defaultCodeSnippet.length - 1),
+                    line: targetPosition.line
+                }
+            }
+
+            return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                    return {
+                        range: null,
+                        label: completionResponse.label,
+                        kind: completionResponse.kind as CompletionItemKind,
+                        insertText: completionResponse.insertText,
+                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        sortText: 'c'
+                    }
+                });
+                if (varType === "string") {
+                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                        range: null,
+                        label: 'Custom string template',
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        // tslint:disable-next-line: no-invalid-template-strings
+                        insertText: '"${1:}"',
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        sortText: 'b'
+                    }
+                    completionItems.push(completionItemTemplate);
+                }
+                if (varType === "boolean") {
+                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                        range: null,
+                        label: 'true',
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        insertText: 'true',
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                        sortText: 'b'
+                    }
+                    const completionItemTemplate1: monaco.languages.CompletionItem = {
+                        range: null,
+                        label: 'false',
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        insertText: 'false',
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                        sortText: 'b'
+                    }
+                    completionItems.push(completionItemTemplate);
+                    completionItems.push(completionItemTemplate1);
+                }
+                if (model.aiSuggestion) {
+                    const completionItemAI: monaco.languages.CompletionItem = {
+                        range: null,
+                        label: model.aiSuggestion,
+                        kind: 1 as CompletionItemKind,
+                        insertText: model.aiSuggestion,
+                        sortText: 'a'
+                    }
+                    completionItems.push(completionItemAI);
+                }
+                const completionList: monaco.languages.CompletionList = {
+                    incomplete: false,
+                    suggestions: completionItems
+                };
+                return completionList;
+            });
+
         }
     }
 
@@ -285,16 +448,7 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
         }
 
         // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
-        monacoEditor.onDidFocusEditorText(async () => {
-            if (!getWindowObject().expEditorObject?.uri) {
-                // focus expEditor from outside
-                handleOnFocus(currentModel.getValue(), currentModel.getEOL(), monacoEditor);
-            } else if (getWindowObject().expEditorObject?.name !== model.name) {
-                // focus expEditor from another expEditor
-                handleOnOutFocus();
-                handleOnFocus(currentModel.getValue(), currentModel.getEOL(), monacoEditor);
-            }
-        });
+        monacoEditor.onDidFocusEditorText(handleOnFocus);
 
         // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
         monacoEditor.onDidBlurEditorText(() => {
@@ -302,18 +456,7 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
         });
 
         // event emitted when the content of the editor has changed
-        monacoEditor.onDidChangeModelContent(() => {
-            notValidExpEditor("Please wait for validation");
-
-            if (currentModel.getValue().includes(currentModel.getEOL())) {
-                // Trim EOL chars onPasteEvent
-                const trimmedContent = currentModel.getValue().replace(currentModel.getEOL(), "");
-                monacoEditor.getModel().setValue(trimmedContent);
-                return;
-            }
-
-            debouncedContentChange(currentModel.getValue(), currentModel.getEOL());
-        });
+        monacoEditor.onDidChangeModelContent(getOnChangeListener());
 
         // tslint:disable-next-line: no-bitwise
         const prohibitedKeyBindings: number[] = [monaco.KeyCode.Enter, monaco.KeyCode.Enter | monaco.KeyMod.CtrlCmd, monaco.KeyCode.Enter | monaco.KeyMod.Shift];
@@ -326,85 +469,10 @@ export default function ExpressionEditor(props: FormElementProps<ExpressionEdito
         // completion of expression Editor
         const { dispose: disposeCompProvider } = languages.registerCompletionItemProvider(BALLERINA_EXPR, {
             provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
-                if (getWindowObject().expEditorObject?.name === model.name) {
-                    const completionParams: CompletionParams = {
-                        textDocument: {
-                            uri: getWindowObject().expEditorObject?.uri
-                        },
-                        context: {
-                            triggerKind: 1
-                        },
-                        position: {
-                            character: monacoEditor.getPosition().column - 1 + (defaultCodeSnippet.length - 1),
-                            line: targetPosition.line
-                        }
-                    }
-
-                    return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                        const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                        const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                            return {
-                                range: null,
-                                label: completionResponse.label,
-                                kind: completionResponse.kind as CompletionItemKind,
-                                insertText: completionResponse.insertText,
-                                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'c'
-                            }
-                        });
-                        if (varType === "string") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'Custom string template',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                // tslint:disable-next-line: no-invalid-template-strings
-                                insertText: '"${1:}"',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                        }
-                        if (varType === "boolean") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'true',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'true',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'false',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'false',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                            completionItems.push(completionItemTemplate1);
-                        }
-                        if (model.aiSuggestion) {
-                            const completionItemAI: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: model.aiSuggestion,
-                                kind: 1 as CompletionItemKind,
-                                insertText: model.aiSuggestion,
-                                sortText: 'a'
-                            }
-                            completionItems.push(completionItemAI);
-                        }
-                        const completionList: monaco.languages.CompletionList = {
-                            incomplete: false,
-                            suggestions: completionItems
-                        };
-                        return completionList;
-                    });
-
-                }
+                return getCompletionItemHandler();
             },
         });
+        // expressionEditorFunctionMap.completionItemProvider = disposeCompProvider;
 
         // event emitted when the editor has been disposed
         monacoEditor.onDidDispose(() => {

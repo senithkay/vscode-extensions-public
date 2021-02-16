@@ -91,7 +91,6 @@ export interface LowCodeEditorProps {
     onZoomOut?: any;
     onFitToScreen?: any;
     onPanLocation?: any;
-    getWindowObject?: any;
     onMutate?: any; // TODO Should be mandotory
     onModify?: any; // TODO Should be mandotory,
     waitOnWorkspaceSuccess?: any;
