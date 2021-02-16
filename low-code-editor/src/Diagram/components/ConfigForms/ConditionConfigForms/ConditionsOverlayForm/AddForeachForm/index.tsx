@@ -141,7 +141,9 @@ export function AddForeachForm(props: ForeachProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <ForEachIcon />
+                            <div className={classes.iconWrapper}>
+                                <ForEachIcon />
+                            </div>
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
                             </Typography>

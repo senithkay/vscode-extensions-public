@@ -40,7 +40,7 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddReturnForm(props: ReturnFormProps) {
     const { state } = useContext(Context);
-    const { appInfo, isMutationProgress : isMutationInProgress } = state;
+    const { appInfo, isMutationProgress: isMutationInProgress } = state;
     const { currentApp } = appInfo;
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;
@@ -70,7 +70,9 @@ export function AddReturnForm(props: ReturnFormProps) {
                         icon={<CloseRounded fontSize="small" />}
                     />
                     <div className={classes.mainTitleWrapper}>
-                        <ReturnIcon />
+                        <div className={classes.iconWrapper}>
+                            <ReturnIcon />
+                        </div>
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Return</Box>
                         </Typography>

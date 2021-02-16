@@ -176,7 +176,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     inputWrapper: {
       display: "flex",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
+      alignItems: "center"
     },
     infoIcon: {
       marginTop: '0.9rem'

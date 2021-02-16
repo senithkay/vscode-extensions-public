@@ -40,7 +40,7 @@ export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 export function AddIfForm(props: IfProps) {
     const { state } = useContext(Context);
-    const { isMutationProgress : isMutationInProgress } = state;
+    const { isMutationProgress: isMutationInProgress } = state;
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
@@ -50,7 +50,7 @@ export function AddIfForm(props: IfProps) {
 
     const handleExpEditorChange = (value: string) => {
         // condition.conditionExpression = value;
-        setConditionState({...conditionState, conditionExpression: value})
+        setConditionState({ ...conditionState, conditionExpression: value })
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
@@ -93,7 +93,9 @@ export function AddIfForm(props: IfProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <IfIcon />
+                            <div className={classes.iconWrapper}>
+                                <IfIcon />
+                            </div>
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>If</Box>
                             </Typography>

@@ -155,7 +155,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
-                            <PropertyIcon />
+                            <div className={classes.iconWrapper}>
+                                <PropertyIcon />
+                            </div>
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Variable</Box>
                             </Typography>

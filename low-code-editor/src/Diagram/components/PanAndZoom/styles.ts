@@ -38,11 +38,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 20,
             boxShadow: '0 1px 1px 0 #CBCFDA',
             backgroundColor: '#FFF',
-            background: `url("${zoomInSvg}") no-repeat center, #FFF`,
+            background: `url("/images/zoom-in.svg") no-repeat center, #FFF`,
             marginTop: theme.spacing(0.5),
             '&:hover, &:focus': {
                 boxShadow: "0 1px 2px 0 #CBCFDA",
-                background: `url("${zoomInHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
+                background: `url("/images/zoom-in-hover.svg") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
             }
         },
         zoomOut: {
@@ -51,11 +51,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 20,
             boxShadow: '0 1px 1px 0 #CBCFDA',
             backgroundColor: '#FFF',
-            background: `url("${zoomOutSvg}") no-repeat center, #FFF`,
+            background: `url("/images/zoom-out.svg") no-repeat center, #FFF`,
             marginTop: theme.spacing(0.5),
             '&:hover, &:focus': {
                 boxShadow: "0 1px 2px 0 #CBCFDA",
-                background: `url("${zoomOutHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
+                background: `url("/images/zoom-out-hover.svg") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
             }
         },
         fitToScreen: {
@@ -64,11 +64,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 20,
             backgroundColor: '#FFF',
             boxShadow: '0 1px 1px 0 #CBCFDA',
-            background: `url("${fitToScreenSvg}") no-repeat center, #FFF`,
+            background: `url("/images/fit-to-screen.svg") no-repeat center, #FFF`,
             marginTop: theme.spacing(0.5),
             '&:hover, &:focus': {
                 boxShadow: "0 1px 2px 0 #CBCFDA",
-                background: `url("${fitToScreenHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
+                background: `url("/images/fit-to-screen-hover.svg") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
             }
         }
     })

@@ -99,7 +99,9 @@ export function AddLogConfig(props: LogConfigProps) {
                     />
                     <div className={formClasses.formTitleWrapper}>
                         <div className={formClasses.mainTitleWrapper}>
-                            <LogIcon />
+                            <div className={formClasses.iconWrapper}>
+                                <LogIcon />
+                            </div>
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Log</Box>
                             </Typography>

@@ -43,7 +43,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
     const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, goToNextTourStep : dispatchGoToNextTourStep} = state;
+    const { isMutationProgress: isMutationInProgress, goToNextTourStep: dispatchGoToNextTourStep } = state;
     const { config, onCancel, onSave } = props;
 
     const [respondFormConfig, setRespondFormConfig] = useState<RespondConfig>(config.expression as RespondConfig);
@@ -55,8 +55,8 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validForm, setValidForm] = useState(isFormValid());
 
     const onExpressionChange = (value: any) => {
-        setRespondFormConfig({...respondFormConfig, respondExpression: value})
-        if (value === "jsonPayload"){
+        setRespondFormConfig({ ...respondFormConfig, respondExpression: value })
+        if (value === "jsonPayload") {
             dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
         }
     };
@@ -82,7 +82,9 @@ export function AddRespondForm(props: RespondFormProps) {
                     />
 
                     <div className={formClasses.mainTitleWrapper}>
-                        <RespondIcon />
+                        <div className={formClasses.iconWrapper}>
+                            <RespondIcon />
+                        </div>
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Respond</Box>
                         </Typography>

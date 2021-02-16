@@ -217,10 +217,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'flex',
             flexDirection: 'row',
+            alignItems: 'center',
             margin: '-2.25rem 0.55rem 0 0',
             "& img": {
                 marginRight: '1rem'
             }
+        },
+        iconWrapper: {
+            marginRight: '1rem'
         },
         divider: {
             height: 1,
