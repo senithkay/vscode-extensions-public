@@ -6,3 +6,5 @@ export const TM_EVENT_ERROR_INCOMPATIBLE_PLUGIN_VERSION = "incompatible.plugin.v
 
 export const TM_EVENT_OLD_BAL_HOME = "old.ballerina.home";
 export const TM_EVENT_OLD_BAL_PLUGIN = "old.ballerina.plugin";
+
+export const TM_EVENT_EXTENSION_INI_FAILED = "ballerina.extension.init";

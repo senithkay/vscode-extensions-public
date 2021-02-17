@@ -1,6 +1,6 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
-import { TM_EVENT_EXECUTE_BALLERINA_DOC, CMP_BALLERINA_DOC } from "../../telemetry";
+import { getTelemetryProperties, TM_EVENT_EXECUTE_BALLERINA_DOC, CMP_BALLERINA_DOC } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 
@@ -12,7 +12,7 @@ function activateDocCommand() {
     // register ballerina doc handler
     commands.registerCommand('ballerina.project.doc', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_EXECUTE_BALLERINA_DOC, { component: CMP_BALLERINA_DOC });
+            reporter.sendTelemetryEvent(TM_EVENT_EXECUTE_BALLERINA_DOC, getTelemetryProperties(ballerinaExtInstance, CMP_BALLERINA_DOC));
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {
@@ -61,7 +61,7 @@ function activateDocCommand() {
             }
 
         } catch (error) {
-            reporter.sendTelemetryException(error, { component: CMP_BALLERINA_DOC });
+            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_BALLERINA_DOC));
             window.showErrorMessage(error);
         }
     });

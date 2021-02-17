@@ -1,7 +1,7 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { getCLIOutputChannel } from "./output";
-import { TM_EVENT_CREATE_CLOUD, CMP_CLOUD } from "../../telemetry";
+import { getTelemetryProperties, TM_EVENT_CREATE_CLOUD, CMP_CLOUD } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
@@ -60,7 +60,7 @@ export function activateCloudCommand() {
     // register create Cloud.toml command handler
     commands.registerCommand('ballerina.create.cloud', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_CREATE_CLOUD, { component: CMP_CLOUD });
+            reporter.sendTelemetryEvent(TM_EVENT_CREATE_CLOUD, getTelemetryProperties(ballerinaExtInstance, CMP_CLOUD));
 
             const currentProject = await getCurrentBallerinaProject();
             if (!ballerinaExtInstance.isSwanLake) {
@@ -74,7 +74,7 @@ export function activateCloudCommand() {
                     if (!fs.existsSync(cloudTomlPath)) {
                         fs.writeFile(cloudTomlPath, CLOUD_TOML_DEFAULT_CONTENT, (err) => {
                             if (err) {
-                                reporter.sendTelemetryException(err, { component: CMP_CLOUD });
+                                reporter.sendTelemetryException(err, getTelemetryProperties(ballerinaExtInstance, CMP_CLOUD));
                                 window.showErrorMessage(err.message);
                             } else {
                                 outputChannel.appendLine(`Cloud.toml created in ${currentProject.path}`);
@@ -88,7 +88,7 @@ export function activateCloudCommand() {
                 window.showErrorMessage(`Cloud.toml is not supported for single file projects.`);
             }
         } catch (error) {
-            reporter.sendTelemetryException(error, { component: CMP_CLOUD });
+            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_CLOUD));
             window.showErrorMessage(error);
         }
     });
