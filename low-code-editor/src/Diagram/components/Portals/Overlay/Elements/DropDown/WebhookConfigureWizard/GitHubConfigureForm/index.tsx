@@ -43,8 +43,6 @@ interface GitHubConfigureFormProps {
     currentEvent?: string;
     currentAction?: string;
     currentConnection?: ConnectionDetails;
-    // todo: handle dispatch
-    // dispatchFetchGithubRepoList: (handler: string, username?: string) => void;
 }
 
 export interface ConnectorEvents {
@@ -53,7 +51,15 @@ export interface ConnectorEvents {
 
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const { state } = useContext(DiagramContext);
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, connectionData, onModify: dispatchModifyTrigger } = state;
+    const {
+        isMutationProgress: isFileSaving,
+        isLoadingSuccess: isFileSaved,
+        syntaxTree,
+        connectionData,
+        onModify: dispatchModifyTrigger,
+        trackTriggerSelection,
+        dispatchFetchGithubRepoList
+    } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
@@ -262,8 +268,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
-            // todo: handle dispatch
-            // dispatchFetchGithubRepoList(activeConnection.handle);
+            dispatchFetchGithubRepoList(activeConnection.handle);
         }
     }, [activeConnection]);
     useEffect(() => {
@@ -325,6 +330,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             RESOURCE_NAME: githubEvents[activeEvent].action[activeAction][0],
             RECORD_NAME: githubEvents[activeEvent].action[activeAction][1]
         });
+        trackTriggerSelection("Github");
     };
 
     return (
@@ -419,8 +425,3 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         </>
     );
 }
-
-// todo: handle dispatch
-// const mapDispatchToProps = {
-//     dispatchFetchGithubRepoList: fetchGithubRepoList,
-// };

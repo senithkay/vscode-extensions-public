@@ -40,8 +40,6 @@ interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
-    // todo: handle dispatch
-    // dispatchFetchGcalendarList: (handler: string) => void;
 }
 
 export interface ConnectorEvents {
@@ -50,15 +48,20 @@ export interface ConnectorEvents {
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const { state } = useContext(DiagramContext);
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, connectionData, onModify: dispatchModifyTrigger } = state;
+    const {
+        isMutationProgress: isFileSaving,
+        isLoadingSuccess: isFileSaved,
+        syntaxTree,
+        connectionData,
+        onModify: dispatchModifyTrigger,
+        trackTriggerSelection,
+        dispatchFetchGcalendarList
+    } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
     const gcalendarConnections = connectionData?.[CONNECTOR_TYPES.GOOGLE_CALENDAR];
-    const { position, onComplete, currentConnection,
-        // todo: handle dispatch
-        // dispatchFetchGcalendarList
-    } = props;
+    const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
 
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
@@ -76,8 +79,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
-            // todo: handle dispatch
-            // dispatchFetchGcalendarList(activeConnection.handle);
+            dispatchFetchGcalendarList(activeConnection.handle);
         }
     }, [activeConnection]);
     useEffect(() => {
@@ -148,6 +150,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             CALENDAR_ID: activeGcalendar.id,
             UUID: Math.floor(Math.random() * 10000000) // FIXME: Use UUID instead
         });
+        trackTriggerSelection("Google Calender");
     };
 
     return (

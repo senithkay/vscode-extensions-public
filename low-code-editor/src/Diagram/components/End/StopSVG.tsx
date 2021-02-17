@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import {TooltipCodeSnippet} from "../Portals/ConfigForm/Elements/Tooltip";
+
 export const STOP_SVG_HEIGHT_WITH_SHADOW = 59;
 export const STOP_SVG_WIDTH_WITH_SHADOW = 83;
 export const STOP_STROKE_HEIGHT = 1;
@@ -20,8 +22,8 @@ export const STOP_SVG_HEIGHT = 41 + STOP_STROKE_HEIGHT;
 export const STOP_SVG_WIDTH = 65;
 export const STOP_SVG_SHADOW_OFFSET = STOP_SVG_HEIGHT_WITH_SHADOW - STOP_SVG_HEIGHT;
 
-export function StopSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+export function StopSVG(props: { x: number, y: number, text: string, codeSnippet?: string, openInCodeView?: () => void }) {
+    const { text, codeSnippet, openInCodeView, ...xyProps } = props;
     return (
         <svg {...xyProps} height={STOP_SVG_HEIGHT_WITH_SHADOW} width={STOP_SVG_WIDTH_WITH_SHADOW} >
             <defs>
@@ -33,25 +35,27 @@ export function StopSVG(props: { x: number, y: number, text: string }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Stop" transform="translate(9 7)">
-                <g transform="matrix(1, 0, 0, 1, -9, -7)" filter="url(#StopFilter)">
-                    <rect id="StopRectangle" width="65" height="41" rx="20.5" transform="translate(9 7)" />
-                </g>
-                <text
-                    id="Stop_text"
-                    transform="translate(32.5 24)"
-                    className="end-text"
-                >
-                    <tspan
-                        x="0"
-                        y="0"
-                        textAnchor="middle"
-                        data-testid="end-text-block"
+            <TooltipCodeSnippet openInCodeView={openInCodeView} content={codeSnippet} placement="right" arrow={true}>
+                <g id="Stop" transform="translate(9 7)">
+                    <g transform="matrix(1, 0, 0, 1, -9, -7)" filter="url(#StopFilter)">
+                        <rect id="StopRectangle" width="65" height="41" rx="20.5" transform="translate(9 7)" />
+                    </g>
+                    <text
+                        id="Stop_text"
+                        transform="translate(32.5 24)"
+                        className="end-text"
                     >
-                        {text}
-                    </tspan>
-                </text>
-            </g>
+                        <tspan
+                            x="0"
+                            y="0"
+                            textAnchor="middle"
+                            data-testid="end-text-block"
+                        >
+                            {text}
+                        </tspan>
+                    </text>
+                </g>
+            </TooltipCodeSnippet>
         </svg>
     )
 }

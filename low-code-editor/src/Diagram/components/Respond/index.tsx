@@ -37,8 +37,24 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
-    const { syntaxTree, stSymbolInfo, isWaitingOnWorkspace, isMutationProgress, isReadOnly } = state;
+    const { state } = useContext(DiagramContext);
+    const {
+        syntaxTree,
+        stSymbolInfo,
+        isWaitingOnWorkspace,
+        isMutationProgress,
+        isReadOnly,
+        isCodeEditorActive,
+        currentApp,
+        setCodeLocationToHighlight: setCodeToHighlight,
+        maximize: maximizeCodeView,
+        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+        closeConfigPanel: dispatchCloseConfigPanel,
+        diagramCleanDrawST: dispatchDiagramCleanDraw,
+        dispactchConfigOverlayForm: openNewEndConfig
+    } = state;
+    const { id: appId } = currentApp || {};
+
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
 
@@ -47,11 +63,13 @@ export function Respond(props: RespondProps) {
 
     let cx: number;
     let cy: number;
+    let sourceSnippet = "Source";
 
     let compType: string = "";
     if (model) {
         cx = model.viewState.bBox.cx;
         cy = model.viewState.bBox.cy;
+        sourceSnippet = model.source;
         if (model.viewState.isCallerAction) {
             compType = "RESPOND";
         }
@@ -76,6 +94,11 @@ export function Respond(props: RespondProps) {
         cy: cy + (RESPOND_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)
     };
 
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model.position)
+    }
+
     const component: React.ReactElement = (!model?.viewState.collapsed &&
         (
             <g className="respond-wrapper">
@@ -83,6 +106,8 @@ export function Respond(props: RespondProps) {
                     x={cx - (RESPOND_SVG_WIDTH_WITH_SHADOW / 2)}
                     y={cy - DefaultConfig.shadow}
                     text={compType}
+                    sourceSnippet={sourceSnippet}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                 />
             </g>
         )
@@ -91,7 +116,8 @@ export function Respond(props: RespondProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            dispatchDiagramCleanDraw(syntaxTree);
+            dispatchCloseConfigOverlayForm();
         }
         setConfigWizardOpen(false);
     };
@@ -99,14 +125,17 @@ export function Respond(props: RespondProps) {
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            dispatchDiagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
     }
 
     React.useEffect(() => {
         if (blockViewState) {
             const draftVS = blockViewState.draft[1] as DraftStatementViewState;
+            openNewEndConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
+                blockViewState, undefined, stSymbolInfo);
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
             updateConfigOverlayFormState(overlayFormConfig);
@@ -116,6 +145,8 @@ export function Respond(props: RespondProps) {
     // const draftConmpnant = blockViewState?.draft[1] as DraftStatementViewState
 
     const onEditClick = () => {
+        openNewEndConfig("Respond", model.position, WizardType.EXISTING,
+            model.viewState, undefined, stSymbolInfo, model);
         const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
             blockViewState, undefined, stSymbolInfo, model);
         updateConfigOverlayFormState(overlayFormConfig);
@@ -124,6 +155,7 @@ export function Respond(props: RespondProps) {
 
     const onSave = () => {
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
     }
 
     return (

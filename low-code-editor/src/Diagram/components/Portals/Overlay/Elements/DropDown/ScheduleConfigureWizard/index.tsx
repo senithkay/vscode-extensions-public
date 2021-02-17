@@ -41,7 +41,13 @@ export interface ConnectorEvents {
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const { state } = useContext(DiagramContext);
-  const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, onModify: dispatchModifyTrigger } = state;
+  const {
+    isMutationProgress: isFileSaving,
+    isLoadingSuccess: isFileSaved,
+    syntaxTree,
+    onModify: dispatchModifyTrigger,
+    trackTriggerSelection
+  } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
@@ -87,6 +93,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": currentCron,
     });
+    trackTriggerSelection("Schedule");
   };
 
   return (

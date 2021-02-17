@@ -17,12 +17,6 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-// import {
-//     closeConfigOverlayForm,
-//     diagramCleanDrawST,
-//     dispactchConfigOverlayForm
-// } from "../../$store/actions";
-// import { STSymbolInfo } from "../../$store/definitions";
 import { getConditionConfig } from "../../utils/diagram-util";
 import { BlockViewState, EndViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
@@ -44,7 +38,21 @@ export interface EndProps {
 }
 
 export function End(props: EndProps) {
-    const { state: { syntaxTree, isMutationProgress, isWaitingOnWorkspace, stSymbolInfo, isReadOnly }, diagramCleanDraw } = useContext(DiagramContext);
+    const { state: {
+        syntaxTree,
+        isMutationProgress,
+        isWaitingOnWorkspace,
+        stSymbolInfo,
+        isReadOnly,
+        setCodeLocationToHighlight: setCodeToHighlight,
+        maximize: maximizeCodeView,
+        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+        diagramCleanDrawST: dispatchDiagramCleanDraw,
+        dispactchConfigOverlayForm: openNewReturnConfigForm,
+        currentApp,
+        isCodeEditorActive
+    } } = useContext(DiagramContext);
+    const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState } = props;
     const isDraftStatement: boolean = blockViewState
@@ -77,21 +85,35 @@ export function End(props: EndProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            dispatchDiagramCleanDraw(syntaxTree);
         }
     };
     const onCancel = () => {
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
     }
 
     const onReturnEditClick = () => {
         setConfigWizardOpen(true);
         const configOverrlayState = getConditionConfig('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
         setEndConfigFormOverlayState(configOverrlayState);
+        openNewReturnConfigForm('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
     }
 
     const onSave = () => {
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
+    }
+
+    let codeSnippet = "No return statement"
+
+    if (model) {
+        codeSnippet = model.source
+    }
+
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model?.position)
     }
 
     const draftVS = blockViewState?.draft[1] as DraftStatementViewState
@@ -99,7 +121,13 @@ export function End(props: EndProps) {
     const component: React.ReactElement = ((!model?.viewState.collapsed || blockViewState) &&
         (
             <g className="end-wrapper" data-testid="end-block">
-                <StopSVG x={cx - (STOP_SVG_WIDTH_WITH_SHADOW / 2)} y={cy - DefaultConfig.shadow} text={compType.toUpperCase()} />
+                <StopSVG
+                    x={cx - (STOP_SVG_WIDTH_WITH_SHADOW / 2)}
+                    y={cy - DefaultConfig.shadow}
+                    text={compType.toUpperCase()}
+                    codeSnippet={codeSnippet}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                />
                 {blockViewState || model ?
                     (<>
                         {

@@ -45,7 +45,7 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations } } = useContext(DiagramContext);
+    const { state: { onMutate: dispatchMutations, trackAddStatement } } = useContext(DiagramContext);
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
@@ -100,6 +100,7 @@ export function EndConfigForm(props: any) {
                     );
                     modifications.push(addRespond);
                 }
+                trackAddStatement(endConfig.type);
             }
             dispatchMutations(modifications);
             onSave();

@@ -92,7 +92,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         oauthProviderConfigs,
         userInfo,
         onMutate: dispatchMutations,
-        getAiSuggestions
+        getAiSuggestions,
+        trackAddConnector
     } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
@@ -273,8 +274,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [fieldsForFunctions]);
 
     const onSave = (sourceModifications: STModification[]) => {
+        trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
-
             // Modifications for special Connectors
             dispatchMutations(sourceModifications);
             onClose();

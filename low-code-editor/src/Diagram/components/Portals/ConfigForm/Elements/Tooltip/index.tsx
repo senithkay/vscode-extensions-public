@@ -10,16 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: ordered-imports
 import React from 'react';
 
+import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
-
-import { InfoIcon } from "../../../../../../assets/icons";
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
@@ -31,6 +29,7 @@ interface TooltipPropsExtended extends TooltipProps {
     content?: string; // Only when Code Snippet prop available
     example?: boolean; // Only when Code Snippet prop available
     disabled?: boolean;
+    openInCodeView?: () => void;
     heading?: string;
 };
 
@@ -47,7 +46,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -79,9 +78,17 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
             </code>
         );
 
+        const OpenInCodeLink = () => (
+            <React.Fragment>
+                <Divider className={styles.divider} light={true} />
+                <span className={styles.editorLink} onClick={openInCodeView}>View in Code Editor</span>
+            </React.Fragment>
+        )
+
         let CodeSnippet = () => (
             <pre className={styles.pre}>
                 <Code />
+                {openInCodeView && <OpenInCodeLink />}
             </pre>
         );
 
@@ -108,7 +115,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
 
-    const infoIcon = <InfoIcon />;
+    const infoIcon = <img src="../../../../../../images/info.svg" />;
     let iconComponent = infoIcon;
 
     const { title, children, ...restProps } = props;
@@ -127,11 +134,12 @@ export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
 }
 
 export function TooltipCodeSnippet(props: Partial<TooltipPropsExtended>) {
-    const { content, children, ...restProps } = props;
+    const { content = "", openInCodeView, children, ...restProps } = props;
 
     return (
         <Tooltip
             {...restProps}
+            openInCodeView={openInCodeView}
             content={content.trim()}
             title={null}
             codeSnippet={true}

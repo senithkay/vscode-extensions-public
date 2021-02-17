@@ -46,7 +46,7 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations } } = useContext(DiagramContext);
+    const { state: { onMutate: dispatchMutations, trackAddStatement } } = useContext(DiagramContext);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -96,6 +96,7 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
                 }
+                trackAddStatement(processConfig.type);
             }
         }
         dispatchMutations(modifications);

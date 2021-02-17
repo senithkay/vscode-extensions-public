@@ -79,6 +79,18 @@ const useStyles = makeStyles(() =>
             marginLeft: "5px",
             padding: "5px"
         },
+        divider: {
+            margin: '5px 0px'
+        },
+        editorLink: {
+            color: "#4183C4",
+            fontSize: 10,
+            cursor: 'pointer',
+            transition: "all 0.2s",
+            '&:hover': {
+                color: "#8190ef",
+            }
+        },
         heading: {
             fontSize: 12,
             fontWeight: 600,

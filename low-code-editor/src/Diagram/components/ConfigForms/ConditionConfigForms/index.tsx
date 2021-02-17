@@ -43,7 +43,13 @@ export interface ConditionConfigFormProps {
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
     const { state } = useContext(Context);
-    const { isReadOnly, configPanelStatus, syntaxTree, onMutate: dispatchMutations } = state;
+    const {
+        isReadOnly,
+        configPanelStatus,
+        syntaxTree,
+        onMutate: dispatchMutations,
+        trackAddStatement
+    } = state;
     const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
     let conditionConfig: ConditionConfig;
     const { isLoading, isOpen, error, formArgs, formType } = configOverlayFormStatus;
@@ -82,6 +88,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = ifConfig.conditionExpression as string;
                 if (wizardType === WizardType.NEW) {
+                    trackAddStatement(type);
                     modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateIfStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
@@ -90,6 +97,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
                 if (wizardType === WizardType.NEW) {
+                    trackAddStatement(type);
                     modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))

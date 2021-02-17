@@ -45,7 +45,14 @@ export interface ConnectorEvents {
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const { state } = useContext(DiagramContext);
-  const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, connectionData, onModify: dispatchModifyTrigger } = state;
+  const {
+    isMutationProgress: isFileSaving,
+    isLoadingSuccess: isFileSaved,
+    syntaxTree,
+    connectionData,
+    onModify: dispatchModifyTrigger,
+    trackTriggerSelection
+  } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
@@ -119,6 +126,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       "RES_PATH": currentPath,
       "METHODS": currentMethod.toLocaleLowerCase(),
     });
+    trackTriggerSelection("API");
     // todo: handle dispatch
     // dispatchGoToNextTourStep("CONFIG_SAVE");
   };

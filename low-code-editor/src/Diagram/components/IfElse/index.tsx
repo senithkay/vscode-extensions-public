@@ -57,8 +57,20 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const { state, diagramCleanDraw } = useContext(Context);
-    const { isMutationProgress, syntaxTree, stSymbolInfo, appInfo, isReadOnly } = state;
+    const { state } = useContext(Context);
+    const {
+        isMutationProgress,
+        syntaxTree,
+        stSymbolInfo,
+        appInfo,
+        isReadOnly,
+        setCodeLocationToHighlight: setCodeToHighlight,
+        maximize: maximizeCodeView,
+        diagramCleanDrawST,
+        isCodeEditorActive,
+        currentApp
+    } = state;
+    const { id: appId } = currentApp || {};
     const { isWaitingOnWorkspace } = appInfo;
     const { model, blockViewState, name } = props;
 
@@ -77,14 +89,14 @@ export function IfElse(props: IfElseProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            diagramCleanDrawST(syntaxTree);
         }
     };
 
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            diagramCleanDrawST(syntaxTree);
         }
         setConfigWizardOpen(false);
     }
@@ -93,11 +105,26 @@ export function IfElse(props: IfElseProps) {
         setConfigWizardOpen(false);
     }
 
+    let codeSnippet = "IF ELSE CODE SNIPPET"
+    let codeSnippetOnSvg = "IF"
+
+    if (model) {
+        codeSnippet = model.source.trim().split(')')[0]
+        codeSnippetOnSvg = codeSnippet.substring(4, 13)
+        codeSnippet = codeSnippet + ')'
+    }
+
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model?.position)
+    }
+
     let viewState: any = model === null ?
         blockViewState.draft[1] as DraftStatementViewState
         : (model as IfElseStatement).viewState as IfViewState;
     let component: React.ReactElement;
     let drafts: React.ReactNode[] = [];
+    let conditionType = "If";
 
     const deleteTriggerPosition = {
         cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
@@ -113,6 +140,7 @@ export function IfElse(props: IfElseProps) {
 
     if (model == null) {
         viewState = blockViewState.draft[1] as DraftStatementViewState;
+        conditionType = viewState.subType;
         const x: number = viewState.bBox.cx;
         const y: number = viewState.bBox.cy;
 
@@ -123,62 +151,68 @@ export function IfElse(props: IfElseProps) {
                     y={y - (IFELSE_SHADOW_OFFSET / 2)}
                     text="CONDITION"
                     data-testid="ifelse-block"
+                    codeSnippet={codeSnippet}
+                    codeSnippetOnSvg={codeSnippetOnSvg}
+                    conditionType={conditionType}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
                 <>
                     {
-                        (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
-                            className="condition-options-wrapper"
-                            height={IFELSE_SVG_HEIGHT_WITH_SHADOW}
-                            width={IFELSE_SVG_HEIGHT_WITH_SHADOW}
-                            x={viewState.bBox.cx - (IFELSE_SHADOW_OFFSET / 2)}
-                            y={viewState.bBox.cy - (IFELSE_SHADOW_OFFSET / 2)}
-                        >
-                            {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
-                                <ConditionConfigForm
-                                    type={blockViewState.draft[1].subType}
-                                    position={{
-                                        x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                        y: viewState.bBox.cy
-                                    }}
-                                    wizardType={WizardType.NEW}
-                                    onCancel={onCancel}
-                                    onSave={onSave}
-                                    configOverlayFormStatus={ifElseConfigOverlayFormState}
-                                />
-                            }
-                            {model && isConfigWizardOpen && ifElseConfigOverlayFormState &&
-                                <ConditionConfigForm
-                                    type={"If"}
-                                    position={{
-                                        x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                        y: viewState.bBox.cy
-                                    }}
-                                    wizardType={WizardType.EXISTING}
-                                    onCancel={onCancel}
-                                    onSave={onSave}
-                                    configOverlayFormStatus={ifElseConfigOverlayFormState}
-                                />
-                            }
-                            {!isConfigWizardOpen &&
-                                <>
-                                    <rect
-                                        x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 3)}
-                                        y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3)}
-                                        className="condition-rect"
+                        (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
+                            <g
+                                className="condition-options-wrapper"
+                                height={IFELSE_SVG_HEIGHT_WITH_SHADOW}
+                                width={IFELSE_SVG_HEIGHT_WITH_SHADOW}
+                                x={viewState.bBox.cx - (IFELSE_SHADOW_OFFSET / 2)}
+                                y={viewState.bBox.cy - (IFELSE_SHADOW_OFFSET / 2)}
+                            >
+                                {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
+                                    <ConditionConfigForm
+                                        type={blockViewState.draft[1].subType}
+                                        position={{
+                                            x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
+                                            y: viewState.bBox.cy
+                                        }}
+                                        wizardType={WizardType.NEW}
+                                        onCancel={onCancel}
+                                        onSave={onSave}
+                                        configOverlayFormStatus={ifElseConfigOverlayFormState}
                                     />
-                                    <DeleteBtn
-                                        {...deleteTriggerPosition}
-                                        model={model}
-                                        onDraftDelete={onDraftDelete}
+                                }
+                                {model && isConfigWizardOpen && ifElseConfigOverlayFormState &&
+                                    <ConditionConfigForm
+                                        type={"If"}
+                                        position={{
+                                            x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
+                                            y: viewState.bBox.cy
+                                        }}
+                                        wizardType={WizardType.EXISTING}
+                                        onCancel={onCancel}
+                                        onSave={onSave}
+                                        configOverlayFormStatus={ifElseConfigOverlayFormState}
                                     />
-                                    <EditBtn
-                                        model={model}
-                                        {...editTriggerPosition}
-                                    />
-                                </>
-                            }
+                                }
+                                {!isConfigWizardOpen &&
+                                    <>
+                                        <rect
+                                            x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 3)}
+                                            y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3)}
+                                            className="condition-rect"
+                                        />
+                                        <DeleteBtn
+                                            {...deleteTriggerPosition}
+                                            model={model}
+                                            onDraftDelete={onDraftDelete}
+                                        />
+                                        <EditBtn
+                                            model={model}
+                                            {...editTriggerPosition}
+                                        />
+                                    </>
+                                }
 
-                        </g>)
+                            </g>
+                        )
                     }
                 </>
             </g>
@@ -268,6 +302,10 @@ export function IfElse(props: IfElseProps) {
                             y={y - IFELSE_SVG_HEIGHT_WITH_SHADOW / 2}
                             text={componentName}
                             data-testid="ifelse-block"
+                            codeSnippet={codeSnippet}
+                            codeSnippetOnSvg={codeSnippetOnSvg}
+                            conditionType={conditionType}
+                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                         />
                         <>
                             {
