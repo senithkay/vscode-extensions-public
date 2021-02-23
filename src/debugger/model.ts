@@ -15,6 +15,7 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     networkLogs: Boolean;
     networkLogsPort: number;
     port: number;
+    env: Map<string,string>;
 }
 
 export interface RunningInfo {
