@@ -48,9 +48,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     onModify: dispatchModifyTrigger,
     trackTriggerSelection
   } = state;
+
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
+
   const { position, onWizardComplete, onClose, cron } = props;
   const classes = useStyles();
 
@@ -101,54 +103,56 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       className={classes.container}
       position={position}
     >
-      <div className={classes.titleWrapper}>
-        <p className={classes.title}>Schedule Configuration</p>
-        <button className={classes.closeBtnWrapper} onClick={onClose}>
-          <CloseIcon className={classes.closeBtn} />
-        </button>
-      </div>
-      <div className={classes.customWrapper}>
-        <TooltipIcon
-          title={tooltipMessages.cronExpression.title}
-          actionText={tooltipMessages.cronExpression.actionText}
-          actionLink={tooltipMessages.cronExpression.actionLink}
-          placement="left"
-          arrow={true}
-          interactive={true}
-        >
+      <>
+        <div className={classes.titleWrapper}>
+          <p className={classes.title}>Schedule Configuration</p>
+          <button className={classes.closeBtnWrapper} onClick={onClose}>
+            <CloseIcon className={classes.closeBtn} />
+          </button>
+        </div>
+        <div className={classes.customWrapper}>
+          <TooltipIcon
+            title={tooltipMessages.cronExpression.title}
+            actionText={tooltipMessages.cronExpression.actionText}
+            actionLink={tooltipMessages.cronExpression.actionLink}
+            placement="left"
+            arrow={true}
+            interactive={true}
+          >
 
-          <p className={classes.subTitle}>Cron Expression</p>
-        </TooltipIcon>
-        <FormTextInput
-          defaultValue={currentCron}
-          onChange={handleOnChangeCron}
-          customProps={{
-            validate: validateCron
-          }}
-          errorMessage="Please enter valid cron expression"
-          placeholder="* * * * ?"
-        />
-      </div>
-      {currentCron && validateCron(currentCron) && (
-        <div className={classes.customFooterWrapper}>
-          <PrimaryButton
-            text="Save Schedule"
-            className={classes.saveBtn}
-            onClick={handleUserConfirm}
-            disabled={isFileSaving}
+            <p className={classes.subTitle}>Cron Expression</p>
+          </TooltipIcon>
+          <FormTextInput
+            defaultValue={currentCron}
+            onChange={handleOnChangeCron}
+            customProps={{
+              validate: validateCron
+            }}
+            errorMessage="Please enter valid cron expression"
+            placeholder="* * * * ?"
           />
         </div>
-      )}
-      {showConfirmDialog && (
-        <SourceUpdateConfirmDialog
-          position={{
-            x: position.x + DefaultConfig.configureWizardOffset.x,
-            y: position.y + DefaultConfig.configureWizardOffset.y + 190
-          }}
-          onConfirm={handleOnSave}
-          onCancel={handleDialogOnCancel}
-        />
-      )}
+        {currentCron && validateCron(currentCron) && (
+          <div className={classes.customFooterWrapper}>
+            <PrimaryButton
+              text="Save Schedule"
+              className={classes.saveBtn}
+              onClick={handleUserConfirm}
+              disabled={isFileSaving}
+            />
+          </div>
+        )}
+        {showConfirmDialog && (
+          <SourceUpdateConfirmDialog
+            position={{
+              x: position.x + DefaultConfig.configureWizardOffset.x,
+              y: position.y + DefaultConfig.configureWizardOffset.y + 190
+            }}
+            onConfirm={handleOnSave}
+            onCancel={handleDialogOnCancel}
+          />
+        )}
+      </>
     </DiagramOverlay>
   );
 }

@@ -108,6 +108,7 @@ export function AddIfForm(props: IfProps) {
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
+                        dataTestId={"if-save-btn"}
                         text="Save"
                         disabled={isMutationInProgress || isInvalid}
                         fullWidth={false}

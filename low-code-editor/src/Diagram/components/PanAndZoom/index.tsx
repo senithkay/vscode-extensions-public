@@ -134,7 +134,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div className={classes.zoomIn} />
+                        <div data-testid={"zoom-in-btn"} className={classes.zoomIn} />
                     </Tooltip>
                 </Button>
                 <Button variant="contained" className={classes.panelBtn} onClick={onClickZoomOut}>
@@ -143,7 +143,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div className={classes.zoomOut} />
+                        <div data-testid={"zoom-out-btn"} className={classes.zoomOut} />
                     </Tooltip>
                 </Button>
                 <Button variant="contained" className={classes.panelBtn} onClick={onClickFitToScreen}>
@@ -152,7 +152,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div className={classes.fitToScreen} />
+                        <div data-testid={"fit-to-screen-btn"} className={classes.fitToScreen} />
                     </Tooltip>
                 </Button>
             </div>
