@@ -342,8 +342,8 @@ export interface APIManagerAPIObj {
     corsConfiguration?: CorsConfiguration,
     additionalProperties?: AdditionalProperties,
     version?: string,
-    lifeCycleStatus?: string,
-    status?: string,
+    lifeCycleStatus?: ApiState,
+    status?: ApiState,
     thumbnail?: APIThumbnail,
 }
 
@@ -390,7 +390,74 @@ export interface ConfigView {
     subscriptionView: SubscriptionView;
     businessInfoView: BusinessInfoView;
     documentsView: DocumentsView;
+    apiLifecycleView: APILifecycleView;
     isUnsavedChangesAvailable: boolean;
+}
+
+export const API_STATE_PUBLISHED = "Published"
+export const API_STATE_CREATED = "Created"
+export const API_STATE_PROTOTYPED = "Prototyped"
+export const API_STATE_BLOCKED = "Blocked"
+export const API_STATE_DEPRECATED = "Deprecated"
+export const API_STATE_RETIRED = "Retired"
+
+export const API_STATE_PUBLISHED_C = "PUBLISHED"
+export const API_STATE_CREATED_C = "CREATED"
+export const API_STATE_PROTOTYPED_C = "PROTOTYPED"
+export const API_STATE_BLOCKED_C = "BLOCKED"
+export const API_STATE_DEPRECATED_C = "DEPRECATED"
+export const API_STATE_RETIRED_C = "RETIRED"
+
+export type ApiState = typeof API_STATE_PUBLISHED | typeof API_STATE_CREATED | typeof API_STATE_PROTOTYPED
+    | typeof API_STATE_BLOCKED | typeof API_STATE_DEPRECATED | typeof API_STATE_RETIRED | typeof API_STATE_PUBLISHED_C
+    | typeof API_STATE_CREATED_C | typeof API_STATE_PROTOTYPED_C | typeof API_STATE_BLOCKED_C | typeof API_STATE_DEPRECATED_C
+    | typeof API_STATE_RETIRED_C;
+
+export const API_STATE_ACTION_PUBLISH = "Publish"
+export const API_STATE_ACTION_DEPLOY_AS_PROTOTYPE = "Deploy as a Prototype"
+export const API_STATE_ACTION_DEMOTE_TO_CREATED = "Demote to Created"
+export const API_STATE_ACTION_BLOCK = "Block"
+export const API_STATE_ACTION_DEPRECATE = "Deprecate"
+export const API_STATE_ACTION_RE_PUBLISH = "Re-Publish"
+export const API_STATE_ACTION_RETIRE = "Retire"
+
+export type ApiStateAction = typeof API_STATE_ACTION_PUBLISH | typeof API_STATE_ACTION_DEPLOY_AS_PROTOTYPE
+    | typeof API_STATE_ACTION_DEMOTE_TO_CREATED | typeof API_STATE_ACTION_RETIRE
+    | typeof API_STATE_ACTION_BLOCK | typeof API_STATE_ACTION_DEPRECATE | typeof API_STATE_ACTION_RE_PUBLISH;
+
+export interface APILifecycleView {
+    isApiLifecycleFetching: boolean;
+    isApiLifecycleHistoryFetching: boolean;
+    isApiLifecycleUpdating: boolean;
+    apiLifecycleState: APILifecycleState;
+    apiLifecycleStateChangeHistory?: APILifecycleChangeHistory;
+}
+
+// The lifecycle state objects are partially defined here considering usage
+export interface APILifecycleUpdateResponse {
+    lifecycleState: APILifecycleState
+}
+
+export interface APILifecycleState {
+    state: ApiState;
+    availableTransitions: APILifecycleAvailableTransition[]
+}
+
+export interface APILifecycleAvailableTransition {
+    event: ApiStateAction,
+    targetState: ApiState
+}
+
+export interface APILifecycleChangeHistory {
+    count: number,
+    list: APILifecycleChangeRecord[]
+}
+
+export interface APILifecycleChangeRecord {
+    previousState: ApiState,
+    postState: ApiState,
+    user: string,
+    updatedTime: string
 }
 
 export interface RuntimeConfigView {
@@ -456,3 +523,9 @@ export interface GithubRepoRequest extends ConnectorRequest{
 // export interface GcalendarListRequest extends ConnectorRequest{
 // 	arguments: {}
 // }
+export interface ModelCodePosition {
+    endColumn: number;
+    endLine: number;
+    startColumn: number;
+    startLine: number;
+}

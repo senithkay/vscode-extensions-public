@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -26,6 +26,7 @@ import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/D
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { RadioControl } from "../../../Portals/ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import Tooltip, { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
@@ -64,6 +65,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
+    // const { model } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -132,7 +134,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const reqField: FormField = {
         name: "request",
         displayName: "Request",
-        type: "http:Request",
+        type: PrimitiveBalType.HttpReq,
         value: forwardReqField?.value
 
     }
@@ -239,6 +241,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         }
         return true;
     };
+
     const validateResponseNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, diagramState);
@@ -399,7 +402,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 errorMessage={responseVarError}
                             />
                         </div>
-                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                        <TooltipIcon
+                            title={tooltipMessages.HTTPPayload.title}
+                            content={tooltipMessages.HTTPPayload.content}
+                            placement="left"
+                            arrow={true}
+                            codeSnippet={true}
+                            example={true}
+                            interactive={true}
+                        >
+                            <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                        </TooltipIcon>
                         <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
                             {payloadComponent}
                         </div>

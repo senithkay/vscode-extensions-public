@@ -43,7 +43,7 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
                         className="update-container"
                         position={position}
                     >
-                        <p>{title}</p>
+                        <p className="title">{title}</p>
                         <p className="subtitle">{subTitle}</p>
 
                         <Button variant="contained" className="cancelbtn" onClick={onCancel}>Cancel</Button>

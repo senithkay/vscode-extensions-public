@@ -164,8 +164,9 @@ class SizingVisitor implements Visitor {
         if (viewState.folded) {
             viewState.foreachLifeLine.h = 0;
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
-                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2);
+                ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
+                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
+                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
                 COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
         } else {
@@ -173,7 +174,7 @@ class SizingVisitor implements Visitor {
 
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
                 ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
-                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2);
+                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
                 viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
 

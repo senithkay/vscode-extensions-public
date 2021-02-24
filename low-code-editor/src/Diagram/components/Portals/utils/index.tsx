@@ -16,7 +16,7 @@ import {
     BooleanLiteral, CaptureBindingPattern, CheckAction,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
     ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, SimpleNameReference, SpecificField,
+    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
     STNode, StringLiteral, traversNode, TypeCastExpression
 } from "@ballerina/syntax-tree";
@@ -703,13 +703,22 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
     const variableCollection: { [key: string]: any } = {};
     symbolInfo.variables.forEach((variableNodes: STNode[], type: string) => {
         variableNodes.forEach((variableNode) => {
-            const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
-            const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
-                CaptureBindingPattern;
-            variableCollection[variable.variableName.value] = {
-                "type": type,
-                "position": 0,
-                "isUsed": 0
+            if (STKindChecker.isRequiredParam(variableNode)) {
+                // Handle function definition params
+                variableCollection[(variableNode as RequiredParam).paramName.value] = {
+                    "type": type,
+                    "position": 0,
+                    "isUsed": 0
+                }
+            } else {
+                const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
+                const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
+                    CaptureBindingPattern;
+                variableCollection[variable.variableName.value] = {
+                    "type": type,
+                    "position": 0,
+                    "isUsed": 0
+                }
             }
         });
     });

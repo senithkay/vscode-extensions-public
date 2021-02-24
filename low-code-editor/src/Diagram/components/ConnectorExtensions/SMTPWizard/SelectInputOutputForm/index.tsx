@@ -19,6 +19,7 @@ import { AddCircleOutline } from "@material-ui/icons";
 import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
+import { smtpTooltips } from "../../../../utils/connectors";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -26,10 +27,13 @@ import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/Sec
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormChipTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormChipTextInput";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
+
+// import '../style.scss'
 
 interface SelectInputOutputFormProps {
     actions: Map<string, FormField[]>;
@@ -144,7 +148,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             model: field,
             index: 1,
             customProps: {
-                validate: validateField
+                validate: validateField,
+                tooltipTitle: smtpTooltips[field?.name]
             }
         };
         if (field.name === "'from") {
@@ -158,7 +163,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             }
             return (
                 <div className={classes.emailFormTo}>
+                    <TooltipIcon
+                        title={smtpTooltips.to}
+                    >
                     <FormChipTextInput {...elementProps} />
+                    </TooltipIcon>
                 </div>
             );
         } else if (field.name === "cc") {

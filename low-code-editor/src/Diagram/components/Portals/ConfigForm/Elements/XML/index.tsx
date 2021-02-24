@@ -11,13 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
-
-import { FormHelperText } from "@material-ui/core";
+import React from "react";
 
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
-import { FormTextArea } from "../TextField/FormTextArea";
+import ExpressionEditor from "../ExpressionEditor";
 
 interface XMLProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -26,43 +24,30 @@ interface XMLProps {
 export function XML(props: FormElementProps<XMLProps>) {
     const { model, customProps, onChange, defaultValue } = props;
     const classes = useStyles();
+    if (model?.name === undefined) {
+        model.name = "xml"
+    }
 
-    const [validXML, setValidXML] = useState(true);
+    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+        customProps?.validate(fieldName, isInvalid)
+    }
 
-    const validateXML = (value: string) => {
-        if (value === "" || value === undefined) {
-            setValidXML(false);
-            if (customProps?.validate) {
-                customProps?.validate(model.name, true);
-            }
-        } else {
-            setValidXML(true);
-            if (customProps?.validate) {
-                customProps?.validate(model.name, false);
-            }
-        }
-    };
-
-    const onCustomXMLChange = (xmlValue: string) => {
-        model.value = xmlValue;
-        validateXML(xmlValue);
+    const onPropertyChange = (value: string) => {
+        model.value = value
         if (onChange) {
-            onChange(xmlValue);
+            onChange(value);
         }
-    };
+    }
 
     return (
         <div className={classes.arraySubWrapper}>
-            <div className={classes.labelWrapper}>
-                <FormHelperText className={classes.inputLabelForRequired}>Enter Custom XML</FormHelperText>
-                <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-            </div>
-            <FormTextArea
-                onChange={onCustomXMLChange}
-                customProps={{ isInvalid: !validXML, text: "Invalid XML" }}
-                rowsMax={3}
-                placeholder='eg: <root><books></books></root>'
-                defaultValue={defaultValue}
+            <ExpressionEditor
+                model={model}
+                customProps={{
+                    validate: validateExpression
+                }}
+                defaultValue={model.value}
+                onChange={onPropertyChange}
             />
         </div>
     );

@@ -138,7 +138,7 @@ export function IfElse(props: IfElseProps) {
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
     const ConditionWrapper = isDraftStatement ? cn("main-condition-wrapper active-condition") : cn("main-condition-wrapper if-condition-wrapper");
 
-    if (model == null) {
+    if (model === null) {
         viewState = blockViewState.draft[1] as DraftStatementViewState;
         conditionType = viewState.subType;
         const x: number = viewState.bBox.cx;
@@ -149,7 +149,7 @@ export function IfElse(props: IfElseProps) {
                 <IfElseSVG
                     x={x - IFELSE_SVG_WIDTH_WITH_SHADOW / 2}
                     y={y - (IFELSE_SHADOW_OFFSET / 2)}
-                    text="CONDITION"
+                    text="Draft"
                     data-testid="ifelse-block"
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
@@ -167,6 +167,7 @@ export function IfElse(props: IfElseProps) {
                                 y={viewState.bBox.cy - (IFELSE_SHADOW_OFFSET / 2)}
                             >
                                 {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
+                                // {model === null && blockViewState?.draft && isDraftStatement &&
                                     <ConditionConfigForm
                                         type={blockViewState.draft[1].subType}
                                         position={{

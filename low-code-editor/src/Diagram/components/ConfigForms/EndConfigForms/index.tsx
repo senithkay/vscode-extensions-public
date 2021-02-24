@@ -16,10 +16,11 @@ import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
-import { ConfigOverlayFormStatus } from "../../../../Definitions";
-import { STModification } from "../../../../Definitions/lang-client-extended";
+
+import { STModification } from "../../../../Definitions";
+import { WizardType } from "../../../../ConfigurationSpec/types";
+import { getAllVariables } from "../../../utils/mixins";
 import {
     createPropertyStatement,
     createReturnStatement,
@@ -29,9 +30,9 @@ import {
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { EndConfig, RespondConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
+import { genVariableName } from "../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
-
 export interface AddEndFormProps {
     type: string;
     targetPosition: DraftInsertPosition;
@@ -41,12 +42,14 @@ export interface AddEndFormProps {
     model?: STNode;
     wizardType?: WizardType;
     position: DiagramOverlayPosition;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function EndConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations, trackAddStatement } } = useContext(DiagramContext);
-    const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddEndFormProps;
+    const { state } = useContext(DiagramContext);
+    const { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo, configOverlayFormStatus } = state;
+
+
+    const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
     const endConfig: EndConfig = {
@@ -86,21 +89,58 @@ export function EndConfigForm(props: any) {
                 dispatchMutations(modifications);
             } else {
                 if (endConfig.type === "Return") {
+                    trackAddStatement(endConfig.type);
                     const addReturnStatement: STModification = createReturnStatement(
                         endConfig.expression as string, formArgs?.targetPosition);
                     modifications.push(addReturnStatement);
                 } else if (endConfig.type === "Respond") {
                     const respondConfig: RespondConfig = endConfig.expression as RespondConfig;
-                    let respondExpression = "checkpanic $caller->respond($expression);";
-                    respondExpression = respondExpression
-                        .replace("$caller", respondConfig.caller)
-                        .replace("$expression", respondConfig.respondExpression);
-                    const addRespond: STModification = createPropertyStatement(
-                        respondExpression, formArgs?.targetPosition
-                    );
-                    modifications.push(addRespond);
+                    const responseCodeConfig = (endConfig?.expression as RespondConfig)?.responseCode;
+                    if (responseCodeConfig) {
+                        const responseName = genVariableName("resp", getAllVariables(stSymbolInfo));
+                        const responseDeclaration = "http:Response " + responseName + " = new;";
+                        const responseDeclarationModification: STModification = createPropertyStatement(
+                            responseDeclaration, formArgs?.targetPosition
+                        );
+                        modifications.push(responseDeclarationModification);
+
+                        const responseGenStatement = responseName + ".statusCode = " + responseCodeConfig + ";";
+                        const responseGenStatementModification: STModification = createPropertyStatement(
+                            responseGenStatement, formArgs?.targetPosition
+                        );
+                        modifications.push(responseGenStatementModification);
+
+                        if (respondConfig.respondExpression !== "") {
+                            let responsePayoadStatement = responseName + ".setTextPayload($expression);";
+                            responsePayoadStatement = responsePayoadStatement
+                                .replace("$expression", respondConfig.respondExpression);
+                            const responsePayoadStatementModification: STModification = createPropertyStatement(
+                                responsePayoadStatement, formArgs?.targetPosition
+                            );
+                            modifications.push(responsePayoadStatementModification);
+                        }
+
+                        let respondStatusCodeExpression = "checkpanic $caller->respond($expression);";
+                        respondStatusCodeExpression = respondStatusCodeExpression
+                            .replace("$caller", respondConfig.caller)
+                            .replace("$expression", responseName);
+                        const addRespondWithCode: STModification = createPropertyStatement(
+                            respondStatusCodeExpression, formArgs?.targetPosition
+                        );
+                        modifications.push(addRespondWithCode);
+
+                    } else {
+                        trackAddStatement(endConfig.type);
+                        let respondExpression = "checkpanic $caller->respond($expression);";
+                        respondExpression = respondExpression
+                            .replace("$caller", respondConfig.caller)
+                            .replace("$expression", respondConfig.respondExpression);
+                        const addRespond: STModification = createPropertyStatement(
+                            respondExpression, formArgs?.targetPosition
+                        );
+                        modifications.push(addRespond);
+                    }
                 }
-                trackAddStatement(endConfig.type);
             }
             dispatchMutations(modifications);
             onSave();

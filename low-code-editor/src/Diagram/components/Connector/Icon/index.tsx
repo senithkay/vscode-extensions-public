@@ -8,6 +8,7 @@ import { GoogleSheetLogo } from "./GoogleSheetLogo"
 import { HttpLogo } from "./HttpLogo";
 import { ImapLogo } from "./ImapLogo"
 import { Pop3Logo } from "./Pop3Logo";
+import { PostgreSQLogo } from "./PostgreSQLogo";
 import { QueryClientLogo } from "./QueryClientLogo";
 import { SalesforceLogo } from "./SalesforceLogo";
 import { SlackLogo } from "./SlackLogo";
@@ -34,3 +35,4 @@ export { GmailLogo as googleapis_gmail_Client };
 export { GoogleCalanderLogo as googleapis_calendar_CalendarClient} ;
 export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
+export { PostgreSQLogo as postgresql_Client };

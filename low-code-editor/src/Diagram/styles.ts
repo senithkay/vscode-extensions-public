@@ -105,6 +105,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: "absolute",
             top: '1.1rem'
         },
+        disableDiagramIcon: {
+            right: '4rem',
+            position: "fixed",
+            top: '1.1rem'
+        },
         updateButton: {
             display: 'flex',
             justifyContent: "flex-end",

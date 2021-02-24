@@ -88,8 +88,9 @@ export function Form(props: FormProps) {
                 model: field,
                 index,
                 customProps: {
-                    validate: validateField
-                }
+                    validate: validateField,
+                    tooltipTitle: field.tooltip
+                },
             };
             const element = getFormElement(elementProps, field.type);
             if (element) {

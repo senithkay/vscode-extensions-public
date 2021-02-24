@@ -11,14 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
+import React, { ReactNode, useState, useContext } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import cn from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+
+import { NonPrimitiveBalType, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
@@ -27,8 +28,6 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-
-import { RespondIcon } from "../../../../../../assets/icons";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -46,30 +45,69 @@ export function AddRespondForm(props: RespondFormProps) {
     const { isMutationProgress: isMutationInProgress, goToNextTourStep: dispatchGoToNextTourStep } = state;
     const { config, onCancel, onSave } = props;
 
-    const [respondFormConfig, setRespondFormConfig] = useState<RespondConfig>(config.expression as RespondConfig);
+    const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
     const isFormValid = (): boolean => {
         return (respondFormConfig.caller !== '') && (respondFormConfig.respondExpression !== '');
     };
 
     const [validForm, setValidForm] = useState(isFormValid());
+    const [validStatusCode, setValidStatusCode] = useState(validForm);
+    const [isStatusCode, setStatusCode] = useState(undefined);
 
     const onExpressionChange = (value: any) => {
-        setRespondFormConfig({ ...respondFormConfig, respondExpression: value })
+        respondFormConfig.respondExpression = value;
         if (value === "jsonPayload") {
             dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
         }
+        setValidForm(false);
     };
 
     const onSaveWithTour = () => {
         dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
-        config.expression = respondFormConfig;
+        respondFormConfig.responseCode = isStatusCode;
         onSave();
     }
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setValidForm(isFormValid() && !isInvalid);
+        if (isFormValid()) {
+            setValidForm(!isInvalid);
+        } else {
+            setValidForm(false);
+        }
     };
+
+    const statusCodeValidateExpression = (fieldName: string, isInvalid: boolean) => {
+        const responseCodeNumber = Math.floor(Number(respondFormConfig.responseCode));
+
+        if ((responseCodeNumber < 99) || (responseCodeNumber > 600)) {
+            setValidStatusCode(false);
+        } else {
+            setValidStatusCode(true);
+        }
+    };
+
+    const onStatusCodeChange = (value: string) => {
+        respondFormConfig.responseCode = value;
+        setStatusCode(value);
+    }
+
+    const statusCodeComp: ReactNode = (
+        <>
+            <ExpressionEditor
+                model={{
+                    optional: true,
+                    name: "Status Code",
+                    value: respondFormConfig.responseCode,
+                    type: PrimitiveBalType.Int,
+                }}
+                customProps={{ validate: statusCodeValidateExpression }}
+                onChange={onStatusCodeChange}
+            />
+            {!validStatusCode ? <p className={formClasses.invalidCode}> Invalid Status Code</p> : null}
+        </>
+    );
+    const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
     return (
         <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
@@ -82,9 +120,7 @@ export function AddRespondForm(props: RespondFormProps) {
                     />
 
                     <div className={formClasses.mainTitleWrapper}>
-                        <div className={formClasses.iconWrapper}>
-                            <RespondIcon />
-                        </div>
+                        <img src="../../../../../../images/Respond.svg" />
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Respond</Box>
                         </Typography>
@@ -96,7 +132,7 @@ export function AddRespondForm(props: RespondFormProps) {
                             model={{
                                 name: "respond expression",
                                 value: respondFormConfig.respondExpression,
-                                type: undefined
+                                type: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, NonPrimitiveBalType.httpResponse]
                             }}
                             customProps={{
                                 validate: validateExpression,
@@ -108,6 +144,8 @@ export function AddRespondForm(props: RespondFormProps) {
                             onChange={onExpressionChange}
                         />
                     </div>
+
+                    {(config.wizardType === WizardType.NEW) ? statusCodeComp : null}
                 </div>
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
@@ -115,7 +153,7 @@ export function AddRespondForm(props: RespondFormProps) {
                         dataTestId="save-btn"
                         className="product-tour-save"
                         text="Save"
-                        disabled={isMutationInProgress || !validForm}
+                        disabled={disableSave}
                         fullWidth={false}
                         onClick={onSaveWithTour}
                     />
@@ -124,4 +162,3 @@ export function AddRespondForm(props: RespondFormProps) {
         </FormControl>
     );
 }
-

@@ -13,15 +13,51 @@
 
 import { DraftUpdateStatement } from "../Diagram/view-state/draft";
 
+// Some of these are types are not primitive types, and will need to be refactored
+export enum PrimitiveBalType {
+    String = "string",
+    Record = "record",
+    Union = "union",
+    Int = "int",
+    Float = "float",
+    Boolean = "boolean",
+    Collection = "collection",
+    Json = "json",
+    Xml = "xml",
+    Nil = "nil",
+    Var = "var",
+    Error = "error",
+    HttpReq = "http:Request",
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    typeName: string;
+}
+
+export const httpResponse: NonPrimitiveBal = {
+    orgName: 'ballerina',
+    moduleName: 'http',
+    typeName: 'Response',
+}
+
+export const NonPrimitiveBalType = {
+    httpResponse,
+}
 
 // tslint:disable-next-line: max-classes-per-file
 export type balTypes = "string" | "record" | "union" | "int" | "float" | "boolean" | "collection" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
 
+export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
+
+export type ExpressionEditorType = BallerinaType | BallerinaType[];
+
 export interface FormField {
-    type: balTypes;
+    type: ExpressionEditorType;
     name?: string;
     displayName?: string;
-    collectionDataType?: balTypes;
+    collectionDataType?: PrimitiveBalType;
     selectedDataType?: string;
     typeName?: string;
     description?: string;
@@ -41,6 +77,7 @@ export interface FormField {
     aiSuggestion?: string;
     noCodeGen?: boolean;
     requestName?: string; // only for http form used when there's a request object in the request
+    tooltip?: string;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -85,41 +122,41 @@ export enum WizardType {
     EXISTING
 }
 
-export function getType(type: string): balTypes {
-    let typeString: balTypes;
+export function getType(type: string): PrimitiveBalType {
+    let typeString: PrimitiveBalType;
     switch (type) {
         case "var":
-            typeString = "var";
+            typeString = PrimitiveBalType.Var;
             break;
         case "string":
-            typeString = "string";
+            typeString = PrimitiveBalType.String;
             break;
         case "int":
-            typeString = "int";
+            typeString = PrimitiveBalType.Int;
             break;
         case "float":
-            typeString = "float";
+            typeString = PrimitiveBalType.Float;
             break;
         case "record":
-            typeString = "record";
+            typeString = PrimitiveBalType.Record;
             break;
         case "|":
-            typeString = "union";
+            typeString = PrimitiveBalType.Union;
             break;
         case "boolean":
-            typeString = "boolean";
+            typeString = PrimitiveBalType.Boolean;
             break;
         case "[]":
-            typeString = "collection";
+            typeString = PrimitiveBalType.Collection;
             break;
         case "json":
-            typeString = "json";
+            typeString = PrimitiveBalType.Json;
             break;
         case "xml":
-            typeString = "xml";
+            typeString = PrimitiveBalType.Xml;
             break;
         case "nil":
-            typeString = "nil";
+            typeString = PrimitiveBalType.Nil;
             break;
         default:
             typeString = undefined;

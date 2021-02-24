@@ -11,13 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
-
-import { FormHelperText } from "@material-ui/core";
+import React from "react";
 
 import { useStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
-import { FormTextArea } from "../../TextField/FormTextArea";
+import ExpressionEditor from "../../ExpressionEditor";
 
 interface FormJsonProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -26,46 +24,30 @@ interface FormJsonProps {
 export function FormJson(props: FormElementProps<FormJsonProps>) {
     const { model, customProps, onChange, defaultValue } = props;
     const classes = useStyles();
+    if (model?.name === undefined) {
+        model.name = "json"
+    }
 
-    const [validJson, setValidJson] = useState(true);
+    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+        customProps?.validate(fieldName, isInvalid)
+    }
 
-    const validateJson = (value: string) => {
-        try {
-            JSON.parse(value);
-            model.value = value;
-            if (value !== "") {
-                setValidJson(true);
-                if (customProps?.validate) {
-                    customProps?.validate(model.name, false);
-                }
-            }
-        } catch (e) {
-            setValidJson(false);
-            if (customProps?.validate) {
-                customProps?.validate(model.name, true);
-            }
-        }
-    };
-
-    const onCustomJsonChange = (jsonValue: string) => {
-        validateJson(jsonValue);
+    const onPropertyChange = (value: string) => {
+        model.value = value
         if (onChange) {
-            onChange(jsonValue);
+            onChange(value);
         }
-    };
+    }
 
     return (
         <div className={classes.arraySubWrapper} data-testid="json">
-            <div className={classes.labelWrapper}>
-                <FormHelperText className={classes.inputLabelForRequired}>Enter Custom JSON</FormHelperText>
-                <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-            </div>
-            <FormTextArea
-                onChange={onCustomJsonChange}
-                customProps={{ isInvalid: !validJson, text: "Invalid Json" }}
-                rowsMax={3}
-                placeholder='eg: {"key1": "value1", "key2": "value2"}'
-                defaultValue={defaultValue}
+            <ExpressionEditor
+                model={model}
+                customProps={{
+                    validate: validateExpression,
+                }}
+                defaultValue={model.value}
+                onChange={onPropertyChange}
             />
         </div>
     );

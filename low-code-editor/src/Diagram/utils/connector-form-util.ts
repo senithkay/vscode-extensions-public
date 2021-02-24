@@ -11,8 +11,9 @@
  * associated services.
  */
 // import { store } from "../../../../$store";
-import { ConnectorConfig, FormField, ResponsePayloadMap } from "../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, PrimitiveBalType, ResponsePayloadMap } from "../../ConfigurationSpec/types";
 import { Connector } from "../../Definitions/lang-client-extended";
+import { tooltipMessages } from "../components/Portals/utils/constants";
 
 export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FormField[]>,
                                          connectorConfig: ConnectorConfig, state?: any): Map<string, FormField[]> {
@@ -138,6 +139,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                                 param.hide = true;
                             }
                         })
+                    }
+                    if (value[0].name === "host"){
+                        value[0].tooltip = tooltipMessages.SMTP.host
+                    }
+                    if (value[1].name === "username"){
+                        value[1].tooltip = tooltipMessages.SMTP.username
+                    }
+                    if (value[2].name === "password"){
+                        value[2].tooltip = tooltipMessages.SMTP.password
                     }
                     filteredFunctions.set(key, value);
                 }
@@ -275,8 +285,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         })
                     }
                     filteredFunctions.set(key, value);
-                } else if (key === 'openSpreadsheetById' || key === 'createSpreadsheet' ||
-                           key === 'openSpreadsheetByUrl' || key === 'getAllSpreadsheets') {
+                } else {
                     filteredFunctions.set(key, value);
                 }
             });
@@ -286,6 +295,25 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "init") {
                     value[0].fields.forEach((field) => {
                         if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
+                            field.hide = true;
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case "ballerinax_sfdc_BaseClient":
+            fieldsForFunctions.forEach((value: FormField[], key) => {
+                if (key === "init") {
+                    value[0].fields.forEach((field) => {
+                        if ((field.name === "clientConfig")) {
+                            field.fields[1].fields.find(subFields => subFields.name === "clientConfig").hide = true;
+                            field.fields[1].fields.find(subFields => subFields.name === "scopes").hide = true;
+                            field.fields[2].hide = true;
+                            field.fields[3].hide = true;
+                            field.fields[4].hide = true;
+                        }
+                        if ((field.name === "secureSocketConfig")) {
                             field.hide = true;
                         }
                     });

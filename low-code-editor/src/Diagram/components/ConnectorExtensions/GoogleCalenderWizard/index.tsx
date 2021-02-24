@@ -372,6 +372,7 @@ export function GoogleCalender(props: WizardProps) {
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
                             <p className={wizardClasses.subTitle}>Or use manual configurations</p>
                             <LinePrimaryButton
+                                testId={"calender-manual-btn"}
                                 className={wizardClasses.fullWidth}
                                 text="Manual Connection"
                                 fullWidth={false}

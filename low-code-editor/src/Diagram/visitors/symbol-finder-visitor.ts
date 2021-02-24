@@ -11,8 +11,9 @@
  * associated services.
  */
 import {
+    AssignmentStatement,
     CallStatement,
-    CaptureBindingPattern, LocalVarDecl, QualifiedNameReference,
+    CaptureBindingPattern, ForeachStatement, FunctionDefinition, LocalVarDecl, QualifiedNameReference, RequiredParam,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -24,9 +25,10 @@ import { StatementViewState } from "../view-state";
 
 const endPoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
-const variables: Map<string, STNode[]> | any = new Map();
-const callStatement: Map<string, STNode[]> | any = new Map();
-const variableNameReferences: Map<string, STNode[]> | any = new Map();
+const variables: Map<string, STNode[]> = new Map();
+const callStatement: Map<string, STNode[]> = new Map();
+const assignmentStatement: Map<string, STNode[]> = new Map();
+const variableNameReferences: Map<string, STNode[]> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -59,6 +61,15 @@ class SymbolFindingVisitor implements Visitor {
         callStatement.get(varName) ? callStatement.get(varName).push(node) : callStatement.set(varName, [node]);
     }
 
+    public beginVisitAssignmentStatement(node: AssignmentStatement) {
+        const varType = node.typeData?.symbol?.kind;
+        const varName = node.typeData?.symbol?.name;
+        if (varName === undefined || varName === null || varType !== "VARIABLE") {
+            return;
+        }
+        assignmentStatement.get(varName) ? assignmentStatement.get(varName).push(node) : assignmentStatement.set(varName, [node]);
+    }
+
     public beginVisitSimpleNameReference(node: SimpleNameReference) {
         const varType = node.typeData?.symbol?.kind;
         const varName = node.typeData?.symbol?.name;
@@ -68,6 +79,29 @@ class SymbolFindingVisitor implements Visitor {
                 variableNameReferences.get(varName).push(node)
                 : variableNameReferences.set(varName, [node]);
         }
+    }
+
+    public beginVisitForeachStatement(node: ForeachStatement) {
+        const type: string = getType(node.typedBindingPattern.typeDescriptor);
+        if (variables.get(type)) {
+            variables.get(type).push(node);
+        } else {
+            variables.set(type, [node]);
+        }
+    }
+
+    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+        node.functionSignature.parameters.forEach((parameter) => {
+            if (STKindChecker.isRequiredParam(parameter)) {
+                const requiredParam = parameter as RequiredParam;
+                const type = getType(requiredParam.typeName);
+                if (variables.get(type)) {
+                    variables.get(type).push(requiredParam);
+                } else {
+                    variables.set(type, [requiredParam]);
+                }
+            }
+        });
     }
 }
 
@@ -112,6 +146,7 @@ export function cleanAll() {
     variables.clear();
     callStatement.clear();
     variableNameReferences.clear();
+    assignmentStatement.clear();
 }
 
 export function getSymbolInfo(): STSymbolInfo {
@@ -120,7 +155,8 @@ export function getSymbolInfo(): STSymbolInfo {
         actions,
         variables,
         callStatement,
-        variableNameReferences
+        variableNameReferences,
+        assignmentStatement
     }
 }
 

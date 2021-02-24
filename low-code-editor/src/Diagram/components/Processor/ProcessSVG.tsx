@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import { ModelCodePosition } from "../../../api/models";
 import { TooltipCodeSnippet } from "../Portals/ConfigForm/Elements/Tooltip"
 
 import "./style.scss";
@@ -27,8 +28,8 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, processType: string, sourceSnippet: any}) {
-    const { varName, processType, sourceSnippet, ...xyProps } = props;
+export function ProcessSVG(props: { x: number, y: number, varName: any, processType: string, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void}) {
+    const { varName, processType, sourceSnippet, openInCodeView, ...xyProps } = props;
 
     const VarIcon = () => (
         <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -73,7 +74,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, processT
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <TooltipCodeSnippet content={sourceSnippet} placement="right" arrow={true}>
+            <TooltipCodeSnippet openInCodeView={openInCodeView} content={sourceSnippet} placement="right" arrow={true}>
                 <g id="Process" className="data-processor process-active" transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)" >
                         <g id="ProcessRectangle" transform="translate(7 6)">

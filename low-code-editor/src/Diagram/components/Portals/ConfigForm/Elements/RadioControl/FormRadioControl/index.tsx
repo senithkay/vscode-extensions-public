@@ -60,6 +60,7 @@ export function RadioControl(props: FormElementProps<RadioProps>) {
                     control={
                         (
                             <Radio
+                                data-testid={item.toLocaleLowerCase()}
                                 disabled={customProps?.disabled}
                                 classes={{ root: radioControlClasses.radiobtn, checked: radioControlClasses.checked }}
                             />

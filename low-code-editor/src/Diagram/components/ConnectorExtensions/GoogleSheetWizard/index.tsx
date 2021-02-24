@@ -372,6 +372,7 @@ export function GoogleSheet(props: WizardProps) {
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
                             <p className={wizardClasses.subTitle}>Or use manual configurations</p>
                             <LinePrimaryButton
+                                testId={"sheet-manual-btn"}
                                 className={wizardClasses.fullWidth}
                                 text="Manual Connection"
                                 fullWidth={false}

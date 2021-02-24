@@ -11,14 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useState, useContext } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-import { getConditionConfig } from "../../utils/diagram-util";
+
+import { WizardType } from "../../../ConfigurationSpec/types";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
 import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
@@ -27,7 +27,7 @@ import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
 
-import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
+import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW, PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ProcessSVG";
 import "./style.scss";
 
 export interface ProcessorProps {
@@ -35,13 +35,29 @@ export interface ProcessorProps {
     blockViewState?: BlockViewState;
 }
 
+const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
+
 export function DataProcessor(props: ProcessorProps) {
-    const { state: { syntaxTree, stSymbolInfo, isMutationProgress, isWaitingOnWorkspace, isReadOnly }, diagramCleanDraw } = useContext(DiagramContext);
+    const { state } = useContext(DiagramContext);
+    const {
+        syntaxTree,
+        stSymbolInfo,
+        isMutationProgress,
+        isWaitingOnWorkspace,
+        isReadOnly,
+        diagramCleanDrawST: dispatchDiagramCleanDraw,
+        dispactchConfigOverlayForm: openNewProcessorConfig,
+        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+        maximize: maximizeCodeView,
+        setCodeLocationToHighlight: setCodeToHighlight,
+        currentApp,
+        isCodeEditorActive
+    } = state
+    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
-    const [processConfigOverlayState, setProcessConfigOverlayState] = useState(undefined);
 
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
     const isDraftStatement: boolean = blockViewState
@@ -54,6 +70,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
+    let isSupportedVariable = true;
 
     if (model) {
         processType = "Variable";
@@ -69,15 +86,38 @@ export function DataProcessor(props: ProcessorProps) {
             } else {
                 processName = "Call";
             }
+            // todo : uncomment
+            // const expressionStmt = ASTUtil.genSource(model).replace(";", "");
+            // if (expressionStmt.includes("log")) {
+            //     processType = "Log";
+            // }
+            //
+            // if (expressionStmt === "") {
+            //     const stmt: ExpressionStatement = model as ExpressionStatement;
+            //     const expr: Invocation = stmt.expression as Invocation;
+            //     if (expr.definition) {
+            //         for (const def of expr.definition) {
+            //             if (def[0] === "log") {
+            //                 processType = "Log";
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // }
         } else if (STKindChecker.isLocalVarDecl(model)) {
-            const bindingPattern = model?.typedBindingPattern?.bindingPattern;
+            const typedBindingPattern = model?.typedBindingPattern;
+            const bindingPattern = typedBindingPattern?.bindingPattern;
             if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
                 processName = bindingPattern?.variableName?.value;
-                isReferencedVariable = stSymbolInfo.variableNameReferences?.size && stSymbolInfo.variableNameReferences.get(processName)?.length > 0;
+                isReferencedVariable = stSymbolInfo?.variableNameReferences?.size && stSymbolInfo.variableNameReferences.get(processName)?.length > 0;
             } else if (STKindChecker.isListBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
+            }
+
+            if (supportedVarTypes.indexOf(typedBindingPattern.typeDescriptor.source.trim()) === -1) {
+                isSupportedVariable = false;
             }
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
@@ -102,29 +142,32 @@ export function DataProcessor(props: ProcessorProps) {
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
-            const processConfigOverlay = getConditionConfig(draftVS.subType, draftVS.targetPosition,
-                WizardType.NEW, blockViewState, undefined, stSymbolInfo)
-            setProcessConfigOverlayState(processConfigOverlay);
+            dispatchCloseConfigOverlayForm();
+            openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
+                WizardType.NEW, blockViewState, undefined, stSymbolInfo);
         }
     }, []);
 
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            dispatchDiagramCleanDraw(syntaxTree);
+            dispatchCloseConfigOverlayForm();
         }
     };
 
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
+            dispatchDiagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
     }
 
     const onSave = () => {
         setConfigWizardOpen(false);
+        dispatchCloseConfigOverlayForm();
     }
 
     // let exsitingWizard: ReactNode = null;
@@ -138,17 +181,19 @@ export function DataProcessor(props: ProcessorProps) {
                 type: processType
             }
             setConfigWizardOpen(true);
-            const processConfigOverlay = getConditionConfig(processType, position, WizardType.EXISTING,
-                model.viewState, config, stSymbolInfo, model)
-            setProcessConfigOverlayState(processConfigOverlay);
+            openNewProcessorConfig(processType, position, WizardType.EXISTING, model.viewState, config, stSymbolInfo, model);
         }
     };
 
-    const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model.position)
+    }
 
+    const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
-    const editAndDeleteButtons = (isIntializedVariable || isLogStmt || isDraftStatement) ? (
+    const editAndDeleteButtons = ((isIntializedVariable && isSupportedVariable) || isLogStmt || isDraftStatement) ? (
         <>
             <g className={isReferencedVariable ? "disable" : ""}>
                 <DeleteBtn
@@ -169,12 +214,16 @@ export function DataProcessor(props: ProcessorProps) {
         </>
     ) : (
             <>
-                <DeleteBtn
-                    model={model}
-                    cx={viewState.bBox.cx - DELETE_SVG_OFFSET}
-                    cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)}
-                    onDraftDelete={onDraftDelete}
-                />
+                <g className={isReferencedVariable ? "disable" : ""}>
+                    <DeleteBtn
+                        model={model}
+                        cx={viewState.bBox.cx - DELETE_SVG_OFFSET}
+                        cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)}
+                        toolTipTitle={toolTip}
+                        isButtonDisabled={isReferencedVariable}
+                        onDraftDelete={onDraftDelete}
+                    />
+                </g>
             </>
         );
 
@@ -183,24 +232,26 @@ export function DataProcessor(props: ProcessorProps) {
         (
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
-                    <ProcessSVG
-                        x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                        y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                        processType={processType}
-                        varName={variableName}
-                        sourceSnippet={sourceSnippet}
-                    />
-                    <>
-                        {
-                            (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                    <React.Fragment>
+                        <ProcessSVG
+                            x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
+                            y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
+                            processType={processType}
+                            varName={variableName}
+                            sourceSnippet={sourceSnippet}
+                            position={model?.position}
+                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
+                        />
+                        {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
+                            <g
                                 className="process-options-wrapper"
                                 height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
                                 width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
                                 x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                                 y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             >
-                                {model === null && blockViewState && blockViewState.draft
-                                    && isDraftStatement && processConfigOverlayState &&
+
+                                {model === null && blockViewState && blockViewState.draft && isDraftStatement &&
                                     <ProcessConfigForm
                                         position={{
                                             x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
@@ -209,10 +260,10 @@ export function DataProcessor(props: ProcessorProps) {
                                         wizardType={WizardType.NEW}
                                         onCancel={onCancel}
                                         onSave={onSave}
-                                        configOverlayFormStatus={processConfigOverlayState}
                                     />
                                 }
-                                {model && isConfigWizardOpen && processConfigOverlayState &&
+
+                                {model && isConfigWizardOpen &&
                                     <ProcessConfigForm
                                         position={{
                                             x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
@@ -221,23 +272,23 @@ export function DataProcessor(props: ProcessorProps) {
                                         wizardType={WizardType.EXISTING}
                                         onCancel={onCancel}
                                         onSave={onSave}
-                                        configOverlayFormStatus={processConfigOverlayState}
                                     />
                                 }
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect
-                                            x={cx + (PROCESS_SVG_WIDTH / 4)}
-                                            y={cy + (PROCESS_SVG_HEIGHT / 4)}
+                                            x={cx + (PROCESS_SVG_WIDTH / 7)}
+                                            y={cy + (PROCESS_SVG_HEIGHT / 3)}
                                             className="process-rect"
                                         />
 
                                         {editAndDeleteButtons}
                                     </>
                                 )}
-                            </g>)
+                            </g>
                         }
-                    </>
+                    </React.Fragment>
+
                 </g>
             </g>
         )

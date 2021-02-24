@@ -196,6 +196,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
+                        dataTestId={"sheet-save-next-btn"}
                         text="Save &amp; Next"
                         disabled={!(isAccessTokenValid && nameState.isNameProvided && nameState.isValidName && isValidForm)}
                         fullWidth={false}

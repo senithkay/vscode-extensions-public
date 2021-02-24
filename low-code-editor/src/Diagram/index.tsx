@@ -10,17 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, ordered-imports
-import * as React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
+import { Diagnostic } from "monaco-languageclient";
 
 import { STModification } from "../Definitions/lang-client-extended";
 
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
-import { DiagramDisabled, DiagramEnabled } from "../assets/icons";
+// import { DiagramDisabled, DiagramEnabled } from "../assets/icons"; TODO: Use this later
 
 import { Canvas } from "./components/Canvas";
 import { OverlayBackground } from "./components/OverlayBackground";
@@ -37,6 +38,7 @@ export interface DiagramProps {
     isLoadingAST: boolean;
     isWaitingOnWorkspace: boolean;
     error?: Error;
+    diagnostics?: Diagnostic[];
     dispatchMutations?: (modifications: STModification[]) => void;
     dispatchModifyTrigger?: (triggerType: TriggerType, model?: any, configObject?: any) => void;
     isMutationInProgress: boolean;
@@ -53,12 +55,16 @@ export function Diagram(props: DiagramProps) {
         isLoadingAST,
         error,
         isWaitingOnWorkspace,
+        dispatchMutations,
+        diagnostics,
+        dispatchModifyTrigger,
         isMutationInProgress,
         isCodeEditorActive,
         isConfigPanelOpen,
         isConfigOverlayFormOpen,
         triggerType
     } = props;
+
     const classes = useStyles();
 
     const textLoader = (
@@ -68,16 +74,28 @@ export function Diagram(props: DiagramProps) {
     );
 
     const diagramDisabledStatus = (
-        <div>
-            <DiagramDisabled />
-        </div>
+        <>
+            <div className={classes.disableDiagramIcon}>
+                <img src="../../../../../../images/disable-diagram-icon.svg" />
+            </div>
+            {triggerType !== undefined ? <OverlayBackground /> : null}
+        </>
     );
 
     const diagramEnabledStatus = (
         <div>
-            <DiagramEnabled />
+            <img src="../../../../../../images/diagram-enabled.svg" />
         </div>
     );
+
+    const diagramErrorStatus = (
+        <div>
+            <img src="../../../../../../images/diagram-error-icon.svg" />
+        </div>
+    );
+
+    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
+    const diagramStatus = diagnosticInDiagram ? diagramErrorStatus : diagramEnabledStatus;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -100,13 +118,14 @@ export function Diagram(props: DiagramProps) {
     if (h < window.innerHeight) {
         h = h + (window.innerHeight - h);
     }
+
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
-            {triggerType !== undefined && isWaitingOnWorkspace && textLoader}
+            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledStatus}
 
             <div className={classes.diagramStateWrapper}>
-                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramEnabledStatus}
+                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
             <PanAndZoom>

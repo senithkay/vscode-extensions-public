@@ -38,6 +38,8 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     targetPositionDraft?: any;
     disabled?: boolean;
     dataTestId?: string;
+    currentValue?: string;
+    tooltip?: string;
 }
 
 export interface FormElementEvents {
@@ -79,6 +81,7 @@ export interface RespondConfig {
     caller: string;
     respondExpression: string;
     variable: string;
+    responseCode?: string;
 }
 
 export interface EndConfig {

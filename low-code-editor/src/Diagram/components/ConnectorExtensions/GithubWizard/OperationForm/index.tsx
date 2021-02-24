@@ -147,6 +147,7 @@ export function OperationForm(props: OperationFormProps) {
             </div>
             <div className={classes.wizardBtnHolder}>
                 <PrimaryButton
+                    dataTestId={"git-save-btn"}
                     className={wizardClasses.buttonSm}
                     text="Save"
                     fullWidth={false}

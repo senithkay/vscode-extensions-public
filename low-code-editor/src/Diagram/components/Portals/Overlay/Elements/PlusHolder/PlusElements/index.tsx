@@ -38,7 +38,7 @@ export interface PlusElementsProps {
 
 export const PLUS_HOLDER_WIDTH = 376;
 export const PLUS_HOLDER_STATEMENT_HEIGHT = 384;
-export const PLUS_HOLDER_API_HEIGHT = 490;
+export const PLUS_HOLDER_API_HEIGHT = 540;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;

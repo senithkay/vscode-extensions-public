@@ -47,6 +47,20 @@ export function IfElseSVG(props: {
             </g>
         </g>
     )
+    const ItalicComp = () => (
+        <text className="condition-text condition-text-italic" id="IfElseText" >
+            <tspan x={ifXPosition} y="50%" width="71" textAnchor="middle" data-testid={"condition"} >
+                {text !== "Draft" ? (codeSnippetOnSvg.length >= 7 ? codeSnippetOnSvg.slice(0, 6) + "..." : codeSnippetOnSvg) : text}
+            </tspan>
+        </text>
+    )
+    const NonItalicComp = () => (
+        <text className="condition-text" id="IfElseText" >
+            <tspan x={ifXPosition} y="50%" width="71" textAnchor="middle" data-testid={"condition"} >
+                {text !== "Draft" ? (codeSnippetOnSvg.length >= 7 ? codeSnippetOnSvg.slice(0, 6) + "..." : codeSnippetOnSvg) : text}
+            </tspan>
+        </text>
+    )
     return (
         <svg {...xyProps} width={IFELSE_SVG_WIDTH_WITH_SHADOW} height={IFELSE_SVG_HEIGHT_WITH_SHADOW} >
             <defs>
@@ -77,12 +91,7 @@ export function IfElseSVG(props: {
                             <rect className="if-else-rect click-effect" x="0" y="0" width="71" height="71" rx="6.5" fill="none" />
                         </g>
                     </g>
-                    <text className="condition-text" id="IfElseText" >
-                        <tspan x={ifXPosition} y="50%" width="71" textAnchor="middle" data-testid={"condition"} >
-                            {/*{conditionType === "If" ? codeSnippetOnSvg : text}*/}
-                            {text !== "CONDITION" ? (codeSnippetOnSvg.length >= 7 ? codeSnippetOnSvg.slice(0, 6) + "..." : codeSnippetOnSvg) : text}
-                        </tspan>
-                    </text>
+                    {text === "Draft" ? <ItalicComp /> : <NonItalicComp />}
                     {conditionType === "If" ? <IfIcon /> : <ForEachIcon />}
                 </g>
             </TooltipCodeSnippet>

@@ -22,7 +22,6 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 
 import { AddRespondForm } from "./AddRespondForm";
 import { AddReturnForm } from "./AddReturnForm";
-
 interface EndOverlayFormProps {
     config: EndConfig;
     onCancel: () => void;

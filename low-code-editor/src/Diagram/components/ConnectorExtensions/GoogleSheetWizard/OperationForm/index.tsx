@@ -208,6 +208,7 @@ export function OperationForm(props: OperationFormProps) {
             </div>
             <div className={classes.wizardBtnHolder}>
                 <PrimaryButton
+                    dataTestId={"sheet-save-btn"}
                     className={wizardClasses.buttonSm}
                     text="Save"
                     fullWidth={false}
