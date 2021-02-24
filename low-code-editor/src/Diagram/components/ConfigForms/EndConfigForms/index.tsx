@@ -12,14 +12,15 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
+// tslint:disable: ordered-imports
 import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 
-import { STModification } from "../../../../Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
+import { STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createPropertyStatement,

@@ -54,7 +54,7 @@ export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 export type ExpressionEditorType = BallerinaType | BallerinaType[];
 
 export interface FormField {
-    type: ExpressionEditorType;
+    type: ExpressionEditorType | any;
     name?: string;
     displayName?: string;
     collectionDataType?: PrimitiveBalType;

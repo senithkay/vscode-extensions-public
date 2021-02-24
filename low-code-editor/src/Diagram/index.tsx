@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: ordered-imports
 import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";

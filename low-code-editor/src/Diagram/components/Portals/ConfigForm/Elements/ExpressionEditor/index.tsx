@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useEffect, useState, useContext } from "react";
+// tslint:disable: ordered-imports
+import React, { useContext, useEffect, useState } from "react";
+import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 // import { connect } from "react-redux";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 
-import { FormHelperText } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
@@ -272,67 +273,67 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
 
                         // return getLangClientForCurrentApp().then((langClient: any) => {
-                            return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                                    return {
-                                        range: null,
-                                        label: completionResponse.label,
-                                        kind: completionResponse.kind as CompletionItemKind,
-                                        insertText: completionResponse.insertText,
-                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'c'
-                                    }
-                                });
-                                if (varType === "string") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'Custom string template',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        // tslint:disable-next-line: no-invalid-template-strings
-                                        insertText: '"${1:}"',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'b'
-                                    }
-                                    completionItems.push(completionItemTemplate);
+                        return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                            const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                            const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                return {
+                                    range: null,
+                                    label: completionResponse.label,
+                                    kind: completionResponse.kind as CompletionItemKind,
+                                    insertText: completionResponse.insertText,
+                                    insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'c'
                                 }
-                                if (varType === "boolean") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'true',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'true',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
-                                    }
-                                    const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'false',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'false',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                    completionItems.push(completionItemTemplate1);
-                                }
-                                if (model.aiSuggestion) {
-                                    const completionItemAI: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: model.aiSuggestion,
-                                        kind: 1 as CompletionItemKind,
-                                        insertText: model.aiSuggestion,
-                                        sortText: 'a'
-                                    }
-                                    completionItems.push(completionItemAI);
-                                }
-                                const completionList: monaco.languages.CompletionList = {
-                                    incomplete: false,
-                                    suggestions: completionItems
-                                };
-                                return completionList;
                             });
+                            if (varType === "string") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'Custom string template',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    // tslint:disable-next-line: no-invalid-template-strings
+                                    insertText: '"${1:}"',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                            }
+                            if (varType === "boolean") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'true',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'true',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'false',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'false',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                                completionItems.push(completionItemTemplate1);
+                            }
+                            if (model.aiSuggestion) {
+                                const completionItemAI: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: model.aiSuggestion,
+                                    kind: 1 as CompletionItemKind,
+                                    insertText: model.aiSuggestion,
+                                    sortText: 'a'
+                                }
+                                completionItems.push(completionItemAI);
+                            }
+                            const completionList: monaco.languages.CompletionList = {
+                                incomplete: false,
+                                suggestions: completionItems
+                            };
+                            return completionList;
+                        });
                         // })
                     }
                 },

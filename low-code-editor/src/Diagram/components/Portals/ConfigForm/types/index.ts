@@ -19,7 +19,7 @@ import { ExpressionEditorState } from "../../../../../Definitions";
 import { DraftUpdateStatement } from "../../../../view-state/draft";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
-    model?: FormField;
+    model?: FormField | any;
     index?: number;
     customProps?: T;
     defaultValue?: any;

@@ -11,7 +11,8 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { useState, useContext } from "react";
+// tslint:disable: ordered-imports
+import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";

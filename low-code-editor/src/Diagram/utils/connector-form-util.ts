@@ -229,7 +229,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerinax_googleapis_calendar_CalendarClient":
             fieldsForFunctions.forEach((value: FormField[], key) => {
                 if (key === "createEvent") {
-                    value[1].fields.forEach((field, index) => {
+                    value[1].fields.forEach((field: any, index: number) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;

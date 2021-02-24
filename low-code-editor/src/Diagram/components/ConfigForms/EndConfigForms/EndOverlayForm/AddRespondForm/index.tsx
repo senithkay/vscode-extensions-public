@@ -11,15 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useState, useContext } from "react";
+import React, { ReactNode, useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import cn from "classnames";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-
 import { NonPrimitiveBalType, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";

@@ -141,7 +141,7 @@ class FieldVisitor implements Visitor {
 
     beginVisitArrayTypeDesc(node: ArrayTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
-            const viewState: FormField = node.viewState as FormField;
+            const viewState: FormField | any = node.viewState as FormField;
             viewState.isArray = true;
             viewState.type = 'collection';
 

@@ -28,7 +28,7 @@ import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
 
 export interface OperationDropdownProps {
-    formFields: FormField[];
+    formFields: FormField[] | any;
     isFetching: boolean;
     gcalenderList: Gcalendar[];
     isManualConnection: boolean;
@@ -57,24 +57,24 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const titleProps: FormElementProps = {
-        model: formFields.find(item => item.name === "event")
-            .fields.find(item => item.name === "summary"),
+        model: formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "summary"),
         customProps: {
             validate: validateForm,
         }
     };
 
     const descProps: FormElementProps = {
-        model: formFields.find(item => item.name === "event")
-            .fields.find(item => item.name === "description"),
+        model: formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "description"),
         customProps: {
             validate: validateForm,
         }
     };
 
     const locationProps: FormElementProps = {
-        model: formFields.find(item => item.name === "event")
-            .fields.find(item => item.name === "location"),
+        model: formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "location"),
         customProps: {
             validate: validateForm,
         }
@@ -99,7 +99,7 @@ export function CreateEvent(props: OperationDropdownProps) {
 
     const onChangeAttendee = () => {
         let record = "";
-        formFields[1].fields[12].fields.forEach((field, index) => {
+        formFields[1].fields[12].fields.forEach((field: any, index: number) => {
             if (index === (formFields[1].fields[12].fields.length - 1)) {
                 record += "{email: " + field.value + ", responseStatus: no}";
             } else {

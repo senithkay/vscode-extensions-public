@@ -31,13 +31,15 @@ export interface ButtonProps {
     startIcon?: JSX.Element;
     fullWidth?: boolean;
     disabled?: boolean;
+    testId?: string;
 }
 
 export function LinePrimaryButton(props: ButtonProps) {
     const classes = useStyles();
-    const {text, startIcon, onClick, fullWidth, disabled, className} = props;
+    const {text, startIcon, onClick, fullWidth, disabled, className, testId} = props;
     return (
         <Button
+            data-testid={testId}
             onClick={onClick}
             variant="outlined"
             classes={{
