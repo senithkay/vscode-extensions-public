@@ -137,11 +137,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         currentApp,
         langClient,
         syntaxTree,
-        exprEditorState,
+        // exprEditorState,
         expEditorStart: dispatchExprEditorStart,
         expEditorContentChange: dispatchExprEditorContentChange,
         expEditorClose: dispatchExprEditorClose
     } = state;
+    // TODO: XX: Fix properly
+    const exprEditorState: any = {};
     const { diagnostic: editorDiagnostics, name: editorName } = exprEditorState;
 
     const {

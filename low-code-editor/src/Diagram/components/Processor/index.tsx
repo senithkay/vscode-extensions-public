@@ -20,6 +20,7 @@ import cn from "classnames";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
+import { getOverlayFormConfig } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
 import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
@@ -57,7 +58,7 @@ export function DataProcessor(props: ProcessorProps) {
     const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
-
+    const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
 
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
@@ -144,6 +145,9 @@ export function DataProcessor(props: ProcessorProps) {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
             dispatchCloseConfigOverlayForm();
+            const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
+                blockViewState, undefined, stSymbolInfo);
+            updateConfigOverlayFormState(overlayFormConfig);
             openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
                 WizardType.NEW, blockViewState, undefined, stSymbolInfo);
         }
@@ -181,6 +185,9 @@ export function DataProcessor(props: ProcessorProps) {
             const config = {
                 type: processType
             }
+            const overlayFormConfig = getOverlayFormConfig(processType, model.position, WizardType.EXISTING,
+                blockViewState, undefined, stSymbolInfo, model);
+            updateConfigOverlayFormState(overlayFormConfig);
             setConfigWizardOpen(true);
             openNewProcessorConfig(processType, position, WizardType.EXISTING, model.viewState, config, stSymbolInfo, model);
         }
@@ -252,7 +259,7 @@ export function DataProcessor(props: ProcessorProps) {
                                 y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             >
 
-                                {model === null && blockViewState && blockViewState.draft && isDraftStatement &&
+                                {model === null && blockViewState && blockViewState.draft && isDraftStatement && configOverlayFormState &&
                                     <ProcessConfigForm
                                         position={{
                                             x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
@@ -261,10 +268,11 @@ export function DataProcessor(props: ProcessorProps) {
                                         wizardType={WizardType.NEW}
                                         onCancel={onCancel}
                                         onSave={onSave}
+                                        configOverlayFormStatus={configOverlayFormState}
                                     />
                                 }
 
-                                {model && isConfigWizardOpen &&
+                                {model && isConfigWizardOpen && configOverlayFormState &&
                                     <ProcessConfigForm
                                         position={{
                                             x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
@@ -273,6 +281,7 @@ export function DataProcessor(props: ProcessorProps) {
                                         wizardType={WizardType.EXISTING}
                                         onCancel={onCancel}
                                         onSave={onSave}
+                                        configOverlayFormStatus={configOverlayFormState}
                                     />
                                 }
                                 {!isConfigWizardOpen && (
