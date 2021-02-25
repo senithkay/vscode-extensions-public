@@ -33,9 +33,15 @@ export function recalculateSizingAndPositioning(st: STNode): STNode {
     return clone;
 }
 
-export function getOverlayFormConfig(type: string, targetPosition: DraftInsertPosition,
-    wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-    symbolInfo?: STSymbolInfo, model?: STNode): Partial<ConfigOverlayFormStatus> {
+export function getOverlayFormConfig(
+    type: string,
+    targetPosition: DraftInsertPosition,
+    wizardType: WizardType,
+    blockViewState?: BlockViewState,
+    config?: ConditionConfig,
+    symbolInfo?: STSymbolInfo,
+    model?: STNode
+): Partial<ConfigOverlayFormStatus> {
     let scopeSymbols: string[] = []
 
     if (symbolInfo) {
@@ -82,9 +88,15 @@ export function getOverlayFormConfig(type: string, targetPosition: DraftInsertPo
     return configOverlayFormStatus;
 }
 
-export function getConditionConfig(type: string, targetPosition: DraftInsertPosition,
-    wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-    symbolInfo?: STSymbolInfo, model?: STNode): Partial<ConfigOverlayFormStatus> {
+export function getConditionConfig(
+    type: string,
+    targetPosition: DraftInsertPosition,
+    wizardType: WizardType,
+    blockViewState?: BlockViewState,
+    config?: ConditionConfig,
+    symbolInfo?: STSymbolInfo,
+    model?: STNode
+): Partial<ConfigOverlayFormStatus> {
     let scopeSymbols: string[] = [];
 
     if (symbolInfo) {
