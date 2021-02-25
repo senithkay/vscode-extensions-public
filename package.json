@@ -115,7 +115,7 @@
                 "ballerina.enableFileWatcher": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Enable watching file change events of the project.\n(Supports Ballerina Swan Lake)"
+                    "description": "Enable watching file change events of the project."
                 }
             }
         },
