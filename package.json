@@ -72,11 +72,6 @@
                     "default": "",
                     "description": "Specify the Ballerina home directory path."
                 },
-                "ballerina.allowExperimental": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable experimental features.\n(Supports Ballerina 1.2.x versions)"
-                },
                 "ballerina.debugLog": {
                     "type": "boolean",
                     "default": false,
@@ -90,12 +85,12 @@
                 "ballerina.codeLens.all.enabled": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Enable all code lens features.\n(Supports Ballerina Swan Lake)"
+                    "description": "Enable all code lens features."
                 },
                 "ballerina.codeLens.docs.enabled": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Enable documentation code lens feature.\n(Supports Ballerina Swan Lake)"
+                    "description": "Enable documentation code lens feature."
                 },
                 "ballerina.dataMapper.enabled": {
                     "type": "boolean",
@@ -106,11 +101,6 @@
                     "type": "string",
                     "default": "https://datamapper.choreo.dev",
                     "description": "Specify the URL of the data mapper backend host."
-                },
-                "ballerina.goToDefinition.enableStandardLibraries": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable navigation into standard library content with goto definition feature.\n(Supports Ballerina 1.2.x versions)"
                 }
             }
         },
