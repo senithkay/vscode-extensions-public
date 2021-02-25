@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Button } from "@material-ui/core";
+import classNames from "classnames";
 
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import Tooltip from "../Portals/ConfigForm/Elements/Tooltip";
@@ -110,7 +111,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
     }
 
     return (
-        <div className="pan-zoom-wrapper" onWheel={onWheel}>
+        <div className={classNames("pan-zoom-wrapper", classes.root)} onWheel={onWheel}>
             <TransformWrapper
                 wheel={{ disabled: true }}
                 doubleClick={{ disabled: true }}

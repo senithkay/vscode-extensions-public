@@ -16,6 +16,12 @@ import { zoomInSvg, zoomInHoverSvg, zoomOutSvg, zoomOutHoverSvg, fitToScreenSvg,
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        root: {
+            "& .react-transform-component": {
+                // fix for https://github.com/wso2-enterprise/choreo/issues/2224
+                userSelect: 'auto'
+            }
+        },
         zoomControls: {
             display: "flex",
             flexDirection: "column",

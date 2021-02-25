@@ -29,6 +29,8 @@ export interface OperationDropdownProps {
 export function SendMessageForm(props: OperationDropdownProps) {
     const { formFields, onValidate } = props;
     const classes = useStyles();
+    const [ expandCc, setExpandCc ] = useState(false);
+    const [ expandBcc, setExpandBcc ] = useState(false);
 
     const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
     const validateField = (field: string, isInvalid: boolean): void => {
@@ -72,7 +74,6 @@ export function SendMessageForm(props: OperationDropdownProps) {
             );
         } else if (field.name === "cc") {
             elementProps.customProps = { ...elementProps.customProps, isEmail: true };
-            const [ expandCc, setExpandCc ] = useState(false);
             const onCcClicked = () => {
                 setExpandCc(true);
             };
@@ -87,7 +88,6 @@ export function SendMessageForm(props: OperationDropdownProps) {
                 );
         } else if (field.name === "bcc") {
             elementProps.customProps = { ...elementProps.customProps, isEmail: true };
-            const [ expandBcc, setExpandBcc ] = useState(false);
             const onBccClicked = () => {
                 setExpandBcc(true);
             };
