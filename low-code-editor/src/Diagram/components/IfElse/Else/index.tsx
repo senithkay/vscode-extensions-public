@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 
 import { BlockStatement, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
