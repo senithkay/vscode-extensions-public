@@ -17,10 +17,12 @@ import Divider from "@material-ui/core/Divider/Divider";
 
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
-import { tooltipConfigs } from "../../../../../../../utils/connectors";
+import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
 import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { getConnectorIconSVG } from "../../../../../utils";
 import "../../style.scss";
+
+// import { BetaSVG } from "./BetaSVG";
 
 export interface APIOptionsProps {
     onSelect: (connector: BallerinaConnectorsInfo) => void;
@@ -44,11 +46,12 @@ export function APIOptions(props: APIOptionsProps) {
 
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
-        (connectors as BallerinaConnectorsInfo[]).forEach((connector, index) => {
+        connectors.forEach((connector: any, index: number) => {
             const placement = index % 2 === 0 ? 'left' : 'right';
-            const tooltipTitle = tooltipConfigs[connector.displayName];
+            const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
+            const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true}>
+                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
                     <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">

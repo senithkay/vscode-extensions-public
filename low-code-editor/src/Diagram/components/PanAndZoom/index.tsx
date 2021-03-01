@@ -66,7 +66,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
         onPanLocation(appId, positionX, positionY);
     }
 
-    function onWheel(e: React.WheelEvent) {
+    function onWheel(e: any) {
         if (e.currentTarget.classList.contains('pan-zoom-wrapper')) {
             if (e.ctrlKey) {
                 // pinch zoom or ctrl + mouse wheel scroll detected
