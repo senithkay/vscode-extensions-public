@@ -10,11 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { FunctionBodyBlock } from "@ballerina/syntax-tree";
 
-// import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
 import { Collapse } from "../Collapse";
@@ -25,7 +25,7 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    // const { state } = useContext(DiagramContext);
+    const { state } = useContext(DiagramContext);
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
@@ -41,7 +41,7 @@ export function WorkerBody(props: DiagramProps) {
     }
 
     if (viewState?.draft) {
-        drafts = getDraftComponent(viewState);
+        drafts = getDraftComponent(viewState, state);
     }
 
     return (

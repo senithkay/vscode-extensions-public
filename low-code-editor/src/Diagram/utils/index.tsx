@@ -34,8 +34,9 @@ export function getSTComponent(node: any): React.ReactElement {
     return <ChildComp model={node} />;
 }
 
-export function getDraftComponent(viewState: BlockViewState): React.ReactNode[] {
-    const { state: { insertComponentStart }} = useContext(DiagramContext);
+export function getDraftComponent(viewState: BlockViewState, state?: any): React.ReactNode[] {
+    // const { state: { insertComponentStart }} = useContext(DiagramContext);
+    const { insertComponentStart } = state;
 
     const targetPosition: DraftInsertPosition = viewState.draft[1]?.targetPosition;
     if (targetPosition) {

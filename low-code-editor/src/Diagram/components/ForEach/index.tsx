@@ -57,7 +57,7 @@ export interface ForeachProps {
 }
 
 export function ForEach(props: ForeachProps) {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
+    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
     const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, appInfo } = state;
     const { isWaitingOnWorkspace } = appInfo;
     const { model } = props;
@@ -79,7 +79,7 @@ export function ForEach(props: ForeachProps) {
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
-        drafts = getDraftComponent(bodyViewState);
+        drafts = getDraftComponent(bodyViewState, state);
     }
 
     const lifeLineProps = {

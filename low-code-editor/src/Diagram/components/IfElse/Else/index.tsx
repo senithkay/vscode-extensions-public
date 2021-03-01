@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode } from "react";
+import React, { useContext, ReactNode } from "react";
 
 import { BlockStatement, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
+import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../utils";
 import { ElseViewState } from "../../../view-state";
 import { DefaultConfig } from "../../../visitors/default";
@@ -32,6 +33,7 @@ export interface ElseProps {
 }
 
 export function Else(props: ElseProps) {
+    const { state } = useContext(DiagramContext);
     const { model, defaultViewState } = props;
 
     let viewState: ElseViewState;
@@ -51,7 +53,7 @@ export function Else(props: ElseProps) {
     const components: React.ReactNode[] = [];
 
     if (viewState.draft) {
-        drafts = getDraftComponent(viewState);
+        drafts = getDraftComponent(viewState, state);
     }
 
     const classes = cn("else-line");

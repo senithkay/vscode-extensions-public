@@ -224,7 +224,7 @@ export function IfElse(props: IfElseProps) {
         const bodyViewState: BlockViewState = ifStatement.ifBody.viewState;
 
         if (bodyViewState.draft) {
-            drafts = getDraftComponent(bodyViewState);
+            drafts = getDraftComponent(bodyViewState, state);
         }
 
         if (!viewState.isElseIf) {
