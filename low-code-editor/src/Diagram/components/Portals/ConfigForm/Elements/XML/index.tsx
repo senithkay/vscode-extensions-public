@@ -44,7 +44,8 @@ export function XML(props: FormElementProps<XMLProps>) {
             <ExpressionEditor
                 model={model}
                 customProps={{
-                    validate: validateExpression
+                    validate: validateExpression,
+                    statementType: model.type
                 }}
                 defaultValue={model.value}
                 onChange={onPropertyChange}

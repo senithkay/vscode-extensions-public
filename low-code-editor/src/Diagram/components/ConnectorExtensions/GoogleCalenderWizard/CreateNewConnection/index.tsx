@@ -151,6 +151,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         },
         customProps: {
             validate: validateExpression,
+            statementType: 'string'
         },
         onChange: onAccessTokenChange,
         defaultValue: defaultAccessToken

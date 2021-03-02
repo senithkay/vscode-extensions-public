@@ -206,7 +206,8 @@ export function Array(props: FormElementProps<ArrayProps>) {
                 model: fieldModel,
             };
             elementProps.customProps = {
-                validate: validateField
+                validate: validateField,
+                statementType: fieldModel.type
             };
             if (model.collectionDataType === "json" || model.collectionDataType === "xml") {
                 elementProps.onChange = onJsonChange;

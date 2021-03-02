@@ -100,7 +100,7 @@ export function AddRespondForm(props: RespondFormProps) {
                     value: respondFormConfig.responseCode,
                     type: PrimitiveBalType.Int,
                 }}
-                customProps={{ validate: statusCodeValidateExpression }}
+                customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
                 onChange={onStatusCodeChange}
             />
             {!validStatusCode ? <p className={formClasses.invalidCode}> Invalid Status Code</p> : null}
@@ -138,7 +138,8 @@ export function AddRespondForm(props: RespondFormProps) {
                                 tooltipTitle: tooltipMessages.expressionEditor.title,
                                 tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                 tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                interactive: true
+                                interactive: true,
+                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, NonPrimitiveBalType.httpResponse]
                             }}
                             onChange={onExpressionChange}
                         />

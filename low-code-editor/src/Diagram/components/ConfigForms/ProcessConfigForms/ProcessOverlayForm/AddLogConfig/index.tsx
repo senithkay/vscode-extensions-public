@@ -125,7 +125,8 @@ export function AddLogConfig(props: LogConfigProps) {
                                 tooltipTitle: tooltipMessages.expressionEditor.title,
                                 tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                 tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                interactive: true
+                                interactive: true,
+                                statementType: 'string'
                             }}
                             onChange={onExpressionChange}
                             defaultValue={expression}

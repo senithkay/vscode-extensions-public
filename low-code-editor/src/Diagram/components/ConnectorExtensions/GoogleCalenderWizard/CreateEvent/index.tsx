@@ -53,30 +53,38 @@ export function CreateEvent(props: OperationDropdownProps) {
         model: formFields[0],
         customProps: {
             validate: validateForm,
+            statemenType: formFields[0].type
         }
     };
+
+    const titleModel = formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "summary");
 
     const titleProps: FormElementProps = {
-        model: formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "summary"),
+        model: titleModel,
         customProps: {
             validate: validateForm,
+            statemenType: titleModel.type
         }
     };
 
+    const descModel = formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "description");
     const descProps: FormElementProps = {
-        model: formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "description"),
+        model: descModel,
         customProps: {
             validate: validateForm,
+            statementType: descModel.type
         }
     };
 
+    const locationModel = formFields.find((item: any) => item.name === "event")
+            .fields.find((item: any) => item.name === "location");
     const locationProps: FormElementProps = {
-        model: formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "location"),
+        model: locationModel,
         customProps: {
             validate: validateForm,
+            statementType: locationModel
         }
     };
 

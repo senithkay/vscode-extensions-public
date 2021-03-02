@@ -54,6 +54,7 @@ export function AddForeachForm(props: ForeachProps) {
     const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 
+    const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
     const initIterations: Iterations = {
         start: undefined,
@@ -61,7 +62,7 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
     if (!isNewConditionForm) {
-        const forEachModel: ForeachStatement = (condition.conditionExpression as ForeachConfig).model as ForeachStatement;
+        const forEachModel: ForeachStatement = (conditionExpression as ForeachConfig).model as ForeachStatement;
         switch (forEachModel.actionOrExpressionNode.kind) {
             case 'BinaryExpression':
                 const expression = forEachModel.actionOrExpressionNode as BinaryExpression;
@@ -84,7 +85,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-    const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
+    // const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
@@ -107,6 +108,11 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.collection = value;
     }
 
+    const handleSave = () => {
+        condition.conditionExpression = conditionExpression;
+        onSave();
+    }
+
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
         setIsInvalid(isInvalidFromField)
     }
@@ -124,10 +130,11 @@ export function AddForeachForm(props: ForeachProps) {
             tooltipTitle: tooltipMessages.expressionEditor.title,
             tooltipActionText: tooltipMessages.expressionEditor.actionText,
             tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-            interactive: true
+            interactive: true,
+            statementType: formField.type
         },
         onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection
+        defaultValue: conditionExpression.collection,
     };
 
     return (
@@ -170,7 +177,7 @@ export function AddForeachForm(props: ForeachProps) {
                         text="Save"
                         disabled={isMutationInProgress || isInvalid}
                         fullWidth={false}
-                        onClick={onSave}
+                        onClick={handleSave}
                     />
                 </div>
             </div>

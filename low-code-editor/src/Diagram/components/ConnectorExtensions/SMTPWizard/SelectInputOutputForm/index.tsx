@@ -150,7 +150,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             index: 1,
             customProps: {
                 validate: validateField,
-                tooltipTitle: smtpTooltips[field?.name]
+                tooltipTitle: smtpTooltips[field?.name],
+                statementType: field.type
             }
         };
         if (field.name === "'from") {

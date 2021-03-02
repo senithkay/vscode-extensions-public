@@ -43,6 +43,7 @@ import {
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
+import { ExpressionEditorType } from "tools/low-code-editor/src/ConfigurationSpec/types";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -123,6 +124,7 @@ export interface ExpressionEditorProps {
     tooltipActionText?: string;
     tooltipActionLink?: string;
     interactive?: boolean;
+    statementType?: ExpressionEditorType | any;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -142,7 +144,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // expEditorClose: dispatchExprEditorClose
     } = state;
     // TODO: XX: Fix properly
-    let expressionEditorState: ExpressionEditorState = {
+    const expressionEditorState: ExpressionEditorState = {
         name: undefined,
         content: undefined,
         uri: undefined,
@@ -156,7 +158,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate } = customProps;
+    const { validate, statementType } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
@@ -228,12 +230,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     // useEffect(handleDiagnostic, [editorDiagnostics]);
 
     useEffect(() => {
-        expressionEditorState = {
-            name: undefined,
-            content: undefined,
-            uri: undefined,
-            diagnostic: [],
-        }
+        expressionEditorState.name = undefined;
+        expressionEditorState.content = undefined;
+        expressionEditorState.uri = undefined;
+        expressionEditorState.diagnostic = [];
 
         if (monacoRef.current) {
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
@@ -268,7 +268,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
 
         }
-    }, [model])
+    }, [statementType])
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {

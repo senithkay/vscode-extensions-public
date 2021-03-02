@@ -70,7 +70,8 @@ export function AddIfForm(props: IfProps) {
             tooltipTitle: tooltipMessages.expressionEditor.title,
             tooltipActionText: tooltipMessages.expressionEditor.actionText,
             tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-            interactive: true
+            interactive: true,
+            statementType: formField.type
         },
         onChange: handleExpEditorChange,
         defaultValue: condition.conditionExpression

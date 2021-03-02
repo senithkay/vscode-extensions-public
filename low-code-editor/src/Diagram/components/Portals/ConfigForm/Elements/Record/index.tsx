@@ -42,7 +42,8 @@ export function Record(props: FormElementProps<RecordProps>) {
                         model: field,
                         index,
                         customProps: {
-                            validate: customProps.validate
+                            validate: customProps.validate,
+                            statementType: field.type
                         }
                     }
                     const element = getFormElement(elementProps, field.type);

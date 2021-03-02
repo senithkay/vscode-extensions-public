@@ -57,7 +57,8 @@ export function SendMessageForm(props: OperationDropdownProps) {
             model: field,
             index: 1,
             customProps: {
-                validate: validateField
+                validate: validateField,
+                statemenType: field.type
             }
         };
         if (field.name === "sender") {
@@ -121,7 +122,8 @@ export function SendMessageForm(props: OperationDropdownProps) {
         model: formFields.find(category => category.name === "userId"),
         index: 1,
         customProps: {
-            validate: validateField
+            validate: validateField,
+            statementType: formFields.find(category => category.name === "userId").type
         }
     };
 

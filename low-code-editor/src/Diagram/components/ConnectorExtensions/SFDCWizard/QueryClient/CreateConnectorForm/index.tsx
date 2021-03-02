@@ -216,7 +216,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         model: connectorInitFormFields[0].fields[0],
         onChange: onBaseUrlChange,
         customProps: {
-            validate: validateBaseUrl
+            validate: validateBaseUrl,
+            statementType: connectorInitFormFields[0].fields[0].type
         }
     };
 

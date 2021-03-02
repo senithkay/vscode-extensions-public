@@ -90,7 +90,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                                                 tooltipTitle: tooltipMessages.expressionEditor.title,
                                                 tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                                 tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                                interactive: true
+                                                interactive: true,
+                                                statementType: 'error'
                                             }}
                                             onChange={onReturnValueChange}
                                         />

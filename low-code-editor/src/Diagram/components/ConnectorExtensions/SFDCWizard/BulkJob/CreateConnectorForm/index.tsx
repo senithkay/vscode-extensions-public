@@ -264,7 +264,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         model: connectorInitFormFields[6],
         onChange: onSobjChange,
         customProps: {
-            validate: validateSOb
+            validate: validateSOb,
+            statementType: connectorInitFormFields[6].type
         }
     };
 

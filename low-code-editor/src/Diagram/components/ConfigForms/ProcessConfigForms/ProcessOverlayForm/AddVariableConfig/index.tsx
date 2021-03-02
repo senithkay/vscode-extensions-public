@@ -199,7 +199,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         tooltipTitle: tooltipMessages.expressionEditor.title,
                                         tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                         tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                        interactive: true
+                                        interactive: true,
+                                        statementType: selectedType as balTypes
                                     }}
                                     onChange={onPropertyChange}
                                     defaultValue={config.config}

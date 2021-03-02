@@ -45,6 +45,7 @@ export function FormJson(props: FormElementProps<FormJsonProps>) {
                 model={model}
                 customProps={{
                     validate: validateExpression,
+                    statementType: model.type
                 }}
                 defaultValue={model.value}
                 onChange={onPropertyChange}

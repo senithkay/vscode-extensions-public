@@ -143,6 +143,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         model: reqField,
         customProps: {
             validate: validateReqField,
+            statementType: reqField.type
         },
         onChange: onForwardReqChange,
     };

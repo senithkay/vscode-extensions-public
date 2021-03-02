@@ -118,7 +118,8 @@ export function Union(props: FormElementProps<UnionProps>) {
             const elementProps: FormElementProps = {
                 model: fieldModel,
                 customProps: {
-                    validate: model.fields && model.fields.length > 1 ? validate : customProps?.validate
+                    validate: model.fields && model.fields.length > 1 ? validate : customProps?.validate,
+                    statementType: fieldModel.type
                 }
             }
             typeField = getFormElement(elementProps, fieldModel.type);
