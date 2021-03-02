@@ -38,19 +38,22 @@ export interface EndProps {
 }
 
 export function End(props: EndProps) {
-    const { state: {
-        syntaxTree,
-        isMutationProgress,
-        isWaitingOnWorkspace,
-        stSymbolInfo,
-        isReadOnly,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        maximize: maximizeCodeView,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        dispactchConfigOverlayForm: openNewReturnConfigForm,
-        currentApp,
-        isCodeEditorActive
-    }, diagramCleanDraw } = useContext(DiagramContext);
+    const {
+        state: {
+            syntaxTree,
+            isMutationProgress,
+            isWaitingOnWorkspace,
+            stSymbolInfo,
+            isReadOnly,
+            setCodeLocationToHighlight: setCodeToHighlight,
+            maximize: maximizeCodeView,
+            closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+            dispactchConfigOverlayForm: openNewReturnConfigForm,
+            currentApp,
+            isCodeEditorActive
+        },
+        diagramCleanDraw
+    } = useContext(DiagramContext);
     const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState } = props;
