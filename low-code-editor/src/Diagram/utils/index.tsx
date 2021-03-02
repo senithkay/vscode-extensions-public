@@ -34,12 +34,11 @@ export function getSTComponent(node: any): React.ReactElement {
     return <ChildComp model={node} />;
 }
 
-export function getDraftComponent(viewState: BlockViewState, state?: any): React.ReactNode[] {
-    // const { state: { insertComponentStart }} = useContext(DiagramContext);
-    const { insertComponentStart } = state;
+export function getDraftComponent(viewState: BlockViewState, state: any, insertComponentStart: (position: DraftInsertPosition) => void): React.ReactNode[] {
 
     const targetPosition: DraftInsertPosition = viewState.draft[1]?.targetPosition;
-    if (targetPosition) {
+    if (targetPosition &&
+        (targetPosition.column !== state.targetPosition.column || targetPosition.line !== state.targetPosition.line)) {
         insertComponentStart(targetPosition);
     }
     const draft: [number, DraftStatementViewState] = viewState.draft;

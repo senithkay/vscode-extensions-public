@@ -39,32 +39,15 @@ const reducer = (state: any, action: any) => {
                 ...state,
                 syntaxTree: recalculateSizingAndPositioning(action.payload)
             }
-        case 'EXPRESSION_EDITOR_START':
+        case 'INSERT_COMPONENT_START':
             return {
                 ...state,
-                exprEditorState: action.payload
+                targetPosition: action.payload
             }
-        case 'EXPRESSION_EDITOR_CLOSE':
+        case 'EDITOR_COMPONENT_START':
             return {
                 ...state,
-                exprEditorState: defaultExprEditorState
-            }
-        case 'EXPRESSION_EDITOR_CONTENT_CHANGE':
-            return {
-                ...state,
-                exprEditorState: {
-                    ...state.exprEditorState,
-                    content: action.payload.content,
-                    diagnostic: action.payload.diagnostic
-                }
-            }
-        case 'EXPRESSION_EDITOR_DIAGNOSTICS_CHANGE':
-            return {
-                ...state,
-                exprEditorState: {
-                    ...state.exprEditorState,
-                    diagnostic: action.payload
-                }
+                targetPosition: action.payload
             }
         default:
             return state;
@@ -87,26 +70,16 @@ const actions = {
             dispatch({ type: 'DIAGRAM_REDRAW', payload })
         }
     },
-    expressionEditorStart: (dispatch: any) => {
-        return (editor: ExpressionEditorState) => {
-            dispatch({ type: 'EXPRESSION_EDITOR_START', payload: editor })
+    insertComponentStart: (dispatch: any) => {
+        return (payload: STNode) => {
+            dispatch({ type: 'INSERT_COMPONENT_START', payload })
         }
     },
-    expressionEditorClose: (dispatch: any) => {
-        return () => {
-            dispatch({ type: 'EXPRESSION_EDITOR_CLOSE' })
+    editorComponentStart: (dispatch: any) => {
+        return (payload: STNode) => {
+            dispatch({ type: 'EDITOR_COMPONENT_START', payload })
         }
-    },
-    expressionEditorContentChange: (dispatch: any) => {
-        return (editor: ExpressionEditorState) => {
-            dispatch({ type: 'EXPRESSION_EDITOR_CONTENT_CHANGE', payload: editor })
-        }
-    },
-    expressionEditorDiagnosticsChange: (dispatch: any) => {
-        return (diagnostics: Diagnostic[]) => {
-            dispatch({ type: 'EXPRESSION_EDITOR_DIAGNOSTICS_CHANGE', payload: diagnostics })
-        }
-    },
+    }
 };
 
 const initialState: any = {};

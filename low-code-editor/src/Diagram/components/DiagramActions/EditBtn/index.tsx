@@ -35,18 +35,20 @@ export interface EditBtnProps {
 }
 
 export function EditBtn(props: EditBtnProps) {
-    const { state: { editComponentStart: dispatchEditComponentStart, isReadOnly } } = useContext(DiagramContext);
+    const { state, editComponentStart: dispatchEditComponentStart } = useContext(DiagramContext);
     const { cx, cy, onHandleEdit, model, isButtonDisabled } = props;
     const onEditClick = () => {
         if (!isButtonDisabled) {
-            if (model) {
+            if (model &&
+                (state.targetPosition.line !== model.position.line
+                    || state.targetPosition.column !== model.position.column)) {
                 dispatchEditComponentStart(model.position)
             }
             onHandleEdit();
         }
     };
 
-    if (isReadOnly) return null;
+    if (state.isReadOnly) return null;
 
     return (
         <g onClick={onEditClick} className="edit-icon-wrapper" data-testid="editBtn">

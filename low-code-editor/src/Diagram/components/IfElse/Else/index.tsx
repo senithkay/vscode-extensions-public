@@ -33,7 +33,7 @@ export interface ElseProps {
 }
 
 export function Else(props: ElseProps) {
-    const { state } = useContext(DiagramContext);
+    const { state, insertComponentStart } = useContext(DiagramContext);
     const { model, defaultViewState } = props;
 
     let viewState: ElseViewState;
@@ -53,7 +53,7 @@ export function Else(props: ElseProps) {
     const components: React.ReactNode[] = [];
 
     if (viewState.draft) {
-        drafts = getDraftComponent(viewState, state);
+        drafts = getDraftComponent(viewState, state, insertComponentStart);
     }
 
     const classes = cn("else-line");

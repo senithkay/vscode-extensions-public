@@ -57,7 +57,7 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const { state } = useContext(Context);
+    const { state, insertComponentStart } = useContext(Context);
     const {
         isMutationProgress,
         syntaxTree,
@@ -224,7 +224,7 @@ export function IfElse(props: IfElseProps) {
         const bodyViewState: BlockViewState = ifStatement.ifBody.viewState;
 
         if (bodyViewState.draft) {
-            drafts = getDraftComponent(bodyViewState, state);
+            drafts = getDraftComponent(bodyViewState, state, insertComponentStart);
         }
 
         if (!viewState.isElseIf) {

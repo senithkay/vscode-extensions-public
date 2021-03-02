@@ -462,7 +462,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             triggerKind: 1
                         },
                         position: {
-                            character: monacoRef.current.editor.getPosition().column - 1 + (defaultCodeSnippet.length - 1),
+                            character: monacoEditor.getPosition().column - 1 + (defaultCodeSnippet.length - 1),
                             line: targetPosition.line
                         }
                     }

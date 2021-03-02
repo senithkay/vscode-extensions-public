@@ -89,7 +89,8 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip
+                    tooltipTitle: field.tooltip,
+                    statementType: field.type
                 },
             };
             const element = getFormElement(elementProps, field.type);

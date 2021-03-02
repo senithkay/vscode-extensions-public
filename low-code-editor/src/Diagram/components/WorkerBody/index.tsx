@@ -25,7 +25,7 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state } = useContext(DiagramContext);
+    const { state, insertComponentStart } = useContext(DiagramContext);
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
@@ -41,7 +41,7 @@ export function WorkerBody(props: DiagramProps) {
     }
 
     if (viewState?.draft) {
-        drafts = getDraftComponent(viewState, state);
+        drafts = getDraftComponent(viewState, state, insertComponentStart);
     }
 
     return (
