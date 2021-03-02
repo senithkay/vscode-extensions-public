@@ -43,7 +43,7 @@ import {
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
-import { ExpressionEditorType } from "tools/low-code-editor/src/ConfigurationSpec/types";
+import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
