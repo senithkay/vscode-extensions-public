@@ -38,7 +38,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
 
     const targetPosition: DraftInsertPosition = viewState.draft[1]?.targetPosition;
     if (targetPosition &&
-        (targetPosition.column !== state.targetPosition.column || targetPosition.line !== state.targetPosition.line)) {
+        (targetPosition.column !== state.targetPosition?.column || targetPosition.line !== state.targetPosition?.line)) {
         insertComponentStart(targetPosition);
     }
     const draft: [number, DraftStatementViewState] = viewState.draft;

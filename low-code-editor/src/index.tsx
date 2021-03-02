@@ -61,7 +61,7 @@ export default function LowCodeEditor(props: Props) {
         props.onMutate(langServerURL, "file://" + workingFile, mutations);
     }
 
-    const onModify = (triggerType: TriggerType, model?: any, configObject?: any) => {
+    const onModifyTrigger = (triggerType: TriggerType, model?: any, configObject?: any) => {
         // TODO Can move to upper scope. Should do later.
         props.onModify(triggerType, model, configObject);
     }
@@ -69,7 +69,7 @@ export default function LowCodeEditor(props: Props) {
     const diagramProps = {
         ...props,
         onMutate,
-        onModify
+        onModifyTrigger
     };
 
     return (
