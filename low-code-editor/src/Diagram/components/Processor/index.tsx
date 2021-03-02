@@ -40,14 +40,13 @@ export interface ProcessorProps {
 const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
 
 export function DataProcessor(props: ProcessorProps) {
-    const { state } = useContext(DiagramContext);
+    const { state, diagramCleanDraw } = useContext(DiagramContext);
     const {
         syntaxTree,
         stSymbolInfo,
         isMutationProgress,
         isWaitingOnWorkspace,
         isReadOnly,
-        diagramCleanDrawST: dispatchDiagramCleanDraw,
         dispactchConfigOverlayForm: openNewProcessorConfig,
         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
         maximize: maximizeCodeView,
@@ -156,7 +155,7 @@ export function DataProcessor(props: ProcessorProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            dispatchDiagramCleanDraw(syntaxTree);
+            diagramCleanDraw(syntaxTree);
             dispatchCloseConfigOverlayForm();
         }
     };
@@ -164,7 +163,7 @@ export function DataProcessor(props: ProcessorProps) {
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            dispatchDiagramCleanDraw(syntaxTree);
+            diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
         dispatchCloseConfigOverlayForm();

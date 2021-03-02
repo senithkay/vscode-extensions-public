@@ -19,10 +19,6 @@ import cn from "classnames";
 
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../Definitions/lang-client-extended";
-// import {
-//     diagramCleanDrawST,
-//     dispatchNewConnectorConfigWizard
-// } from "../../../?store/actions"; ----
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState, ViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";

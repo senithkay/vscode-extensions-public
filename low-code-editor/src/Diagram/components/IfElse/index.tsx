@@ -57,7 +57,7 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const { state } = useContext(Context);
+    const { state, diagramCleanDraw } = useContext(Context);
     const {
         isMutationProgress,
         syntaxTree,
@@ -66,7 +66,6 @@ export function IfElse(props: IfElseProps) {
         isReadOnly,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
-        diagramCleanDrawST,
         isCodeEditorActive,
         currentApp
     } = state;
@@ -89,14 +88,14 @@ export function IfElse(props: IfElseProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDrawST(syntaxTree);
+            diagramCleanDraw(syntaxTree);
         }
     };
 
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            diagramCleanDrawST(syntaxTree);
+            diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
     }
