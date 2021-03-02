@@ -86,27 +86,27 @@ suite('Ballerina Debug Adapter', () => {
     });
 
     suite('vscode debugger integration tests', () => {
-        test('Initialize request', async () => {
-            const response = await dc.initializeRequest();
-            response.body = response.body || {};
-            assert.equal(response.body.supportsConfigurationDoneRequest, true, 'Invalid config done rquest.');
-        }).timeout(15000);
+        // test('Initialize request', async () => {
+        //     const response = await dc.initializeRequest();
+        //     response.body = response.body || {};
+        //     assert.equal(response.body.supportsConfigurationDoneRequest, true, 'Invalid config done rquest.');
+        // }).timeout(15000);
 
-        test('launch request', async () => {
-            const program = path.join(DATA_ROOT, 'hello_world.bal');
-            const debuggeePort = await getAvailablePort(5005);
-            const response = await dc.launch({
-                script: program,
-                "ballerina.home": BALLERINA_HOME,
-                request: "launch",
-                name: "Ballerina Debug",
-                "debugServer": DEBUG_PORT,
-                "debuggeePort": debuggeePort
-            });
+        // test('launch request', async () => {
+        //     const program = path.join(DATA_ROOT, 'hello_world.bal');
+        //     const debuggeePort = await getAvailablePort(5005);
+        //     const response = await dc.launch({
+        //         script: program,
+        //         "ballerina.home": BALLERINA_HOME,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //         "debugServer": DEBUG_PORT,
+        //         "debuggeePort": debuggeePort
+        //     });
 
-            assert.equal(response.success, true, 'Invalid response state.');
-            assert.equal(response.command, 'launch', 'Invalid response command.');
-        }).timeout(10000);
+        //     assert.equal(response.success, true, 'Invalid response state.');
+        //     assert.equal(response.command, 'launch', 'Invalid response command.');
+        // }).timeout(10000);
 
         test('should stop on a breakpoint, main function', async () => {
             const program = path.join(DATA_ROOT, 'hello_world.bal');
