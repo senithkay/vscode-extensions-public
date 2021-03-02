@@ -47,11 +47,10 @@ export function End(props: EndProps) {
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        diagramCleanDrawST: dispatchDiagramCleanDraw,
         dispactchConfigOverlayForm: openNewReturnConfigForm,
         currentApp,
         isCodeEditorActive
-    } } = useContext(DiagramContext);
+    }, diagramCleanDraw } = useContext(DiagramContext);
     const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState } = props;
@@ -85,7 +84,7 @@ export function End(props: EndProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            dispatchDiagramCleanDraw(syntaxTree);
+            diagramCleanDraw(syntaxTree);
         }
     };
     const onCancel = () => {

@@ -37,7 +37,7 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state } = useContext(DiagramContext);
+    const { state, diagramCleanDraw } = useContext(DiagramContext);
     const {
         syntaxTree,
         stSymbolInfo,
@@ -50,7 +50,6 @@ export function Respond(props: RespondProps) {
         maximize: maximizeCodeView,
         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
         closeConfigPanel: dispatchCloseConfigPanel,
-        diagramCleanDrawST: dispatchDiagramCleanDraw,
         dispactchConfigOverlayForm: openNewEndConfig
     } = state;
     const { id: appId } = currentApp || {};
@@ -116,7 +115,7 @@ export function Respond(props: RespondProps) {
     const onDraftDelete = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            dispatchDiagramCleanDraw(syntaxTree);
+            diagramCleanDraw(syntaxTree);
             dispatchCloseConfigOverlayForm();
         }
         setConfigWizardOpen(false);
@@ -125,7 +124,7 @@ export function Respond(props: RespondProps) {
     const onCancel = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
-            dispatchDiagramCleanDraw(syntaxTree);
+            diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
         dispatchCloseConfigOverlayForm();
