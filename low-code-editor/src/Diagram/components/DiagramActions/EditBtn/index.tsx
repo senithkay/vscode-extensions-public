@@ -40,8 +40,8 @@ export function EditBtn(props: EditBtnProps) {
     const onEditClick = () => {
         if (!isButtonDisabled) {
             if (model &&
-                (state.targetPosition.line !== model.position.line
-                    || state.targetPosition.column !== model.position.column)) {
+                (state.targetPosition?.line !== model.position.line
+                    || state.targetPosition?.column !== model.position.column)) {
                 dispatchEditComponentStart(model.position)
             }
             onHandleEdit();
