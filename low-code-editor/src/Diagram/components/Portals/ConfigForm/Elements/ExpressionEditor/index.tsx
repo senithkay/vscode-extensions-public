@@ -125,6 +125,10 @@ export interface ExpressionEditorProps {
     tooltipActionLink?: string;
     interactive?: boolean;
     statementType?: ExpressionEditorType | any;
+    customTemplate?: {
+        defaultCodeSnippet?: string;
+        targetColumn?: number;
+    }
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -158,7 +162,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType } = customProps;
+    const { validate, statementType, customTemplate } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
@@ -166,8 +170,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
     const varType = transformFormFieldTypeToString(model.type);
     const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
-    const defaultCodeSnippet = varType + " " + varName + " = ;";
+    const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
+    const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
@@ -276,11 +281,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.optional === true && (currentContent === undefined || currentContent === "")) {
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
-            const newCodeSnippet: string = " ".repeat(defaultCodeSnippet.length) + "\n" + mockedCodeSnippet;
+            const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model, state);
         } else {
-            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (defaultCodeSnippet.length - 1), currentContent);
+            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model, state);
         }
@@ -323,12 +328,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
-                const newCodeSnippet: string = " ".repeat(defaultCodeSnippet.length) + "\n" + mockedCodeSnippet;
+                const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model, state);
             } else {
                 // set the new model for the file
-                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (defaultCodeSnippet.length - 1), currentContent);
+                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model, state);
             }
@@ -462,7 +467,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             triggerKind: 1
                         },
                         position: {
-                            character: monacoEditor.getPosition().column - 1 + (defaultCodeSnippet.length - 1),
+                            character: monacoEditor.getPosition().column - 1 + (snippetTargetPosition - 1),
                             line: targetPosition.line
                         }
                     }
