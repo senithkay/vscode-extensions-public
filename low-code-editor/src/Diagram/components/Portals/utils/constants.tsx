@@ -160,8 +160,8 @@ export const tooltipMessages: Record<string, any> = {
         content: "Create events, Set reminders"
     },
     gSheetConnector: {
-        title: "Connect your application with Google sheets API",
-        content: "Create and format Google sheets"
+        title: "Connect your application with Google Sheets API",
+        content: "Create and format Google Sheets"
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
