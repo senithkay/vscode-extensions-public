@@ -16,10 +16,10 @@ import React, { useState } from "react";
 import { FormHelperText, TextField } from "@material-ui/core";
 import cn from "classnames";
 
+import { deleteVariableNameSvg, editVariableNameSvg } from "../../../../../../../assets";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { FormTextInput } from "../FormTextInput";
-import { deleteVariableNameSvg, editVariableNameSvg } from "../../../../../../../assets";
 
 import "./style.scss";
 

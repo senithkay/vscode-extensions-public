@@ -10,11 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
+import React, { useContext } from "react";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { SimpleBBox, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { Metrics } from "../Metrics";
@@ -25,8 +26,6 @@ import { ConnectorClient } from "./ConnectorClient";
 import { CLIENT_RADIUS } from "./ConnectorClient/ConnectorClientSVG";
 import "./style.scss";
 import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
-import { useContext } from "react";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
 export interface ConnectorLineProps {
     model: STNode
 }
