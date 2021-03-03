@@ -106,7 +106,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     gitHubEvent: "Select a Github event to setup the trigger",
     gitHubAction: "Select a Github action to setup the trigger",
-    calenderId: "Select your Google Calender",
+    calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
         content: 'log:printInfo("infolog")\nlog:printError("error log")'
