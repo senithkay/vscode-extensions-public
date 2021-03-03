@@ -18,13 +18,6 @@ import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagra
 
 import createContext from "./createContext";
 
-const defaultExprEditorState: ExpressionEditorState = {
-    content: undefined,
-    name: undefined,
-    uri: undefined,
-    diagnostic: []
-};
-
 const reducer = (state: any, action: any) => {
     switch (action.type) {
         case 'UPDATE_STATE':
@@ -48,6 +41,11 @@ const reducer = (state: any, action: any) => {
             return {
                 ...state,
                 targetPosition: action.payload
+            }
+        case 'SWITCH_TO_DATAMAPPER':
+            return {
+                ...state,
+                isDataMapperShown: action.payload
             }
         default:
             return state;
@@ -78,6 +76,11 @@ const actions = {
     editorComponentStart: (dispatch: any) => {
         return (payload: STNode) => {
             dispatch({ type: 'EDITOR_COMPONENT_START', payload })
+        }
+    },
+    switchDiagramToDataMapper: (dispatch: any) => {
+        return (payload: boolean) => {
+            dispatch({type: 'SWITCH_TO_DATAMAPPER', payload})
         }
     }
 };

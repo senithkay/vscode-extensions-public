@@ -16,10 +16,12 @@ import * as React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 
+import { Context as DiagramContext } from "../Contexts/Diagram";
 import { STModification } from "../Definitions";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
+import { DataMapper } from './components/DataMapper';
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
@@ -59,6 +61,7 @@ export function Diagram(props: DiagramProps) {
         triggerType
     } = props;
     const classes = useStyles();
+    const { state: { isDataMapperShown } } = React.useContext(DiagramContext);
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -91,7 +94,6 @@ export function Diagram(props: DiagramProps) {
 
     // todo: need to handle this when file is empty
     // AST node passed in to this is can be a top level node or a compilation unit.
-    const child = getSTComponent(syntaxTree);
     const viewState = syntaxTree.viewState as ViewState;
     let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.paddingY) : DefaultConfig.canvas.height;
     const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.paddingX) : DefaultConfig.canvas.width;
@@ -99,6 +101,8 @@ export function Diagram(props: DiagramProps) {
     if (h < window.innerHeight) {
         h = h + (window.innerHeight - h);
     }
+
+    const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
 
     return (
         <div id="canvas">

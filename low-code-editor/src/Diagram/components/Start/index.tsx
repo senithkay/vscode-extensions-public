@@ -77,7 +77,7 @@ export function StartButton(props: StartButtonProps) {
         if (viewState.initPlus?.isTriggerDropdown) {
             viewState.initPlus.isTriggerDropdown = false;
         }
-        diagramCleanDraw(syntaxTree);
+        diagramRedraw(syntaxTree);
     };
 
     const handleEditClick = () => {
