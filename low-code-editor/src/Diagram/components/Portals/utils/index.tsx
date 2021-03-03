@@ -530,8 +530,27 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                     formField.value.push(fieldValue);
                                 }
                             } else {
-                                if (element.kind !== "CommaToken") {
-                                    formField.fields.push({type: "string", name: "", value: element.source});
+                                if (STKindChecker.isMappingConstructor(element)) {
+                                    const mappingField: FormField = {
+                                        type: PrimitiveBalType.String,
+                                        name: "",
+                                        fields: []
+                                    }
+                                    element.fields.forEach((field) => {
+                                        if (field.kind !== "CommaToken") {
+                                            const mappingSpecificField = field as SpecificField;
+                                            if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({type: PrimitiveBalType.Float,
+                                                                          name: mappingSpecificField.fieldName.value, value: mappingSpecificField.valueExpr.source})
+                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({type: PrimitiveBalType.String,
+                                                                          name: mappingSpecificField.fieldName.value, value: mappingSpecificField.valueExpr.source});
+                                            }
+                                        }
+                                    });
+                                    formField.fields.push(mappingField);
+                                } else if (element.kind !== "CommaToken") {
+                                    formField.fields.push({type: PrimitiveBalType.String, name: "", value: element.source});
                                 }
                             }
                         })
