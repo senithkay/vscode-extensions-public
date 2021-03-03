@@ -192,6 +192,32 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const customStatement: StatementComponent = {
+        name: "customStatement",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={tooltipMessages.customStatement.title}
+                placement="left"
+                arrow={true}
+                example={true}
+                interactive={true}
+                codeSnippet={true}
+                content={tooltipMessages.customStatement.content}
+            >
+                <div
+                    className={cn("sub-option enabled", {height: 'unset'})}
+                    data-testid="addcustom"
+                    onClick={onSelect.bind(undefined, "Custom")}
+                >
+                    <div className="icon-wrapper">
+                        <img src="../../../../../../images/Respond.svg" />
+                    </div>
+                    <div className="text-label">Custom Statement</div>
+                </div>
+            </Tooltip>
+        )
+    }
 
     const statements: StatementComponent[] = [];
     statements.push(logStm);
@@ -200,6 +226,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(foreachStm);
     statements.push(returnStm);
     statements.push(respondStm);
+    statements.push(customStatement);
 
     const initStatements: Statements = {
         statement: statements,
