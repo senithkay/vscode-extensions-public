@@ -9,7 +9,9 @@
         "includePid": false,
         "reports": [
             "html",
-            "text"
+            "text",
+            "json",
+            "lcov"
         ],
         "verbose": true
     },

@@ -18,9 +18,11 @@
  */
 
 import * as cp from 'child_process';
-import { DownloadVersion, DownloadPlatform } from './util';
 
 const downloadAndUnzipVSCode = require('vscode-test').downloadAndUnzipVSCode;
+type StringLiteralUnion<T extends U, U = string> = T | (U & {});
+type DownloadVersion = StringLiteralUnion<'insiders' | 'stable'>;
+type DownloadPlatform = StringLiteralUnion<'darwin' | 'win32-archive' | 'win32-x64-archive' | 'linux-x64'>;
 
 export interface TestOptions {
 	/**
@@ -105,7 +107,6 @@ export async function runTests(options: TestOptions): Promise<number> {
 	}
 
 	let args = [
-		// https://github.com/microsoft/vscode/issues/84238
 		'--no-sandbox',
 		'--extensionDevelopmentPath=' + options.extensionDevelopmentPath,
 		'--extensionTestsPath=' + options.extensionTestsPath
@@ -145,29 +146,18 @@ async function innerRunTests(
 			if (finished) {
 				return;
 			}
+			console.log(`Exit code: ${code}`);
 			finished = true;
-			if (!code || code === null) {
-				console.log(`Exit code: ${signal}`);
-			} else {
-				console.log(`Exit code: ${code}`);
-			}
-			
-			if (code === null) {
-				reject(signal);
-			} else if (code !== 0) {
-				reject('Failed');
-			}
 
-			console.log('Done\n');
-			if (!code || code === null) {
-				resolve(-1);
-			} else {
+			if (code === 0) {
 				resolve(code);
+			} else {
+				reject(code);
 			}
+			console.log('Done\n');
 		}
 
 		cmd.on('close', onProcessClosed);
-
 		cmd.on('exit', onProcessClosed);
 	});
 }

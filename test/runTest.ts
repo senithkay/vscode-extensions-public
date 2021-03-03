@@ -28,7 +28,6 @@ async function go() {
 			extensionDevelopmentPath,
 			extensionTestsPath
 		});
-
 	} catch (err) {
 		process.exit(1);
 	}
