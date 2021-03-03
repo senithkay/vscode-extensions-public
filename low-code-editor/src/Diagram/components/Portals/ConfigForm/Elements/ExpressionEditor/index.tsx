@@ -126,8 +126,8 @@ export interface ExpressionEditorProps {
     interactive?: boolean;
     statementType?: ExpressionEditorType | any;
     customTemplate?: {
-        defaultCodeSnippet?: string;
-        targetColumn?: number;
+        defaultCodeSnippet: string;
+        targetColumn: number;
     }
 }
 
