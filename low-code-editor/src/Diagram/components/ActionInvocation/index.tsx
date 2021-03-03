@@ -22,15 +22,18 @@ import { Performance } from "../Performace";
 
 import { ActionInvoLine } from "./ActionInvoLine";
 import { ConnectorClient } from "./ConnectorClient";
-import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_WIDTH_WITH_SHADOW } from "./ConnectorClient/ConnectorClientSVG";
+import { CLIENT_RADIUS } from "./ConnectorClient/ConnectorClientSVG";
 import "./style.scss";
 import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
+import { useContext } from "react";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 export interface ConnectorLineProps {
     model: STNode
 }
 
 export function ActionInvocation(props: ConnectorLineProps) {
     const { model } = props;
+    const { state: { obsViewState } } = useContext(DiagramContext);
     const classes = cn("action-invocation");
     const leftline = "leftline";
     const dashedLine = "dashedLine";
@@ -58,10 +61,6 @@ export function ActionInvocation(props: ConnectorLineProps) {
         viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
     );
 
-    useEffect(() => {
-        dispatchDiagramRedraw(syntaxTree);
-    }, [isPerformanceViewOpen]);
-
     return (
         <g>
             <g className={classes}>
@@ -84,7 +83,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {isPerformanceViewOpen ?  truncatedActionName : viewState.action.actionName}
+                    {obsViewState?.analysisInfo.isPerformanceViewOpen ?  truncatedActionName : viewState.action.actionName}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}
@@ -112,17 +111,3 @@ export function ActionInvocation(props: ConnectorLineProps) {
         </g>
     );
 }
-
-const mapStateToProps = ({ obsViewState, diagramState }: PortalState) => {
-    const isPerformanceViewOpen = obsViewState.analysisInfo.isPerformanceViewOpen;
-    const syntaxTree = diagramState.syntaxTree;
-    return {
-        isPerformanceViewOpen, syntaxTree
-    }
-};
-
-const mapDispatchToProps = {
-    dispatchDiagramRedraw: diagramRedrawST,
-};
-
-export const ActionInvocation = connect(mapStateToProps, mapDispatchToProps)(ActionInvocationC);
