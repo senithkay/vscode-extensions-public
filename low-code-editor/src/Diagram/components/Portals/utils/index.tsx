@@ -25,7 +25,13 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 // import { BallerinaLangClient } from "../../../../../../api/lang-client";
 import { ConnectionDetails } from "../../../../api/models";
 // import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
-import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../ConfigurationSpec/types";
+import {
+    ActionConfig,
+    ConnectorConfig,
+    FormField,
+    PrimitiveBalType,
+    WizardType
+} from "../../../../ConfigurationSpec/types";
 import { STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";

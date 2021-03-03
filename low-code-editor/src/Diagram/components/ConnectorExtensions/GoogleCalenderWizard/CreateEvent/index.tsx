@@ -163,11 +163,11 @@ export function CreateEvent(props: OperationDropdownProps) {
 
     useEffect(() => {
         if (!isNewConnectorInitWizard) {
-            const attendeeField = formFields.find(item => item.name === "event")
-                .fields.find(item => item.name === "attendees");
+            const attendeeField = formFields.find((item: FormField) => item.name === "event")
+                .fields.find((item: FormField) => item.name === "attendees");
             const emails: FormField[] = [];
-            attendeeField.fields.forEach((field) => {
-                const email = field.fields.find(item => item.name === "email");
+            attendeeField.fields.forEach((field: FormField) => {
+                const email = field.fields.find((item: FormField) => item.name === "email");
                 emails.push(email);
             })
             attendeeField.fields = emails;
