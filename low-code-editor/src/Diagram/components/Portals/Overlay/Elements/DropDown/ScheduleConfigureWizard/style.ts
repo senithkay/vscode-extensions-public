@@ -47,7 +47,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             marginBottom: '0.5rem',
             letterSpacing: 0,
-            paddingTop: '0.5rem'
+            paddingTop: '0.5rem',
+            marginRight: '0.5rem'
         },
         repeatDropdown: {
             marginRight: '0.5rem',
@@ -62,7 +63,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 150
         },
         repeatRangeDropdown: {
-            width: '58%',
+            width: '56%',
             marginLeft: '1rem',
             "& .MuiSelect-select.MuiSelect-select": {
                 padding: "0 8px",
