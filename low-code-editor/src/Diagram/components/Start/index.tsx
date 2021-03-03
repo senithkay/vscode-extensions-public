@@ -76,6 +76,7 @@ export function StartButton(props: StartButtonProps) {
         }
         if (viewState.initPlus?.isTriggerDropdown) {
             viewState.initPlus.isTriggerDropdown = false;
+            viewState.initPlus.selectedComponent = "STATEMENT"
         }
         diagramCleanDraw(syntaxTree);
     };
