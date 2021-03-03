@@ -192,6 +192,28 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const datamappingStatement: StatementComponent = {
+        name: "variable",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={tooltipMessages.variableStatement.title}
+                placement="right"
+                arrow={true}
+                example={true}
+                codeSnippet={true}
+                interactive={true}
+                content={tooltipMessages.variableStatement.content}
+            >
+                <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
+                    <div className="icon-wrapper">
+                        <img src="../../../../../../images/Property.svg" />
+                    </div>
+                    <div className="text-label">Data Mapping</div>
+                </div>
+            </Tooltip>
+        )
+    }
 
     const statements: StatementComponent[] = [];
     statements.push(logStm);
@@ -200,6 +222,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(foreachStm);
     statements.push(returnStm);
     statements.push(respondStm);
+    statements.push(datamappingStatement);
 
     const initStatements: Statements = {
         statement: statements,
