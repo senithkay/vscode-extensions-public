@@ -23,7 +23,7 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 import clsx from "clsx";
 
-import { ConnectorConfig, FormField } from "../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import {
     createCheckedRemoteServiceCall,
@@ -44,7 +44,7 @@ import { CreateConnectorForm } from "./CreateConnectorForm";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 
 interface WizardProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onSave: (sourceModifications: STModification[]) => void;
     onClose?: () => void;
@@ -90,8 +90,8 @@ function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
 export function SMTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { actions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
-    const connectorInitFormFields: FormField[] = actions.get("init") ? actions.get("init") : actions.get("__init");
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
     const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
@@ -196,8 +196,8 @@ export function SMTPWizard(props: WizardProps) {
     };
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} actions={actions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm actions={actions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>

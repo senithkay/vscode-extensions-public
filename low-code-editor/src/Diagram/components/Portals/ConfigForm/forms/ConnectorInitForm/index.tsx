@@ -124,7 +124,7 @@ export function ConnectorInitForm(props: any) {
 
     const connectorComponent: ReactNode = getConnectorComponent(
         connector.module + connector.name, {
-        actions: fieldsForFunctions,
+        functionDefinitions: fieldsForFunctions,
         connectorConfig,
         onSave,
         connector,

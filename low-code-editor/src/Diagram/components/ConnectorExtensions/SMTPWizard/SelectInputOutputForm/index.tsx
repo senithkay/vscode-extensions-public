@@ -17,7 +17,7 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { smtpTooltips } from "../../../../utils/connectors";
@@ -37,7 +37,7 @@ import { tooltipMessages } from "../../../Portals/utils/constants";
 // import '../style.scss'
 
 interface SelectInputOutputFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
@@ -50,7 +50,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -97,8 +97,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
 
     const operations: string[] = [];
-    if (actions) {
-        actions.forEach((value, key) => {
+    if (functionDefinitions) {
+        functionDefinitions.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }

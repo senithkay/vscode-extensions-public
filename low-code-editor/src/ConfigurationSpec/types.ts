@@ -53,6 +53,11 @@ export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 
 export type ExpressionEditorType = BallerinaType | BallerinaType[];
 
+export interface FunctionDefinitionInfo {
+    parameters: FormField[];
+    returnType: FormField;
+}
+
 export interface FormField {
     type: ExpressionEditorType | any;
     name?: string;
@@ -107,6 +112,7 @@ export class ConnectorConfig {
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
     public initPosition?: DraftUpdateStatement;
+    public isReturnError?: boolean;
 }
 
 export interface ConfigurationSpec {

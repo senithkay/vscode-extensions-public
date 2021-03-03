@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, PrimitiveBalType, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -36,7 +36,7 @@ import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
 
 interface SelectInputOutputFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
@@ -62,7 +62,7 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
+    const { onBackClick, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     // const { model } = props;
@@ -111,7 +111,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     if (connectorConfig.action.name === "forward") {
         actions.forEach((fields, name) => {
             if (name === "forward") {
-                fields.forEach((field) => {
+                fields.parameters.forEach((field, key) => {
                     if (field.name === "forwardReq") {
                         newField = field;
                     }

@@ -35,23 +35,17 @@ import {
     createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration,
+    createPropertyStatement,
+    createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration
+    updateObjectDeclaration,
+    updatePropertyStatement,
+    updateRemoteServiceCall,
 } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import {
-    addAiSuggestion,
-    genVariableName,
-    getAllVariablesForAi,
-    getConnectorComponent,
-    // getConnectorConfig,
-    getConnectorIcon, getMapTo,
-    getOauthConnectionParams,
-    getParams
-} from "../../../Portals/utils";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -59,6 +53,7 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationDropdown } from "../OperationDropdown";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
+import { addAiSuggestion, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -98,7 +93,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
     const { connectorInfo, targetPosition, configWizardArgs, onClose } = props;
-    const { fieldsForFunction, connectorConfig, wizardType, model } = configWizardArgs;
+    const { functionDefInfo, connectorConfig, wizardType, model } = configWizardArgs;
 
     let isOauthConnector = false;
     configurations.configList.forEach((configuration) => {
@@ -130,10 +125,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     }, [config.existingConnections]);
 
-    const fieldsForFunctions: Map<string, FormField[]> = fieldsForFunction;
-
-    const connectorInitFormFields: FormField[] = fieldsForFunction?.get("init") ?
-        fieldsForFunction?.get("init") : fieldsForFunction?.get("__init");
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init") ?
+        functionDefInfo?.get("init").parameters : functionDefInfo?.get("__init").parameters;
 
     // managing name set by the non oauth connectors
     config.name = isNewConnectorInitWizard ?
@@ -146,8 +139,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     config.name = configName;
 
     const operations: string[] = [];
-    if (fieldsForFunctions) {
-        fieldsForFunctions.forEach((value, key) => {
+    if (functionDefInfo) {
+        functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }
@@ -156,7 +149,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     let formFields: FormField[] = null;
     if (selectedOperation) {
-        formFields = fieldsForFunctions.get(selectedOperation);
+        formFields = functionDefInfo.get(selectedOperation).parameters;
         config.action = new ActionConfig();
         config.action.name = selectedOperation;
         config.action.fields = formFields;
@@ -254,9 +247,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     useEffect(() => {
         const varAi: { [key: string]: any } = getAllVariablesForAi(symbolInfo)
         let allFormFields: FormField[] = [];
-        Array.from(fieldsForFunctions.keys()).forEach((key: string) => {
-            allFormFields = allFormFields.concat(fieldsForFunctions.get(key));
-        })
+        Array.from(functionDefInfo.keys()).forEach((key: string) => {
+            allFormFields = allFormFields.concat(functionDefInfo.get(key).parameters);
+        });
         const aiSuggestionsReq: AiSuggestionsReq = {
             userID: userInfo?.user?.email,
             mapFrom: [varAi],
@@ -271,7 +264,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 })
             })
         });
-    }, [fieldsForFunctions]);
+    }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
         trackAddConnector(connectorInfo.displayName);
@@ -284,23 +277,43 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             const modifications: STModification[] = [];
 
             if (!isNewConnectorInitWizard) {
-                const updateConnectorInit = updateObjectDeclaration(
-                    (connectorInfo.module + ":" + connectorInfo.name),
-                    config.name,
-                    getParams(config.connectorInit),
-                    connectorConfig.initPosition
-                );
-                modifications.push(updateConnectorInit)
+                // check connector client response has an Error
+                if (!config.isReturnError) {
+                    const updateConnectorInit = updateObjectDeclaration(
+                        (connectorInfo.module + ":" + connectorInfo.name),
+                        config.name,
+                        getParams(config.connectorInit),
+                        connectorConfig.initPosition
+                    );
+                    modifications.push(updateConnectorInit);
 
-                const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
-                    model.position
-                );
-                modifications.push(updateActionInvo);
+                    const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields),
+                        model.position
+                    );
+                    modifications.push(updateActionInvo);
+                } else {
+                    // add checkpanic keyword when initializing connector to handle the Error
+                    const updateConnectorInit = updatePropertyStatement(
+                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = checkpanic new (${getParams(config.connectorInit).join()});`,
+                        connectorConfig.initPosition
+                    );
+                    modifications.push(updateConnectorInit);
+                    // update action invocation without checkpanic keyword
+                    const updateActionInvocation: STModification = updateRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields),
+                        model.position
+                    );
+                    modifications.push(updateActionInvocation);
+                }
             } else {
                 if (targetPosition) {
 
@@ -330,25 +343,46 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             );
                             modifications.push(configImport);
                         } else {
-                            addConnectorInit = createObjectDeclaration(
-                                (connectorInfo.module + ":" + connectorInfo.name),
-                                config.name,
-                                getParams(config.connectorInit),
-                                targetPosition
-                            );
+                            // check connector client response has an Error
+                            if (!config.isReturnError) {
+                                addConnectorInit = createObjectDeclaration(
+                                    (connectorInfo.module + ":" + connectorInfo.name),
+                                    config.name,
+                                    getParams(config.connectorInit),
+                                    targetPosition
+                                );
+                            } else {
+                                // add checkpanic keyword when initializing connector to handle the Error
+                                addConnectorInit = createPropertyStatement(
+                                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = checkpanic new (${getParams(config.connectorInit).join()});`,
+                                    targetPosition
+                                );
+                            }
                         }
                         modifications.push(addConnectorInit);
                     }
 
-                    // Add an action invocation on the initialized client.
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
-                    );
-                    modifications.push(addActionInvo);
+                    if (!config.isReturnError) {
+                        // Add an action invocation on the initialized client.
+                        const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                            "var",
+                            config.action.returnVariableName,
+                            config.name,
+                            config.action.name,
+                            getParams(config.action.fields), targetPosition
+                        );
+                        modifications.push(addActionInvo);
+                    } else {
+                        // check client return_type and remove checkpanick
+                        const addActionInvo: STModification = createRemoteServiceCall(
+                            "var",
+                            config.action.returnVariableName,
+                            config.name,
+                            config.action.name,
+                            getParams(config.action.fields), targetPosition
+                        );
+                        modifications.push(addActionInvo);
+                    }
 
                     if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
@@ -371,10 +405,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     let connectorComponent: ReactNode = null;
 
-    if (fieldsForFunctions) {
+    if (functionDefInfo) {
         connectorComponent = getConnectorComponent(
             connectorInfo.module + connectorInfo.name, {
-            actions: fieldsForFunctions,
+            functionDefinitions: functionDefInfo,
             connectorConfig: config,
             onSave,
             onClose,

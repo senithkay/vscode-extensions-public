@@ -14,7 +14,7 @@ import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDe
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
-import { FormField } from "../../ConfigurationSpec/types";
+import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
@@ -227,17 +227,17 @@ export interface FormFieldCache {
 }
 
 export interface FormFiledCacheEntry {
-    [key: string]: FormField[]
+    [key: string]: FunctionDefinitionInfo,
 }
 
 export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
 
-export async function addToFormFieldCache(connector: Connector, fields: Map<string, FormField[]>) {
+export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
     const { org, module: mod, version, name } = connector;
     const cacheId = `${org}_${mod}_${name}_${version}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
     const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
-    const fieldsMap: { [key: string]: FormField[] } = {};
+    const fieldsMap: { [key: string]: FunctionDefinitionInfo } = {};
     fields.forEach((value, key) => {
         fieldsMap[key] = value;
     });
@@ -253,7 +253,7 @@ export async function getFromFormFieldCache(connector: Connector): Promise<any> 
     const fieldsKVMap: FormFiledCacheEntry = formFieldCacheMap[cacheId];
     const clonedFieldsKVMap: FormFiledCacheEntry = cloneDeep(fieldsKVMap);
     if (clonedFieldsKVMap) {
-        const fieldsMap: Map<string, FormField[]> = new Map();
+        const fieldsMap: Map<string, FunctionDefinitionInfo> = new Map();
         Object.entries(clonedFieldsKVMap).forEach((value) => fieldsMap.set(value[0], value[1]));
         return fieldsMap;
     }
@@ -279,14 +279,17 @@ export function getMatchingConnector(actionInvo: LocalVarDecl,
     const variable: LocalVarDecl = actionInvo;
 
     if (variable.initializer) {
-        let actionVariable: CheckAction;
+        let actionVariable: RemoteMethodCallAction;
         switch (variable.initializer.kind) {
             case 'TypeCastExpression':
                 const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                actionVariable = initializer.expression as CheckAction;
+                actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                break;
+            case 'RemoteMethodCallAction':
+                actionVariable = variable.initializer as RemoteMethodCallAction;
                 break;
             default:
-                actionVariable = variable.initializer as CheckAction;
+                actionVariable = (variable.initializer as CheckAction).expression;
         }
 
         const remoteMethodCallAction: RemoteMethodCallAction = isSTActionInvocation(actionVariable);
@@ -295,7 +298,7 @@ export function getMatchingConnector(actionInvo: LocalVarDecl,
 
         if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
             remoteMethodCallAction.methodName.typeData) {
-            const endPointName = actionVariable.expression.expression.name.value;
+            const endPointName = actionVariable.expression.name.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
             const typeData: any = remoteMethodCallAction.methodName.typeData;
             if (typeData?.symbol?.moduleID) {

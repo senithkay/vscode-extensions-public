@@ -238,6 +238,25 @@ export function createRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
+export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+    const remoteServiceCall: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "REMOTE_SERVICE_CALL",
+        config: {
+            "TYPE": type,
+            "VARIABLE": variable,
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params
+        }
+    };
+
+    return remoteServiceCall;
+}
+
 export function createCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.line,
