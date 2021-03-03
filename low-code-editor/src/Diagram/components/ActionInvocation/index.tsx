@@ -22,7 +22,7 @@ import { Performance } from "../Performace";
 
 import { ActionInvoLine } from "./ActionInvoLine";
 import { ConnectorClient } from "./ConnectorClient";
-import { CLIENT_RADIUS } from "./ConnectorClient/ConnectorClientSVG";
+import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_WIDTH_WITH_SHADOW } from "./ConnectorClient/ConnectorClientSVG";
 import "./style.scss";
 import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
 export interface ConnectorLineProps {
@@ -54,6 +54,14 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const triggerSVGX = lifeLineCX;
     const triggerSVGY = viewState.bBox.cy;
 
+    const truncatedActionName = (
+        viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
+    );
+
+    useEffect(() => {
+        dispatchDiagramRedraw(syntaxTree);
+    }, [isPerformanceViewOpen]);
+
     return (
         <g>
             <g className={classes}>
@@ -76,7 +84,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {viewState.action.actionName}
+                    {isPerformanceViewOpen ?  truncatedActionName : viewState.action.actionName}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}
@@ -104,3 +112,17 @@ export function ActionInvocation(props: ConnectorLineProps) {
         </g>
     );
 }
+
+const mapStateToProps = ({ obsViewState, diagramState }: PortalState) => {
+    const isPerformanceViewOpen = obsViewState.analysisInfo.isPerformanceViewOpen;
+    const syntaxTree = diagramState.syntaxTree;
+    return {
+        isPerformanceViewOpen, syntaxTree
+    }
+};
+
+const mapDispatchToProps = {
+    dispatchDiagramRedraw: diagramRedrawST,
+};
+
+export const ActionInvocation = connect(mapStateToProps, mapDispatchToProps)(ActionInvocationC);
