@@ -28,7 +28,7 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { LogConfig, ProcessConfig, CustomExpressionConfig } from "../../Portals/ConfigForm/types";
+import { CustomExpressionConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
@@ -79,7 +79,7 @@ export function ProcessConfigForm(props: any) {
                     break;
                 case 'Custom':
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const editCustomStatement: STModification = updatePropertyStatement( customConfig.expression, formArgs?.model.position);
+                    const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
                     modifications.push(editCustomStatement);
                     break;
             }
@@ -102,9 +102,9 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const addCustomStatement: STModification = createPropertyStatement( customConfig.expression, formArgs?.targetPosition);
+                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
                     modifications.push(addCustomStatement);
-                } 
+                }
                 trackAddStatement(processConfig.type);
             }
         }

@@ -27,7 +27,7 @@ import {
     updatePropertyStatement
 } from "../../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../../view-state/draft";
-import { LogConfig, ProcessConfig, CustomExpressionConfig } from "../../types";
+import { CustomExpressionConfig, LogConfig, ProcessConfig } from "../../types";
 
 import { Wizard } from "./Wizard";
 
@@ -77,7 +77,7 @@ export function ProcessConfigForm(props: any) {
                     break;
                 case 'Custom':
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const editCustomStatement: STModification = updatePropertyStatement( customConfig.expression, model.position);
+                    const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, model.position);
                     modifications.push(editCustomStatement);
                     break;
             }
@@ -100,9 +100,9 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const addCustomStatement: STModification = createPropertyStatement( customConfig.expression, targetPosition);
+                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, targetPosition);
                     modifications.push(addCustomStatement);
-                } 
+                }
             }
         }
         dispatchMutations(modifications);
