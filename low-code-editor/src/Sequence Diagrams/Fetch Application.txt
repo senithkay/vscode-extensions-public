@@ -1,0 +1,100 @@
+title Fetch Application
+
+participant Main
+participant App Service
+participant Language Sever
+participant Redux
+participant Local Store
+
+Main->Redux: APP_FETCH_START
+Main->Redux: DIAGRAM_FETCH_AST_START
+alt try
+    Main->+App Service: getApp()
+    App Service-->-Main: app
+    Main->Redux: CREATE_APP_PREFERENCE_IF_NOT_EXIST
+    Main->Redux: APP_WAIT_ON_WORKSPACE_START
+    opt app
+        Main->+Local Store: getASTFromCache()
+        Local Store-->-Main: appCache
+        opt appCache
+            alt appCache.ast
+                Main->Redux: DIAGRAM_FETCH_AST_SUCCESS
+            else 
+                Main->Redux: TODO
+            end
+            Main->Redux: APP_FILE_FETCH_SUCCESS
+            Main->Redux: APP_FETCH_SUCCESS
+        end
+    end
+    alt try
+        Main->+App Service: waitForWorkspace()
+        App Service-->-Main: 
+    else 
+        Main->Redux: APP_WAIT_ON_WORKSPACE_FAILURE
+    end
+    Main->Redux: FETCH_RUNTIME_DATA_START
+    alt try
+        Main->+App Service: getAppRuntimeInfo()
+        App Service-->-Main: data
+        Main->Redux: FETCH_RUNTIME_DATA_SUCCESS
+        Main->Redux: SET_OBSERVE_ID_APP_PAGE
+        Main->Redux: SET_VERSION_APP_PAGE
+    else 
+        Main->Redux: SET_CONSOLE_ERROR
+        Main->Redux: FETCH_RUNTIME_DATA_FAILURE
+    end
+    opt app
+        Main->Redux: APP_FILE_FETCH_START
+        alt try
+            Main->+App Service: getAppFile()
+            App Service-->-Main: 
+            Main->Redux: APP_FILE_FETCH_SUCCESS
+            alt try
+                Main->+Language Sever: getLangClient()
+                Language Sever-->-Main: lsClient
+                Main->+Language Sever: lsClient.getAST()
+                Language Sever-->-Main: astResp
+                alt astResp.parseSuccess
+                    Main->Redux: DIAGRAM_FETCH_AST_SUCCESS
+                    Main->Local Store: addASTToCache()
+                else
+                    Main->Redux: SET_CONSOLE_ERROR
+                    Main->Redux: DIAGRAM_FETCH_AST_FAILURE
+                end
+            else 
+                Main->Redux: SET_CONSOLE_ERROR
+                Main->Redux: DIAGRAM_FETCH_AST_FAILURE
+            end
+        else 
+            Main->Redux: SET_CONSOLE_ERROR
+            Main->Redux: APP_FILE_FETCH_FAILURE
+        end
+        Main->Redux: APP_FETCH_SUCCESS
+        Main->+App Service: getLangServerUrl()
+        App Service-->-Main: lsURL
+        opt lsURL
+            Main->+Language Sever: getLangClient()
+            Language Sever-->-Main: lsClient
+        end
+        Main->+Language Sever: lsClient.didOpen()
+        Main->Redux: APP_WAIT_ON_WORKSPACE_SUCCESS
+        Main->Redux: DIAGRAM_CONNECTORS_LOADING_START
+        Main->+Redux: waitForCurrentWorkspace()
+        Redux-->-Main: 
+        alt try
+            Main->+Language Sever: getLangClient()
+            Language Sever-->-Main: lsClient
+            Main->+Language Sever: lsClient.getConnectors()
+            Language Sever-->-Main: resp
+            opt resp.connectors
+                Main->Redux: DIAGRAM_CONNECTORS_LOADING_SUCCESS
+            end
+        else
+            Main->Redux: SET_CONSOLE_ERROR
+            Main->Redux: DIAGRAM_CONNECTORS_LOADING_FAILURE
+        end
+    end
+else 
+    Main->Redux: SET_CONSOLE_ERROR
+    Main->Redux: APP_FILE_FETCH_FAILURE
+end

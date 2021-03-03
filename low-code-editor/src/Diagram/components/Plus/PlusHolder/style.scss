@@ -1,0 +1,161 @@
+.plusholder {
+    .plusHolderRect {
+        fill: #f7f8fb !important;
+        stroke: #05a26b;
+        stroke-width: 1;
+        stroke-dasharray: 4;
+    }
+
+    .dotted-title {
+        color: #5567d5 !important;
+    }
+
+    .dotted-stop {
+        .dotted-stop-rect {
+            stroke: #5567d5;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+            stroke-dasharray: 3;
+            fill: url(#DottedStopLinearGradient);
+            filter: url(#DottedStopFilterDefault);
+        }
+
+        &:hover {
+            .dotted-stop-rect {
+                cursor: pointer;
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedStopLinearGradient);
+                filter: url(#DottedStopFilterHover);
+            }
+        }
+
+        &:active {
+            .dotted-stop-rect {
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedStopLinearGradient);
+                filter: url(#DottedStopFilterClick);
+            }
+        }
+    }
+
+    .dotted-process {
+        .dotted-process-rect {
+            stroke: #5567d5;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+            stroke-dasharray: 3;
+            fill: url(#DottedProcessLinearGradient);
+            filter: url(#DottedProcessFilterDefault);
+        }
+
+        &:hover {
+            .dotted-process-rect {
+                cursor: pointer;
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedProcessLinearGradient);
+                filter: url(#DottedProcessFilterHover);
+            }
+        }
+
+        &:active {
+            .dotted-process-rect {
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedProcessLinearGradient);
+                filter: url(#DottedProcessFilterClick);
+            }
+        }
+    }
+
+    .dotted-connector {
+        .dotted-connector-circle {
+            stroke: #5567d5;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+            stroke-dasharray: 3;
+            fill: url(#DottedConnectorLinearGradient);
+            filter: url(#DottedConnectorFilterDefault);
+        }
+
+        &:hover {
+            .dotted-connector-circle {
+                cursor: pointer;
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedConnectorLinearGradient);
+                filter: url(#DottedConnectorFilterHover);
+            }
+        }
+
+        &:active {
+            .dotted-connector-circle {
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0;
+                fill: url(#DottedConnectorLinearGradient);
+                filter: url(#DottedConnectorFilterClick);
+            }
+        }
+    }
+
+    .dotted-condition {
+        .dotted-condition-rect {
+            stroke: #5567d5;
+            stroke-miterlimit: 1;
+            stroke-width: 1;
+            stroke-dasharray: 3;
+            fill: url(#DottedConnectorLinearGradient);
+            filter: url(#DottedConditonFilterDefault);
+        }
+
+        &:hover {
+            .dotted-condition-rect {
+                cursor: pointer;
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0 !important;
+                fill: url(#DottedConnectorLinearGradient);
+                filter: url(#DottedConditonFilterHover);
+            }
+        }
+
+        &:active {
+            .dotted-condition-rect {
+                stroke: #5567d5;
+                stroke-miterlimit: 10;
+                stroke-width: 1;
+                stroke-dasharray: 0 !important;
+                fill: url(#DottedConnectorLinearGradient);
+                filter: url(#DottedConditonFilterClick);
+            }
+        }
+    }
+
+    text {
+        stroke-width: 0;
+        fill: #5567d5;
+        text-transform: uppercase;
+        height: 10px;
+        font-weight: 600;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        line-height: 12px;
+        text-align: center;
+        font-family: inherit;
+    }
+}

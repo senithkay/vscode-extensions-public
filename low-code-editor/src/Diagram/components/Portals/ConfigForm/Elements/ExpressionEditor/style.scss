@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+.exp-container {
+    .exp-absolute-wrapper {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        margin-right: 5rem;
+        position: relative;
+
+        .exp-editor {
+            height: 32px;
+            width: 100%;
+            border: 1px solid #5567d5;
+            border-radius: 5px;
+            padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+            margin-bottom: 14px;
+            background: #f7f8fb;
+            z-index: 300;
+
+            .monaco-editor {
+                .suggest-widget {
+                    width: 100% !important;
+                    box-shadow: inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.02);
+                    border-radius: 0 0 5px 5px;
+                    margin-top: 0.25rem;
+                    z-index: 1000 !important;
+                }
+
+                .monaco-list {
+                    background: linear-gradient(180deg, #fff 0%, #f7f7f9 100%);
+
+                    .monaco-list-row.focused {
+                        color: #8d92a4;
+                        font-weight: bold;
+                    }
+                }
+
+                &.vs canvas.decorationsOverviewRuler {
+                    width: 0 !important;
+                }
+
+                .inputarea {
+                    width: 1px !important;
+                    height: 1px !important;
+                }
+            }
+        }
+    }
+}
+
+div[class^="makeStyles-groupedForm"] {
+    .exp-container {
+        .exp-absolute-wrapper {
+            width: 100% !important;
+        }
+    }
+}
+
+div[class^="makeStyles-formWrapper"] {
+    .exp-container {
+        .exp-absolute-wrapper {
+            width: 100% !important;
+        }
+    }
+}
+
+div[class^="makeStyles-inputUrl"] {
+    .exp-container {
+        .exp-absolute-wrapper {
+            width: 90% !important;
+        }
+    }
+}
+
+div[class^="exp-wrapper"] {
+    .exp-container {
+        margin-bottom: 2.5rem;
+
+        .exp-absolute-wrapper {
+            position: absolute;
+            width: 80% !important;
+        }
+    }
+}

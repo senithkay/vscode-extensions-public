@@ -1,0 +1,206 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+.main-condition-wrapper {
+    &.active-condition {
+        .if-else {
+            .condition-options-wrapper {
+                fill: none;
+                display: none;
+                width: 100px;
+                height: 30px;
+
+                .disable {
+                    pointer-events: none !important;
+                    opacity: 0.5;
+
+                    &:hover {
+                        cursor: none !important;
+                    }
+                }
+            }
+
+            &:hover {
+                .if-else-rect {
+                    cursor: pointer;
+                    stroke: #c0ceff8a;
+                    stroke-miterlimit: 10;
+                    stroke-width: 9px;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+                    filter: none;
+
+                    &.click-effect {
+                        stroke-width: 1px !important;
+                        stroke: #5566d5 !important;
+                    }
+                }
+
+                .condition-options-wrapper {
+                    fill: #fbfbfd !important;
+                    display: inline !important;
+                }
+
+                .condition-rect {
+                    fill: #fbfbfd;
+                    height: 30px;
+                    width: 66px;
+                }
+            }
+
+            .if-else-group-active {
+                rect {
+                    cursor: pointer !important;
+                    stroke: #c0ceff8a !important;
+                    stroke-miterlimit: 10 !important;
+                    stroke-width: 9px !important;
+                    filter: none !important;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+
+                    &.click-effect {
+                        stroke-width: 1px !important;
+                        stroke: #5566d5 !important;
+                    }
+                }
+            }
+
+            .condition-text {
+                tspan {
+                    font-weight: 600;
+                    fill: #32324d;
+                    font-size: 10px;
+                    font-family: inherit;
+                    letter-spacing: 0.05em;
+                    user-select: none;
+                }
+            }
+
+            .condition-text-italic {
+                tspan {
+                    font-style: italic;
+                }
+            }
+        }
+    }
+
+    &.if-condition-wrapper {
+        /* stylelint-disable */
+        .if-else {
+            user-select: none;
+
+            .if-else-group {
+                rect {
+                    stroke: #5567d5;
+                    stroke-miterlimit: 10;
+                    stroke-width: 1;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+                    filter: url(#IfElseFilterDefault) #fafafc;
+                }
+
+                :hover {
+                    rect {
+                        cursor: pointer;
+                        stroke: #5259d2;
+                        stroke-miterlimit: 10;
+                        stroke-width: 1;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: url(#IfElseFilterHover) #fafafc;
+                    }
+                }
+
+                :active {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9px;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: none;
+
+                        &.click-effect {
+                            stroke-width: 1px !important;
+                            stroke: #5566d5 !important;
+                        }
+                    }
+                }
+            }
+
+            .condition-text {
+                tspan {
+                    font-weight: 600;
+                    fill: #32324d;
+                    font-size: 10px;
+                    font-family: inherit;
+                    letter-spacing: 0.05em;
+                    user-select: none;
+                }
+            }
+
+            .condition-text-italic {
+                tspan {
+                    font-style: italic;
+                }
+            }
+
+            line {
+                stroke-width: 1px;
+                stroke: #5566d5;
+            }
+
+            .if-head-wrapper {
+                .condition-options-wrapper {
+                    fill: none;
+                    display: none;
+                    width: 100px;
+                    height: 30px;
+
+                    .disable {
+                        pointer-events: none !important;
+                        opacity: 0.5;
+
+                        &:hover {
+                            cursor: none !important;
+                        }
+                    }
+                }
+
+                &:hover {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9px;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: none;
+
+                        &.click-effect {
+                            stroke-width: 1px !important;
+                            stroke: #5566d5 !important;
+                        }
+                    }
+
+                    .condition-options-wrapper {
+                        fill: #fbfbfd !important;
+                        display: inline !important;
+                    }
+
+                    .condition-rect {
+                        fill: #fbfbfd;
+                        height: 30px;
+                        width: 57px;
+                    }
+                }
+            }
+        }
+        /* stylelint-enable */
+    }
+}
