@@ -10,9 +10,9 @@ COPY --from=choreo /ballerina /ballerina
 RUN apt-get update && \ 
     apt-get install -y git
 
-# Install OpenJDK-8
+# Install OpenJDK-11
 RUN apt-get update && \ 
-    DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-8-jdk && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-11-jdk && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y ant && \
     apt-get clean;
 
@@ -28,7 +28,7 @@ RUN apt-get install libgtk-3-0 -y && \
     apt-get install libxss1 -y
 
 # Setup JAVA_HOME
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 RUN export JAVA_HOME
 
 # Install node
@@ -44,7 +44,7 @@ RUN node --version
 RUN npm --version
 
 # Clone plugin-vscode
-RUN git clone https://github.com/prabushi/plugin-vscode.git
+RUN git clone https://github.com/ballerina-platform/plugin-vscode.git
 
 # Copy latest ballerina distribution to extractedDistribution directory
 ENV BALLERINA_DISTRIBUTION_NAME=ballerina-swan-lake-preview5
@@ -56,4 +56,4 @@ RUN cd plugin-vscode && mkdir extractedDistribution && \
 RUN cd plugin-vscode/ && npm i && export npm_package_engines_vscode=1.34.0 && node ./node_modules/vscode/bin/install
 
 # Execute gradle build
-RUN cd plugin-vscode && ./gradlew clean build
+RUN cd plugin-vscode && apt-get install xvfb -y && xvfb-run --auto-servernum ./gradlew clean build
