@@ -10,16 +10,17 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     script: string;
     scriptArguments: Array<string>;
     commandOptions: Array<string>;
-    'ballerina.home': string; 
+    'ballerina.home': string;
     debugTests: boolean;
     networkLogs: Boolean;
     networkLogsPort: number;
     port: number;
+    env: Map<string, string>;
 }
 
 export interface RunningInfo {
-    sourceRoot? : string;
-    ballerinaPackage? : string;
+    sourceRoot?: string;
+    ballerinaPackage?: string;
 }
 
 export interface ProjectConfig {
