@@ -14,6 +14,7 @@ import { BlockViewState } from "./block";
 import { EndViewState } from "./end";
 import { PlusViewState } from "./plus";
 import { SimpleBBox } from "./simple-bbox";
+import { TriggerParamsViewState } from "./triggerParams";
 import { ViewState } from "./view-state";
 
 export class FunctionViewState extends ViewState {
@@ -22,7 +23,7 @@ export class FunctionViewState extends ViewState {
     public workerBody: BlockViewState = new BlockViewState();
     public end: EndViewState = new EndViewState();
     public initPlus: PlusViewState = undefined;
-
+    public triggerParams: TriggerParamsViewState = new TriggerParamsViewState();
     constructor() {
         super();
     }

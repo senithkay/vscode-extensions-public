@@ -37,9 +37,11 @@ import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
+import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { TriggerParamsViewState } from "../view-state/triggerParams";
 
 import { DefaultConfig } from "./default";
 
@@ -88,17 +90,28 @@ class SizingVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
+        // const triggerParams: TriggerParamsViewState = node.viewState.TriggerParamsViewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
+        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
+        triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+        triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        // todo
+        // if () {
+        // lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap;
+        // }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap;
+
+        // lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
         if (body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }

@@ -38,6 +38,7 @@ export function Function(props: FunctionProps) {
     const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
     const isStatementsAvailable: boolean = block.statements.length > 0;
     const bodyViewState: BlockViewState = block.viewState;
+    const isTriggerParamsAvailable: boolean = viewState.triggerParams.visible;
 
     return (
         <g>
@@ -45,6 +46,9 @@ export function Function(props: FunctionProps) {
                 {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
             </>
 
+            {/*// todo: check for triggerparam*/}
+            {/*{isInitPlusAvailable && <>{<StartButton model={model} />} {<TriggerParams model={model} />} </>}*/}
+            {/*{!isInitPlusAvailable && <>{<StartButton model={model} />} {<TriggerParams model={model} />} </>}*/}
             {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
             {isInitPlusAvailable && <StartButton model={model} />}
             {!isInitPlusAvailable && <StartButton model={model} />}

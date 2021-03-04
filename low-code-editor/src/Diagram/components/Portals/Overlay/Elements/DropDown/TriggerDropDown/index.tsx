@@ -86,6 +86,11 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                 setShowConfirmDialog(true);
             }
         }
+        // todo: set triggerparam true if the trigger selected is API
+        // if (model) {
+        //     noParamTriggerTypes.includes(newTrigger) ?
+        //         model.viewState.triggerParams.visible = false : model.viewState.triggerParams.visible = true
+        // }
     };
 
     const handleDialogOnUpdate = () => {
