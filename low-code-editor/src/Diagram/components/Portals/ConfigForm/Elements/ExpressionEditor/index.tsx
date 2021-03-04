@@ -133,12 +133,6 @@ export interface ExpressionEditorProps {
     }
 }
 
-let disposeOnDidFocus: monaco.IDisposable;
-let disposeOnDidChange: monaco.IDisposable;
-let disposeOnDidBlur: monaco.IDisposable;
-let disposeCompProvider: monaco.IDisposable;
-let disposeOnDidDispose: monaco.IDisposable;
-
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
     const diagramContext = useContext(Context);
     const { state } = diagramContext;
@@ -162,6 +156,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         uri: undefined,
         diagnostic: [],
     });
+
+    const [ disposableTriggers ] = useState([]);
 
     const {
         index,
@@ -241,22 +237,24 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const disposeAllTriggers = () => {
+        while (disposableTriggers.length > 0) {
+            const disposable: monaco.IDisposable = disposableTriggers.pop();
+            disposable.dispose();
+        }
+    }
+
     useEffect(() => {
-        // Disposing the triggers
-        disposeOnDidFocus?.dispose();
-        disposeOnDidChange?.dispose();
-        disposeOnDidBlur?.dispose();
-        disposeCompProvider?.dispose();
-        disposeOnDidDispose?.dispose();
+        disposeAllTriggers();
 
         if (monacoRef.current) {
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
-            disposeOnDidFocus = monacoRef.current.editor.onDidFocusEditorText(async () => {
+            disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
-            });
+            }));
 
             // event emitted when the content of the editor has changed
-            disposeOnDidChange = monacoRef.current.editor.onDidChangeModelContent(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent(() => {
                 notValidExpEditor("Please wait for validation");
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
@@ -267,15 +265,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
 
                 debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
-            });
+            }));
 
             // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
-            disposeOnDidBlur = monacoRef.current.editor.onDidBlurEditorText(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidBlurEditorText(() => {
                 handleOnOutFocus();
-            });
+            }));
 
             // completion of expression Editor
-            disposeCompProvider = monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
+            disposableTriggers.push(monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
                 provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
                     if (expressionEditorState?.name === model.name) {
                         const completionParams: CompletionParams = {
@@ -354,22 +352,24 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         });
                     }
                 },
-            });
+            }));
 
             // event emitted when the editor has been disposed
-            disposeOnDidDispose = monacoRef.current.editor.onDidDispose(() => {
-                monaco.editor.setTheme('choreoLightTheme')
-                disposeCompProvider.dispose();
+            disposableTriggers.push(monacoRef.current.editor.onDidDispose(() => {
+                monaco.editor.setTheme('choreoLightTheme');
                 handleOnOutFocus();
-            });
-
-            // Programatically focus exp-editor
-            if (focus && customProps?.revertFocus) {
-                monacoRef.current.editor.focus();
-                customProps.revertFocus();
-            }
+                disposeAllTriggers();
+            }));
         }
-    }, [statementType, focus]);
+    }, [statementType]);
+
+    useEffect(() => {
+        // Programatically focus exp-editor
+        if (focus && customProps?.revertFocus) {
+            monacoRef.current.editor.focus();
+            customProps.revertFocus();
+        }
+    }, [focus]);
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
