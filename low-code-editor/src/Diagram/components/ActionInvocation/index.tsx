@@ -10,11 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
+import React, { useContext } from "react";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { SimpleBBox, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { Metrics } from "../Metrics";
@@ -31,6 +32,7 @@ export interface ConnectorLineProps {
 
 export function ActionInvocation(props: ConnectorLineProps) {
     const { model } = props;
+    const { state: { obsViewState } } = useContext(DiagramContext);
     const classes = cn("action-invocation");
     const leftline = "leftline";
     const dashedLine = "dashedLine";
@@ -54,6 +56,10 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const triggerSVGX = lifeLineCX;
     const triggerSVGY = viewState.bBox.cy;
 
+    const truncatedActionName = (
+        viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
+    );
+
     return (
         <g>
             <g className={classes}>
@@ -76,7 +82,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {viewState.action.actionName}
+                    {obsViewState?.analysisInfo.isPerformanceViewOpen ?  truncatedActionName : viewState.action.actionName}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}
