@@ -56,6 +56,7 @@ const ignoreList = [ // inorder to ignore classes, object and enum type referenc
     'ballerina/http:1.1.0-alpha4:Response',
     'ballerina/http:1.1.0-alpha4:HttpFuture',
     'ballerina/http:1.1.0-alpha4:PushPromise',
+    'ballerina/email:1.1.0-alpha4:Security',
     'ballerina/http:1.0.4:OutboundAuthHandler',
     'ballerina/http:1.0.4:PersistentCookieHandler',
     'ballerina/io:0.5.4:ReadableByteChannel',
@@ -141,6 +142,8 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
+                            console.log('recordKey >>>', recordKey)
+
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
 
@@ -161,6 +164,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
+                                            console.log('record >>>', typeInfo, JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -851,6 +855,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
+        console.log('connector >>>', connector, JSON.stringify(connectorDef));
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();
@@ -894,7 +899,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // }
 
         // Filter connector functions to have better usability.
-        functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig);
+        functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
             const variable: LocalVarDecl = model as LocalVarDecl;
             let remoteCall: RemoteMethodCallAction;
