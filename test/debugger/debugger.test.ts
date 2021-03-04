@@ -214,7 +214,7 @@ suite('Ballerina Debug Adapter', () => {
                     });
                 })
             ]);
-        }).timeout(50000);
+        }).timeout(100000);
     });
 });
 
