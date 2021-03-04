@@ -124,6 +124,8 @@ export interface ExpressionEditorProps {
     tooltipActionText?: string;
     tooltipActionLink?: string;
     interactive?: boolean;
+    focus?: boolean;
+    revertFocus?: () => void;
     statementType?: ExpressionEditorType | any;
     customTemplate?: {
         defaultCodeSnippet: string;
@@ -162,7 +164,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate } = customProps;
+    const { validate, statementType, customTemplate, focus } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
@@ -274,6 +276,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         }
     }, [statementType])
+
+    useEffect(() => {
+        if (monacoRef.current) {
+            if (focus && customProps?.revertFocus) {
+                monacoRef.current.editor.focus();
+                customProps.revertFocus();
+            }
+        }
+    }, [focus])
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
