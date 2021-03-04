@@ -133,6 +133,12 @@ export interface ExpressionEditorProps {
     }
 }
 
+let disposeOnDidFocus: monaco.IDisposable;
+let disposeOnDidChange: monaco.IDisposable;
+let disposeOnDidBlur: monaco.IDisposable;
+let disposeCompProvider: monaco.IDisposable;
+let disposeOnDidDispose: monaco.IDisposable;
+
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
     const diagramContext = useContext(Context);
     const { state } = diagramContext;
@@ -149,13 +155,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // expEditorContentChange: dispatchExprEditorContentChange,
         // expEditorClose: dispatchExprEditorClose
     } = state;
-    // TODO: XX: Fix properly
-    const expressionEditorState: ExpressionEditorState = {
+
+    const [ expressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
         diagnostic: [],
-    };
+    });
 
     const {
         index,
@@ -234,29 +240,23 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }
-    // useEffect(handleDiagnostic, [editorDiagnostics]);
 
     useEffect(() => {
-        expressionEditorState.name = undefined;
-        expressionEditorState.content = undefined;
-        expressionEditorState.uri = undefined;
-        expressionEditorState.diagnostic = [];
+        // Disposing the triggers
+        disposeOnDidFocus?.dispose();
+        disposeOnDidChange?.dispose();
+        disposeOnDidBlur?.dispose();
+        disposeCompProvider?.dispose();
+        disposeOnDidDispose?.dispose();
 
         if (monacoRef.current) {
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
-            monacoRef.current.editor.onDidFocusEditorText(async () => {
-                if (!expressionEditorState?.uri) {
-                    // focus expEditor from outside
-                    handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
-                } else if (expressionEditorState?.name !== model.name) {
-                    // focus expEditor from another expEditor
-                    handleOnOutFocus();
-                    handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
-                }
+            disposeOnDidFocus = monacoRef.current.editor.onDidFocusEditorText(async () => {
+                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
             });
 
             // event emitted when the content of the editor has changed
-            monacoRef.current.editor.onDidChangeModelContent(() => {
+            disposeOnDidChange = monacoRef.current.editor.onDidChangeModelContent(() => {
                 notValidExpEditor("Please wait for validation");
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
@@ -270,21 +270,106 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
 
             // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
-            monacoRef.current.editor.onDidBlurEditorText(() => {
+            disposeOnDidBlur = monacoRef.current.editor.onDidBlurEditorText(() => {
                 handleOnOutFocus();
             });
 
-        }
-    }, [statementType])
+            // completion of expression Editor
+            disposeCompProvider = monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
+                provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
+                    if (expressionEditorState?.name === model.name) {
+                        const completionParams: CompletionParams = {
+                            textDocument: {
+                                uri: expressionEditorState?.uri
+                            },
+                            context: {
+                                triggerKind: 1
+                            },
+                            position: {
+                                character: monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
+                                line: targetPosition.line
+                            }
+                        }
 
-    useEffect(() => {
-        if (monacoRef.current) {
+                        return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                            const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                            const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                return {
+                                    range: null,
+                                    label: completionResponse.label,
+                                    kind: completionResponse.kind as CompletionItemKind,
+                                    insertText: completionResponse.insertText,
+                                    insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'c'
+                                }
+                            });
+                            if (varType === "string") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'Custom string template',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    // tslint:disable-next-line: no-invalid-template-strings
+                                    insertText: '"${1:}"',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                            }
+                            if (varType === "boolean") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'true',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'true',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'false',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'false',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                                completionItems.push(completionItemTemplate1);
+                            }
+                            if (model.aiSuggestion) {
+                                const completionItemAI: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: model.aiSuggestion,
+                                    kind: 1 as CompletionItemKind,
+                                    insertText: model.aiSuggestion,
+                                    sortText: 'a'
+                                }
+                                completionItems.push(completionItemAI);
+                            }
+                            const completionList: monaco.languages.CompletionList = {
+                                incomplete: false,
+                                suggestions: completionItems
+                            };
+                            return completionList;
+                        });
+                    }
+                },
+            });
+
+            // event emitted when the editor has been disposed
+            disposeOnDidDispose = monacoRef.current.editor.onDidDispose(() => {
+                monaco.editor.setTheme('choreoLightTheme')
+                disposeCompProvider.dispose();
+                handleOnOutFocus();
+            });
+
+            // Programatically focus exp-editor
             if (focus && customProps?.revertFocus) {
                 monacoRef.current.editor.focus();
                 customProps.revertFocus();
             }
         }
-    }, [focus])
+    }, [statementType, focus]);
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
@@ -464,96 +549,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Disable pressing enter except when suggestions drop down is visible
             }, '!suggestWidgetVisible')
         });
-
-
-        // completion of expression Editor
-        const { dispose: disposeCompProvider } = monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
-            provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
-                if (expressionEditorState?.name === model.name) {
-                    const completionParams: CompletionParams = {
-                        textDocument: {
-                            uri: expressionEditorState?.uri
-                        },
-                        context: {
-                            triggerKind: 1
-                        },
-                        position: {
-                            character: monacoEditor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                            line: targetPosition.line
-                        }
-                    }
-
-                    return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                        const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                        const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                            return {
-                                range: null,
-                                label: completionResponse.label,
-                                kind: completionResponse.kind as CompletionItemKind,
-                                insertText: completionResponse.insertText,
-                                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'c'
-                            }
-                        });
-                        if (varType === "string") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'Custom string template',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                // tslint:disable-next-line: no-invalid-template-strings
-                                insertText: '"${1:}"',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                        }
-                        if (varType === "boolean") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'true',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'true',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'false',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'false',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                            completionItems.push(completionItemTemplate1);
-                        }
-                        if (model.aiSuggestion) {
-                            const completionItemAI: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: model.aiSuggestion,
-                                kind: 1 as CompletionItemKind,
-                                insertText: model.aiSuggestion,
-                                sortText: 'a'
-                            }
-                            completionItems.push(completionItemAI);
-                        }
-                        const completionList: monaco.languages.CompletionList = {
-                            incomplete: false,
-                            suggestions: completionItems
-                        };
-                        return completionList;
-                    });
-                }
-            },
-        });
-
-        // event emitted when the editor has been disposed
-        monacoEditor.onDidDispose(() => {
-            monaco.editor.setTheme('choreoLightTheme')
-            disposeCompProvider();
-            handleOnOutFocus();
-        })
     }
     return (
         <>
