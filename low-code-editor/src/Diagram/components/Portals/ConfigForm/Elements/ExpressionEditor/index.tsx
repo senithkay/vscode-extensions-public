@@ -140,7 +140,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         targetPosition: targetPositionDraft,
         currentFile,
         currentApp,
-        langClient,
+        expEditorLangClient: langClient,
         syntaxTree,
         // exprEditorState,
         // expEditorStart: dispatchExprEditorStart,

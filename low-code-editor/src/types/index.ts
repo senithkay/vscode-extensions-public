@@ -70,6 +70,7 @@ export interface LowCodeEditorProps {
     error?: Error;
     langServerURL?: string;
     langClient?: LowCodeLangClient;
+    expEditorLangClient?: LowCodeLangClient;
     workingFile?: string;
     syntaxTree: ModulePart;
     stSymbolInfo?: STSymbolInfo;
