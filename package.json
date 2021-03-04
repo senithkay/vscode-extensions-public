@@ -101,6 +101,11 @@
                     "type": "string",
                     "default": "https://datamapper.choreo.dev",
                     "description": "Specify the URL of the data mapper backend host."
+                },
+                "ballerina.enableFileWatcher": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable watching file change events of the project."
                 }
             }
         },
