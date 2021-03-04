@@ -75,7 +75,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     />
                     <div className={formClasses.formTitleWrapper}>
                         <div className={formClasses.mainTitleWrapper}>
-                            <img src="../../../../../../images/Respond.svg" />
+                            <img src="../../../../../../images/Logo_Circle.svg" />
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}>Custom Statement</Box>
                             </Typography>

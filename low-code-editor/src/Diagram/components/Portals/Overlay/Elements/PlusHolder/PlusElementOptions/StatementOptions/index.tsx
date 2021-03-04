@@ -211,7 +211,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelect.bind(undefined, "Custom")}
                 >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Respond.svg" />
+                        <img src="../../../../../../images/Logo_Circle.svg" />
                     </div>
                     <div className="text-label">Custom Statement</div>
                 </div>
