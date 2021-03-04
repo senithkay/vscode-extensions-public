@@ -16,6 +16,7 @@ import React, { useContext, useState } from "react";
 import { ReturnStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { ReturnIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getVaribaleNamesFromVariableDefList } from "../../../../../utils";
@@ -26,8 +27,6 @@ import { RadioControl } from "../../../../Elements/RadioControl/FormRadioControl
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { EndConfig } from "../../../../types";
 import { useStyles } from "../../../style";
-
-import { ReturnIcon } from "../../../../../../../../assets/icons";
 
 interface ReturnFormProps {
     config: EndConfig;

@@ -106,7 +106,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     gitHubEvent: "Select a Github event to setup the trigger",
     gitHubAction: "Select a Github action to setup the trigger",
-    calenderId: "Select your Google Calender",
+    calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
         content: 'log:printInfo("infolog")\nlog:printError("error log")'
@@ -160,8 +160,8 @@ export const tooltipMessages: Record<string, any> = {
         content: "Create events, Set reminders"
     },
     gSheetConnector: {
-        title: "Connect your application with Google sheets API",
-        content: "Create and format Google sheets"
+        title: "Connect your application with Google Sheets API",
+        content: "Create and format Google Sheets"
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
