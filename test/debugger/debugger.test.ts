@@ -120,7 +120,7 @@ suite('Ballerina Debug Adapter', () => {
                 "debuggeePort": debuggeePort
             };
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 5 });
-        }).timeout(10000);
+        }).timeout(20000);
 
         test('should stop on a breakpoint, hello world service', async () => {
             const program = path.join(DATA_ROOT, 'hello_world_service.bal');
@@ -140,7 +140,7 @@ suite('Ballerina Debug Adapter', () => {
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
-        }).timeout(15000);
+        }).timeout(20000);
 
         test('should stop on a breakpoint, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloServicePackage', 'hello_service.bal');
@@ -160,7 +160,7 @@ suite('Ballerina Debug Adapter', () => {
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
-        }).timeout(15000);
+        }).timeout(20000);
 
         test('step In, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
@@ -214,7 +214,7 @@ suite('Ballerina Debug Adapter', () => {
                     });
                 })
             ]);
-        }).timeout(15000);
+        }).timeout(50000);
     });
 });
 
