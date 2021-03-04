@@ -287,7 +287,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     }
                 </>
                 <div className={classes.valueWrapper}>
-                    {...arrayValues}
+                    {arrayValues}
                 </div>
             </div>
         </div>

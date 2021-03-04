@@ -129,7 +129,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         </MenuItem>
                     )
                 }
-                {...menuItems}
+                {menuItems}
                 {!disableCreateNew && <LinkButton onClick={handleCreateNewClick} startIcon={<AddRounded/>} text="Create New" />}
             </Select>
         </>

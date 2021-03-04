@@ -102,7 +102,7 @@ export function Form(props: FormProps) {
 
     return (
         <form className={classes.inputUrl} noValidate={true} autoComplete="off">
-            {...elements}
+            {elements}
         </form>
     );
 }
