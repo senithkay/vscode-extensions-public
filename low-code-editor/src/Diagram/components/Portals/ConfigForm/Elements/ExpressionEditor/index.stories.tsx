@@ -1,5 +1,6 @@
 import React from 'react';
 
+// tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
 import { FormField, PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
@@ -33,6 +34,7 @@ const formField: FormField = {
 const args: FormElementProps = {
     model: formField,
     customProps: {
+        // tslint:disable-next-line:no-empty
         validate: () => {},
         tooltipTitle: "Tooltip Title",
         tooltipActionText: "Tooltip action text",
@@ -61,8 +63,8 @@ const contextState = {
             const completions: CompletionResponse[] = [];
             return completions;
         },
-        didChange: async (_content): Promise<void> => {
-        },
+        // tslint:disable-next-line:no-empty
+        didChange: async (_content): Promise<void> => {},
         diagnostics: async (_content): Promise<any> => {
             return [];
         }
@@ -71,18 +73,18 @@ const contextState = {
 }
 
 
-const Template: Story<FormElementProps> = (args: FormElementProps) =>  (
+const Template: Story<FormElementProps> = (formArgs: FormElementProps) =>  (
     <DiagramProvider initialState={contextState} >
-        <ExpressionEditor {...args}/>
+        <ExpressionEditor {...formArgs}/>
     </DiagramProvider>
 );
 export const ExpressionEditorStandard = Template.bind({});
 ExpressionEditorStandard.args = args;
 
 
-const TemplateWithError: Story<FormElementProps> = (args: FormElementProps) =>  (
+const TemplateWithError: Story<FormElementProps> = (formArgs: FormElementProps) =>  (
     <DiagramProvider initialState={{...contextState, diagnostics: errorDiagnostic}} >
-        <ExpressionEditor {...args}/>
+        <ExpressionEditor {...formArgs}/>
     </DiagramProvider>
 );
 export const ExpressionEditorWithError = TemplateWithError.bind({});
