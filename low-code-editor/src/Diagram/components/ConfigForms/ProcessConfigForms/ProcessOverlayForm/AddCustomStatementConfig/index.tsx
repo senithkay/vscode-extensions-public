@@ -83,7 +83,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     </div>
                     <div className="exp-wrapper">
                     <ExpressionEditor
-                        model={{ name: "expression", type: PrimitiveBalType.Var, value: expression }}
+                        model={{ name: "expression", value: expression }}
                         customProps={{
                             validate: validateExpression,
                             tooltipTitle: tooltipMessages.expressionEditor.title,
