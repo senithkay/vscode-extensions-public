@@ -78,7 +78,7 @@ const actions = {
             dispatch({ type: 'EDITOR_COMPONENT_START', payload })
         }
     },
-    switchDiagramToDataMapper: (dispatch: any) => {
+    dataMapperStart: (dispatch: any) => {
         return (payload: boolean) => {
             dispatch({type: 'SWITCH_TO_DATAMAPPER', payload})
         }

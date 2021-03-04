@@ -13,7 +13,7 @@
 import {
     AssignmentStatement,
     CallStatement,
-    CaptureBindingPattern, ForeachStatement, FunctionDefinition, LocalVarDecl, QualifiedNameReference, RequiredParam,
+    CaptureBindingPattern, ForeachStatement, FunctionDefinition, LocalVarDecl, QualifiedNameReference, RecordTypeDesc, RequiredParam,
     SimpleNameReference,
     STKindChecker,
     STNode,

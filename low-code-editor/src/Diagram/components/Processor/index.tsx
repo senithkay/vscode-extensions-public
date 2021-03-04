@@ -40,7 +40,7 @@ export interface ProcessorProps {
 const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
 
 export function DataProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, dataMapperStart } = useContext(DiagramContext);
     const {
         syntaxTree,
         stSymbolInfo,
@@ -143,12 +143,16 @@ export function DataProcessor(props: ProcessorProps) {
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
-            dispatchCloseConfigOverlayForm();
-            const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
-                blockViewState, undefined, stSymbolInfo);
-            updateConfigOverlayFormState(overlayFormConfig);
-            openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
-                WizardType.NEW, blockViewState, undefined, stSymbolInfo);
+            if (draftVS?.subType === 'DataMapper') {
+                dataMapperStart(true);
+            } else {
+                dispatchCloseConfigOverlayForm();
+                const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
+                    blockViewState, undefined, stSymbolInfo);
+                updateConfigOverlayFormState(overlayFormConfig);
+                openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
+                    WizardType.NEW, blockViewState, undefined, stSymbolInfo);
+            }
         }
     }, []);
 
