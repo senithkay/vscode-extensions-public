@@ -19,11 +19,11 @@
  */
 import * as fs from "fs";
 import * as rimraf from "rimraf";
-import * as http from 'http';
+// import * as http from 'http';
 import * as path from 'path';
 import { BallerinaProject } from "src/core";
 import { runCommand, BALLERINA_COMMANDS } from '../../src/project/cli-cmds/cmd-runner';
-import { getBallerinaHome, killPort } from '../test-util';
+import { getBallerinaHome } from '../test-util';
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
 const HELLO_PACKAGE_TARGET_PATH = path.join(PROJECT_ROOT, 'helloPackage', 'target');
@@ -97,30 +97,30 @@ suite("Ballerina Extension CLI Command Tests", () => {
         runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.BUILD, filePath);
     }).timeout(15000);
 
-    test("Test Run - Ballerina project", done => {
-        const projectPath = path.join(PROJECT_ROOT, 'helloServicePackage');
-        const balProject: BallerinaProject = {
-            path: projectPath,
-            version: '0.0.1',
-            packageName: 'helloserviceproject',
-            kind: 'BUILD_PROJECT'
-        };
+    // test("Test Run - Ballerina project", done => {
+    //     const projectPath = path.join(PROJECT_ROOT, 'helloServicePackage');
+    //     const balProject: BallerinaProject = {
+    //         path: projectPath,
+    //         version: '0.0.1',
+    //         packageName: 'helloserviceproject',
+    //         kind: 'BUILD_PROJECT'
+    //     };
 
-        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, projectPath);
-        const response = http.get('http://0.0.0.0:9091/hello/sayHello');
-        if (response) {
-            done();
-        }
-        killPort(9091);
-    }).timeout(15000);
+    //     runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, projectPath);
+    //     const response = http.get('http://0.0.0.0:9091/hello/sayHello');
+    //     if (response) {
+    //         done();
+    //     }
+    //     killPort(9091);
+    // }).timeout(15000);
 
-    test("Test Run - Single file", done => {
-        const filePath = path.join(PROJECT_ROOT, 'hello_world_service.bal');
-        runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, filePath);
-        const response = http.get('http://0.0.0.0:9090/hello/sayHello');
-        if (response) {
-            done();
-        }
-        killPort(9090);
-    }).timeout(15000);
+    // test("Test Run - Single file", done => {
+    //     const filePath = path.join(PROJECT_ROOT, 'hello_world_service.bal');
+    //     runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, filePath);
+    //     const response = http.get('http://0.0.0.0:9090/hello/sayHello');
+    //     if (response) {
+    //         done();
+    //     }
+    //     killPort(9090);
+    // }).timeout(15000);
 });

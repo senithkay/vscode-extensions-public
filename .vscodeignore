@@ -40,5 +40,6 @@ grammar/ballerina-grammar/README.md
 grammar/ballerina-grammar/extract-keywords.js
 grammar/ballerina-grammar/build-tm.js
 grammar/ballerina-grammar/build-monarch.js
+grammar/ballerina-grammar/test-scripts/
 scripts/
 resources/jslibs/index.d.ts
