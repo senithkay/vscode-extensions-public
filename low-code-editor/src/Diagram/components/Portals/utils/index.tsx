@@ -28,7 +28,7 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 // import { BallerinaLangClient } from "../../../../../../api/lang-client";
 import { ConnectionDetails } from "../../../../api/models";
 // import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
-import { ActionConfig, ConnectorConfig, FormField, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
@@ -988,11 +988,11 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
             const sheetRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const sheetRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
-                oauth2Config: {
+                oauthClientConfig: {
                     clientId: ${sheetClientId},
                     clientSecret: ${sheetClientSecret},
                     refreshToken: ${sheetRefreshToken},
-                    refreshUrl: ${sheetRefreshUrl},
+                    refreshUrl: ${sheetRefreshUrl}
                 }
              }`];
         }
@@ -1006,7 +1006,7 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
                     clientId: ${calendarClientId},
                     clientSecret: ${calendarClientSecret},
                     refreshToken: ${calendarRefreshToken},
-                    refreshUrl: ${calendarRefreshUrl},
+                    refreshUrl: ${calendarRefreshUrl}
                 }
              }`];
         }
@@ -1016,15 +1016,29 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
             const gmailRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const gmailRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
-                oauth2Config: {
+                oauthClientConfig: {
                     clientId: ${gmailClientId},
                     clientSecret: ${gmailClientSecret},
                     refreshToken: ${gmailRefreshToken},
-                    refreshUrl: ${gmailRefreshUrl},
+                    refreshUrl: ${gmailRefreshUrl}
                 }
              }`];
         }
     }
+}
+
+export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
+    if (functionDefinitions.get(action)?.returnType?.isErrorType) {
+        // return type has an error
+        return true;
+    }
+    if (functionDefinitions.get(action)?.returnType?.fields
+        .find((param: any) => (param?.isErrorType || param?.type === "error"))) {
+        // return type has an error
+        return true;
+    }
+    // return type hasn't any error
+    return false;
 }
 
 export interface VariableNameValidationResponse {

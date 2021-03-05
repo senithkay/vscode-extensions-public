@@ -79,7 +79,7 @@ export function GoogleSheet(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo, isMutationProgress, getConnectorConfig } = state;
+    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
@@ -128,7 +128,6 @@ export function GoogleSheet(props: WizardProps) {
         config.action.fields = formFields;
     }
 
-    const sessionId: string = uuidv4();
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
         setConnectionDetails(connection);
         setFormState(FormStates.OperationDropdown);
@@ -139,7 +138,7 @@ export function GoogleSheet(props: WizardProps) {
         setFormState(FormStates.OauthConnect);
     };
 
-    const handleOnFailure = (e: Error) => {
+    const handleOnFailure = () => {
         //    todo handle error
     };
 
@@ -213,21 +212,6 @@ export function GoogleSheet(props: WizardProps) {
         }
     }
 
-    const setAttendeeFieldValue = () => {
-        let record = "";
-        formFields[1].fields[12].value = [];
-        if (formFields[1].fields[12].fields.length > 0) {
-            formFields[1].fields[12].fields.forEach((field, index) => {
-                if (index === (formFields[1].fields[12].fields.length - 1)) {
-                    record += "{email: " + field.value + ", responseStatus: \"needsAction\"}";
-                } else {
-                    record += "{email: " + field.value + ", responseStatus: \"needsAction\"},";
-                }
-            });
-            formFields[1].fields[12].fields = undefined;
-            formFields[1].fields[12].value.push(record);
-        }
-    }
 
     const handleOnSave = () => {
         // insert initialized connector logic
@@ -245,82 +229,91 @@ export function GoogleSheet(props: WizardProps) {
                 // Add an connector client initialization.
                 if (isNewConnection) {
                     let addConfigurableVars: STModification;
-                    let addConnectorConfigs: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        // TODO: has to update with proper way
                         addConfigurableVars = createPropertyStatement(
                             `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;`,
-                            { column: 0, line: 1 }
+                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
+                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
+                            {column:0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:SpreadsheetConfiguration configs = ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)};`,
-                            targetPosition
-                        );
+
+                        const isInitErrorType = functionDefinitions.get('init')?.returnType?.isErrorType;
+                        if (isInitErrorType) {
+                            addConnectorInit = createPropertyStatement(
+                                `${connector.module}:${connector.name} ${config.name} = check new (${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)});`,
+                                targetPosition
+                            );
+                        } else {
+                            addConnectorInit = createObjectDeclaration(
+                                (connector.module + ":" + connector.name),
+                                config.name,
+                                [ getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails) ],
+                                targetPosition
+                            );
+                        }
+                        
                     } else {
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:SpreadsheetConfiguration configs = {
-                                oauth2Config: {
-                                    clientId: ${getFormFieldValue("clientId", "refreshConfig")},
-                                    clientSecret: ${getFormFieldValue("clientSecret", "refreshConfig")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl", "refreshConfig")},
-                                    refreshUrl: ${connector.module}:REFRESH_URL
+                        addConnectorInit = createObjectDeclaration(
+                            (connector.module + ":" + connector.name),
+                            config.name,
+                            [ `{
+                                oauthClientConfig: {
+                                    clientId: ${getFormFieldValue("clientId")},
+                                    clientSecret: ${getFormFieldValue("clientSecret")},
+                                    refreshToken: ${getFormFieldValue("refreshUrl")},
+                                    refreshUrl: ${getFormFieldValue("refreshToken")}
                                 }
-                             };`,
+                             }` ],
                             targetPosition
                         );
                     }
-
-                    modifications.push(addConnectorConfigs);
-
-                    addConnectorInit = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        config.name,
-                        [ "configs" ],
-                        targetPosition
-                    );
                     modifications.push(addConnectorInit);
                 }
 
                 // Add an action invocation on the initialized client.
                 const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
                 if (isErrorType) {
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 } else {
-                    const addActionInvo: STModification = createRemoteServiceCall(
+                    const addActionInvocation: STModification = createRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
             const updateConnectorInit = updateObjectDeclaration(
                 (connector.module + ":" + connector.name),
                 config.name,
-                [ "configs" ],
+                [ `{
+                    oauthClientConfig: {
+                        clientId: ${getFormFieldValue("clientId")},
+                        clientSecret: ${getFormFieldValue("clientSecret")},
+                        refreshToken: ${getFormFieldValue("refreshUrl")},
+                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                    }
+                 }` ],
                 config.initPosition
             );
             modifications.push(updateConnectorInit);
 
             const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
             if (isErrorType) {
-                const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -328,9 +321,9 @@ export function GoogleSheet(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvo: STModification = updateRemoteServiceCall(
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -338,7 +331,7 @@ export function GoogleSheet(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             }
         }
         onSave(modifications);

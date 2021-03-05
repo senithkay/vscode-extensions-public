@@ -18,7 +18,7 @@ import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
-import { ConnectionDetails, OauthProviderConfig } from "../../../../api/models";
+import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -26,12 +26,11 @@ import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
-    updatePropertyStatement
+    updatePropertyStatement,
+    updateRemoteServiceCall
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
@@ -41,8 +40,8 @@ import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonW
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
+    checkErrorsReturnType,
     genVariableName,
-    // getConnectorConfig,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -77,7 +76,7 @@ export function GoogleCalender(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo, isMutationProgress, getConnectorConfig } = state;
+    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
@@ -228,7 +227,8 @@ export function GoogleCalender(props: WizardProps) {
     }
 
     const handleOnSave = () => {
-        // insert initialized connector logic
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -244,46 +244,35 @@ export function GoogleCalender(props: WizardProps) {
                 // Add an connector client initialization.
                 if (isNewConnection) {
                     let addConfigurableVars: STModification;
-                    let addConnectorConfigs: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        // TODO: has to update with proper way
                         addConfigurableVars = createPropertyStatement(
                             `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column:0, line: 1}
+                            {column:0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:CalendarConfiguration configs = ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)};`,
+                        
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );
+                        );  
                     } else {
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:CalendarConfiguration configs = {
-                                oauth2Config: {
-                                    clientId: ${getFormFieldValue("clientId", "refreshConfig")},
-                                    clientSecret: ${getFormFieldValue("clientSecret", "refreshConfig")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl", "refreshConfig")},
-                                    refreshUrl: ${getFormFieldValue("refreshToken", "refreshConfig")}
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                                oauthClientConfig: {
+                                    clientId: ${getFormFieldValue("clientId")},
+                                    clientSecret: ${getFormFieldValue("clientSecret")},
+                                    refreshToken: ${getFormFieldValue("refreshUrl")},
+                                    refreshUrl: ${getFormFieldValue("refreshToken")}
                                 }
-                             };`,
+                             });`,
                             targetPosition
-                        );
+                        ); 
                     }
-
-                    modifications.push(addConnectorConfigs);
-
-                    addConnectorInit = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        config.name,
-                        [ "configs" ],
-                        targetPosition
-                    );
                     modifications.push(addConnectorInit);
                 }
 
@@ -293,34 +282,38 @@ export function GoogleCalender(props: WizardProps) {
                 }
                 
                 // Add an action invocation on the initialized client.
-                const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-                if(isErrorType){
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                if(isActionReturnError){
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }else{
-                    const addActionInvo: STModification = createRemoteServiceCall(
+                    const addActionInvocation: STModification = createRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
-        } else {                        
-            const updateConnectorInit = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                config.name,
-                [ "configs" ],
+        } else {          
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                    oauthClientConfig: {
+                        clientId: ${getFormFieldValue("clientId")},
+                        clientSecret: ${getFormFieldValue("clientSecret")},
+                        refreshToken: ${getFormFieldValue("refreshUrl")},
+                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                    }
+                 });`,
                 config.initPosition
-            );
+            ); 
             modifications.push(updateConnectorInit);
 
             if (config.action.name === "createEvent") {
@@ -328,10 +321,8 @@ export function GoogleCalender(props: WizardProps) {
                 setAttendeeFieldValue();
             }
 
-            // Add an action invocation on the initialized client.
-            const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-            if(isErrorType){
-                const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+            if(isActionReturnError){
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -339,9 +330,9 @@ export function GoogleCalender(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             }else{
-                const updateActionInvo: STModification = updateRemoteServiceCall(
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -349,7 +340,7 @@ export function GoogleCalender(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             }
         }
         onSave(modifications);

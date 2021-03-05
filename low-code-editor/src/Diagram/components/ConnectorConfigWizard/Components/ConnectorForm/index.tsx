@@ -53,7 +53,7 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationDropdown } from "../OperationDropdown";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
-import { addAiSuggestion, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
+import { addAiSuggestion, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams, checkErrorsReturnType } from '../../../Portals/utils';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -267,6 +267,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
@@ -276,18 +278,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             // insert initialized connector logic
             const modifications: STModification[] = [];
 
-            if (!isNewConnectorInitWizard) {
-                // check connector client response has an Error
-                if (!config.isReturnError) {
-                    const updateConnectorInit = updateObjectDeclaration(
-                        (connectorInfo.module + ":" + connectorInfo.name),
-                        config.name,
-                        getParams(config.connectorInit),
-                        connectorConfig.initPosition
-                    );
-                    modifications.push(updateConnectorInit);
-
-                    const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+            if (!isNewConnectorInitWizard) {                
+                const updateConnectorInit = updatePropertyStatement(
+                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                    connectorConfig.initPosition
+                );                         
+                modifications.push(updateConnectorInit);
+               
+                if (isActionReturnError) {
+                    const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
@@ -295,15 +294,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         getParams(config.action.fields),
                         model.position
                     );
-                    modifications.push(updateActionInvo);
+                    modifications.push(updateActionInvocation);
                 } else {
-                    // add checkpanic keyword when initializing connector to handle the Error
-                    const updateConnectorInit = updatePropertyStatement(
-                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = check new (${getParams(config.connectorInit).join()});`,
-                        connectorConfig.initPosition
-                    );
-                    modifications.push(updateConnectorInit);
-                    // update action invocation without checkpanic keyword
                     const updateActionInvocation: STModification = updateRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -316,7 +308,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
             } else {
                 if (targetPosition) {
-
                     // Add an import.
                     const addImport: STModification = createImportStatement(
                         connectorInfo.org,
@@ -336,48 +327,33 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 targetPosition
                             );
                         } else {
-                            // check connector client response has an Error
-                            const isInitErrorType = (functionDefInfo.get('init')?.returnType?.fields
-                                        .find((param: any) => (param?.isErrorType || param?.type === "error"))) !== undefined;
-                            if (isInitErrorType) {
-                                // add checkpanic keyword when initializing connector to handle the Error
-                                addConnectorInit = createPropertyStatement(
-                                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = check new (${getParams(config.connectorInit).join()});`,
-                                    targetPosition
-                                );
-                            } else {
-                                addConnectorInit = createObjectDeclaration(
-                                    (connectorInfo.module + ":" + connectorInfo.name),
-                                    config.name,
-                                    getParams(config.connectorInit),
-                                    targetPosition
-                                );
-                            }
+                            addConnectorInit = createPropertyStatement(
+                                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                                targetPosition
+                            );            
                         }
                         modifications.push(addConnectorInit);
                     }
 
                     // Add an action invocation on the initialized client.
-                    console.log('isErrorType >>>', functionDefInfo.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType))
-                    const isErrorType = (functionDefInfo.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-                    if(isErrorType){
-                        const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                    if(isActionReturnError){
+                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,
                             config.name,
                             config.action.name,
                             getParams(config.action.fields), targetPosition
                         );
-                        modifications.push(addActionInvo);
+                        modifications.push(addActionInvocation);
                     }else{
-                        const addActionInvo: STModification = createRemoteServiceCall(
+                        const addActionInvocation: STModification = createRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,
                             config.name,
                             config.action.name,
                             getParams(config.action.fields), targetPosition
                         );
-                        modifications.push(addActionInvo);
+                        modifications.push(addActionInvocation);
                     }
 
                     if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {

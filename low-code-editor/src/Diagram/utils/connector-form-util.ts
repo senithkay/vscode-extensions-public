@@ -123,6 +123,11 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             // const state = store.getState();
                             param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
                             formField = [param, ...formField]
+                        } else if (param.name === "to") {
+                            param.type = "collection";
+                            param.collectionDataType = PrimitiveBalType.String;
+                            param.isUnion = false;
+                            param.fields = [];
                         }
 
                         if (param.name !== "'from") {

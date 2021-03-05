@@ -83,6 +83,7 @@ export interface FormField {
     noCodeGen?: boolean;
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
+    isErrorType?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file

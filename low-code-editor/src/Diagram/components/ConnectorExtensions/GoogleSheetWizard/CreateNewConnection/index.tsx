@@ -22,11 +22,9 @@ import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName } from "../../../Portals/utils";
 
 interface CreateConnectorFormProps {
@@ -60,7 +58,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [connectorNameError, setConnectorNameError] = useState('');
-    const [isAccessTokenValid, setIsAccessTokenValid] = useState(false);
     const [isValidForm, setIsValidForm] = useState(false);
     const [connectorInitFields] = useState(initFields);
     const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
@@ -104,6 +101,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         }
         return true;
     };
+
     const onNameChange = (text: string) => {
         setNameState({
             value: text,
@@ -112,19 +110,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         });
         onConfigNameChange(text);
     };
-
-    const setFormFieldValue = (text: string, key: string, title?: string) => {
-        if (title) {
-            connectorInitFields.find(config => config.name === "spreadsheetConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === title)
-                .fields.find(field => field.name === key).value = text;
-        } else {
-            connectorInitFields.find(config => config.name === "spreadsheetConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === key).value = text;
-        }
-    }
 
     const validateForm = (isRequiredFilled: boolean) => {
         setIsValidForm(isRequiredFilled);
@@ -135,6 +120,12 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = connectorInitFields;
         onSave();
     };
+
+    const filteredFormFields = () => {
+        return connectorInitFields.find(config => config.name === "spreadsheetConfig").fields
+            .find(field => field.name === "oauthClientConfig").fields
+            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
+    }
 
     return (
         <div>
@@ -152,7 +143,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={"Enter Connection Name"}
                         />
-                        <Form fields={connectorInitFields} onValidate={validateForm} />
+                        <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
@@ -162,7 +153,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     <PrimaryButton
                         dataTestId={"sheet-save-next-btn"}
                         text="Save &amp; Next"
-                        disabled={!(isAccessTokenValid && nameState.isNameProvided && nameState.isValidName && isValidForm)}
+                        disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
                         fullWidth={false}
                         onClick={handleOnSave}
                     />

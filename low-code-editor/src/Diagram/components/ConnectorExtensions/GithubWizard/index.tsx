@@ -235,14 +235,14 @@ export function GithubWizard(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
                     getParams(config.action.fields), targetPosition
                 );
-                modifications.push(addActionInvo);
+                modifications.push(addActionInvocation);
             }
         } else {
             const updateConnectorInit = updateObjectDeclaration(
@@ -253,7 +253,7 @@ export function GithubWizard(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+            const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                 "var",
                 config.action.returnVariableName,
                 config.name,
@@ -261,7 +261,7 @@ export function GithubWizard(props: WizardProps) {
                 getParams(config.action.fields),
                 model.position
             );
-            modifications.push(updateActionInvo);
+            modifications.push(updateActionInvocation);
 
         }
         onSave(modifications);

@@ -138,7 +138,7 @@ export function SMTPWizard(props: WizardProps) {
                 modifications.push(addConnectorInit);
             }
             // Add an action invocation on the initialized client.
-            const addActionInvo: STModification = updateCheckedRemoteServiceCall(
+            const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
                 "var",
                 connectorConfig.action.returnVariableName,
                 connectorConfig.name,
@@ -146,7 +146,7 @@ export function SMTPWizard(props: WizardProps) {
                 getParams(connectorConfig.action.fields),
                 model.position
             );
-            modifications.push(addActionInvo);
+            modifications.push(addActionInvocation);
 
         } else {
             if (targetPosition) {
@@ -171,14 +171,14 @@ export function SMTPWizard(props: WizardProps) {
                     modifications.push(addConnectorInit);
                 }
                 // Add an action invocation on the initialized client.
-                const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                     "var",
                     connectorConfig.action.returnVariableName,
                     connectorConfig.name,
                     connectorConfig.action.name,
                     getParams(connectorConfig.action.fields), targetPosition
                 );
-                modifications.push(addActionInvo);
+                modifications.push(addActionInvocation);
 
                 // if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
                 //     const addPayload: STModification = createCheckedPayloadFunctionInvocation(

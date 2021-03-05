@@ -101,7 +101,9 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     const showSheetSelector = !isManualConnection && connectionInfo && (selectedOperation === "openSpreadsheetById");
-    formFields[0].hide = showSheetSelector;
+    if(formFields.find(field => field.name === "spreadsheetId")){
+        formFields.find(field => field.name === "spreadsheetId").hide = showSheetSelector;
+    }
 
     const handleGsheetChange = (event: object, value: any) => {
         setActiveGsheet(value);

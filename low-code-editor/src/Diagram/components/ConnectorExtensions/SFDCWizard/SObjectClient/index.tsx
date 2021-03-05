@@ -155,14 +155,14 @@ export function SObjectClient(props: WizardProps) {
             }
 
             // Add an action invocation on the initialized client.
-            const addActionInvo: STModification = createCheckedRemoteServiceCall(
+            const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                 "var",
                 connectorConfig.action.returnVariableName,
                 connectorConfig.name,
                 connectorConfig.action.name,
                 getParams(connectorConfig.action.fields), targetPosition
             );
-            modifications.push(addActionInvo);
+            modifications.push(addActionInvocation);
         }
         onSave(modifications);
     };

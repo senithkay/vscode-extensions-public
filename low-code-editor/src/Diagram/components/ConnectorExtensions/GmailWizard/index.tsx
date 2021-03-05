@@ -19,7 +19,7 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 import { v4 as uuidv4 } from "uuid";
 
-import { ConnectionDetails, OauthProviderConfig } from "../../../../api/models";
+import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram"
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -27,11 +27,10 @@ import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
+    updatePropertyStatement,
     updateRemoteServiceCall
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
@@ -43,11 +42,11 @@ import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/Line
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
     genVariableName,
-    // getConnectorConfig,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams
+    getParams,
+    checkErrorsReturnType
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -76,7 +75,7 @@ enum FormStates {
 }
 
 export function GmailWizard(props: WizardProps) {
-    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, getConnectorConfig } } = useContext(DiagramContext);
+    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(DiagramContext);
 
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
@@ -215,7 +214,8 @@ export function GmailWizard(props: WizardProps) {
     }
 
     const handleOnSave = () => {
-        // insert initialized connector logic
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -231,82 +231,75 @@ export function GmailWizard(props: WizardProps) {
                 // Add an connector client initialization.
                 if (isNewConnection) {
                     let addConfigurableVars: STModification;
-                    let addConnectorConfigs: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        // TODO: has to update with proper way
                         addConfigurableVars = createPropertyStatement(
                             `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;`,
-                            { column: 0, line: 1 }
+                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
+                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
+                            {column:0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:SpreadsheetConfiguration configs = ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)};`,
+                        
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );
+                        );   
                     } else {
-                        // TODO: has to update type from definitions
-                        addConnectorConfigs = createPropertyStatement(
-                            `${connector.module}:SpreadsheetConfiguration configs = {
-                                oauth2Config: {
-                                    clientId: ${getFormFieldValue("clientId", "refreshConfig")},
-                                    clientSecret: ${getFormFieldValue("clientSecret", "refreshConfig")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl", "refreshConfig")},
-                                    refreshUrl: ${connector.module}:REFRESH_URL
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                                oauthClientConfig: {
+                                    clientId: ${getFormFieldValue("clientId")},
+                                    clientSecret: ${getFormFieldValue("clientSecret")},
+                                    refreshToken: ${getFormFieldValue("refreshUrl")},
+                                    refreshUrl: ${getFormFieldValue("refreshToken")}
                                 }
-                             };`,
+                             });`,
                             targetPosition
-                        );
+                        ); 
                     }
-
-                    modifications.push(addConnectorConfigs);
-
-                    addConnectorInit = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        config.name,
-                        [ "configs" ],
-                        targetPosition
-                    );
                     modifications.push(addConnectorInit);
                 }
 
                 // Add an action invocation on the initialized client.
-                const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-                if (isErrorType) {
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                if (isActionReturnError) {
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 } else {
-                    const addActionInvo: STModification = createRemoteServiceCall(
+                    const addActionInvocation: STModification = createRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
                         getParams(config.action.fields), targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
-            const updateConnectorInit = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                config.name,
-                [ "configs" ],
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                    oauthClientConfig: {
+                        clientId: ${getFormFieldValue("clientId")},
+                        clientSecret: ${getFormFieldValue("clientSecret")},
+                        refreshToken: ${getFormFieldValue("refreshUrl")},
+                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                    }
+                 });`,
                 config.initPosition
-            );
+            ); 
             modifications.push(updateConnectorInit);
             
-            const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-            if (isErrorType) {
-                const updateActionInvo: STModification = updateCheckedRemoteServiceCall(
+            if (isActionReturnError) {
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -314,9 +307,9 @@ export function GmailWizard(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvo: STModification = updateRemoteServiceCall(
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
@@ -324,7 +317,7 @@ export function GmailWizard(props: WizardProps) {
                     getParams(config.action.fields), 
                     model.position
                 );
-                modifications.push(updateActionInvo);
+                modifications.push(updateActionInvocation);
             }
         }
         onSave(modifications);

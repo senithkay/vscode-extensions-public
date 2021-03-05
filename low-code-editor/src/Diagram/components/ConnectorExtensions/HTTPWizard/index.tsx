@@ -431,7 +431,7 @@ export function HTTPWizard(props: WizardProps) {
                 }
 
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = updateServiceCallForPayload(
+                    const addActionInvocation: STModification = updateServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -439,7 +439,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     let responseModel: STNode;
                     symbolInfo.variables.forEach((value, key) => {
                         if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
@@ -472,7 +472,7 @@ export function HTTPWizard(props: WizardProps) {
                         modifications.push(addPayload);
                     }
                 } else {
-                    const addActionInvo: STModification = updateCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -480,7 +480,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
@@ -536,7 +536,7 @@ export function HTTPWizard(props: WizardProps) {
                     serviceCallParams = params.toString();
                 }
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = createServiceCallForPayload(
+                    const addActionInvocation: STModification = createServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -544,7 +544,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
                         "var",
@@ -554,7 +554,7 @@ export function HTTPWizard(props: WizardProps) {
                     );
                     modifications.push(addPayload);
                 } else {
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -562,7 +562,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         }
