@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { IfIcon } from "../../../../../../../../assets/icons";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
@@ -24,8 +25,6 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { ConditionConfig } from "../../../../types";
 import { useStyles } from "../../../style";
 import { DEFINE_RANGE } from "../AddForeachForm";
-
-import { IfIcon } from "../../../../../../../../assets/icons";
 
 interface IfProps {
     condition: ConditionConfig;
