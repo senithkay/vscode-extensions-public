@@ -175,6 +175,28 @@ export const tooltipMessages: Record<string, any> = {
     slackConnector: "Add a Slack Connector",
     salesforceBase: "Salesforce BaseClient Connector",
     salesforceBulk: "Salesforce BulkJob Connector",
+    salesforce : {
+        title : "Connect your application with salesforce API",
+        content : "Create records, Update records ",
+        baseURL : "Base URL of the connected app",
+        accessToken : "Access token of the connected app",
+        clientID : "Client ID of the connected app",
+        clientSecret : "Client secret of the connected app ",
+        refreshToken : "Refresh token of the connected app",
+        refreshTokenURL : "Refreh token URL of the connected app"
+    },
+    postgreSQL : {
+        title : "Connect your application with PostgreSQL API",
+        content : "Execute SQL queries",
+        url: "URL of your client database",
+        user: "Username of your client database",
+        password: "Password of your client database",
+        options: "Data source name of your client database",
+        connectionPool: {
+            maxOpenConnections: "Specify the maximum number of open connections",
+            minIdleConnections: "Specify the minimum number of idle connections"
+        }
+    },
     APIsPlusHolder: {
         title: "A collection of APIs that helps you integrate your application to external services",
         actionText: "Learn more about APIs",
@@ -193,5 +215,6 @@ export const tooltipMessages: Record<string, any> = {
         to: "Email address of the receiver(s)",
         subject: "Subject of the email",
         body: "Body of the email"
-    }
+    },
+
 }

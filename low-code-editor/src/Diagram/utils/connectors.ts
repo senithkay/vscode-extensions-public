@@ -29,6 +29,8 @@ export const tooltipTitles: Record<any, string> = {
     "SALESFORCE BASECLIENT": tooltipMessages.salesforceBase,
     "SALESFORCE BULKJOB": tooltipMessages.salesforceBulk,
     SLACK: tooltipMessages.slackConnector,
+    SALESFORCE : tooltipMessages.salesforce.title,
+    POSTGRESQL : tooltipMessages.postgreSQL.title,
 };
 
 export const tooltipExamples: Record<any, string> = {
@@ -44,13 +46,7 @@ export const tooltipExamples: Record<any, string> = {
     "SALESFORCE BASECLIENT": tooltipMessages.salesforceBase,
     "SALESFORCE BULKJOB": tooltipMessages.salesforceBulk,
     SLACK: tooltipMessages.slackConnector,
+    SALESFORCE : tooltipMessages.salesforce.content,
+    POSTGRESQL : tooltipMessages.postgreSQL.content,
 };
 
-export const smtpTooltips: Record<any, string> = {
-    "to": tooltipMessages.SMTP.to,
-    "'from": tooltipMessages.SMTP.from,
-    cc: tooltipMessages.SMTP.cc,
-    bcc: tooltipMessages.SMTP.bcc,
-    subject: tooltipMessages.SMTP.subject,
-    body: tooltipMessages.SMTP.body
-};

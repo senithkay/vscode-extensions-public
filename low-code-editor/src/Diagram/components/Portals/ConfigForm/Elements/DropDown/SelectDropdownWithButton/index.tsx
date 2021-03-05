@@ -20,6 +20,7 @@ import classNames from "classnames";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
+import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {
@@ -30,6 +31,10 @@ export interface SelectDropdownProps {
     clearSelection?: boolean;
     onOpenSelect?: () => void;
     onCloseSelect?: () => void;
+    tooltipTitle?: any;
+    tooltipActionText?: string;
+    tooltipActionLink?: string;
+    interactive?: boolean;
 }
 
 export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownProps>) {
@@ -40,6 +45,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
     const [connector, setConnector] = React.useState(defaultValue);
+    const textFieldClasses = useTextInputStyles();
 
     const handleChange = (event: any) => {
         setConnector(event.target.value);
@@ -84,14 +90,44 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             {label ?
                 (customProps && optional ?
                         (
+                            <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
                                 <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
                             </div>
+                            {customProps?.tooltipTitle  &&
+                                (
+                                    <div>
+                                    <TooltipIcon
+                                        title={customProps?.tooltipTitle}
+                                        interactive={customProps?.interactive || true}
+                                        actionText={customProps?.tooltipActionText}
+                                        actionLink={customProps?.tooltipActionLink}
+                                        arrow={true}
+                                    />
+                                    </div>
+                                )
+                            }
+                            </div>
                         ) : (
+                            <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
+                            </div>
+                            {customProps?.tooltipTitle  &&
+                                (
+                                    <div>
+                                    <TooltipIcon
+                                        title={customProps?.tooltipTitle}
+                                        interactive={customProps?.interactive || true}
+                                        actionText={customProps?.tooltipActionText}
+                                        actionLink={customProps?.tooltipActionLink}
+                                        arrow={true}
+                                    />
+                                    </div>
+                                )
+                            }
                             </div>
                         )
                 ) : null

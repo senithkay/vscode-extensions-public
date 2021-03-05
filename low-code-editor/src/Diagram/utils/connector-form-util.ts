@@ -123,6 +123,14 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             // const state = store.getState();
                             param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
                             formField = [param, ...formField]
+                        }else if (param.name === "to"){
+                            param.tooltip = tooltipMessages.SMTP.to
+                        }
+                        else if (param.name === "subject"){
+                            param.tooltip = tooltipMessages.SMTP.subject
+                        }
+                        else if (param.name === "body"){
+                            param.tooltip = tooltipMessages.SMTP.body
                         }
 
                         if (param.name !== "'from") {
@@ -309,18 +317,52 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if ((field.name === "clientConfig")) {
                             field.fields[1].fields.find(subFields => subFields.name === "clientConfig").hide = true;
                             field.fields[1].fields.find(subFields => subFields.name === "scopes").hide = true;
+                            field.fields[1].fields.find(subFields => subFields.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                            field.fields[1].fields.find(subFields => subFields.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
+                            field.fields[1].fields.find(subFields => subFields.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
+                            field.fields[1].fields.find(subFields => subFields.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
                             field.fields[2].hide = true;
                             field.fields[3].hide = true;
                             field.fields[4].hide = true;
+                            field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if ((field.name === "secureSocketConfig")) {
                             field.hide = true;
                         }
+                        if ((field.name === "baseUrl")) {
+                            field.tooltip = tooltipMessages.salesforce.baseURL
+                        }
                     });
+
                 }
                 filteredFunctions.set(key, value);
             });
             break;
+        case "ballerinax_postgresql_Client":
+            fieldsForFunctions.forEach((value: FormField[], key) => {
+                if (key === "init") {
+                    value[0].tooltip = tooltipMessages.postgreSQL.url
+                    value[1].tooltip = tooltipMessages.postgreSQL.user
+                    value[2].tooltip = tooltipMessages.postgreSQL.password
+                    if (value[3].name === "options") {
+                        value[3].fields.forEach((param) => {
+                            if (param.name === "datasourceName") {
+                                param.tooltip = tooltipMessages.postgreSQL.options
+                            }
+                        })
+                    }
+                    if (value[4].name === "connectionPool") {
+                        value[4].fields.forEach((param) => {
+                            if (param.name === "maxOpenConnections") {
+                                param.tooltip = tooltipMessages.postgreSQL.connectionPool.maxOpenConnections
+                            }
+                            if (param.name === "minIdleConnections") {
+                                param.tooltip = tooltipMessages.postgreSQL.connectionPool.minIdleConnections
+                            }
+                        })
+                    }
+                }
+            })
         default:
             filteredFunctions = fieldsForFunctions;
             break;
