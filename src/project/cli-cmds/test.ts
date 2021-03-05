@@ -1,6 +1,8 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
-import { getTelemetryProperties, TM_EVENT_RUN_PROJECT_TESTS, CMP_PROJECT_TEST_RUNNER } from "../../telemetry";
+import {
+    getTelemetryProperties, TM_EVENT_PROJECT_TEST, TM_EVENT_ERROR_EXECUTE_PROJECT_TEST, CMP_PROJECT_TEST
+} from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 
@@ -12,7 +14,7 @@ export function activateTestRunner() {
     // register run project tests handler
     commands.registerCommand('ballerina.project.test', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_RUN_PROJECT_TESTS, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_TEST_RUNNER));
+            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_TEST, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_TEST));
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {
@@ -59,10 +61,12 @@ export function activateTestRunner() {
                 }
 
             } else {
+                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_TEST,
+                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_TEST, MESSAGES.NOT_SUPPORT));
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
         } catch (error) {
-            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_TEST_RUNNER));
+            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_TEST));
             window.showErrorMessage(error);
         }
     });

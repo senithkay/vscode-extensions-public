@@ -51,6 +51,8 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                         window.showTextDocument(doc);
                     }, (err: Error) => {
                         window.showErrorMessage(err.message);
+                        ballerinaExtInstance.telemetryReporter.sendTelemetryException(err,
+                            getTelemetryProperties(ballerinaExtInstance, CMP_EXAMPLES_VIEW));
                     });
                 }
                 return Promise.resolve();

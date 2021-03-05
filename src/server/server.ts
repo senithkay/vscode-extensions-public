@@ -25,9 +25,9 @@ export function getServerOptions(ballerinaCmd: string): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = ballerinaCmd;
     let args = ["start-language-server"];
-
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
+
     if (process.env.LS_EXTENSIONS_PATH !== "") {
         if (opt.env.BALLERINA_CLASSPATH_EXT) {
             opt.env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;

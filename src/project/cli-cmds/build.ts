@@ -1,6 +1,8 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
-import { getTelemetryProperties, TM_EVENT_RUN_PROJECT_BUILD, CMP_PROJECT_BUILD } from "../../telemetry";
+import {
+    getTelemetryProperties, TM_EVENT_PROJECT_BUILD, TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, CMP_PROJECT_BUILD
+} from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile }
     from "../../utils/project-utils";
@@ -13,7 +15,7 @@ export function activateBuildCommand() {
     // register run project build handler
     commands.registerCommand('ballerina.project.build', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_RUN_PROJECT_BUILD, getTelemetryProperties(ballerinaExtInstance,
+            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_BUILD, getTelemetryProperties(ballerinaExtInstance,
                 CMP_PROJECT_BUILD));
 
             const currentProject = await getCurrentBallerinaProject();
@@ -63,6 +65,8 @@ export function activateBuildCommand() {
                 }
 
             } else {
+                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, getTelemetryProperties(ballerinaExtInstance,
+                    CMP_PROJECT_BUILD, MESSAGES.NOT_SUPPORT));
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
 

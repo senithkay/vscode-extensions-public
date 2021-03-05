@@ -18,19 +18,19 @@ export const TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT = "open.api.designer
 export const TM_EVENT_START_DEBUG_SESSION = "start.debug.session";
 
 // event for running tests in current project
-export const TM_EVENT_RUN_PROJECT_TESTS = "run.project.tests";
+export const TM_EVENT_PROJECT_TEST = "execute.project.tests";
 
 // event for running build for current project
-export const TM_EVENT_RUN_PROJECT_BUILD = "run.project.build";
+export const TM_EVENT_PROJECT_BUILD = "execute.project.build";
 
 // event for executing the ballerina run command
-export const TM_EVENT_EXECUTE_BALLERINA_RUN = "execute.ballerina.run";
+export const TM_EVENT_PROJECT_RUN = "execute.project.run";
 
 // event for executing the ballerina doc command
-export const TM_EVENT_EXECUTE_BALLERINA_DOC = "execute.ballerina.doc";
+export const TM_EVENT_PROJECT_DOC = "execute.project.doc";
 
 // event for executing the ballerina add command
-export const TM_EVENT_EXECUTE_BALLERINA_ADD = "execute.ballerina.add";
+export const TM_EVENT_PROJECT_ADD = "execute.project.add";
 
 // event for generating Cloud.toml for current project
-export const TM_EVENT_CREATE_CLOUD = "create.cloud.toml";
+export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";

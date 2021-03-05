@@ -1,6 +1,8 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
-import { getTelemetryProperties, TM_EVENT_EXECUTE_BALLERINA_DOC, CMP_BALLERINA_DOC } from "../../telemetry";
+import {
+    getTelemetryProperties, TM_EVENT_PROJECT_DOC, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC
+} from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 
@@ -12,11 +14,13 @@ function activateDocCommand() {
     // register ballerina doc handler
     commands.registerCommand('ballerina.project.doc', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_EXECUTE_BALLERINA_DOC, getTelemetryProperties(ballerinaExtInstance, CMP_BALLERINA_DOC));
+            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_DOC, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_DOC));
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {
                 if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE) {
+                    reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_DOC,
+                        getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_DOC, MESSAGES.NOT_IN_PROJECT));
                     window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                     return;
                 }
@@ -52,16 +56,20 @@ function activateDocCommand() {
                     }
 
                 } else {
+                    reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_DOC,
+                        getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_DOC, MESSAGES.NOT_IN_PROJECT));
                     window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                     return;
                 }
 
             } else {
+                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_DOC,
+                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_DOC, MESSAGES.NOT_SUPPORT));
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
 
         } catch (error) {
-            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_BALLERINA_DOC));
+            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_DOC));
             window.showErrorMessage(error);
         }
     });

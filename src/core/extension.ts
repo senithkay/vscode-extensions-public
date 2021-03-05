@@ -37,8 +37,8 @@ import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
-    createTelemetryReporter, getTelemetryProperties, CMP_EXTENSION_CORE, TM_EVENT_EXTENSION_INIT,
-    TM_EVENT_EXTENSION_INI_FAILED, TM_EVENT_OLD_BAL_HOME
+    createTelemetryReporter, getTelemetryProperties, CMP_EXTENSION_CORE, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED,
+    TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
 } from "../telemetry";
 const any = require('promise.any');
 
@@ -100,7 +100,7 @@ export class BallerinaExtension {
         this.context = context;
     }
 
-    init(onBeforeInit: Function): Promise<void> {
+    init(_onBeforeInit: Function): Promise<void> {
         // Register show logs command.
         const showLogs = commands.registerCommand('ballerina.showLogs', () => {
             outputChannel.show();
@@ -114,8 +114,11 @@ export class BallerinaExtension {
             // Check if ballerina home is set.
             if (this.overrideBallerinaHome()) {
                 if (!this.overrideBallerinaHome()) {
+                    const message = "Trying to get ballerina version without setting ballerina home.";
+                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED,
+                        getTelemetryProperties(this, CMP_EXTENSION_CORE, message));
                     throw new AssertionError({
-                        message: "Trying to get ballerina version without setting ballerina home."
+                        message: message
                     });
                 }
 
@@ -142,11 +145,12 @@ export class BallerinaExtension {
 
                 if (!this.isSwanLake && !this.is12x) {
                     this.showMessageOldBallerina();
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_HOME, getTelemetryProperties(this,
-                        CMP_EXTENSION_CORE));
+                    const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
+                        Please use a compatible VSCode extension version.`;
+                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, getTelemetryProperties(this,
+                        CMP_EXTENSION_CORE, message));
                     throw new AssertionError({
-                        message: `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        Please use a compatible VSCode extension version.`
+                        message: message
                     });
                 }
 
@@ -241,53 +245,6 @@ export class BallerinaExtension {
                 commands.executeCommand('workbench.action.reloadWindow');
             }
         });
-    }
-
-    /**
-     * Compares plugin's versions with the used ballerina distribution's version
-     * Uses only the major and minor versions according to the semver spec.
-     * First two numbers will be used when version string is not semver (eg. 0.990-r1)
-     * Returns 1 if plugin version is higher than ballerina's; -1 if plugin version is lower
-     * than ballerina's; 0 if the versions match.
-     *
-     * @returns {number}
-     */
-    compareVersions(pluginVersion: string, ballerinaVersion: string, comparePatchVer: boolean = false): number {
-        const toInt = (i: string) => {
-            return parseInt(i, 10);
-        };
-        const numMatchRegexp = /\d+/g;
-
-        const [pluginMajor, pluginMinor, pluginPatch] = pluginVersion.match(numMatchRegexp)!.map(toInt);
-        const [ballerinaMajor, ballerinaMinor, ballerinaPatch] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
-
-        if (pluginMajor > ballerinaMajor) {
-            return 1;
-        }
-
-        if (pluginMajor < ballerinaMajor) {
-            return -1;
-        }
-
-        if (pluginMinor > ballerinaMinor) {
-            return 1;
-        }
-
-        if (pluginMinor < ballerinaMinor) {
-            return -1;
-        }
-
-        if (comparePatchVer) {
-            if (pluginPatch > ballerinaPatch) {
-                return 1;
-            }
-
-            if (pluginPatch < ballerinaPatch) {
-                return -1;
-            }
-        }
-
-        return 0;
     }
 
     async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
