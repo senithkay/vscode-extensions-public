@@ -546,11 +546,23 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                         if (field.kind !== "CommaToken") {
                                             const mappingSpecificField = field as SpecificField;
                                             if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({type: PrimitiveBalType.Float,
-                                                                          name: mappingSpecificField.fieldName.value, value: mappingSpecificField.valueExpr.source})
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.Float,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
                                             } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({type: PrimitiveBalType.String,
-                                                                          name: mappingSpecificField.fieldName.value, value: mappingSpecificField.valueExpr.source});
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.String,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
+                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.Boolean,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
                                             }
                                         }
                                     });
