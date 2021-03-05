@@ -44,6 +44,7 @@ import {
     transformFormFieldTypeToString
 } from "./utils";
 import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
+import { BallerinaLangClient } from "../../../../../../../../../src/api/lang-client";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -140,12 +141,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         targetPosition: targetPositionDraft,
         currentFile,
         currentApp,
-        expEditorLangClient: langClient,
+        langServerURL,
+        getLangClient,
         syntaxTree,
-        // exprEditorState,
-        // expEditorStart: dispatchExprEditorStart,
-        // expEditorContentChange: dispatchExprEditorContentChange,
-        // expEditorClose: dispatchExprEditorClose
     } = state;
     // TODO: XX: Fix properly
     const expressionEditorState: ExpressionEditorState = {
@@ -294,25 +292,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await langClient.didChange({
-            contentChanges: [
-                {
-                    text: expressionEditorState.content
+        await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
                 }
-            ],
-            textDocument: {
-                uri: expressionEditorState.uri,
-                version: 1
-            }
+            });
         });
 
-        langClient.diagnostics({
-            documentIdentifier: {
-                uri: expressionEditorState.uri,
-            }
-        }).then((diagResp: any) => {
-            expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-            handleDiagnostic();
+        getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                handleDiagnostic();
+            });
         });
 
         // await dispatchExprEditorStart(expEditorState);
@@ -348,25 +350,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
 
-            langClient.diagnostics({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                }
-            }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+            getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+                langClient.diagnostics({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    }
+                }).then((diagResp: any) => {
+                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                    handleDiagnostic();
+                });
             });
 
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
@@ -383,16 +389,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
         }
     }
@@ -472,66 +480,68 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
                     }
 
-                    return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                        const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                        const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                            return {
-                                range: null,
-                                label: completionResponse.label,
-                                kind: completionResponse.kind as CompletionItemKind,
-                                insertText: completionResponse.insertText,
-                                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'c'
+                    return getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+                        return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                            const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                            const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                return {
+                                    range: null,
+                                    label: completionResponse.label,
+                                    kind: completionResponse.kind as CompletionItemKind,
+                                    insertText: completionResponse.insertText,
+                                    insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'c'
+                                }
+                            });
+                            if (varType === "string") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'Custom string template',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    // tslint:disable-next-line: no-invalid-template-strings
+                                    insertText: '"${1:}"',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
                             }
+                            if (varType === "boolean") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'true',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'true',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'false',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'false',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                                completionItems.push(completionItemTemplate1);
+                            }
+                            if (model.aiSuggestion) {
+                                const completionItemAI: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: model.aiSuggestion,
+                                    kind: 1 as CompletionItemKind,
+                                    insertText: model.aiSuggestion,
+                                    sortText: 'a'
+                                }
+                                completionItems.push(completionItemAI);
+                            }
+                            const completionList: monaco.languages.CompletionList = {
+                                incomplete: false,
+                                suggestions: completionItems
+                            };
+                            return completionList;
                         });
-                        if (varType === "string") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'Custom string template',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                // tslint:disable-next-line: no-invalid-template-strings
-                                insertText: '"${1:}"',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                        }
-                        if (varType === "boolean") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'true',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'true',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'false',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'false',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                            completionItems.push(completionItemTemplate1);
-                        }
-                        if (model.aiSuggestion) {
-                            const completionItemAI: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: model.aiSuggestion,
-                                kind: 1 as CompletionItemKind,
-                                insertText: model.aiSuggestion,
-                                sortText: 'a'
-                            }
-                            completionItems.push(completionItemAI);
-                        }
-                        const completionList: monaco.languages.CompletionList = {
-                            incomplete: false,
-                            suggestions: completionItems
-                        };
-                        return completionList;
                     });
                 }
             },

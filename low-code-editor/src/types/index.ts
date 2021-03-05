@@ -17,6 +17,7 @@
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
+import { BallerinaLangClient } from "../../../../src/api/lang-client";
 import { AppInfo, ApplicationFile } from "../api/models";
 import { ConfigPanelStatus, DiagramState, ExpressionEditorState, LowCodeLangClient } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
@@ -69,8 +70,7 @@ export interface LowCodeEditorProps {
     isWaitingOnWorkspace?: boolean;
     error?: Error;
     langServerURL?: string;
-    langClient?: LowCodeLangClient;
-    expEditorLangClient?: LowCodeLangClient;
+    getLangClient?: (url: string, disableDiagnostics?: boolean) => Promise<BallerinaLangClient>;
     workingFile?: string;
     syntaxTree: ModulePart;
     stSymbolInfo?: STSymbolInfo;

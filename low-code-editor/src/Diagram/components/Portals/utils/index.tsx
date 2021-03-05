@@ -22,7 +22,7 @@ import {
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-// import { BallerinaLangClient } from "../../../../../../api/lang-client";
+import { BallerinaLangClient } from "../../../../../../../src/api/lang-client";
 import { ConnectionDetails } from "../../../../api/models";
 // import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../ConfigurationSpec/types";
@@ -827,11 +827,11 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     // check existing in same code file
     // generate select existing connector form
     // if create new clicked.
-    // const symbolInfo = store.getState().diagramState.stSymbolInfo;
-    const { stSymbolInfo: symbolInfo, langClient, waitForCurrentWorkspace } = state;
-    // await waitForCurrentWorkspace();
+    const { stSymbolInfo: symbolInfo, langServerURL, getLangClient, waitForCurrentWorkspace } = state;
+
+    const langClient: BallerinaLangClient = await getLangClient(langServerURL);
     let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
-    // const langClient = await getLangClientForCurrentApp();
+
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
