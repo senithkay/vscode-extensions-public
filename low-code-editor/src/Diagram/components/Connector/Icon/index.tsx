@@ -32,7 +32,7 @@ export { TwitterLogo as twitter_Client };
 export { SMTPLogo as email_SmtpClient };
 export { GitHubLogo as github_Client };
 export { GmailLogo as googleapis_gmail_Client };
-export { GoogleCalanderLogo as googleapis_calendar_CalendarClient} ;
+export { GoogleCalanderLogo as googleapis_calendar_Client} ;
 export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
 export { PostgreSQLogo as postgresql_Client };

@@ -265,7 +265,7 @@ export function HTTPWizard(props: WizardProps) {
             let actionInitializer: CheckAction;
 
             const updatedConnectorInit = updatePropertyStatement(
-                `${connector.module}:${connector.name} ${connectorConfig.name} = checkpanic new (${getParams(connectorConfig.connectorInit).join()});`,
+                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                 connectorConfig.initPosition
             );
             modifications.push(updatedConnectorInit);
@@ -497,7 +497,7 @@ export function HTTPWizard(props: WizardProps) {
                 // Add an connector client initialization.
                 if (!connectorConfig.isExistingConnection) {
                     const addConnectorInit = createPropertyStatement(
-                        `${connector.module}:${connector.name} ${connectorConfig.name} = checkpanic new (${getParams(connectorConfig.connectorInit).join()});`,
+                        `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);

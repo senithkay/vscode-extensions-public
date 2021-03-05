@@ -299,7 +299,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 } else {
                     // add checkpanic keyword when initializing connector to handle the Error
                     const updateConnectorInit = updatePropertyStatement(
-                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = checkpanic new (${getParams(config.connectorInit).join()});`,
+                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = check new (${getParams(config.connectorInit).join()});`,
                         connectorConfig.initPosition
                     );
                     modifications.push(updateConnectorInit);
@@ -332,29 +332,24 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             addConnectorInit = createObjectDeclaration(
                                 (connectorInfo.module + ":" + connectorInfo.name),
                                 config.name,
-                                getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(),
-                                    connectionDetails),
+                                getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
                                 targetPosition
                             );
-                            const configImport: STModification = createImportStatement(
-                                "ballerina",
-                                "config",
-                                targetPosition
-                            );
-                            modifications.push(configImport);
                         } else {
                             // check connector client response has an Error
-                            if (!config.isReturnError) {
+                            const isInitErrorType = (functionDefInfo.get('init')?.returnType?.fields
+                                        .find((param: any) => (param?.isErrorType || param?.type === "error"))) !== undefined;
+                            if (isInitErrorType) {
+                                // add checkpanic keyword when initializing connector to handle the Error
+                                addConnectorInit = createPropertyStatement(
+                                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = check new (${getParams(config.connectorInit).join()});`,
+                                    targetPosition
+                                );
+                            } else {
                                 addConnectorInit = createObjectDeclaration(
                                     (connectorInfo.module + ":" + connectorInfo.name),
                                     config.name,
                                     getParams(config.connectorInit),
-                                    targetPosition
-                                );
-                            } else {
-                                // add checkpanic keyword when initializing connector to handle the Error
-                                addConnectorInit = createPropertyStatement(
-                                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = checkpanic new (${getParams(config.connectorInit).join()});`,
                                     targetPosition
                                 );
                             }
@@ -362,8 +357,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         modifications.push(addConnectorInit);
                     }
 
-                    if (!config.isReturnError) {
-                        // Add an action invocation on the initialized client.
+                    // Add an action invocation on the initialized client.
+                    console.log('isErrorType >>>', functionDefInfo.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType))
+                    const isErrorType = (functionDefInfo.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
+                    if(isErrorType){
                         const addActionInvo: STModification = createCheckedRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,
@@ -372,8 +369,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             getParams(config.action.fields), targetPosition
                         );
                         modifications.push(addActionInvo);
-                    } else {
-                        // check client return_type and remove checkpanick
+                    }else{
                         const addActionInvo: STModification = createRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,

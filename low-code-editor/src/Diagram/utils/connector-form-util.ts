@@ -302,39 +302,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case "ballerinax_sfdc_BaseClient":
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters[0].fields.forEach((field) => {
-                        if ((field.name === "clientConfig")) {
-                            field.fields[1].fields.find(subFields => subFields.name === "clientConfig").hide = true;
-                            field.fields[1].fields.find(subFields => subFields.name === "scopes").hide = true;
-                            field.fields[2].hide = true;
-                            field.fields[3].hide = true;
-                            field.fields[4].hide = true;
-                        }
-                        if ((field.name === "secureSocketConfig")) {
-                            field.hide = true;
-                        }
-                    });
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
-        case "ballerinax_postgresql_Client":
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                //  filter "sqlQuery" field union type.
-                //  current implementation doesn't support complex union types like below,
-                //       `string | sql:ParameterizedQuery sqlQuery`
-                //  so, convert all union types to just `string`
-                if (value.parameters[0]?.type === "union"){
-                    value.parameters[0].type = PrimitiveBalType.String;
-                    value.parameters[0].isUnion = false;
-                    value.parameters[0].fields = undefined;
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
         default:
             filteredFunctions = fieldsForFunctions;
             break;
@@ -359,6 +326,11 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                         break;
                     case 'get':
                     case 'post':
+                        value.parameters.find(field => field.name === "message" ).fields.forEach((param) => {
+                            if (!(param.type === "string" || param.type === "xml" || param.type === "json")) {
+                                param.noCodeGen = true;
+                            }
+                        });
                     case 'put':
                     case 'delete':
                     case 'patch':

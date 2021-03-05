@@ -19,7 +19,7 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../../api/models";
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins";
@@ -50,7 +50,7 @@ import { OperationDropdown } from "./OperationDropdown";
 import { OperationForm } from "./OperationForm";
 
 interface WizardProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onSave: (sourceModifications: STModification[]) => void;
     onClose?: () => void;
@@ -70,10 +70,10 @@ enum FormStates {
 
 export function GithubWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
-    const { actions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, getConnectorConfig } = state;
-    let connectorInitFormFields: FormField[] = actions.get("init") ? actions.get("init") : actions.get("__init");
+    let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
 
@@ -106,8 +106,8 @@ export function GithubWizard(props: WizardProps) {
     config.name = configName;
 
     const operations: string[] = [];
-    if (actions) {
-        actions.forEach((value, key) => {
+    if (functionDefinitions) {
+        functionDefinitions.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }
@@ -116,7 +116,7 @@ export function GithubWizard(props: WizardProps) {
 
     let formFields: FormField[] = null;
     if (selectedOperation) {
-        formFields = actions.get(selectedOperation);
+        formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
         config.action.name = selectedOperation;
         config.action.fields = formFields;

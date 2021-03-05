@@ -57,6 +57,18 @@ const ignoreList = [ // inorder to ignore classes, object and enum type referenc
     'ballerina/http:1.1.0-alpha4:HttpFuture',
     'ballerina/http:1.1.0-alpha4:PushPromise',
     'ballerina/email:1.1.0-alpha4:Security',
+    'ballerinax/googleapis_calendar:0.1.3:Shared',
+    'ballerinax/googleapis_calendar:0.1.3:Private',
+    'ballerinax/googleapis_calendar:0.1.3:Event',
+    'ballerinax/googleapis_calendar:0.1.3:CreateEventOptional',
+    'ballerinax/googleapis_calendar:0.1.3:Source',
+    'ballerinax/googleapis_calendar:0.1.3:Reminders',
+    'ballerinax/googleapis_calendar:0.1.3:Gadget',
+    'ballerinax/googleapis_calendar:0.1.3:ConferenceData',
+    'ballerinax/googleapis_calendar:0.1.3:ExtendedProperties',
+    'ballerinax/googleapis_calendar:0.1.3:InputEvent',
+    'ballerinax/googleapis_calendar:0.1.3:CalendarResource',
+
     'ballerina/http:1.0.4:OutboundAuthHandler',
     'ballerina/http:1.0.4:PersistentCookieHandler',
     'ballerina/io:0.5.4:ReadableByteChannel',
@@ -960,7 +972,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     }
 }
 
-const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
+export const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
@@ -971,58 +983,46 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
             return [`{ accessToken: config:getAsString("${githubAccessToken}")}`];
         }
         case "google sheets": {
-            const sheetAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const sheetClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const sheetClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const sheetRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const sheetRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
                 oauth2Config: {
-                    accessToken: config:getAsString("${sheetAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${sheetClientId}"),
-                        clientSecret: config:getAsString("${sheetClientSecret}"),
-                        refreshUrl: config:getAsString("${sheetRefreshUrl}"),
-                        refreshToken: config:getAsString("${sheetRefreshToken}")
-                    }
+                    clientId: ${sheetClientId},
+                    clientSecret: ${sheetClientSecret},
+                    refreshToken: ${sheetRefreshToken},
+                    refreshUrl: ${sheetRefreshUrl},
                 }
-            }`];
+             }`];
         }
         case "google calendar": {
-            const calendarAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const calendarClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const calendarClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const calendarRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const calendarRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
                 oauth2Config: {
-                    accessToken: config:getAsString("${calendarAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${calendarClientId}"),
-                        clientSecret: config:getAsString("${calendarClientSecret}"),
-                        refreshUrl: config:getAsString("${calendarRefreshUrl}"),
-                        refreshToken: config:getAsString("${calendarRefreshToken}")
-                    }
+                    clientId: ${calendarClientId},
+                    clientSecret: ${calendarClientSecret},
+                    refreshToken: ${calendarRefreshToken},
+                    refreshUrl: ${calendarRefreshUrl},
                 }
-            }`];
+             }`];
         }
         case "gmail": {
-            const gmailAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const gmailClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const gmailClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const gmailRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const gmailRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
-                oauthClientConfig: {
-                    accessToken: config:getAsString("${gmailAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${gmailClientId}"),
-                        clientSecret: config:getAsString("${gmailClientSecret}"),
-                        refreshUrl: config:getAsString("${gmailRefreshUrl}"),
-                        refreshToken: config:getAsString("${gmailRefreshToken}")
-                    }
+                oauth2Config: {
+                    clientId: ${gmailClientId},
+                    clientSecret: ${gmailClientSecret},
+                    refreshToken: ${gmailRefreshToken},
+                    refreshUrl: ${gmailRefreshUrl},
                 }
-            }`];
+             }`];
         }
     }
 }

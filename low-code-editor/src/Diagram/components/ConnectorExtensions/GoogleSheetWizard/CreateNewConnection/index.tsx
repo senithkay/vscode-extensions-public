@@ -113,13 +113,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onConfigNameChange(text);
     };
 
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsAccessTokenValid(!isInvalid)
-    };
-    const onAccessTokenChange = (text: string) => {
-        setFormFieldValue(text, "accessToken");
-    };
-
     const setFormFieldValue = (text: string, key: string, title?: string) => {
         if (title) {
             connectorInitFields.find(config => config.name === "spreadsheetConfig")
@@ -133,27 +126,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         }
     }
 
-    let accessTokenDefaultValue = '';
-    if (!isNewConnectorInitWizard) {
-        const spreadsheetConfig = connectorInitFields.find(config => config.name === "spreadsheetConfig");
-        const oauth2Config = spreadsheetConfig ? spreadsheetConfig.fields.find(field => field.name === "oauth2Config") : undefined;
-        const accessToken = oauth2Config ? oauth2Config.fields.find(field => field.name === 'accessToken') : undefined;
-        accessTokenDefaultValue = accessToken ? accessToken.value : '';
-    }
-
-    const expElementProps: FormElementProps = {
-        model: {
-            type: "string",
-            name: "Access Token"
-        },
-        customProps: {
-            validate: validateExpression,
-            statementType: 'string'
-        },
-        onChange: onAccessTokenChange,
-        defaultValue: accessTokenDefaultValue
-    };
-
     const validateForm = (isRequiredFilled: boolean) => {
         setIsValidForm(isRequiredFilled);
     };
@@ -163,14 +135,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = connectorInitFields;
         onSave();
     };
-
-    const filteredFormFields = () => {
-        return connectorInitFields.find(config => config.name === "spreadsheetConfig").fields
-            .find(field => field.name === "oauth2Config").fields
-            .filter(field => field.name === "accessToken" || field.name === "refreshConfig")
-            .find(field => field.name === "refreshConfig").fields
-            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
-    }
 
     return (
         <div>
@@ -188,8 +152,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={"Enter Connection Name"}
                         />
-                        <ExpressionEditor {...expElementProps} />
-                        <Form fields={filteredFormFields()} onValidate={validateForm} />
+                        <Form fields={connectorInitFields} onValidate={validateForm} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>

@@ -249,21 +249,21 @@ class FieldVisitor implements Visitor {
 
                     if (typeSymbol.members) {
                         typeSymbol.members.forEach((element: any) => {
-                            if (element.moduleID) {
-
-                                element.viewState = {
-                                    type: element.typeKind,
-                                    isParam: true,
-                                    typeInfo: {
-                                        modName: element.moduleID.moduleName,
-                                        name: element.name,
-                                        orgName: element.moduleID.orgName,
-                                        version: element.moduleID.version
-                                    }
-                                }
-
-                                viewState.fields.push(element.viewState);
+                            element.viewState = {
+                                type: element.typeKind,
+                                isParam: true            
                             }
+
+                            if (element.moduleID) {
+                                element.viewState.typeInfo = {
+                                    modName: element.moduleID.moduleName,
+                                    name: element.name,
+                                    orgName: element.moduleID.orgName,
+                                    version: element.moduleID.version
+                                }
+                            }
+
+                            viewState.fields.push(element.viewState);
                         });
                     }
                     // typeSymbol.signature.split('|').forEach((element: string) => {

@@ -111,47 +111,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onConfigNameChange(text);
     };
 
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsAccessTokenValid(!isInvalid)
-    };
-    const onAccessTokenChange = (text: string) => {
-        setFormFieldValue(text, "accessToken");
-    };
-
-    const setFormFieldValue = (text: string, key: string, title?: string) => {
-        if (title) {
-            connectorInitFields.find(config => config.name === "gmailConfig")
-                .fields.find(field => field.name === "oauthClientConfig")
-                .fields.find(field => field.name === title)
-                .fields.find(field => field.name === key).value = text;
-        } else {
-            connectorInitFields.find(config => config.name === "gmailConfig")
-                .fields.find(field => field.name === "oauthClientConfig")
-                .fields.find(field => field.name === key).value = text;
-        }
-    }
-
-    let defaultAccessTokenValue = '';
-    if (!isNewConnectorInitWizard) {
-        const gmailConfig = connectorInitFields.find(config => config.name === "gmailConfig");
-        const oauthConfig = gmailConfig ? gmailConfig.fields.find(field => field.name === "oauthClientConfig") : undefined;
-        const accessToken = oauthConfig ? oauthConfig.fields.find(field => field.name === 'accessToken') : undefined;
-        defaultAccessTokenValue = accessToken ? accessToken.value : '';
-    }
-
-    const expElementProps: FormElementProps = {
-        model: {
-            type: "string",
-            name: "Access Token"
-        },
-        customProps: {
-            validate: validateExpression,
-            statementType: 'string'
-        },
-        onChange: onAccessTokenChange,
-        defaultValue: defaultAccessTokenValue
-    };
-
     const validateForm = (isRequiredFilled: boolean) => {
         setIsValidForm(isRequiredFilled);
     };
@@ -162,13 +121,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
-    const filteredFormFields = () => {
-        return connectorInitFields.find(config => config.name === "gmailConfig").fields
-            .find(field => field.name === "oauthClientConfig").fields
-            .filter(field => field.name === "accessToken" || field.name === "refreshConfig")
-            .find(field => field.name === "refreshConfig").fields
-            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
-    }
+    // const filteredFormFields = () => {
+    //     return connectorInitFields.find(config => config.name === "gmailConfig").fields
+    //         .find(field => field.name === "oauthClientConfig").fields
+    //         .filter(field => field.name === "accessToken" || field.name === "refreshConfig")
+    //         .find(field => field.name === "refreshConfig").fields
+    //         .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
+    // }
 
     return (
         <div>
@@ -186,8 +145,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={"Enter Connection Name"}
                         />
-                        <ExpressionEditor {...expElementProps} />
-                        <Form fields={filteredFormFields()} onValidate={validateForm} />
+                        <Form fields={connectorInitFields} onValidate={validateForm} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
