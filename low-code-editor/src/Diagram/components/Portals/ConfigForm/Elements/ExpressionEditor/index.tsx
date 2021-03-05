@@ -168,7 +168,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
-    const varType = transformFormFieldTypeToString(model.type);
+    const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
