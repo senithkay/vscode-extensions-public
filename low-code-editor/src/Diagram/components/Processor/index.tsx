@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
@@ -35,9 +34,18 @@ import "./style.scss";
 export interface ProcessorProps {
     model: STNode;
     blockViewState?: BlockViewState;
+    openNewProcessorConfig: (type: string, targetPosition: DraftInsertPosition, wizardType: WizardType,
+        blockViewState?: BlockViewState, config?: ProcessConfig, symbolInfo?: STSymbolInfo, model?: STNode) => void;
+    dispatchDiagramCleanDraw: (st: STNode) => void;
+    dispatchCloseConfigOverlayForm: () => void;
+    stSymbolInfo: STSymbolInfo;
+    isMutationProgress: boolean;
+    isWaitingOnWorkspace: boolean;
+    maximizeCodeView: (appId: number | string) => void;
+    appId: number;
+    setCodeToHighlight: (location?: ModelCodePosition) => void,
+    isCodeEditorActive: boolean;
 }
-
-const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
 
 export function DataProcessor(props: ProcessorProps) {
     const { state, diagramCleanDraw } = useContext(DiagramContext);
@@ -71,7 +79,6 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    let isSupportedVariable = true;
 
     if (model) {
         processType = "Variable";
@@ -115,10 +122,6 @@ export function DataProcessor(props: ProcessorProps) {
                 // TODO: handle this type binding pattern.
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
-            }
-
-            if (supportedVarTypes.indexOf(typedBindingPattern.typeDescriptor.source.trim()) === -1) {
-                isSupportedVariable = false;
             }
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
@@ -200,7 +203,7 @@ export function DataProcessor(props: ProcessorProps) {
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
-    const editAndDeleteButtons = ((isIntializedVariable && isSupportedVariable) || isLogStmt || isDraftStatement) ? (
+    const editAndDeleteButtons = (isIntializedVariable || isLogStmt || isDraftStatement) ? (
         <>
             <g className={isReferencedVariable ? "disable" : ""}>
                 <DeleteBtn
