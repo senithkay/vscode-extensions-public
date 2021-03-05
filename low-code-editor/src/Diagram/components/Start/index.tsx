@@ -87,6 +87,7 @@ export function StartButton(props: StartButtonProps) {
         };
         setdropDownC(
             <TriggerDropDown
+                model={model}
                 position={position}
                 onClose={handleOnClose}
                 isEmptySource={emptySource}
@@ -117,6 +118,7 @@ export function StartButton(props: StartButtonProps) {
         };
         setdropDownC(
             <TriggerDropDown
+                model={model}
                 position={position}
                 onClose={handleOnClose}
                 isEmptySource={emptySource}

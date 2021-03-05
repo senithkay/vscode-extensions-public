@@ -19,6 +19,7 @@ import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { End } from "../End";
 import { StartButton } from "../Start";
+import {TriggerParams} from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
@@ -46,9 +47,8 @@ export function Function(props: FunctionProps) {
                 {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
             </>
 
-            {/*// todo: check for triggerparam*/}
-            {/*{isInitPlusAvailable && <>{<StartButton model={model} />} {<TriggerParams model={model} />} </>}*/}
-            {/*{!isInitPlusAvailable && <>{<StartButton model={model} />} {<TriggerParams model={model} />} </>}*/}
+            {isInitPlusAvailable && isTriggerParamsAvailable &&  <TriggerParams model={model} />}
+            {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
             {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
             {isInitPlusAvailable && <StartButton model={model} />}
             {!isInitPlusAvailable && <StartButton model={model} />}

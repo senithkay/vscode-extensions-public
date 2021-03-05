@@ -31,8 +31,11 @@ import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ApiIcon, ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon } from "../../../../../../../assets/icons";
+import {FunctionDefinition, STNode} from "@ballerina/syntax-tree";
+import {diagramSyntaxTreeMutationStart} from "components/DiagramEditor/utils";
 
 interface TriggerDropDownProps {
+    model?: STNode,
     position: DiagramOverlayPosition;
     title?: string;
     onClose?: () => void;
@@ -53,14 +56,16 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger, diagramCleanDrawST } = state;
     const { onClose, onComplete, title = "Trigger selector",
-            position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
+            position, isEmptySource, triggerType, configData, model /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
+    const [triggerParams, setTriggerParams] = useState(undefined);
+    const noParamTriggerTypes = ["Manual"]
 
     useEffect(() => {
         if (triggerChanged && !isFileSaving && isFileSaved) {
@@ -68,6 +73,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             setTriggerChanged(false);
         }
     }, [isFileSaving, isFileSaved]);
+
+    useEffect(() => {
+        // todo: set triggerparam true if the trigger selected is API
+        if (model) {
+            noParamTriggerTypes.includes(selectedTrigger) ?
+                model.viewState.triggerParams.visible = false : model.viewState.triggerParams.visible = true
+            setTriggerParams(model.viewState.triggerParams.visible)
+        }
+    })
 
     const handleTriggerChange = (newTrigger: TriggerType, connector?: ConnectorType) => {
         setSelectedTrigger(newTrigger);
@@ -86,11 +100,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                 setShowConfirmDialog(true);
             }
         }
-        // todo: set triggerparam true if the trigger selected is API
-        // if (model) {
-        //     noParamTriggerTypes.includes(newTrigger) ?
-        //         model.viewState.triggerParams.visible = false : model.viewState.triggerParams.visible = true
-        // }
     };
 
     const handleDialogOnUpdate = () => {
