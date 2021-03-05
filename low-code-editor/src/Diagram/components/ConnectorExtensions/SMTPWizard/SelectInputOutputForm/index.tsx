@@ -21,7 +21,6 @@ import classNames from "classnames";
 import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
-// import { smtpTooltips } from "../../../../utils/connectors";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -140,6 +139,35 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         // onValidate(allFieldsValid);
     }
 
+    const [fromState, setFromState] = useState<boolean>(undefined);
+    const [toState, setToState] = useState<boolean>(undefined);
+    const [subjectState, setSubjectState] = useState<boolean>(undefined);
+    const [bodyState, setBodyState] = useState<boolean>(undefined);
+
+    const validateAllFields = () => {
+        if (!fromState && !toState && !bodyState && !subjectState) {
+            onValidate(true)
+        } else {
+            onValidate(false)
+        }
+    }
+    const validateFrom = (field: string, isInvalid: boolean) => {
+        setFromState(isInvalid)
+        validateAllFields()
+    }
+    const validateTo = (field: string, isInvalid: boolean) => {
+        setToState(isInvalid)
+        validateAllFields()
+    }
+    const validateSubject = (field: string, isInvalid: boolean) => {
+        setSubjectState(isInvalid)
+        validateAllFields()
+    }
+    const validateBody = (field: string, isInvalid: boolean) => {
+        setBodyState(isInvalid)
+        validateAllFields()
+    }
+
     const getFormFieldComponent = (component: string): any => {
         const field = connectorConfig.action.fields[0].fields.find(inputField => inputField.name === component);
         if (!field || field?.hide) {
@@ -164,9 +192,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 field.fields = undefined;
             }
             return (
-                <div>
+                <div className={classNames(classes.emailFormTo, classes.toFieldTooltipWrapper)}>
                     <FormChipTextInput {...elementProps} />
-                    <div>
+                    <div className={classes.toFieldTooltipIconWrapper}>
                         <TooltipIcon
                             title={tooltipMessages.SMTP.to}
                         />

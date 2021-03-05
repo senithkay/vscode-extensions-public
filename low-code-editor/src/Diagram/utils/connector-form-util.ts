@@ -121,6 +121,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = [];
                         } else if (param.name === "'from") {
                             // const state = store.getState();
+                            param.tooltip = tooltipMessages.SMTP.from
                             param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
                             formField = [param, ...formField]
                         }else if (param.name === "to"){
@@ -333,7 +334,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             field.tooltip = tooltipMessages.salesforce.baseURL
                         }
                     });
-
                 }
                 filteredFunctions.set(key, value);
             });

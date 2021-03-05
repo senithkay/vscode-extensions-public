@@ -216,5 +216,4 @@ export const tooltipMessages: Record<string, any> = {
         subject: "Subject of the email",
         body: "Body of the email"
     },
-
 }
