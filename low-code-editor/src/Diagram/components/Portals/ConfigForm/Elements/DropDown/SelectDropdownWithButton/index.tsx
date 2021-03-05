@@ -46,7 +46,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
     const [connector, setConnector] = React.useState(defaultValue);
-    
+
     const handleChange = (event: any) => {
         setConnector(event.target.value);
         if (onChange && event.target.value) {
