@@ -41,12 +41,12 @@ import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonW
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
+    checkErrorsReturnType,
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams,
-    checkErrorsReturnType
+    getParams
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -238,15 +238,15 @@ export function GmailWizard(props: WizardProps) {
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column:0, line: syntaxTree?.position?.startLine || 1}
+                            {column: 0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
-                        
+
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                                 ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );   
+                        );
                     } else {
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
@@ -258,7 +258,7 @@ export function GmailWizard(props: WizardProps) {
                                 }
                              });`,
                             targetPosition
-                        ); 
+                        );
                     }
                     modifications.push(addConnectorInit);
                 }
@@ -295,16 +295,16 @@ export function GmailWizard(props: WizardProps) {
                     }
                  });`,
                 config.initPosition
-            ); 
+            );
             modifications.push(updateConnectorInit);
-            
+
             if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -314,7 +314,7 @@ export function GmailWizard(props: WizardProps) {
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);

@@ -236,7 +236,7 @@ export function GoogleSheet(props: WizardProps) {
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column:0, line: syntaxTree?.position?.startLine || 1}
+                            {column: 0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
 
@@ -254,7 +254,7 @@ export function GoogleSheet(props: WizardProps) {
                                 targetPosition
                             );
                         }
-                        
+
                     } else {
                         addConnectorInit = createObjectDeclaration(
                             (connector.module + ":" + connector.name),
@@ -318,7 +318,7 @@ export function GoogleSheet(props: WizardProps) {
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -328,7 +328,7 @@ export function GoogleSheet(props: WizardProps) {
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);

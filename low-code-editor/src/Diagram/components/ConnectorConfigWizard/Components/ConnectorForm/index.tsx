@@ -46,6 +46,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -53,7 +54,6 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationDropdown } from "../OperationDropdown";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
-import { addAiSuggestion, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams, checkErrorsReturnType } from '../../../Portals/utils';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -278,13 +278,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             // insert initialized connector logic
             const modifications: STModification[] = [];
 
-            if (!isNewConnectorInitWizard) {                
+            if (!isNewConnectorInitWizard) {
                 const updateConnectorInit = updatePropertyStatement(
                     `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                     connectorConfig.initPosition
-                );                         
+                );
                 modifications.push(updateConnectorInit);
-               
+
                 if (isActionReturnError) {
                     const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                         "var",
@@ -330,13 +330,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             addConnectorInit = createPropertyStatement(
                                 `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                                 targetPosition
-                            );            
+                            );
                         }
                         modifications.push(addConnectorInit);
                     }
 
                     // Add an action invocation on the initialized client.
-                    if(isActionReturnError){
+                    if (isActionReturnError){
                         const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,

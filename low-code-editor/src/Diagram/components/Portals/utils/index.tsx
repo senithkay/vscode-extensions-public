@@ -154,7 +154,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
-                            console.log('recordKey >>>', recordKey)
+                            // console.log('recordKey >>>', recordKey)
 
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
@@ -176,7 +176,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
-                                            console.log('record >>>', typeInfo, JSON.stringify(recordRes))
+                                            // console.log('record >>>', typeInfo, JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -205,7 +205,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
                                     await getRecordFields(formField.fields, records, langClient);
-                                    
+
                                     formField.fields.filter((property: any) => property.isReference).forEach((property: any) => {
                                         formField.fields = [...formField.fields, ...property.fields]
                                     })
@@ -867,7 +867,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
-        console.log('connector >>>', connector, JSON.stringify(connectorDef));
+        // console.log('connector >>>', connector, JSON.stringify(connectorDef));
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();

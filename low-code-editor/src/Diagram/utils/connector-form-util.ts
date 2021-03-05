@@ -11,7 +11,7 @@
  * associated services.
  */
 // import { store } from "../../../../$store";
-import { ConnectorConfig, FormField, PrimitiveBalType, ResponsePayloadMap, FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, ResponsePayloadMap } from "../../ConfigurationSpec/types";
 import { Connector } from "../../Definitions/lang-client-extended";
 import { tooltipMessages } from "../components/Portals/utils/constants";
 
@@ -331,7 +331,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                         break;
                     case 'get':
                     case 'post':
-                        value.parameters.find(field => field.name === "message" ).fields.forEach((param) => {
+                        value.parameters.find(field => field.name === "message").fields.forEach((param) => {
                             if (!(param.type === "string" || param.type === "xml" || param.type === "json")) {
                                 param.noCodeGen = true;
                             }

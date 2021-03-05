@@ -251,15 +251,15 @@ export function GoogleCalender(props: WizardProps) {
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column:0, line: syntaxTree?.position?.startLine || 1}
+                            {column: 0, line: syntaxTree?.position?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
-                        
+
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                                 ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );  
+                        );
                     } else {
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
@@ -271,7 +271,7 @@ export function GoogleCalender(props: WizardProps) {
                                 }
                              });`,
                             targetPosition
-                        ); 
+                        );
                     }
                     modifications.push(addConnectorInit);
                 }
@@ -280,9 +280,9 @@ export function GoogleCalender(props: WizardProps) {
                     // todo: temporary fix since we are not getting records
                     setAttendeeFieldValue();
                 }
-                
+
                 // Add an action invocation on the initialized client.
-                if(isActionReturnError){
+                if (isActionReturnError){
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -302,7 +302,7 @@ export function GoogleCalender(props: WizardProps) {
                     modifications.push(addActionInvocation);
                 }
             }
-        } else {          
+        } else {
             const updateConnectorInit = updatePropertyStatement(
                 `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
                     oauthClientConfig: {
@@ -313,7 +313,7 @@ export function GoogleCalender(props: WizardProps) {
                     }
                  });`,
                 config.initPosition
-            ); 
+            );
             modifications.push(updateConnectorInit);
 
             if (config.action.name === "createEvent") {
@@ -321,13 +321,13 @@ export function GoogleCalender(props: WizardProps) {
                 setAttendeeFieldValue();
             }
 
-            if(isActionReturnError){
+            if (isActionReturnError){
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -337,7 +337,7 @@ export function GoogleCalender(props: WizardProps) {
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
-                    getParams(config.action.fields), 
+                    getParams(config.action.fields),
                     model.position
                 );
                 modifications.push(updateActionInvocation);

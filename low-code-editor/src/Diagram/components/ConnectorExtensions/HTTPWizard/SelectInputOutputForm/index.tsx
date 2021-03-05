@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField, PrimitiveBalType, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";

@@ -251,7 +251,7 @@ class FieldVisitor implements Visitor {
                         typeSymbol.members.forEach((element: any) => {
                             element.viewState = {
                                 type: element.typeKind,
-                                isParam: true            
+                                isParam: true
                             }
 
                             if (element.moduleID) {

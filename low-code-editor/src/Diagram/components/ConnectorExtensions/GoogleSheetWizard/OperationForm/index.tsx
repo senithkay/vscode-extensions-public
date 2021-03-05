@@ -101,7 +101,7 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     const showSheetSelector = !isManualConnection && connectionInfo && (selectedOperation === "openSpreadsheetById");
-    if(formFields.find(field => field.name === "spreadsheetId")){
+    if (formFields.find(field => field.name === "spreadsheetId")){
         formFields.find(field => field.name === "spreadsheetId").hide = showSheetSelector;
     }
 
