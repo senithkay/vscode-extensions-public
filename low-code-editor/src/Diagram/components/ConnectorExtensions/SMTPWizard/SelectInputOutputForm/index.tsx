@@ -139,35 +139,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         // onValidate(allFieldsValid);
     }
 
-    const [fromState, setFromState] = useState<boolean>(undefined);
-    const [toState, setToState] = useState<boolean>(undefined);
-    const [subjectState, setSubjectState] = useState<boolean>(undefined);
-    const [bodyState, setBodyState] = useState<boolean>(undefined);
-
-    const validateAllFields = () => {
-        if (!fromState && !toState && !bodyState && !subjectState) {
-            onValidate(true)
-        } else {
-            onValidate(false)
-        }
-    }
-    const validateFrom = (field: string, isInvalid: boolean) => {
-        setFromState(isInvalid)
-        validateAllFields()
-    }
-    const validateTo = (field: string, isInvalid: boolean) => {
-        setToState(isInvalid)
-        validateAllFields()
-    }
-    const validateSubject = (field: string, isInvalid: boolean) => {
-        setSubjectState(isInvalid)
-        validateAllFields()
-    }
-    const validateBody = (field: string, isInvalid: boolean) => {
-        setBodyState(isInvalid)
-        validateAllFields()
-    }
-
     const getFormFieldComponent = (component: string): any => {
         const field = connectorConfig.action.fields[0].fields.find(inputField => inputField.name === component);
         if (!field || field?.hide) {
