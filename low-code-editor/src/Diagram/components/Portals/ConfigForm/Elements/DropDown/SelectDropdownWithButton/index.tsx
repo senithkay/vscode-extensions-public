@@ -40,13 +40,13 @@ export interface SelectDropdownProps {
 export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownProps>) {
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
+    const textFieldClasses = useTextInputStyles();
     const { onChange, onClick, defaultValue, label, placeholder, customProps = {} } = props;
     const { values, disableCreateNew, optional, className,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
     const [connector, setConnector] = React.useState(defaultValue);
-    const textFieldClasses = useTextInputStyles();
-
+    
     const handleChange = (event: any) => {
         setConnector(event.target.value);
         if (onChange && event.target.value) {

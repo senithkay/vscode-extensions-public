@@ -34,7 +34,6 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
     const classes = wizardStyles();
 
-
     const handleSelect = (selectedOperation: string) => {
         onOperationSelect(selectedOperation);
     };
@@ -46,7 +45,6 @@ export function OperationDropdown(props: OperationDropdownProps) {
                     {showConnectionName ? (
                         <>
                         <div className={classes.connectionNameWrapper}>
-
                         <p className={classes.subTitle}>Connection</p>
                         <div><TooltipIcon
                             title="Name of the connection"
@@ -66,9 +64,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                                 onClick={onConnectionChange}
                             >
                                 <EditIcon />
-
                             </IconButton>
-
                         </Box>
                         </>
                     ) : null
