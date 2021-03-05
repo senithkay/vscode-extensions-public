@@ -16,9 +16,8 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
-
 import { WizardType } from "../../../ConfigurationSpec/types";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
@@ -34,17 +33,6 @@ import "./style.scss";
 export interface ProcessorProps {
     model: STNode;
     blockViewState?: BlockViewState;
-    openNewProcessorConfig: (type: string, targetPosition: DraftInsertPosition, wizardType: WizardType,
-        blockViewState?: BlockViewState, config?: ProcessConfig, symbolInfo?: STSymbolInfo, model?: STNode) => void;
-    dispatchDiagramCleanDraw: (st: STNode) => void;
-    dispatchCloseConfigOverlayForm: () => void;
-    stSymbolInfo: STSymbolInfo;
-    isMutationProgress: boolean;
-    isWaitingOnWorkspace: boolean;
-    maximizeCodeView: (appId: number | string) => void;
-    appId: number;
-    setCodeToHighlight: (location?: ModelCodePosition) => void,
-    isCodeEditorActive: boolean;
 }
 
 export function DataProcessor(props: ProcessorProps) {

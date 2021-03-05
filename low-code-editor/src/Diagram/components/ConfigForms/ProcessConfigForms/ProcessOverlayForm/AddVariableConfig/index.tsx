@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext,useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-import { AnydataTypeDesc, LocalVarDecl, UnionTypeDesc } from "@ballerina/syntax-tree";
+import { AnydataTypeDesc, LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import { balTypes, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { PropertyIcon } from "../../../../../../assets/icons";
+import { ExpressionEditorType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -31,8 +32,6 @@ import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-
-import { PropertyIcon } from "../../../../../../assets/icons";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -76,6 +75,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [varNameError, setVarNameError] = useState("");
     const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
+    const [variableExpression, setVariableExpression] = useState<string>("");
     const [isOtherTypeSelected, setIsOtherTypeSelected] = useState<boolean>(false);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
 
@@ -84,7 +84,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     }
 
     const onPropertyChange = (property: string) => {
-        config.config = property;
+        setVariableExpression(property);
     };
 
     const handleNameOnChange = (name: string) => {
@@ -110,7 +110,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const validateNameValue = (value: string) => {
         if (value !== undefined || value !== null) {
-            const varValidationResponse = checkVariableName("variable name", value, defaultVarName);
+            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, state);
             if (varValidationResponse?.error) {
                 setVarNameError(varValidationResponse.message);
                 setIsValidVarName(false);
@@ -133,9 +133,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const handleSave = () => {
-        if (config.config !== '') {
-            config.config = otherType ? otherType + " " + varName + " = " + config.config + ";" :
-                selectedType + " " + varName + " = " + config.config + ";";
+        if (variableExpression !== '') {
+            config.config = otherType ? otherType + " " + varName + " = " + variableExpression + ";" :
+                selectedType + " " + varName + " = " + variableExpression + ";";
             onSave();
         }
     };
@@ -243,6 +243,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
                                     interactive: true,
                                     focus: editorFocus,
+                                    statementType: modelType as ExpressionEditorType,
                                     revertFocus: revertEditorFocus
                                 }}
                                 onChange={onPropertyChange}
