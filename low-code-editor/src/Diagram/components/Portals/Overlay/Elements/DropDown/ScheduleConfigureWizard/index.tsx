@@ -122,12 +122,27 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   };
 
+  const cronForSelectedType = () => {
+    if (scheduledComp === "minute") {
+      return cronMinuteValue + " * * * *"
+    } else if (scheduledComp === "hour") {
+      return cronMinuteValue + " " + cronHourValue + " * * *"
+    } else if (scheduledComp === "day") {
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
+    } else if (scheduledComp === "month") {
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
+    } else {
+      return currentCron;
+    }
+  }
+
   const handleOnSave = () => {
     setShowConfirmDialog(false);
     // dispatch and close the wizard
     setTriggerChanged(true);
+    const saveSelectedCron = cronForSelectedType();
     dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
-      "CRON": currentCron,
+      "CRON": saveSelectedCron,
     });
     trackTriggerSelection("Schedule");
   };
@@ -370,20 +385,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       {weekOptionComp}
     </>
   );
-
-  const cronForSelectedType = () => {
-    if (scheduledComp === "minute") {
-      return cronMinuteValue + " * * * *"
-    } else if (scheduledComp === "hour") {
-      return cronMinuteValue + " " + cronHourValue + " * * *"
-    } else if (scheduledComp === "day") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
-    } else if (scheduledComp === "month") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
-    } else {
-      return currentCron;
-    }
-  }
 
   return (
     <DiagramOverlay
