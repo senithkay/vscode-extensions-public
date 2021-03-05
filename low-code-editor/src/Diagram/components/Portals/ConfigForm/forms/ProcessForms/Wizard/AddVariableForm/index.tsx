@@ -22,6 +22,7 @@ import {
 } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { PropertyIcon } from "../../../../../../../../assets/icons"
 import { balTypes, FormField, WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
@@ -33,8 +34,6 @@ import ExpressionEditor from "../../../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../types";
 import { useStyles } from "../../../style";
-
-import { PropertyIcon } from "../../../../../../../../assets/icons"
 
 interface AddVariableProps {
     config: ProcessConfig;
