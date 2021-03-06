@@ -298,7 +298,7 @@ export function getMatchingConnector(actionInvo: LocalVarDecl,
 
         if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
             remoteMethodCallAction.methodName.typeData) {
-            const endPointName = actionVariable.expression.name.value;
+            const endPointName = actionVariable.expression.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
             const typeData: any = remoteMethodCallAction.methodName.typeData;
             if (typeData?.symbol?.moduleID) {

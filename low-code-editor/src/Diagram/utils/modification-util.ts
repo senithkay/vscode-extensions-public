@@ -15,6 +15,8 @@ import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdateStatement } from "../view-state/draft";
+/* tslint:disable ordered-imports */
+import { getInsertComponentSource } from "./template-utils";
 
 export function createIfStatement(conditionExpression: string, targetPosition: DraftInsertPosition): STModification {
     const ifStatement: STModification = {
@@ -522,4 +524,30 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     };
 
     return requestGeneration;
+}
+
+export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {
+    const stModifications: STModification[] = [];
+    /* tslint:disable prefer-for-of */
+    for (let i = 0; i < modifications.length; i++) {
+        const value: STModification = modifications[i];
+        let stModification: STModification;
+        if (value.type && value.type.toLowerCase() === "delete") {
+            stModification = value;
+        } else {
+            const source = await getInsertComponentSource(value.type, value.config);
+            stModification = {
+                startLine: value.startLine,
+                startColumn: value.startColumn,
+                endLine: value.endLine,
+                endColumn: value.endColumn,
+                type: "INSERT",
+                config: {
+                    "STATEMENT": source,
+                }
+            };
+        }
+        stModifications.push(stModification);
+    }
+    return stModifications;
 }
