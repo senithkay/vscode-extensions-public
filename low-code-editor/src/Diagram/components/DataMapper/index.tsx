@@ -11,30 +11,59 @@
  * associated services.
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+
+import { STNode, traversNode } from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
+
+import { clear, getRecordDefinitons, visitor as DataMapperVisitor } from './util/data-mapper-init-visitor';
 
 interface DataMapperProps {
     width: number;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { state: { targetPosition } } = useContext(DiagramContext)
+    const { state: { originalSyntaxTree, syntaxTree } } = useContext(DiagramContext)
     const { width } = props;
+    const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
+
+    useEffect(() => {
+        clear();
+        traversNode(originalSyntaxTree, DataMapperVisitor);
+        setAppRecordSTMap(getRecordDefinitons())
+    }, []);
+
+    console.log("haha");
 
     return (
         <>
             <g>
-                <line x1={10} x2={100} y1={15} y2={100} style={{stroke: 'rgb(255,0,0)', strokeWidth: 2}} />
+                <line x1={10} x2={100} y1={15} y2={100} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} />
             </g>
             <DiagramOverlayContainer>
                 <DiagramOverlay
-                    position={{ x: 50, y: 15 }}
+                    position={{ x: 15, y: 15 }}
                 >
-                    <div style={{width, height: 50}}>haah</div>
+                    <div>
+                        hahaha
+                    </div>
                 </DiagramOverlay>
+                <DiagramOverlay
+                    position={{ x: width + (width / 2), y: -5 }}
+                >
+                    <div>
+                        hahaha
+                    </div>
+                </DiagramOverlay>
+                {/* <DiagramOverlay
+                    position={{ x: width + (width / 2), y: -25 }}
+                >
+                    <div>
+                        hahaha
+                    </div>
+                </DiagramOverlay> */}
             </DiagramOverlayContainer>
         </>
     )
