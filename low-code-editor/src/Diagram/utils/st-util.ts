@@ -202,7 +202,6 @@ export async function getConnectorDefFromCache(connector: Connector) {
     const { org, module: mod, version, name } = connector;
     let connectorDef;
     try {
-        // console.log('get connector def from cache >>> ', name)
         const resp = await fetch(`/connectors/cache/${org}/${mod}/${version}/${name}/st.json`);
         connectorDef = resp && resp.status === 200 ? resp.json() : undefined;
     } catch (error) {
@@ -215,7 +214,6 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
     const { org, module: mod, version, name } = record;
     let recordDef;
     try {
-        // console.log('get record def from cache >>> ', name)
         const resp = await fetch(`/records/cache/${org}/${mod}/${version}/${name}/st.json`);
         recordDef = resp && resp.status === 200 ? resp.json() : undefined;
     } catch (error) {

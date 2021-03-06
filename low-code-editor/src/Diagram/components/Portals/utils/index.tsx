@@ -59,27 +59,16 @@ const ignoreList = [
     'ballerina/http:1.1.0-alpha4:HttpFuture',
     'ballerina/http:1.1.0-alpha4:PushPromise',
     'ballerina/email:1.1.0-alpha4:Security',
-    'ballerinax/twilio:0.99.6:TwilioConfiguration',
     'ballerinax/twilio:0.99.6:Account',
-    'ballerinax/twilio:0.99.6:SmsResponse',
     'ballerinax/twilio:0.99.6:MessageResourceResponse',
     'ballerinax/twilio:0.99.6:WhatsAppResponse',
-    'ballerinax/twilio:0.99.6:StatusCallback',
-    'ballerinax/googleapis_gmail:0.99.4:GmailConfiguration',
     'ballerina/oauth2:1.1.0-alpha4:CredentialBearer',
     'ballerina/oauth2:1.1.0-alpha4:HttpVersion',
     'ballerinax/googleapis_gmail:0.99.4:MessageRequest',
     'ballerinax/googleapis_gmail:0.99.4:Message',
-    'ballerinax/googleapis_gmail:0.99.4:ThreadListPage',
     'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
     'ballerinax/googleapis_calendar:0.1.3:Shared',
-    'ballerinax/googleapis_calendar:0.1.3:Private',
-    'ballerinax/googleapis_calendar:0.1.3:Source',
-    'ballerinax/googleapis_calendar:0.1.3:CalendarResource',
     'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
-    'ballerinax/googleapis_calendar:0.1.3:ConferenceSolutionKey',
-    'ballerinax/googleapis_calendar:0.1.3:Status',
-    'ballerinax/googleapis_calendar:0.1.3:Key',
 
     // slp8
     'ballerina/http:1.0.4:OutboundAuthHandler',
@@ -167,8 +156,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
-                            // console.info('-------------------------NEW-------------------------\n')
-                            // console.info('recordKey >>>', recordKey)
 
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
@@ -190,7 +177,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
-                                            // console.warn('record >>>', typeInfo, JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -883,7 +869,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
-        // console.warn('connector >>>', connector, JSON.stringify(connectorDef));
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();
