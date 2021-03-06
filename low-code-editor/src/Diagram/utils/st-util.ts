@@ -173,6 +173,10 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;
+                case "DataMapper":
+                    h = PROCESS_SVG_HEIGHT;
+                    w = PROCESS_SVG_WIDTH;
+                    break;
                 case "Variable":
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
@@ -273,8 +277,8 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
 }
 
 export function getMatchingConnector(actionInvo: LocalVarDecl,
-                                     connectors: BallerinaConnectorsInfo[],
-                                     stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+    connectors: BallerinaConnectorsInfo[],
+    stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
 

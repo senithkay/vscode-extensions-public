@@ -22,6 +22,7 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
+import { AddDataMappingConfig } from "./AddDataMappingConfig";
 
 interface ProcessOverlayFormProps {
     config: ProcessConfig;
@@ -94,6 +95,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {formType === "DataMapper" && <AddDataMappingConfig config={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
