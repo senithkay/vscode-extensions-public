@@ -37,7 +37,7 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, toggleDiagramOverlay } = useContext(DiagramContext);
     const {
         syntaxTree,
         stSymbolInfo,
@@ -48,8 +48,6 @@ export function Respond(props: RespondProps) {
         currentApp,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        closeConfigPanel: dispatchCloseConfigPanel,
         dispactchConfigOverlayForm: openNewEndConfig
     } = state;
     const { id: appId } = currentApp || {};
@@ -116,7 +114,7 @@ export function Respond(props: RespondProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            dispatchCloseConfigOverlayForm();
+            toggleDiagramOverlay();
         }
         setConfigWizardOpen(false);
     };
@@ -127,7 +125,7 @@ export function Respond(props: RespondProps) {
             diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     React.useEffect(() => {
@@ -154,7 +152,7 @@ export function Respond(props: RespondProps) {
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     return (

@@ -11,9 +11,7 @@
  * associated services.
  */
 import { STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
-import { ExpressionEditorState } from "../Definitions";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
 
 import createContext from "./createContext";
@@ -47,6 +45,11 @@ const reducer = (state: any, action: any) => {
                 ...state,
                 isDataMapperShown: action.payload
             }
+            case 'TOGGLE_DIAGRAM_OVERLAY':
+                return {
+                    ...state,
+                    isConfigOverlayFormOpen: !state.isConfigOverlayFormOpen
+                }
         default:
             return state;
     }
@@ -81,6 +84,11 @@ const actions = {
     dataMapperStart: (dispatch: any) => {
         return (payload: boolean) => {
             dispatch({type: 'SWITCH_TO_DATAMAPPER', payload})
+        }
+    },
+    toggleDiagramOverlay: (dispatch: any) => {
+        return () => {
+            dispatch({type: 'TOGGLE_DIAGRAM_OVERLAY'})
         }
     }
 };

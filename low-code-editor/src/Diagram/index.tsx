@@ -52,16 +52,13 @@ export function Diagram(props: DiagramProps) {
         isLoadingAST,
         error,
         isWaitingOnWorkspace,
-        dispatchMutations,
-        dispatchModifyTrigger,
         isMutationInProgress,
         isCodeEditorActive,
-        isConfigPanelOpen,
-        isConfigOverlayFormOpen,
+        // isConfigPanelOpen,
         triggerType
     } = props;
     const classes = useStyles();
-    const { state: { isDataMapperShown } } = React.useContext(DiagramContext);
+    const { state: { isDataMapperShown, isConfigOverlayFormOpen } } = React.useContext(DiagramContext);
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -110,8 +107,8 @@ export function Diagram(props: DiagramProps) {
             {triggerType !== undefined && isWaitingOnWorkspace && textLoader}
 
             <div className={classes.diagramStateWrapper}>
-                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramEnabledStatus}
-                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
+                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigOverlayFormOpen && !isReadOnly && diagramEnabledStatus}
+                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigOverlayFormOpen && !isReadOnly && diagramDisabledStatus}
             </div>
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>

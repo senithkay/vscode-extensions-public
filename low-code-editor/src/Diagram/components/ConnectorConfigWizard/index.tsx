@@ -48,8 +48,7 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-    const { state } = useContext(DiagramContext);
-    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen } = state;
+    const { state, toggleDiagramOverlay } = useContext(DiagramContext);
 
     const { position, connectorInfo, targetPosition, model, onClose } = props;
 
@@ -67,13 +66,13 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                 const configList = await fetchConnectorInfo(connectorInfo, model, state);
                 setWizardState(configList);
             })()
-            dispatchOverlayOpen();
+            toggleDiagramOverlay();
         }
     }, [wizardState]);
 
     const handleClose = () => {
         onClose();
-        dispatchOverlayClose()
+        toggleDiagramOverlay()
     }
 
     return (
@@ -102,10 +101,3 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         </div>
     );
 }
-
-// const mapDispatchToProps = {
-//     dispatchOverlayOpen: configOverlayFormPrepareStart,
-//     dispatchOverlayClose: closeConfigOverlayForm,
-// };
-
-// export const ConnectorConfigWizard = connect(null, mapDispatchToProps)(ConnectorConfigWizardC);
