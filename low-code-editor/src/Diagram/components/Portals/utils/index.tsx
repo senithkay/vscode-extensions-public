@@ -51,24 +51,37 @@ import * as OverlayElement from "../Overlay/Elements";
 import { keywords, symbolKind } from "./constants";
 
 const receivedRecords: Map<string, STNode> = new Map();
-const ignoreList = [ // inorder to ignore classes, object and enum type references
+// in order to ignore classes, object and enum type references
+const ignoreList = [
+    // sl alpha2
     'ballerina/http:1.1.0-alpha4:Request',
     'ballerina/http:1.1.0-alpha4:Response',
     'ballerina/http:1.1.0-alpha4:HttpFuture',
     'ballerina/http:1.1.0-alpha4:PushPromise',
     'ballerina/email:1.1.0-alpha4:Security',
+    'ballerinax/twilio:0.99.6:TwilioConfiguration',
+    'ballerinax/twilio:0.99.6:Account',
+    'ballerinax/twilio:0.99.6:SmsResponse',
+    'ballerinax/twilio:0.99.6:MessageResourceResponse',
+    'ballerinax/twilio:0.99.6:WhatsAppResponse',
+    'ballerinax/twilio:0.99.6:StatusCallback',
+    'ballerinax/googleapis_gmail:0.99.4:GmailConfiguration',
+    'ballerina/oauth2:1.1.0-alpha4:CredentialBearer',
+    'ballerina/oauth2:1.1.0-alpha4:HttpVersion',
+    'ballerinax/googleapis_gmail:0.99.4:MessageRequest',
+    'ballerinax/googleapis_gmail:0.99.4:Message',
+    'ballerinax/googleapis_gmail:0.99.4:ThreadListPage',
+    'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
     'ballerinax/googleapis_calendar:0.1.3:Shared',
     'ballerinax/googleapis_calendar:0.1.3:Private',
-    'ballerinax/googleapis_calendar:0.1.3:Event',
-    'ballerinax/googleapis_calendar:0.1.3:CreateEventOptional',
     'ballerinax/googleapis_calendar:0.1.3:Source',
-    'ballerinax/googleapis_calendar:0.1.3:Reminders',
-    'ballerinax/googleapis_calendar:0.1.3:Gadget',
-    'ballerinax/googleapis_calendar:0.1.3:ConferenceData',
-    'ballerinax/googleapis_calendar:0.1.3:ExtendedProperties',
-    'ballerinax/googleapis_calendar:0.1.3:InputEvent',
     'ballerinax/googleapis_calendar:0.1.3:CalendarResource',
+    'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
+    'ballerinax/googleapis_calendar:0.1.3:ConferenceSolutionKey',
+    'ballerinax/googleapis_calendar:0.1.3:Status',
+    'ballerinax/googleapis_calendar:0.1.3:Key',
 
+    // slp8
     'ballerina/http:1.0.4:OutboundAuthHandler',
     'ballerina/http:1.0.4:PersistentCookieHandler',
     'ballerina/io:0.5.4:ReadableByteChannel',
@@ -154,7 +167,8 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
-                            // console.log('recordKey >>>', recordKey)
+                            // console.info('-------------------------NEW-------------------------\n')
+                            // console.info('recordKey >>>', recordKey)
 
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
@@ -176,7 +190,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
-                                            // console.log('record >>>', typeInfo, JSON.stringify(recordRes))
+                                            // console.warn('record >>>', typeInfo, JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -206,8 +220,10 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 if (formField.fields) {
                                     await getRecordFields(formField.fields, records, langClient);
 
-                                    formField.fields.filter((property: any) => property.isReference).forEach((property: any) => {
-                                        formField.fields = [...formField.fields, ...property.fields]
+                                    formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
+                                        if (property?.length > 0){
+                                            formField.fields = [...formField.fields, ...property.fields]
+                                        }
                                     })
                                 }
                             }
@@ -867,7 +883,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
-        // console.log('connector >>>', connector, JSON.stringify(connectorDef));
+        // console.warn('connector >>>', connector, JSON.stringify(connectorDef));
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();
