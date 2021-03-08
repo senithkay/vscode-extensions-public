@@ -65,7 +65,7 @@ export interface ForeachConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig;
+    config?: string | LogConfig | RespondConfig | DataMapperConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -82,6 +82,11 @@ export interface RespondConfig {
     respondExpression: string;
     variable: string;
     responseCode?: string;
+}
+
+export interface DataMapperConfig {
+    parameters: any[]; // todo ::: finalize the interface
+    returnType: any;
 }
 
 export interface EndConfig {

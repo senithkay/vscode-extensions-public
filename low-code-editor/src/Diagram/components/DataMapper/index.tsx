@@ -13,29 +13,27 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { STNode, traversNode } from '@ballerina/syntax-tree';
+import { FunctionBodyBlock, FunctionDefinition, STNode, traversNode } from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
-import { clear, getRecordDefinitons, visitor as DataMapperVisitor } from './util/data-mapper-init-visitor';
+import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
 
 interface DataMapperProps {
     width: number;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { state: { originalSyntaxTree, syntaxTree } } = useContext(DiagramContext)
+    const { state: { originalSyntaxTree, syntaxTree, stSymbolInfo } } = useContext(DiagramContext)
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
 
     useEffect(() => {
-        clear();
-        traversNode(originalSyntaxTree, DataMapperVisitor);
-        setAppRecordSTMap(getRecordDefinitons())
+        const selectedNode = ((syntaxTree as FunctionDefinition).functionBody as FunctionBodyBlock).statements[3];
+        traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));
+        debugger;
     }, []);
-
-    console.log("haha");
 
     return (
         <>
