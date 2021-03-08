@@ -1,5 +1,5 @@
 import { BallerinaProject } from "../../core/extended-language-client";
-import * as  vscode from 'vscode';
+import { Terminal, window } from "vscode";
 
 export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add"
