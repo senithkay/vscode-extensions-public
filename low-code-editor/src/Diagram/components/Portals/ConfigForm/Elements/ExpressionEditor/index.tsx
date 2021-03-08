@@ -129,6 +129,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
+    isExpanded?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -160,7 +161,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         defaultValue,
         model,
         onChange,
-        customProps
+        customProps,
     } = props;
     const { validate, statementType, customTemplate } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
@@ -591,7 +592,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
             <div className="exp-container">
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor">
+                    <div className={customProps?.isExpanded ? "exp-editor-expanded" : "exp-editor"}>
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -599,6 +600,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             language={BALLERINA_EXPR}
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
+                            //className={customProps?.large ? "exp-editor-large' : "exp-editor"}
                         />
                     </div>
                 </div>
