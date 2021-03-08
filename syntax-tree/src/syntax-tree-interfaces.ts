@@ -28,6 +28,7 @@ export interface STNode {
   typeData?: any;
   VisibleEndpoints?: VisibleEndpoint[];
   source: string;
+  configurablePosition?: NodePosition;
 }
 
 export interface ActionStatement extends STNode {

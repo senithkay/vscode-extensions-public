@@ -55,6 +55,7 @@ export function getLowCodeSTFn(mp: ModulePart) {
     for (const node of members) {
         if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
             functionDefinition = node as FunctionDefinition;
+            functionDefinition.configurablePosition = node.position;
             break;
         } else if (STKindChecker.isServiceDeclaration(node)) {
             // TODO: Fix with the ST interface generation.
@@ -65,6 +66,7 @@ export function getLowCodeSTFn(mp: ModulePart) {
                     || serviceMember.kind === "ObjectMethodDefinition"
                     || serviceMember.kind === "FunctionDefinition") {
                     const functionDef = serviceMember as FunctionDefinition;
+                    functionDef.configurablePosition = node.position;
                     let isRemoteOrResource: boolean = false;
 
                     functionDef?.qualifierList?.forEach(qualifier => {
