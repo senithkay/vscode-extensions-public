@@ -21,7 +21,8 @@ export interface STModification {
     endLine: number;
     endColumn: number;
     type: string;
-    config?: STModificationConfig;
+    config?: any;
+    isImport?: boolean;
 }
 
 export interface BallerinaSyntaxTreeModifyRequest {
