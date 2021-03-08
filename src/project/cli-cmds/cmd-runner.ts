@@ -20,7 +20,7 @@ export enum MESSAGES {
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project."
 }
 
-let terminal: vscode.Terminal;
+let terminal: Terminal;
 export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
     if (terminal) {
         terminal.dispose();
@@ -33,7 +33,7 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
             argsList += arg.concat(' ');
         });
     }
-    terminal = vscode.window.createTerminal({ name: 'Terminal', cwd: filePath });
+    terminal = window.createTerminal({ name: 'Terminal', cwd: filePath });
     terminal.show(true);
     terminal.sendText(`${executor} ${cmd} ${argsList}`, true);
 }
