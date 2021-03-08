@@ -16,8 +16,6 @@ import {
     BooleanLiteral, CaptureBindingPattern, CheckAction,
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
-    ObjectMethodDefinition,
-    OptionalTypeDesc,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
@@ -861,11 +859,8 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     // check existing in same code file
     // generate select existing connector form
     // if create new clicked.
-    // const symbolInfo = store.getState().diagramState.stSymbolInfo;
-    const { stSymbolInfo: symbolInfo, langClient, waitForCurrentWorkspace } = state;
-    // await waitForCurrentWorkspace();
+    const { stSymbolInfo: symbolInfo, langClient } = state;
     let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
-    // const langClient = await getLangClientForCurrentApp();
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;

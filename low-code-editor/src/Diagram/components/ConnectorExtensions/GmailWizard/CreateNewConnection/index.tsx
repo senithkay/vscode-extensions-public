@@ -120,8 +120,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const filteredFormFields = () => {
         return connectorInitFields.find(config => config.name === "gmailConfig").fields
-            .find(field => field.name === "oauthClientConfig").fields
-            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
+        .find(field => field.name === "oauthClientConfig").fields
+        .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId");
     }
 
     return (

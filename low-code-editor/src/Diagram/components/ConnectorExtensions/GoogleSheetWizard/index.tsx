@@ -32,6 +32,7 @@ import {
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
     updateObjectDeclaration,
+    updatePropertyStatement,
     updateRemoteServiceCall
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
@@ -42,6 +43,7 @@ import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonW
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
+    checkErrorsReturnType,
     genVariableName,
     // getConnectorConfig,
     getConnectorIcon,
@@ -199,22 +201,15 @@ export function GoogleSheet(props: WizardProps) {
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
-    const getFormFieldValue = (key: string, title?: string) => {
-        if (title) {
-            return connectorInitFormFields.find(field => field.name === "spreadsheetConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === title)
-                .fields.find(field => field.name === key).value || "";
-        } else {
-            return connectorInitFormFields.find(field => field.name === "spreadsheetConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === key).value || "";
-        }
+    const getFormFieldValue = (key: string) => {
+        return connectorInitFormFields.find(field => field.name === "spreadsheetConfig").fields
+            .find(field => field.name === "oauthClientConfig").fields
+            .find(field => field.name === key).value || "";
     }
 
-
     const handleOnSave = () => {
-        // insert initialized connector logic
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -240,33 +235,21 @@ export function GoogleSheet(props: WizardProps) {
                         );
                         modifications.push(addConfigurableVars);
 
-                        const isInitErrorType = functionDefinitions.get('init')?.returnType?.isErrorType;
-                        if (isInitErrorType) {
-                            addConnectorInit = createPropertyStatement(
-                                `${connector.module}:${connector.name} ${config.name} = check new (${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)});`,
-                                targetPosition
-                            );
-                        } else {
-                            addConnectorInit = createObjectDeclaration(
-                                (connector.module + ":" + connector.name),
-                                config.name,
-                                [ getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails) ],
-                                targetPosition
-                            );
-                        }
-
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                            targetPosition
+                        );
                     } else {
-                        addConnectorInit = createObjectDeclaration(
-                            (connector.module + ":" + connector.name),
-                            config.name,
-                            [ `{
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
                                 oauthClientConfig: {
                                     clientId: ${getFormFieldValue("clientId")},
                                     clientSecret: ${getFormFieldValue("clientSecret")},
                                     refreshToken: ${getFormFieldValue("refreshUrl")},
                                     refreshUrl: ${getFormFieldValue("refreshToken")}
                                 }
-                             }` ],
+                             });`,
                             targetPosition
                         );
                     }
@@ -274,8 +257,7 @@ export function GoogleSheet(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-                if (isErrorType) {
+                if (isActionReturnError) {
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -296,23 +278,20 @@ export function GoogleSheet(props: WizardProps) {
                 }
             }
         } else {
-            const updateConnectorInit = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                config.name,
-                [ `{
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
                     oauthClientConfig: {
                         clientId: ${getFormFieldValue("clientId")},
                         clientSecret: ${getFormFieldValue("clientSecret")},
                         refreshToken: ${getFormFieldValue("refreshUrl")},
                         refreshUrl: ${getFormFieldValue("refreshToken")}
                     }
-                 }` ],
+                 });`,
                 config.initPosition
             );
             modifications.push(updateConnectorInit);
 
-            const isErrorType = (functionDefinitions.get(config.action.name)?.returnType?.fields.find((param: any) => param?.isErrorType)) !== undefined;
-            if (isErrorType) {
+            if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,

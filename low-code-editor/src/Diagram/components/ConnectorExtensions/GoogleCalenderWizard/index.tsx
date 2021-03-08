@@ -197,17 +197,10 @@ export function GoogleCalender(props: WizardProps) {
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
-    const getFormFieldValue = (key: string, title?: string) => {
-        if (title) {
-            return connectorInitFormFields.find(field => field.name === "calendarConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === title)
-                .fields.find(field => field.name === key).value || "";
-        } else {
-            return connectorInitFormFields.find(field => field.name === "calendarConfig")
-                .fields.find(field => field.name === "oauth2Config")
-                .fields.find(field => field.name === key).value || "";
-        }
+    const getFormFieldValue = (key: string) => {
+        return connectorInitFormFields.find(field => field.name === "calendarConfig").fields
+            .find(field => field.name === "oauth2Config").fields
+            .find(field => field.name === key).value || "";
     }
 
     const setAttendeeFieldValue = () => {
@@ -263,7 +256,7 @@ export function GoogleCalender(props: WizardProps) {
                     } else {
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                                oauthClientConfig: {
+                                oauth2Config: {
                                     clientId: ${getFormFieldValue("clientId")},
                                     clientSecret: ${getFormFieldValue("clientSecret")},
                                     refreshToken: ${getFormFieldValue("refreshUrl")},
@@ -305,7 +298,7 @@ export function GoogleCalender(props: WizardProps) {
         } else {
             const updateConnectorInit = updatePropertyStatement(
                 `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                    oauthClientConfig: {
+                    oauth2Config: {
                         clientId: ${getFormFieldValue("clientId")},
                         clientSecret: ${getFormFieldValue("clientSecret")},
                         refreshToken: ${getFormFieldValue("refreshUrl")},

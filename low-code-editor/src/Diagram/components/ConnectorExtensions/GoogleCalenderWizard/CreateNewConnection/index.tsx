@@ -125,7 +125,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const filteredFormFields = () => {
         return connectorInitFields.find(config => config.name === "calendarConfig").fields
             .find(field => field.name === "oauth2Config").fields
-            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId")
+            .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId");
     }
 
     return (

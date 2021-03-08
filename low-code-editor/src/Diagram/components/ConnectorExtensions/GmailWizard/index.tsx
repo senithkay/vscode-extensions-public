@@ -200,17 +200,10 @@ export function GmailWizard(props: WizardProps) {
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
-    const getFormFieldValue = (key: string, title?: string) => {
-        if (title) {
-            return connectorInitFormFields.find(field => field.name === "gmailConfig")
-                .fields.find(field => field.name === "oauthClientConfig")
-                .fields.find(field => field.name === title)
-                .fields.find(field => field.name === key).value || "";
-        } else {
-            return connectorInitFormFields.find(field => field.name === "gmailConfig")
-                .fields.find(field => field.name === "oauthClientConfig")
-                .fields.find(field => field.name === key).value || "";
-        }
+    const getFormFieldValue = (key: string) => {
+        return connectorInitFormFields.find(field => field.name === "gmailConfig").fields
+            .find(field => field.name === "oauthClientConfig").fields
+            .find(field => field.name === key).value || "";
     }
 
     const handleOnSave = () => {

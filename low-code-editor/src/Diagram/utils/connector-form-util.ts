@@ -206,6 +206,14 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerinax_googleapis_gmail_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "listMessages" || key === "sendMessage" || key === "readMessage" || key === "init") {
+                    if (key === "init"){
+                        // replace single record inside "oauthClientConfig" record with inner field list
+                        const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
+
+                        value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
+                    }
                     if (key === "sendMessage"){
                         // set content type in sendMessage form
                         value.parameters.find(fields => fields.name === "message")
@@ -223,7 +231,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 }
 
-
                 // add default value to userId field
                 let formField: FormField[] = [];
                 // const state = store.getState();
@@ -231,9 +238,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 formField = [value.parameters[0], ...formField];
             });
             break;
-        case "ballerinax_googleapis_calendar_CalendarClient":
+        case "ballerinax_googleapis_calendar_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "createEvent") {
+                if (key === "init"){
+                    // replace single record inside "oauth2Config" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "calendarConfig")
+                    .fields.find(fields => fields.name === "oauth2Config").fields[0].fields;
+
+                    value.parameters.find(fields => fields.name === "calendarConfig")
+                    .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
+
+                    filteredFunctions.set(key, value);
+                }else if (key === "createEvent") {
                     value.parameters[1].fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
@@ -259,36 +275,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case 'ballerinax_googleapis_sheets_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[0].name === 'spreadsheetConfig') {
-                        value.parameters[0].fields.forEach((param) => {
-                            switch (param.name) {
-                                case 'secureSocketConfig':
-                                    param.hide = true;
-                                    break;
-                                case 'oauth2Config': {
-                                    param.fields.forEach(recordField => {
-                                        if (recordField.name !== 'accessToken' && recordField.name !== 'refreshConfig') {
-                                            recordField.hide = true;
-                                        }
+                    // replace single record inside "oauth2Config" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "spreadsheetConfig")
+                    .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
 
-                                        switch (recordField.name) {
-                                            case 'refreshConfig':
-                                                recordField.fields.forEach(subField => {
-                                                    if (subField.name !== 'refreshUrl' &&
-                                                        subField.name !== 'refreshToken' &&
-                                                        subField.name !== 'clientId' &&
-                                                        subField.name !== 'clientSecret') {
-                                                        subField.hide = true;
-                                                    }
-                                                });
-                                                break;
-                                        }
-                                    })
-                                }
-                            }
-
-                        })
-                    }
+                    value.parameters.find(fields => fields.name === "spreadsheetConfig")
+                    .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
