@@ -29,6 +29,7 @@ const variables: Map<string, STNode[]> = new Map();
 const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
+const recordTypeDescriptions: Map<string, STNode> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -103,6 +104,13 @@ class SymbolFindingVisitor implements Visitor {
             }
         });
     }
+
+    public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
+        const typeData = node.typeData;
+        const typeSymbol = typeData.typeSymbol;
+        const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
+        recordTypeDescriptions.set(recordMapKey, node);
+    }
 }
 
 function getType(typeNode: any): any {
@@ -147,6 +155,7 @@ export function cleanAll() {
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
+    recordTypeDescriptions.clear();
 }
 
 export function getSymbolInfo(): STSymbolInfo {
@@ -156,7 +165,8 @@ export function getSymbolInfo(): STSymbolInfo {
         variables,
         callStatement,
         variableNameReferences,
-        assignmentStatement
+        assignmentStatement,
+        recordTypeDescriptions
     }
 }
 

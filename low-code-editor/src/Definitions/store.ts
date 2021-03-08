@@ -98,6 +98,7 @@ export interface STSymbolInfo {
     callStatement: Map<string, STNode[]>;
     variableNameReferences: Map<string, STNode[]>;
     assignmentStatement: Map<string, STNode[]>;
+    recordTypeDescriptions: Map<string, STNode>;
 }
 
 export interface ComponentInitCoordinates {
