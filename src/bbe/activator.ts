@@ -22,7 +22,7 @@ import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
-import { TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW } from '../telemetry';
+import { getTelemetryProperties, TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW } from '../telemetry';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -51,6 +51,8 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                         window.showTextDocument(doc);
                     }, (err: Error) => {
                         window.showErrorMessage(err.message);
+                        ballerinaExtInstance.telemetryReporter.sendTelemetryException(err,
+                            getTelemetryProperties(ballerinaExtInstance, CMP_EXAMPLES_VIEW));
                     });
                 }
                 return Promise.resolve();
@@ -72,7 +74,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
-        reporter.sendTelemetryEvent(TM_EVENT_OPEN_EXAMPLES, { component: CMP_EXAMPLES_VIEW });
+        reporter.sendTelemetryEvent(TM_EVENT_OPEN_EXAMPLES, getTelemetryProperties(ballerinaExtInstance, CMP_EXAMPLES_VIEW));
         ballerinaExtInstance.onReady()
             .then(() => {
                 const { experimental } = langClient.initializeResult!.capabilities;
@@ -87,7 +89,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             })
             .catch((e) => {
                 ballerinaExtInstance.showPluginActivationError();
-                reporter.sendTelemetryException(e, { component: CMP_EXAMPLES_VIEW });
+                reporter.sendTelemetryException(e, getTelemetryProperties(ballerinaExtInstance, CMP_EXAMPLES_VIEW));
             });
     });
 

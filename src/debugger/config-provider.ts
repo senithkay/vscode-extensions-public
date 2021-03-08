@@ -12,7 +12,7 @@ import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
-import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
+import { getTelemetryProperties, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER } from '../telemetry';
 import { log, debug as debugLog } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
 
@@ -101,15 +101,16 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         let args: string[] = [];
         const cmd = this.getScriptPath(args);
 
-        const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug";
-        const showDetails: string = 'Learn More';
-        window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
-            showDetails).then((selection) => {
-                if (showDetails === selection) {
-                    commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
-                }
-            });
-
+        if (ballerinaExtInstance.is12x) {
+            const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/1.2/learn/setting-up-visual-studio-code/run-and-debug/";
+            const showDetails: string = 'Learn More';
+            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
+                showDetails).then((selection) => {
+                    if (showDetails === selection) {
+                        commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
+                    }
+                });
+        }
         args.push(port.toString());
 
         let opt: ExecutableOptions = { cwd: cwd };
@@ -131,8 +132,13 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
                 debugLog(`${data}`);
             });
         }).then(() => {
-            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
+            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION,
+                getTelemetryProperties(ballerinaExtInstance, CMP_DEBUGGER));
             return new DebugAdapterServer(port);
+        }).catch((error) => {
+            ballerinaExtInstance.telemetryReporter.sendTelemetryException(error,
+                getTelemetryProperties(ballerinaExtInstance, CMP_DEBUGGER));
+            return Promise.reject(error);
         });
     }
     getScriptPath(args: string[]): string {

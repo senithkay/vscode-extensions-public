@@ -1,7 +1,9 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { getCLIOutputChannel } from "./output";
-import { TM_EVENT_CREATE_CLOUD, CMP_CLOUD } from "../../telemetry";
+import {
+    getTelemetryProperties, TM_EVENT_PROJECT_CLOUD, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD
+} from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
@@ -60,11 +62,15 @@ export function activateCloudCommand() {
     // register create Cloud.toml command handler
     commands.registerCommand('ballerina.create.cloud', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_CREATE_CLOUD, { component: CMP_CLOUD });
+            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_CLOUD, getTelemetryProperties(ballerinaExtInstance,
+                CMP_PROJECT_CLOUD));
 
             const currentProject = await getCurrentBallerinaProject();
             if (!ballerinaExtInstance.isSwanLake) {
-                window.showErrorMessage(`Ballerina version doesn't support Cloud.toml creation.`);
+                const message = `Ballerina version doesn't support Cloud.toml creation.`;
+                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD,
+                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_CLOUD, message));
+                window.showErrorMessage(message);
                 return;
             }
             const outputChannel = getCLIOutputChannel();
@@ -74,21 +80,28 @@ export function activateCloudCommand() {
                     if (!fs.existsSync(cloudTomlPath)) {
                         fs.writeFile(cloudTomlPath, CLOUD_TOML_DEFAULT_CONTENT, (err) => {
                             if (err) {
-                                reporter.sendTelemetryException(err, { component: CMP_CLOUD });
+                                reporter.sendTelemetryException(err, getTelemetryProperties(ballerinaExtInstance,
+                                    CMP_PROJECT_CLOUD));
                                 window.showErrorMessage(err.message);
                             } else {
                                 outputChannel.appendLine(`Cloud.toml created in ${currentProject.path}`);
                             }
                         });
                     } else {
-                        window.showErrorMessage(`Cloud.toml already exists in the project.`);
+                        const message = `Cloud.toml already exists in the project.`;
+                        reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD,
+                            getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_CLOUD, message));
+                        window.showErrorMessage(message);
                     }
                 }
             } else {
-                window.showErrorMessage(`Cloud.toml is not supported for single file projects.`);
+                const message = `Cloud.toml is not supported for single file projects.`;
+                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD,
+                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_CLOUD, message));
+                window.showErrorMessage(message);
             }
         } catch (error) {
-            reporter.sendTelemetryException(error, { component: CMP_CLOUD });
+            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_CLOUD));
             window.showErrorMessage(error);
         }
     });
