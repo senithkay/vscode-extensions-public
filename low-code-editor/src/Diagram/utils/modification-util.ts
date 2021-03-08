@@ -298,7 +298,7 @@ export function updateCheckedRemoteServiceCall(type: string, variable: string, c
 }
 
 export function createServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
-    let statement = "http:Response $varName = <http:Response>checkpanic $callerName->$functionName($parameters);";
+    let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
         .replace("$varName", variable)
@@ -318,7 +318,7 @@ export function createServiceCallForPayload(type: string, variable: string, call
 }
 
 export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
-    let statement = "http:Response $varName = <http:Response>checkpanic $callerName->$functionName($parameters);";
+    let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
         .replace("$varName", variable)
@@ -534,6 +534,20 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
         let stModification: STModification;
         if (value.type && value.type.toLowerCase() === "delete") {
             stModification = value;
+        } else if (value.type && value.type.toLowerCase() === "import") {
+            const source = await getInsertComponentSource(value.type, value.config);
+            stModification = {
+                startLine: value.startLine,
+                startColumn: value.startColumn,
+                endLine: value.endLine,
+                endColumn: value.endColumn,
+                type: "INSERT",
+                isImport: true,
+                config: {
+                    "TYPE": value?.config?.TYPE,
+                    "STATEMENT": source,
+                }
+            }
         } else {
             const source = await getInsertComponentSource(value.type, value.config);
             stModification = {
