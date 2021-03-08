@@ -244,7 +244,7 @@ export function GoogleCalender(props: WizardProps) {
                             configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                             configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.position?.startLine || 1}
+                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
                         );
                         modifications.push(addConfigurableVars);
 
