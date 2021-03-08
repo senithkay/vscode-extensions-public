@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
-import { AnydataTypeDesc, LocalVarDecl } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
@@ -47,36 +47,37 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
 
-    let modelType: string = 'var';
+    let initialModelType: string = 'var';
+    let modelType = initialModelType;
     let variableName: string = '';
 
     const existingProperty = config && config.wizardType === WizardType.EXISTING;
-    if (existingProperty && config.model.kind === 'LocalVarDecl') {
+    if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const localVarDec: LocalVarDecl = config.model as LocalVarDecl;
-        const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor as AnydataTypeDesc;
-        if (typeDescriptor.kind === "IntTypeDesc" || typeDescriptor.kind === "FloatTypeDesc" ||
-            typeDescriptor.kind === "BooleanTypeDesc" || typeDescriptor.kind === "StringTypeDesc" ||
-            typeDescriptor.kind === "JsonTypeDesc" || typeDescriptor.kind === "VarTypeDesc") {
-            modelType = typeDescriptor.name.value;
-        } else if (typeDescriptor.kind === "XmlTypeDesc") {
-            modelType = typeDescriptor.source.trim();
+        const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor;
+        if (STKindChecker.isIntTypeDesc(typeDescriptor) || STKindChecker.isFloatTypeDesc(typeDescriptor) ||
+            STKindChecker.isBooleanTypeDesc(typeDescriptor) || STKindChecker.isStringTypeDesc(typeDescriptor) ||
+            STKindChecker.isJsonTypeDesc(typeDescriptor) || STKindChecker.isVarTypeDesc(typeDescriptor)) {
+            initialModelType = typeDescriptor.name.value;
+        } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
+            initialModelType = typeDescriptor.source.trim();
         } else {
-            modelType = "other";
+            initialModelType = "other";
+            modelType = typeDescriptor.source.trim();
         }
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
     } else {
         variableName = stSymbolInfo ? genVariableName("variable", getAllVariables(stSymbolInfo)) : "";
     }
 
-    const [selectedType, setSelectedType] = useState(modelType);
-    const [otherType, setOtherType] = useState<string>(undefined);
+    const [selectedType, setSelectedType] = useState(initialModelType);
+    const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
     const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
     const [varNameError, setVarNameError] = useState("");
     const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>("");
-    const [isOtherTypeSelected, setIsOtherTypeSelected] = useState<boolean>(false);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
 
     if (defaultVarName === undefined) {
@@ -100,10 +101,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setSelectedType(type);
         setValidExpresssionValue(false);
         if (type !== "other") {
-            setIsOtherTypeSelected(false);
             setOtherType(undefined);
         } else {
-            setIsOtherTypeSelected(true);
+            setOtherType("var");
         }
         setEditorFocus(true);
     };
@@ -133,7 +133,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const handleSave = () => {
-        if (variableExpression !== '') {
+        if (variableExpression) {
             config.config = otherType ? otherType + " " + varName + " = " + variableExpression + ";" :
                 selectedType + " " + varName + " = " + variableExpression + ";";
             onSave();
@@ -144,38 +144,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setEditorFocus(false);
     }
 
-    if (isOtherTypeSelected && otherType) {
-        modelType = otherType;
-    } else if (isOtherTypeSelected) {
-        modelType = "var";
-    } else {
-        modelType = selectedType;
-    }
+    modelType = (selectedType === "other") ? otherType : selectedType;
 
     const validForm: boolean = (isValidVarName && validExpresssionValue);
 
     // todo: Support other data types
     const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "other"];
-
-    useEffect(() => {
-        if (selectedType === "other") {
-            setOtherType("var");
-        }
-        if (modelType === "other" && config.model) {
-            const localVarDec: LocalVarDecl = config.model as LocalVarDecl;
-            const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor as AnydataTypeDesc;
-            if (typeDescriptor.kind === "IntTypeDesc" || typeDescriptor.kind === "FloatTypeDesc" ||
-                typeDescriptor.kind === "BooleanTypeDesc" || typeDescriptor.kind === "StringTypeDesc" ||
-                typeDescriptor.kind === "JsonTypeDesc" || typeDescriptor.kind === "VarTypeDesc") {
-                modelType = typeDescriptor.name.value;
-            } else if (typeDescriptor.kind === "XmlTypeDesc") {
-                modelType = typeDescriptor.source.trim();
-            } else {
-                setOtherType(typeDescriptor.source.trim());
-                setIsOtherTypeSelected(true);
-            }
-        }
-    }, [selectedType]);
 
     return (
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
@@ -201,7 +175,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
                     <div className={classes.activeWrapper}>
                         <SelectDropdownWithButton
-                            defaultValue={isOtherTypeSelected ? "other" : modelType}
+                            defaultValue={selectedType === "other" ? "other" : modelType}
                             customProps={{
                                 disableCreateNew: true,
                                 values: variableTypes,
@@ -209,7 +183,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             label={"Type"}
                             onChange={handleTypeChange}
                         />
-                        {(isOtherTypeSelected) && (
+                        {(selectedType === "other") && (
                             <FormTextInput
                                 defaultValue={otherType}
                                 onChange={handleOtherTypeOnChange}
@@ -235,7 +209,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         />
                         <div className="exp-wrapper">
                             <ExpressionEditor
-                                model={{name: "Expression", type: modelType as ExpressionEditorType}}
+                                model={{name: "Expression", type: (modelType ? modelType : "other") as ExpressionEditorType}}
                                 customProps={{
                                     validate: validateExpression,
                                     tooltipTitle: tooltipMessages.expressionEditor.title,
@@ -243,7 +217,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
                                     interactive: true,
                                     focus: editorFocus,
-                                    statementType: modelType as ExpressionEditorType,
+                                    statementType: (modelType ? modelType : "other")  as ExpressionEditorType,
                                     revertFocus: revertEditorFocus
                                 }}
                                 onChange={onPropertyChange}
