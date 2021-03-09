@@ -1,6 +1,5 @@
 import { BallerinaProject } from "../../core/extended-language-client";
-import { getCLIOutputChannel } from "./output";
-import { spawn, spawnSync } from "child_process";
+import { Terminal, window } from "vscode";
 
 export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add"
@@ -21,31 +20,20 @@ export enum MESSAGES {
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project."
 }
 
+let terminal: Terminal;
 export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
-    const outputChannel = getCLIOutputChannel();
-    outputChannel.clear();
-    outputChannel.show();
-    let filePath = '';
-    typeof file === 'string' ? filePath = file : filePath = file.path!;
-    outputChannel.appendLine(`executing command: ${executor} ${cmd} at ${filePath}\n`);
-    const process = spawn(executor, [cmd, ...args], { cwd: filePath });
-    process.stdout.on('data', (data) => {
-        outputChannel.append(data.toString());
-    });
-    process.stderr.on('data', (data) => {
-        outputChannel.append(data.toString());
-    });
-    process.on("exit", () => {
-        outputChannel.appendLine(`Finished ${executor} ${cmd} command execution.`);
-    });
-}
-
-export function runCommandOnBackground(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]): boolean {
-    let filePath = '';
-    typeof file === 'string' ? filePath = file : filePath = file.path!;
-    const result = spawnSync(executor, [cmd, ...args], { cwd: filePath });
-    if (result.status === 0) {
-        return true;
+    if (terminal) {
+        terminal.dispose();
     }
-    return false;
+    let filePath = '';
+    typeof file === 'string' ? filePath = file : filePath = file.path!;
+    let argsList = '';
+    if (args && args.length > 0) {
+        args.forEach((arg) => {
+            argsList += arg.concat(' ');
+        });
+    }
+    terminal = window.createTerminal({ name: 'Terminal', cwd: filePath });
+    terminal.show(true);
+    terminal.sendText(`${executor} ${cmd} ${argsList}`, true);
 }
