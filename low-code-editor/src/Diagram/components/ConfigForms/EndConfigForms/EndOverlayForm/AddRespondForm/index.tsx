@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -27,6 +27,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import set = Reflect.set;
 
 interface RespondFormProps {
     config: EndConfig;
@@ -53,9 +54,11 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validForm, setValidForm] = useState(isFormValid());
     const [validStatusCode, setValidStatusCode] = useState(validForm);
     const [isStatusCode, setStatusCode] = useState(undefined);
+    const [resExp, setResExp] = useState(undefined);
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
+        setResExp(value);
         if (value === "jsonPayload") {
             dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
         }
@@ -65,6 +68,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const onSaveWithTour = () => {
         dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = isStatusCode;
+        respondFormConfig.respondExpression = resExp;
         onSave();
     }
 
