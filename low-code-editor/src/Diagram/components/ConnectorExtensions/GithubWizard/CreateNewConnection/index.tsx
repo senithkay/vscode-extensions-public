@@ -138,11 +138,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         customProps: {
             validate: validateExpression,
             statementType: expressionModel.type,
-            isAccessToken:true
+            isAccessToken: true
         },
         onChange: onAccessTokenChange,
         defaultValue: isNewConnectorInitWizard ? '' : defaultAccessTokenVal
-        
+
     };
 
     const handleOnSave = () => {

@@ -398,7 +398,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    if(customProps?.isAccessToken){
+    if (customProps?.isAccessToken){
         MONACO_OPTIONS.wordWrap = 'bounded'
     }
 
