@@ -129,7 +129,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
-    isExpanded?: boolean;
+    isAccessToken?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -398,6 +398,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    if(customProps?.isAccessToken){
+        MONACO_OPTIONS.wordWrap = 'bounded'
+    }
+
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
         languages.register({ id: BALLERINA_EXPR });
         languages.setLanguageConfiguration(BALLERINA_EXPR, {
@@ -454,7 +458,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Disable pressing enter except when suggestions drop down is visible
             }, '!suggestWidgetVisible')
         });
-
 
         // completion of expression Editor
         const { dispose: disposeCompProvider } = monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
@@ -592,7 +595,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
             <div className="exp-container">
                 <div className="exp-absolute-wrapper">
-                    <div className={customProps?.isExpanded ? "exp-editor-expanded" : "exp-editor"}>
+                    <div className={customProps?.isAccessToken ? "exp-editor-access-token" : "exp-editor"}>
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -600,7 +603,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             language={BALLERINA_EXPR}
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
-                            //className={customProps?.large ? "exp-editor-large' : "exp-editor"}
                         />
                     </div>
                 </div>

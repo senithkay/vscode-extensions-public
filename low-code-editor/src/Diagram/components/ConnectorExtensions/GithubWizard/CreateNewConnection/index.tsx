@@ -138,7 +138,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         customProps: {
             validate: validateExpression,
             statementType: expressionModel.type,
-            isExpanded:true
+            isAccessToken:true
         },
         onChange: onAccessTokenChange,
         defaultValue: isNewConnectorInitWizard ? '' : defaultAccessTokenVal
