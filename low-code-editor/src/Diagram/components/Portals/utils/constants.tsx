@@ -177,11 +177,11 @@ export const tooltipMessages: Record<string, any> = {
     salesforceBulk: "Salesforce BulkJob Connector",
     salesforce : {
         title : "Connect your application with salesforce API",
-        content : "Create records, Update records ",
+        content : "Create and Update records",
         baseURL : "Base URL of the connected app",
         accessToken : "Access token of the connected app",
         clientID : "Client ID of the connected app",
-        clientSecret : "Client secret of the connected app ",
+        clientSecret : "Client secret of the connected app",
         refreshToken : "Refresh token of the connected app",
         refreshTokenURL : "Refreh token URL of the connected app"
     },
