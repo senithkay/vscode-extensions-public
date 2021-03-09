@@ -161,7 +161,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         defaultValue,
         model,
         onChange,
-        customProps,
+        customProps
     } = props;
     const { validate, statementType, customTemplate } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
