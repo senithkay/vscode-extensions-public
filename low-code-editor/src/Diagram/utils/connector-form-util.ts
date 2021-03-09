@@ -299,6 +299,22 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
+        case 'ballerinax_sfdc_BaseClient':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "init") {
+                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
+                        // replace single record inside "clientConfig" record with inner field list
+                        if (subFields.name === "clientConfig"){
+                            subFields.fields =  subFields.fields[0].fields;
+                        }
+                        if (subFields.name === "secureSocketConfig"){
+                            subFields.hide = true;
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         default:
             filteredFunctions = fieldsForFunctions;
             break;
@@ -323,14 +339,16 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                         break;
                     case 'get':
                     case 'post':
+                    case 'put':
+                    case 'delete':
+                    case 'patch':
+                        // this filter common for all post put delete and patch methods
                         value.parameters.find(field => field.name === "message").fields.forEach((param) => {
                             if (!(param.type === "string" || param.type === "xml" || param.type === "json")) {
                                 param.noCodeGen = true;
                             }
                         });
-                    case 'put':
-                    case 'delete':
-                    case 'patch':
+                        break;
                     case 'forward':
                         // allowed functions
                         break;
