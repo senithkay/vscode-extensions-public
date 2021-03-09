@@ -27,7 +27,6 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-import set = Reflect.set;
 
 interface RespondFormProps {
     config: EndConfig;
