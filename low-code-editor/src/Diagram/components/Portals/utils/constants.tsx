@@ -132,7 +132,7 @@ export const tooltipMessages: Record<string, any> = {
         content: 'respond("Hello " + \n checkpanic req.getTextpayload())'
     },
     httpConnector: {
-        title: "Communicate with external APIs through the HTTP protocol",
+        title: "Communicate with external Connections through the HTTP protocol",
         content: "Send a GET or POST request"
     },
     smtpConnector: {
@@ -198,8 +198,8 @@ export const tooltipMessages: Record<string, any> = {
         }
     },
     APIsPlusHolder: {
-        title: "A collection of APIs that helps you integrate your application to external services",
-        actionText: "Learn more about APIs",
+        title: "A collection of Connections that helps you integrate your application to external services",
+        actionText: "Learn more about Connections",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/connector.md"
     },
     statementsPlusHolder: {

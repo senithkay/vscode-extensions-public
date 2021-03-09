@@ -192,7 +192,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
-                            text="Save Calender Trigger"
+                            text="Save"
                             className={classes.saveBtn}
                             onClick={handleUserConfirm}
                             disabled={isFileSaving}
