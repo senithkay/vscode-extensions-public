@@ -405,7 +405,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeConnection && activeGithubRepo && activeEvent && activeAction && (
                 <div className={classes.customFooterWrapper}>
                     <PrimaryButton
-                        text="Save GitHub Trigger"
+                        text="Save"
                         className={classes.saveBtn}
                         onClick={handleUserConfirm}
                         disabled={isFileSaving}
