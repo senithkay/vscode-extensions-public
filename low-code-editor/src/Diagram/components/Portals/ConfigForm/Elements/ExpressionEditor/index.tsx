@@ -129,7 +129,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
-    isAccessToken?: boolean;
+    isLarge?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -163,7 +163,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate } = customProps;
+    const { validate, statementType, customTemplate, isLarge } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
@@ -397,8 +397,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         }
     }
-
-    if (customProps?.isAccessToken){
+    if (customProps?.isLarge){
         MONACO_OPTIONS.wordWrap = 'bounded'
     }
 
@@ -562,13 +561,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
                                         <div>
-                                        <TooltipIcon
-                                            title={customProps?.tooltipTitle || model?.tooltip}
-                                            interactive={customProps?.interactive || true}
-                                            actionText={customProps?.tooltipActionText}
-                                            actionLink={customProps?.tooltipActionLink}
-                                            arrow={true}
-                                        />
+                                            <TooltipIcon
+                                                title={customProps?.tooltipTitle || model?.tooltip}
+                                                interactive={customProps?.interactive || true}
+                                                actionText={customProps?.tooltipActionText}
+                                                actionLink={customProps?.tooltipActionLink}
+                                                arrow={true}
+                                            />
                                         </div>
                                     )
                                 }
@@ -597,7 +596,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
             <div className="exp-container">
                 <div className="exp-absolute-wrapper">
-                    <div className={customProps?.isAccessToken ? "exp-editor-access-token" : "exp-editor"}>
+                    <div className="exp-editor" style={customProps?.isLarge ? { height: '64px' } : { height: '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
