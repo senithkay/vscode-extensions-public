@@ -1,27 +1,27 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
- * associated services.
- */
+* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+*
+* This software is the property of WSO2 Inc. and its suppliers, if any.
+* Dissemination of any information or reproduction of any material contained
+* herein is strictly forbidden, unless permitted by WSO2 in accordance with
+* the WSO2 Commercial License available at http://wso2.com/licenses.
+* For specific language governing the permissions and limitations under
+* this license, please see the license as well as any agreement you’ve
+* entered into with WSO2 governing the purchase of this software and any
+* associated services.
+*/
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
 import React, { ReactNode, SyntheticEvent, useContext, useEffect, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
-import { TextField } from "@material-ui/core";
+import { Checkbox, FormControlLabel } from "@material-ui/core";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import CloseIcon from "@material-ui/icons/Close";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import classNames from "classnames";
 import { isValidCron } from "cron-validator";
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
@@ -35,8 +35,9 @@ import { tooltipMessages } from "../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
-import { dayOptions, hourOptions, minuteOptions, monthOptions, repeatRange, weekOptions } from "./ScheduleConstants";
+import { repeatRange, weekOptions } from "./ScheduleConstants";
 import { useStyles as toggleStyles } from "./style";
+import TimePickerComp from "./TimePickerComp";
 import WeekOptions from "./WeekOptions";
 
 interface ScheduleConfigureWizardProps {
@@ -79,7 +80,14 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'MMM'));
   const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
-  const [scheduledComp, setScheduledComp] = useState("minute");
+  const [checked, setChecked] = useState(true);
+  const [selectedDate, setSelectedDate] = React.useState(format(new Date(), "HH:mm"));
+
+  const modifyCronStartTime = new Date();
+  modifyCronStartTime.setHours(Number(cronHourValue));
+  modifyCronStartTime.setMinutes(Number(cronMinuteValue));
+
+  const [scheduledComp, setScheduledComp] = useState("Minute");
 
   const [validCron, setValidCron] = useState(false);
 
@@ -122,171 +130,162 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   };
 
+  const handleDayChange = (dayValue: string) => {
+    setCronDayValue(dayValue);
+  }
+
+  const handleWeekOptionChange = (weekValue: string[]) => {
+    setCronWeekValue(weekValue.toString());
+  }
+
+  const handleTimeChange = (time: number[]) => {
+    setCronHourValue(time[0].toString());
+    setCronMinuteValue(time[1].toString());
+  }
+
+  const handleEveryDayChange = () => {
+    setCronDayValue("*");
+  }
+
+  const handleEveryWeekChange = (value: any) => {
+    if (checked) {
+      setCronWeekValue(value);
+    }
+    setCronWeekValue("Sun");
+  }
+
+  const handleEveryMonthChange = () => {
+    setCronMonthValue("*");
+  }
+
+  const minuteGenCron = cronMinuteValue === "0" ? "0" : "*/" + cronMinuteValue;
+  const hourGenCron = cronHourValue === "0" ? "0" : "*/" + cronHourValue;
+
   const cronForSelectedType = () => {
-    if (scheduledComp === "minute") {
-      return cronMinuteValue + " * * * *"
-    } else if (scheduledComp === "hour") {
-      return cronMinuteValue + " " + cronHourValue + " * * *"
-    } else if (scheduledComp === "day") {
+    if (scheduledComp === "Minute") {
+      return minuteGenCron + " * * * *"
+    } else if (scheduledComp === "Hourly") {
+      return "0 " + hourGenCron + " * * *"
+    } else if (scheduledComp === "Daily") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
-    } else if (scheduledComp === "month") {
+    } else if (scheduledComp === "Monthly") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
     } else {
       return currentCron;
     }
   }
 
+  function isNumber(str: string) {
+    if (typeof str !== "string") return false
+    return !isNaN(parseFloat(str))
+  }
+
+  const UTCCronForSelectedType = () => {
+    const updateCronStartTime = new Date();
+    updateCronStartTime.setHours(Number(cronHourValue));
+    updateCronStartTime.setMinutes(Number(cronMinuteValue));
+    if (cronDayValue !== "*") {
+      updateCronStartTime.setDate(Number(cronDayValue));
+    }
+
+    if (cronMonthValue !== "*" || isNumber(cronMonthValue)) {
+      updateCronStartTime.setMonth(Number(cronMonthValue) - 1);
+    }
+
+    const timezoneOffsetMinutes = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMinutes();
+    const timezoneOffsetHours = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getHours();
+    const timezoneOffsetDay = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getDate();
+    const timezoneOffsetMonth = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMonth() + 1;
+
+    const cronDateUTCValue = (cronDayValue === "*") ? cronDayValue : timezoneOffsetDay;
+    const cronMonthUTCValue = (cronMonthValue === "*") || !isNumber(cronMonthValue) ? cronMonthValue : timezoneOffsetMonth;
+
+    if (scheduledComp === "Minute") {
+      return minuteGenCron + " * * * *"
+    } else if (scheduledComp === "Hourly") {
+      return "0 " + hourGenCron + " * * *"
+    } else if (scheduledComp === "Daily") {
+      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " * *"
+    } else if (scheduledComp === "Monthly") {
+      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " " + cronMonthUTCValue + " " + cronWeekValue
+    } else {
+      return currentCron;
+    }
+  }
+
+  const handleChange = (value: string) => {
+    if (scheduledComp === "Minute") {
+      setCronMinuteValue(value);
+    } else if (scheduledComp === "Hourly") {
+      setCronHourValue(value);
+    } else if (scheduledComp === "Daily") {
+      setCronDayValue(value);
+    } else if (scheduledComp === "Weekly") {
+      setCronWeekValue(value);
+    } else if (scheduledComp === "Monthly") {
+      setCronMonthValue(value);
+    }
+  }
+
+  const utcCron4 = UTCCronForSelectedType();
+
   const handleOnSave = () => {
     setShowConfirmDialog(false);
+    const utcCron = UTCCronForSelectedType();
     // dispatch and close the wizard
     setTriggerChanged(true);
     const saveSelectedCron = cronForSelectedType();
     dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
+      "UTCCRON": utcCron,
     });
     trackTriggerSelection("Schedule");
   };
 
-  const handleWeekOptionChange = (weekValue: string[]) => {
-    setCronWeekValue(weekValue.toString());
-  }
+  const deafultMinute = cron ? cronMinuteValue.replace("*/", "") : cronMinuteValue;
+  const deafultHour = cron ? cronHourValue.replace("*/", "") : cronHourValue;
+  const deafultDay = cron ? cronDayValue.replace("*/", "") : cronDayValue;
 
-  const handleChange = (value: string, type: string) => {
-    if (type === 'minutes') {
-      setCronMinuteValue(value);
-
-    } else if (type === 'hours') {
-      setCronHourValue(value);
-
-    } else if (type === 'days') {
-      setCronDayValue(value);
-
-    } else if (type === 'months') {
-      setCronMonthValue(value);
-    }
-  }
-  const preventDiagramScrolling = (e: SyntheticEvent) => {
-    e.stopPropagation();
-  }
-
-  const minuteOptionComp: ReactNode = (
+  const minuteAndHourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Select minute :</FormHelperText>
-      <div onWheel={preventDiagramScrolling}>
-        <Autocomplete
-          className={toggleClasses.repeatDropdown}
-          options={minuteOptions}
-          freeSolo={false}
-          onWheel={preventDiagramScrolling}
-          clearOnBlur={false}
-          closeIcon={true}
-          openOnFocus={true}
-          inputValue={cronMinuteValue}
-          onChange={(e: React.ChangeEvent<{}>, value: string) => {
-            handleChange(value, "minutes")
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              className={toggleClasses.outlineTextField}
-              defaultValue={cronMinuteValue}
-              onChange={(e) => {
-                handleChange(e.target.value, "minutes")
-              }}
-            />
-          )}
-        />
-      </div>
+      <FormHelperText className={toggleClasses.titleLabel}>Start Time: </FormHelperText>
+      <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
     </div>
   );
 
-  const timeOptionComp: ReactNode = (
-    <div className={toggleClasses.timeAndRangeWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Start time :</FormHelperText>
-      <div className={toggleClasses.flexWrapper}>
-
-        <div onWheel={preventDiagramScrolling}>
-          <Autocomplete
-            className={toggleClasses.repeatDropdown}
-            options={hourOptions}
-            freeSolo={false}
-            onWheel={preventDiagramScrolling}
-            clearOnBlur={false}
-            closeIcon={true}
-            openOnFocus={false}
-            inputValue={cronHourValue}
-            onChange={(_e: React.ChangeEvent<{}>, value: string) => {
-              handleChange(value, "hours")
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className={toggleClasses.outlineTextField}
-                defaultValue={cronHourValue}
-                onChange={(e) => {
-                  handleChange(e.target.value, "hours")
-                }}
-              />
-            )}
-          />
-        </div>
-
-        <span className={toggleClasses.spanWrapper}> : </span>
-        <div onWheel={preventDiagramScrolling}>
-          <Autocomplete
-            className={toggleClasses.repeatDropdown}
-            options={minuteOptions}
-            freeSolo={false}
-            onWheel={preventDiagramScrolling}
-            clearOnBlur={false}
-            closeIcon={true}
-            openOnFocus={true}
-            inputValue={cronMinuteValue}
-            onChange={(e: React.ChangeEvent<{}>, value: string) => {
-              handleChange(value, "minutes")
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className={toggleClasses.outlineTextField}
-                defaultValue={cronMinuteValue}
-                onChange={(e) => {
-                  handleChange(e.target.value, "minutes")
-                }}
-              />
-            )}
-          />
-        </div>
+  const minuteOptionComp: ReactNode = (
+    <div className={toggleClasses.flexWrapper}>
+      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <div className={toggleClasses.timeOptionsWrapper}>
+        <FormTextInput
+          defaultValue={deafultMinute}
+          onChange={handleChange}
+        />
       </div>
+      <FormHelperText className={toggleClasses.titleLabel}>Minute(s)</FormHelperText>
+    </div>
+  );
+
+  const hourOptionComp: ReactNode = (
+    <div className={toggleClasses.flexWrapper}>
+      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <div className={toggleClasses.timeOptionsWrapper}>
+        <FormTextInput
+          defaultValue={deafultHour}
+          onChange={handleChange}
+        />
+      </div>
+      <FormHelperText className={toggleClasses.titleLabel}>Hour(s)</FormHelperText>
     </div>
   );
 
   const dayOptionComp: ReactNode = (
-    <div className={toggleClasses.timeAndRangeWrapper}>
-      <FormHelperText className={classNames(toggleClasses.titleLabel, toggleClasses.titleSpacing)}>Select day :</FormHelperText>
-      <div onWheel={preventDiagramScrolling}>
-        <Autocomplete
-          className={toggleClasses.repeatDropdown}
-          options={dayOptions}
-          onWheel={preventDiagramScrolling}
-          freeSolo={false}
-          clearOnBlur={false}
-          closeIcon={false}
-          openOnFocus={true}
-          inputValue={cronDayValue}
-          onChange={(e: React.ChangeEvent<{}>, value: string) => {
-            handleChange(value, "days")
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              className={classNames(toggleClasses.outlineTextField, toggleClasses.dateTextField)}
-              defaultValue={cron ? cronDayValue : ""}
-              onChange={(e) => {
-                handleChange(e.target.value, "days")
-              }}
-            />
-          )}
+    <div className={toggleClasses.flexWrapper}>
+      <FormHelperText className={toggleClasses.titleLabel}>Repeat on:</FormHelperText>
+      <div className={toggleClasses.timeOptionsWrapper}>
+        <FormTextInput
+          defaultValue={deafultDay}
+          onChange={handleDayChange}
         />
       </div>
     </div>
@@ -302,40 +301,60 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     </div>
   );
 
-  const monthOptionComp: ReactNode = (
-    <div className={toggleClasses.timeAndRangeWrapper}>
-      <FormHelperText className={classNames(toggleClasses.titleLabel, toggleClasses.titleSpacing)}>Select month :</FormHelperText>
-      <div onWheel={preventDiagramScrolling}>
-        <Autocomplete
-          className={toggleClasses.repeatDropdown}
-          options={monthOptions}
-          onWheel={preventDiagramScrolling}
-          freeSolo={false}
-          clearOnBlur={false}
-          closeIcon={false}
-          openOnFocus={false}
-          inputValue={cronMonthValue}
-          onChange={(e: React.ChangeEvent<{}>, value: string) => {
-            handleChange(value, "months")
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              className={classNames(toggleClasses.outlineTextField, toggleClasses.dateTextField)}
-              defaultValue={cronMonthValue}
-              onChange={(e) => {
-                handleChange(e.target.value, "months")
-              }}
-            />
-          )}
-        />
-      </div>
+  const repeatEveryDaily: ReactNode = (
+    <div className={toggleClasses.flexWrapper}>
+      <FormControlLabel
+        control={(
+          <Checkbox
+            classes={{
+              root: toggleClasses.checkbox,
+              checked: toggleClasses.checked
+            }}
+            onChange={handleEveryDayChange}
+          />
+        )}
+        label={"Repeat every daily"}
+      />
+    </div>
+  );
+
+  const repeatEveryWeek: ReactNode = (
+    <div className={toggleClasses.flexWrapper}>
+      <FormControlLabel
+        control={(
+          <Checkbox
+            classes={{
+              root: toggleClasses.checkbox,
+              checked: toggleClasses.checked
+            }}
+            onChange={handleEveryWeekChange}
+          />
+        )}
+        label={"Repeat every week"}
+      />
+    </div>
+  );
+
+  const repeatEveryMonth: ReactNode = (
+    <div className={toggleClasses.flexWrapper}>
+      <FormControlLabel
+        control={(
+          <Checkbox
+            classes={{
+              root: toggleClasses.checkbox,
+              checked: toggleClasses.checked
+            }}
+            onChange={handleEveryMonthChange}
+          />
+        )}
+        label={"Repeat every month"}
+      />
     </div>
   );
 
   const customCron: ReactNode = (
     <div className={toggleClasses.cronGenWrapper}>
-      <p className={toggleClasses.titleLabel}>Generated Cron Expression :</p>
+      <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
       <FormTextInput
         placeholder="* * * * *"
         defaultValue={currentCron}
@@ -351,25 +370,24 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const handleSchedule = (selectedRepeatRange: string) => {
     setScheduledComp(selectedRepeatRange);
     if (selectedRepeatRange === "") {
-      setScheduledComp("minute");
+      setScheduledComp("Minute");
     }
   }
 
   const dayComp: ReactNode = (
     <>
-      {timeOptionComp}
-      {dayOptionComp}
+      {minuteAndHourOptionComp}
+      {repeatEveryDaily}
+
     </>
   );
 
   const weekComp: ReactNode = (
     <>
       <div className={toggleClasses.flexWrapper}>
-        {timeOptionComp}
+        {minuteAndHourOptionComp}
       </div>
-      <div className={toggleClasses.flexWrapper}>
-        {dayOptionComp}
-      </div>
+      {repeatEveryWeek}
       {weekOptionComp}
     </>
   );
@@ -377,11 +395,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const monthComp: ReactNode = (
     <>
       <div className={toggleClasses.flexWrapper}>
-        {timeOptionComp}
+        {minuteAndHourOptionComp}
       </div>
       <div className={toggleClasses.flexWrapper}>
-        {dayOptionComp} {monthOptionComp}
+        {dayOptionComp}
       </div>
+      {repeatEveryMonth}
       {weekOptionComp}
     </>
   );
@@ -417,21 +436,21 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label="Schedule type :"
+              label="Repeat every :"
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />
           </div>
 
-          {scheduledComp === "minute" && minuteOptionComp}
-          {scheduledComp === "hour" && timeOptionComp}
-          {scheduledComp === "day" && dayComp}
-          {scheduledComp === "week" && weekComp}
-          {scheduledComp === "month" && monthComp}
-          {scheduledComp === "custom" && customCron}
+          {scheduledComp === "Minute" && minuteOptionComp}
+          {scheduledComp === "Hourly" && hourOptionComp}
+          {scheduledComp === "Daily" && dayComp}
+          {scheduledComp === "Weekly" && weekComp}
+          {scheduledComp === "Monthly" && monthComp}
+          {scheduledComp === "Custom" && customCron}
 
           {!validCron ? <p className={toggleClasses.invalidCron}> Invalid value</p> : null}
-
+          <p>this is the UTC cron: {utcCron4}</p>
         </div>
         <div className={classes.customFooterWrapper}>
           <PrimaryButton

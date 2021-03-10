@@ -45,10 +45,18 @@ export const useStyles = makeStyles((theme: Theme) =>
         titleLabel: {
             color: '#222228',
             fontSize: 13,
-            marginBottom: '0.5rem',
             letterSpacing: 0,
             paddingTop: '0.5rem',
-            marginRight: '0.5rem'
+            margin: '0 0.5rem 0.5rem 0',
+            width: 110
+        },
+        cronExpressionTitle: {
+            color: '#222228',
+            fontSize: 13,
+            letterSpacing: 0,
+            paddingTop: '0.5rem',
+            margin: '0 0.5rem 0.5rem 0',
+            width: "auto",
         },
         repeatDropdown: {
             marginRight: '0.5rem',
@@ -63,6 +71,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 150
         },
         repeatRangeDropdown: {
+            // textTransform: none,
             width: '56%',
             marginLeft: '1rem',
             "& .MuiSelect-select.MuiSelect-select": {
@@ -95,7 +104,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: '1.5rem'
         },
         flexWrapper: {
-            display: "flex"
+            display: "flex",
+            margin: '0.5rem 0',
         },
         timeAndRangeWrapper: {
             width: "50%"
@@ -129,6 +139,46 @@ export const useStyles = makeStyles((theme: Theme) =>
             "&:first-letter": {
                 textTransform: 'capitalize',
             }
+        },
+        timeOptionsWrapper: {
+            width: 50,
+            marginRight: '0.5rem'
+        },
+        checkbox: {
+            color: '#40404B',
+
+            "&$checked": {
+                color: "#404040",
+
+                "&:hover": {
+                    background: "#404040",
+                },
+
+                "& .MuiIconButton-label": {
+                    position: "relative",
+                    zIndex: 0,
+                    color: "#fff",
+                },
+
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#404040",
+                    zIndex: -1,
+                    border: "1px solid #404040",
+                    borderRadius: 3,
+                }
+            }
+        },
+        checked: {},
+        notePara: {
+            fontSize: 13,
+            color: '#686b73',
+            paddingBottom: '1rem '
         }
     })
 );

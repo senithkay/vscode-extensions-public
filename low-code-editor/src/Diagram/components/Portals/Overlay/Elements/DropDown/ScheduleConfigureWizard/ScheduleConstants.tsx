@@ -12,12 +12,12 @@
  */
 
 export const repeatRange = [
-    "minute",
-    "hour",
-    "day",
-    "week",
-    "month",
-    "custom"
+    "Minute",
+    "Hourly",
+    "Daily",
+    "Weekly",
+    "Monthly",
+    "Custom"
 ];
 
 export const minuteOptions = [

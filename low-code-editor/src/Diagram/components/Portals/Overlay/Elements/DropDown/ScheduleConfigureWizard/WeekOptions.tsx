@@ -69,6 +69,6 @@ export default function WeekOptions(props: WeekOptionsProps) {
             </ToggleButton>
             </ToggleButtonGroup>
         </div>
-    )
+    );
 }
 
