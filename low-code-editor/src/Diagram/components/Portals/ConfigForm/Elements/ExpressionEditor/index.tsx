@@ -24,7 +24,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
 import { CompletionParams, CompletionResponse } from "../../../../../../Definitions";
-// import { getLangClientForCurrentApp } from "../../../../../../../../store/actions";
+// import { getLangClientForDiagram } from "../../../../../../../../store/actions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { ExpressionEditorState } from "../../../../../store/definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
@@ -44,7 +44,7 @@ import {
     transformFormFieldTypeToString
 } from "./utils";
 import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
-import { BallerinaLangClient } from "../../../../../../../../../src/api/lang-client";
+import { ExpressionEditorLangClient } from "../../../../../../../../../src/api/expression-editor-lang-client";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -142,7 +142,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         currentFile,
         currentApp,
         langServerURL,
-        getLangClient,
+        getExpressionEditorLangClient,
         syntaxTree,
     } = state;
     // TODO: XX: Fix properly
@@ -230,7 +230,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }
-    // useEffect(handleDiagnostic, [editorDiagnostics]);
 
     useEffect(() => {
         expressionEditorState.name = undefined;
@@ -292,7 +291,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -306,7 +305,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
             langClient.diagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -350,7 +349,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
                 langClient.didChange({
                     contentChanges: [
                         {
@@ -364,7 +363,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
                 langClient.diagnostics({
                     documentIdentifier: {
                         uri: expressionEditorState.uri,
@@ -389,7 +388,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
                 langClient.didChange({
                     contentChanges: [
                         {
@@ -480,7 +479,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
                     }
 
-                    return getLangClient(langServerURL, true).then((langClient: BallerinaLangClient) => {
+                    return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
                         return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                             const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
                             const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {

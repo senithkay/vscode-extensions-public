@@ -22,9 +22,9 @@ import {
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-import { BallerinaLangClient } from "../../../../../../../src/api/lang-client";
+import { DiagramEditorLangClient } from "../../../../../../../src/api/diagram-editor-lang-client";
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
+// import { getLangClientForDiagram, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import {
     ActionConfig,
     ConnectorConfig,
@@ -788,7 +788,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
 
 // documentSymbol request is no longer supported by the LS
 // export async function getAllVariables(): Promise<{ [key: string]: any }> {
-//     const langClient: BallerinaLangClient = await getLangClientForCurrentApp();
+//     const langClient: BallerinaLangClient = await getLangClientForDiagram();
 //     // const { state: { langClient }} = useContext(DiagramContext);
 //     const symbolInfo = await langClient.getDocumentSymbol({
 //         textDocument: {
@@ -864,9 +864,9 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     // check existing in same code file
     // generate select existing connector form
     // if create new clicked.
-    const { stSymbolInfo: symbolInfo, langServerURL, getLangClient, waitForCurrentWorkspace } = state;
+    const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
 
-    const langClient: BallerinaLangClient = await getLangClient(langServerURL);
+    const langClient: DiagramEditorLangClient = await getDiagramEditorLangClient(langServerURL);
     let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
 
     if (!connectorDef && connector) {
