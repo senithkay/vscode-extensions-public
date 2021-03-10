@@ -24,7 +24,6 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { DiagramEditorLangClient } from "../../../../../../../src/api/diagram-editor-lang-client";
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForDiagram, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import {
     ActionConfig,
     ConnectorConfig,
@@ -788,7 +787,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
 
 // documentSymbol request is no longer supported by the LS
 // export async function getAllVariables(): Promise<{ [key: string]: any }> {
-//     const langClient: BallerinaLangClient = await getLangClientForDiagram();
+//     const langClient: BallerinaLangClient = await getLangClientForCurrentApp();
 //     // const { state: { langClient }} = useContext(DiagramContext);
 //     const symbolInfo = await langClient.getDocumentSymbol({
 //         textDocument: {
