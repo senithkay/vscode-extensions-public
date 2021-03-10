@@ -68,7 +68,6 @@ class PositioningVisitor implements Visitor {
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
 
-        // todo
         viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
             : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
@@ -93,7 +92,7 @@ class PositioningVisitor implements Visitor {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
                 node?.functionSignature?.parameters?.length > 0 ?
                     viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-                // todo
+
                 viewState.triggerParams.visible ?
                     plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4) + TRIGGER_PARAMS_SVG_HEIGHT + (DefaultConfig.dotGap / 2)
                     : plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);

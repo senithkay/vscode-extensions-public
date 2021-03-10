@@ -108,7 +108,6 @@ class SizingVisitor implements Visitor {
         node?.functionSignature?.parameters?.length > 0 ?
             viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
 
-        // todo
         viewState.triggerParams.visible ?
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
             : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
