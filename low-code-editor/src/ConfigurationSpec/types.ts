@@ -42,7 +42,7 @@ export interface NonPrimitiveBal {
 }
 
 export interface FormField {
-    type: PrimitiveBalType;
+    type: PrimitiveBalType | any;
     name?: string;
     displayName?: string;
     collectionDataType?: PrimitiveBalType;

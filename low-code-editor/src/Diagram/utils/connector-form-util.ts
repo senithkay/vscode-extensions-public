@@ -90,7 +90,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     // adding forward request field since the type
                     // of request field is not supported in forms
                     if (!isForwardAvailable) {
-                        value.push({name: "forwardReq", type: "int", isParam: true});
+                        value.push({name: "forwardReq", type: PrimitiveBalType.Int, isParam: true});
                     }
                     filteredFunctions.set(key, value);
                 }
@@ -383,7 +383,7 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
                         value.forEach(field => {
                             if (field.name === 'repoIdentifier') {
                                 field.isUnion = false;
-                                field.type = 'string';
+                                field.type = PrimitiveBalType.String;
                                 field.value = field.fields[0].value;
                                 field.fields = [];
                             }

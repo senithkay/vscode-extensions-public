@@ -43,7 +43,7 @@ import {
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
-import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -124,7 +124,7 @@ export interface ExpressionEditorProps {
     tooltipActionText?: string;
     tooltipActionLink?: string;
     interactive?: boolean;
-    statementType?: ExpressionEditorType | any;
+    statementType?: PrimitiveBalType | any;
     customTemplate?: {
         defaultCodeSnippet: string;
         targetColumn: number;
