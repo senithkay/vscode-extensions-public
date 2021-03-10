@@ -107,7 +107,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     });
 
-    const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
+    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig())
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
@@ -136,14 +136,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         fieldsForFunction?.get("init") : fieldsForFunction?.get("__init");
 
     // managing name set by the non oauth connectors
-    config.name = isNewConnectorInitWizard ?
+    config.name = (isNewConnectorInitWizard && !config.name) ?
         genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo))
         : config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
     }
-    config.name = configName;
 
     const operations: string[] = [];
     if (fieldsForFunctions) {
@@ -155,7 +154,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
 
     let formFields: FormField[] = null;
-    if (selectedOperation) {
+    if (selectedOperation && config.action && !config.action.name) {
         formFields = fieldsForFunctions.get(selectedOperation);
         config.action = new ActionConfig();
         config.action.name = selectedOperation;

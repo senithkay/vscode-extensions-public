@@ -72,7 +72,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state] = useState(defaultActionName);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
     const [responseVarError, setResponseVarError] = useState("");
     const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
@@ -82,14 +81,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
 
     const initialReturnNameState: ReturnNameState = {
-        value: connectorConfig.action.returnVariableName,
+        value: connectorConfig.action.returnVariableName || genVariableName(connectorConfig.action.name + "Response", getAllVariables(symbolInfo)),
         isNameProvided: true,
         isValidName: true
     };
     const initialPayloadState: PayloadState = {
         mapPayload,
         selectedPayload: payloadType,
-        isNameProvided: false,
+        isNameProvided: !!connectorConfig?.responsePayloadMap?.payloadVariableName,
         validPayloadName: true,
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
@@ -153,29 +152,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
     const [payloadState, setPayloadState] = useState<PayloadState>(initialPayloadState);
+    const [defaultResponseVarName] = useState<string>(returnNameState.value);
 
     let action: ActionConfig = new ActionConfig();
     if (connectorConfig.action) {
         action = connectorConfig.action;
     }
 
-    // generate variable name and set to default text
-    const defaultResponseVariableName: string = (action.returnVariableName === "" ||
-        action.returnVariableName === undefined) ? genVariableName(action.name + "Response",
-            getAllVariables(symbolInfo)) : action.returnVariableName;
 
-    if (defaultResponseVarName === undefined) {
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
 
-    if ((action.returnVariableName === "" || action.returnVariableName === undefined) && returnNameState.isValidName) {
-        action.returnVariableName = defaultResponseVariableName;
-        setReturnNameState({
-            value: defaultResponseVariableName,
-            isNameProvided: defaultResponseVariableName !== '',
-            isValidName: nameRegex.test(defaultResponseVariableName)
-        });
-    }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
@@ -194,6 +179,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setPayloadState({
             ...payloadState,
             selectedPayload: value,
+            isNameProvided: true,
             variableName: isNewConnectorInitWizard ?
                 genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
                 :
@@ -275,25 +261,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "get" &&
         action.name !== "forward" && (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
 
-    // check for name when navigating back.
-    if (!returnNameState.isNameProvided && action.returnVariableName !== undefined && action.returnVariableName !== '') {
-        setReturnNameState({
-            ...returnNameState,
-            isNameProvided: action.returnVariableName !== undefined && action.returnVariableName !== '',
-            isValidName: nameRegex.test(action.returnVariableName)
-        });
-    }
 
-    // check for respond name when navigating back.
-    if (connectorConfig.responsePayloadMap && !payloadState.isNameProvided && connectorConfig.responsePayloadMap.payloadVariableName !== undefined
-        && connectorConfig.responsePayloadMap.payloadVariableName !== "") {
-        setPayloadState({
-            ...payloadState,
-            selectedPayload: payloadType,
-            isNameProvided: true,
-            validPayloadName: nameRegex.test(connectorConfig.responsePayloadMap.payloadVariableName)
-        });
-    }
 
     const onPayloadNameChange = (value: string) => {
         if (connectorConfig.responsePayloadMap) {
@@ -396,7 +364,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     validate: validateResponseNameValue,
                                     disabled: responseVariableHasReferences
                                 }}
-                                defaultValue={defaultResponseVariableName}
+                                defaultValue={returnNameState.value}
                                 placeholder={"Enter Response Variable Name"}
                                 onChange={onNameChange}
                                 label={"Response Variable Name"}
