@@ -15,7 +15,6 @@ import React from "react";
 import { connect } from "react-redux";
 
 import {FunctionDefinition, RequiredParam, STNode} from "@ballerina/syntax-tree";
-import {closeConfigOverlayForm, diagramCleanDrawST, dispactchConfigOverlayForm} from "components/DiagramEditor/utils";
 
 import {PortalState} from "../../../types";
 import {BlockViewState} from "../../view-state";
@@ -29,8 +28,6 @@ export interface TriggerParamsProps {
     model?: STNode;
     blockViewState?: BlockViewState;
     syntaxTree: STNode;
-    dispatchDiagramCleanDraw: (st: STNode) => void;
-    dispatchCloseConfigOverlayForm?: () => void;
 }
 
 export function TriggerParamsC(props: TriggerParamsProps) {
@@ -65,24 +62,11 @@ export function TriggerParamsC(props: TriggerParamsProps) {
     );
 }
 
-const mapStateToProps = ({ diagramState, appInfo }: PortalState) => {
-    const { syntaxTree, stSymbolInfo, isMutationProgress, isCodeEditorActive } = diagramState;
-    const { isWaitingOnWorkspace, currentApp,  } = appInfo;
-    const { id: appId } = currentApp || {}
+const mapStateToProps = ({ diagramState }: PortalState) => {
+    const { syntaxTree} = diagramState;
     return {
-        appId,
-        syntaxTree,
-        stSymbolInfo,
-        isWaitingOnWorkspace,
-        isMutationProgress,
-        isCodeEditorActive
+        syntaxTree
     }
 };
 
-const mapDispatchToProps = {
-    dispatchDiagramCleanDraw: diagramCleanDrawST,
-    dispatchCloseConfigOverlayForm: closeConfigOverlayForm,
-    openNewReturnConfigForm: dispactchConfigOverlayForm,
-};
-
-export const TriggerParams = connect(mapStateToProps, mapDispatchToProps)(TriggerParamsC);
+export const TriggerParams = connect(mapStateToProps)(TriggerParamsC);
