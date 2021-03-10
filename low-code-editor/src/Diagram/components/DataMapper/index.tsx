@@ -13,12 +13,21 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { FunctionBodyBlock, FunctionDefinition, STNode, traversNode } from '@ballerina/syntax-tree';
+import {
+    FunctionBodyBlock,
+    FunctionDefinition,
+    STNode,
+    traversNode,
+    ExplicitAnonymousFunctionExpression,
+    LocalVarDecl
+} from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
+import { DataMapperPositionVisitor } from './util/datamapper-position-visitor';
+import { Parameter } from './components/Parameter';
 
 interface DataMapperProps {
     width: number;
@@ -29,18 +38,52 @@ export function DataMapper(props: DataMapperProps) {
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
 
-    useEffect(() => {
-        const selectedNode = ((syntaxTree as FunctionDefinition).functionBody as FunctionBodyBlock).statements[3];
-        traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));
-        debugger;
-    }, []);
+    const selectedNode = ((syntaxTree as FunctionDefinition).functionBody as FunctionBodyBlock).statements[3];
+    traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));
+    // todo: fetch missing records and visit
+
+    traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
+
+    const parameters: any[] = [];
+
+    ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
+        parameters.push(<Parameter model={param} />)
+    });
+
+    const returnTypeModel = ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression)
+        .functionSignature
+        .returnTypeDesc;
+
+    const returnTypeElement = <Parameter model={returnTypeModel} />
 
     return (
         <>
             <g>
-                <line x1={10} x2={100} y1={15} y2={100} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} />
+                {/* <line x1={10} x2={100} y1={15} y2={100} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} /> */}
+                {/*<text*/}
+                {/*    x={10}*/}
+                {/*    y={15}*/}
+                {/*    font-family="Verdana"*/}
+                {/*    font-size="15"*/}
+                {/*    fontWeight={'bold'}*/}
+                {/*    fill="blue"*/}
+                {/*>*/}
+                {/*    Title: type*/}
+                {/*</text>*/}
+                {/*<text*/}
+                {/*    x={30}*/}
+                {/*    y={35}*/}
+                {/*    font-family="Verdana"*/}
+                {/*    font-size="15"*/}
+                {/*    // fontWeight={'bold'}*/}
+                {/*    fill="blue"*/}
+                {/*>*/}
+                {/*    Title: type*/}
+                {/*</text>*/}
+                {parameters}
+                {returnTypeElement}
             </g>
-            <DiagramOverlayContainer>
+            {/* <DiagramOverlayContainer>
                 <DiagramOverlay
                     position={{ x: 15, y: 15 }}
                 >
@@ -55,14 +98,14 @@ export function DataMapper(props: DataMapperProps) {
                         hahaha
                     </div>
                 </DiagramOverlay>
-                {/* <DiagramOverlay
+                <DiagramOverlay
                     position={{ x: width + (width / 2), y: -25 }}
                 >
                     <div>
                         hahaha
                     </div>
-                </DiagramOverlay> */}
-            </DiagramOverlayContainer>
+                </DiagramOverlay>
+            </DiagramOverlayContainer> */}
         </>
     )
 }

@@ -11,7 +11,24 @@
  * associated services.
  */
 
-import { ArrayTypeDesc, DefaultableParam, ExplicitAnonymousFunctionExpression, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, STNode, StringTypeDesc, traversNode, Visitor, XmlTypeDesc } from '@ballerina/syntax-tree';
+import {
+    ArrayTypeDesc,
+    DefaultableParam,
+    ExplicitAnonymousFunctionExpression,
+    FloatTypeDesc,
+    IntTypeDesc,
+    JsonTypeDesc,
+    RecordField,
+    RecordTypeDesc,
+    RequiredParam,
+    ReturnTypeDescriptor,
+    SimpleNameReference,
+    STNode,
+    StringTypeDesc,
+    traversNode,
+    Visitor,
+    XmlTypeDesc
+} from '@ballerina/syntax-tree';
 
 import { DataMapperViewState, DataPointViewstate } from '../viewstate';
 
@@ -26,6 +43,13 @@ export class DataMapperInitVisitor implements Visitor {
     beginVisitSTNode(node: STNode) {
         if (!node.dataMapperViewstate) {
             node.dataMapperViewstate = new DataMapperViewState();
+        }
+    }
+
+    beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
+        if (!node.dataMapperViewstate) {
+            node.dataMapperViewstate = new DataMapperViewState();
+            node.type.dataMapperViewstate = node.dataMapperViewstate;
         }
     }
 
@@ -81,6 +105,14 @@ export class DataMapperInitVisitor implements Visitor {
         }
     }
 
+    endVisitArrayTypeDesc(node: ArrayTypeDesc, parent?: STNode) {
+        if (node.dataMapperViewstate) {
+            const viewState: DataPointViewstate = node.dataMapperViewstate as DataPointViewstate;
+            viewState.collectionDataType = viewState.type;
+            viewState.type = 'collection';
+        }
+    }
+
     beginVisitRecordField(node: RecordField) {
         if (node.dataMapperViewstate) {
             const viewState: DataPointViewstate = node.dataMapperViewstate;
@@ -92,7 +124,7 @@ export class DataMapperInitVisitor implements Visitor {
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.dataMapperViewstate) {
             const viewState: DataPointViewstate = node.dataMapperViewstate as DataPointViewstate;
-            viewState.isRecord = true;
+            viewState.type = 'record';
             viewState.fields = [];
             node.fields.forEach(recordFieldNode => {
                 recordFieldNode.dataMapperViewstate = new DataPointViewstate();
@@ -105,7 +137,7 @@ export class DataMapperInitVisitor implements Visitor {
             const viewState: DataPointViewstate = node.dataMapperViewstate as DataPointViewstate;
             node.fields.forEach(recordFieldNode => {
                 viewState.fields.push(recordFieldNode.dataMapperViewstate)
-            })
+            });
         }
     }
 
@@ -116,13 +148,20 @@ export class DataMapperInitVisitor implements Visitor {
             const typeSymbol = typeData.typeSymbol;
             const moduleID = typeSymbol.moduleID;
             const recordMapKey = `${moduleID.orgName}/${moduleID.moduleName}:${moduleID.version}:${typeSymbol.name}`;
+            const viewState = node.dataMapperViewstate as DataPointViewstate;
+            viewState.displayType = node.name.value;
 
             if (this.recordListMap.has(recordMapKey)) {
                 const recordST = this.recordListMap.get(recordMapKey);
                 recordST.dataMapperViewstate = node.dataMapperViewstate;
                 traversNode(recordST, this);
             } else {
-                // todo: fetching the record st
+                node.dataMapperViewstate.typeInfo = {
+                    modName: moduleID.moduleName,
+                    name: typeSymbol.name,
+                    orgName: moduleID.orgName,
+                    version: moduleID.version
+                }
             }
         }
     }
