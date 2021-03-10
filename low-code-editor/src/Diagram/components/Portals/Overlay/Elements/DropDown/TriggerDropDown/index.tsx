@@ -31,8 +31,6 @@ import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ApiIcon, ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon } from "../../../../../../../assets/icons";
-import {FunctionDefinition, STNode} from "@ballerina/syntax-tree";
-import {diagramSyntaxTreeMutationStart} from "components/DiagramEditor/utils";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -57,7 +55,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
     const { onClose, onComplete, title = "Trigger selector",
-            position, isEmptySource, triggerType, configData, /*, createTrigger*/ } = props;
+            position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
