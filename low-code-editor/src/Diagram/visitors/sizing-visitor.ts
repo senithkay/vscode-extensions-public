@@ -99,19 +99,24 @@ class SizingVisitor implements Visitor {
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
-        triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-        triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+        if (triggerParams) {
+            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        }
 
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        node?.functionSignature?.parameters?.length > 0 ?
-            viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-
-        viewState.triggerParams.visible ?
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-            : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
+        if (viewState.triggerParams) {
+            viewState.triggerParams.visible ?
+                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
+                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        } else {
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        }
         if (body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
