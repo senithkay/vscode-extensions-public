@@ -19,6 +19,7 @@ import classNames from 'classnames';
 
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import { TooltipIcon } from '../../../Portals/ConfigForm/Elements/Tooltip';
 import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {
@@ -43,26 +44,35 @@ export function OperationDropdown(props: OperationDropdownProps) {
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={classes.subTitle}>Connection</p>
-                        <Box border={1} borderRadius={5} className={classes.box}>
-                            <Typography variant="subtitle2">
-                                {connectionDetails.name}
-                            </Typography>
-                            <IconButton
-                                color="primary"
-                                classes={ {
-                                    root: classes.changeConnectionBtn
-                                } }
-                                onClick={onConnectionChange}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        </Box>
+                            <div className={classes.connectionNameWrapper}>
+                                <p className={classes.subTitle}>Connection</p>
+                                <div>
+                                    <TooltipIcon
+                                        title="Name of the connection"
+                                        placement={"left"}
+                                        arrow={true}
+                                    />
+                                </div>
+                            </div>
+                            <Box border={1} borderRadius={5} className={classes.box}>
+                                <Typography variant="subtitle2">
+                                    {connectionDetails.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: classes.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </Box>
                         </>
                     ) : null
                     }
                     <SelectDropdownWithButton
-                        customProps={{ disableCreateNew: true, values: operations }}
+                        customProps={{ disableCreateNew: true, values: operations, tooltipTitle: "Select an operation to continue" }}
                         label="Select Operation"
                         placeholder="Select"
                         defaultValue=""

@@ -559,15 +559,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                     <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
                                 </div>
-                                {customProps?.tooltipTitle &&
+                                {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
+                                        <div>
                                         <TooltipIcon
-                                            title={customProps?.tooltipTitle}
+                                            title={customProps?.tooltipTitle || model?.tooltip}
                                             interactive={customProps?.interactive || true}
                                             actionText={customProps?.tooltipActionText}
                                             actionLink={customProps?.tooltipActionLink}
                                             arrow={true}
                                         />
+                                        </div>
                                     )
                                 }
                             </div>
@@ -578,10 +580,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
                             </div>
-                            {customProps?.tooltipTitle &&
+                            {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
                                     <TooltipIcon
-                                        title={customProps?.tooltipTitle}
+                                        title={model?.tooltip}
                                         interactive={customProps?.interactive || true}
                                         actionText={customProps?.tooltipActionText}
                                         actionLink={customProps?.tooltipActionLink}

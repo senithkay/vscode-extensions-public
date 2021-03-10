@@ -99,5 +99,11 @@ export const useStyles = makeStyles(() =>
             color: "#1D2028 !important",
             fontSize: "13px !important",
         },
+        selectOperationTextWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%"
+          }
     })
 );
