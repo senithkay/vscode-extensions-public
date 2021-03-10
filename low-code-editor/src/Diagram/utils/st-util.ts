@@ -247,7 +247,7 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
     localStorage.setItem(FORM_FIELD_CACHE, JSON.stringify(formFieldCacheMap));
 }
 
-export async function getFromFormFieldCache(connector: Connector): Promise<any> {
+export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
     const { org, module: mod, version, name } = connector;
     const cacheId = `${org}_${mod}_${name}_${version}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);

@@ -34,6 +34,7 @@ import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addToFormFieldCache,
     getConnectorDefFromCache,
+    getFromFormFieldCache,
     getRecordDefFromCache
 } from "../../../utils/st-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
@@ -67,6 +68,7 @@ const ignoreList = [
     'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
     'ballerinax/googleapis_calendar:0.1.3:Shared',
     'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
+    'ballerinax/sfdc:2.1.5:BulkJob',
 
     // slp8
     'ballerina/http:1.0.4:OutboundAuthHandler',
@@ -157,7 +159,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
-
                                     recordRes = await getRecordDefFromCache({
                                         module: typeInfo.modName,
                                         org: typeInfo.orgName,
@@ -869,7 +870,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorConfig = new ConnectorConfig();
         connectorDef.viewState = {};
         cleanFields();
-        let functionDefInfo // = await getFromFormFieldCache(connector);
+        let functionDefInfo = await getFromFormFieldCache(connector);
         if (!functionDefInfo) {
             traversNode(connectorDef, FormFieldVisitor);
             functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
