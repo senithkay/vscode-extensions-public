@@ -25,7 +25,13 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 // import { BallerinaLangClient } from "../../../../../../api/lang-client";
 import { ConnectionDetails } from "../../../../api/models";
 // import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
-import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../ConfigurationSpec/types";
+import {
+    ActionConfig,
+    ConnectorConfig,
+    FormField,
+    PrimitiveBalType,
+    WizardType
+} from "../../../../ConfigurationSpec/types";
 import { STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
@@ -530,8 +536,39 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                     formField.value.push(fieldValue);
                                 }
                             } else {
-                                if (element.kind !== "CommaToken") {
-                                    formField.fields.push({type: "string", name: "", value: element.source});
+                                if (STKindChecker.isMappingConstructor(element)) {
+                                    const mappingField: FormField = {
+                                        type: PrimitiveBalType.String,
+                                        name: "",
+                                        fields: []
+                                    }
+                                    element.fields.forEach((field) => {
+                                        if (field.kind !== "CommaToken") {
+                                            const mappingSpecificField = field as SpecificField;
+                                            if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.Float,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
+                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.String,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
+                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
+                                                mappingField.fields.push({
+                                                    type: PrimitiveBalType.Boolean,
+                                                    name: mappingSpecificField.fieldName.value,
+                                                    value: mappingSpecificField.valueExpr.source
+                                                });
+                                            }
+                                        }
+                                    });
+                                    formField.fields.push(mappingField);
+                                } else if (element.kind !== "CommaToken") {
+                                    formField.fields.push({type: PrimitiveBalType.String, name: "", value: element.source});
                                 }
                             }
                         })

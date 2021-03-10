@@ -106,7 +106,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     gitHubEvent: "Select a Github event to setup the trigger",
     gitHubAction: "Select a Github action to setup the trigger",
-    calenderId: "Select your Google Calender",
+    calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
         content: 'log:printInfo("infolog")\nlog:printError("error log")'
@@ -132,7 +132,7 @@ export const tooltipMessages: Record<string, any> = {
         content: 'respond("Hello " + \n checkpanic req.getTextpayload())'
     },
     httpConnector: {
-        title: "Communicate with external APIs through the HTTP protocol",
+        title: "Communicate with external Connections through the HTTP protocol",
         content: "Send a GET or POST request"
     },
     smtpConnector: {
@@ -160,8 +160,8 @@ export const tooltipMessages: Record<string, any> = {
         content: "Create events, Set reminders"
     },
     gSheetConnector: {
-        title: "Connect your application with Google sheets API",
-        content: "Create and format Google sheets"
+        title: "Connect your application with Google Sheets API",
+        content: "Create and format Google Sheets"
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
@@ -176,8 +176,8 @@ export const tooltipMessages: Record<string, any> = {
     salesforceBase: "Salesforce BaseClient Connector",
     salesforceBulk: "Salesforce BulkJob Connector",
     APIsPlusHolder: {
-        title: "A collection of APIs that helps you integrate your application to external services",
-        actionText: "Learn more about APIs",
+        title: "A collection of Connections that helps you integrate your application to external services",
+        actionText: "Learn more about Connections",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/connector.md"
     },
     statementsPlusHolder: {
