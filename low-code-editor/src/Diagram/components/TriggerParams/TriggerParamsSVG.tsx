@@ -19,7 +19,6 @@ export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 104;
 export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 31;
 export const TRIGGER_PARAMS_SVG_WIDTH = 97;
 export const TRIGGER_PARAMS_SVG_HEIGHT = 24;
-export const TRIGGER_PARAMS_SVG_SHADOW_OFFSET = TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW - TRIGGER_PARAMS_SVG_HEIGHT;
 
 export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
     const { text, ...xyProps } = props;
