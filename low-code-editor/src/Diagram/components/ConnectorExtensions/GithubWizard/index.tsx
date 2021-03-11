@@ -229,14 +229,14 @@ export function GithubWizard(props: WizardProps) {
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                                 ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );                                           
+                        );
                     } else {
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
                                 accessToken: ${accessTokenKey}
                             });`,
                             targetPosition
-                        );                        
+                        );
                     }
                     modifications.push(addConnectorInit);
                 }

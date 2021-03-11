@@ -170,7 +170,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
-                } 
+                }
                 filteredFunctions.set(key, value);
             });
             break;
