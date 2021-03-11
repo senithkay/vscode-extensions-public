@@ -23,7 +23,7 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 // import { getLangClientForDiagram } from "../../../../../../../../store/actions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { ExpressionEditorState } from "../../../../../store/definitions";
@@ -44,7 +44,6 @@ import {
     transformFormFieldTypeToString
 } from "./utils";
 import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
-import { ExpressionEditorLangClient } from "../../../../../../../../../src/api/expression-editor-lang-client";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -291,7 +290,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -305,7 +304,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.diagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -349,7 +348,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                 langClient.didChange({
                     contentChanges: [
                         {
@@ -363,7 +362,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                 langClient.diagnostics({
                     documentIdentifier: {
                         uri: expressionEditorState.uri,
@@ -388,7 +387,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                 langClient.didChange({
                     contentChanges: [
                         {
@@ -479,7 +478,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
                     }
 
-                    return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClient) => {
+                    return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                         return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                             const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
                             const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {

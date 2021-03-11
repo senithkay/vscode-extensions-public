@@ -22,7 +22,6 @@ import {
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-import { DiagramEditorLangClient } from "../../../../../../../src/api/diagram-editor-lang-client";
 import { ConnectionDetails } from "../../../../api/models";
 import {
     ActionConfig,
@@ -31,7 +30,7 @@ import {
     PrimitiveBalType,
     WizardType
 } from "../../../../ConfigurationSpec/types";
-import { STSymbolInfo } from "../../../../Definitions";
+import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
@@ -865,7 +864,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     // if create new clicked.
     const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
 
-    const langClient: DiagramEditorLangClient = await getDiagramEditorLangClient(langServerURL);
+    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
     let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
 
     if (!connectorDef && connector) {
