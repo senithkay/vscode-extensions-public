@@ -11,7 +11,24 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
     return reporter;
 }
 
-export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: string = ''): { [key: string]: string; } {
+export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
+    message: string = '') {
+    if (extension.isTelemetryEnabled()) {
+        extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+            message));
+    }
+}
+
+export function sendTelemetryException(extension: BallerinaExtension, error: Error, componentName: string,
+    message: string = '') {
+    if (extension.isTelemetryEnabled()) {
+        extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
+            message));
+    }
+}
+
+export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: string)
+    : { [key: string]: string; } {
     return {
         'ballerina.version': extension ? extension.ballerinaVersion : '',
         'ballerina.component': component,

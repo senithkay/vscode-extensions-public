@@ -12,7 +12,7 @@ import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
-import { getTelemetryProperties, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER } from '../telemetry';
+import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
 
@@ -132,12 +132,10 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
                 debugLog(`${data}`);
             });
         }).then(() => {
-            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION,
-                getTelemetryProperties(ballerinaExtInstance, CMP_DEBUGGER));
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
             return new DebugAdapterServer(port);
         }).catch((error) => {
-            ballerinaExtInstance.telemetryReporter.sendTelemetryException(error,
-                getTelemetryProperties(ballerinaExtInstance, CMP_DEBUGGER));
+            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
             return Promise.reject(error);
         });
     }

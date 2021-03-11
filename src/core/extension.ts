@@ -34,11 +34,12 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME } from "./preferences";
+import { BALLERINA_HOME, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
-    createTelemetryReporter, getTelemetryProperties, CMP_EXTENSION_CORE, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED,
-    TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
+    createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
+    TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
+    TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
 } from "../telemetry";
 const any = require('promise.any');
 
@@ -115,8 +116,7 @@ export class BallerinaExtension {
             if (this.overrideBallerinaHome()) {
                 if (!this.overrideBallerinaHome()) {
                     const message = "Trying to get ballerina version without setting ballerina home.";
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED,
-                        getTelemetryProperties(this, CMP_EXTENSION_CORE, message));
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
                     });
@@ -147,8 +147,7 @@ export class BallerinaExtension {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
                         Please use a compatible VSCode extension version.`;
-                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, getTelemetryProperties(this,
-                        CMP_EXTENSION_CORE, message));
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
                     });
@@ -164,8 +163,7 @@ export class BallerinaExtension {
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
                         const message = "Couldn't establish language server connection.";
-                        this.telemetryReporter.sendTelemetryEvent(TM_EVENT_EXTENSION_INI_FAILED, getTelemetryProperties(this,
-                            CMP_EXTENSION_CORE, message));
+                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
                         log(message);
                         this.showPluginActivationError();
                     }
@@ -177,11 +175,11 @@ export class BallerinaExtension {
                     this.context!.subscriptions.push(disposable);
                 });
             }, (reason) => {
-                this.telemetryReporter.sendTelemetryException(reason, getTelemetryProperties(this, CMP_EXTENSION_CORE));
+                sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
                 throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
-                this.telemetryReporter.sendTelemetryException(e, getTelemetryProperties(this, CMP_EXTENSION_CORE, msg));
+                sendTelemetryException(this, e, CMP_EXTENSION_CORE, msg);
                 this.telemetryReporter.dispose();
                 throw new Error(msg);
             });
@@ -189,7 +187,7 @@ export class BallerinaExtension {
             const msg = "Error while activating plugin. " + (ex.message ? ex.message : ex);
             // If any failure occurs while initializing show an error message
             this.showPluginActivationError();
-            this.telemetryReporter.sendTelemetryException(ex, getTelemetryProperties(this, CMP_EXTENSION_CORE, msg));
+            sendTelemetryException(this, ex, CMP_EXTENSION_CORE, msg);
             this.telemetryReporter.dispose();
             return Promise.reject(msg);
         }
@@ -197,14 +195,14 @@ export class BallerinaExtension {
 
     onReady(): Promise<void> {
         if (!this.langClient) {
-            this.sdkVersion.text = `Ballerina SDK: Error`;
-            this.telemetryReporter.sendTelemetryEvent(TM_EVENT_EXTENSION_INI_FAILED, getTelemetryProperties(this,
-                CMP_EXTENSION_CORE));
+            const message = `Ballerina SDK: Error`;
+            this.sdkVersion.text = message;
+            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
             this.telemetryReporter.dispose();
             return Promise.reject('BallerinaExtension is not initialized');
         }
 
-        this.telemetryReporter.sendTelemetryEvent(TM_EVENT_EXTENSION_INIT, getTelemetryProperties(this, CMP_EXTENSION_CORE));
+        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
         return this.langClient.onReady();
     }
 
@@ -304,7 +302,7 @@ export class BallerinaExtension {
             const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
             return Promise.resolve(parsedVersion);
         } catch (error) {
-            this.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(this, CMP_EXTENSION_CORE));
+            sendTelemetryException(this, error, CMP_EXTENSION_CORE);
             return Promise.reject(error);
         }
     }
@@ -475,6 +473,10 @@ export class BallerinaExtension {
 
     public getOutPutChannel(): OutputChannel | undefined {
         return getOutputChannel();
+    }
+
+    isTelemetryEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_TELEMETRY);
     }
 }
 

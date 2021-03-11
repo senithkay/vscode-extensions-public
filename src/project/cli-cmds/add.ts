@@ -20,25 +20,22 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import {
-    getTelemetryProperties, TM_EVENT_PROJECT_ADD, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD
+    TM_EVENT_PROJECT_ADD, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 
 function activateAddCommand() {
-    const reporter = ballerinaExtInstance.telemetryReporter;
-
     // register ballerina add handler
     commands.registerCommand('ballerina.project.add', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_ADD, getTelemetryProperties(ballerinaExtInstance,
-                CMP_PROJECT_ADD));
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_ADD, CMP_PROJECT_ADD);
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake && currentProject.kind === PROJECT_TYPE.SINGLE_FILE ||
                 ballerinaExtInstance.is12x && !currentProject.path) {
-                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_ADD,
-                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_ADD, MESSAGES.NOT_IN_PROJECT));
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD,
+                    MESSAGES.NOT_IN_PROJECT);
                 window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                 return;
             }
@@ -50,14 +47,13 @@ function activateAddCommand() {
                 } while (!moduleName || moduleName && moduleName.trim().length === 0);
                 runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.ADD, moduleName);
             } else {
-                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_ADD,
-                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_ADD, MESSAGES.NOT_SUPPORT));
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, MESSAGES.NOT_SUPPORT);
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
                 return;
             }
 
         } catch (error) {
-            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_ADD));
+            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
             window.showErrorMessage(error);
         }
     });

@@ -25,7 +25,7 @@ import { API_DESIGNER_NO_SERVICE } from '../core/messages';
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { readFileSync } from "fs";
-import { getTelemetryProperties, TM_EVENT_OPEN_API_DESIGNER, CMP_API_DESIGNER } from '../telemetry';
+import { TM_EVENT_OPEN_API_DESIGNER, CMP_API_DESIGNER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 const CMD_SHOW_API_EDITOR = "ballerina.showAPIEditor";
@@ -207,11 +207,10 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const reporter = ballerinaExtInstance.telemetryReporter;
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const showAPIRenderer = commands.registerCommand(CMD_SHOW_API_EDITOR, serviceNameArg => {
-        reporter.sendTelemetryEvent(TM_EVENT_OPEN_API_DESIGNER, getTelemetryProperties(ballerinaExtInstance, CMP_API_DESIGNER));
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_API_DESIGNER, CMP_API_DESIGNER);
         ballerinaExtInstance.onReady()
             .then(() => {
                 const { experimental } = langClient.initializeResult!.capabilities;
@@ -225,7 +224,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             })
             .catch((e) => {
                 ballerinaExtInstance.showPluginActivationError();
-                reporter.sendTelemetryException(e, getTelemetryProperties(ballerinaExtInstance, CMP_API_DESIGNER));
+                sendTelemetryException(ballerinaExtInstance, e, CMP_API_DESIGNER);
             });
     });
 

@@ -23,7 +23,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import Traces from './traces';
-import { getTelemetryProperties, TM_EVENT_OPEN_NETWORK_LOGS, CMP_TRACE_LOGS } from '../telemetry';
+import { TM_EVENT_OPEN_NETWORK_LOGS, CMP_TRACE_LOGS, sendTelemetryEvent } from '../telemetry';
 
 let traceLogsPanel: WebviewPanel | undefined;
 let traceDetailsPanel: WebviewPanel | undefined;
@@ -107,7 +107,6 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const reporter = ballerinaExtInstance.telemetryReporter;
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 
@@ -131,7 +130,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
 
     const traceRenderer = commands.registerCommand('ballerina.showTraces', () => {
-        reporter.sendTelemetryEvent(TM_EVENT_OPEN_NETWORK_LOGS, getTelemetryProperties(ballerinaExtInstance, CMP_TRACE_LOGS));
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_NETWORK_LOGS, CMP_TRACE_LOGS);
         showTraces(context, langClient);
     });
 
