@@ -22,3 +22,4 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
 export * from "./events";
 export * from "./exceptions";
 export * from "./components";
+export * from "./activator";

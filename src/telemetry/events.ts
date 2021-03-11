@@ -34,3 +34,7 @@ export const TM_EVENT_PROJECT_ADD = "execute.project.add";
 
 // event for generating Cloud.toml for current project
 export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";
+
+// events for language server
+export const TM_EVENT_LANG_SERVER = "ballerina.langserver.event";
+export const TM_ERROR_LANG_SERVER = "ballerina.langserver.error";
