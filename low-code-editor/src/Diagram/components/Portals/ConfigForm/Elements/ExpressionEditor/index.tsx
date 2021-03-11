@@ -15,7 +15,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
-// import { connect } from "react-redux";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 
@@ -24,7 +23,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
-// import { getLangClientForDiagram } from "../../../../../../../../store/actions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { ExpressionEditorState } from "../../../../../store/definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
@@ -100,11 +98,9 @@ monaco.editor.defineTheme('exp-theme', {
         'editor.foreground': "#8D91A3",
         'editor.errorForeground': '#EA4C4D',
         'editorCursor.foreground': '#3C4141',
-        // 'editor.lineHighlightBackground': '#FAFAFC',
         'editor.lineHighlightBackground': '#FFFFFF',
         'editorLineNumber.foreground': '#8D91A3',
         'editor.selectionBackground': '#D0E5FD',
-        // 'editor.inactiveSelectionBackground': '#F4F5F9',
         'editor.inactiveSelectionBackground': '#FFFFFF',
         'peekViewEditor.background': '#333',
         'editorGutter.background': '#F7F8FB',
@@ -625,25 +621,4 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     );
 }
 
-// const mapStateToProps = ({ appInfo, diagramState }: PortalState) => {
-//     const { currentFile, currentApp } = appInfo;
-//     const { exprEditorState: { diagnostic: editorDiagnostics, name: editorName }, diagnostics: mainDiagnostics, targetPosition } = diagramState;
-//     return {
-//         currentFile,
-//         currentApp,
-//         editorDiagnostics,
-//         mainDiagnostics,
-//         targetPositionDraft: targetPosition,
-//         editorName
-//     }
-// };
-
-// const mapDispatchToProps = {
-//     dispatchExprEditorStart: expEditorStart,
-//     dispatchExprEditorContentChange: expEditorContentChange,
-//     dispatchExprEditorClose: expEditorClose
-// };
-
-
-// const ExpressionEditor = connect(mapStateToProps, mapDispatchToProps)(ExpressionEditorC);
 export default ExpressionEditor;
