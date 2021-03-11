@@ -1,7 +1,7 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import {
-    getTelemetryProperties, TM_EVENT_PROJECT_RUN, TM_EVENT_ERROR_EXECUTE_PROJECT_RUN, CMP_PROJECT_RUN
+    TM_EVENT_PROJECT_RUN, TM_EVENT_ERROR_EXECUTE_PROJECT_RUN, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
@@ -9,12 +9,10 @@ import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectory
 export enum RUN_OPTIONS { RUN_MODULE = "run-module" }
 
 function activateRunCommand() {
-    const reporter = ballerinaExtInstance.telemetryReporter;
-
     // register ballerina run handler
     commands.registerCommand('ballerina.project.run', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_RUN, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_RUN));
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN);
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake && currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
@@ -33,13 +31,12 @@ function activateRunCommand() {
                 runCurrentFile();
 
             } else {
-                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_RUN,
-                    getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_RUN, MESSAGES.NOT_SUPPORT));
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_RUN, CMP_PROJECT_RUN, MESSAGES.NOT_SUPPORT);
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
 
         } catch (error) {
-            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_RUN));
+            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_RUN);
             window.showErrorMessage(error);
         }
     });

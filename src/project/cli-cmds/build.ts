@@ -1,7 +1,8 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import {
-    getTelemetryProperties, TM_EVENT_PROJECT_BUILD, TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, CMP_PROJECT_BUILD
+    TM_EVENT_PROJECT_BUILD, TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, CMP_PROJECT_BUILD, sendTelemetryEvent,
+    sendTelemetryException
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile }
@@ -10,13 +11,10 @@ import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerina
 export enum BUILD_OPTIONS { BUILD_ALL = "build-all", BUILD_MODULE = "build-module" }
 
 export function activateBuildCommand() {
-    const reporter = ballerinaExtInstance.telemetryReporter;
-
     // register run project build handler
     commands.registerCommand('ballerina.project.build', async () => {
         try {
-            reporter.sendTelemetryEvent(TM_EVENT_PROJECT_BUILD, getTelemetryProperties(ballerinaExtInstance,
-                CMP_PROJECT_BUILD));
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_BUILD, CMP_PROJECT_BUILD);
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {
@@ -65,13 +63,13 @@ export function activateBuildCommand() {
                 }
 
             } else {
-                reporter.sendTelemetryEvent(TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, getTelemetryProperties(ballerinaExtInstance,
-                    CMP_PROJECT_BUILD, MESSAGES.NOT_SUPPORT));
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_BUILD, CMP_PROJECT_BUILD,
+                    MESSAGES.NOT_SUPPORT);
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
 
         } catch (error) {
-            reporter.sendTelemetryException(error, getTelemetryProperties(ballerinaExtInstance, CMP_PROJECT_BUILD));
+            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_BUILD);
             window.showErrorMessage(error);
         }
     });

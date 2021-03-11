@@ -23,7 +23,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
-import { getTelemetryProperties, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW } from '../telemetry';
+import { TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -96,12 +96,11 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-	const reporter = ballerinaExtInstance.telemetryReporter;
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		reporter.sendTelemetryEvent(TM_EVENT_OPEN_DIAGRAM, getTelemetryProperties(ballerinaExtInstance, CMP_DIAGRAM_VIEW));
+		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
 				const { experimental } = langClient.initializeResult!.capabilities;
@@ -115,7 +114,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
-				reporter.sendTelemetryException(e, getTelemetryProperties(ballerinaExtInstance, CMP_DIAGRAM_VIEW));
+				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
