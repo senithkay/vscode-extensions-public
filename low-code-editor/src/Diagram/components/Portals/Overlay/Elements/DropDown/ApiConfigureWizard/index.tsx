@@ -150,7 +150,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       <div id='api-config-panel'>
         <div>
           <div className={classes.titleWrapper}>
-            <p className={classes.title}>API Configuration</p>
+            <p className={classes.title}>Configure API Trigger</p>
             <button className={classes.closeBtnWrapper} onClick={onClose}>
               <CloseIcon className={classes.closeBtn} />
             </button>
@@ -194,7 +194,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
-                    text="Save API"
+                    text="Save"
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
                     disabled={isFileSaving}

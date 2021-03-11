@@ -53,9 +53,11 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validForm, setValidForm] = useState(isFormValid());
     const [validStatusCode, setValidStatusCode] = useState(validForm);
     const [isStatusCode, setStatusCode] = useState(undefined);
+    const [resExp, setResExp] = useState(undefined);
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
+        setResExp(value);
         if (value === "jsonPayload") {
             dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
         }
@@ -65,6 +67,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const onSaveWithTour = () => {
         dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = isStatusCode;
+        respondFormConfig.respondExpression = resExp;
         onSave();
     }
 
