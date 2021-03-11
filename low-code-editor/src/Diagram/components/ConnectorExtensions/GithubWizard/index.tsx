@@ -27,8 +27,12 @@ import {
     createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration,
+    createPropertyStatement,
+    createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration
+    updateObjectDeclaration,
+    updatePropertyStatement,
+    updateRemoteServiceCall
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
@@ -38,9 +42,11 @@ import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonW
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
+    checkErrorsReturnType,
     genVariableName,
     // getConnectorConfig,
     getConnectorIcon,
+    getKeyFromConnection,
     getOauthConnectionParams,
     getParams
 } from "../../Portals/utils";
@@ -72,7 +78,7 @@ export function GithubWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo, isMutationProgress, getConnectorConfig } = state;
+    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
@@ -194,7 +200,9 @@ export function GithubWizard(props: WizardProps) {
     const showConnectionName = isManualConnection || !isNewConnection;
 
     const handleOnSave = () => {
-        // insert initialized connector logic
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const accessTokenKey = connectorInitFormFields[0].fields[1].value;
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -208,61 +216,82 @@ export function GithubWizard(props: WizardProps) {
                 modifications.push(addImport);
                 // Add an connector client initialization.
                 if (isNewConnection) {
+                    let addConfigurableVars: STModification;
                     let addConnectorInit: STModification
                     if (!isManualConnection) {
-                        addConnectorInit = createObjectDeclaration(
-                            (connector.module + ":" + connector.name),
-                            config.name,
-                            getOauthConnectionParams(connector.displayName.toLocaleLowerCase(),
-                                connectionDetails),
-                            targetPosition
+                        addConfigurableVars = createPropertyStatement(
+                            `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
+                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
                         );
-                        const configImport: STModification = createImportStatement(
-                            "ballerina",
-                            "config",
+                        modifications.push(addConfigurableVars);
+
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
-                        );
-                        modifications.push(configImport);
+                        );                                           
                     } else {
-                        addConnectorInit = createObjectDeclaration(
-                            (connector.module + ":" + connector.name),
-                            config.name,
-                            ["{ accessToken: " + connectorInitFormFields[0].fields[1].value + " }"],
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                                accessToken: ${accessTokenKey}
+                            });`,
                             targetPosition
-                        );
+                        );                        
                     }
                     modifications.push(addConnectorInit);
                 }
 
                 // Add an action invocation on the initialized client.
-                const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields), targetPosition
-                );
-                modifications.push(addActionInvocation);
+                if (isActionReturnError) {
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation: STModification = createRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
             }
         } else {
-            const updateConnectorInit = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                config.name,
-                ["{ accessToken: " + connectorInitFormFields[0].fields[1].value + " }"],
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
+                    accessToken: ${accessTokenKey}
+                 });`,
                 config.initPosition
             );
             modifications.push(updateConnectorInit);
 
-            const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                "var",
-                config.action.returnVariableName,
-                config.name,
-                config.action.name,
-                getParams(config.action.fields),
-                model.position
-            );
-            modifications.push(updateActionInvocation);
-
+            if (isActionReturnError) {
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                    "var",
+                    config.action.returnVariableName,
+                    config.name,
+                    config.action.name,
+                    getParams(config.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            } else {
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
+                    "var",
+                    config.action.returnVariableName,
+                    config.name,
+                    config.action.name,
+                    getParams(config.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            }
         }
         onSave(modifications);
     };

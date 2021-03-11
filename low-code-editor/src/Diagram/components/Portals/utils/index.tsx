@@ -69,21 +69,19 @@ const ignoreList = [
     'ballerinax/googleapis_calendar:0.1.3:Shared',
     'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
     'ballerinax/sfdc:2.1.5:BulkJob',
-
-    // slp8
-    'ballerina/http:1.0.4:OutboundAuthHandler',
-    'ballerina/http:1.0.4:PersistentCookieHandler',
-    'ballerina/io:0.5.4:ReadableByteChannel',
-    'ballerina/lang.annotations:1.0.0:TargetType',
-    'ballerina/http:1.0.4:HttpFuture',
-    'ballerina/http:1.0.4:PushPromise',
-    'ballerinax/github:0.99.8:ColumnList',
-    'ballerinax/github:0.99.8:IssueList',
-    'ballerinax/github:0.99.8:ProjectList',
-    'ballerinax/github:0.99.8:PullRequestList',
-    'ballerinax/github:0.99.8:RepositoryList',
-    'ballerina/oauth2:1.0.4:CredentialBearer',
-    'ballerina/oauth2:1.0.4:HttpVersion',
+    'ballerina/http:1.1.0-alpha4:PersistentCookieHandler',
+    'ballerinax/github.webhook:0.99.12:User',
+    'ballerinax/github.webhook:0.99.12:Milestone',
+    'ballerinax/github.webhook:0.99.12:Branch',
+    'ballerinax/github.webhook:0.99.12:Links',
+    'ballerinax/github:0.99.12:CardList',
+    'ballerinax/github:0.99.12:ColumnList',
+    'ballerinax/github:0.99.12:BranchList',
+    'ballerinax/github:0.99.12:IssueList',
+    'ballerinax/github:0.99.12:ProjectList',
+    'ballerinax/github:0.99.12:RepositoryList',
+    'ballerinax/github:0.99.12:ColumnList',
+    'ballerinax/github:0.99.12:PullRequestList',
 ]
 
 export function getOverlayElement(
@@ -156,7 +154,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
-
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
                                     recordRes = await getRecordDefFromCache({
@@ -977,7 +974,9 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            return [`{ accessToken: config:getAsString("${githubAccessToken}")}`];
+            return [`{
+                accessToken: ${githubAccessToken}
+            }`];
         }
         case "google sheets": {
             const sheetClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');

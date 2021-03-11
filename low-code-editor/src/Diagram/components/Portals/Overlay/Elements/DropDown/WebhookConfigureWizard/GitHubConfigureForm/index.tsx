@@ -316,12 +316,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     // handle trigger configure complete
     const handleConfigureOnSave = () => {
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
+        const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
 
         setTriggerChanged(true);
         // dispatch and close the wizard
         dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: 'github',
             ACCESS_TOKEN: accessTokenKey,
+            SECRET_KEY: clientSecretKey,
             WEBHOOK: '/',
             PORT: 8090,
             GH_REPO_URL: activeGithubRepo.url,

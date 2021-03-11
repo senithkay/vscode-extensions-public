@@ -170,9 +170,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
-                } else if (key === "getOrganization" || key === "getRepository" || key === "init") {
-                    filteredFunctions.set(key, value);
-                }
+                } 
+                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
