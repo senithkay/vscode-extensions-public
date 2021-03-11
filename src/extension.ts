@@ -81,7 +81,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina API Designer
         // activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
-        activateProjectFeatures(ballerinaExtInstance);
+        activateProjectFeatures();
         // Enable Ballerina Syntax Highlighter
         activateSyntaxHighlighter(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener
