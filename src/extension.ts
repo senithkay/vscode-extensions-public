@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { commands, window, Location, Uri, ExtensionContext } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance } from './core';
 // import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 

@@ -107,10 +107,10 @@
                     "default": true,
                     "description": "Enable watching file change events of the project."
                 },
-                "ballerina.enableLanguageServerCrashReporter": {
+                "ballerina.enableTelemetry": {
                     "type": "boolean",
                     "default": true,
-                    "markdownDescription": "Enable crash reports to be sent to a Microsoft online telemtry service. Read privacy statement [here](https://privacy.microsoft.com/en-us/privacystatement)."
+                    "markdownDescription": "Enable Ballerina telemetry."
                 }
             }
         },
