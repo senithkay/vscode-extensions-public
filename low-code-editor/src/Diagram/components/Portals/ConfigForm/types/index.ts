@@ -85,6 +85,7 @@ export interface RespondConfig {
 }
 
 export interface DataMapperConfig {
+    functionName: string;
     parameters: any[]; // todo ::: finalize the interface
     returnType: any;
 }

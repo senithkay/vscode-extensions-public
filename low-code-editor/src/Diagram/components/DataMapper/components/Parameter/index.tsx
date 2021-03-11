@@ -15,7 +15,7 @@ import React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { DataPointViewstate } from '../../viewstate';
-import {getDataMapperComponent} from "../../util";
+import { getDataMapperComponent } from "../../util";
 
 interface ParameterProps {
     model: STNode;

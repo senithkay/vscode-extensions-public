@@ -286,7 +286,6 @@ export function DataProcessor(props: ProcessorProps) {
                                             y={cy + (PROCESS_SVG_HEIGHT / 3)}
                                             className="process-rect"
                                         />
-
                                         {editAndDeleteButtons}
                                     </>
                                 )}

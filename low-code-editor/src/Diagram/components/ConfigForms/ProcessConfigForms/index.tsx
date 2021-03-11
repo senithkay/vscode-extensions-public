@@ -28,10 +28,11 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
+import {DataMapperConfig, LogConfig, ProcessConfig} from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
+import {parameters} from "../../../../../../../.storybook/preview";
 
 export interface AddProcessFormProps {
     type: string;
@@ -61,7 +62,6 @@ export function ProcessConfigForm(props: any) {
     const onSaveClick = () => {
         const modifications: STModification[] = [];
         if (wizardType === WizardType.EXISTING) {
-            // todo: handle if the property already exists
             switch (processConfig.type) {
                 case 'Variable':
                     const propertyConfig: string = processConfig.config as string;
@@ -76,6 +76,9 @@ export function ProcessConfigForm(props: any) {
                         logConfig.type, logConfig.expression, formArgs?.model.position
                     );
                     modifications.push(updateLogStmt);
+                    break;
+                case 'DataMapper':
+                    console.log('test :::', processConfig);
                     break;
             }
         } else {
@@ -95,6 +98,23 @@ export function ProcessConfigForm(props: any) {
                         "ballerina", "log", formArgs?.targetPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
+                } else if (processConfig.type === 'DataMapper') {
+                    const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+                    let signatureString = '';
+
+                    datamapperConfig.parameters.forEach((param, i) => {
+                        signatureString += `${param.type} ${param.name}`;
+                        if (i < datamapperConfig.parameters.length - 1) {
+                            signatureString += ',';
+                        }
+                    })
+
+                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType}? {
+                        return ();
+                    };`
+
+                    const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
+                    modifications.push(dataMapperFunction);
                 }
                 trackAddStatement(processConfig.type);
             }

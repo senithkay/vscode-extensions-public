@@ -10,11 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import React from 'react';
+import {FormTextInput} from "../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 
-export function OutputTypeSelector() {
+interface OutputTypeSelectorProps {
+    returnType: string,
+    updateReturnType: (returnType: string) => void,
+}
+
+export function OutputTypeSelector(props: OutputTypeSelectorProps) {
+    const { returnType, updateReturnType } = props;
+
     return (
-        <div>Output Type Selector</div>
+        <>
+            <FormTextInput
+                dataTestId="return-type"
+                label={"Return Type"}
+                onChange={updateReturnType}
+                defaultValue={returnType}
+                placeholder={"Enter Variable Type"}
+            />
+        </>
     );
 }

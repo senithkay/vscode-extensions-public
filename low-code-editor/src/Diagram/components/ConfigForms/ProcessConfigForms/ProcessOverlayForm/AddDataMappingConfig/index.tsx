@@ -22,15 +22,18 @@ import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/B
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { ProcessConfig } from '../../../../Portals/ConfigForm/types';
+import {DataMapperConfig, ProcessConfig} from '../../../../Portals/ConfigForm/types';
 import { wizardStyles } from "../../../style";
 
 import { OutputTypeSelector } from './OutputTypeSelector';
 import { ParameterSelector } from './ParameterSelector';
 import { RecordTypeSelector } from './RecordTypeSelector';
+import {FormTextInput} from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import {checkVariableName, genVariableName} from "../../../../Portals/utils";
+import {getAllVariables} from "../../../../../utils/mixins";
 
 interface AddDataMappingConfigProps {
-    config: ProcessConfig;
+    processConfig: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -41,18 +44,54 @@ enum DataMapperSteps {
 }
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
-    const { config, onCancel, onSave } = props;
-    const { state: { stSymbolInfo }, dataMapperStart } = useContext(DiagramContext);
+    const { processConfig, onCancel, onSave } = props;
+    const { state } = useContext(DiagramContext);
+    const { stSymbolInfo } = state;
+    const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
 
+    let defaultFunctionName = stSymbolInfo ? genVariableName("dataMapperFunction", getAllVariables(stSymbolInfo)) : 'dataMapperFunction';
     const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_INPUT);
+    const [parameters, setParameters] = useState(dataMapperConfig.parameters);
+    const [returnType, setReturnType] = useState(dataMapperConfig.returnType);
+    const [functionName, setFunctionName] = useState(defaultFunctionName);
+    const [functionNameError, setFunctionNameError] = useState('');
+    const [isFunctionNameValid, setIsFunctionNameValid] = useState(true);
+
 
     const handleNextClick = () => {
         if (dataMapperStep === DataMapperSteps.SELECT_INPUT) {
             setDataMapperStep(DataMapperSteps.SELECT_OUTPUT);
         } else {
-            // onSave();
-            dataMapperStart(true);
+            processConfig.config = { functionName, parameters, returnType };
+            onSave();
+            // dataMapperStart(true);
         }
+    }
+
+    const addNewParam = (name: string, type: string) => {
+        setParameters([...parameters, {name, type}])
+    }
+
+    const removeParam = (index: number) => {
+        setParameters([...parameters.splice(index, 1)])
+    }
+
+    const validateNameValue = (value: string) => {
+        if (value) {
+            const varValidationResponse = checkVariableName("Data Mapper function name", value, defaultFunctionName, state);
+            debugger;
+            if (varValidationResponse?.error) {
+                setFunctionNameError(varValidationResponse.message);
+                setIsFunctionNameValid(false);
+                return false;
+            }
+        }
+        setIsFunctionNameValid(true);
+        return true;
+    };
+
+    const handleFunctionNameOnChange = (value: string) => {
+        setFunctionName(value);
     }
 
     const formClasses = useFormStyles();
@@ -76,13 +115,24 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                         </Typography>
                     </div>
                 </div>
-
-                {dataMapperStep === DataMapperSteps.SELECT_INPUT && <ParameterSelector processConfig={config} />}
-                {dataMapperStep === DataMapperSteps.SELECT_OUTPUT && <OutputTypeSelector />}
+                <FormTextInput
+                    dataTestId="function-name"
+                    label={"Data Mapper function Name"}
+                    customProps={{
+                        validate: validateNameValue
+                    }}
+                    onChange={handleFunctionNameOnChange}
+                    defaultValue={functionName}
+                    errorMessage={functionNameError}
+                    placeholder={"Enter Variable Name"}
+                />
+                {dataMapperStep === DataMapperSteps.SELECT_INPUT && <ParameterSelector parameters={parameters} insetParameter={addNewParam} removeParameter={removeParam} />}
+                {dataMapperStep === DataMapperSteps.SELECT_OUTPUT && <OutputTypeSelector returnType={returnType} updateReturnType={setReturnType} />}
 
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
+                        disabled={!isFunctionNameValid}
                         dataTestId={"datamapper-save-btn"}
                         text={dataMapperStep === DataMapperSteps.SELECT_OUTPUT ? "Save" : "Next"}
                         fullWidth={false}

@@ -55,6 +55,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
         };
     } else if (formType === "DataMapper") {
         config.config = {
+            functionName: '',
             parameters: [],
             returnType: undefined
         }
@@ -100,7 +101,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "DataMapper" && <AddDataMappingConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

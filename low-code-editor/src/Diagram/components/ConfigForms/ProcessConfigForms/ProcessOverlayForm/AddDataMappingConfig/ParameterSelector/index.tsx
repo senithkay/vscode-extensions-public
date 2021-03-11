@@ -13,28 +13,27 @@
 
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, {ReactNode, useState} from 'react';
 
-import { FormHelperText } from '@material-ui/core';
-import { AddRounded, CloseRounded } from '@material-ui/icons';
+import {Box, FormHelperText, Typography} from '@material-ui/core';
+import {AddRounded, CloseRounded} from '@material-ui/icons';
 import classNames from 'classnames';
 
-import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
-import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
-import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, ProcessConfig } from '../../../../../Portals/ConfigForm/types';
+import {ButtonWithIcon} from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
+import {IconBtnWithText} from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
+import {FormTextInput} from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
+import {useStyles as useFormStyles} from "../../../../../Portals/ConfigForm/forms/style";
 
 interface ParameterSelectorProps {
-    processConfig: ProcessConfig;
+    parameters: any[];
+    insetParameter: (name: string, type: string) => void;
+    removeParameter: (index: number) => void;
 }
 
 export function ParameterSelector(props: ParameterSelectorProps) {
     const formClasses = useFormStyles();
-    const { processConfig } = props;
-    const config: DataMapperConfig = processConfig.config as DataMapperConfig;
+    const { parameters, insetParameter, removeParameter } = props;
 
-    const [parameterList, updateParameterList] = useState(config.parameters);
     const [parameterName, setParameterName] = useState('');
     const [parameterType, setParameterType] = useState('');
 
@@ -48,12 +47,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
     }
 
     const onParameterAddClick = () => {
-        updateParameterList([
-            ...parameterList,
-            {name: parameterName, type: parameterType}
-        ]);
-        (processConfig.config as DataMapperConfig).parameters = parameterList;
-
+        insetParameter(parameterName, parameterType);
         setParameterName('');
         setParameterType('');
     }
@@ -61,9 +55,9 @@ export function ParameterSelector(props: ParameterSelectorProps) {
 
     const parameterElements: ReactNode[] = [];
 
-    parameterList.forEach((element, index) => {
-        const getDelete = () => {
-            // return () => deleteItem(index);
+    parameters.forEach((element, index) => {
+        const removeParam = () => {
+            removeParameter(index);
         };
         parameterElements.push(
             <div key={index} className={formClasses.headerWrapper}>
@@ -72,7 +66,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
 
                     <ButtonWithIcon
                         className={formClasses.deleteBtn}
-                        onClick={() => { }}
+                        onClick={removeParam}
                         icon={<CloseRounded fontSize="small" />}
                     />
                 </div>
@@ -83,6 +77,14 @@ export function ParameterSelector(props: ParameterSelectorProps) {
     return (
         <div>
             <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                <div className={formClasses.formTitleWrapper}>
+                    <div className={formClasses.subtitle}>
+                        <Typography variant="h4">
+                            <Box paddingTop={2} paddingBottom={2}>Add New Parameter</Box>
+                        </Typography>
+                    </div>
+                </div>
+
                 <FormTextInput
                     dataTestId="variable-name"
                     label={"Name"}
