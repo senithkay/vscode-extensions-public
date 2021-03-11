@@ -1,6 +1,6 @@
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
-import { getCLIOutputChannel } from "./output";
+import { outputChannel } from "../../utils";
 import {
     getTelemetryProperties, TM_EVENT_PROJECT_CLOUD, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD
 } from "../../telemetry";
@@ -73,7 +73,7 @@ export function activateCloudCommand() {
                 window.showErrorMessage(message);
                 return;
             }
-            const outputChannel = getCLIOutputChannel();
+
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 if (currentProject.path) {
                     let cloudTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME;
