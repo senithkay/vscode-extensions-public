@@ -17,12 +17,13 @@
  * under the License.
  *
  */
-import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
+import { commands, window, Location, Uri, ExtensionContext } from 'vscode';
 import { ballerinaExtInstance } from './core';
 // import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
 // import { activate as activateTraceLogs } from './trace-logs';
+import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateSyntaxHighlighter } from './syntax-highlighter';
@@ -83,6 +84,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateProjectFeatures(ballerinaExtInstance);
         // Enable Ballerina Syntax Highlighter
         activateSyntaxHighlighter(ballerinaExtInstance);
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
             const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
