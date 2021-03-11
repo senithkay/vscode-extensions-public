@@ -19,7 +19,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { ServiceMethodType, TRIGGER_TYPE_WEBHOOK, WebhookMethodType, WEBHOOK_METHODS } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -127,7 +126,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
           placeholder="Relative path from host"
         />
       </div>
-      { validatePath(currentPath) &&
+      { validatePath(currentPath) && !showConfirmDialog &&
         (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
@@ -140,10 +139,6 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
         )}
       { showConfirmDialog && (
         <SourceUpdateConfirmDialog
-          position={{
-            x: position.x + DefaultConfig.configureWizardOffset.x,
-            y: position.y + DefaultConfig.configureWizardOffset.y + 261
-          }}
           onConfirm={handleOnSave}
           onCancel={handleDialogOnCancel}
         />

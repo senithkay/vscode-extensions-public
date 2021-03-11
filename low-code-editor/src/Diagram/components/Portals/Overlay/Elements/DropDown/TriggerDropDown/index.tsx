@@ -20,7 +20,6 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
-import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
 import { tooltipMessages } from '../../../../utils/constants';
@@ -70,6 +69,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     }, [isFileSaving, isFileSaved]);
 
     const handleTriggerChange = (newTrigger: TriggerType, connector?: ConnectorType) => {
+        setShowConfirmDialog(false);
         setSelectedTrigger(newTrigger);
         setActiveConnector((Object.values(ConnectorType).includes(connector)) ? connector : undefined);
         setTriggerChanged(true);
@@ -229,6 +229,12 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             </Tooltip>
                         </div>
                     </div>
+                    { showConfirmDialog && (
+                        <SourceUpdateConfirmDialog
+                            onConfirm={handleDialogOnUpdate}
+                            onCancel={handleDialogOnCancel}
+                        />
+                    )}
                 </div>
 
             </DiagramOverlay>
@@ -256,16 +262,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
-                />
-            )}
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y
-                    }}
-                    onConfirm={handleDialogOnUpdate}
-                    onCancel={handleDialogOnCancel}
                 />
             )}
             {triggerType !== undefined && <OverlayBackground />}

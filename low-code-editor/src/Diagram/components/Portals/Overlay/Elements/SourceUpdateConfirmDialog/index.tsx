@@ -13,14 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Button, ClickAwayListener } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import classNames from "classnames";
 
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../index';
+import { useStyles } from "../DropDown/styles";
 
 import "./style.scss";
 
 export interface SourceUpdateConfirmDialogProps {
-    position: DiagramOverlayPosition;
     title?: string;
     subTitle?: string;
     onConfirm?: () => void;
@@ -29,30 +29,39 @@ export interface SourceUpdateConfirmDialogProps {
 
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
 
-    const { position, onConfirm, onCancel } = props;
-    const { title = "Do you want to update?", subTitle = "Updating trigger will remove your current source code"  } = props;
+    const { onConfirm, onCancel, title, subTitle } = props;
+    const classes = useStyles();
+
     return (
-        <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={onCancel}
-        >
-            <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        className="update-container"
-                        position={position}
-                    >
-                        <p className="title">{title}</p>
-                        <p className="subtitle">{subTitle}</p>
+        <div className={classes.updateContainer}>
+            <p className={classes.updateTitle}> {title ? title : "Do you want to update?"} </p>
 
-                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>Cancel</Button>
-                        <Button variant="contained" className="updatebtn" onClick={onConfirm}>Update</Button>
+            {subTitle ? (
+                <p className={classes.updateSubtitle}> {subTitle} </p>
+            ) : (
+                <p className={classes.updateSubtitle}>Updating trigger <b>will remove your current source code</b></p>
+            )}
 
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+            <div className={classes.updateBtnWrapper}>
+                <Button
+                    variant="contained"
+                    classes={{
+                        root: classNames(classes.updateCancelBtn)
+                    }}
+                    onClick={onCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="contained"
+                    classes={{
+                        root: classNames(classes.updateBtn)
+                    }}
+                    onClick={onConfirm}
+                >
+                    Update
+                </Button>
             </div>
-        </ClickAwayListener>
-
+        </div>
     );
 }
