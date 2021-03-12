@@ -54,7 +54,7 @@ export enum ConnectorType {
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const { onClose, onComplete, title = "Trigger selector",
+    const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
