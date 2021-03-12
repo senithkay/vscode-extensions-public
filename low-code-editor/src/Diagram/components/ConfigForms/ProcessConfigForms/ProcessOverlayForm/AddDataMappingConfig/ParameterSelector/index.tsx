@@ -13,43 +13,46 @@
 
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, {ReactNode, useState} from 'react';
+import React, { ReactNode, useState } from 'react';
 
-import {Box, FormHelperText, Typography} from '@material-ui/core';
-import {AddRounded, CloseRounded} from '@material-ui/icons';
+import { Box, FormHelperText, TextField, Typography } from '@material-ui/core';
+import { AddRounded, CloseRounded } from '@material-ui/icons';
+import { Autocomplete } from "@material-ui/lab";
 import classNames from 'classnames';
 
-import {ButtonWithIcon} from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
-import {IconBtnWithText} from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
-import {FormTextInput} from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
-import {useStyles as useFormStyles} from "../../../../../Portals/ConfigForm/forms/style";
+import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
+import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
+import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
+import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
 
 interface ParameterSelectorProps {
     parameters: any[];
-    insetParameter: (name: string, type: string) => void;
+    insetParameter: (name: string, type: TypeInfoEntry) => void;
     removeParameter: (index: number) => void;
+    types: TypeInfoEntry[];
 }
 
 export function ParameterSelector(props: ParameterSelectorProps) {
     const formClasses = useFormStyles();
-    const { parameters, insetParameter, removeParameter } = props;
+    const { parameters, insetParameter, removeParameter, types } = props;
 
     const [parameterName, setParameterName] = useState('');
-    const [parameterType, setParameterType] = useState('');
+    const [parameterType, setParameterType] = useState<TypeInfoEntry>(undefined);
 
 
     const handleChangeVariableName = (value: string) => {
         setParameterName(value)
     }
 
-    const handleChangeVariableType = (value: string) => {
-        setParameterType(value);
+    const handleChangeVariableType = (evt: any, typeEntry: TypeInfoEntry) => {
+        setParameterType(typeEntry);
     }
 
     const onParameterAddClick = () => {
         insetParameter(parameterName, parameterType);
         setParameterName('');
-        setParameterType('');
+        setParameterType(undefined);
     }
 
 
@@ -84,7 +87,6 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                         </Typography>
                     </div>
                 </div>
-
                 <FormTextInput
                     dataTestId="variable-name"
                     label={"Name"}
@@ -92,18 +94,35 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                     defaultValue={parameterName}
                     placeholder={"Enter Variable Name"}
                 />
-                <FormTextInput
-                    dataTestId="variable-type"
-                    label={"Type"}
+                <Autocomplete
+                    id="country-select-demo"
+                    options={types}
+                    autoHighlight={true}
+                    getOptionLabel={(option) => option.typeName}
+                    renderOption={(option) => (
+                        <React.Fragment>
+                            <span>{option.typeName}</span>
+                            {option.typeInfo?.moduleName}
+                        </React.Fragment>
+                    )}
                     onChange={handleChangeVariableType}
-                    defaultValue={parameterType}
-                    placeholder={"Enter Variable Type"}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Select Type"
+                            variant="outlined"
+                            inputProps={{
+                                ...params.inputProps,
+                                autoComplete: 'new-password', // disable autocomplete and autofill
+                            }}
+                        />
+                    )}
                 />
                 <IconBtnWithText
                     onClick={onParameterAddClick}
                     text="Add Parameter"
                     icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
-                    disabled={false}
+                    disabled={parameterName.length && parameterType !== undefined}
                 />
             </div>
             {

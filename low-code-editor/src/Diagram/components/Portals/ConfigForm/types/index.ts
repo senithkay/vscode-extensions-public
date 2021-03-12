@@ -84,10 +84,22 @@ export interface RespondConfig {
     responseCode?: string;
 }
 
+export interface TypeInfoEntry {
+    typeName: string;
+    typeInfo?: {
+        orgName: string;
+        moduleName: string;
+        version: string;
+    }
+}
+
 export interface DataMapperConfig {
     functionName: string;
-    parameters: any[]; // todo ::: finalize the interface
-    returnType: any;
+    parameters: {
+        name: string,
+        type: TypeInfoEntry
+    }[]; // todo ::: finalize the interface
+    returnType: TypeInfoEntry;
 }
 
 export interface EndConfig {

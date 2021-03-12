@@ -43,7 +43,8 @@ const reducer = (state: any, action: any) => {
         case 'SWITCH_TO_DATAMAPPER':
             return {
                 ...state,
-                isDataMapperShown: action.payload
+                isDataMapperShown: !state.isDataMapperShown,
+                dataMapperFunctionName: action.payload
             }
             case 'TOGGLE_DIAGRAM_OVERLAY':
                 return {
@@ -82,8 +83,8 @@ const actions = {
         }
     },
     dataMapperStart: (dispatch: any) => {
-        return (payload: boolean) => {
-            dispatch({type: 'SWITCH_TO_DATAMAPPER', payload})
+        return (dataMapperFunctionName: string) => {
+            dispatch({type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperFunctionName})
         }
     },
     toggleDiagramOverlay: (dispatch: any) => {

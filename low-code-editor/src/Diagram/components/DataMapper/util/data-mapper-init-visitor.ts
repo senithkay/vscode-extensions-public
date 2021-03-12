@@ -13,8 +13,6 @@
 
 import {
     ArrayTypeDesc,
-    DefaultableParam,
-    ExplicitAnonymousFunctionExpression,
     FloatTypeDesc,
     IntTypeDesc,
     JsonTypeDesc,
