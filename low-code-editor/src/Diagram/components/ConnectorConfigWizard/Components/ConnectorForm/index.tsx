@@ -154,7 +154,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
 
     let formFields: FormField[] = null;
-    if (selectedOperation && config.action && !config.action.name) {
+    if (selectedOperation) {
         formFields = fieldsForFunctions.get(selectedOperation);
         config.action = new ActionConfig();
         config.action.name = selectedOperation;
