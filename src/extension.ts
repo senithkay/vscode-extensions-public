@@ -98,6 +98,9 @@ export function activate(context: ExtensionContext): Promise<any> {
         });
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
+        if (e.message && e.message.includes('Error when checking ballerina version.')) {
+            ballerinaExtInstance.showMessageInstallBallerina();
+        }
         // When plugins fails to start, provide a warning upon each command execution
         if (!ballerinaExtInstance.langClient) {
             const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
