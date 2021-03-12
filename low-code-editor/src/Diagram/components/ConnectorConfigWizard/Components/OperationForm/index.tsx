@@ -57,12 +57,13 @@ export function OperationForm(props: OperationFormProps) {
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails?.action?.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
         setValidName((text !== '') && nameRegex.test(text));
+        setDefaultResponseVarName(text);
         connectionDetails.action.returnVariableName = text;
     };
     const validateNameValue = (value: string) => {
@@ -83,15 +84,7 @@ export function OperationForm(props: OperationFormProps) {
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
 
-    const defaultResponseVariableName: string = (connectionDetails.action.returnVariableName === "" ||
-        connectionDetails.action.returnVariableName === undefined) ? genVariableName(
-            connectionDetails.action.name + "Response", getAllVariables(symbolInfo)) :
-        connectionDetails.action.returnVariableName;
-    connectionDetails.action.returnVariableName = defaultResponseVariableName;
-
-    if (defaultResponseVarName === undefined){
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
+    connectionDetails.action.returnVariableName = defaultResponseVarName
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -157,7 +150,7 @@ export function OperationForm(props: OperationFormProps) {
                             tooltipTitle: tooltipMessages.responseVariableName,
                             disabled: responseVariableHasReferences
                         }}
-                        defaultValue={defaultResponseVariableName}
+                        defaultValue={defaultResponseVarName}
                         placeholder={"Enter Response Variable Name"}
                         onChange={onNameChange}
                         label={"Response Variable Name"}
