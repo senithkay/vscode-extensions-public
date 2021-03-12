@@ -16,15 +16,15 @@
  * under the License.
  *
  */
-import { workspace, commands, window, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Uri, Position } from 'vscode';
+import { workspace, commands, window, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Uri } from 'vscode';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
-import { API_DESIGNER_NO_SERVICE } from '../core/messages';
+// import { API_DESIGNER_NO_SERVICE } from '../core/messages';
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
-import { readFileSync } from "fs";
+// import { readFileSync } from "fs";
 import { TM_EVENT_OPEN_API_DESIGNER, CMP_API_DESIGNER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
@@ -34,16 +34,16 @@ let oasEditorPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventAPIDesignerUpdate = false;
 
-function updateOASWebView(docUri: Uri, resp: string, stale: boolean): void {
-    if (oasEditorPanel) {
-        oasEditorPanel.webview.postMessage({
-            command: 'update',
-            docUri: docUri.toString(),
-            json: resp,
-            stale
-        });
-    }
-}
+// function updateOASWebView(docUri: Uri, resp: string, stale: boolean): void {
+//     if (oasEditorPanel) {
+//         oasEditorPanel.webview.postMessage({
+//             command: 'update',
+//             docUri: docUri.toString(),
+//             json: resp,
+//             stale
+//         });
+//     }
+// }
 
 function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangClient, serviceName: string): any {
 
@@ -56,15 +56,15 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
                     return;
                 }
 
-                const docUri = e.document.uri;
-                if (oasEditorPanel) {
-                    langClient.getBallerinaOASDef(docUri, oasEditorPanel.title.split('-')[1].trim()).then((resp) => {
-                        if (resp.ballerinaOASJson !== undefined) {
-                            updateOASWebView(docUri, JSON.stringify(resp.ballerinaOASJson), false);
-                            preventAPIDesignerUpdate = true;
-                        }
-                    });
-                }
+                // const docUri = e.document.uri;
+                // if (oasEditorPanel) {
+                //     langClient.getBallerinaOASDef(docUri, oasEditorPanel.title.split('-')[1].trim()).then((resp) => {
+                //         if (resp.ballerinaOASJson !== undefined) {
+                //             updateOASWebView(docUri, JSON.stringify(resp.ballerinaOASJson), false);
+                //             preventAPIDesignerUpdate = true;
+                //         }
+                //     });
+                // }
             }
         }, DEBOUNCE_WAIT));
 
@@ -77,27 +77,27 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
                 activeEditor = window.activeTextEditor;
 
                 if (oasEditorPanel) {
-                    langClient.getServiceListForActiveFile(activeEditor.document.uri).then((resp) => {
-                        if (resp.services && resp.services.length > 1) {
-                            window.showQuickPick(resp.services).then((selected) => {
-                                if (selected && activeEditor) {
-                                    const html = apiEditorRender(context, langClient, activeEditor.document.uri, selected);
-                                    if (oasEditorPanel && html) {
-                                        oasEditorPanel.webview.html = html;
-                                        oasEditorPanel.title = "Ballerina API Designer - " + selected;
-                                    }
-                                }
-                            });
-                        } else {
-                            if (activeEditor) {
-                                const html = apiEditorRender(context, langClient, activeEditor.document.uri, resp.services[0]);
-                                if (oasEditorPanel && html) {
-                                    oasEditorPanel.webview.html = html;
-                                    oasEditorPanel.title = "Ballerina API Designer - " + resp.services[0];
-                                }
-                            }
-                        }
-                    });
+                    // langClient.getServiceListForActiveFile(activeEditor.document.uri).then((resp) => {
+                    //     if (resp.services && resp.services.length > 1) {
+                    //         window.showQuickPick(resp.services).then((selected) => {
+                    //             if (selected && activeEditor) {
+                    //                 const html = apiEditorRender(context, langClient, activeEditor.document.uri, selected);
+                    //                 if (oasEditorPanel && html) {
+                    //                     oasEditorPanel.webview.html = html;
+                    //                     oasEditorPanel.title = "Ballerina API Designer - " + selected;
+                    //                 }
+                    //             }
+                    //         });
+                    //     } else {
+                    //         if (activeEditor) {
+                    //             const html = apiEditorRender(context, langClient, activeEditor.document.uri, resp.services[0]);
+                    //             if (oasEditorPanel && html) {
+                    //                 oasEditorPanel.webview.html = html;
+                    //                 oasEditorPanel.title = "Ballerina API Designer - " + resp.services[0];
+                    //             }
+                    //         }
+                    //     }
+                    // });
                 }
             }
         });
@@ -118,42 +118,42 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
 
     if (serviceName) {
         executeCreateAPIEditor(serviceName);
-    } else {
-        langClient.getServiceListForActiveFile(activeEditor.document.uri).then(resp => {
-            if (resp.services.length === 0) {
-                const actions: string[] = [];
-                // Provide an action to fill up empty bal files with a default service
-                const actionAddService = "Add HTTP Service";
-                if (activeEditor && activeEditor.document.getText().trim().length === 0) {
-                    actions.push(actionAddService);
-                }
-                window.showInformationMessage(API_DESIGNER_NO_SERVICE, ...actions)
-                    .then((selection) => {
-                        if (selection === actionAddService) {
-                            const svcTemplatePath = join(context.extensionPath, "resources",
-                                "templates", "http-service.bal");
-                            const svcTemplate = readFileSync(svcTemplatePath).toString();
-                            if (activeEditor) {
-                                activeEditor.edit((editBuilder) => {
-                                    editBuilder.insert(new Position(0, 0), svcTemplate);
-                                }).then((insertSuccess) => {
-                                    if (insertSuccess) {
-                                        commands.executeCommand(CMD_SHOW_API_EDITOR);
-                                    }
-                                });
-                            }
-                        }
-                    });
-            } else if (resp.services && resp.services.length > 1) {
-                window.showQuickPick(resp.services).then(service => {
-                    if (service && activeEditor) {
-                        executeCreateAPIEditor(service);
-                    }
-                });
-            } else {
-                executeCreateAPIEditor(resp.services[0]);
-            }
-        });
+    // } else {
+    //     langClient.getServiceListForActiveFile(activeEditor.document.uri).then(resp => {
+    //         if (resp.services.length === 0) {
+    //             const actions: string[] = [];
+    //             // Provide an action to fill up empty bal files with a default service
+    //             const actionAddService = "Add HTTP Service";
+    //             if (activeEditor && activeEditor.document.getText().trim().length === 0) {
+    //                 actions.push(actionAddService);
+    //             }
+    //             window.showInformationMessage(API_DESIGNER_NO_SERVICE, ...actions)
+    //                 .then((selection) => {
+    //                     if (selection === actionAddService) {
+    //                         const svcTemplatePath = join(context.extensionPath, "resources",
+    //                             "templates", "http-service.bal");
+    //                         const svcTemplate = readFileSync(svcTemplatePath).toString();
+    //                         if (activeEditor) {
+    //                             activeEditor.edit((editBuilder) => {
+    //                                 editBuilder.insert(new Position(0, 0), svcTemplate);
+    //                             }).then((insertSuccess) => {
+    //                                 if (insertSuccess) {
+    //                                     commands.executeCommand(CMD_SHOW_API_EDITOR);
+    //                                 }
+    //                             });
+    //                         }
+    //                     }
+    //                 });
+    //         } else if (resp.services && resp.services.length > 1) {
+    //             window.showQuickPick(resp.services).then(service => {
+    //                 if (service && activeEditor) {
+    //                     executeCreateAPIEditor(service);
+    //                 }
+    //             });
+    //         } else {
+    //             executeCreateAPIEditor(resp.services[0]);
+    //         }
+    //     });
     }
 }
 
@@ -172,17 +172,17 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
     oasEditorPanel.webview.html = renderHtml;
 
     const remoteMethods: WebViewMethod[] = [
-        {
-            methodName: "getOpenApiDef",
-            handler: (args: any[]): Thenable<any> => {
-                return langClient.getBallerinaOASDef(args[0], args[1]);
-            }
-        }, {
-            methodName: 'triggerOpenApiDefChange',
-            handler: (args: any[]) => {
-                return langClient.triggerOpenApiDefChange(args[0], args[1]);
-            }
-        }
+        // {
+        //     methodName: "getOpenApiDef",
+        //     handler: (args: any[]): Thenable<any> => {
+        //         return langClient.getBallerinaOASDef(args[0], args[1]);
+        //     }
+        // }, {
+            // methodName: 'triggerOpenApiDefChange',
+            // handler: (args: any[]) => {
+            //     return langClient.triggerOpenApiDefChange(args[0], args[1]);
+            // }
+        // }
     ];
     WebViewRPCHandler.create(oasEditorPanel, langClient, remoteMethods);
 

@@ -18,8 +18,8 @@
  *
  */
 
-import { LanguageClient, TextDocumentPositionParams } from "vscode-languageclient";
-import { Uri, Location } from "vscode";
+import { LanguageClient } from "vscode-languageclient";
+import { Uri } from "vscode";
 
 export const BALLERINA_LANG_ID = "ballerina";
 
@@ -112,13 +112,6 @@ export interface GetSynRequest {
 }
 
 export class ExtendedLangClient extends LanguageClient {
-    getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {
-        const req: GetSynRequest = {
-            Params: params
-        };
-        return this.sendRequest("ballerinaSyntaxHighlighter/list", req);
-    }
-
     getSyntaxTree(uri: Uri): Thenable<BallerinaSyntaxTreeResponse> {
         const req: GetSyntaxTreeRequest = {
             documentIdentifier: {
@@ -132,52 +125,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaExample/list", args);
     }
 
-    getEndpoints(): Thenable<Array<any>> {
-        return this.sendRequest("ballerinaSymbol/endpoints", {})
-            .then((resp: any) => resp.endpoints);
-    }
-
-    getBallerinaOASDef(uri: Uri, oasService: string): Thenable<BallerinaOASResponse> {
-        const req: BallerinaOASRequest = {
-            ballerinaDocument: {
-                uri: uri.toString()
-            },
-            ballerinaService: oasService
-        };
-        return this.sendRequest("ballerinaDocument/openApiDefinition", req);
-    }
-
-    triggerOpenApiDefChange(oasJson: string, uri: Uri): void {
-        const req: BallerinaAstOasChangeRequest = {
-            oasDefinition: oasJson,
-            documentIdentifier: {
-                uri: uri.toString()
-            },
-        };
-        return this.sendNotification("ballerinaDocument/apiDesignDidChange", req);
-    }
-
-    getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
-        const req: BallerinaServiceListRequest = {
-            documentIdentifier: {
-                uri: uri.toString()
-            },
-        };
-        return this.sendRequest("ballerinaDocument/serviceList", req);
-    }
-
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.sendRequest("ballerinaDocument/project", params);
-    }
-
-    getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
-        return this.sendRequest("textDocument/definition", params)
-            .then((res) => {
-                const definitions = res as any;
-                if (!(definitions.length > 0)) {
-                    return Promise.reject();
-                }
-                return definitions[0];
-            });
     }
 }

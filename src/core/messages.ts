@@ -21,7 +21,7 @@ import { BALLERINA_HOME } from "./preferences";
  *
  */
 export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check `" + BALLERINA_HOME + "` in settings";
-export const INSTALL_BALLERINA: string = "Unable to auto detect ballerina in your environment. If you just installed Ballerina, you may need to restart VSCode." +
+export const INSTALL_BALLERINA: string = "Unable to detect Ballerina in your environment. If you just installed Ballerina, you may need to restart VSCode." +
     " If not, please install Ballerina or configure `" + BALLERINA_HOME + "` in settings.";
 export const INSTALL_NEW_BALLERINA: string = " version of Ballerina VSCode extension only supports Ballerina v1.0.0-beta or later. If you just installed a new Ballerina version, you may need to restart VSCode. If not, please download and install the latest version or point `" + BALLERINA_HOME + "` in settings to a latest Ballerina distribution.";
 export const DOWNLOAD_BALLERINA: string = "https://ballerina.io/downloads/";
