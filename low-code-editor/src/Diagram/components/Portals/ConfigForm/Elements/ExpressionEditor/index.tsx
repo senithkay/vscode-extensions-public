@@ -383,8 +383,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didChange({
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.didChange({
                     contentChanges: [
                         {
                             text: expressionEditorState.content
