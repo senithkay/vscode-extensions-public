@@ -32,29 +32,37 @@ interface DataMapperProps {
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { state: { originalSyntaxTree, syntaxTree, stSymbolInfo, dataMapperFunctionName } } = useContext(DiagramContext)
+    const {
+        state: {
+            originalSyntaxTree,
+            syntaxTree,
+            stSymbolInfo,
+            dataMapperFunctionName
+        }
+    } = useContext(DiagramContext)
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
 
-    const selectedNode = stSymbolInfo.variables.get("var")
-        .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === dataMapperFunctionName);
+    const selectedNode = (stSymbolInfo.variables.size > 0) ?
+        stSymbolInfo.variables.get("var")
+            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === dataMapperFunctionName)
+        : undefined;
 
     const parameters: any[] = [];
-
     if (selectedNode) {
         traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));
         // todo: fetch missing records and visit
         traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
         ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
-            parameters.push(<Parameter model={param} />)
+            parameters.push(<Parameter model={param}/>)
         });
     }
     const returnTypeModel = selectedNode ?
         ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression)
-        .functionSignature
-        .returnTypeDesc : null;
+            .functionSignature
+            .returnTypeDesc : null;
 
-    const returnTypeElement = returnTypeModel ? <Parameter model={returnTypeModel} /> : null;
+    const returnTypeElement = returnTypeModel ? <Parameter model={returnTypeModel}/> : null;
 
     return (
         <>

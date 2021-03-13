@@ -35,7 +35,7 @@ export function ValueType(props: ValueTypeProps) {
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
             >
-                {`${name}: ${type}${viewState.isArray ? '[]' : ''}`}
+                {`${name ? `${name}:` : ''} ${type}${viewState.isArray ? '[]' : ''}`}
             </text>
 
         </g>
