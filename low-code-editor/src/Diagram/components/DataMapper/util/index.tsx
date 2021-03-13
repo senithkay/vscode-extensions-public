@@ -13,9 +13,65 @@
 import React from 'react';
 
 import * as DataMapperComponents from '../components/ParameterTypes';
+import { TypeInfoEntry } from "../../Portals/ConfigForm/types";
+import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
+import { RecordField, RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
+import { DataMapperInitVisitor } from "./data-mapper-init-visitor";
+import { DataMapperViewState } from "../viewstate";
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
-
     return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
+}
+
+export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<string, STNode>, returnString: string) {
+    switch (type.typeName) {
+        case PrimitiveBalType.String:
+            return '""';
+        case PrimitiveBalType.Boolean:
+            return 'false';
+        case PrimitiveBalType.Int:
+            return '0';
+        case PrimitiveBalType.Float:
+            return '0';
+        case PrimitiveBalType.Json:
+            // todo: look into default json type
+            break;
+        case PrimitiveBalType.Xml:
+            // todo: look into default xml type
+            break;
+        default:
+            if (type.typeInfo) {
+                const typeInfo = type.typeInfo;
+                const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${type.typeName}`;
+                const recordNode = recordMap.get(recordIdentifier);
+                if (recordNode) {
+                    returnString += '{'
+                    recordNode.dataMapperViewstate = new DataMapperViewState();
+                    traversNode(recordNode, new DataMapperInitVisitor(recordMap));
+                    recordNode.dataMapperViewstate.fields?.forEach((field: any, index: number) => {
+                        returnString += `${field.name}: `;
+                        returnString += getDefaultValueForType(
+                            {
+                                typeName: field.type,
+                                typeInfo: field.typeInfo
+                            },
+                            recordMap,
+                            returnString
+                        );
+
+                        if (index < recordNode.dataMapperViewstate.fields.length - 1) {
+                            returnString += ',';
+                        }
+                    });
+                    returnString += '}'
+                } else {
+                    // todo: do the fetching boi!
+                }
+
+                return returnString;
+            } else {
+                return '()'; // todo: this shouldn't be the case ever
+            }
+    }
 }

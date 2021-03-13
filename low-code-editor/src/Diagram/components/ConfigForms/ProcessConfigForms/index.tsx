@@ -33,6 +33,7 @@ import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
 import {parameters} from "../../../../../../../.storybook/preview";
+import { getDefaultValueForType } from "../../DataMapper/util";
 
 export interface AddProcessFormProps {
     type: string;
@@ -47,8 +48,7 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations, trackAddStatement } } = useContext(DiagramContext);
-
+    const { state: { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo } } = useContext(DiagramContext);
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
@@ -100,17 +100,18 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
                     const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+                    const defaultReturn= getDefaultValueForType(datamapperConfig.returnType, stSymbolInfo.recordTypeDescriptions, "");
                     let signatureString = '';
 
                     datamapperConfig.parameters.forEach((param, i) => {
-                        signatureString += `${param.type} ${param.name}`;
+                        signatureString += `${param.type.typeName} ${param.name}`;
                         if (i < datamapperConfig.parameters.length - 1) {
                             signatureString += ',';
                         }
                     })
 
-                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType}? {
-                        return ();
+                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType.typeName} {
+                        return ${defaultReturn};
                     };`
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
