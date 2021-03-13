@@ -11,24 +11,47 @@
  * associated services.
  */
 import React from 'react';
-import {FormTextInput} from "../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { Autocomplete } from "@material-ui/lab";
+import { TextField } from "@material-ui/core";
 
 interface OutputTypeSelectorProps {
-    returnType: string,
-    updateReturnType: (returnType: string) => void,
+    types: TypeInfoEntry[];
+    updateReturnType: (returnType: TypeInfoEntry) => void,
 }
 
 export function OutputTypeSelector(props: OutputTypeSelectorProps) {
-    const { returnType, updateReturnType } = props;
+    const { types, updateReturnType } = props;
+
+    const handleUpdateReturnType = (evt: any, option: TypeInfoEntry) => {
+        updateReturnType(option);
+    }
 
     return (
         <>
-            <FormTextInput
-                dataTestId="return-type"
-                label={"Return Type"}
-                onChange={updateReturnType}
-                defaultValue={returnType}
-                placeholder={"Enter Variable Type"}
+            <Autocomplete
+                id="country-select-demo"
+                options={types}
+                autoHighlight={true}
+                getOptionLabel={(option) => option.typeName}
+                renderOption={(option) => (
+                    <React.Fragment>
+                        <span>{option.typeName}</span>
+                        {option.typeInfo?.moduleName}
+                    </React.Fragment>
+                )}
+                onChange={handleUpdateReturnType}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Select Type"
+                        variant="outlined"
+                        inputProps={{
+                            ...params.inputProps,
+                            autoComplete: 'new-password', // disable autocomplete and autofill
+                        }}
+                    />
+                )}
             />
         </>
     );

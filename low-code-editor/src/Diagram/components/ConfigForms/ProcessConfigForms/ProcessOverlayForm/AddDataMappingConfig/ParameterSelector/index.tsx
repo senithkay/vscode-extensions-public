@@ -55,7 +55,6 @@ export function ParameterSelector(props: ParameterSelectorProps) {
         setParameterType(undefined);
     }
 
-
     const parameterElements: ReactNode[] = [];
 
     parameters.forEach((element, index) => {
@@ -65,12 +64,12 @@ export function ParameterSelector(props: ParameterSelectorProps) {
         parameterElements.push(
             <div key={index} className={formClasses.headerWrapper}>
                 <div className={formClasses.headerLabel}>
-                    {`${element.name} : ${element.type}`}
+                    {`${element.name} : ${element.type.typeName}`}
 
                     <ButtonWithIcon
                         className={formClasses.deleteBtn}
                         onClick={removeParam}
-                        icon={<CloseRounded fontSize="small" />}
+                        icon={<CloseRounded fontSize="small"/>}
                     />
                 </div>
             </div>
@@ -121,8 +120,8 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                 <IconBtnWithText
                     onClick={onParameterAddClick}
                     text="Add Parameter"
-                    icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
-                    disabled={parameterName.length && parameterType !== undefined}
+                    icon={<AddRounded fontSize="small" className={formClasses.iconButton}/>}
+                    disabled={false}
                 />
             </div>
             {

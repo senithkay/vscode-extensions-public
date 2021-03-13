@@ -141,7 +141,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 {dataMapperStep === DataMapperSteps.SELECT_INPUT &&
                 <ParameterSelector parameters={parameters} insetParameter={addNewParam} removeParameter={removeParam} types={typeArray}/>}
                 {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
-                <OutputTypeSelector returnType={returnType} updateReturnType={setReturnType}/>}
+                <OutputTypeSelector types={typeArray} updateReturnType={setReturnType}/>}
 
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel}/>
