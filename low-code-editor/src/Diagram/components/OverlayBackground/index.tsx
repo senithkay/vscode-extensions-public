@@ -16,14 +16,18 @@ import { DefaultConfig } from "../../visitors/default";
 
 import { useStyles } from "./style";
 
-export function OverlayBackground() {
-    const classes = useStyles();
+export interface OverlayBackgroundProps {
+    darkOverlay?: boolean;
+}
 
+export function OverlayBackground(props: OverlayBackgroundProps) {
+    const classes = useStyles();
+    const overlayClassName = props.darkOverlay ? classes.overlayDarkBackground : classes.overlayBackground;
     return (
         <svg
             height={DefaultConfig.overlayBackground.height}
             width={DefaultConfig.overlayBackground.width}
-            className={classes.overlayBackground}
+            className={overlayClassName}
         />
     );
 }

@@ -154,66 +154,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         loaderTitle: {
             textAlign: "center",
-        },
-        updateContainer: {
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#ffebeb',
-            marginLeft: 24,
-            marginRight: 24,
-            paddingRight: 48,
-            paddingLeft: 48,
-            marginBottom: 16
-        },
-        updateTitle: {
-            textAlign: 'left',
-            backgroundColor: '#ffebeb',
-            paddingTop: 15,
-            fontSize: 15,
-            fontWeight: 500
-        },
-        updateSubtitle: {
-            textAlign: 'left',
-            backgroundColor: '#ffebeb',
-            fontSize: 13,
-        },
-        updateBtnWrapper: {
-            marginTop: 20,
-            marginRight: 0,
-            marginBottom: 15,
-            display: 'flex',
-            justifyContent: 'flex-end'
-        },
-        updateBtn: {
-            textTransform: "initial",
-            height: 32,
-            width: 76,
-            borderRadius: 5,
-            background: '#ec4a48',
-            color: '#fff',
-            boxShadow: 'inset 0 0 0 1px rgba(0, 0, 0, 0.06)',
-            padding: 0,
-            '&:hover': {
-                background: '#e74946',
-                cursor: 'pointer !important',
-                boxShadow: 'inset 0 0 0 1px rgba(0, 0, 0, 0.06)',
-            }
-        },
-        updateCancelBtn: {
-            textTransform: "initial",
-            height: 32,
-            width: 70,
-            borderRadius: 5,
-            background: '#f7f8fb',
-            boxShadow: 'inset 0 0 0 1px rgba(0, 0, 0, 0.06)',
-            color: '#8d91a3',
-            marginRight: 8,
-            padding: 0,
-            '&:hover': {
-                background: '#f2f3f6',
-                cursor: 'pointer !important',
-                boxShadow: 'inset 0 0 0 1px rgba(0, 0, 0, 0.06)',
-            },
         }
     })
 );

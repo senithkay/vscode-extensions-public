@@ -69,7 +69,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     }, [isFileSaving, isFileSaved]);
 
     const handleTriggerChange = (newTrigger: TriggerType, connector?: ConnectorType) => {
-        setShowConfirmDialog(false);
         setSelectedTrigger(newTrigger);
         setActiveConnector((Object.values(ConnectorType).includes(connector)) ? connector : undefined);
         setTriggerChanged(true);
@@ -229,12 +228,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             </Tooltip>
                         </div>
                     </div>
-                    { showConfirmDialog && (
-                        <SourceUpdateConfirmDialog
-                            onConfirm={handleDialogOnUpdate}
-                            onCancel={handleDialogOnCancel}
-                        />
-                    )}
                 </div>
 
             </DiagramOverlay>
@@ -262,6 +255,12 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
+                />
+            )}
+            {showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={handleDialogOnUpdate}
+                    onCancel={handleDialogOnCancel}
                 />
             )}
             {triggerType !== undefined && <OverlayBackground />}

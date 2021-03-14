@@ -22,6 +22,7 @@ import { Context as DiagramContext } from "../../../../../../../../Contexts/Diag
 import { GithubConnectionInfo, GithubRepo } from "../../../../../../../../Definitions";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import { DefaultConfig } from "../../../../../../../visitors/default";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -401,7 +402,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 </div>
             )}
 
-            { activeConnection && activeGithubRepo && activeEvent && activeAction && !showConfirmDialog && (
+            { activeConnection && activeGithubRepo && activeEvent && activeAction && (
                 <div className={classes.customFooterWrapper}>
                     <PrimaryButton
                         text="Save"

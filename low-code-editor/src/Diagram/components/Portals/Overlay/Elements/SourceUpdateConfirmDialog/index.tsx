@@ -14,9 +14,11 @@
 import React from 'react';
 
 import { Button } from "@material-ui/core";
-import classNames from "classnames";
+import { CloseRounded } from "@material-ui/icons";
 
-import { useStyles } from "../DropDown/styles";
+import { OverlayBackground } from "../../../../OverlayBackground";
+import { ButtonWithIcon } from "../../../ConfigForm/Elements/Button/ButtonWithIcon";
+import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../index";
 
 import "./style.scss";
 
@@ -27,41 +29,54 @@ export interface SourceUpdateConfirmDialogProps {
     onCancel?: () => void;
 }
 
+export const overlayPosition: DiagramOverlayPosition = {
+    x: 630,
+    y: 215
+}
+
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
 
     const { onConfirm, onCancel, title, subTitle } = props;
-    const classes = useStyles();
 
     return (
-        <div className={classes.updateContainer}>
-            <p className={classes.updateTitle}> {title ? title : "Do you want to update?"} </p>
-
-            {subTitle ? (
-                <p className={classes.updateSubtitle}> {subTitle} </p>
-            ) : (
-                <p className={classes.updateSubtitle}>Updating trigger <b>will remove your current source code</b></p>
-            )}
-
-            <div className={classes.updateBtnWrapper}>
-                <Button
-                    variant="contained"
-                    classes={{
-                        root: classNames(classes.updateCancelBtn)
-                    }}
-                    onClick={onCancel}
+        <div>
+            <OverlayBackground darkOverlay={true} />
+            <DiagramOverlayContainer>
+                <DiagramOverlay
+                    className="update-container"
+                    position={overlayPosition}
                 >
-                    Cancel
-                </Button>
-                <Button
-                    variant="contained"
-                    classes={{
-                        root: classNames(classes.updateBtn)
-                    }}
-                    onClick={onConfirm}
-                >
-                    Update
-                </Button>
-            </div>
+                    <ButtonWithIcon
+                        className="closeIcon"
+                        onClick={onCancel}
+                        icon={<CloseRounded fontSize="small" />}
+                    />
+                    <p className="title"> {title ? title : "Do you want to update?"} </p>
+                    {subTitle ? (
+                        <p className="subtitle"> {subTitle} </p>
+                    ) : (
+                        <p className="subtitle">Updating trigger will remove your current source code</p>
+                    )}
+
+                    <div className="updateBtnWrapper">
+                        <Button
+                            variant="contained"
+                            className={"cancelBtn"}
+                            onClick={onCancel}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            className={"updateBtn"}
+                            onClick={onConfirm}
+                        >
+                            Update
+                        </Button>
+                    </div>
+
+                </DiagramOverlay>
+            </DiagramOverlayContainer>
         </div>
     );
 }

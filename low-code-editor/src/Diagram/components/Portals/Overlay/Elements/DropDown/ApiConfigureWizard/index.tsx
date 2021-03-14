@@ -187,7 +187,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               placeholder="Relative path from host"
             />
           </div>
-          {validatePath(currentPath) && !showConfirmDialog &&
+          {validatePath(currentPath) &&
             (
               <div className={classes.customFooterWrapper}>
                 <div id="product-tour-save" >

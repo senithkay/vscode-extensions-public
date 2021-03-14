@@ -131,7 +131,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             placeholder="* * * * ?"
           />
         </div>
-        {currentCron && !showConfirmDialog && validateCron(currentCron) && (
+        {currentCron && validateCron(currentCron) && (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
               text="Save"

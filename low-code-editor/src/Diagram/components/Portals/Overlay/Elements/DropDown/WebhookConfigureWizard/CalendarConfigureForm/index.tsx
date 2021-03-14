@@ -187,7 +187,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                 )}
             </div>
 
-            { activeConnection && activeGcalendar && !showConfirmDialog &&
+            { activeConnection && activeGcalendar &&
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton

@@ -126,7 +126,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
           placeholder="Relative path from host"
         />
       </div>
-      { validatePath(currentPath) && !showConfirmDialog &&
+      { validatePath(currentPath) &&
         (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
