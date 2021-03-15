@@ -24,7 +24,6 @@ import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
-import { ExpressionEditorState } from "../../../../../store/definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
@@ -41,7 +40,7 @@ import {
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
-import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -122,7 +121,7 @@ export interface ExpressionEditorProps {
     interactive?: boolean;
     focus?: boolean;
     revertFocus?: () => void;
-    statementType?: ExpressionEditorType | any;
+    statementType?: PrimitiveBalType | any;
     customTemplate?: {
         defaultCodeSnippet: string;
         targetColumn: number;
@@ -165,7 +164,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
-    const varType = transformFormFieldTypeToString(model.type);
+    const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
