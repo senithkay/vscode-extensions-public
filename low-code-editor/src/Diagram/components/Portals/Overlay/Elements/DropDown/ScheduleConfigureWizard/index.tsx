@@ -105,7 +105,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     >
       <>
         <div className={classes.titleWrapper}>
-          <p className={classes.title}>Schedule Configuration</p>
+          <p className={classes.title}>Configure Schedule Trigger</p>
           <button className={classes.closeBtnWrapper} onClick={onClose}>
             <CloseIcon className={classes.closeBtn} />
           </button>
@@ -135,7 +135,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         {currentCron && validateCron(currentCron) && (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
-              text="Save Schedule"
+              text="Save"
               className={classes.saveBtn}
               onClick={handleUserConfirm}
               disabled={isFileSaving}

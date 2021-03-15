@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { PropertyIcon } from "../../../../../../assets/icons";
-import { ExpressionEditorType, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { ExpressionEditorType, WizardType, PrimitiveBalType, FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";

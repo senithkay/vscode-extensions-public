@@ -11,18 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FormHelperText } from "@material-ui/core";
 import { addHours, format } from 'date-fns';
 
-import { FormField } from "../../../../../ConfigurationSpec/types";
+import { FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Gcalendar } from "../../../../../Definitions";
 import { CirclePreloader } from "../../../../../PreLoader/CirclePreloader";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from "../../../Portals/ConfigForm/Elements/Autocomplete";
 import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelPicker";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { transformFormFieldTypeToString } from '../../../Portals/ConfigForm/Elements/ExpressionEditor/utils';
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
@@ -89,7 +90,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const startTimeModel: FormField = {
-        type: "string",
+        type: PrimitiveBalType.String,
         name: "Start Time"
     };
 
@@ -98,7 +99,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const endTimeModel: FormField = {
-        type: "string",
+        type: PrimitiveBalType.String,
         name: "End Time"
     }
     const endTimeOnChange = (time: Date) => {
@@ -134,7 +135,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     const attendeeComponnet = getFormElement({
         model: formFields[1].fields[12],
         onChange: onChangeAttendee
-    }, formFields[1].fields[12].type);
+    }, transformFormFieldTypeToString(formFields[1].fields[12]));
 
     // for oauth authenticated connections
     const handleGcalendarChange = (event: object, value: any) => {
@@ -160,6 +161,19 @@ export function CreateEvent(props: OperationDropdownProps) {
 
     // set default value before render
     setDefaultValues();
+
+    useEffect(() => {
+        if (!isNewConnectorInitWizard) {
+            const attendeeField = formFields.find((item: FormField) => item.name === "event")
+                .fields.find((item: FormField) => item.name === "attendees");
+            const emails: FormField[] = [];
+            attendeeField.fields.forEach((field: FormField) => {
+                const email = field.fields.find((item: FormField) => item.name === "email");
+                emails.push(email);
+            })
+            attendeeField.fields = emails;
+        }
+    }, [isNewConnectorInitWizard]);
 
     return (
         <>
@@ -194,7 +208,7 @@ export function CreateEvent(props: OperationDropdownProps) {
                 onChange={endTimeOnChange}
                 label={"Select End Date"}
             />
-            {isNewConnectorInitWizard && (
+
                 <>
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>Attendees</FormHelperText>
@@ -204,7 +218,7 @@ export function CreateEvent(props: OperationDropdownProps) {
                         {attendeeComponnet}
                     </div>
                 </>
-            )}
+
         </>
     );
 }
