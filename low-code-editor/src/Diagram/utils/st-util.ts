@@ -357,7 +357,7 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.metadata?.source.substring(12)
+                cron: model?.source?.split("\n")[0].substring(13)
             }
         default:
             return undefined;
