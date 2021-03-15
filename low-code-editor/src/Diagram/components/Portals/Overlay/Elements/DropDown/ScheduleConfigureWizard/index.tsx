@@ -143,7 +143,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronMinuteValue(time[1].toString());
   }
 
-  const handleEveryDayChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleEveryDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cronDay = e.target.checked ? "*" : (new Date().getDate()).toString();
     setCronDayValue(cronDay);
   }
@@ -155,7 +155,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronWeekValue("Sun");
   }
 
-  const handleEveryMonthChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleEveryMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cronMonth = e.target.checked ? "*" : (new Date().getMonth() + 1).toString();
     setCronMonthValue(cronMonth);
   }
@@ -228,8 +228,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       setCronMonthValue(value);
     }
   }
-
-  const utcCron4 = UTCCronForSelectedType();
 
   const handleOnSave = () => {
     setShowConfirmDialog(false);
@@ -446,7 +444,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           {scheduledComp === "Custom" && customCron}
 
           {!validCron ? <p className={toggleClasses.invalidCron}> Invalid value</p> : null}
-          <p>this is the UTC cron: {utcCron4}</p>
+
         </div>
         <div className={classes.customFooterWrapper}>
           <PrimaryButton

@@ -44,7 +44,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         titleLabel: {
             color: '#222228',
-            fontSize: 13,
+            fontSize: 14,
             letterSpacing: 0,
             paddingTop: '0.5rem',
             margin: '0 0.5rem 0.5rem 0',
