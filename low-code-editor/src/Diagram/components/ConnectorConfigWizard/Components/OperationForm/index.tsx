@@ -57,7 +57,8 @@ export function OperationForm(props: OperationFormProps) {
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails?.action?.name + "Response", getAllVariables(symbolInfo)));
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName ||
+        genVariableName(connectionDetails?.action?.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
