@@ -18,7 +18,7 @@ import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
 import { AppInfo, ApplicationFile } from "../api/models";
-import { ConfigPanelStatus, DiagramState, ExpressionEditorState, LowCodeLangClient } from "../Definitions";
+import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
 
 import {
@@ -64,27 +64,28 @@ export interface AppSplitViews{
 export interface LowCodeEditorProps {
     appInfo?: AppViewState;
     zoomStatus?: any;
-    isLoadingAST: boolean;
-    isMutationProgress: boolean;
-    isWaitingOnWorkspace: boolean;
+    isLoadingAST?: boolean;
+    isMutationProgress?: boolean;
+    isWaitingOnWorkspace?: boolean;
     error?: Error;
-    langServerURL: string;
-    langClient?: LowCodeLangClient;
-    workingFile: string;
+    langServerURL?: string;
+    getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
+    getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
+    workingFile?: string;
     syntaxTree: ModulePart;
-    stSymbolInfo: STSymbolInfo;
-    isCodeEditorActive: boolean;
-    isConfigPanelOpen: boolean;
-    currentApp: AppInfo;
+    stSymbolInfo?: STSymbolInfo;
+    isCodeEditorActive?: boolean;
+    isConfigPanelOpen?: boolean;
+    currentApp?: AppInfo;
     currentFile?: ApplicationFile;
     exprEditorState?: ExpressionEditorState;
     diagnostics?: Diagnostic[];
     targetPosition?: any;
     isReadOnly?: boolean;
     dispatch?: (fn: any) => void;
-    configPanelStatus: ConfigPanelStatus;
-    connectors: BallerinaConnectorsInfo[];
-    isLoadingSuccess: boolean;
+    configPanelStatus?: ConfigPanelStatus;
+    connectors?: BallerinaConnectorsInfo[];
+    isLoadingSuccess?: boolean;
     connectionData?: ConnectionData;
     userInfo?: UserState;
     onZoomIn?: any;
@@ -101,7 +102,7 @@ export interface LowCodeEditorProps {
     getAiSuggestions?: any;
     getGsheetList?: any;
     getGcalendarList?: any;
-    getLangClientForCurrentApp?: any;
+    getLangClientForDiagram?: any;
     oauthSessions?: OauthSessionState;
 }
 

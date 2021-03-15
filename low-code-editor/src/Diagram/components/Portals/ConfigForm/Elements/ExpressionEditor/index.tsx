@@ -15,7 +15,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
-// import { connect } from "react-redux";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 
@@ -23,10 +22,8 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse } from "../../../../../../Definitions";
-// import { getLangClientForCurrentApp } from "../../../../../../../../store/actions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
-import { ExpressionEditorState } from "../../../../../store/definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
@@ -43,7 +40,7 @@ import {
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
-import { ExpressionEditorType } from "../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -100,11 +97,9 @@ monaco.editor.defineTheme('exp-theme', {
         'editor.foreground': "#8D91A3",
         'editor.errorForeground': '#EA4C4D',
         'editorCursor.foreground': '#3C4141',
-        // 'editor.lineHighlightBackground': '#FAFAFC',
         'editor.lineHighlightBackground': '#FFFFFF',
         'editorLineNumber.foreground': '#8D91A3',
         'editor.selectionBackground': '#D0E5FD',
-        // 'editor.inactiveSelectionBackground': '#F4F5F9',
         'editor.inactiveSelectionBackground': '#FFFFFF',
         'peekViewEditor.background': '#333',
         'editorGutter.background': '#F7F8FB',
@@ -124,7 +119,9 @@ export interface ExpressionEditorProps {
     tooltipActionText?: string;
     tooltipActionLink?: string;
     interactive?: boolean;
-    statementType?: ExpressionEditorType | any;
+    focus?: boolean;
+    revertFocus?: () => void;
+    statementType?: PrimitiveBalType | any;
     customTemplate?: {
         defaultCodeSnippet: string;
         targetColumn: number;
@@ -140,20 +137,19 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         targetPosition: targetPositionDraft,
         currentFile,
         currentApp,
-        langClient,
+        langServerURL,
+        getExpressionEditorLangClient,
         syntaxTree,
-        // exprEditorState,
-        // expEditorStart: dispatchExprEditorStart,
-        // expEditorContentChange: dispatchExprEditorContentChange,
-        // expEditorClose: dispatchExprEditorClose
     } = state;
-    // TODO: XX: Fix properly
-    const expressionEditorState: ExpressionEditorState = {
+
+    const [ expressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
         diagnostic: [],
-    };
+    });
+
+    const [ disposableTriggers ] = useState([]);
 
     const {
         index,
@@ -162,13 +158,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate } = customProps;
+    const { validate, statementType, customTemplate, focus } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
-    const varType = transformFormFieldTypeToString(model.type);
+    const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
@@ -232,29 +228,25 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }
-    // useEffect(handleDiagnostic, [editorDiagnostics]);
+
+    const disposeAllTriggers = () => {
+        while (disposableTriggers.length > 0) {
+            const disposable: monaco.IDisposable = disposableTriggers.pop();
+            disposable.dispose();
+        }
+    }
 
     useEffect(() => {
-        expressionEditorState.name = undefined;
-        expressionEditorState.content = undefined;
-        expressionEditorState.uri = undefined;
-        expressionEditorState.diagnostic = [];
+        disposeAllTriggers();
 
         if (monacoRef.current) {
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
-            monacoRef.current.editor.onDidFocusEditorText(async () => {
-                if (!expressionEditorState?.uri) {
-                    // focus expEditor from outside
-                    handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
-                } else if (expressionEditorState?.name !== model.name) {
-                    // focus expEditor from another expEditor
-                    handleOnOutFocus();
-                    handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
-                }
-            });
+            disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
+                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
+            }));
 
             // event emitted when the content of the editor has changed
-            monacoRef.current.editor.onDidChangeModelContent(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent(() => {
                 notValidExpEditor("Please wait for validation");
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
@@ -265,15 +257,113 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
 
                 debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
-            });
+            }));
 
             // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
-            monacoRef.current.editor.onDidBlurEditorText(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidBlurEditorText(() => {
                 handleOnOutFocus();
-            });
+            }));
 
+            // completion of expression Editor
+            disposableTriggers.push(monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
+                provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
+                    if (expressionEditorState?.name === model.name) {
+                        const completionParams: CompletionParams = {
+                            textDocument: {
+                                uri: expressionEditorState?.uri
+                            },
+                            context: {
+                                triggerKind: 1
+                            },
+                            position: {
+                                character: monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
+                                line: targetPosition.line
+                            }
+                        }
+
+                        return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                            return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                    return {
+                                        range: null,
+                                        label: completionResponse.label,
+                                        kind: completionResponse.kind as CompletionItemKind,
+                                        insertText: completionResponse.insertText,
+                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                        sortText: 'c'
+                                    }
+                                });
+                                if (varType === "string") {
+                                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        range: null,
+                                        label: 'Custom string template',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        // tslint:disable-next-line: no-invalid-template-strings
+                                        insertText: '"${1:}"',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                        sortText: 'b'
+                                    }
+                                    completionItems.push(completionItemTemplate);
+                                }
+                                if (varType === "boolean") {
+                                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        range: null,
+                                        label: 'true',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        insertText: 'true',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                        sortText: 'b'
+                                    }
+                                    const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                        range: null,
+                                        label: 'false',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        insertText: 'false',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                        sortText: 'b'
+                                    }
+                                    completionItems.push(completionItemTemplate);
+                                    completionItems.push(completionItemTemplate1);
+                                }
+                                if (model.aiSuggestion) {
+                                    const completionItemAI: monaco.languages.CompletionItem = {
+                                        range: null,
+                                        label: model.aiSuggestion,
+                                        kind: 1 as CompletionItemKind,
+                                        insertText: model.aiSuggestion,
+                                        sortText: 'a'
+                                    }
+                                    completionItems.push(completionItemAI);
+                                }
+                                const completionList: monaco.languages.CompletionList = {
+                                    incomplete: false,
+                                    suggestions: completionItems
+                                };
+                                return completionList;
+                            });
+                        });
+                    }
+                },
+            }));
+
+            // event emitted when the editor has been disposed
+            disposableTriggers.push(monacoRef.current.editor.onDidDispose(() => {
+                monaco.editor.setTheme('choreoLightTheme');
+                handleOnOutFocus();
+                disposeAllTriggers();
+            }));
         }
-    }, [statementType])
+    }, [statementType]);
+
+    useEffect(() => {
+        // Programatically focus exp-editor
+        if (focus && customProps?.revertFocus) {
+            monacoRef.current.editor.focus();
+            customProps.revertFocus();
+        }
+    }, [focus]);
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
@@ -294,25 +384,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await langClient.didChange({
-            contentChanges: [
-                {
-                    text: expressionEditorState.content
+        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
                 }
-            ],
-            textDocument: {
-                uri: expressionEditorState.uri,
-                version: 1
-            }
+            });
         });
 
-        langClient.diagnostics({
-            documentIdentifier: {
-                uri: expressionEditorState.uri,
-            }
-        }).then((diagResp: any) => {
-            expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-            handleDiagnostic();
+        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                handleDiagnostic();
+            });
         });
 
         // await dispatchExprEditorStart(expEditorState);
@@ -348,25 +442,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
 
-            langClient.diagnostics({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                }
-            }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                langClient.diagnostics({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    }
+                }).then((diagResp: any) => {
+                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                    handleDiagnostic();
+                });
             });
 
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
@@ -383,16 +481,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
         }
     }
@@ -453,96 +553,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Disable pressing enter except when suggestions drop down is visible
             }, '!suggestWidgetVisible')
         });
-
-
-        // completion of expression Editor
-        const { dispose: disposeCompProvider } = monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
-            provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
-                if (expressionEditorState?.name === model.name) {
-                    const completionParams: CompletionParams = {
-                        textDocument: {
-                            uri: expressionEditorState?.uri
-                        },
-                        context: {
-                            triggerKind: 1
-                        },
-                        position: {
-                            character: monacoEditor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                            line: targetPosition.line
-                        }
-                    }
-
-                    return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                        const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                        const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                            return {
-                                range: null,
-                                label: completionResponse.label,
-                                kind: completionResponse.kind as CompletionItemKind,
-                                insertText: completionResponse.insertText,
-                                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'c'
-                            }
-                        });
-                        if (varType === "string") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'Custom string template',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                // tslint:disable-next-line: no-invalid-template-strings
-                                insertText: '"${1:}"',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                        }
-                        if (varType === "boolean") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'true',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'true',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'false',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'false',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                            completionItems.push(completionItemTemplate1);
-                        }
-                        if (model.aiSuggestion) {
-                            const completionItemAI: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: model.aiSuggestion,
-                                kind: 1 as CompletionItemKind,
-                                insertText: model.aiSuggestion,
-                                sortText: 'a'
-                            }
-                            completionItems.push(completionItemAI);
-                        }
-                        const completionList: monaco.languages.CompletionList = {
-                            incomplete: false,
-                            suggestions: completionItems
-                        };
-                        return completionList;
-                    });
-                }
-            },
-        });
-
-        // event emitted when the editor has been disposed
-        monacoEditor.onDidDispose(() => {
-            monaco.editor.setTheme('choreoLightTheme')
-            disposeCompProvider();
-            handleOnOutFocus();
-        })
     }
     return (
         <>
@@ -555,15 +565,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                     <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
                                 </div>
-                                {customProps?.tooltipTitle &&
+                                {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
+                                        <div>
                                         <TooltipIcon
-                                            title={customProps?.tooltipTitle}
+                                            title={customProps?.tooltipTitle || model?.tooltip}
                                             interactive={customProps?.interactive || true}
                                             actionText={customProps?.tooltipActionText}
                                             actionLink={customProps?.tooltipActionLink}
                                             arrow={true}
                                         />
+                                        </div>
                                     )
                                 }
                             </div>
@@ -574,10 +586,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
                             </div>
-                            {customProps?.tooltipTitle &&
+                            {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
                                     <TooltipIcon
-                                        title={customProps?.tooltipTitle}
+                                        title={model?.tooltip}
                                         interactive={customProps?.interactive || true}
                                         actionText={customProps?.tooltipActionText}
                                         actionLink={customProps?.tooltipActionLink}
@@ -615,25 +627,4 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     );
 }
 
-// const mapStateToProps = ({ appInfo, diagramState }: PortalState) => {
-//     const { currentFile, currentApp } = appInfo;
-//     const { exprEditorState: { diagnostic: editorDiagnostics, name: editorName }, diagnostics: mainDiagnostics, targetPosition } = diagramState;
-//     return {
-//         currentFile,
-//         currentApp,
-//         editorDiagnostics,
-//         mainDiagnostics,
-//         targetPositionDraft: targetPosition,
-//         editorName
-//     }
-// };
-
-// const mapDispatchToProps = {
-//     dispatchExprEditorStart: expEditorStart,
-//     dispatchExprEditorContentChange: expEditorContentChange,
-//     dispatchExprEditorClose: expEditorClose
-// };
-
-
-// const ExpressionEditor = connect(mapStateToProps, mapDispatchToProps)(ExpressionEditorC);
 export default ExpressionEditor;
