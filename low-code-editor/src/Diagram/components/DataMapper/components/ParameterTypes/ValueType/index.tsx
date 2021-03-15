@@ -12,18 +12,25 @@
  */
 
 import React from 'react';
+
+import { SimpleBBox } from "../../../../../view-state";
 import { DataPointViewstate } from "../../../viewstate";
 
 interface ValueTypeProps {
     viewState: DataPointViewstate;
     isMain?: boolean;
+    handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { viewState, isMain } = props;
+    const { viewState, isMain, handleSelection } = props;
 
     const name = viewState.name;
     const type = viewState.isArray ? viewState.collectionDataType : viewState.type;
+
+    const handleSelectionEvent = () => {
+        handleSelection(name ? name : '', viewState.bBox);
+    }
 
     return (
         <g>
@@ -34,10 +41,10 @@ export function ValueType(props: ValueTypeProps) {
                 fontSize="15"
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
+                onClick={handleSelectionEvent}
             >
                 {`${name ? `${name}:` : ''} ${type}${viewState.isArray ? '[]' : ''}`}
             </text>
-
         </g>
     )
 }

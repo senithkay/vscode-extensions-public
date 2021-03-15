@@ -12,7 +12,7 @@
  * associated services.
  */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
     CaptureBindingPattern,
@@ -34,14 +34,13 @@ interface DataMapperProps {
 export function DataMapper(props: DataMapperProps) {
     const {
         state: {
-            originalSyntaxTree,
-            syntaxTree,
             stSymbolInfo,
             dataMapperFunctionName
         }
     } = useContext(DiagramContext)
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
+    const drawingLineRef = useRef(null);
 
     const selectedNode = (stSymbolInfo.variables.size > 0) ?
         stSymbolInfo.variables.get("var")
@@ -62,13 +61,16 @@ export function DataMapper(props: DataMapperProps) {
             .functionSignature
             .returnTypeDesc : null;
 
-    const returnTypeElement = returnTypeModel ? <Parameter model={returnTypeModel}/> : null;
+    const returnTypeElement = returnTypeModel ? <Parameter model={returnTypeModel} isOutput={true} /> : null;
 
     return (
         <>
             <g>
                 {parameters}
                 {returnTypeElement}
+            </g>
+            <g>
+                <line ref={drawingLineRef}/>
             </g>
             {/* <DiagramOverlayContainer>
                     position={{ x: 15, y: 15 }}

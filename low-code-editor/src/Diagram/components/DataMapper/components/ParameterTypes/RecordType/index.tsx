@@ -12,21 +12,34 @@
  */
 
 import React from 'react';
-import {DataPointViewstate} from "../../../viewstate";
-import {getDataMapperComponent} from "../../../util";
+
+import { SimpleBBox } from "../../../../../view-state";
+import { getDataMapperComponent } from "../../../util";
+import { DataPointViewstate } from "../../../viewstate";
 
 interface RecordTypeProps {
     viewState: DataPointViewstate;
     isMain?: boolean;
+    handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function RecordType(props: RecordTypeProps) {
-    const { viewState, isMain } = props;
+    const { viewState, isMain, handleSelection } = props;
+
+    const handleSelectionEvent = (path: string, position: SimpleBBox) => {
+        handleSelection(`${viewState.name}${path.length ? `.${path}` : ''}`, position);
+    }
+
+    const handleOnClick = () => {
+        handleSelectionEvent('', viewState.bBox);
+    }
 
     const childComponents: any = [];
-
     viewState.fields.forEach(field => {
-        childComponents.push(getDataMapperComponent(field.type, { viewState: field }))
+        childComponents.push(getDataMapperComponent(field.type, {
+            viewState: field,
+            handleSelection: handleSelectionEvent
+        }))
     })
 
     return (
@@ -38,6 +51,7 @@ export function RecordType(props: RecordTypeProps) {
                 fontSize="15"
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
+                onClick={handleOnClick}
             >
                 {`${viewState.name ? `${viewState.name}: ` : ''}${viewState.displayType}`}
             </text>

@@ -13,18 +13,24 @@
 import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
+import { SimpleBBox } from "../../../../view-state";
 
-import { DataPointViewstate } from '../../viewstate';
 import { getDataMapperComponent } from "../../util";
+import { DataPointViewstate } from '../../viewstate';
 
 interface ParameterProps {
     model: STNode;
+    isOutput?: boolean;
 }
 
 export function Parameter(props: ParameterProps) {
-    const { model } = props;
+    const { model, isOutput } = props;
     const viewState = model.dataMapperViewstate as DataPointViewstate;
-    const component = getDataMapperComponent(viewState.type, {viewState, isMain: true});
+
+    const handleSelectionForDirectMapping = (selectedPath: string, fieldPosition: SimpleBBox) => {
+    }
+
+    const component = getDataMapperComponent(viewState.type, {viewState, isMain: true, handleSelection: handleSelectionForDirectMapping});
 
     return (
         <g>
