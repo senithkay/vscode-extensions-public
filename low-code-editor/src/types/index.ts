@@ -18,7 +18,7 @@ import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
 import { AppInfo, ApplicationFile } from "../api/models";
-import { ConfigPanelStatus, DiagramState, ExpressionEditorState, LowCodeLangClient } from "../Definitions";
+import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
 
 import {
@@ -69,7 +69,8 @@ export interface LowCodeEditorProps {
     isWaitingOnWorkspace?: boolean;
     error?: Error;
     langServerURL?: string;
-    langClient?: LowCodeLangClient;
+    getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
+    getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
     workingFile?: string;
     syntaxTree: ModulePart;
     stSymbolInfo?: STSymbolInfo;
@@ -101,7 +102,7 @@ export interface LowCodeEditorProps {
     getAiSuggestions?: any;
     getGsheetList?: any;
     getGcalendarList?: any;
-    getLangClientForCurrentApp?: any;
+    getLangClientForDiagram?: any;
     oauthSessions?: OauthSessionState;
 }
 

@@ -19,6 +19,7 @@ import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
+import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
@@ -49,7 +50,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                             values.push(field.collectionDataType);
                         }
                     } else {
-                        values.push(field.type);
+                        values.push(transformFormFieldTypeToString(field));
                     }
                 }
             }
@@ -64,10 +65,10 @@ export function Union(props: FormElementProps<UnionProps>) {
                 let type: string = "";
                 if (field.type === "record") {
                     type = field.typeName;
-                } else if (field.type === "collection") {
+                } else if (field.type === "collection" && field.collectionDataType) {
                     type = field.collectionDataType;
                 } else {
-                    type = field.type;
+                    type = transformFormFieldTypeToString(field);
                 }
                 if (type === value) {
                     selectedField = field;
@@ -122,7 +123,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                     statementType: fieldModel.type
                 }
             }
-            typeField = getFormElement(elementProps, fieldModel.type);
+            typeField = getFormElement(elementProps, transformFormFieldTypeToString(fieldModel));
         }
     }
 

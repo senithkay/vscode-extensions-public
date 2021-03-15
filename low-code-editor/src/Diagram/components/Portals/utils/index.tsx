@@ -22,9 +22,7 @@ import {
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-// import { BallerinaLangClient } from "../../../../../../api/lang-client";
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import {
     ActionConfig,
     ConnectorConfig,
@@ -32,7 +30,7 @@ import {
     PrimitiveBalType,
     WizardType
 } from "../../../../ConfigurationSpec/types";
-import { STSymbolInfo } from "../../../../Definitions";
+import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
@@ -313,7 +311,7 @@ export function getParams(formFields: FormField[]): string[] {
                         const fieldArray: FormField[] = [
                             {
                                 isParam: true,
-                                type: 'record',
+                                type: PrimitiveBalType.Record,
                                 fields: field.fields
                             }
                         ]
@@ -323,7 +321,7 @@ export function getParams(formFields: FormField[]): string[] {
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
                 }
-            } else if (formField.type === "union" && formField.isUnion) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion) {
                 const selectedUnionField: FormField[] = [];
                 for (const unionField of formField.fields) {
                     if (unionField.type === formField.selectedDataType
@@ -334,9 +332,9 @@ export function getParams(formFields: FormField[]): string[] {
                     }
                 }
                 paramString += getParams(selectedUnionField);
-            } else if (formField.type === "nil") {
+            } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
-            } else if (formField.type === "xml" && formField.value) {
+            } else if (formField.type === PrimitiveBalType.Xml && formField.value) {
                 const xmlRegex = /^xml\ `(.*)`$/g;
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
@@ -356,17 +354,17 @@ export function getParams(formFields: FormField[]): string[] {
 
 export function isValidTextInput(inputValue: string, type: any): boolean {
     let isValueValid: boolean = false;
-    if (type === "int") {
+    if (type === PrimitiveBalType.Int) {
         const intRegex = new RegExp("^\\d+$");
         if (intRegex.test(inputValue)) {
             isValueValid = true;
         }
-    } else if (type === "float") {
+    } else if (type === PrimitiveBalType.Float) {
         const floatRegex = new RegExp("^\\d+(\\.\\d)?\\d*$");
         if (floatRegex.test(inputValue)) {
             isValueValid = true;
         }
-    } else if (type === "string") {
+    } else if (type === PrimitiveBalType.String) {
         isValueValid = true;
     } else {
         isValueValid = true;
@@ -385,7 +383,7 @@ export function validateEmail(inputValue: string): boolean {
 export function getCollectionForRadio(model: FormField): string[] {
     const collection: string[] = [];
     switch (model.type) {
-        case "boolean":
+        case PrimitiveBalType.Boolean:
             collection.push("true");
             collection.push("false");
             break;
@@ -864,11 +862,11 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     // check existing in same code file
     // generate select existing connector form
     // if create new clicked.
-    // const symbolInfo = store.getState().diagramState.stSymbolInfo;
-    const { stSymbolInfo: symbolInfo, langClient, waitForCurrentWorkspace } = state;
-    // await waitForCurrentWorkspace();
+    const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
+
+    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
     let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
-    // const langClient = await getLangClientForCurrentApp();
+
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
