@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { PropertyIcon } from "../../../../../../assets/icons";
-import { ExpressionEditorType, WizardType, PrimitiveBalType, FormField } from "../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -209,7 +209,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         />
                         <div className="exp-wrapper">
                             <ExpressionEditor
-                                model={{name: "Expression", type: (modelType ? modelType : "other") as ExpressionEditorType}}
+                                model={{name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType}}
                                 customProps={{
                                     validate: validateExpression,
                                     tooltipTitle: tooltipMessages.expressionEditor.title,
@@ -217,7 +217,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
                                     interactive: true,
                                     focus: editorFocus,
-                                    statementType: (modelType ? modelType : "other")  as ExpressionEditorType,
+                                    statementType: (modelType ? modelType : "other")  as PrimitiveBalType,
                                     revertFocus: revertEditorFocus
                                 }}
                                 onChange={onPropertyChange}
