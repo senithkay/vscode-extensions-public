@@ -20,7 +20,6 @@ import { isValidCron } from "cron-validator";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
@@ -144,10 +143,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         )}
         {showConfirmDialog && (
           <SourceUpdateConfirmDialog
-            position={{
-              x: position.x + DefaultConfig.configureWizardOffset.x,
-              y: position.y + DefaultConfig.configureWizardOffset.y + 190
-            }}
             onConfirm={handleOnSave}
             onCancel={handleDialogOnCancel}
           />

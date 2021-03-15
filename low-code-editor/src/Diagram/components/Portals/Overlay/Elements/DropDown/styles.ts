@@ -155,6 +155,5 @@ export const useStyles = makeStyles((theme: Theme) =>
         loaderTitle: {
             textAlign: "center",
         }
-
     })
 );

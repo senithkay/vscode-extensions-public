@@ -414,10 +414,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             )}
             { showConfirmDialog && (
                 <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y + 403
-                    }}
                     onConfirm={handleConfigureOnSave}
                     onCancel={handleDialogOnCancel}
                 />
