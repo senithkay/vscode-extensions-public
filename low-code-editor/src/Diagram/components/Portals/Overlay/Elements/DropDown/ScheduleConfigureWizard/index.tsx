@@ -78,7 +78,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const [cronMinuteValue, setCronMinuteValue] = useState(cron ? cronSplit[0] : format(new Date(), 'm'));
   const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : format(new Date(), 'h'));
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
-  const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'MMM'));
+  const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
   const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
   const [checked, setChecked] = useState(true);
   const [selectedDate, setSelectedDate] = React.useState(format(new Date(), "HH:mm"));
@@ -143,8 +143,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronMinuteValue(time[1].toString());
   }
 
-  const handleEveryDayChange = () => {
-    setCronDayValue("*");
+  const handleEveryDayChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+    const cronDay = e.target.checked ? "*" : (new Date().getDate()).toString();
+    setCronDayValue(cronDay);
   }
 
   const handleEveryWeekChange = (value: any) => {
@@ -154,8 +155,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronWeekValue("Sun");
   }
 
-  const handleEveryMonthChange = () => {
-    setCronMonthValue("*");
+  const handleEveryMonthChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+    const cronMonth = e.target.checked ? "*" : (new Date().getMonth() + 1).toString();
+    setCronMonthValue(cronMonth);
   }
 
   const minuteGenCron = cronMinuteValue === "0" ? "0" : "*/" + cronMinuteValue;
@@ -184,11 +186,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     const updateCronStartTime = new Date();
     updateCronStartTime.setHours(Number(cronHourValue));
     updateCronStartTime.setMinutes(Number(cronMinuteValue));
-    if (cronDayValue !== "*") {
+    if (cronDayValue !== "*" && isNumber(cronDayValue)) {
       updateCronStartTime.setDate(Number(cronDayValue));
     }
 
-    if (cronMonthValue !== "*" || isNumber(cronMonthValue)) {
+    if (cronMonthValue !== "*" && isNumber(cronMonthValue)) {
       updateCronStartTime.setMonth(Number(cronMonthValue) - 1);
     }
 
