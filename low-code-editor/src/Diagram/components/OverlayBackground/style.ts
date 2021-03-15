@@ -22,7 +22,7 @@ export const useStyles = makeStyles(() =>
             left: '-250rem',
         },
 
-        overlayDarkBackground: {
+        confirmationOverlayBackground: {
             background: 'rgba(255,255,255,0.9)',
             top: '-250rem;',
             position: 'fixed',

@@ -40,7 +40,7 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
 
     return (
         <div>
-            <OverlayBackground darkOverlay={true} />
+            <OverlayBackground confirmationOverlay={true} />
             <DiagramOverlayContainer>
                 <DiagramOverlay
                     className="update-container"

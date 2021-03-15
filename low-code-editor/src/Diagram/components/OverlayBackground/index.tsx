@@ -17,12 +17,12 @@ import { DefaultConfig } from "../../visitors/default";
 import { useStyles } from "./style";
 
 export interface OverlayBackgroundProps {
-    darkOverlay?: boolean;
+    confirmationOverlay?: boolean;
 }
 
 export function OverlayBackground(props: OverlayBackgroundProps) {
     const classes = useStyles();
-    const overlayClassName = props.darkOverlay ? classes.overlayDarkBackground : classes.overlayBackground;
+    const overlayClassName = props.confirmationOverlay ? classes.confirmationOverlayBackground : classes.overlayBackground;
     return (
         <svg
             height={DefaultConfig.overlayBackground.height}
