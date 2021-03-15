@@ -283,7 +283,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const dayOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Repeat on:</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}>Start date on:</FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultDay}
@@ -297,7 +297,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     <div>
       <WeekOptions
         onWeekOptionChange={handleWeekOptionChange}
-        textLabel="Repeat on :"
+        textLabel="Repeat on the:"
         defaultValue={cronWeekValue.replace("\n", "").split(",")}
       />
     </div>
@@ -386,9 +386,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const weekComp: ReactNode = (
     <>
-      <div className={toggleClasses.flexWrapper}>
-        {minuteAndHourOptionComp}
-      </div>
+      {minuteAndHourOptionComp}
       {repeatEveryWeek}
       {weekOptionComp}
     </>
@@ -396,12 +394,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const monthComp: ReactNode = (
     <>
-      <div className={toggleClasses.flexWrapper}>
-        {minuteAndHourOptionComp}
-      </div>
-      <div className={toggleClasses.flexWrapper}>
-        {dayOptionComp}
-      </div>
+      {minuteAndHourOptionComp}
+      {dayOptionComp}
       {repeatEveryMonth}
       {weekOptionComp}
     </>
