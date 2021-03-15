@@ -14,10 +14,10 @@
 import React from 'react';
 
 import { SimpleBBox } from "../../../../../view-state";
-import { DataPointViewstate } from "../../../viewstate";
+import { DataPointViewState } from "../../../viewstate";
 
 interface ValueTypeProps {
-    viewState: DataPointViewstate;
+    viewState: DataPointViewState;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }

@@ -1,5 +1,5 @@
 import { DataMapperViewState } from './data-mapper-viewstate';
-import { DataPointViewstate } from './datapoint-viewstate';
+import { DataPointViewState } from './data-point-view-state';
 
 export { DataMapperViewState };
-export { DataPointViewstate };
+export { DataPointViewState };

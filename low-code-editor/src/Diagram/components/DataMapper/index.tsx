@@ -46,7 +46,7 @@ export function DataMapper(props: DataMapperProps) {
         stSymbolInfo.variables.get("var")
             .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === dataMapperFunctionName)
         : undefined;
-
+    debugger;
     const parameters: any[] = [];
     if (selectedNode) {
         traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));

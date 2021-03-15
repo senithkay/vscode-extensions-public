@@ -15,10 +15,10 @@ import React from 'react';
 
 import { SimpleBBox } from "../../../../../view-state";
 import { getDataMapperComponent } from "../../../util";
-import { DataPointViewstate } from "../../../viewstate";
+import { DataPointViewState } from "../../../viewstate";
 
 interface RecordTypeProps {
-    viewState: DataPointViewstate;
+    viewState: DataPointViewState;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }

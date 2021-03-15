@@ -16,7 +16,7 @@ import {
     ReturnTypeDescriptor,
     Visitor
 } from '@ballerina/syntax-tree';
-import { DataPointViewstate } from '../viewstate'
+import { DataPointViewState } from '../viewstate'
 
 const DEFAULT_OFFSET = 20;
 
@@ -32,8 +32,8 @@ export class DataMapperPositionVisitor implements Visitor {
     }
 
     beginVisitRequiredParam(node: RequiredParam) {
-        if (node.dataMapperViewstate) {
-            const viewState: DataPointViewstate = node.dataMapperViewstate as DataPointViewstate;
+        if (node.dataMapperViewState) {
+            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
             viewState.bBox.x = this.startOffset;
             viewState.bBox.y = this.height;
             switch (viewState.type) {
@@ -49,8 +49,8 @@ export class DataMapperPositionVisitor implements Visitor {
     }
 
     beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
-        if (node.dataMapperViewstate) {
-            const viewState: DataPointViewstate = node.dataMapperViewstate as DataPointViewstate;
+        if (node.dataMapperViewState) {
+            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
             viewState.bBox.x = this.startOffset + 400;
             this.height = this.startHeight;
             viewState.bBox.y = this.height;
@@ -67,7 +67,7 @@ export class DataMapperPositionVisitor implements Visitor {
         }
     }
 
-    calculateRecordTypePosition(fields: DataPointViewstate[], offset: number) {
+    calculateRecordTypePosition(fields: DataPointViewState[], offset: number) {
         fields.forEach(field => {
             this.height += DEFAULT_OFFSET;
             field.bBox.y = this.height;

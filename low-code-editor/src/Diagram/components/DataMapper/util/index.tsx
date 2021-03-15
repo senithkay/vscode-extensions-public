@@ -47,9 +47,9 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                 const recordNode = recordMap.get(recordIdentifier);
                 if (recordNode) {
                     returnString += '{'
-                    recordNode.dataMapperViewstate = new DataMapperViewState();
+                    recordNode.dataMapperViewState = new DataMapperViewState();
                     traversNode(recordNode, new DataMapperInitVisitor(recordMap));
-                    recordNode.dataMapperViewstate.fields?.forEach((field: any, index: number) => {
+                    recordNode.dataMapperViewState.fields?.forEach((field: any, index: number) => {
                         returnString += `${field.name}: `;
                         returnString += getDefaultValueForType(
                             {
@@ -60,7 +60,7 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                             returnString
                         );
 
-                        if (index < recordNode.dataMapperViewstate.fields.length - 1) {
+                        if (index < recordNode.dataMapperViewState.fields.length - 1) {
                             returnString += ',';
                         }
                     });
