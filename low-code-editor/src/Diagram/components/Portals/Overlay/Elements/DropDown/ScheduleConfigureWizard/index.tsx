@@ -18,15 +18,12 @@ import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import CloseIcon from "@material-ui/icons/Close";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import classNames from "classnames";
 import { isValidCron } from "cron-validator";
 import { addMinutes, format } from "date-fns";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -81,7 +78,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
   const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
   const [checked, setChecked] = useState(true);
-  const [selectedDate, setSelectedDate] = React.useState(format(new Date(), "HH:mm"));
 
   const modifyCronStartTime = new Date();
   modifyCronStartTime.setHours(Number(cronHourValue));
@@ -249,7 +245,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const minuteAndHourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
       <FormHelperText className={toggleClasses.titleLabel}>Start Time: </FormHelperText>
-      <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
+      <div className={toggleClasses.flexWrapper}>
+        <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
+      </div>
     </div>
   );
 
@@ -457,10 +455,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         {
           showConfirmDialog && (
             <SourceUpdateConfirmDialog
-              position={{
-                x: position.x + DefaultConfig.configureWizardOffset.x,
-                y: position.y + DefaultConfig.configureWizardOffset.y + 190
-              }}
               onConfirm={handleOnSave}
               onCancel={handleDialogOnCancel}
             />
