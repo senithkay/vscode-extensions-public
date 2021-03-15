@@ -313,12 +313,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
                             subFields.fields =  subFields.fields[0].fields;
-                            subFields.fields.find(subFields => subFields.name === "clientConfig").hide = true;
-                            subFields.fields.find(subFields => subFields.name === "scopes").hide = true;
-                            subFields.fields.find(subFields => subFields.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
-                            subFields.fields.find(subFields => subFields.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
-                            subFields.fields.find(subFields => subFields.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
-                            subFields.fields.find(subFields => subFields.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
+                            subFields.fields.find(field => field.name === "clientConfig").hide = true;
+                            subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                            subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
+                            subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
+                            subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
                             // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
