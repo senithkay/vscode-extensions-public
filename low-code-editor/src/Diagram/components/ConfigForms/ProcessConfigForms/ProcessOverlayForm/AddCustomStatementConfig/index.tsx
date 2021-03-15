@@ -32,7 +32,6 @@ interface LogConfigProps {
     onSave: () => void;
 }
 
-
 export function AddCustomStatementConfig(props: LogConfigProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
