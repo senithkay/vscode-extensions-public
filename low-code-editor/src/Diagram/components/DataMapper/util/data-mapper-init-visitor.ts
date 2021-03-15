@@ -13,12 +13,12 @@
 
 import {
     ArrayTypeDesc,
-    FloatTypeDesc,
+    FloatTypeDesc, FunctionBodyBlock,
     IntTypeDesc,
     JsonTypeDesc,
     RecordField,
     RecordTypeDesc,
-    RequiredParam,
+    RequiredParam, ReturnStatement,
     ReturnTypeDescriptor,
     SimpleNameReference,
     STNode,
@@ -162,6 +162,12 @@ export class DataMapperInitVisitor implements Visitor {
                 }
             }
         }
+    }
+
+    beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
+    }
+
+    beginVisitReturnStatement(node: ReturnStatement) {
     }
 
 }

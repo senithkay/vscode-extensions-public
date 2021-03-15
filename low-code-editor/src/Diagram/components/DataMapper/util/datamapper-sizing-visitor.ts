@@ -10,3 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ExplicitAnonymousFunctionExpression, Visitor } from '@ballerina/syntax-tree';
+
+export class DatamapperSizingVisitor implements Visitor {
+
+}
+
