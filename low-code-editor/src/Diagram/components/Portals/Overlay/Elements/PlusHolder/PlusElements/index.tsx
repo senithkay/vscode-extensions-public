@@ -112,7 +112,7 @@ export function PlusElements(props: PlusElementsProps) {
                         <div className="options">
 
                             <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                                APIs
+                                Connections
                             </div>
                         </div>
                     </div>

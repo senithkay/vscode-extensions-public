@@ -15,7 +15,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
-// import { connect } from "react-redux";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 
@@ -23,8 +22,7 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse } from "../../../../../../Definitions";
-// import { getLangClientForCurrentApp } from "../../../../../../../../store/actions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { ExpressionEditorState } from "../../../../../store/definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
@@ -100,11 +98,9 @@ monaco.editor.defineTheme('exp-theme', {
         'editor.foreground': "#8D91A3",
         'editor.errorForeground': '#EA4C4D',
         'editorCursor.foreground': '#3C4141',
-        // 'editor.lineHighlightBackground': '#FAFAFC',
         'editor.lineHighlightBackground': '#FFFFFF',
         'editorLineNumber.foreground': '#8D91A3',
         'editor.selectionBackground': '#D0E5FD',
-        // 'editor.inactiveSelectionBackground': '#F4F5F9',
         'editor.inactiveSelectionBackground': '#FFFFFF',
         'peekViewEditor.background': '#333',
         'editorGutter.background': '#F7F8FB',
@@ -140,12 +136,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         targetPosition: targetPositionDraft,
         currentFile,
         currentApp,
-        langClient,
+        langServerURL,
+        getExpressionEditorLangClient,
         syntaxTree,
-        // exprEditorState,
-        // expEditorStart: dispatchExprEditorStart,
-        // expEditorContentChange: dispatchExprEditorContentChange,
-        // expEditorClose: dispatchExprEditorClose
     } = state;
     // TODO: XX: Fix properly
     const expressionEditorState: ExpressionEditorState = {
@@ -232,7 +225,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }
-    // useEffect(handleDiagnostic, [editorDiagnostics]);
 
     useEffect(() => {
         expressionEditorState.name = undefined;
@@ -294,25 +286,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await langClient.didChange({
-            contentChanges: [
-                {
-                    text: expressionEditorState.content
+        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
                 }
-            ],
-            textDocument: {
-                uri: expressionEditorState.uri,
-                version: 1
-            }
+            });
         });
 
-        langClient.diagnostics({
-            documentIdentifier: {
-                uri: expressionEditorState.uri,
-            }
-        }).then((diagResp: any) => {
-            expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-            handleDiagnostic();
+        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                handleDiagnostic();
+            });
         });
 
         // await dispatchExprEditorStart(expEditorState);
@@ -348,25 +344,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
 
-            langClient.diagnostics({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                }
-            }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                langClient.diagnostics({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    }
+                }).then((diagResp: any) => {
+                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
+                    handleDiagnostic();
+                });
             });
 
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
@@ -383,16 +383,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = atob(currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
+                    textDocument: {
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
-                }
+                });
             });
         }
     }
@@ -472,66 +474,68 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
                     }
 
-                    return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                        const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                        const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                            return {
-                                range: null,
-                                label: completionResponse.label,
-                                kind: completionResponse.kind as CompletionItemKind,
-                                insertText: completionResponse.insertText,
-                                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'c'
+                    return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+                        return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                            const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                            const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                return {
+                                    range: null,
+                                    label: completionResponse.label,
+                                    kind: completionResponse.kind as CompletionItemKind,
+                                    insertText: completionResponse.insertText,
+                                    insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'c'
+                                }
+                            });
+                            if (varType === "string") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'Custom string template',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    // tslint:disable-next-line: no-invalid-template-strings
+                                    insertText: '"${1:}"',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
                             }
+                            if (varType === "boolean") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'true',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'true',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'false',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'false',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                                completionItems.push(completionItemTemplate1);
+                            }
+                            if (model.aiSuggestion) {
+                                const completionItemAI: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: model.aiSuggestion,
+                                    kind: 1 as CompletionItemKind,
+                                    insertText: model.aiSuggestion,
+                                    sortText: 'a'
+                                }
+                                completionItems.push(completionItemAI);
+                            }
+                            const completionList: monaco.languages.CompletionList = {
+                                incomplete: false,
+                                suggestions: completionItems
+                            };
+                            return completionList;
                         });
-                        if (varType === "string") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'Custom string template',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                // tslint:disable-next-line: no-invalid-template-strings
-                                insertText: '"${1:}"',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                        }
-                        if (varType === "boolean") {
-                            const completionItemTemplate: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'true',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'true',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: 'false',
-                                kind: monaco.languages.CompletionItemKind.Keyword,
-                                insertText: 'false',
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                sortText: 'b'
-                            }
-                            completionItems.push(completionItemTemplate);
-                            completionItems.push(completionItemTemplate1);
-                        }
-                        if (model.aiSuggestion) {
-                            const completionItemAI: monaco.languages.CompletionItem = {
-                                range: null,
-                                label: model.aiSuggestion,
-                                kind: 1 as CompletionItemKind,
-                                insertText: model.aiSuggestion,
-                                sortText: 'a'
-                            }
-                            completionItems.push(completionItemAI);
-                        }
-                        const completionList: monaco.languages.CompletionList = {
-                            incomplete: false,
-                            suggestions: completionItems
-                        };
-                        return completionList;
                     });
                 }
             },
@@ -555,15 +559,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                     <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
                                 </div>
-                                {customProps?.tooltipTitle &&
+                                {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
+                                        <div>
                                         <TooltipIcon
-                                            title={customProps?.tooltipTitle}
+                                            title={customProps?.tooltipTitle || model?.tooltip}
                                             interactive={customProps?.interactive || true}
                                             actionText={customProps?.tooltipActionText}
                                             actionLink={customProps?.tooltipActionLink}
                                             arrow={true}
                                         />
+                                        </div>
                                     )
                                 }
                             </div>
@@ -574,10 +580,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
                             </div>
-                            {customProps?.tooltipTitle &&
+                            {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
                                     <TooltipIcon
-                                        title={customProps?.tooltipTitle}
+                                        title={model?.tooltip}
                                         interactive={customProps?.interactive || true}
                                         actionText={customProps?.tooltipActionText}
                                         actionLink={customProps?.tooltipActionLink}
@@ -615,25 +621,4 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     );
 }
 
-// const mapStateToProps = ({ appInfo, diagramState }: PortalState) => {
-//     const { currentFile, currentApp } = appInfo;
-//     const { exprEditorState: { diagnostic: editorDiagnostics, name: editorName }, diagnostics: mainDiagnostics, targetPosition } = diagramState;
-//     return {
-//         currentFile,
-//         currentApp,
-//         editorDiagnostics,
-//         mainDiagnostics,
-//         targetPositionDraft: targetPosition,
-//         editorName
-//     }
-// };
-
-// const mapDispatchToProps = {
-//     dispatchExprEditorStart: expEditorStart,
-//     dispatchExprEditorContentChange: expEditorContentChange,
-//     dispatchExprEditorClose: expEditorClose
-// };
-
-
-// const ExpressionEditor = connect(mapStateToProps, mapDispatchToProps)(ExpressionEditorC);
 export default ExpressionEditor;

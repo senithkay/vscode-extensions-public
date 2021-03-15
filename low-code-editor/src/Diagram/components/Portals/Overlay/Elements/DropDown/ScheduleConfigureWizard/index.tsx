@@ -412,7 +412,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     >
       <>
         <div className={classes.titleWrapper}>
-          <p className={classes.title}>Schedule Configuration :</p>
+          <p className={classes.title}>Configure Schedule Trigger</p>
           <TooltipIcon
             title={tooltipMessages.cronExpression.title}
             actionText={tooltipMessages.cronExpression.actionText}
@@ -454,7 +454,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         </div>
         <div className={classes.customFooterWrapper}>
           <PrimaryButton
-            text="Save Schedule"
+            text="Save"
             className={classes.saveBtn}
             onClick={handleUserConfirm}
             disabled={!validCron}
