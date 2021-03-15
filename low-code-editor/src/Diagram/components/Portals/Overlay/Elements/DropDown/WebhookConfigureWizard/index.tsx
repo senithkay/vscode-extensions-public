@@ -48,7 +48,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
       position={position}
     >
       <div className={classes.titleWrapper}>
-        <p className={classes.title}>{connector} Configuration</p>
+        <p className={classes.title}>Configure {connector} Trigger</p>
         <button className={classes.closeBtnWrapper} onClick={onClose}>
           <CloseIcon className={classes.closeBtn} />
         </button>

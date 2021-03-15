@@ -42,7 +42,7 @@ import {
 } from "@ballerina/syntax-tree";
 
 // import { BallerinaLangClient } from "../../../../api/lang-client";
-import { balTypes, FormField, FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
+import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
 export const functionDefinitionMap: Map<string, FunctionDefinitionInfo> = new Map();
 const records: Map<string, STNode> = new Map();
@@ -86,42 +86,42 @@ class FieldVisitor implements Visitor {
     beginVisitVarTypeDesc(node: VarTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
-            viewState.type = 'var';
+            viewState.type = PrimitiveBalType.Var;
         }
     }
 
     beginVisitStringTypeDesc(node: StringTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            viewState.type = 'string';
+            viewState.type = PrimitiveBalType.String;
         }
     }
 
     beginVisitIntTypeDesc(node: IntTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            viewState.type = 'int';
+            viewState.type = PrimitiveBalType.Int;
         }
     }
 
     beginVisitFloatTypeDesc(node: FloatTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            viewState.type = 'float';
+            viewState.type = PrimitiveBalType.Float;
         }
     }
 
     beginVisitBooleanTypeDesc(node: BooleanTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            viewState.type = 'boolean';
+            viewState.type = PrimitiveBalType.Boolean;
         }
     }
 
     beginVisitNilTypeDesc(node: NilTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            viewState.type = 'nil';
+            viewState.type = PrimitiveBalType.Nil;
         }
     }
 
@@ -129,14 +129,14 @@ class FieldVisitor implements Visitor {
     beginVisitJsonTypeDesc(node: JsonTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
-            viewState.type = 'json'
+            viewState.type = PrimitiveBalType.Json
         }
     }
 
     beginVisitXmlTypeDesc(node: XmlTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
-            viewState.type = 'xml';
+            viewState.type = PrimitiveBalType.Xml
         }
     }
 
@@ -144,23 +144,23 @@ class FieldVisitor implements Visitor {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField | any = node.viewState as FormField;
             viewState.isArray = true;
-            viewState.type = 'collection';
+            viewState.type = PrimitiveBalType.Collection;
 
             switch (node.memberTypeDesc.kind) {
                 case 'StringTypeDesc':
-                    viewState.collectionDataType = 'string';
+                    viewState.collectionDataType = PrimitiveBalType.String;
                     break;
                 case 'IntTypeDesc':
-                    viewState.collectionDataType = 'int';
+                    viewState.collectionDataType = PrimitiveBalType.Int
                     break;
                 case 'FloatTypeDesc':
-                    viewState.collectionDataType = 'float';
+                    viewState.collectionDataType = PrimitiveBalType.Float
                     break;
                 case 'UnionTypeDesc':
                     const fieldViewState: FormField = {
                         isParam: viewState.isParam,
                         isArray: true,
-                        type: 'union',
+                        type: PrimitiveBalType.Union
                     }
 
                     viewState.fields.push(fieldViewState);
@@ -173,7 +173,7 @@ class FieldVisitor implements Visitor {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
             viewState.isUnion = true;
-            viewState.type = 'union'
+            viewState.type = PrimitiveBalType.Union
             viewState.fields = viewState?.fields?.length > 0 ? viewState.fields : [];
 
             node.leftTypeDesc.viewState = { isParam: true, type: undefined };
@@ -208,7 +208,7 @@ class FieldVisitor implements Visitor {
                     const typeDesc: RecordTypeDesc = typeDef.typeDescriptor as RecordTypeDesc;
 
                     if (typeDesc.kind === 'RecordTypeDesc') {
-                        viewState.type = 'record';
+                        viewState.type = PrimitiveBalType.Record
 
                         viewState.typeName = typeDef.typeName.value;
                         viewState.typeInfo = {
@@ -224,7 +224,7 @@ class FieldVisitor implements Visitor {
                                 name: field.kind === 'TypeReference' ? field.typeData.typeSymbol.name
                                     : field.fieldName.value,
                                 isParam: true,
-                                type: 'record',
+                                type: PrimitiveBalType.Record
                             }
                             typeNameNode.viewState = typeNameVS;
                             traversNode(typeNameNode, this);
@@ -233,7 +233,7 @@ class FieldVisitor implements Visitor {
 
                     }
                 } else if (typeSymbol.typeKind === 'union') {
-                    viewState.type = 'union';
+                    viewState.type = PrimitiveBalType.Union
                     viewState.isUnion = true;
                     viewState.fields = [];
 
@@ -300,25 +300,25 @@ class FieldVisitor implements Visitor {
         }
     }
 
-    private addFieldToUnion(type: balTypes, fieldVS: FormField, viewState: FormField) {
-        switch (type) {
-            case "boolean":
-            case "float":
-            case "string":
-            case "int":
-            case "json":
-            case "xml":
-                viewState.fields.push(fieldVS);
-                break;
-            default:
-            // ignored types atm
-        }
-    }
+    // private addFieldToUnion(type: balTypes, fieldVS: FormField, viewState: FormField) {
+    //     switch (type) {
+    //         case "boolean":
+    //         case "float":
+    //         case "string":
+    //         case "int":
+    //         case "json":
+    //         case "xml":
+    //             viewState.fields.push(fieldVS);
+    //             break;
+    //         default:
+    //         // ignored types atm
+    //     }
+    // }
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
-            viewState.type = 'record';
+            viewState.type = PrimitiveBalType.Record
             if (node.fields) {
                 node.fields.forEach((field, i) => {
                     field.viewState = {

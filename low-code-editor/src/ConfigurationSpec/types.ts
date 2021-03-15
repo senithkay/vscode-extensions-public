@@ -13,7 +13,6 @@
 
 import { DraftUpdateStatement } from "../Diagram/view-state/draft";
 
-// Some of these are types are not primitive types, and will need to be refactored
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",
@@ -27,23 +26,19 @@ export enum PrimitiveBalType {
     Nil = "nil",
     Var = "var",
     Error = "error",
-    HttpReq = "http:Request",
-}
-
-export interface NonPrimitiveBal {
-    orgName: string;
-    moduleName: string;
-    typeName: string;
 }
 
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',
-    moduleName: 'http',
-    typeName: 'Response',
+    modName: 'http',
+    name: 'Response',
 }
 
-export const NonPrimitiveBalType = {
-    httpResponse,
+export interface NonPrimitiveBal {
+    orgName: string;
+    modName: string;
+    name: string;
+    version?: string;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -59,7 +54,7 @@ export interface FunctionDefinitionInfo {
 }
 
 export interface FormField {
-    type: ExpressionEditorType | any;
+    type: PrimitiveBalType | any;
     name?: string;
     displayName?: string;
     collectionDataType?: PrimitiveBalType;
@@ -77,7 +72,7 @@ export interface FormField {
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
-    typeInfo?: any;
+    typeInfo?: NonPrimitiveBal;
     hide?: boolean;
     aiSuggestion?: string;
     noCodeGen?: boolean;

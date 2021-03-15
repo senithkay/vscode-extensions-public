@@ -112,7 +112,7 @@ export function EndConfigForm(props: any) {
                         modifications.push(responseGenStatementModification);
 
                         if (respondConfig.respondExpression !== "") {
-                            let responsePayoadStatement = responseName + ".setTextPayload($expression);";
+                            let responsePayoadStatement = responseName + ".setPayload($expression);";
                             responsePayoadStatement = responsePayoadStatement
                                 .replace("$expression", respondConfig.respondExpression);
                             const responsePayoadStatementModification: STModification = createPropertyStatement(

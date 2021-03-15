@@ -27,7 +27,7 @@ export { TwilioLogo as twilio_Client };
 export { ImapLogo as email_ImapClient };
 export { Pop3Logo as email_PopClient };
 export { DefaultLogo as default };
-export { HttpLogo as http_HttpClient };
+export { HttpLogo as http_Client };
 export { TwitterLogo as twitter_Client };
 export { SMTPLogo as email_SmtpClient };
 export { GitHubLogo as github_Client };

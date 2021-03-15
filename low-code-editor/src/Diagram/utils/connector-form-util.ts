@@ -20,7 +20,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
     let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
     switch (connectorName) {
-        case "ballerina_http_HttpClient":
+        case "ballerina_http_Client":
             fieldsForFunctions.forEach((value, key) => {
                 if (key === "init") {
                     value.parameters.forEach((param) => {
@@ -121,6 +121,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = [];
                         } else if (param.name === "'from") {
                             // const state = store.getState();
+                            param.tooltip = tooltipMessages.SMTP.from
                             param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
@@ -128,6 +129,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.collectionDataType = PrimitiveBalType.String;
                             param.isUnion = false;
                             param.fields = [];
+                            param.tooltip = tooltipMessages.SMTP.to
+                        }
+                        else if (param.name === "subject"){
+                            param.tooltip = tooltipMessages.SMTP.subject
+                        }
+                        else if (param.name === "body"){
+                            param.tooltip = tooltipMessages.SMTP.body
                         }
 
                         if (param.name !== "'from") {
@@ -305,9 +313,19 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
                             subFields.fields =  subFields.fields[0].fields;
+                            subFields.fields.find(subFields => subFields.name === "clientConfig").hide = true;
+                            subFields.fields.find(subFields => subFields.name === "scopes").hide = true;
+                            subFields.fields.find(subFields => subFields.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                            subFields.fields.find(subFields => subFields.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
+                            subFields.fields.find(subFields => subFields.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
+                            subFields.fields.find(subFields => subFields.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
+                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
                             subFields.hide = true;
+                        }
+                        if ((subFields.name === "baseUrl")) {
+                            subFields.tooltip = tooltipMessages.salesforce.baseURL
                         }
                     });
                 }
@@ -326,7 +344,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
     : Map<string, FunctionDefinitionInfo> {
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
     switch (connectorName) {
-        case 'ballerina_http_HttpClient':
+        case 'ballerina_http_Client':
             functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
@@ -383,7 +401,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                         value.parameters.forEach(field => {
                             if (field.name === 'repoIdentifier') {
                                 field.isUnion = false;
-                                field.type = 'string';
+                                field.type = PrimitiveBalType.String;
                                 field.value = field.fields[0].value;
                                 field.fields = [];
                             }

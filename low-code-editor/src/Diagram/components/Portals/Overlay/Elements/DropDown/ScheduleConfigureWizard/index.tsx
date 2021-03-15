@@ -20,7 +20,6 @@ import { isValidCron } from "cron-validator";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
@@ -105,7 +104,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     >
       <>
         <div className={classes.titleWrapper}>
-          <p className={classes.title}>Schedule Configuration</p>
+          <p className={classes.title}>Configure Schedule Trigger</p>
           <button className={classes.closeBtnWrapper} onClick={onClose}>
             <CloseIcon className={classes.closeBtn} />
           </button>
@@ -135,7 +134,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         {currentCron && validateCron(currentCron) && (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
-              text="Save Schedule"
+              text="Save"
               className={classes.saveBtn}
               onClick={handleUserConfirm}
               disabled={isFileSaving}
@@ -144,10 +143,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         )}
         {showConfirmDialog && (
           <SourceUpdateConfirmDialog
-            position={{
-              x: position.x + DefaultConfig.configureWizardOffset.x,
-              y: position.y + DefaultConfig.configureWizardOffset.y + 190
-            }}
             onConfirm={handleOnSave}
             onCancel={handleDialogOnCancel}
           />

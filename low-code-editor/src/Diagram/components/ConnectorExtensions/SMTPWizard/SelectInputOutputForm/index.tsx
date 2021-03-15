@@ -16,11 +16,11 @@ import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
+import classNames from "classnames";
 
 import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
-import { smtpTooltips } from "../../../../utils/connectors";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -148,7 +148,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             index: 1,
             customProps: {
                 validate: validateField,
-                tooltipTitle: smtpTooltips[field?.name],
                 statementType: field.type
             }
         };
@@ -162,12 +161,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 field.fields = undefined;
             }
             return (
-                <div className={classes.emailFormTo}>
-                    <TooltipIcon
-                        title={smtpTooltips.to}
-                    >
+                <div className={classNames(classes.emailFormTo, classes.toFieldTooltipWrapper)}>
                     <FormChipTextInput {...elementProps} />
-                    </TooltipIcon>
+                    <div className={classes.toFieldTooltipIconWrapper}>
+                        <TooltipIcon
+                            title={tooltipMessages.SMTP.to}
+                        />
+                    </div>
                 </div>
             );
         } else if (field.name === "cc") {

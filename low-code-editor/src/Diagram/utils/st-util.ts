@@ -179,6 +179,10 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;
+                case "Custom":
+                    h = PROCESS_SVG_HEIGHT;
+                    w = PROCESS_SVG_WIDTH;
+                    break;
                 case "Respond":
                     h = RESPOND_SVG_HEIGHT;
                     w = RESPOND_SVG_WIDTH;
@@ -362,7 +366,7 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.metadata?.source.substring(12)
+                cron: model?.source?.split("\n")[0].substring(13)
             }
         default:
             return undefined;

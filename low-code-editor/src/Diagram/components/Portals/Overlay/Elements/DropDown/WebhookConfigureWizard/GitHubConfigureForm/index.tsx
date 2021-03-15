@@ -405,7 +405,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeConnection && activeGithubRepo && activeEvent && activeAction && (
                 <div className={classes.customFooterWrapper}>
                     <PrimaryButton
-                        text="Save GitHub Trigger"
+                        text="Save"
                         className={classes.saveBtn}
                         onClick={handleUserConfirm}
                         disabled={isFileSaving}
@@ -414,10 +414,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             )}
             { showConfirmDialog && (
                 <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y + 403
-                    }}
                     onConfirm={handleConfigureOnSave}
                     onCancel={handleDialogOnCancel}
                 />
