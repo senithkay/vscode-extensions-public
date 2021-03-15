@@ -47,11 +47,11 @@ export function Function(props: FunctionProps) {
                 {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
             </>
 
-            {isInitPlusAvailable && isTriggerParamsAvailable &&  <TriggerParams model={model} />}
-            {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
             {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
             {isInitPlusAvailable && <StartButton model={model} />}
             {!isInitPlusAvailable && <StartButton model={model} />}
+            {isInitPlusAvailable && isTriggerParamsAvailable &&  <TriggerParams model={model} />}
+            {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
             {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
             {!isInitPlusAvailable && isStatementsAvailable && (!bodyViewState?.isEndComponentInMain ||
                 bodyViewState?.collapseView) && <End viewState={viewState.end} />}
