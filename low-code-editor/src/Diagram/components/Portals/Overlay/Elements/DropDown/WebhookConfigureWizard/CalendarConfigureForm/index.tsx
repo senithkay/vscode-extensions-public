@@ -51,23 +51,23 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        connectionData,
         onModify: dispatchModifyTrigger,
         trackTriggerSelection,
-        dispatchFetchGcalendarList
+        currentApp,
+        getGcalendarList
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-    const gcalendarConnections = connectionData?.[CONNECTOR_TYPES.GOOGLE_CALENDAR];
     const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
 
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const [gcalendarConnectionInfo, setGcalendarConnectionInfo] = useState<GcalendarConnectionInfo>(undefined);
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     const [triggerChanged, setTriggerChanged] = useState(false);
+    const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
+    const [isCalenderFetching, setIsCalenderFetching] = useState(false);
     const Trigger = "Google Calendar";
 
     useEffect(() => {
@@ -78,13 +78,14 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
-            dispatchFetchGcalendarList(activeConnection.handle);
+            setIsCalenderFetching(true);
+            (async () => {
+                const calendarList = await getGcalendarList(currentApp?.org, activeConnection.handle);
+                setGcalenderList(calendarList);
+                setIsCalenderFetching(false);
+            })();
         }
     }, [activeConnection]);
-    useEffect(() => {
-        const gcalendarConnection = gcalendarConnections?.[activeConnection?.handle as any] as GcalendarConnectionInfo;
-        setGcalendarConnectionInfo(gcalendarConnection);
-    }, [gcalendarConnections]);
 
     // handle oauth connect button callbacks
     function handleOnSelectConnection(type: ConnectionType, connection: ConnectionDetails) {
@@ -99,9 +100,9 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         setActiveConnection(undefined);
     }
     function getActiveGcalendar() {
-        if (gcalendarConnectionInfo?.userCalendarList && activeGcalendar === null) {
+        if (gcalenderList && activeGcalendar === null) {
             // select primary calender from list
-            const calender = gcalendarConnectionInfo.userCalendarList.find(calendar => calendar.primary === true);
+            const calender = gcalenderList.find(calendar => calendar.primary === true);
             setActiveGcalendar(calender);
         }
         return activeGcalendar;
@@ -109,7 +110,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     function handleItemLabel(gcalendar: Gcalendar) {
         return gcalendar.summary;
     }
-    const handleGcalendarChange = (event: object, value: any, reason: string) => {
+    const handleGcalendarChange = (event: object, value: any) => {
         setActiveGcalendar(value);
     };
     const getKeyFromConnection = (key: string) => {
@@ -164,7 +165,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     onFailure={handleError}
                 />
                 <p />
-                {gcalendarConnectionInfo?.isFetching && (
+                {activeConnection && isCalenderFetching && (
                     <div className={classes.loader}>
                         <CirclePreloader position="relative" />
                         <Typography variant="subtitle2" className={classes.loaderTitle}>
@@ -173,12 +174,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     </div>
 
                 )}
-                {activeConnection && gcalendarConnectionInfo?.userCalendarList && (
+                {activeConnection && !isCalenderFetching && gcalenderList && (
                     <>
                         <p className={classes.subTitle}>Google Calendar</p>
                         <FormAutocomplete
                             placeholder="Choose Calendar"
-                            itemList={gcalendarConnectionInfo.userCalendarList}
+                            itemList={gcalenderList}
                             value={getActiveGcalendar()}
                             getItemLabel={handleItemLabel}
                             onChange={handleGcalendarChange}
@@ -207,8 +208,3 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         </>
     )
 }
-
-// const mapDispatchToProps = {
-//     dispatchFetchGcalendarList: fetchGcalendarList,
-// }; todo: handle dispatch
-

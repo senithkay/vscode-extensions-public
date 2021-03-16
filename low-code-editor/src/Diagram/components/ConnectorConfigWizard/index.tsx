@@ -16,7 +16,7 @@ import React, { useContext, useState } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { ConnectorConfig, FormField, WizardType } from "../../../ConfigurationSpec/types";
+import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo, Connector } from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
@@ -33,7 +33,7 @@ export interface ConfigWizardState {
     connectorDef: any;
     connector: Connector;
     wizardType: WizardType;
-    fieldsForFunction: Map<string, FormField[]>;
+    functionDefInfo: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     model?: STNode;
 }
@@ -55,7 +55,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
 
     const initWizardState: ConfigWizardState = {
         isLoading: true, connectorDef: undefined, connectorConfig: undefined,
-        fieldsForFunction: undefined, wizardType: undefined, connector: undefined
+        functionDefInfo: undefined, wizardType: undefined, connector: undefined
     }
 
     const [wizardState, setWizardState] = useState<ConfigWizardState>(initWizardState);

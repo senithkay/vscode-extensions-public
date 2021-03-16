@@ -23,7 +23,7 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 import clsx from "clsx";
 
-import { ConnectorConfig, FormField } from "../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -33,13 +33,12 @@ import {
     createCheckedRemoteServiceCall,
     createHeaderObjectDeclaration,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createServiceCallForPayload,
     updateCheckedPayloadFunctionInvocation,
     updateCheckedRemoteServiceCall,
     updateHeaderObjectDeclaration,
-    updateObjectDeclaration,
+    updatePropertyStatement,
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
@@ -54,7 +53,7 @@ import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
 interface WizardProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onSave: (sourceModifications: STModification[]) => void;
     onClose?: () => void;
@@ -100,12 +99,11 @@ function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
 export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { actions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
             model } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
-    const connectorInitFormFields: FormField[] = actions.get("init") ? actions.get("init") : actions.get("__init");
-
+    const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
     const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit
@@ -266,13 +264,11 @@ export function HTTPWizard(props: WizardProps) {
         if (!isNewConnectorInitWizard) {
             let actionInitializer: CheckAction;
 
-            const addConnectorInit: STModification = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                connectorConfig.name,
-                getParams(connectorConfig.connectorInit),
+            const updatedConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                 connectorConfig.initPosition
             );
-            modifications.push(addConnectorInit);
+            modifications.push(updatedConnectorInit);
 
             switch (httpVar.initializer.kind) {
                 case 'TypeCastExpression':
@@ -435,7 +431,7 @@ export function HTTPWizard(props: WizardProps) {
                 }
 
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = updateServiceCallForPayload(
+                    const addActionInvocation: STModification = updateServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -443,7 +439,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     let responseModel: STNode;
                     symbolInfo.variables.forEach((value, key) => {
                         if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
@@ -476,7 +472,7 @@ export function HTTPWizard(props: WizardProps) {
                         modifications.push(addPayload);
                     }
                 } else {
-                    const addActionInvo: STModification = updateCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -484,7 +480,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
@@ -500,10 +496,8 @@ export function HTTPWizard(props: WizardProps) {
 
                 // Add an connector client initialization.
                 if (!connectorConfig.isExistingConnection) {
-                    const addConnectorInit: STModification = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        connectorConfig.name,
-                        getParams(connectorConfig.connectorInit),
+                    const addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
@@ -542,7 +536,7 @@ export function HTTPWizard(props: WizardProps) {
                     serviceCallParams = params.toString();
                 }
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = createServiceCallForPayload(
+                    const addActionInvocation: STModification = createServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -550,7 +544,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
                         "var",
@@ -560,7 +554,7 @@ export function HTTPWizard(props: WizardProps) {
                     );
                     modifications.push(addPayload);
                 } else {
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -568,7 +562,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         }
@@ -576,8 +570,8 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} actions={actions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm actions={actions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>
