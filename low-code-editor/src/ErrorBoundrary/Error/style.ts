@@ -4,7 +4,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            marginTop: '16rem'
+            margin: '25vh 0'
         },
         errorContainer: {
             display: "flex",
