@@ -94,3 +94,26 @@ div[class^="exp-wrapper"] {
         }
     }
 }
+
+.expand-icon {
+    height: 18px;
+    width: 18px;
+    position: absolute !important;
+    right: 3px;
+    left: unset !important;
+    bottom: unset !important;
+    top: 0;
+    opacity: 100;
+    margin-top: 3px;
+}
+
+.collapse-icon {
+    height: 18px;
+    width: 18px;
+    position: absolute !important;
+    right: 3px;
+    left: unset !important;
+    bottom: 0;
+    top: unset !important;
+    opacity: 100;
+}
