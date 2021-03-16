@@ -289,6 +289,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "spreadsheetConfig")
                     .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     filteredFunctions.set(key, value);
+                } else if (key === "getIdFromUrl") {
+                    // hide this isolated function
+                } else if (key === "appendRow") {
+                    // HACK: need to handle collectionDataType in union type arrays (string|int|float)[]
+                    value.parameters.find(fields => fields.name === "values").collectionDataType = PrimitiveBalType.String;
+                    filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
                 }
