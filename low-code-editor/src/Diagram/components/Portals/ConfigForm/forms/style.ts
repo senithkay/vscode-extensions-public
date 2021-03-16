@@ -69,7 +69,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '40px'
+            lineHeight: '35px'
         },
         starLabelForRequired: {
             padding: 0,
