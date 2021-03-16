@@ -214,9 +214,7 @@ export function getParams(formFields: FormField[]): string[] {
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide) {
-                if (formField.value !== undefined) {
-                    paramString += formField.value.toString();
-                } else if (formField.fields.length > 0) {
+                if (formField.fields.length > 0) {
                     let firstRecordField = false;
                     paramString += "[";
                     formField.fields.forEach(field => {
@@ -228,6 +226,8 @@ export function getParams(formFields: FormField[]): string[] {
                         paramString += field.value;
                     });
                     paramString += "]";
+                } else if (formField.value !== undefined) {
+                    paramString += formField.value.toString();
                 }
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
                 paramString += formField.value;
