@@ -23,7 +23,7 @@ import {
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { PropertyIcon } from "../../../../../../../../assets/icons"
-import { FormField, PrimitiveBalType, WizardType } from "../../../../../../../../ConfigurationSpec/types";
+import { balTypes, FormField, PrimitiveBalType, WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName, getParams } from "../../../../../utils";

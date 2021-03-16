@@ -15,6 +15,8 @@ import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdateStatement } from "../view-state/draft";
+/* tslint:disable ordered-imports */
+import { getInsertComponentSource } from "./template-utils";
 
 export function createIfStatement(conditionExpression: string, targetPosition: DraftInsertPosition): STModification {
     const ifStatement: STModification = {
@@ -238,6 +240,25 @@ export function createRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
+export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+    const remoteServiceCall: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "REMOTE_SERVICE_CALL",
+        config: {
+            "TYPE": type,
+            "VARIABLE": variable,
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params
+        }
+    };
+
+    return remoteServiceCall;
+}
+
 export function createCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.line,
@@ -277,7 +298,7 @@ export function updateCheckedRemoteServiceCall(type: string, variable: string, c
 }
 
 export function createServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
-    let statement = "http:Response $varName = <http:Response>checkpanic $callerName->$functionName($parameters);";
+    let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
         .replace("$varName", variable)
@@ -297,7 +318,7 @@ export function createServiceCallForPayload(type: string, variable: string, call
 }
 
 export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
-    let statement = "http:Response $varName = <http:Response>checkpanic $callerName->$functionName($parameters);";
+    let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
         .replace("$varName", variable)
@@ -503,4 +524,44 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     };
 
     return requestGeneration;
+}
+
+export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {
+    const stModifications: STModification[] = [];
+    /* tslint:disable prefer-for-of */
+    for (let i = 0; i < modifications.length; i++) {
+        const value: STModification = modifications[i];
+        let stModification: STModification;
+        if (value.type && value.type.toLowerCase() === "delete") {
+            stModification = value;
+        } else if (value.type && value.type.toLowerCase() === "import") {
+            const source = await getInsertComponentSource(value.type, value.config);
+            stModification = {
+                startLine: value.startLine,
+                startColumn: value.startColumn,
+                endLine: value.endLine,
+                endColumn: value.endColumn,
+                type: "INSERT",
+                isImport: true,
+                config: {
+                    "TYPE": value?.config?.TYPE,
+                    "STATEMENT": source,
+                }
+            }
+        } else {
+            const source = await getInsertComponentSource(value.type, value.config);
+            stModification = {
+                startLine: value.startLine,
+                startColumn: value.startColumn,
+                endLine: value.endLine,
+                endColumn: value.endColumn,
+                type: "INSERT",
+                config: {
+                    "STATEMENT": source,
+                }
+            };
+        }
+        stModifications.push(stModification);
+    }
+    return stModifications;
 }

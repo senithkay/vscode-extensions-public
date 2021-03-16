@@ -21,12 +21,12 @@ import { QueryClient } from "./SFDCWizard/QueryClient";
 import { SObjectClient } from "./SFDCWizard/SObjectClient";
 import { SMTPWizard } from "./SMTPWizard";
 
-export { HTTPWizard as httpClient };
+export { HTTPWizard as httpHttpClient };
 export { SMTPWizard as emailSmtpClient };
 export { BulkJob as sfdcBulkJob };
 export { QueryClient as sfdcQueryClient };
 export { SObjectClient as sfdcSObjectClient };
 export { GmailWizard as googleapis_gmailClient };
 export { GithubWizard as githubClient };
-export { GoogleCalender as googleapis_calendarCalendarClient };
+export { GoogleCalender as googleapis_calendarClient };
 export { GoogleSheet as googleapis_sheetsClient };

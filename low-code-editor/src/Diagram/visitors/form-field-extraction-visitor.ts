@@ -16,6 +16,7 @@ import {
     BooleanTypeDesc,
     ClassDefinition,
     DefaultableParam,
+    ErrorTypeDesc,
     FloatTypeDesc,
     IntTypeDesc,
     JsonTypeDesc,
@@ -41,9 +42,9 @@ import {
 } from "@ballerina/syntax-tree";
 
 // import { BallerinaLangClient } from "../../../../api/lang-client";
-import { FormField, PrimitiveBalType } from "../../ConfigurationSpec/types";
+import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
-export const fields: Map<string, FormField[]> = new Map();
+export const functionDefinitionMap: Map<string, FunctionDefinitionInfo> = new Map();
 const records: Map<string, STNode> = new Map();
 
 class FieldVisitor implements Visitor {
@@ -185,10 +186,10 @@ class FieldVisitor implements Visitor {
             const viewState: FormField = node.viewState as FormField;
 
             viewState.fields.push(node.leftTypeDesc.viewState);
-            if (node.rightTypeDesc && node.rightTypeDesc.kind !== 'UnionTypeDesc') {
-                viewState.fields.push(node.leftTypeDesc.viewState);
-            } else if (node.rightTypeDesc && node.rightTypeDesc.kind === 'UnionTypeDesc') {
+            if (node.rightTypeDesc && node.rightTypeDesc.kind === 'UnionTypeDesc') {
                 viewState.fields = [...viewState.fields, ...node.rightTypeDesc.viewState.fields];
+            } else {
+                viewState.fields.push(node.rightTypeDesc.viewState);
             }
         }
     }
@@ -237,13 +238,34 @@ class FieldVisitor implements Visitor {
                     viewState.fields = [];
 
                     viewState.typeName = node.name.value;
-                    viewState.typeInfo = {
-                        modName: typeSymbol.moduleID.moduleName,
-                        name: node.name.value,
-                        orgName: typeSymbol.moduleID.orgName,
-                        version: typeSymbol.moduleID.version
-                    };
+                    if (typeSymbol.moduleID) {
+                        viewState.typeInfo = {
+                            modName: typeSymbol.moduleID.moduleName,
+                            name: node.name.value,
+                            orgName: typeSymbol.moduleID.orgName,
+                            version: typeSymbol.moduleID.version
+                        };
+                    }
 
+                    if (typeSymbol.members) {
+                        typeSymbol.members.forEach((element: any) => {
+                            element.viewState = {
+                                type: element.typeKind,
+                                isParam: true
+                            }
+
+                            if (element.moduleID) {
+                                element.viewState.typeInfo = {
+                                    modName: element.moduleID.moduleName,
+                                    name: element.name,
+                                    orgName: element.moduleID.orgName,
+                                    version: element.moduleID.version
+                                }
+                            }
+
+                            viewState.fields.push(element.viewState);
+                        });
+                    }
                     // typeSymbol.signature.split('|').forEach((element: string) => {
                     //     const fieldProperty: FormField = {
                     //         type: element as balTypes,
@@ -265,7 +287,7 @@ class FieldVisitor implements Visitor {
                     // });
                 } else {
                     viewState.typeName = node.name.value;
-                    if (node.typeData.symbol.kind !== 'CONSTANT') {
+                    if (node.typeData.typeSymbol.kind !== 'CONSTANT' && typeSymbol.moduleID) {
                         viewState.typeInfo = {
                             modName: typeSymbol.moduleID.moduleName,
                             name: node.name.value,
@@ -344,7 +366,15 @@ class FieldVisitor implements Visitor {
                     isParam: true
                 }
             });
+
+        if (node.functionSignature.returnTypeDesc) {
+            const returnType = node.functionSignature.returnTypeDesc.type.viewState = {
+                isParam: true
+            };
+        }
     }
+
+
 
     endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
         const functionQualifierList: string[] = node.qualifierList.map(qualifier => qualifier.kind);
@@ -362,17 +392,22 @@ class FieldVisitor implements Visitor {
                     });
             }
 
-            fields.set(node.functionName.value, []);
+            functionDefinitionMap.set(node.functionName.value, { parameters: [], returnType: undefined });
 
             if (node.functionSignature.parameters.length > 0) {
                 node.functionSignature.parameters
                     .filter(paramElement =>
                         (paramElement.kind === 'RequiredParam' || paramElement.kind === 'DefaultableParam'))
                     .forEach((paramElement: RequiredParam | DefaultableParam) => {
-                        const params = fields.get(node.functionName.value);
+                        const params = functionDefinitionMap.get(node.functionName.value).parameters;
                         paramElement.viewState.description = parameterDescriptions.get(paramElement.paramName.value);
                         params.push(paramElement.viewState);
                     });
+            }
+
+            if (node.functionSignature.returnTypeDesc) {
+                functionDefinitionMap.get(node.functionName.value).returnType
+                    = node.functionSignature.returnTypeDesc.type.viewState;
             }
         }
     }
@@ -383,7 +418,8 @@ class FieldVisitor implements Visitor {
             const typeSymbol = node.typeData.typeSymbol;
 
             viewState.typeInfo = {
-                name: typeSymbol.name,
+                // todo: sometimes the typesymbol.name is an empty string need to look into it more
+                name: typeSymbol.name !== '' ? typeSymbol.name : node.identifier.value,
                 modName: typeSymbol.moduleID.moduleName,
                 orgName: typeSymbol.moduleID.orgName,
                 version: typeSymbol.moduleID.version
@@ -391,9 +427,23 @@ class FieldVisitor implements Visitor {
         }
     }
 
+
     beginVisitTypeDefinition(node: TypeDefinition) {
         if (node.viewState && node.viewState.isParam) {
             node.typeDescriptor.viewState = node.viewState;
+        }
+    }
+
+    // todo: change the node type once the syntax-tree update is ready
+    beginVisitDistinctTypeDesc(node: any) {
+        if (node.viewState && node.viewState.isParam) {
+            node.typeDescriptor.viewState = node.viewState;
+        }
+    }
+
+    beginVisitErrorTypeDesc(node: ErrorTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.viewState.isErrorType = true;
         }
     }
 
@@ -423,7 +473,7 @@ class FieldVisitor implements Visitor {
 }
 
 export function cleanFields() {
-    fields.clear();
+    functionDefinitionMap.clear();
 }
 
 export const visitor = new FieldVisitor();
