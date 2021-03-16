@@ -390,31 +390,31 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
         await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: expressionEditorState.content
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
                 }
-            ],
-            textDocument: {
-                uri: expressionEditorState.uri,
-                version: 1
-            }
+            });
         });
-    });
 
         getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-        langClient.diagnostics({
-            documentIdentifier: {
-                uri: expressionEditorState.uri,
-            }
-        }).then((diagResp: any) => {
-            setExpressionEditorState({
-                ...expressionEditorState,
-                diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
-            })
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
+            });
         });
-    });
 
         // await dispatchExprEditorStart(expEditorState);
         if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
@@ -464,17 +464,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
 
             getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.diagnostics({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                }
-            }).then((diagResp: any) => {
-                setExpressionEditorState({
-                    ...expressionEditorState,
-                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
-                })
+                langClient.diagnostics({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    }
+                }).then((diagResp: any) => {
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    })
+                });
             });
-        });
 
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
