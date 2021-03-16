@@ -179,7 +179,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
                 editorModel.setValue("");
-                customProps.clearInput = true;
+                customProps.clearInput = false;
             }
         }
     }
