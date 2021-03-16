@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { FormControl, FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -32,7 +32,7 @@ import { tooltipMessages } from "../../../Portals/utils/constants";
 import '../style.scss';
 
 interface CreateConnectorFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
@@ -48,11 +48,11 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
-    const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : actions.get("init") ? actions.get("init") : actions.get("__init");
-    const [connectorInitFormFields] = useState(connectorConfigFormFields);
+    const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
+    const [connectorInitFormFields, setConnectorInitFormFields] = useState(connectorConfigFormFields);
     const classes = useStyles();
     const radioClasses = useStyleForRadio();
     const wizardClasses = wizardStyles();
@@ -147,7 +147,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         const actionName = event.target.value;
         connectorConfig.action = {
             name: actionName,
-            fields: actions.get(actionName)
+            fields: functionDefinitions.get(actionName).parameters
         };
         setActionNameRadio(actionName);
         // TODO: tour step should update without redux store

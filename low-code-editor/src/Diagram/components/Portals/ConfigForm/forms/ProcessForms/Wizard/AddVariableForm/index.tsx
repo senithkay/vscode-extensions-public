@@ -22,7 +22,8 @@ import {
 } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { balTypes, FormField, WizardType } from "../../../../../../../../ConfigurationSpec/types";
+import { PropertyIcon } from "../../../../../../../../assets/icons"
+import { balTypes, FormField, PrimitiveBalType, WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName, getParams } from "../../../../../utils";
@@ -33,8 +34,6 @@ import ExpressionEditor from "../../../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../types";
 import { useStyles } from "../../../style";
-
-import { PropertyIcon } from "../../../../../../../../assets/icons"
 
 interface AddVariableProps {
     config: ProcessConfig;
@@ -78,10 +77,10 @@ export function AddVariableForm(props: AddVariableProps) {
                 const listConstructor: ListConstructor = localVarDec.initializer as ListConstructor;
                 listConstructor.expressions.filter((el: any) => el.kind !== 'CommaToken').forEach((el: any) => {
                     fields.push({
-                        collectionDataType: typeSelected as balTypes,
+                        collectionDataType: typeSelected as PrimitiveBalType,
                         isParam: true,
                         name: typeSelected + ' Array',
-                        type: typeSelected as balTypes,
+                        type: typeSelected as PrimitiveBalType,
                         value: el.source
                     })
                 });
@@ -97,7 +96,7 @@ export function AddVariableForm(props: AddVariableProps) {
                 type: "collection",
                 name: typeSelected + " Array",
                 isParam: true,
-                collectionDataType: typeSelected as balTypes,
+                collectionDataType: typeSelected as PrimitiveBalType,
                 fields,
                 value: undefined
             };
@@ -144,7 +143,7 @@ export function AddVariableForm(props: AddVariableProps) {
         setValidExpresssionValue(false);
         setValidConfigProperty(false);
         const field: FormField = {
-            type: type as balTypes,
+            type: type as PrimitiveBalType,
             name: type + " Value",
             isParam: true
         };
@@ -229,7 +228,7 @@ export function AddVariableForm(props: AddVariableProps) {
                     <div>
                         {!isDropDownOpen && (
                             <ExpressionEditor
-                                model={{ name: selectedType + " expression", type: selectedType as balTypes }}
+                                model={{ name: selectedType + " expression", type: selectedType as PrimitiveBalType }}
                                 customProps={{ validate: validateExpression }}
                                 onChange={onPropertyChange}
                             />

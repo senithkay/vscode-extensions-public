@@ -11,19 +11,19 @@
  * associated services.
  */
 // import { store } from "../../../../$store";
-import { ConnectorConfig, FormField, PrimitiveBalType, ResponsePayloadMap } from "../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, ResponsePayloadMap } from "../../ConfigurationSpec/types";
 import { Connector } from "../../Definitions/lang-client-extended";
 import { tooltipMessages } from "../components/Portals/utils/constants";
 
-export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FormField[]>,
-                                         connectorConfig: ConnectorConfig, state?: any): Map<string, FormField[]> {
-    let filteredFunctions: Map<string, FormField[]> = new Map();
+export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FunctionDefinitionInfo>,
+                                         connectorConfig: ConnectorConfig, state?: any): Map<string, FunctionDefinitionInfo> {
+    let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
     switch (connectorName) {
         case "ballerina_http_Client":
             fieldsForFunctions.forEach((value, key) => {
                 if (key === "init") {
-                    value.forEach((param) => {
+                    value.parameters.forEach((param) => {
                         if (param.name === "url") {
                             param.displayName = "URL";
                             param.description = "URL of the target service";
@@ -52,7 +52,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     filteredFunctions.set(key, value);
                 } else if (key === "get") {
-                    value.forEach((param) => {
+                    value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
@@ -64,7 +64,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     filteredFunctions.set(key, value);
                 } else if (key === "post" || key === "put" || key === "delete" || key === "patch") {
-                    value.forEach((param) => {
+                    value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
@@ -76,7 +76,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 } else if (key === "forward") {
                     let isForwardAvailable = false;
-                    value.forEach((param) => {
+                    value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"\"";
@@ -90,7 +90,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     // adding forward request field since the type
                     // of request field is not supported in forms
                     if (!isForwardAvailable) {
-                        value.push({name: "forwardReq", type: "int", isParam: true});
+                        value.parameters.push({name: "forwardReq", type: PrimitiveBalType.Int, isParam: true});
                     }
                     filteredFunctions.set(key, value);
                 }
@@ -108,10 +108,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             connectorConfig.responsePayloadMap = responsePayloadMap;
             break;
         case "ballerina_email_SmtpClient":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo , key) => {
                 if (key === "sendEmailMessage") {
                     let formField: FormField[] = [];
-                    value[0].fields.forEach((param) => {
+                    value.parameters[0].fields.forEach((param) => {
                         if (param.name === "contentType" || param.name === "sender") {
                             param.hide = true;
                         } else if (param.name === "replyTo") {
@@ -121,33 +121,46 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = [];
                         } else if (param.name === "'from") {
                             // const state = store.getState();
+                            param.tooltip = tooltipMessages.SMTP.from
                             param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
                             formField = [param, ...formField]
+                        } else if (param.name === "to") {
+                            param.type = "collection";
+                            param.collectionDataType = PrimitiveBalType.String;
+                            param.isUnion = false;
+                            param.fields = [];
+                            param.tooltip = tooltipMessages.SMTP.to
+                        }
+                        else if (param.name === "subject"){
+                            param.tooltip = tooltipMessages.SMTP.subject
+                        }
+                        else if (param.name === "body"){
+                            param.tooltip = tooltipMessages.SMTP.body
                         }
 
                         if (param.name !== "'from") {
                             formField.push(param);
                         }
                     });
-                    value[0].fields = formField;
+                    value.parameters[0].fields = formField;
                     filteredFunctions.set(key, value);
                 }
                 else if (key === "init") {
-                    if (value[3].name === "clientConfig") {
-                        value[3].fields.forEach((param) => {
+                    if (value.parameters[3].name === "clientConfig") {
+                        value.parameters[3].fields.forEach((param) => {
                             if (param.name === "properties") {
                                 param.hide = true;
                             }
                         })
                     }
-                    if (value[0].name === "host"){
-                        value[0].tooltip = tooltipMessages.SMTP.host
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.SMTP.host
                     }
-                    if (value[1].name === "username"){
-                        value[1].tooltip = tooltipMessages.SMTP.username
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.SMTP.username
                     }
-                    if (value[2].name === "password"){
-                        value[2].tooltip = tooltipMessages.SMTP.password
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.SMTP.password
                     }
                     filteredFunctions.set(key, value);
                 }
@@ -157,24 +170,23 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             });
             break;
         case "ballerinax_github_Client":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "createIssue") {
                     // make label list and assignee list optional and set default values
-                    value.find(fields => fields.name === "labelList").optional = true;
-                    value.find(fields => fields.name === "labelList").value = `[]`;
-                    value.find(fields => fields.name === "assigneeList").optional = true;
-                    value.find(fields => fields.name === "assigneeList").value = `[]`;
-                    filteredFunctions.set(key, value);
-                } else if (key === "getOrganization" || key === "getRepository" || key === "init") {
+                    value.parameters.find(fields => fields.name === "labelList").optional = true;
+                    value.parameters.find(fields => fields.name === "labelList").value = `[]`;
+                    value.parameters.find(fields => fields.name === "assigneeList").optional = true;
+                    value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
                 }
+                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value[3].name === "clientConfig") {
-                        value[3].fields.forEach((param) => {
+                    if (value.parameters[3].name === "clientConfig") {
+                        value.parameters[3].fields.forEach((param) => {
                             if (param.name === "properties") {
                                 param.hide = true;
                             }
@@ -185,10 +197,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             });
             break;
         case "ballerina_email_PopClient":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value[3].name === "clientConfig") {
-                        value[3].fields.forEach((param) => {
+                    if (value.parameters[3].name === "clientConfig") {
+                        value.parameters[3].fields.forEach((param) => {
                             if (param.name === "properties") {
                                 param.hide = true;
                             }
@@ -199,48 +211,64 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             });
             break;
         case "ballerinax_googleapis_gmail_Client":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "listMessages" || key === "sendMessage" || key === "readMessage" || key === "init") {
+                    if (key === "init"){
+                        // replace single record inside "oauthClientConfig" record with inner field list
+                        const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
+
+                        value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
+                    }
                     if (key === "sendMessage"){
                         // set content type in sendMessage form
-                        value.find(fields => fields.name === "message")
+                        value.parameters.find(fields => fields.name === "message")
                         .fields.find(fields => fields.name === "contentType").value = `"text/plain"`;
                     }
                     // hide optional fields from gmail forms
                     if (key === "readMessage"){
-                        value.find(fields => fields.name === "format").hide = true;
-                        value.find(fields => fields.name === "metadataHeaders").hide = true;
+                        value.parameters.find(fields => fields.name === "format").hide = true;
+                        value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
                     }
                     if (key === "listMessages"){
-                        value.find(fields => fields.name === "filter").hide = true;
+                        value.parameters.find(fields => fields.name === "filter").hide = true;
                     }
 
                     filteredFunctions.set(key, value);
                 }
 
-
                 // add default value to userId field
                 let formField: FormField[] = [];
                 // const state = store.getState();
-                value[0].value = state.userInfo?.user?.email ? `"${state.userInfo?.user?.email}"` : undefined;
-                formField = [value[0], ...formField];
+                value.parameters[0].value = state.userInfo?.user?.email ? `"${state.userInfo?.user?.email}"` : undefined;
+                formField = [value.parameters[0], ...formField];
             });
             break;
-        case "ballerinax_googleapis_calendar_CalendarClient":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
-                if (key === "createEvent") {
-                    value[1].fields.forEach((field: any, index: number) => {
+        case "ballerinax_googleapis_calendar_Client":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "init"){
+                    // replace single record inside "oauth2Config" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "calendarConfig")
+                    .fields.find(fields => fields.name === "oauth2Config").fields[0].fields;
+
+                    value.parameters.find(fields => fields.name === "calendarConfig")
+                    .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
+
+                    filteredFunctions.set(key, value);
+                }else if (key === "createEvent") {
+                    value.parameters[1].fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
                         } else if (field.name === "attendees") {
                             field.displayName = "email";
-                            field.collectionDataType = "string";
+                            field.collectionDataType = PrimitiveBalType.String;
                         }
                     });
                     filteredFunctions.set(key, value);
                 } else if (key === "quickAddEvent") {
-                    value.forEach((field, index) => {
+                    value.parameters.forEach((field) => {
                         if ((field.name === "sendUpdates")) {
                             field.hide = true;
                         }
@@ -252,38 +280,14 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             });
             break;
         case 'ballerinax_googleapis_sheets_Client':
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value[0].name === 'spreadsheetConfig') {
-                        value[0].fields.forEach((param) => {
-                            switch (param.name) {
-                                case 'secureSocketConfig':
-                                    param.hide = true;
-                                    break;
-                                case 'oauth2Config': {
-                                    param.fields.forEach(recordField => {
-                                        if (recordField.name !== 'accessToken' && recordField.name !== 'refreshConfig') {
-                                            recordField.hide = true;
-                                        }
+                    // replace single record inside "oauth2Config" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "spreadsheetConfig")
+                    .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
 
-                                        switch (recordField.name) {
-                                            case 'refreshConfig':
-                                                recordField.fields.forEach(subField => {
-                                                    if (subField.name !== 'refreshUrl' &&
-                                                        subField.name !== 'refreshToken' &&
-                                                        subField.name !== 'clientId' &&
-                                                        subField.name !== 'clientSecret') {
-                                                        subField.hide = true;
-                                                    }
-                                                });
-                                                break;
-                                        }
-                                    })
-                                }
-                            }
-
-                        })
-                    }
+                    value.parameters.find(fields => fields.name === "spreadsheetConfig")
+                    .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
@@ -291,9 +295,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             });
             break;
         case 'ballerinax_twilio_Client':
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    value[0].fields.forEach((field) => {
+                    value.parameters[0].fields.forEach((field) => {
                         if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
                             field.hide = true;
                         }
@@ -302,19 +306,26 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case "ballerinax_sfdc_BaseClient":
-            fieldsForFunctions.forEach((value: FormField[], key) => {
+        case 'ballerinax_sfdc_BaseClient':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    value[0].fields.forEach((field) => {
-                        if ((field.name === "clientConfig")) {
-                            field.fields[1].fields.find(subFields => subFields.name === "clientConfig").hide = true;
-                            field.fields[1].fields.find(subFields => subFields.name === "scopes").hide = true;
-                            field.fields[2].hide = true;
-                            field.fields[3].hide = true;
-                            field.fields[4].hide = true;
+                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
+                        // replace single record inside "clientConfig" record with inner field list
+                        if (subFields.name === "clientConfig"){
+                            subFields.fields =  subFields.fields[0].fields;
+                            subFields.fields.find(field => field.name === "clientConfig").hide = true;
+                            subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                            subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
+                            subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
+                            subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
+                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
-                        if ((field.name === "secureSocketConfig")) {
-                            field.hide = true;
+                        if (subFields.name === "secureSocketConfig"){
+                            subFields.hide = true;
+                        }
+                        if ((subFields.name === "baseUrl")) {
+                            subFields.tooltip = tooltipMessages.salesforce.baseURL
                         }
                     });
                 }
@@ -329,15 +340,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
     return filteredFunctions;
 }
 
-export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions: Map<string, FormField[]>)
-    : Map<string, FormField[]> {
+export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap: Map<string, FunctionDefinitionInfo>)
+    : Map<string, FunctionDefinitionInfo> {
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
     switch (connectorName) {
         case 'ballerina_http_Client':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
-                        value.forEach((param) => {
+                        value.parameters.forEach((param) => {
                             if (param.name === "config") {
                                 param.noCodeGen = true;
                             }
@@ -348,58 +359,65 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
                     case 'put':
                     case 'delete':
                     case 'patch':
+                        // this filter common for all post put delete and patch methods
+                        value.parameters.find(field => field.name === "message").fields.forEach((param) => {
+                            if (!(param.type === "string" || param.type === "xml" || param.type === "json")) {
+                                param.noCodeGen = true;
+                            }
+                        });
+                        break;
                     case 'forward':
                         // allowed functions
                         break;
                     default:
                         // for functions that are ignored noCodeGen is added for fields
-                        value.forEach(fields => {
+                        value.parameters.forEach(fields => {
                             fields.noCodeGen = true;
                         });
                 }
             })
             break;
         case 'ballerina_email_SmtpClient':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
                     case 'sendEmailMessage':
                         break;
                     default:
-                        value.forEach(fields => {
+                        value.parameters.forEach(fields => {
                             fields.noCodeGen = true;
                         });
                 }
             });
             break;
         case 'ballerinax_github_Client':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
                     case 'createIssue':
                     case 'getOrganization':
                         break;
                     case 'getRepository':
-                        value.forEach(field => {
+                        value.parameters.forEach(field => {
                             if (field.name === 'repoIdentifier') {
                                 field.isUnion = false;
-                                field.type = 'string';
+                                field.type = PrimitiveBalType.String;
                                 field.value = field.fields[0].value;
                                 field.fields = [];
                             }
                         })
                         break;
                     default:
-                        value.forEach(fields => {
+                        value.parameters.forEach(fields => {
                             fields.noCodeGen = true;
                         });
                 }
             });
             break;
         case 'ballerina_email_ImapClient':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 if (key === 'init') {
-                    value.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
+                    value.parameters.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
@@ -408,9 +426,9 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
             });
             break;
         case 'ballerina_email_PopClient':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 if (key === 'init') {
-                    value.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
+                    value.parameters.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
@@ -419,7 +437,7 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
             });
             break;
         case "ballerinax_googleapis_gmail_Client":
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
                     case 'readMessage':
@@ -427,17 +445,17 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
                     case 'listMessages':
                         break;
                     default:
-                        value.forEach(fields => {
+                        value.parameters.forEach(fields => {
                             fields.noCodeGen = true;
                         });
                 }
             })
             break;
         case 'ballerinax_googleapis_sheets_Client':
-            fieldsForFunctions.forEach((value, key) => {
+            functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
-                        value.forEach(field => {
+                        value.parameters.forEach(field => {
                             if (field.name === 'spreadsheetConfig') {
                                 field.fields.forEach(subField => {
                                     switch (subField.name) {
@@ -456,5 +474,5 @@ export function filterCodeGenFunctions(connector: Connector, fieldsForFunctions:
         // other connectors are allowed
     }
 
-    return fieldsForFunctions;
+    return functionDefInfoMap;
 }

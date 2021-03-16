@@ -37,8 +37,8 @@ export interface PlusElementsProps {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 384;
-export const PLUS_HOLDER_API_HEIGHT = 540;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 431;
+export const PLUS_HOLDER_API_HEIGHT = 520;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
@@ -112,7 +112,7 @@ export function PlusElements(props: PlusElementsProps) {
                         <div className="options">
 
                             <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                                APIs
+                                Connections
                             </div>
                         </div>
                     </div>

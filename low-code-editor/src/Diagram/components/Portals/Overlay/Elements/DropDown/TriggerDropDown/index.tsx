@@ -20,7 +20,6 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
-import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
 import { tooltipMessages } from '../../../../utils/constants';
@@ -54,7 +53,7 @@ export enum ConnectorType {
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const { onClose, onComplete, title = "Trigger selector",
+    const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
@@ -258,12 +257,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     onClose={handleSubMenuClose}
                 />
             )}
-            { showConfirmDialog && (
+            {showConfirmDialog && (
                 <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y
-                    }}
                     onConfirm={handleDialogOnUpdate}
                     onCancel={handleDialogOnCancel}
                 />

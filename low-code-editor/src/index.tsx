@@ -21,7 +21,30 @@ import { LowCodeEditorProps as Props } from "./types";
 
 export { LowCodeEditorProps, PortalState } from "./types";
 export {
-    LowCodeLangClient,
+    BallerinaConnectorRequest,
+    BallerinaConnectorResponse,
+    BallerinaConnectorsResponse,
+    BallerinaRecordRequest,
+    BallerinaRecordResponse,
+    BallerinaSTModifyRequest,
+    BallerinaSTModifyResponse,
+    BallerinaSyntaxTreeModifyRequest,
+    BallerinaSyntaxTreeResponse,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    TriggerModifyRequest,
+    BallerinaProjectParams,
+    CompletionParams,
+    CompletionResponse,
+    defaultInitParams,
+    DidChangeParams,
+    DidCloseParams,
+    DidOpenParams,
+    initParams,
+    PublishDiagnosticsParams,
+    BaseLangClientInterface,
+    DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     ExpressionEditorState,
     DiagramSize,
     DiagramState,
@@ -38,7 +61,8 @@ export { cleanAll, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/vis
 export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
-export { getSampleSource } from './Diagram/utils/template-utils';
+export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
+export { InsertorDelete } from "./Diagram/utils/modification-util";
 
 export default function LowCodeEditor(props: Props) {
 
