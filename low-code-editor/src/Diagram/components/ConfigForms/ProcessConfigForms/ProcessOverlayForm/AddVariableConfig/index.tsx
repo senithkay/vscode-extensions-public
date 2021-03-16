@@ -18,7 +18,7 @@ import { AnydataTypeDesc, LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import { balTypes, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -92,7 +92,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidExpresssionValue(false);
         // config.config = "";
         const field: FormField = {
-            type: type as balTypes,
+            type: type as PrimitiveBalType,
             name: type + " Value",
             isParam: true
         };
@@ -193,14 +193,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         <div className="exp-wrapper">
                             {!isDropDownOpen && (
                                 <ExpressionEditor
-                                    model={{ name: "Expression", type: selectedType as balTypes }}
+                                    model={{ name: "Expression", type: selectedType as PrimitiveBalType }}
                                     customProps={{
                                         validate: validateExpression,
                                         tooltipTitle: tooltipMessages.expressionEditor.title,
                                         tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                         tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
                                         interactive: true,
-                                        statementType: selectedType as balTypes
+                                        statementType: selectedType as PrimitiveBalType
                                     }}
                                     onChange={onPropertyChange}
                                     defaultValue={config.config}

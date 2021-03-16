@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
@@ -47,15 +47,17 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         // setInputValue("");
     }
 
-    // checks for empty fields when navigating back
-    const isValidInput: boolean = (customProps?.validate !== undefined && ((customProps &&
-        customProps?.disableValidation !== undefined && !customProps?.disableValidation) ||
-        (customProps && customProps?.disableValidation === undefined)))
-        ? customProps?.validate(defaultValue)
-        : true;
-
     // to render invalid variable
-    const [isInvalid, setIsInvalid] = useState(!isValidInput);
+    const [isInvalid, setIsInvalid] = useState(false);
+
+    useEffect(() => {
+        const checkValidity: boolean = (customProps?.validate !== undefined && ((customProps &&
+            customProps?.disableValidation !== undefined && !customProps?.disableValidation) ||
+            (customProps && customProps?.disableValidation === undefined)))
+            ? customProps?.validate(defaultValue)
+            : true;
+        setIsInvalid(!checkValidity);
+    }, [defaultValue])
 
     const handleOnChange = (event: any) => {
         event.stopPropagation();

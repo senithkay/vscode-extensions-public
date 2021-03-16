@@ -17,7 +17,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import cn from "classnames";
 
-import { NonPrimitiveBalType, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -134,7 +134,22 @@ export function AddRespondForm(props: RespondFormProps) {
                             model={{
                                 name: "respond expression",
                                 value: respondFormConfig.respondExpression,
-                                type: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, NonPrimitiveBalType.httpResponse]
+                                type: PrimitiveBalType.Union,
+                                fields: [
+                                    {
+                                        type: PrimitiveBalType.String
+                                    },
+                                    {
+                                        type: PrimitiveBalType.Xml
+                                    },
+                                    {
+                                        type: PrimitiveBalType.Json
+                                    },
+                                    {
+                                        type: PrimitiveBalType.Record,
+                                        typeInfo: httpResponse
+                                    }
+                                ]
                             }}
                             customProps={{
                                 validate: validateExpression,
@@ -142,7 +157,7 @@ export function AddRespondForm(props: RespondFormProps) {
                                 tooltipActionText: tooltipMessages.expressionEditor.actionText,
                                 tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
                                 interactive: true,
-                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, NonPrimitiveBalType.httpResponse]
+                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
                             }}
                             onChange={onExpressionChange}
                         />
