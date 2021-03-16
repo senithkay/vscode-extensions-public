@@ -134,7 +134,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const { state } = diagramContext;
 
     const {
-        diagnostics: mainDiagnostics,
         targetPosition: targetPositionDraft,
         currentFile,
         currentApp,
@@ -143,7 +142,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState ] = useState({
+    const [ expressionEditorState, setExpressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
@@ -161,7 +160,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     } = props;
     const { validate, statementType, customTemplate, focus } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
-    const [invalidSourceCode, setInvalidSourceCode] = useState(false);
+    const invalidSourceCode = diagnosticCheckerExp(expressionEditorState.diagnostic)
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -283,68 +282,68 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         }
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                            return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
-                                    return {
-                                        range: null,
-                                        label: completionResponse.label,
-                                        kind: completionResponse.kind as CompletionItemKind,
-                                        insertText: completionResponse.insertText,
-                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'c'
-                                    }
-                                });
-                                if (varType === "string") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'Custom string template',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        // tslint:disable-next-line: no-invalid-template-strings
-                                        insertText: '"${1:}"',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'b'
-                                    }
-                                    completionItems.push(completionItemTemplate);
+                        return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                            const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
+                            const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                return {
+                                    range: null,
+                                    label: completionResponse.label,
+                                    kind: completionResponse.kind as CompletionItemKind,
+                                    insertText: completionResponse.insertText,
+                                    insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'c'
                                 }
-                                if (varType === "boolean") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'true',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'true',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
-                                    }
-                                    const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'false',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'false',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                    completionItems.push(completionItemTemplate1);
-                                }
-                                if (model.aiSuggestion) {
-                                    const completionItemAI: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: model.aiSuggestion,
-                                        kind: 1 as CompletionItemKind,
-                                        insertText: model.aiSuggestion,
-                                        sortText: 'a'
-                                    }
-                                    completionItems.push(completionItemAI);
-                                }
-                                const completionList: monaco.languages.CompletionList = {
-                                    incomplete: false,
-                                    suggestions: completionItems
-                                };
-                                return completionList;
                             });
+                            if (varType === "string") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'Custom string template',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    // tslint:disable-next-line: no-invalid-template-strings
+                                    insertText: '"${1:}"',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                            }
+                            if (varType === "boolean") {
+                                const completionItemTemplate: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'true',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'true',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: 'false',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: 'false',
+                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                    sortText: 'b'
+                                }
+                                completionItems.push(completionItemTemplate);
+                                completionItems.push(completionItemTemplate1);
+                            }
+                            if (model.aiSuggestion) {
+                                const completionItemAI: monaco.languages.CompletionItem = {
+                                    range: null,
+                                    label: model.aiSuggestion,
+                                    kind: 1 as CompletionItemKind,
+                                    insertText: model.aiSuggestion,
+                                    sortText: 'a'
+                                }
+                                completionItems.push(completionItemAI);
+                            }
+                            const completionList: monaco.languages.CompletionList = {
+                                incomplete: false,
+                                suggestions: completionItems
+                            };
+                            return completionList;
                         });
+                    });
                     }
                 },
             }));
@@ -366,6 +365,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }, [focus]);
 
+
+    useEffect(() => {
+        handleDiagnostic();
+    }, [expressionEditorState])
+
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
         let initContent: string = null;
@@ -386,29 +390,31 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
         await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.didChange({
-                contentChanges: [
-                    {
-                        text: expressionEditorState.content
-                    }
-                ],
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    version: 1
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: expressionEditorState.content
                 }
-            });
+            ],
+            textDocument: {
+                uri: expressionEditorState.uri,
+                version: 1
+            }
         });
+    });
 
         getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.diagnostics({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                }
-            }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
-            });
+        langClient.diagnostics({
+            documentIdentifier: {
+                uri: expressionEditorState.uri,
+            }
+        }).then((diagResp: any) => {
+            setExpressionEditorState({
+                ...expressionEditorState,
+                diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+            })
         });
+    });
 
         // await dispatchExprEditorStart(expEditorState);
         if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
@@ -458,15 +464,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
 
             getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.diagnostics({
-                    documentIdentifier: {
-                        uri: expressionEditorState.uri,
-                    }
-                }).then((diagResp: any) => {
-                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                    handleDiagnostic();
-                });
+            langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
             });
+        });
 
             if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
@@ -522,9 +530,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             tokenizer: grammar as any,
         });
 
-        // Block expression editor if there are diagnostics in the source code
-        setInvalidSourceCode(diagnosticCheckerExp(mainDiagnostics));
-
         const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + '.bal');
         const existingModel = editor.getModel(MONACO_URI_INMEMO);
         if (existingModel) {
@@ -533,7 +538,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         const currentModel = editor.createModel(initalValue, BALLERINA_EXPR, MONACO_URI_INMEMO);
         monacoEditor.setModel(currentModel);
 
-        if (diagnosticCheckerExp(mainDiagnostics)) {
+        if (invalidSourceCode) {
             notValidExpEditor("Code has errors, please fix them first.");
         } else {
             // Invalidate/Validate code at init
@@ -619,14 +624,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            {invalidSourceCode ?
-                (
-                    <FormHelperText className={formClasses.invalidCode}>{mainDiagnostics[0]?.message} (This error is in Code Editor. Please fix them first)</FormHelperText>
-                ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
-                    (
-                        <FormHelperText className={formClasses.invalidCode}>{expressionEditorState.diagnostic[0].message}</FormHelperText>
-                    ) : null
-            }
+            {invalidSourceCode && <FormHelperText className={formClasses.invalidCode}>{`${expressionEditorState.diagnostic[0]?.message || '(This error is in Code Editor. Please fix them first)'}`}</FormHelperText>}
         </>
     );
 }
