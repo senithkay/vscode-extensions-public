@@ -123,6 +123,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 11,
             letterSpacing: 0,
             lineHeight: '29px',
+        },
+        disableDiagramIcon: {
+            right: '4rem',
+            position: "fixed",
+            top: '1.1rem'
         }
     }),
 );

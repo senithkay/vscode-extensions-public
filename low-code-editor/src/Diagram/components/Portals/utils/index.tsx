@@ -14,6 +14,7 @@ import React, { ReactNode } from "react";
 
 import {
     BooleanLiteral, CaptureBindingPattern, CheckAction,
+    CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
@@ -23,13 +24,8 @@ import {
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
-import {
-    ActionConfig,
-    ConnectorConfig,
-    FormField,
-    PrimitiveBalType,
-    WizardType
-} from "../../../../ConfigurationSpec/types";
+// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
@@ -41,7 +37,7 @@ import {
     getRecordDefFromCache
 } from "../../../utils/st-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { cleanFields, fields, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
+import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
@@ -53,21 +49,39 @@ import * as OverlayElement from "../Overlay/Elements";
 import { keywords, symbolKind } from "./constants";
 
 const receivedRecords: Map<string, STNode> = new Map();
-const ignoreList = [ // inorder to ignore classes, object and enum type references
-    'ballerina/http:1.0.4:Request',
-    'ballerina/http:1.0.4:OutboundAuthHandler',
-    'ballerina/http:1.0.4:PersistentCookieHandler',
-    'ballerina/io:0.5.4:ReadableByteChannel',
-    'ballerina/lang.annotations:1.0.0:TargetType',
-    'ballerina/http:1.0.4:HttpFuture',
-    'ballerina/http:1.0.4:PushPromise',
-    'ballerinax/github:0.99.8:ColumnList',
-    'ballerinax/github:0.99.8:IssueList',
-    'ballerinax/github:0.99.8:ProjectList',
-    'ballerinax/github:0.99.8:PullRequestList',
-    'ballerinax/github:0.99.8:RepositoryList',
-    'ballerina/oauth2:1.0.4:CredentialBearer',
-    'ballerina/oauth2:1.0.4:HttpVersion',
+// in order to ignore classes, object and enum type references
+const ignoreList = [
+    // sl alpha2
+    'ballerina/http:1.1.0-alpha4:Request',
+    'ballerina/http:1.1.0-alpha4:Response',
+    'ballerina/http:1.1.0-alpha4:HttpFuture',
+    'ballerina/http:1.1.0-alpha4:PushPromise',
+    'ballerina/http:1.1.0-alpha4:CookieStore',
+    'ballerina/email:1.1.0-alpha4:Security',
+    'ballerinax/twilio:0.99.6:Account',
+    'ballerinax/twilio:0.99.6:MessageResourceResponse',
+    'ballerinax/twilio:0.99.6:WhatsAppResponse',
+    'ballerina/oauth2:1.1.0-alpha4:CredentialBearer',
+    'ballerina/oauth2:1.1.0-alpha4:HttpVersion',
+    'ballerinax/googleapis_gmail:0.99.4:MessageRequest',
+    'ballerinax/googleapis_gmail:0.99.4:Message',
+    'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
+    'ballerinax/googleapis_calendar:0.1.3:Shared',
+    'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
+    'ballerinax/sfdc:2.1.5:BulkJob',
+    'ballerina/http:1.1.0-alpha4:PersistentCookieHandler',
+    'ballerinax/github.webhook:0.99.12:User',
+    'ballerinax/github.webhook:0.99.12:Milestone',
+    'ballerinax/github.webhook:0.99.12:Branch',
+    'ballerinax/github.webhook:0.99.12:Links',
+    'ballerinax/github:0.99.12:CardList',
+    'ballerinax/github:0.99.12:ColumnList',
+    'ballerinax/github:0.99.12:BranchList',
+    'ballerinax/github:0.99.12:IssueList',
+    'ballerinax/github:0.99.12:ProjectList',
+    'ballerinax/github:0.99.12:RepositoryList',
+    'ballerinax/github:0.99.12:ColumnList',
+    'ballerinax/github:0.99.12:PullRequestList',
 ]
 
 export function getOverlayElement(
@@ -142,7 +156,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             recordRes = receivedRecords.get(recordKey)
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
-
                                     recordRes = await getRecordDefFromCache({
                                         module: typeInfo.modName,
                                         org: typeInfo.orgName,
@@ -188,11 +201,13 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
                                     await getRecordFields(formField.fields, records, langClient);
-                                }
 
-                                formField.fields.filter((property: any) => property.isReference).forEach((property: any) => {
-                                    formField.fields = [...formField.fields, ...property.fields]
-                                })
+                                    formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
+                                        if (property?.length > 0){
+                                            formField.fields = [...formField.fields, ...property.fields]
+                                        }
+                                    })
+                                }
                             }
                         }
                 }
@@ -214,9 +229,7 @@ export function getParams(formFields: FormField[]): string[] {
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide) {
-                if (formField.value !== undefined) {
-                    paramString += formField.value.toString();
-                } else if (formField.fields.length > 0) {
+                if (formField.fields.length > 0) {
                     let firstRecordField = false;
                     paramString += "[";
                     formField.fields.forEach(field => {
@@ -228,6 +241,8 @@ export function getParams(formFields: FormField[]): string[] {
                         paramString += field.value;
                     });
                     paramString += "]";
+                } else if (formField.value !== undefined) {
+                    paramString += formField.value.toString();
                 }
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
                 paramString += formField.value;
@@ -394,16 +409,20 @@ export function getCollectionForRadio(model: FormField): string[] {
 }
 
 export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: FormField[]) {
-    const implicitExpr: ImplicitNewExpression = endPoint.initializer as ImplicitNewExpression;
+    let implicitExpr: ImplicitNewExpression;
+    switch (endPoint.initializer.kind) {
+        case "CheckExpression":
+            implicitExpr = (endPoint.initializer as CheckExpression).expression as ImplicitNewExpression;
+            break;
+        default:
+            implicitExpr = endPoint.initializer as ImplicitNewExpression;
+    }
     const parenthesizedArgs: ParenthesizedArgList = implicitExpr.parenthesizedArgList as ParenthesizedArgList;
     let nextValueIndex = 0;
     for (const arg of parenthesizedArgs.arguments) {
         if ((parenthesizedArgs.arguments === undefined) || (formFields.length <= nextValueIndex)) {
             break;
         }
-        // if (parenthesizedArgs.arguments.length <= nextValueIndex) {
-        //     break;
-        // }
 
         const positionalArg: PositionalArg = arg as PositionalArg;
         const formField = formFields[nextValueIndex];
@@ -577,13 +596,20 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     });
 }
 
-export function matchActionToFormField(action: LocalVarDecl, formFields: FormField[]) {
-    const checkAction: CheckAction =
-        action.initializer.kind === 'TypeCastExpression' ?
-            (action.initializer as TypeCastExpression).expression as CheckAction : action.initializer as CheckAction;
-
-    const remoteMethodCall: RemoteMethodCallAction = checkAction.expression as RemoteMethodCallAction;
-    const remoteMethodCallArguments = remoteMethodCall.arguments.filter(arg => arg.kind !== 'CommaToken');
+export function matchActionToFormField(variable: LocalVarDecl, formFields: FormField[]) {
+    let remoteCall: RemoteMethodCallAction;
+    switch (variable.initializer.kind) {
+        case 'TypeCastExpression':
+            const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
+            remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+            break;
+        case 'RemoteMethodCallAction':
+            remoteCall = variable.initializer as RemoteMethodCallAction;
+            break;
+        default:
+            remoteCall = (variable.initializer as CheckAction).expression;
+    }
+    const remoteMethodCallArguments = remoteCall.arguments.filter(arg => arg.kind !== 'CommaToken');
     let nextValueIndex = 0;
     for (const formField of formFields) {
         if ((remoteMethodCallArguments === undefined) || (remoteMethodCallArguments.length <= nextValueIndex)) {
@@ -875,27 +901,63 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorConfig = new ConnectorConfig();
         connectorDef.viewState = {};
         cleanFields();
-        let fieldsForFunctions = await getFromFormFieldCache(connector);
-        if (!fieldsForFunctions) {
+        let functionDefInfo = await getFromFormFieldCache(connector);
+        if (!functionDefInfo) {
             traversNode(connectorDef, FormFieldVisitor);
-            fieldsForFunctions = filterCodeGenFunctions(connector, fields);
-            for (const value of Array.from(fieldsForFunctions.values())) {
-                await getRecordFields(value, connectorDef.typeData.records, langClient);
+            functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
+            for (const value of Array.from(functionDefInfo.values())) {
+                await getRecordFields(value.parameters, connectorDef.typeData.records, langClient);
+                if (value.returnType) {
+                    if (value.returnType.type === 'union') {
+                        await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient);
+                    } else {
+                        await getRecordFields([value.returnType], connectorDef.typeData.records, langClient);
+                    }
+                }
             }
-            addToFormFieldCache(connector, fieldsForFunctions);
+            addToFormFieldCache(connector, functionDefInfo);
         }
+
+        // // check whether the init method has an error type return
+        // const initFunction: ObjectMethodDefinition[] = connectorDef.members.filter((member: any) => member.functionName && member.functionName.value === 'init');
+        // if (initFunction.length > 0 && initFunction[0].functionSignature.returnTypeDesc) {
+        //     const returnType = initFunction[0].functionSignature.returnTypeDesc.type;
+        //     const typeVS = returnType.kind === 'OptionalTypeDesc' ?
+        //         (returnType as OptionalTypeDesc).typeDescriptor.viewState
+        //         : returnType.viewState;
+        //     await getRecordFields([typeVS], connectorDef.typeData.records, langClient);
+
+        //     if (typeVS.isUnion) {
+        //         typeVS.fields.forEach((field: any) => {
+        //             if (field.isErrorType) {
+        //                 connectorConfig.isReturnError = true;
+        //             }
+        //         })
+        //     } else {
+        //         connectorConfig.isReturnError = typeVS.isErrorType;
+        //     }
+        // }
+
         // Filter connector functions to have better usability.
-        fieldsForFunctions = filterConnectorFunctions(connector, fieldsForFunctions, connectorConfig, state);
+        functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
-            const actionInvo: LocalVarDecl = model as LocalVarDecl;
-            const init: CheckAction = actionInvo.initializer.kind === 'CheckAction' ?
-                actionInvo.initializer as CheckAction
-                : (actionInvo.initializer as TypeCastExpression).expression as CheckAction;
-            const bindingPattern: CaptureBindingPattern = actionInvo.typedBindingPattern.bindingPattern as
+            const variable: LocalVarDecl = model as LocalVarDecl;
+            let remoteCall: RemoteMethodCallAction;
+            switch (variable.initializer.kind) {
+                case 'TypeCastExpression':
+                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                    break;
+                case 'RemoteMethodCallAction':
+                    remoteCall = variable.initializer as RemoteMethodCallAction;
+                    break;
+                default:
+                    remoteCall = (variable.initializer as CheckAction).expression;
+            }
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
                 CaptureBindingPattern;
             const returnVarName: string = bindingPattern.variableName.value;
-            if (init && returnVarName) {
-                const remoteCall: RemoteMethodCallAction = init.expression as RemoteMethodCallAction;
+            if (remoteCall && returnVarName) {
                 const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
                 const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
                 if (remoteCall && actionName) {
@@ -904,14 +966,14 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                     action.returnVariableName = returnVarName;
                     connectorConfig.action = action;
                     connectorConfig.name = configName.name.value;
-                    connectorConfig.action.fields = fieldsForFunctions.get(connectorConfig.action.name);
+                    connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
                     matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
                 }
             }
 
-            connectorConfig.connectorInit = fieldsForFunctions.get("init") ?
-                fieldsForFunctions.get("init")
-                : fieldsForFunctions.get("__init");
+            connectorConfig.connectorInit = functionDefInfo.get("init") ?
+                functionDefInfo.get("init").parameters
+                : functionDefInfo.get("__init").parameters;
             const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
@@ -922,7 +984,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             isLoading: false,
             connector,
             wizardType: model ? WizardType.EXISTING : WizardType.NEW,
-            fieldsForFunction: fieldsForFunctions,
+            functionDefInfo,
             connectorConfig,
             connectorDef,
             model
@@ -932,13 +994,13 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         isLoading: false,
         connector: undefined,
         wizardType: undefined,
-        fieldsForFunction: undefined,
+        functionDefInfo: undefined,
         connectorConfig: undefined,
         connectorDef: undefined
     }
 }
 
-const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
+export const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
@@ -946,63 +1008,67 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            return [`{ accessToken: config:getAsString("${githubAccessToken}")}`];
+            return [`{
+                accessToken: ${githubAccessToken}
+            }`];
         }
         case "google sheets": {
-            const sheetAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const sheetClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const sheetClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const sheetRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const sheetRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
-                oauth2Config: {
-                    accessToken: config:getAsString("${sheetAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${sheetClientId}"),
-                        clientSecret: config:getAsString("${sheetClientSecret}"),
-                        refreshUrl: config:getAsString("${sheetRefreshUrl}"),
-                        refreshToken: config:getAsString("${sheetRefreshToken}")
-                    }
+                oauthClientConfig: {
+                    clientId: ${sheetClientId},
+                    clientSecret: ${sheetClientSecret},
+                    refreshToken: ${sheetRefreshToken},
+                    refreshUrl: ${sheetRefreshUrl}
                 }
-            }`];
+             }`];
         }
         case "google calendar": {
-            const calendarAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const calendarClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const calendarClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const calendarRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const calendarRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
                 oauth2Config: {
-                    accessToken: config:getAsString("${calendarAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${calendarClientId}"),
-                        clientSecret: config:getAsString("${calendarClientSecret}"),
-                        refreshUrl: config:getAsString("${calendarRefreshUrl}"),
-                        refreshToken: config:getAsString("${calendarRefreshToken}")
-                    }
+                    clientId: ${calendarClientId},
+                    clientSecret: ${calendarClientSecret},
+                    refreshToken: ${calendarRefreshToken},
+                    refreshUrl: ${calendarRefreshUrl}
                 }
-            }`];
+             }`];
         }
         case "gmail": {
-            const gmailAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             const gmailClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const gmailClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const gmailRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const gmailRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             return [`{
                 oauthClientConfig: {
-                    accessToken: config:getAsString("${gmailAccessToken}"),
-                    refreshConfig: {
-                        clientId: config:getAsString("${gmailClientId}"),
-                        clientSecret: config:getAsString("${gmailClientSecret}"),
-                        refreshUrl: config:getAsString("${gmailRefreshUrl}"),
-                        refreshToken: config:getAsString("${gmailRefreshToken}")
-                    }
+                    clientId: ${gmailClientId},
+                    clientSecret: ${gmailClientSecret},
+                    refreshToken: ${gmailRefreshToken},
+                    refreshUrl: ${gmailRefreshUrl}
                 }
-            }`];
+             }`];
         }
     }
+}
+
+export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
+    if (functionDefinitions.get(action)?.returnType?.isErrorType) {
+        // return type has an error
+        return true;
+    }
+    if (functionDefinitions.get(action)?.returnType?.fields
+        .find((param: any) => (param?.isErrorType || param?.type === "error"))) {
+        // return type has an error
+        return true;
+    }
+    // return type hasn't any error
+    return false;
 }
 
 export interface VariableNameValidationResponse {
@@ -1021,20 +1087,24 @@ export function checkVariableName(varName: string, text: string, existingText?: 
     const lowerCasedAllVariables = retrieveVariables(symbolInfo).map(name => name.toLowerCase());
     const nameRegex = new RegExp("^'?[a-zA-Z][a-zA-Z0-9_]*$");
     let response: VariableNameValidationResponse = { error: false };
-    // console.log('>>>', text, existingText)
-    if (text !== existingText && lowerCasedAllVariables?.includes(text.toLowerCase())){
+    if (text === "") {
+        // is the name empty
+        response = { error: true, message: `Name is empty` };
+        return response;
+    }
+    if (text !== existingText && lowerCasedAllVariables?.includes(text.toLowerCase())) {
         // is already used in code
-        response = {error: true, message: `${varName} already exists`};
+        response = { error: true, message: `${varName} already exists` };
         return response;
     }
-    if (!nameRegex.test(text)){
+    if (!nameRegex.test(text)) {
         // invalid format
-        response = {error: true, message: `Invalid value for ${varName}`};
+        response = { error: true, message: `Invalid value for ${varName}` };
         return response;
     }
-    if (keywords.includes(text)){
+    if (keywords.includes(text)) {
         // is a keyword
-        response = {error: true, message: `This is a reserved value. Please enter different value`};
+        response = { error: true, message: `This is a reserved value. Please enter different value` };
         return response;
     }
     return response;

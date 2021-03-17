@@ -126,6 +126,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
+    isLarge?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -142,7 +143,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState ] = useState({
+    const [ expressionEditorState, setExpressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
@@ -365,6 +366,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }, [focus]);
 
+
+    useEffect(() => {
+        handleDiagnostic();
+    }, [expressionEditorState.diagnostic])
+
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
         let initContent: string = null;
@@ -404,8 +410,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     uri: expressionEditorState.uri,
                 }
             }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
             });
         });
 
@@ -462,8 +470,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         uri: expressionEditorState.uri,
                     }
                 }).then((diagResp: any) => {
-                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                    handleDiagnostic();
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    })
                 });
             });
 
@@ -495,6 +505,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
         }
+    }
+    if (customProps?.isLarge){
+        MONACO_OPTIONS.wordWrap = 'bounded'
     }
 
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
@@ -568,13 +581,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
                                         <div>
-                                        <TooltipIcon
-                                            title={customProps?.tooltipTitle || model?.tooltip}
-                                            interactive={customProps?.interactive || true}
-                                            actionText={customProps?.tooltipActionText}
-                                            actionLink={customProps?.tooltipActionLink}
-                                            arrow={true}
-                                        />
+                                            <TooltipIcon
+                                                title={customProps?.tooltipTitle || model?.tooltip}
+                                                interactive={customProps?.interactive || true}
+                                                actionText={customProps?.tooltipActionText}
+                                                actionLink={customProps?.tooltipActionLink}
+                                                arrow={true}
+                                            />
                                         </div>
                                     )
                                 }
@@ -603,7 +616,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
             <div className="exp-container">
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor">
+                    <div className="exp-editor" style={customProps?.isLarge ? { height: '64px' } : { height: '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'

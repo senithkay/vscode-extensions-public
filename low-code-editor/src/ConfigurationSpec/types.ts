@@ -41,6 +41,18 @@ export interface NonPrimitiveBal {
     version?: string;
 }
 
+// tslint:disable-next-line: max-classes-per-file
+export type balTypes = "string" | "record" | "union" | "int" | "float" | "boolean" | "collection" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
+
+export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
+
+export type ExpressionEditorType = BallerinaType | BallerinaType[];
+
+export interface FunctionDefinitionInfo {
+    parameters: FormField[];
+    returnType: FormField;
+}
+
 export interface FormField {
     type: PrimitiveBalType | any;
     name?: string;
@@ -66,6 +78,7 @@ export interface FormField {
     noCodeGen?: boolean;
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
+    isErrorType?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -95,6 +108,7 @@ export class ConnectorConfig {
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
     public initPosition?: DraftUpdateStatement;
+    public isReturnError?: boolean;
 }
 
 export interface ConfigurationSpec {

@@ -28,5 +28,5 @@ export { QueryClient as sfdcQueryClient };
 export { SObjectClient as sfdcSObjectClient };
 export { GmailWizard as googleapis_gmailClient };
 export { GithubWizard as githubClient };
-export { GoogleCalender as googleapis_calendarCalendarClient };
+export { GoogleCalender as googleapis_calendarClient };
 export { GoogleSheet as googleapis_sheetsClient };

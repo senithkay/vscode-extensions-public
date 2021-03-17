@@ -81,6 +81,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isLogStmt = true;
             } else {
                 processName = "Call";
+                processType = "Custom";
             }
             // todo : uncomment
             // const expressionStmt = ASTUtil.genSource(model).replace(";", "");
@@ -116,9 +117,14 @@ export function DataProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
+            processType = "Custom";
+            processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
             }
+        } else {
+            processType = "Custom";
+            processName = "Custom";
         }
     } else if (isDraftStatement) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
