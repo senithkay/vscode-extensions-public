@@ -23,7 +23,7 @@ import {
     ModulePart,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
@@ -155,38 +155,24 @@ class SizingVisitor implements Visitor {
         // replaces endVisitForeach
         const bodyViewState: BlockViewState = node.blockStatement.viewState;
         const viewState: ForEachViewState = node.viewState;
+        viewState.foreachBody = bodyViewState;
+        this.endSizeIterableStatements(viewState);
+    }
 
-        viewState.foreachHead.h = FOREACH_SVG_HEIGHT;
-        viewState.foreachHead.w = FOREACH_SVG_WIDTH;
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: ForEachViewState = node.viewState;
 
+        bodyViewState.collapsed = viewState.folded ? viewState.folded : viewState.collapsed;
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        // replaces endVisitForeach
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: ForEachViewState = node.viewState;
         viewState.foreachBody = bodyViewState;
 
-        if (viewState.folded) {
-            viewState.foreachLifeLine.h = 0;
-            viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
-                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
-                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
-            viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
-                COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
-        } else {
-            viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
-
-            viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
-                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
-            viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
-                viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
-
-            // deducting the svg lifeline height(STOP SVG height and offset) is a end component is there
-            if (viewState.foreachBody.isEndComponentAvailable) {
-                viewState.foreachLifeLine.h = viewState.foreachLifeLine.h - viewState.foreachBodyRect.offsetFromBottom
-                    - STOP_SVG_HEIGHT;
-            }
-        }
-
-        viewState.bBox.h = (viewState.foreachHead.h / 2) + viewState.foreachBodyRect.h;
-        viewState.bBox.w = viewState.foreachBodyRect.w;
+        this.endSizeIterableStatements(viewState);
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
@@ -624,6 +610,38 @@ class SizingVisitor implements Visitor {
         if (width > 0) {
             blockViewState.bBox.w = width;
         }
+    }
+
+    public endSizeIterableStatements (viewState: ForEachViewState) {
+        viewState.foreachHead.h = FOREACH_SVG_HEIGHT;
+        viewState.foreachHead.w = FOREACH_SVG_WIDTH;
+
+        if (viewState.folded) {
+            viewState.foreachLifeLine.h = 0;
+            viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
+                ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
+                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
+                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
+            viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
+                COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
+        } else {
+            viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
+
+            viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
+                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
+                : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
+            viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
+                viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
+
+            // deducting the svg lifeline height(STOP SVG height and offset) is a end component is there
+            if (viewState.foreachBody.isEndComponentAvailable) {
+                viewState.foreachLifeLine.h = viewState.foreachLifeLine.h - viewState.foreachBodyRect.offsetFromBottom
+                    - STOP_SVG_HEIGHT;
+            }
+        }
+
+        viewState.bBox.h = (viewState.foreachHead.h / 2) + viewState.foreachBodyRect.h;
+        viewState.bBox.w = viewState.foreachBodyRect.w;
     }
 }
 

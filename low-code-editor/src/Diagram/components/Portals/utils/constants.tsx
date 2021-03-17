@@ -124,6 +124,10 @@ export const tooltipMessages: Record<string, any> = {
         title: "Foreach is a control flow statement to iterate over a list of items",
         content: 'string [] flowers = ["Rose","Lily"]\nforeach var v in flowers {\nio:println("flower: ", v);}'
     },
+    whileStatement: {
+        title: "While is a control flow statement to iterate over a given condition",
+        content: 'int i = 0;\nwhile (i < 3) {\nio:println("i: ", i);}'
+    },
     returnStatement: {
         title: "Return statement is used to stop executing the current sub routine and go back to the caller",
         content: 'return true\nreturn false'

@@ -10,7 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, ModulePart, VisibleEndpoint, Visitor } from "@ballerina/syntax-tree";
+import {
+    BlockStatement,
+    ForeachStatement,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    IfElseStatement,
+    ModulePart,
+    VisibleEndpoint,
+    Visitor,
+    WhileStatement
+} from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
@@ -243,6 +253,18 @@ class PositioningVisitor implements Visitor {
         const viewState: ForEachViewState = node.viewState;
         viewState.foreachBody = bodyViewState;
 
+        this.beginPositionIterableStatement(viewState);
+    }
+
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: ForEachViewState = node.viewState;
+        viewState.foreachBody = bodyViewState;
+
+        this.beginPositionIterableStatement(viewState);
+    }
+
+    public beginPositionIterableStatement(viewState: ForEachViewState) {
         viewState.foreachHead.cx = viewState.bBox.cx;
         viewState.foreachHead.cy = viewState.bBox.cy + (viewState.foreachHead.h / 2);
 

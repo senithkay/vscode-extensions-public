@@ -50,11 +50,10 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
         case "STATEMENT":
             switch (draft[1].subType) {
                 case "If":
-                    draftComponents.push(<IfElse model={null} blockViewState={viewState} />);
-                    break;
                 case "ForEach":
                     // FIXME: Reusing existing implementation of IfElse to add both If/Foreach
                     // We should refactor it to use Foreach component for the latter.
+                case "While":
                     draftComponents.push(<IfElse model={null} blockViewState={viewState} />);
                     break;
                 case "Log":

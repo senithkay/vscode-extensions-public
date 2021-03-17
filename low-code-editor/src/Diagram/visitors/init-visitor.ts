@@ -18,7 +18,7 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
@@ -130,6 +130,10 @@ class InitVisitor implements Visitor {
     }
 
     public endVisitForeachStatement(node: ForeachStatement) {
+        node.viewState = new ForEachViewState();
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
         node.viewState = new ForEachViewState();
     }
 
