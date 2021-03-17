@@ -51,8 +51,8 @@ export function ForeachSVG(props: { x: number, y: number, text: string }) {
                     </g>
                 </g>
             <text className="foreach-text" id="ForeachText" transform="translate(3.889 49.851) rotate(-45)">
-                <tspan x="32.75" y="10" >FOR</tspan>
-                <tspan x="31.80" y="22">EACH</tspan>
+                <tspan x="32.75" y="10" >For</tspan>
+                <tspan x="31.80" y="22">Each</tspan>
             </text>
             </g>
         </svg>
