@@ -51,11 +51,11 @@ import {
     FOREACH_SVG_HEIGHT_WITH_SHADOW,
     FOREACH_SVG_WIDTH, FOREACH_SVG_WIDTH_WITH_SHADOW
 } from "../ForEach/ForeachSVG";
-import "../IfElse/style.scss";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
 
+import "./style.scss";
 import { WhileSVG } from "./WhileSVG";
 
 export interface WhileProps {
@@ -197,12 +197,12 @@ export function While(props: WhileProps) {
     };
 
     const unFoldedComponent = (
-        <g className="foreach-block" data-testid="while-block">
-            <rect className="for-each-rect" {...rectProps} />
-            <g className="foreach-polygon-wrapper">
-                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="WHILE"/>
+        <g className="while-block" data-testid="while-block">
+            <rect className="while-rect" {...rectProps} />
+            <g className="while-polygon-wrapper">
+                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
-                    className="foreach-options-wrapper"
+                    className="while-options-wrapper"
                     height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                     width={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                     x={viewState.bBox.cx - (FOREACH_SHADOW_OFFSET / 2)}
@@ -226,7 +226,7 @@ export function While(props: WhileProps) {
                         <rect
                             x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
                             y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
-                            className="forech-rect"
+                            className="while-rect"
                         />
                         <DeleteBtn
                             {...deleteTriggerPosition}
@@ -251,13 +251,13 @@ export function While(props: WhileProps) {
     );
 
     const foldedComponent = (
-        <g className="foreach-block" data-testid="foreach-block">
-            <rect className="for-each-rect" {...rectProps} />
-            <g className="foreach-polygon-wrapper" onClick={onWhileHeadClick}>
-                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="WHILE"/>
+        <g className="while-block" data-testid="while-block">
+            <rect className="while-rect" {...rectProps} />
+            <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
+                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
                     <g
-                        className="foreach-options-wrapper"
+                        className="while-options-wrapper"
                         height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                         width={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                         x={viewState.bBox.cx - (FOREACH_SHADOW_OFFSET / 2)}
@@ -266,7 +266,7 @@ export function While(props: WhileProps) {
                         <rect
                             x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
                             y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
-                            className="forech-rect"
+                            className="while-rect"
                         />
                         {model && isConfigWizardOpen &&
                         <ConditionConfigForm
@@ -287,7 +287,7 @@ export function While(props: WhileProps) {
                             <rect
                                 x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
                                 y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
-                                className="forech-rect"
+                                className="while-rect"
                             />
                             <DeleteBtn
                                 {...deleteTriggerPosition}
@@ -318,7 +318,7 @@ export function While(props: WhileProps) {
     );
 
     return (
-        <g className="foreach-wrapper">
+        <g className="while-wrapper">
             <g>
                 {whileComponent}
             </g>
