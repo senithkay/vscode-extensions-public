@@ -14,6 +14,7 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { useStyles } from "../../../../../ConfigPanel/styles";
+import { FormAccordion } from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
 
@@ -28,6 +29,7 @@ export function Form(props: FormProps) {
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
+    const optionalElements: ReactNode[] = [];
 
     const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
 
@@ -89,20 +91,23 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip,
-                    statementType: field.type
+                    tooltipTitle: field.tooltip
                 },
             };
             const element = getFormElement(elementProps, field.type);
             if (element) {
-                elements.push(element);
+                // elements.push(element);
+                field?.optional ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
 
     return (
         <form className={classes.inputUrl} noValidate={true} autoComplete="off">
-            {...elements}
+            <FormAccordion
+                mandatoryFields={elements}
+                optionalFields={optionalElements}
+            />
         </form>
     );
 }

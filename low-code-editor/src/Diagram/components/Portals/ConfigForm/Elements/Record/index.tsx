@@ -13,8 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { FormHelperText } from "@material-ui/core";
-
+import { FormAccordion } from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
@@ -28,6 +27,7 @@ export function Record(props: FormElementProps<RecordProps>) {
     const classes = useStyles();
 
     const recordFields: React.ReactNode[] = [];
+    const optionalRecordFields: React.ReactNode[] = [];
     let fieldNecessity: string = "";
 
     if (model) {
@@ -37,18 +37,17 @@ export function Record(props: FormElementProps<RecordProps>) {
                 if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
                     || field.type === "float" || field.type === "collection" || (field.type === 'record' && !field.isReference) ||
                     (field.type === "union" && !field.optional))) {
-                    field.optional = model.optional ? model.optional : field.optional;
+                    // field.optional = model.optional ? model.optional : field.optional;
                     const elementProps: FormElementProps = {
                         model: field,
                         index,
                         customProps: {
-                            validate: customProps.validate,
-                            statementType: field.type
+                            validate: customProps.validate
                         }
-                    }
+                    };
                     const element = getFormElement(elementProps, field.type);
                     if (element) {
-                        recordFields.push(element);
+                        field?.optional ? optionalRecordFields.push(element) : recordFields.push(element);
                     }
                 }
             });
@@ -56,26 +55,14 @@ export function Record(props: FormElementProps<RecordProps>) {
     }
 
     const modelName = model && model.displayName ? model.displayName : model.name;
-    const fieldName = modelName ? modelName + " " + fieldNecessity : "";
 
     return (
         <div className={classes.marginTB}>
-            {model && model.optional ?
-                (
-                    <div className={classes.labelWrapper}>
-                        <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
-                    </div>
-                ) : (
-                    <div className={classes.labelWrapper}>
-                        <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                        <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-                    </div>
-                )
-            }
-            <div className={classes.groupedForm}>
-                {...recordFields}
-            </div >
+            <FormAccordion
+                title={modelName}
+                mandatoryFields={recordFields}
+                optionalFields={optionalRecordFields}
+            />
         </div>
     );
 }
