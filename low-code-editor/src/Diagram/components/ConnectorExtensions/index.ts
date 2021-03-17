@@ -21,7 +21,7 @@ import { QueryClient } from "./SFDCWizard/QueryClient";
 import { SObjectClient } from "./SFDCWizard/SObjectClient";
 import { SMTPWizard } from "./SMTPWizard";
 
-export { HTTPWizard as httpHttpClient };
+export { HTTPWizard as httpClient };
 export { SMTPWizard as emailSmtpClient };
 export { BulkJob as sfdcBulkJob };
 export { QueryClient as sfdcQueryClient };
