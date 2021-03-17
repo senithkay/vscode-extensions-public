@@ -637,7 +637,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     )
                 ) : null
             }
-            <div className="exp-container" style={expand ? {height: '50px'} : {height: '0px'}}>
+            <div className="exp-container" style={expand ? {height: '114px'} : {height: '46px'}}>
                 <div className="exp-absolute-wrapper">
                     <div className="exp-editor" style={expand ? {height: '100px'} : {height: '32px'}} >
                         <MonacoEditor
