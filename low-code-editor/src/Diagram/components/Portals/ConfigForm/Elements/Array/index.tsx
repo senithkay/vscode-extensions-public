@@ -229,7 +229,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
     }, [model]);
 
     return (
-        <div data-testid="array" className={classes.groupedForm}>
+        <div data-testid="array" className={classNames(classes.groupedForm, classes.marginTB)}>
             {/* code to be refactored keeping the connented code for refernce
             {
                 (fieldModel.type === "json" || fieldModel.type === "xml" || fieldModel.type === "boolean") ? (
