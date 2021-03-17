@@ -11,9 +11,11 @@
  * associated services.
  */
 import React from 'react';
-import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
-import { Autocomplete } from "@material-ui/lab";
+
 import { TextField } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
+
+import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
 
 interface OutputTypeSelectorProps {
     types: TypeInfoEntry[];
@@ -33,10 +35,10 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
                 id="country-select-demo"
                 options={types}
                 autoHighlight={true}
-                getOptionLabel={(option) => option.typeName}
+                getOptionLabel={(option) => option.type}
                 renderOption={(option) => (
                     <React.Fragment>
-                        <span>{option.typeName}</span>
+                        <span>{option.type}</span>
                         {option.typeInfo?.moduleName}
                     </React.Fragment>
                 )}

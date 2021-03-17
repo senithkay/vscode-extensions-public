@@ -100,17 +100,17 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
                     const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-                    const defaultReturn= getDefaultValueForType(datamapperConfig.returnType, stSymbolInfo.recordTypeDescriptions, "");
+                    const defaultReturn = getDefaultValueForType(datamapperConfig.returnType, stSymbolInfo.recordTypeDescriptions, "");
                     let signatureString = '';
 
                     datamapperConfig.parameters.forEach((param, i) => {
-                        signatureString += `${param.type.typeName} ${param.name}`;
+                        signatureString += `${param.type.type} ${param.name}`;
                         if (i < datamapperConfig.parameters.length - 1) {
                             signatureString += ',';
                         }
                     })
 
-                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType.typeName} {
+                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType.type} {
                         return ${defaultReturn};
                     };`
 

@@ -12,12 +12,14 @@
  */
 import React from 'react';
 
-import * as DataMapperComponents from '../components/ParameterTypes';
-import { TypeInfoEntry } from "../../Portals/ConfigForm/types";
-import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
 import { RecordField, RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
-import { DataMapperInitVisitor } from "./data-mapper-init-visitor";
+
+import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
+import { TypeInfoEntry } from "../../Portals/ConfigForm/types";
+import * as DataMapperComponents from '../components/ParameterTypes';
 import { DataMapperViewState } from "../viewstate";
+
+import { DataMapperInitVisitor } from "./data-mapper-init-visitor";
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -25,7 +27,7 @@ export function getDataMapperComponent(type: string, args: any) {
 }
 
 export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<string, STNode>, returnString: string) {
-    switch (type.typeName) {
+    switch (type.type) {
         case PrimitiveBalType.String:
             return '""';
         case PrimitiveBalType.Boolean:
@@ -40,24 +42,36 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
         case PrimitiveBalType.Xml:
             // todo: look into default xml type
             break;
+        case 'record':
+            returnString += '{';
+            type.fields.forEach((field: any, index: number) => {
+                returnString += `${field.name}: `;
+                returnString += getDefaultValueForType(
+                    field,
+                    recordMap,
+                    ""
+                );
+                if (index < type.fields.length - 1) {
+                    returnString += ',';
+                }
+            })
+            returnString += '}';
+            return returnString;
         default:
             if (type.typeInfo) {
                 const typeInfo = type.typeInfo;
-                const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${type.typeName}`;
+                const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
                 const recordNode = recordMap.get(recordIdentifier);
                 if (recordNode) {
-                    returnString += '{'
                     recordNode.dataMapperViewState = new DataMapperViewState();
                     traversNode(recordNode, new DataMapperInitVisitor(recordMap));
+                    returnString += '{'
                     recordNode.dataMapperViewState.fields?.forEach((field: any, index: number) => {
                         returnString += `${field.name}: `;
                         returnString += getDefaultValueForType(
-                            {
-                                typeName: field.type,
-                                typeInfo: field.typeInfo
-                            },
+                            field,
                             recordMap,
-                            returnString
+                            ""
                         );
 
                         if (index < recordNode.dataMapperViewState.fields.length - 1) {
@@ -68,7 +82,6 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                 } else {
                     // todo: do the fetching boi!
                 }
-
                 return returnString;
             } else {
                 return '()'; // todo: this shouldn't be the case ever

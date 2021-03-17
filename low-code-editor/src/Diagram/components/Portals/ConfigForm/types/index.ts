@@ -84,13 +84,17 @@ export interface RespondConfig {
     responseCode?: string;
 }
 
+export interface TypeInfo {
+    name: string;
+    orgName: string;
+    moduleName: string;
+    version: string;
+}
+
 export interface TypeInfoEntry {
-    typeName: string;
-    typeInfo?: {
-        orgName: string;
-        moduleName: string;
-        version: string;
-    }
+    type: string;
+    typeInfo?: TypeInfo;
+    fields: any;
 }
 
 export interface DataMapperConfig {

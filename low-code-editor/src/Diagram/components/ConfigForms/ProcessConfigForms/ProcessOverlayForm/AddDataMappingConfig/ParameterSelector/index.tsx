@@ -64,7 +64,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
         parameterElements.push(
             <div key={index} className={formClasses.headerWrapper}>
                 <div className={formClasses.headerLabel}>
-                    {`${element.name} : ${element.type.typeName}`}
+                    {`${element.name} : ${element.type.type}`}
 
                     <ButtonWithIcon
                         className={formClasses.deleteBtn}
@@ -97,10 +97,10 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                     id="country-select-demo"
                     options={types}
                     autoHighlight={true}
-                    getOptionLabel={(option) => option.typeName}
+                    getOptionLabel={(option) => option.type}
                     renderOption={(option) => (
                         <React.Fragment>
-                            <span>{option.typeName}</span>
+                            <span>{option.type}</span>
                             {option.typeInfo?.moduleName}
                         </React.Fragment>
                     )}

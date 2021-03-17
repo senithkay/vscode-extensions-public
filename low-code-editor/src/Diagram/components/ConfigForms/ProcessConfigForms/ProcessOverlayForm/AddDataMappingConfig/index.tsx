@@ -45,14 +45,14 @@ enum DataMapperSteps {
 
 
 const typeArray: TypeInfoEntry[] = [
-    {typeName: 'string'},
-    {typeName: 'int'},
-    {typeName: 'float'},
-    {typeName: 'boolean'},
-    {typeName: 'xml'},
-    {typeName: 'json'},
-    {typeName: 'Person', typeInfo: {orgName: '$anon', moduleName: '.', version: '0.0.0'}},
-    {typeName: 'Employee', typeInfo: {orgName: '$anon', moduleName: '.', version: '0.0.0'}}
+    { type: 'string' },
+    { type: 'int' },
+    { type: 'float' },
+    { type: 'boolean' },
+    { type: 'xml' },
+    { type: 'json' },
+    { type: 'Person', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
+    { type: 'Employee', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
 ]
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
@@ -138,8 +138,15 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                     errorMessage={functionNameError}
                     placeholder={"Enter Variable Name"}
                 />
-                {dataMapperStep === DataMapperSteps.SELECT_INPUT &&
-                <ParameterSelector parameters={parameters} insetParameter={addNewParam} removeParameter={removeParam} types={typeArray}/>}
+                {
+                    dataMapperStep === DataMapperSteps.SELECT_INPUT &&
+                    <ParameterSelector
+                        parameters={parameters}
+                        insetParameter={addNewParam}
+                        removeParameter={removeParam}
+                        types={typeArray}
+                    />
+                }
                 {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
                 <OutputTypeSelector types={typeArray} updateReturnType={setReturnType}/>}
 
