@@ -143,7 +143,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState ] = useState({
+    const [ expressionEditorState, setExpressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
@@ -366,6 +366,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }, [focus]);
 
+
+    useEffect(() => {
+        handleDiagnostic();
+    }, [expressionEditorState.diagnostic])
+
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
         let initContent: string = null;
@@ -405,8 +410,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     uri: expressionEditorState.uri,
                 }
             }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
             });
         });
 
@@ -463,8 +470,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         uri: expressionEditorState.uri,
                     }
                 }).then((diagResp: any) => {
-                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                    handleDiagnostic();
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    })
                 });
             });
 
