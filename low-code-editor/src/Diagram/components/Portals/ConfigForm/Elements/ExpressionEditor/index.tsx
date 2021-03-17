@@ -127,7 +127,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
-    isLarge?: boolean;
+    expandDefault?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -160,10 +160,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate, focus } = customProps;
+    const { validate, statementType, customTemplate, focus, expandDefault } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
-    const [ expand, setExpand ] = useState(false);
+    const [ expand, setExpand ] = useState(expandDefault || false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -518,9 +518,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
         }
-    }
-    if (customProps?.isLarge){
-        MONACO_OPTIONS.wordWrap = 'bounded'
     }
 
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
