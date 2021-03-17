@@ -20,7 +20,6 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS, TRIGGER_TYPE_API } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -150,7 +149,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       <div id='api-config-panel'>
         <div>
           <div className={classes.titleWrapper}>
-            <p className={classes.title}>API Configuration</p>
+            <p className={classes.title}>Configure API Trigger</p>
             <button className={classes.closeBtnWrapper} onClick={onClose}>
               <CloseIcon className={classes.closeBtn} />
             </button>
@@ -194,7 +193,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
-                    text="Save API"
+                    text="Save"
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
                     disabled={isFileSaving}
@@ -206,10 +205,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
           {showConfirmDialog && (
             <SourceUpdateConfirmDialog
-              position={{
-                x: position.x + DefaultConfig.configureWizardOffset.x,
-                y: position.y + DefaultConfig.configureWizardOffset.y + 300
-              }}
               onConfirm={handleOnSave}
               onCancel={handleDialogOnCancel}
             />

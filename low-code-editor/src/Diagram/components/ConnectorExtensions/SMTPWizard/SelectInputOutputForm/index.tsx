@@ -16,11 +16,11 @@ import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
+import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
-import { smtpTooltips } from "../../../../utils/connectors";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -34,10 +34,8 @@ import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 
-// import '../style.scss'
-
 interface SelectInputOutputFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
@@ -50,7 +48,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -97,8 +95,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
 
     const operations: string[] = [];
-    if (actions) {
-        actions.forEach((value, key) => {
+    if (functionDefinitions) {
+        functionDefinitions.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }
@@ -150,7 +148,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             index: 1,
             customProps: {
                 validate: validateField,
-                tooltipTitle: smtpTooltips[field?.name],
                 statementType: field.type
             }
         };
@@ -164,12 +161,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 field.fields = undefined;
             }
             return (
-                <div className={classes.emailFormTo}>
-                    <TooltipIcon
-                        title={smtpTooltips.to}
-                    >
+                <div className={classNames(classes.emailFormTo, classes.toFieldTooltipWrapper)}>
                     <FormChipTextInput {...elementProps} />
-                    </TooltipIcon>
+                    <div className={classes.toFieldTooltipIconWrapper}>
+                        <TooltipIcon
+                            title={tooltipMessages.SMTP.to}
+                        />
+                    </div>
                 </div>
             );
         } else if (field.name === "cc") {

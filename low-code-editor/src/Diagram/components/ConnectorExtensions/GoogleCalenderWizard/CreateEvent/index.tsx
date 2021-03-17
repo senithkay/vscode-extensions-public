@@ -16,13 +16,14 @@ import React, { useEffect, useState } from 'react';
 import { FormHelperText } from "@material-ui/core";
 import { addHours, format } from 'date-fns';
 
-import { FormField } from "../../../../../ConfigurationSpec/types";
+import { FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Gcalendar } from "../../../../../Definitions";
 import { CirclePreloader } from "../../../../../PreLoader/CirclePreloader";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from "../../../Portals/ConfigForm/Elements/Autocomplete";
 import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelPicker";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { transformFormFieldTypeToString } from '../../../Portals/ConfigForm/Elements/ExpressionEditor/utils';
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
@@ -89,7 +90,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const startTimeModel: FormField = {
-        type: "string",
+        type: PrimitiveBalType.String,
         name: "Start Time"
     };
 
@@ -98,7 +99,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const endTimeModel: FormField = {
-        type: "string",
+        type: PrimitiveBalType.String,
         name: "End Time"
     }
     const endTimeOnChange = (time: Date) => {
@@ -134,7 +135,7 @@ export function CreateEvent(props: OperationDropdownProps) {
     const attendeeComponnet = getFormElement({
         model: formFields[1].fields[12],
         onChange: onChangeAttendee
-    }, formFields[1].fields[12].type);
+    }, transformFormFieldTypeToString(formFields[1].fields[12]));
 
     // for oauth authenticated connections
     const handleGcalendarChange = (event: object, value: any) => {

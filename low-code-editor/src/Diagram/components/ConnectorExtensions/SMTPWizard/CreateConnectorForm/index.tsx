@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { FormControl } from "@material-ui/core";
 
-import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -30,7 +30,7 @@ import { tooltipMessages } from "../../../Portals/utils/constants";
 
 // import '../style.scss'
 interface CreateConnectorFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
@@ -46,12 +46,12 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
-        connectorConfig.connectorInit : actions.get("init") ? actions.get("init") : actions.get("__init");
-    const [connectorInitFormFields] = useState(configForm);
+        connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
+    const [connectorInitFormFields, setConnectorInitFormFields] = useState(configForm);
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -128,7 +128,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.action = {
             name: actionName,
-            fields: actions.get(actionName)
+            fields: functionDefinitions.get(actionName)?.parameters
         }
         connectorConfig.connectorInit = connectorInitFormFields;
         onSave();

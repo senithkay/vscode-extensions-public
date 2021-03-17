@@ -7,7 +7,7 @@ import * as serverRPC from "vscode-ws-jsonrpc/lib/server";
 import { Server } from "ws";
 
 export function spawnStdioServer(ballerinaHome: string): ChildProcess {
-    const cmd = path.join(ballerinaHome, "bin", (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'));
+    const cmd = path.join(ballerinaHome, "bin", (process.platform === 'win32' ? 'bal.bat' : 'bal'));
     const args = ["start-language-server"];
 
     const env = {...process.env};
