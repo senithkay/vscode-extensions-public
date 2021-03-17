@@ -100,7 +100,7 @@ export function StartButton(props: StartButtonProps) {
             plusView.isTriggerDropdown = true;
         }
         setShowDropDownC(true);
-        diagramCleanDraw(syntaxTree);
+        diagramRedraw(syntaxTree);
     };
 
     function handleOnComplete(newTrigger: TriggerType) {
