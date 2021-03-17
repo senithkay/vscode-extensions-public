@@ -11,14 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
-import { AnydataTypeDesc, LocalVarDecl } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import { PrimitiveBalType, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { PropertyIcon } from "../../../../../../assets/icons";
+import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -33,8 +33,6 @@ import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
-import { PropertyIcon } from "../../../../../../assets/icons";
-
 interface AddVariableConfigProps {
     config: ProcessConfig;
     onCancel: () => void;
@@ -48,59 +46,70 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
-    let typeSelected: string = 'var';
+
+    let initialModelType: string = 'var';
+    let modelType = initialModelType;
     let variableName: string = '';
 
     const existingProperty = config && config.wizardType === WizardType.EXISTING;
-    if (existingProperty && config.model.kind === 'LocalVarDecl') {
+    if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const localVarDec: LocalVarDecl = config.model as LocalVarDecl;
-        typeSelected = (localVarDec.typedBindingPattern.typeDescriptor as AnydataTypeDesc).name.value;
+        const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor;
+        if (STKindChecker.isIntTypeDesc(typeDescriptor) || STKindChecker.isFloatTypeDesc(typeDescriptor) ||
+            STKindChecker.isBooleanTypeDesc(typeDescriptor) || STKindChecker.isStringTypeDesc(typeDescriptor) ||
+            STKindChecker.isJsonTypeDesc(typeDescriptor) || STKindChecker.isVarTypeDesc(typeDescriptor)) {
+            initialModelType = typeDescriptor.name.value;
+        } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
+            initialModelType = typeDescriptor.source.trim();
+        } else {
+            initialModelType = "other";
+            modelType = typeDescriptor.source.trim();
+        }
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
     } else {
         variableName = stSymbolInfo ? genVariableName("variable", getAllVariables(stSymbolInfo)) : "";
     }
 
-    const [selectedType, setSelectedType] = useState(typeSelected);
-    const [isDropDownOpen, setDropDownOpen] = useState(false)
+    const [selectedType, setSelectedType] = useState(initialModelType);
+    const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
     const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
     const [varNameError, setVarNameError] = useState("");
     const [isValidVarName, setIsValidVarName] = useState(false);
-    const [expressionValue, setExpressionValue] = useState("");
-    const [validConfigProperty, setValidConfigProperty] = useState(false);
-    const [configProperty, setConfigProperty] = useState("");
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
-    const [fieldModel, setFieldModel] = useState(undefined);
+    const [variableExpression, setVariableExpression] = useState<string>("");
+    const [editorFocus, setEditorFocus] = useState<boolean>(false);
 
     if (defaultVarName === undefined) {
         setDefaultVarName(variableName);
     }
 
     const onPropertyChange = (property: string) => {
-        setValidExpresssionValue(false);
-        // config.config = property;
-        setExpressionValue(property);
+        setVariableExpression(property);
     };
 
     const handleNameOnChange = (name: string) => {
         setVarName(name);
     };
 
+    const handleOtherTypeOnChange = (type: string) => {
+        setValidExpresssionValue(false);
+        setOtherType(type);
+    };
+
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        setExpressionValue("");
         setValidExpresssionValue(false);
-        // config.config = "";
-        const field: FormField = {
-            type: type as PrimitiveBalType,
-            name: type + " Value",
-            isParam: true
-        };
-        setFieldModel(field);
+        if (type !== "other") {
+            setOtherType(undefined);
+        } else {
+            setOtherType("var");
+        }
+        setEditorFocus(true);
     };
 
     const validateNameValue = (value: string) => {
-        if (value) {
+        if (value !== undefined || value !== null) {
             const varValidationResponse = checkVariableName("variable name", value, defaultVarName, state);
             if (varValidationResponse?.error) {
                 setVarNameError(varValidationResponse.message);
@@ -124,24 +133,23 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const handleSave = () => {
-        if (validForm) {
-            config.config = selectedType + " " + varName + " = " + expressionValue + ";";
+        if (variableExpression) {
+            config.config = otherType ? otherType + " " + varName + " = " + variableExpression + ";" :
+                selectedType + " " + varName + " = " + variableExpression + ";";
             onSave();
         }
     };
 
-    const handleOnOpen = () => {
-        setDropDownOpen(true);
+    const revertEditorFocus = () => {
+        setEditorFocus(false);
     }
 
-    const handleOnClose = () => {
-        setDropDownOpen(false);
-    }
+    modelType = (selectedType === "other") ? otherType : selectedType;
 
-    const validForm: boolean = (isValidVarName && (validExpresssionValue || validConfigProperty));
+    const validForm: boolean = (isValidVarName && validExpresssionValue);
 
     // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml"];
+    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "other"];
 
     return (
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
@@ -167,16 +175,25 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
                     <div className={classes.activeWrapper}>
                         <SelectDropdownWithButton
-                            defaultValue={typeSelected}
+                            defaultValue={selectedType === "other" ? "other" : modelType}
                             customProps={{
                                 disableCreateNew: true,
                                 values: variableTypes,
-                                onOpenSelect: handleOnOpen,
-                                onCloseSelect: handleOnClose,
                             }}
                             label={"Type"}
                             onChange={handleTypeChange}
                         />
+                        {(selectedType === "other") && (
+                            <FormTextInput
+                                defaultValue={otherType}
+                                onChange={handleOtherTypeOnChange}
+                                label={"Other Type"}
+                                placeholder={"Enter Type"}
+                                customProps={{
+                                    tooltipTitle: tooltipMessages.customVariableType,
+                                }}
+                            />
+                        )}
                         <FormTextInput
                             dataTestId="variable-name"
                             customProps={{
@@ -191,21 +208,21 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             placeholder={"Enter Variable Name"}
                         />
                         <div className="exp-wrapper">
-                            {!isDropDownOpen && (
-                                <ExpressionEditor
-                                    model={{ name: "Expression", type: selectedType as PrimitiveBalType }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                        interactive: true,
-                                        statementType: selectedType as PrimitiveBalType
-                                    }}
-                                    onChange={onPropertyChange}
-                                    defaultValue={config.config}
-                                />
-                            )}
+                            <ExpressionEditor
+                                model={{name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType}}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: tooltipMessages.expressionEditor.title,
+                                    tooltipActionText: tooltipMessages.expressionEditor.actionText,
+                                    tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                    interactive: true,
+                                    focus: editorFocus,
+                                    statementType: (modelType ? modelType : "other")  as PrimitiveBalType,
+                                    revertFocus: revertEditorFocus
+                                }}
+                                onChange={onPropertyChange}
+                                defaultValue={config.config}
+                            />
                         </div>
                     </div>
                 </div>

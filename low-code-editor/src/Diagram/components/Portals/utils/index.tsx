@@ -56,6 +56,7 @@ const ignoreList = [
     'ballerina/http:1.1.0-alpha4:Response',
     'ballerina/http:1.1.0-alpha4:HttpFuture',
     'ballerina/http:1.1.0-alpha4:PushPromise',
+    'ballerina/http:1.1.0-alpha4:CookieStore',
     'ballerina/email:1.1.0-alpha4:Security',
     'ballerinax/twilio:0.99.6:Account',
     'ballerinax/twilio:0.99.6:MessageResourceResponse',
