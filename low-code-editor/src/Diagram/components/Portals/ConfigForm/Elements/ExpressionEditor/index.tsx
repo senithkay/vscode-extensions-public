@@ -29,12 +29,13 @@ import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
 import { TooltipIcon } from "../Tooltip";
 
-import { acceptedKind } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
     addToTargetLine,
     addToTargetPosition,
+    createContentWidget,
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
@@ -126,7 +127,7 @@ export interface ExpressionEditorProps {
         defaultCodeSnippet: string;
         targetColumn: number;
     }
-    isLarge?: boolean;
+    expandDefault?: boolean;
     revertClearInput?: () => void;
 }
 
@@ -144,7 +145,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState ] = useState({
+    const [ expressionEditorState, setExpressionEditorState ] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
@@ -160,9 +161,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate, focus, clearInput, revertClearInput } = customProps;
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput  } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
+    const [ expand, setExpand ] = useState(expandDefault || false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -358,8 +360,28 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }, [focus]);
 
     useEffect(() => {
-        // Programatically clear exp-editor
-        if (clearInput && revertClearInput) {
+        if (monacoRef.current) {
+            const expandWidget: monaco.editor.IContentWidget = createContentWidget(EXPAND_WIDGET_ID);
+            const collapseWidget: monaco.editor.IContentWidget = createContentWidget(COLLAPSE_WIDGET_ID);
+            if (expand) {
+                monacoRef.current.editor.updateOptions({
+                    wordWrap: 'bounded'
+                });
+                monacoRef.current.editor.removeContentWidget(expandWidget);
+                monacoRef.current.editor.addContentWidget(collapseWidget);
+            } else {
+                monacoRef.current.editor.updateOptions({
+                    wordWrap: 'off'
+                });
+                monacoRef.current.editor.removeContentWidget(collapseWidget);
+                monacoRef.current.editor.addContentWidget(expandWidget);
+            }
+        }
+    }, [expand])
+
+    useEffect(() => {
+         // Programatically clear exp-editor
+         if (clearInput && revertClearInput) {
             if (monacoRef.current){
                 const editorModel = monacoRef.current.editor.getModel();
                 if (editorModel) {
@@ -369,6 +391,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }, [clearInput]);
+
+    useEffect(() => {
+        handleDiagnostic();
+    }, [expressionEditorState.diagnostic])
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
@@ -409,8 +435,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     uri: expressionEditorState.uri,
                 }
             }).then((diagResp: any) => {
-                expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                handleDiagnostic();
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
             });
         });
 
@@ -467,8 +495,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         uri: expressionEditorState.uri,
                     }
                 }).then((diagResp: any) => {
-                    expressionEditorState.diagnostic = diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : [];
-                    handleDiagnostic();
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    })
                 });
             });
 
@@ -500,9 +530,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
         }
-    }
-    if (customProps?.isLarge){
-        MONACO_OPTIONS.wordWrap = 'bounded'
     }
 
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
@@ -561,7 +588,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Disable pressing enter except when suggestions drop down is visible
             }, '!suggestWidgetVisible')
         });
+
+        // onClick of collapse and expand icons
+        monacoEditor.onMouseDown((e: monaco.editor.IEditorMouseEvent) => {
+            if (e.target?.detail === EXPAND_WIDGET_ID) {
+                setExpand(true)
+            } else if (e.target?.detail === COLLAPSE_WIDGET_ID) {
+                setExpand(false)
+            }
+        })
     }
+
     return (
         <>
             {textLabel ?
@@ -609,9 +646,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     )
                 ) : null
             }
-            <div className="exp-container">
+            <div className="exp-container" style={expand ? {height: '114px'} : {height: '32px'}}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={customProps?.isLarge ? { height: '64px' } : { height: '32px' }} >
+                    <div className="exp-editor" style={expand ? {height: '100px'} : {height: '32px'}} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'

@@ -75,9 +75,9 @@
 
             .condition-text {
                 tspan {
-                    font-weight: 600;
-                    fill: #32324d;
-                    font-size: 10px;
+                    font-weight: 500;
+                    fill: #40404b;
+                    font-size: 12px;
                     font-family: inherit;
                     letter-spacing: 0.05em;
                     user-select: none;
@@ -93,6 +93,7 @@
     }
 
     &.if-condition-wrapper {
+
         /* stylelint-disable */
         .if-else {
             user-select: none;
@@ -136,9 +137,9 @@
 
             .condition-text {
                 tspan {
-                    font-weight: 600;
-                    fill: #32324d;
-                    font-size: 10px;
+                    font-weight: 500;
+                    fill: #40404b;
+                    font-size: 12px;
                     font-family: inherit;
                     letter-spacing: 0.05em;
                     user-select: none;
@@ -201,6 +202,7 @@
                 }
             }
         }
+
         /* stylelint-enable */
     }
 }

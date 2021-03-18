@@ -16,3 +16,6 @@ export const acceptedKind: CompletionItemKind[] = [
     // Function
     3 as CompletionItemKind,
 ];
+
+export const EXPAND_WIDGET_ID = "expand-widget";
+export const COLLAPSE_WIDGET_ID = "collapse-widget";
