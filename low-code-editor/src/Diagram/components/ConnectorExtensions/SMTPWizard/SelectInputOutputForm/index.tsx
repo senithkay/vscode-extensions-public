@@ -151,15 +151,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 statementType: field.type
             }
         };
-        const elementPropsSMTPBody: FormElementProps = {
-            model: field,
-            index: 1,
-            customProps: {
-                validate: validateField,
-                statementType: field.type,
-                expandDefault: true
-            }
-        };
         if (field.name === "'from") {
             elementProps.customProps = { ...elementProps.customProps, isEmail: true }
             return (
