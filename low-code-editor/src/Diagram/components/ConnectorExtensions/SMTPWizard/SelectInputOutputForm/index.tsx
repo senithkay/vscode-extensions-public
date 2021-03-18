@@ -157,7 +157,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             customProps: {
                 validate: validateField,
                 statementType: field.type,
-                expandDefault: true       
+                expandDefault: true
             }
         };
         if (field.name === "'from") {
