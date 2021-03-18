@@ -542,10 +542,9 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is an array
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
-                        formField.value = [];
+                        formField.value = listExpr.source;
                         formField.fields = [];
                         // listExpr.expressions.forEach(element => {
-                        formField.value = listExpr.source;
                             // if (STKindChecker.isStringLiteral(element) ||
                             //     STKindChecker.isNumericLiteral(element) ||
                             //     STKindChecker.isBooleanLiteral(element)) {
