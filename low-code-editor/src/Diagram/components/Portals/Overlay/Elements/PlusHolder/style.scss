@@ -137,6 +137,7 @@
             hr.MuiDivider-root {
                 width: 350px;
                 height: 1px;
+                margin: 0.25rem 0;
             }
 
             .connect-option {
@@ -207,6 +208,7 @@
                 flex-direction: row;
                 align-items: center;
                 opacity: 0.3;
+                margin: 0.25rem 0;
 
                 &:hover {
                     background: #f7f8fb;
