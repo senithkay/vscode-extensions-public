@@ -97,7 +97,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 85,
             boxShadow: 'inset 0 0 0 1px #dee0e7, inset 0 2px 1px 0 rgb(0 0 0 / 7%), 0 0 0 0 rgb(50 50 77 / 7%);',
             "& p.MuiFormHelperText-root.Mui-error.MuiFormHelperText-filled": {
-                background: "red",
                 display: 'none'
             }
         },
@@ -135,7 +134,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         customRange: {
-            textTransform: "uppercase"
+            textTransform: "uppercase",
         },
         invalidCron: {
             fontSize: '13px !important',
