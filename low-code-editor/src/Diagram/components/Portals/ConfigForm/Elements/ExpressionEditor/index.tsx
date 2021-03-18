@@ -360,9 +360,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     useEffect(() => {
         // Programatically clear exp-editor
         if (clearInput && revertClearInput) {
-            if(monacoRef.current){
+            if (monacoRef.current){
                 const editorModel = monacoRef.current.editor.getModel();
-            if (editorModel) {               
+                if (editorModel) {
                 editorModel.setValue("");
                 revertClearInput()
             }
