@@ -11,20 +11,22 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
-import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
+import { AddIcon } from "../../../../../../../assets/icons";
+import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
+import RadioControl from "../../../../../../../components/RadioControl";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
+import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TRIGGER_TYPE_API } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
-import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
-import { keywords, tooltipMessages } from "../../../../utils/constants";
+import { tooltipMessages } from "../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
@@ -61,7 +63,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   } = props;
   const classes = useStyles();
 
-  const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
+  const [resources, setResources] = useState([]);
+  // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
+  const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
@@ -77,34 +81,39 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setShowConfirmDialog(false);
   };
 
-  function handleOnChangeMethod(methodType: ServiceMethodType) {
+  function handleOnSelect(methodType: string, index: number) {
     setCurrentMethod(methodType);
+
+    // Update selected method
+    const updatedResources = resources;
+    updatedResources[index].method = methodType;
+    setResources(updatedResources);
   }
 
-  function handleOnChangePath(text: string) {
+  function handleOnChangePath(text: string, index: number) {
     setCurrentPath(text);
     if (text === 'hello') {
       // todo: handle dispatch
       // dispatchGoToNextTourStep("CONFIG_HTTP_PATH");
     }
+
+    // Update path
+    const updatedResources = resources;
+    updatedResources[index].path = text;
+    setResources(updatedResources);
   }
 
-  function validatePath(text: string) {
-    if (text !== "") {
-      if (text.includes("/") && text.includes("[") && text.includes("]")) {
-        const paramArray = (text.match(/\[([^\[\]]*)\]/g))
-        const arrayLength = paramArray.length;
-        for (let i = 0; i < arrayLength; i++) {
-          const splitString = paramArray[i].split(" ")
-          if (!keywords.includes(splitString[0].slice(1)) || keywords.includes(splitString[1].slice(0, -1))) {
-            return false;
-          }
-          text = text.replace(paramArray[i], "")
-        }
-        return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
-      } else if (text === "[]") return false
-      else return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
-    } else return true
+  // TODO: We need a proper validation logic in place here
+  const validatePaths = (resArr: any) => {
+    let isValidated = true;
+
+    resArr.forEach((res: any) => {
+      if (!validatePath(res.path)) {
+        isValidated = false;
+      }
+    });
+
+    return isValidated;
   }
 
   const handleUserConfirm = () => {
@@ -122,13 +131,23 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setTriggerChanged(true);
     dispatchModifyTrigger(TRIGGER_TYPE_API, undefined, {
       "PORT": 8090,
+      "BASE_PATH": "/",
       "RES_PATH": currentPath,
       "METHODS": currentMethod.toLocaleLowerCase(),
+      "RESOURCES": resources.map((res) => ({
+        "PATH": res.path,
+        "METHOD": res.method.toLowerCase()
+      }))
     });
     trackTriggerSelection("API");
     // todo: handle dispatch
     // dispatchGoToNextTourStep("CONFIG_SAVE");
   };
+
+  const handleAddResource = () => {
+    const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
+    setResources([...resources, defaultConfig])
+  }
 
   const title = (
     <div>
@@ -146,54 +165,62 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       className={cn(classes.container)}
       position={position}
     >
-      <div id='api-config-panel'>
-        <div>
-          <div className={classes.titleWrapper}>
-            <p className={classes.title}>Configure API Trigger</p>
-            <button className={classes.closeBtnWrapper} onClick={onClose}>
-              <CloseIcon className={classes.closeBtn} />
-            </button>
-          </div>
-          <div className={classes.customWrapper}>
-            <p className={classes.subTitle}>HTTP Method</p>
-            <div className={classes.radioBtnWrapper}>
-              <RadioControl
-                customProps={{ collection: SERVICE_METHODS }}
-                defaultValue={currentMethod.toUpperCase()}
-                onChange={handleOnChangeMethod}
-              />
-            </div>
-          </div>
-          <div id="product-tour-path" className={classes.customWrapper}>
-            <TooltipIcon
-              title={title}
-              placement="left"
-              arrow={true}
-              codeSnippet={true}
-              example={true}
-              content={tooltipMessages.path.content}
+      <ConfigPanel
+        title="API Configuration"
+        onClose={onClose}
+      >
+        {resources.map((resProps, index: number) => (
+          <div
+            key={resProps.id}
+            className={classes.resourceWrapper}
+          >
+            <Section
+              title="HTTP Method"
             >
-              <p className={classes.subTitle}>PATH</p>
-            </TooltipIcon>
-            <FormTextInput
-              dataTestId="api-path"
-              defaultValue={currentPath}
-              onChange={handleOnChangePath}
-              customProps={{
-                startAdornment: "/",
-                validate: validatePath
-              }}
-              errorMessage="Please enter a valid path"
-              placeholder="Relative path from host"
-            />
+              <RadioControl
+                options={SERVICE_METHODS}
+                selectedValue={resProps.method.toUpperCase()}
+                onSelect={(m: string) => handleOnSelect(m, index)}
+              />
+            </Section>
+
+            <Section
+              title="PATH"
+              tooltip={{ title, content: tooltipMessages.path.content }}
+            >
+              <FormTextInput
+                dataTestId="api-path"
+                defaultValue={resProps.path}
+                onChange={(text: string) => handleOnChangePath(text, index)}
+                customProps={{
+                  startAdornment: "/",
+                  validate: validatePath
+                }}
+                errorMessage="Please enter a valid path"
+                placeholder="Relative path from host"
+              />
+            </Section>
           </div>
-          {validatePath(currentPath) &&
+        ))}
+
+        <button
+          onClick={handleAddResource}
+          className={classes.addResourceBtn}
+        >
+          <div className={classes.addResourceBtnWrap}>
+            <AddIcon />
+            <p>Add resource</p>
+          </div>
+        </button>
+
+        <div>
+          {validatePaths(resources) &&
             (
               <div className={classes.customFooterWrapper}>
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
-                    text="Save"
+                    text="Save API"
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
                     disabled={isFileSaving}
@@ -210,12 +237,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             />
           )}
         </div>
-      </div>
+      </ConfigPanel>
     </DiagramOverlay>
   );
 }
-
-// todo : handle dispatch
-// const mapDispatchToProps = {
-//   dispatchGoToNextTourStep: goToNextTourStep,
-// };

@@ -21,6 +21,8 @@ import {
     IfElseStatement,
     LocalVarDecl,
     ModulePart,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
     STKindChecker,
     STNode,
     Visitor
@@ -83,7 +85,105 @@ class SizingVisitor implements Visitor {
         }
     }
 
+    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        const bodyViewState: BlockViewState = body.viewState;
+
+        // If body has no statements and doesn't have a end component
+        // Add the plus button to show up on the start end
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+            const plusBtnViewState: PlusViewState = new PlusViewState();
+            if (!bodyViewState.draft && !viewState.initPlus) {
+                plusBtnViewState.index = body.statements.length;
+                plusBtnViewState.expanded = true;
+                plusBtnViewState.selectedComponent = "PROCESS";
+                plusBtnViewState.collapsedClicked = false;
+                plusBtnViewState.collapsedPlusDuoExpanded = false;
+                plusBtnViewState.isLast = true;
+                bodyViewState.plusButtons = [];
+                bodyViewState.plusButtons.push(plusBtnViewState);
+                viewState.initPlus = plusBtnViewState;
+            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
+                viewState.initPlus = undefined;
+            }
+        }
+    }
+
+    public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
+        const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        const bodyViewState: BlockViewState = body.viewState;
+
+        // If body has no statements and doesn't have a end component
+        // Add the plus button to show up on the start end
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+            const plusBtnViewState: PlusViewState = new PlusViewState();
+            if (!bodyViewState.draft && !viewState.initPlus) {
+                plusBtnViewState.index = body.statements.length;
+                plusBtnViewState.expanded = true;
+                plusBtnViewState.selectedComponent = "PROCESS";
+                plusBtnViewState.collapsedClicked = false;
+                plusBtnViewState.collapsedPlusDuoExpanded = false;
+                plusBtnViewState.isLast = true;
+                bodyViewState.plusButtons = [];
+                bodyViewState.plusButtons.push(plusBtnViewState);
+                viewState.initPlus = plusBtnViewState;
+            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
+                viewState.initPlus = undefined;
+            }
+        }
+    }
+
     public endVisitFunctionDefinition(node: FunctionDefinition) {
+        // replaces endVisitFunction
+        const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        const bodyViewState: BlockViewState = body.viewState;
+        const lifeLine = viewState.workerLine;
+        const trigger = viewState.trigger;
+        const end = viewState.end;
+
+        trigger.h = START_SVG_HEIGHT;
+        trigger.w = START_SVG_WIDTH;
+
+        end.bBox.w = STOP_SVG_WIDTH;
+        end.bBox.h = STOP_SVG_HEIGHT;
+
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        if (body.statements.length > 0) {
+            lifeLine.h += end.bBox.offsetFromTop;
+        }
+
+        viewState.bBox.h = lifeLine.h;
+        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+    }
+
+    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        // replaces endVisitFunction
+        const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        const bodyViewState: BlockViewState = body.viewState;
+        const lifeLine = viewState.workerLine;
+        const trigger = viewState.trigger;
+        const end = viewState.end;
+
+        trigger.h = START_SVG_HEIGHT;
+        trigger.w = START_SVG_WIDTH;
+
+        end.bBox.w = STOP_SVG_WIDTH;
+        end.bBox.h = STOP_SVG_HEIGHT;
+
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        if (body.statements.length > 0) {
+            lifeLine.h += end.bBox.offsetFromTop;
+        }
+
+        viewState.bBox.h = lifeLine.h;
+        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+    }
+
+    public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
         // replaces endVisitFunction
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;

@@ -1,3 +1,5 @@
+export { default as AddIcon } from '@material-ui/icons/Add';
+
 export { default as ApiIcon } from "./Api";
 export { default as CalendarIcon } from "./Calendar";
 export { default as CustomIcon } from "./Custom";

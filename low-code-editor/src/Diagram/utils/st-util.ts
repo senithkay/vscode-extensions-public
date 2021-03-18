@@ -48,7 +48,13 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
 
 export const MAIN_FUNCTION = "main";
 
-export function getLowCodeSTFn(mp: ModulePart) {
+const findResource = (st: any, search: any) => {
+    const serviceMember = st.members[0];
+    const resourceMembers = serviceMember.members;
+    return resourceMembers.find((m: any) => (m.relativeResourcePath[0].value === search.split("_")[1]));
+}
+
+export function getLowCodeSTFn(mp: ModulePart, currentResource: any = null) {
     const modulePart: ModulePart = mp;
     const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
@@ -61,28 +67,37 @@ export function getLowCodeSTFn(mp: ModulePart) {
             // TODO: Fix with the ST interface generation.
             const serviceDec = node as any;
             const serviceMembers: STNode[] = serviceDec.members;
-            for (const serviceMember of serviceMembers) {
-                if (serviceMember.kind === "ResourceAccessorDefinition"
-                    || serviceMember.kind === "ObjectMethodDefinition"
-                    || serviceMember.kind === "FunctionDefinition") {
-                    const functionDef = serviceMember as FunctionDefinition;
-                    functionDef.configurablePosition = node.position;
-                    let isRemoteOrResource: boolean = false;
 
-                    functionDef?.qualifierList?.forEach(qualifier => {
-                        if (qualifier.kind === "ResourceKeyword"
-                            || qualifier.kind === "RemoteKeyword") {
-                            isRemoteOrResource = true;
-                        }
-                    });
+            let resourceIndex = 0;
+            if (currentResource) {
+                const foundResourceIndex = serviceMembers.findIndex((m: any) => (m?.relativeResourcePath[0]?.value === currentResource?.relativeResourcePath[0]?.value));
+                resourceIndex = foundResourceIndex || 0;
+            }
 
-                    if (isRemoteOrResource) {
-                        functionDefinition = serviceMember as FunctionDefinition;
-                        functionDefinition.kind = "FunctionDefinition";
-                        break;
+            const serviceMember = serviceMembers[resourceIndex];
+
+            // for (const serviceMember of serviceMembers) {
+            if (serviceMember.kind === "ResourceAccessorDefinition"
+                || serviceMember.kind === "ObjectMethodDefinition"
+                || serviceMember.kind === "FunctionDefinition") {
+                const functionDef = serviceMember as FunctionDefinition;
+                functionDef.configurablePosition = node.position;
+                let isRemoteOrResource: boolean = false;
+
+                functionDef?.qualifierList?.forEach(qualifier => {
+                    if (qualifier.kind === "ResourceKeyword"
+                        || qualifier.kind === "RemoteKeyword") {
+                        isRemoteOrResource = true;
                     }
+                });
+
+                if (isRemoteOrResource) {
+                    functionDefinition = serviceMember as FunctionDefinition;
+                    functionDefinition.kind = "FunctionDefinition";
+                    break;
                 }
             }
+            // }
             break;
         }
     }

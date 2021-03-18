@@ -10,7 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, ModulePart, VisibleEndpoint, Visitor } from "@ballerina/syntax-tree";
+import {
+    BlockStatement,
+    ForeachStatement,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    IfElseStatement,
+    ModulePart,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
+    VisibleEndpoint,
+    Visitor
+} from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
@@ -66,7 +77,93 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
     }
 
+    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        if (!node.functionBody) {
+            return;
+        }
+        const viewState: FunctionViewState = node.viewState;
+        const bodyViewState: BlockViewState = node.functionBody.viewState;
+
+        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
+        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+
+        viewState.workerLine.x = viewState.trigger.cx;
+        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+
+        bodyViewState.bBox.cx = viewState.workerLine.x;
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+    }
+
+    public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
+        if (!node.functionBody) {
+            return;
+        }
+        const viewState: FunctionViewState = node.viewState;
+        const bodyViewState: BlockViewState = node.functionBody.viewState;
+
+        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
+        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+
+        viewState.workerLine.x = viewState.trigger.cx;
+        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+
+        bodyViewState.bBox.cx = viewState.workerLine.x;
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+    }
+
     public endVisitFunctionDefinition(node: FunctionDefinition) {
+        const viewState: FunctionViewState = node.viewState;
+        const bodyViewState: BlockViewState = node.functionBody.viewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        viewState.workerBody = bodyViewState;
+        viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
+        viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
+
+        // If body has no statements and doesn't have a end component
+        // Add the plus button to show up on the start end
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+            const plusBtnViewState: PlusViewState = viewState.initPlus;
+            if (bodyViewState.draft === undefined && plusBtnViewState) {
+                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+            }
+        }
+
+        updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+        // Add the connector max width to the diagram width.
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+    }
+
+    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        const viewState: FunctionViewState = node.viewState;
+        const bodyViewState: BlockViewState = node.functionBody.viewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        viewState.workerBody = bodyViewState;
+        viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
+        viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
+
+        // If body has no statements and doesn't have a end component
+        // Add the plus button to show up on the start end
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+            const plusBtnViewState: PlusViewState = viewState.initPlus;
+            if (bodyViewState.draft === undefined && plusBtnViewState) {
+                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+            }
+        }
+
+        updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+        // Add the connector max width to the diagram width.
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+    }
+
+    public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;

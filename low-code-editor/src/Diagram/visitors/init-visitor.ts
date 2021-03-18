@@ -12,8 +12,10 @@ import {
     IfElseStatement,
     LocalVarDecl,
     ModulePart,
+    ObjectMethodDefinition,
     RemoteMethodCallAction,
     RequiredParam,
+    ResourceAccessorDefinition,
     ResourceKeyword,
     SimpleNameReference,
     STKindChecker,
@@ -54,6 +56,20 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
+        if (!node.viewState) {
+            const viewState = new FunctionViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode) {
+        if (!node.viewState) {
+            const viewState = new FunctionViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
