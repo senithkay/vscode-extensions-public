@@ -43,7 +43,6 @@ const args: FormElementProps = {
     },
     defaultValue: initialVal
 };
-export const defaultArgs = args;
 
 // Hiding & disabling unused props
 const argTypes = {
@@ -72,7 +71,7 @@ const argTypes = {
     dispatchExprEditorClose: { table: { disable: true } },
 }
 
-export const initialContext = {
+const initialContext = {
     diagnostics:  [] as any,
     targetPosition: {
         endColumn: 22,
@@ -87,17 +86,18 @@ export const initialContext = {
         workingFile: "/apps/username/apName/project/choreo.bal",
     },
     langServerURL: '',
-    getExpressionEditorLangClient:async ()=>({
+    getExpressionEditorLangClient: async () => ({
         getCompletion: async (_completionParams: CompletionParams): Promise<CompletionResponse[]> => {
             const completions: CompletionResponse[] = [];
             return completions;
         },
+        // tslint:disable-next-line:no-empty
         didChange: async (): Promise<void> => {},
         diagnostics: async (): Promise<any> => ([])
     }),
     syntaxTree: {
-        functionBody:{
-            position:{
+        functionBody: {
+            position: {
                 endColumn: 1,
                 endLine: 3,
                 startColumn: 38,
