@@ -12,7 +12,7 @@
  */
 import React from 'react';
 
-import { RecordField, RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
+import { STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
 import { TypeInfoEntry } from "../../Portals/ConfigForm/types";
@@ -64,7 +64,7 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                 const recordNode = recordMap.get(recordIdentifier);
                 if (recordNode) {
                     recordNode.dataMapperViewState = new DataMapperViewState();
-                    traversNode(recordNode, new DataMapperInitVisitor(recordMap));
+                    traversNode(recordNode, new DataMapperInitVisitor());
                     returnString += '{'
                     recordNode.dataMapperViewState.fields?.forEach((field: any, index: number) => {
                         returnString += `${field.name}: `;

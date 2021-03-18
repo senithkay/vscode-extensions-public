@@ -32,12 +32,6 @@ import { DataMapperViewState, DataPointViewState } from '../viewstate';
 
 
 export class DataMapperInitVisitor implements Visitor {
-    private recordListMap: Map<string, STNode>;
-
-    constructor(recordListMap: Map<string, STNode>) {
-        this.recordListMap = recordListMap;
-    }
-
     beginVisitSTNode(node: STNode) {
         if (!node.dataMapperViewState) {
             node.dataMapperViewState = new DataMapperViewState();
@@ -145,21 +139,14 @@ export class DataMapperInitVisitor implements Visitor {
             const typeData = node.typeData;
             const typeSymbol = typeData.typeSymbol;
             const moduleID = typeSymbol.moduleID;
-            const recordMapKey = `${moduleID.orgName}/${moduleID.moduleName}:${moduleID.version}:${typeSymbol.name}`;
             const viewState = node.dataMapperViewState as DataPointViewState;
             viewState.displayType = node.name.value;
 
-            if (this.recordListMap.has(recordMapKey)) {
-                const recordST = this.recordListMap.get(recordMapKey);
-                recordST.dataMapperViewState = node.dataMapperViewState;
-                traversNode(recordST, this);
-            } else {
-                node.dataMapperViewState.typeInfo = {
-                    modName: moduleID.moduleName,
-                    name: typeSymbol.name,
-                    orgName: moduleID.orgName,
-                    version: moduleID.version
-                }
+            node.dataMapperViewState.typeInfo = {
+                moduleName: moduleID.moduleName,
+                name: typeSymbol.name,
+                orgName: moduleID.orgName,
+                version: moduleID.version
             }
         }
     }

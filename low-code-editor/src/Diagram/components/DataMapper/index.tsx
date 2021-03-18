@@ -48,20 +48,20 @@ export function DataMapper(props: DataMapperProps) {
         : undefined;
     const parameters: any[] = [];
     debugger;
-    if (selectedNode) {
-        traversNode(selectedNode, new DataMapperInitVisitor(stSymbolInfo.recordTypeDescriptions));
-        // todo: fetch missing records and visit
-        traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
-        ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
-            parameters.push(<Parameter model={param}/>)
-        });
-    }
-    const returnTypeModel = selectedNode ?
-        ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression)
-            .functionSignature
-            .returnTypeDesc : null;
-
-    const returnTypeElement = returnTypeModel ? <Parameter model={returnTypeModel} isOutput={true} /> : null;
+    // if (selectedNode) {
+    //     traversNode(selectedNode, new DataMapperInitVisitor());
+    //     // todo: fetch missing records and visit
+    //     traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
+    //     ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
+    //         parameters.push(<Parameter model={param}/>)
+    //     });
+    // }
+    // const returnTypeModel = selectedNode ?
+    //     ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression)
+    //         .functionSignature
+    //         .returnTypeDesc : null;
+    //
+    const returnTypeElement: any = null; // returnTypeModel ? <Parameter model={returnTypeModel} isOutput={true} /> : null;
 
     return (
         <>

@@ -26,7 +26,7 @@ export function Canvas(props: CanvasProps) {
             <svg
                 className="diagram-canvas"
                 preserveAspectRatio={"xMinYMin"}
-                width={w}
+                width={'100vh'} // todo: revert
                 height={h}
             >
                 <g>
