@@ -85,9 +85,24 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
     }
 }
 
-export function getInitialValue(defaultValue: string, modelValue: string, varType: string): string {
-    const initVal = defaultValue ? defaultValue : modelValue;
-    if (varType === "string") {
+export function getInitialValue(defaultValue: string, model: FormField): string {
+    if (model.type === PrimitiveBalType.Collection) {
+        if (model.value && Array.isArray(model.value) && model.value.length > 0) {
+            const arrayValues = model.value.map((subValue: any) => {
+                return subValue;
+            });
+            return "[" + arrayValues.join(",") + "]";
+        } else if (model.fields && Array.isArray(model.fields) && model.fields.length > 0) {
+            const arrayValues = model.fields.map((subField: FormField) => {
+                return subField.value;
+            });
+            return "[" + arrayValues.join(",") + "]";
+        } else {
+            return model.value
+        }
+    }
+    const initVal = defaultValue ? defaultValue : model.value;
+    if (model.type === PrimitiveBalType.String) {
         return initVal ? initVal : "\"\"";
     } else {
         return initVal;

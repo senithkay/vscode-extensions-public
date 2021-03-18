@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -130,8 +130,7 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const diagramContext = useContext(Context);
-    const { state } = diagramContext;
+    const { state } = useContext(DiagramContext);
 
     const {
         diagnostics: mainDiagnostics,
@@ -166,7 +165,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
     const varType = transformFormFieldTypeToString(model);
-    const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
+    const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
