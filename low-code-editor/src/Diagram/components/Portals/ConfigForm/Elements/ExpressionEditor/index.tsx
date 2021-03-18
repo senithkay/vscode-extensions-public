@@ -127,6 +127,7 @@ export interface ExpressionEditorProps {
         targetColumn: number;
     }
     isLarge?: boolean;
+    revertClearInput?: () => void;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -159,7 +160,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate, focus } = customProps;
+    const { validate, statementType, customTemplate, focus, clearInput, revertClearInput } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
 
@@ -173,16 +174,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
-
-    if (customProps?.clearInput) {
-        if (monacoRef.current) {
-            const editorModel = monacoRef.current.editor.getModel();
-            if (editorModel) {
-                editorModel.setValue("");
-                customProps.clearInput = false;
-            }
-        }
-    }
 
     const validExpEditor = () => {
         validate(model.name, false);
@@ -365,6 +356,19 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             customProps.revertFocus();
         }
     }, [focus]);
+
+    useEffect(() => {
+        // Programatically clear exp-editor
+        if (clearInput && revertClearInput) {
+            if(monacoRef.current){
+                const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {               
+                editorModel.setValue("");
+                revertClearInput()
+            }
+            }
+        }
+    }, [clearInput]);
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
