@@ -31,6 +31,8 @@ export function genInterfacesFileCode(modelInfo: any) {
             value?: any;
             parent?: STNode;
             viewState?: any;
+            dataMapperViewState?: any;
+            dataMapperTypeDescNode?: STNode;
             position?: any;
             typeData?: any;
             VisibleEndpoints?: VisibleEndpoint[];

@@ -25,6 +25,7 @@ export interface STNode {
   parent?: STNode;
   viewState?: any;
   dataMapperViewState?: any;
+  dataMapperTypeDescNode?: STNode;
   position?: any;
   typeData?: any;
   VisibleEndpoints?: VisibleEndpoint[];
