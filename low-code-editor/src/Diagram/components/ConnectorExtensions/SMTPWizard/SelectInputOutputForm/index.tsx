@@ -214,12 +214,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 </div>
             );
         } else if (field.name === "body") {
-            elementPropsSMTPBody.model = field;
+            elementProps.model = field;
+            elementProps.customProps = { ...elementProps.customProps, expandDefault: true }
             const onBodyChange = (body: string) => {
-                elementPropsSMTPBody.model.value = body
+                elementProps.model.value = body
             }
             return (
-                <ExpressionEditor {...elementPropsSMTPBody} onChange={onBodyChange} />
+                <ExpressionEditor {...elementProps} onChange={onBodyChange} />
             );
         }
     }
