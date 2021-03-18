@@ -17,10 +17,10 @@ import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import classNames from "classnames";
 
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
-import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {

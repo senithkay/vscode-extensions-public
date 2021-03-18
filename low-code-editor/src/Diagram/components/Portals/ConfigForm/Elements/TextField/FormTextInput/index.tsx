@@ -15,9 +15,9 @@ import React, { useEffect, useState } from "react";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
-import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 interface FormTextInputProps {
