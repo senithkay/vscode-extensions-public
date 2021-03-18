@@ -16,6 +16,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
+import Tooltip, { TooltipIcon } from "../../../../../components/Tooltip";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, httpResponse, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -26,7 +27,6 @@ import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/D
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { RadioControl } from "../../../Portals/ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import Tooltip, { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";

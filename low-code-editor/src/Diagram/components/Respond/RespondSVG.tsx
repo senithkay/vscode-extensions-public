@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {TooltipCodeSnippet} from "../Portals/ConfigForm/Elements/Tooltip";
+import { TooltipCodeSnippet } from "../../../components/Tooltip";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 67;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 116;
@@ -28,17 +28,17 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
         <svg {...xyProps} height={RESPOND_SVG_HEIGHT_WITH_SHADOW} width={RESPOND_SVG_WIDTH_WITH_SHADOW} >
             <defs>
                 <filter id="RespondFilter" x="0" y="0" width="116" height="67" filterUnits="userSpaceOnUse">
-                    <feOffset dy="2" in="SourceAlpha"/>
-                    <feGaussianBlur stdDeviation="3" result="blur"/>
-                    <feFlood floodColor="#a9acb6" floodOpacity="0.722"/>
-                    <feComposite operator="in" in2="blur"/>
-                    <feComposite in="SourceGraphic"/>
+                    <feOffset dy="2" in="SourceAlpha" />
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feFlood floodColor="#a9acb6" floodOpacity="0.722" />
+                    <feComposite operator="in" in2="blur" />
+                    <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
             <TooltipCodeSnippet openInCodeView={openInCodeView} content={sourceSnippet} placement="right" arrow={true}>
                 <g id="Respond" transform="translate(9 7)">
                     <g transform="matrix(1, 0, 0, 1, -9, -7)" filter="url(#RespondFilter)">
-                        <rect id="RespondRectangle" width="98" height="49" rx="24.5" transform="translate(9 7)"/>
+                        <rect id="RespondRectangle" width="98" height="49" rx="24.5" transform="translate(9 7)" />
                     </g>
                     <text id="RespondText" transform="translate(49 28)" >
                         <tspan x="0" y="0" textAnchor="middle" >

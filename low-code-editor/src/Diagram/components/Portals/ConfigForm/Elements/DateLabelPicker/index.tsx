@@ -20,7 +20,7 @@ import { format, parse } from 'date-fns';
 import {useStyles as useFormStyles} from "../../forms/style";
 import { FormElementProps } from '../../types';
 import {useStyles as useTextInputStyles} from "../TextField/style";
-import {TooltipIcon} from "../Tooltip";
+import {TooltipIcon} from "../../../../../../components/Tooltip";
 
 import { useStyles } from "./styles";
 

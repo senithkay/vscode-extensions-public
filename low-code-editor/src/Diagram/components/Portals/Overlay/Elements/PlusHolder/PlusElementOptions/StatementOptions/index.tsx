@@ -22,7 +22,7 @@ import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } f
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
 import { PlusViewState } from "../../../../../../../view-state/plus";
-import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
+import Tooltip from "../../../../../../../../components/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
 

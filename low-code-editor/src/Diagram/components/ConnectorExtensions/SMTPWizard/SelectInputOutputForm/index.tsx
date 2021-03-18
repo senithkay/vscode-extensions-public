@@ -28,7 +28,7 @@ import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/Sec
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormChipTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormChipTextInput";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
+import { TooltipIcon } from "../../../../../components/Tooltip";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";

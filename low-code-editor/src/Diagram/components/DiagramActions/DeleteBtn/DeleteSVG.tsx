@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import Tooltip from "../../Portals/ConfigForm/Elements/Tooltip";
+import Tooltip from "../../../../components/Tooltip";
 
 export const DELETE_SVG_WIDTH_WITH_SHADOW = 34;
 export const DELETE_SVG_HEIGHT_WITH_SHADOW = 34;

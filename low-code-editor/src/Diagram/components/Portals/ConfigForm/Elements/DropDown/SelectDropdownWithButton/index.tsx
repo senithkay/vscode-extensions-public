@@ -20,7 +20,7 @@ import classNames from "classnames";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
-import { TooltipIcon } from "../../Tooltip";
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {

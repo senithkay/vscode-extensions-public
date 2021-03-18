@@ -14,7 +14,7 @@
 import * as React from "react";
 
 import { ModelCodePosition } from "../../../api/models";
-import { TooltipCodeSnippet } from "../Portals/ConfigForm/Elements/Tooltip"
+import { TooltipCodeSnippet } from "../../../components/Tooltip";
 
 import "./style.scss";
 

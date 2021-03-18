@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {TooltipCodeSnippet} from "../Portals/ConfigForm/Elements/Tooltip";
+import {TooltipCodeSnippet} from "../../../components/Tooltip";
 
 export const STOP_SVG_HEIGHT_WITH_SHADOW = 59;
 export const STOP_SVG_WIDTH_WITH_SHADOW = 83;

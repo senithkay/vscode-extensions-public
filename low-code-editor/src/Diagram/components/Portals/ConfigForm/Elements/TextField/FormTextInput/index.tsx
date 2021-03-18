@@ -17,7 +17,7 @@ import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@mate
 
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
-import { TooltipIcon } from "../../Tooltip";
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 interface FormTextInputProps {

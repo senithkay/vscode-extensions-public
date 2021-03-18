@@ -24,8 +24,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Add from "@material-ui/icons/Add";
 
 import { ConnectionDetails } from "../../../../api/models";
+import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
-import { TooltipIcon } from "../../Portals/ConfigForm/Elements/Tooltip";
 
 import { useStyles } from "./../styles";
 
