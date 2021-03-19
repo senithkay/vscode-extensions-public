@@ -44,19 +44,19 @@ import {
 } from "../DiagramActions/EditBtn/EditSVG";
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
-import {
-    ForeachSVG,
-    FOREACH_SHADOW_OFFSET,
-    FOREACH_SVG_HEIGHT,
-    FOREACH_SVG_HEIGHT_WITH_SHADOW,
-    FOREACH_SVG_WIDTH, FOREACH_SVG_WIDTH_WITH_SHADOW
-} from "../ForEach/ForeachSVG";
+// import {
+//     ForeachSVG,
+//     FOREACH_SHADOW_OFFSET,
+//     FOREACH_SVG_HEIGHT,
+//     FOREACH_SVG_HEIGHT_WITH_SHADOW,
+//     FOREACH_SVG_WIDTH, FOREACH_SVG_WIDTH_WITH_SHADOW
+// } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
 
 import "./style.scss";
-import { WhileSVG } from "./WhileSVG";
+import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
 
 export interface WhileProps {
     blockViewState?: BlockViewState;
@@ -81,7 +81,7 @@ export function While(props: WhileProps) {
     const bodyViewState: BlockViewState = modelWhile.whileBody.viewState;
 
     const x: number = viewState.foreachHead.cx;
-    const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
+    const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
 
@@ -105,7 +105,7 @@ export function While(props: WhileProps) {
     };
     const foldProps = {
         x: x + (viewState.foreachBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
-        y: y + (FOREACH_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
+        y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
     if (bodyViewState.collapseView) {
@@ -189,30 +189,30 @@ export function While(props: WhileProps) {
 
     const deleteTriggerPosition = {
         cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2))
+        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2))
     };
     const editTriggerPosition = {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2))
+        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2))
     };
 
     const unFoldedComponent = (
         <g className="while-block" data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper">
-                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
+                <WhileSVG x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
-                    height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
-                    width={FOREACH_SVG_HEIGHT_WITH_SHADOW}
-                    x={viewState.bBox.cx - (FOREACH_SHADOW_OFFSET / 2)}
-                    y={viewState.bBox.cy - (FOREACH_SHADOW_OFFSET / 2)}
+                    height={WHILE_SVG_HEIGHT_WITH_SHADOW}
+                    width={WHILE_SVG_HEIGHT_WITH_SHADOW}
+                    x={viewState.bBox.cx - (WHILE_SHADOW_OFFSET / 2)}
+                    y={viewState.bBox.cy - (WHILE_SHADOW_OFFSET / 2)}
                 >
                     {model && isConfigWizardOpen &&
                     <ConditionConfigForm
                         type={"While"}
                         position={{
-                            x: viewState.bBox.cx + FOREACH_SVG_WIDTH,
+                            x: viewState.bBox.cx + WHILE_SVG_WIDTH,
                             y: viewState.bBox.cy
                         }}
                         wizardType={WizardType.EXISTING}
@@ -224,9 +224,9 @@ export function While(props: WhileProps) {
                     {!isConfigWizardOpen &&
                     <>
                         <rect
-                            x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
-                            y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
-                            className="while-rect"
+                            x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
+                            y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
+                            className="while-text-hover-rect"
                         />
                         <DeleteBtn
                             {...deleteTriggerPosition}
@@ -254,25 +254,25 @@ export function While(props: WhileProps) {
         <g className="while-block" data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
-                <WhileSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
+                <WhileSVG x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
                     <g
                         className="while-options-wrapper"
-                        height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
-                        width={FOREACH_SVG_HEIGHT_WITH_SHADOW}
-                        x={viewState.bBox.cx - (FOREACH_SHADOW_OFFSET / 2)}
-                        y={viewState.bBox.cy - (FOREACH_SHADOW_OFFSET / 2)}
+                        height={WHILE_SVG_HEIGHT_WITH_SHADOW}
+                        width={WHILE_SVG_HEIGHT_WITH_SHADOW}
+                        x={viewState.bBox.cx - (WHILE_SHADOW_OFFSET / 2)}
+                        y={viewState.bBox.cy - (WHILE_SHADOW_OFFSET / 2)}
                     >
                         <rect
-                            x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
-                            y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
+                            x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
+                            y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
                             className="while-rect"
                         />
                         {model && isConfigWizardOpen &&
                         <ConditionConfigForm
                             type={"While"}
                             position={{
-                                x: viewState.bBox.cx + FOREACH_SVG_WIDTH,
+                                x: viewState.bBox.cx + WHILE_SVG_WIDTH,
                                 y: viewState.bBox.cy
                             }}
                             wizardType={WizardType.EXISTING}
@@ -285,9 +285,9 @@ export function While(props: WhileProps) {
                         {!isConfigWizardOpen &&
                         <>
                             <rect
-                                x={viewState.bBox.cx - (FOREACH_SVG_WIDTH / 4)}
-                                y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
-                                className="while-rect"
+                                x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
+                                y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
+                                className="while-text-hover-rect"
                             />
                             <DeleteBtn
                                 {...deleteTriggerPosition}
@@ -306,7 +306,7 @@ export function While(props: WhileProps) {
                 }
             </g>
             <ExpandButtonSVG {...foldProps} onClick={handleExpandClick}/>
-            <ThreeDotsSVG x={x - (COLLAPSE_DOTS_SVG_WIDTH / 2)} y={y + FOREACH_SVG_HEIGHT_WITH_SHADOW}/>
+            <ThreeDotsSVG x={x - (COLLAPSE_DOTS_SVG_WIDTH / 2)} y={y + WHILE_SVG_HEIGHT_WITH_SHADOW}/>
         </g>
     );
 
