@@ -332,6 +332,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
+        case 'ballerinax_slack_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "init") {
+                    value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
+                        if (field.name === "secureSocketConfig"){
+                            field.hide = true;
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         default:
             filteredFunctions = fieldsForFunctions;
             break;
