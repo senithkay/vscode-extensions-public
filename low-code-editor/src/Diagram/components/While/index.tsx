@@ -15,8 +15,6 @@ import React, { ReactNode, useContext, useState } from "react"
 
 import {
     BracedExpression,
-    CaptureBindingPattern,
-    ForeachStatement,
     STNode,
     WhileStatement
 } from "@ballerina/syntax-tree";
@@ -26,7 +24,6 @@ import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
-import { DraftInsertPosition, DraftUpdateStatement } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
@@ -44,16 +41,8 @@ import {
 } from "../DiagramActions/EditBtn/EditSVG";
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
-// import {
-//     ForeachSVG,
-//     FOREACH_SHADOW_OFFSET,
-//     FOREACH_SVG_HEIGHT,
-//     FOREACH_SVG_HEIGHT_WITH_SHADOW,
-//     FOREACH_SVG_WIDTH, FOREACH_SVG_WIDTH_WITH_SHADOW
-// } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 import { PlusButton } from "../Plus";
-import { ForeachConfig } from "../Portals/ConfigForm/types";
 
 import "./style.scss";
 import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
@@ -64,9 +53,9 @@ export interface WhileProps {
 }
 
 export function While(props: WhileProps) {
-    const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, appInfo } = state;
-    const { isWaitingOnWorkspace } = appInfo;
+    const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context);
+    const { syntaxTree, isReadOnly, isMutationProgress, currentApp, isWaitingOnWorkspace, isCodeEditorActive,
+        maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight } = state;
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -84,6 +73,22 @@ export function While(props: WhileProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
+
+    let codeSnippet = "WHILE CODE SNIPPET";
+    let codeSnippetOnSvg = "WHILE";
+    const { id: appId } = currentApp || {};
+
+    if (model) {
+        codeSnippet = modelWhile.source.trim().split('{')[0];
+        const firstBraceIndex = codeSnippet.indexOf("(");
+        const lastBraceIndex = codeSnippet.lastIndexOf(")");
+        codeSnippetOnSvg = codeSnippet.substring(firstBraceIndex + 1, lastBraceIndex);
+    }
+
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model?.position)
+    }
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -139,40 +144,6 @@ export function While(props: WhileProps) {
             conditionPosition: conditionExpr.position
         });
         setWhileConfigOverlayState(conditionConfigState);
-        // TODO: re enable this after the release
-        // const varRef: CaptureBindingPattern = modelWhile.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-        // const variable: string = varRef.variableName.value;
-        //
-        // const conditionExpression: ForeachConfig = {
-        //     variable,
-        //     collection: modelWhile.actionOrExpressionNode.source.trim(),
-        //     model: modelWhile
-        // }
-        //
-        // const position: DraftInsertPosition = {
-        //     column: model.position.startColumn,
-        //     line: model.position.startLine
-        // };
-        //
-        // const conditionUpdatePosition: DraftUpdateStatement = {
-        //     /*
-        //     * As we are replacing the whole condition including the variable and the iteration condition different
-        //     * components of the model are used to generate the update position
-        //     * foreach var [i in expr] <- this whole part gets replaced on update
-        //     */
-        //     startLine: modelWhile.typedBindingPattern.bindingPattern.position.startLine,
-        //     startColumn: modelWhile.typedBindingPattern.bindingPattern.position.startColumn,
-        //     endLine: modelWhile.actionOrExpressionNode.position.endLine,
-        //     endColumn: modelWhile.actionOrExpressionNode.position.endColumn,
-        // }
-        // setConfigWizardOpen(true);
-        // const conditionConfigFormState = getConditionConfig("ForEach", position, WizardType.EXISTING, undefined, {
-        //     type: "ForEach",
-        //     conditionExpression,
-        //     conditionPosition: conditionUpdatePosition
-        // }, stSymbolInfo, model)
-        //
-        // setForEachConfigOverlayState(conditionConfigFormState);
     };
 
     const onDraftDelete = () => {
@@ -200,7 +171,13 @@ export function While(props: WhileProps) {
         <g className="while-block" data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper">
-                <WhileSVG x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
+                <WhileSVG
+                    x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
+                    y={y} text="While"
+                    codeSnippet={codeSnippet}
+                    codeSnippetOnSvg={codeSnippetOnSvg}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                />
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
                     height={WHILE_SVG_HEIGHT_WITH_SHADOW}
@@ -254,7 +231,13 @@ export function While(props: WhileProps) {
         <g className="while-block" data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
-                <WhileSVG x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="While"/>
+                <WhileSVG
+                    x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
+                    y={y} text="While"
+                    codeSnippet={codeSnippet}
+                    codeSnippetOnSvg={codeSnippetOnSvg}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                />
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
                     <g
                         className="while-options-wrapper"

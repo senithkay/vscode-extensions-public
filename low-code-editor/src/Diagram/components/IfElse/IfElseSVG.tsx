@@ -40,7 +40,7 @@ export function IfElseSVG(props: {
                 </g>
             </g>
         );
-    } else if (conditionType === "Foreach") {
+    } else if (conditionType === "ForEach") {
         icon = (
             <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="develop-UI-kit" transform="translate(-576.000000, -2682.000000)" fill-rule="nonzero">

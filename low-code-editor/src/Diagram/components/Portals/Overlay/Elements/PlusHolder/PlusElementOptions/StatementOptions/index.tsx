@@ -25,6 +25,7 @@ import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
+import While from "../../../../../../../../assets/icons/While";
 
 export const PROCESS_TYPES = [""];
 
@@ -153,7 +154,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div className="sub-option enabled" data-testid="addWhile" onClick={onSelect.bind(undefined, "While")} >
                     <div className="icon-wrapper">
-                        <ForEachIcon />
+                        <While />
                     </div>
                     <div className="text-label">While</div>
                 </ div>
