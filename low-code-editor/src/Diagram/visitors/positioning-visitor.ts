@@ -35,6 +35,7 @@ import {
     PlusViewState,
     StatementViewState
 } from "../view-state";
+import {WhileViewState} from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
@@ -253,18 +254,6 @@ class PositioningVisitor implements Visitor {
         const viewState: ForEachViewState = node.viewState;
         viewState.foreachBody = bodyViewState;
 
-        this.beginPositionIterableStatement(viewState);
-    }
-
-    public beginVisitWhileStatement(node: WhileStatement) {
-        const bodyViewState: BlockViewState = node.whileBody.viewState;
-        const viewState: ForEachViewState = node.viewState;
-        viewState.foreachBody = bodyViewState;
-
-        this.beginPositionIterableStatement(viewState);
-    }
-
-    public beginPositionIterableStatement(viewState: ForEachViewState) {
         viewState.foreachHead.cx = viewState.bBox.cx;
         viewState.foreachHead.cy = viewState.bBox.cy + (viewState.foreachHead.h / 2);
 
@@ -276,6 +265,24 @@ class PositioningVisitor implements Visitor {
 
         viewState.foreachBodyRect.cx = viewState.foreachHead.cx;
         viewState.foreachBodyRect.cy = viewState.foreachHead.cy;
+    }
+
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: WhileViewState = node.viewState;
+        viewState.whileBody = bodyViewState;
+
+        viewState.whileHead.cx = viewState.bBox.cx;
+        viewState.whileHead.cy = viewState.bBox.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileLifeLine.cx = viewState.bBox.cx;
+        viewState.whileLifeLine.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileBody.bBox.cx = viewState.whileHead.cx;
+        viewState.whileBody.bBox.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2) + viewState.whileHead.offsetFromBottom;
+
+        viewState.whileBodyRect.cx = viewState.whileHead.cx;
+        viewState.whileBodyRect.cy = viewState.whileHead.cy;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {

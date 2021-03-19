@@ -18,7 +18,8 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor, WhileStatement
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
@@ -37,6 +38,7 @@ import {
     ViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { WhileViewState } from "../view-state/while";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock;
@@ -134,7 +136,7 @@ class InitVisitor implements Visitor {
     }
 
     public endVisitWhileStatement(node: WhileStatement) {
-        node.viewState = new ForEachViewState();
+        node.viewState = new WhileViewState();
     }
 
     public endVisitActionStatement(node: ActionStatement, parent?: STNode) {

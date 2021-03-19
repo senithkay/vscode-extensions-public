@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
+
 import { TooltipCodeSnippet } from "../Portals/ConfigForm/Elements/Tooltip";
 
 export const WHILE_SVG_WIDTH_WITH_SHADOW = 113.824;
@@ -20,8 +21,8 @@ export const WHILE_SVG_WIDTH = 96.2;
 export const WHILE_SVG_HEIGHT = 96.2;
 export const WHILE_SHADOW_OFFSET = WHILE_SVG_HEIGHT_WITH_SHADOW - WHILE_SVG_HEIGHT;
 
-export function WhileSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippetOnSvg?: string, codeSnippet?: string }) {
-    const { text, codeSnippet, openInCodeView, codeSnippetOnSvg, ...xyProps } = props;
+export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => void, codeSnippetOnSvg?: string, codeSnippet?: string }) {
+    const { codeSnippet, openInCodeView, codeSnippetOnSvg, ...xyProps } = props;
     return (
         <svg {...xyProps} width={WHILE_SVG_WIDTH_WITH_SHADOW} height={WHILE_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -49,8 +50,7 @@ export function WhileSVG(props: { x: number, y: number, text: string, openInCode
                     <g transform="matrix(1, 0, 0, 1, -7, -6)">
                         <g id="WhilePolygon" transform="translate(56.91 6.41) rotate(45)">
                             <rect className="while-rect" width="71" height="71" rx="6.5" stroke="none"/>
-                            <rect className="while-rect click-effect" x="0" y="0" width="71" height="71" rx="6.5"
-                                  fill="none"/>
+                            <rect className="while-rect click-effect" x="0" y="0" width="71" height="71" rx="6.5" fill="none"/>
                         </g>
                     </g>
                     <text className="while-text" id="WhileText">

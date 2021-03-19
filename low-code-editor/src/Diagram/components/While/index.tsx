@@ -23,7 +23,8 @@ import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig } from "../../utils/diagram-util";
-import { BlockViewState, ForEachViewState } from "../../view-state";
+import { BlockViewState } from "../../view-state";
+import { WhileViewState } from "../../view-state/while";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
@@ -55,7 +56,7 @@ export interface WhileProps {
 export function While(props: WhileProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context);
     const { syntaxTree, isReadOnly, isMutationProgress, currentApp, isWaitingOnWorkspace, isCodeEditorActive,
-        maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight } = state;
+            maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight } = state;
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -66,11 +67,11 @@ export function While(props: WhileProps) {
     const conditionExpr: BracedExpression = modelWhile.condition as BracedExpression;
     const children = getSTComponents(modelWhile.whileBody.statements);
 
-    const viewState: ForEachViewState = modelWhile.viewState;
+    const viewState: WhileViewState = modelWhile.viewState;
     const bodyViewState: BlockViewState = modelWhile.whileBody.viewState;
 
-    const x: number = viewState.foreachHead.cx;
-    const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
+    const x: number = viewState.whileHead.cx;
+    const y: number = viewState.whileHead.cy - (viewState.whileHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
 
@@ -96,20 +97,20 @@ export function While(props: WhileProps) {
     }
 
     const lifeLineProps = {
-        x1: viewState.foreachLifeLine.cx,
-        y1: viewState.foreachLifeLine.cy,
-        x2: viewState.foreachLifeLine.cx,
-        y2: (viewState.foreachLifeLine.cy + viewState.foreachLifeLine.h)
+        x1: viewState.whileLifeLine.cx,
+        y1: viewState.whileLifeLine.cy,
+        x2: viewState.whileLifeLine.cx,
+        y2: (viewState.whileLifeLine.cy + viewState.whileLifeLine.h)
     };
     const rectProps = {
-        x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2),
-        y: viewState.foreachBodyRect.cy,
-        width: viewState.foreachBodyRect.w,
-        height: viewState.foreachBodyRect.h,
+        x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2),
+        y: viewState.whileBodyRect.cy,
+        width: viewState.whileBodyRect.w,
+        height: viewState.whileBodyRect.h,
         rx: r
     };
     const foldProps = {
-        x: x + (viewState.foreachBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
+        x: x + (viewState.whileBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
@@ -173,7 +174,7 @@ export function While(props: WhileProps) {
             <g className="while-polygon-wrapper">
                 <WhileSVG
                     x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
-                    y={y} text="While"
+                    y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
@@ -233,7 +234,7 @@ export function While(props: WhileProps) {
             <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
                 <WhileSVG
                     x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
-                    y={y} text="While"
+                    y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
