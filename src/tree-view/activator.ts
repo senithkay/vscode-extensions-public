@@ -56,22 +56,22 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
     });
 
-    ballerinaExtInstance.onPackageTreeElementClicked((construct) => {
-        openBallerinaFile(construct);
-    });
+    // ballerinaExtInstance.onPackageTreeElementClicked((construct) => {
+    //     openBallerinaFile(construct);
+    // });
 }
 
-function openBallerinaFile(construct: ConstructIdentifier) {
-    if (construct.filePath && (construct.kind === PROJECT_KIND.FUNCTION || construct.kind === PROJECT_KIND.RESOURCE)) {
-        const showOptions: TextDocumentShowOptions = {
-            preserveFocus: false,
-            preview: false,
-            viewColumn: ViewColumn.Active,
-            selection: new Range(construct.startLine!, construct.startColumn!, construct.startLine!, construct.startColumn!)
-        };
-        const status = commands.executeCommand('vscode.open', Uri.file(construct.filePath), showOptions);
-        if (!status) {
-            throw new Error(`Unable to open ${construct.filePath}`);
-        }
-    }
-}
+// function openBallerinaFile(construct: ConstructIdentifier) {
+//     if (construct.filePath && (construct.kind === PROJECT_KIND.FUNCTION || construct.kind === PROJECT_KIND.RESOURCE)) {
+//         const showOptions: TextDocumentShowOptions = {
+//             preserveFocus: false,
+//             preview: false,
+//             viewColumn: ViewColumn.Active,
+//             selection: new Range(construct.startLine!, construct.startColumn!, construct.startLine!, construct.startColumn!)
+//         };
+//         const status = commands.executeCommand('vscode.open', Uri.file(construct.filePath), showOptions);
+//         if (!status) {
+//             throw new Error(`Unable to open ${construct.filePath}`);
+//         }
+//     }
+// }
