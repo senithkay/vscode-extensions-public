@@ -55,6 +55,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     currentValue: "Current Value Variable",
     name: "Name of the {0}",
+    customVariableType: "Value of other variable type",
     connectionName: "Add a valid connection name",
     responseVariableName: "Enter a valid name for the response variable",
     headerName: "Header name",
@@ -130,6 +131,10 @@ export const tooltipMessages: Record<string, any> = {
     respondStatement: {
         title: "Add a respond statement to the program",
         content: 'respond("Hello " + \n checkpanic req.getTextpayload())'
+    },
+    customStatement: {
+        title: "Can be used to input custom statements",
+        content: 'a=b;\nrequest.setPayload("");'
     },
     httpConnector: {
         title: "Communicate with external Connections through the HTTP protocol",

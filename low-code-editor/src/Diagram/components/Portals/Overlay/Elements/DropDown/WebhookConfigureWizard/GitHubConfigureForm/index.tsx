@@ -55,28 +55,25 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        connectionData,
         onModify: dispatchModifyTrigger,
         trackTriggerSelection,
-        dispatchFetchGithubRepoList
+        currentApp,
+        getGithubRepoList
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-    const gitHubConnections = connectionData?.[CONNECTOR_TYPES.GITHUB];
-    const { position, onComplete, currentEvent, currentAction, currentConnection,
-        // todo : handle Dispatch
-        // dispatchFetchGithubRepoList
-    } = props;
+    const { position, onComplete, currentEvent, currentAction, currentConnection } = props;
     const classes = useStyles();
 
     const [activeEvent, setActiveEvent] = useState<string>(currentEvent);
     const [activeAction, setActiveAction] = useState<string>(currentAction);
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
-    const [githubConnectionInfo, setGithubConnectionInfo] = useState<GithubConnectionInfo>(undefined);
-    const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
+    const [isRepoListFetching, setIsRepoListFetching] = useState(false);
+    const [githubRepoList, setGithubRepoList] = useState<GithubRepo[]>(undefined)
+    const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
 
     // HACK: hardcoded event list for testing
     const githubEvents: ConnectorEvents = {
@@ -268,13 +265,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
-            dispatchFetchGithubRepoList(activeConnection.handle);
+            setIsRepoListFetching(true);
+            (async () => {
+                const repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
+                setGithubRepoList(repoList);
+                setIsRepoListFetching(false);
+            })();
         }
     }, [activeConnection]);
-    useEffect(() => {
-        const githubConnection = gitHubConnections?.[activeConnection?.handle as any] as GithubConnectionInfo;
-        setGithubConnectionInfo(githubConnection);
-    }, [gitHubConnections]);
 
     // handle oauth connect button callbacks
     function handleOnSelectConnection(type: ConnectionType, connection: ConnectionDetails) {
@@ -303,7 +301,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     function handleItemLabel(githubRepo: GithubRepo) {
         return githubRepo.name;
     }
-    const handleGithubRepoChange = (event: object, value: any, reason: string) => {
+    const handleGithubRepoChange = (event: object, value: any) => {
         setActiveGithubRepo(value);
     };
 
@@ -318,12 +316,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     // handle trigger configure complete
     const handleConfigureOnSave = () => {
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
+        const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
 
         setTriggerChanged(true);
         // dispatch and close the wizard
         dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: 'github',
             ACCESS_TOKEN: accessTokenKey,
+            SECRET_KEY: clientSecretKey,
             WEBHOOK: '/',
             PORT: 8090,
             GH_REPO_URL: activeGithubRepo.url,
@@ -344,7 +344,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     onFailure={handleError}
                 />
             </div>
-            { githubConnectionInfo?.isFetching && (
+            { activeConnection && isRepoListFetching && (
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
                     <Typography variant="subtitle2" className={classes.loaderTitle}>
@@ -353,12 +353,12 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 </div>
 
             )}
-            { activeConnection && githubConnectionInfo?.userRepositoryList && (
+            { activeConnection && !isRepoListFetching && githubRepoList && (
                 <div className={classes.customWrapper}>
                     <p className={classes.subTitle}>GitHub Repository</p>
                     <FormAutocomplete
                         placeholder="Choose GitHub Repository"
-                        itemList={githubConnectionInfo.userRepositoryList}
+                        itemList={githubRepoList}
                         value={activeGithubRepo}
                         getItemLabel={handleItemLabel}
                         onChange={handleGithubRepoChange}
@@ -414,10 +414,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             )}
             { showConfirmDialog && (
                 <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y + 403
-                    }}
                     onConfirm={handleConfigureOnSave}
                     onCancel={handleDialogOnCancel}
                 />

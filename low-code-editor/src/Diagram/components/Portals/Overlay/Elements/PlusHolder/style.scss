@@ -11,7 +11,6 @@
 }
 
 .holder-wrapper-large {
-    height: 540px;
     width: 396px;
     border-radius: 12px;
     background-color: #fff;
@@ -23,7 +22,6 @@
 }
 
 .holder-wrapper {
-    height: 385px;
     width: 396px;
     border-radius: 12px;
     background-color: #fff;
@@ -139,15 +137,14 @@
             hr.MuiDivider-root {
                 width: 350px;
                 height: 1px;
+                margin: 0.25rem 0;
             }
 
             .connect-option {
                 display: flex;
                 align-items: center;
                 border-radius: 3px;
-                height: 40px;
                 width: 166px;
-                margin: 0.55rem 0;
 
                 &:hover {
                     background: #f7f8fb;
@@ -159,12 +156,11 @@
                     display: flex;
                     align-items: center;
                     width: 173px;
-                    height: 40px;
-                    padding: 5px 0;
-                    margin: 0.5rem 0;
+                    padding: 6px 0;
 
                     .connector-icon {
                         display: flex;
+                        align-items: center;
                         width: 50px;
                         transform: scale(0.55, 0.55);
                         -webkit-transform: scale(0.55, 0.55);
@@ -207,14 +203,12 @@
 
             .sub-option {
                 width: 176px;
-                height: 40px;
-                padding: 5px 0;
+                padding: 6px 0;
                 display: flex;
                 flex-direction: row;
-                justify-content: flex-start;
                 align-items: center;
                 opacity: 0.3;
-                margin: 0.5rem 0;
+                margin: 0.25rem 0;
 
                 &:hover {
                     background: #f7f8fb;
@@ -229,12 +223,15 @@
                 .icon-wrapper {
                     width: 30px;
                     height: 30px;
-                    margin: 5px 10px;
+                    margin: 5px;
+                    display: flex;
+                    align-items: center;
                 }
 
                 .text-label {
-                    width: 100px;
-                    margin-top: 5px;
+                    width: auto;
+                    margin-top: 0;
+                    font-size: 13px;
                 }
             }
         }

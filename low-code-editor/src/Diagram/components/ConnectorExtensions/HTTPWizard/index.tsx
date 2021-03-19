@@ -23,7 +23,7 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 import clsx from "clsx";
 
-import { ConnectorConfig, FormField } from "../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -33,13 +33,12 @@ import {
     createCheckedRemoteServiceCall,
     createHeaderObjectDeclaration,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createServiceCallForPayload,
     updateCheckedPayloadFunctionInvocation,
     updateCheckedRemoteServiceCall,
     updateHeaderObjectDeclaration,
-    updateObjectDeclaration,
+    updatePropertyStatement,
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
@@ -54,7 +53,7 @@ import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
 interface WizardProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onSave: (sourceModifications: STModification[]) => void;
     onClose?: () => void;
@@ -100,145 +99,146 @@ function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
 export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { actions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
             model } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
-    const connectorInitFormFields: FormField[] = actions.get("init") ? actions.get("init") : actions.get("__init");
-
+    const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
     const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
 
-    const headerObject: HeaderObjectConfig[] = [];
+    const [headerObject] = useState<HeaderObjectConfig[]>([]);
     const httpVar = model as LocalVarDecl;
     const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
         : connectorConfig.action.name);
 
-    if (!isNewConnectorInitWizard) {
-        let actionInitializer: CheckAction;
-        connectorConfig.action.returnVariableName =
-            (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-        connectorConfig.responsePayloadMap.selectedPayloadType = '';
+    React.useEffect(() => {
+        if (!isNewConnectorInitWizard) {
+            let actionInitializer: CheckAction;
+            connectorConfig.action.returnVariableName =
+                (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.responsePayloadMap.selectedPayloadType = '';
 
-        switch (httpVar.initializer.kind) {
-            case 'TypeCastExpression':
-                actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                connectorConfig.responsePayloadMap.isPayloadSelected = true;
+            switch (httpVar.initializer.kind) {
+                case 'TypeCastExpression':
+                    actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
+                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
-                // payload population logic stuff
-                const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-                symbolInfo.variables.forEach((value, key) => {
-                    if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                        const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
+                    // payload population logic stuff
+                    const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+                    symbolInfo.variables.forEach((value, key) => {
+                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
+                            const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
 
-                        const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
+                            const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
 
-                        if (variableStatement) {
-                            connectorConfig
-                                .responsePayloadMap
-                                .payloadVariableName = (variableStatement.typedBindingPattern
-                                    .bindingPattern as CaptureBindingPattern).variableName.value
+                            if (variableStatement) {
+                                connectorConfig
+                                    .responsePayloadMap
+                                    .payloadVariableName = (variableStatement.typedBindingPattern
+                                        .bindingPattern as CaptureBindingPattern).variableName.value
 
 
-                            if (variableStatement.source.includes('getTextPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
-                            } else if (variableStatement.source.includes('getXmlPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
-                            } else if (variableStatement.source.includes('getJsonPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
-                            } else {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                if (variableStatement.source.includes('getTextPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
+                                } else if (variableStatement.source.includes('getXmlPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
+                                } else if (variableStatement.source.includes('getJsonPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
+                                } else {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                }
                             }
                         }
-                    }
-                });
-                break;
-            default:
-                actionInitializer = httpVar.initializer as CheckAction;
-            // ignored
-        }
+                    });
+                    break;
+                default:
+                    actionInitializer = httpVar.initializer as CheckAction;
+                // ignored
+            }
 
-        if (actionInitializer) {
-            const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-            const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
+            if (actionInitializer) {
+                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
+                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
 
-            if (message) {
-                if (message.kind === 'SimpleNameReference') {
-                    const refName = (message as SimpleNameReference).name.value;
-                    const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
+                if (message) {
+                    if (message.kind === 'SimpleNameReference') {
+                        const refName = (message as SimpleNameReference).name.value;
+                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
 
-                    if (connectorConfig.action.name === 'forward') {
-                        connectorConfig.action.fields[3].value = refName;
-                    }
+                        if (connectorConfig.action.name === 'forward') {
+                            connectorConfig.action.fields[3].value = refName;
+                        }
 
-                    if (refCallStatements) {
-                        refCallStatements
-                            .filter(callStatement =>
-                                (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
-                            .forEach(callStatement => {
-                                const callStatementExp: any = (callStatement as CallStatement).expression;
-                                headerObject.push({
-                                    requestName: refName,
-                                    objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
-                                    objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
-                                })
+                        if (refCallStatements) {
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
+                                .forEach(callStatement => {
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    headerObject.push({
+                                        requestName: refName,
+                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
+                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
+                                    })
+                                });
+
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
+                                .forEach(callStatement => {
+                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                        field.requestName = refName;
+
+                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
+                                            case 'XmlTemplateExpression':
+                                                field.selectedDataType = 'xml';
+                                                break;
+                                            case 'MappingConstructor':
+                                                field.selectedDataType = 'json';
+                                                break;
+                                            default:
+                                                field.selectedDataType = 'string';
+                                        }
+
+                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                            .forEach(unionField => {
+                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                            })
+                                    })
+                                });
+                        }
+                    } else {
+                        if (connectorConfig.action.name !== 'get') {
+                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                switch (message.kind) {
+                                    case 'XmlTemplateExpression':
+                                        field.selectedDataType = 'xml';
+                                        break;
+                                    case 'MappingConstructor':
+                                        field.selectedDataType = 'json';
+                                        break;
+                                    default:
+                                        field.selectedDataType = 'string';
+                                }
+
+                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                    .forEach(unionField => {
+                                        unionField.value = message.source
+                                    })
                             });
-
-                        refCallStatements
-                            .filter(callStatement =>
-                                (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
-                            .forEach(callStatement => {
-                                // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
-                                const callStatementExp: any = (callStatement as CallStatement).expression;
-                                // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                    field.requestName = refName;
-
-                                    switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
-                                        case 'XmlTemplateExpression':
-                                            field.selectedDataType = 'xml';
-                                            break;
-                                        case 'MappingConstructor':
-                                            field.selectedDataType = 'json';
-                                            break;
-                                        default:
-                                            field.selectedDataType = 'string';
-                                    }
-
-                                    field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                        .forEach(unionField => {
-                                            unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                        })
-                                })
-                            });
-                    }
-                } else {
-                    if (connectorConfig.action.name !== 'get') {
-                        connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                            switch (message.kind) {
-                                case 'XmlTemplateExpression':
-                                    field.selectedDataType = 'xml';
-                                    break;
-                                case 'MappingConstructor':
-                                    field.selectedDataType = 'json';
-                                    break;
-                                default:
-                                    field.selectedDataType = 'string';
-                            }
-
-                            field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                .forEach(unionField => {
-                                    unionField.value = message.source
-                                })
-                        });
+                        }
                     }
                 }
             }
         }
-    }
+    }, [isNewConnectorInitWizard])
 
     const handleCreateNew = () => {
         setState(InitFormState.Create);
@@ -266,13 +266,11 @@ export function HTTPWizard(props: WizardProps) {
         if (!isNewConnectorInitWizard) {
             let actionInitializer: CheckAction;
 
-            const addConnectorInit: STModification = updateObjectDeclaration(
-                (connector.module + ":" + connector.name),
-                connectorConfig.name,
-                getParams(connectorConfig.connectorInit),
+            const updatedConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                 connectorConfig.initPosition
             );
-            modifications.push(addConnectorInit);
+            modifications.push(updatedConnectorInit);
 
             switch (httpVar.initializer.kind) {
                 case 'TypeCastExpression':
@@ -435,7 +433,7 @@ export function HTTPWizard(props: WizardProps) {
                 }
 
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = updateServiceCallForPayload(
+                    const addActionInvocation: STModification = updateServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -443,7 +441,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     let responseModel: STNode;
                     symbolInfo.variables.forEach((value, key) => {
                         if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
@@ -476,7 +474,7 @@ export function HTTPWizard(props: WizardProps) {
                         modifications.push(addPayload);
                     }
                 } else {
-                    const addActionInvo: STModification = updateCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -484,7 +482,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         model.position
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
@@ -500,10 +498,8 @@ export function HTTPWizard(props: WizardProps) {
 
                 // Add an connector client initialization.
                 if (!connectorConfig.isExistingConnection) {
-                    const addConnectorInit: STModification = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        connectorConfig.name,
-                        getParams(connectorConfig.connectorInit),
+                    const addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
@@ -542,7 +538,7 @@ export function HTTPWizard(props: WizardProps) {
                     serviceCallParams = params.toString();
                 }
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvo: STModification = createServiceCallForPayload(
+                    const addActionInvocation: STModification = createServiceCallForPayload(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -550,7 +546,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
                         "var",
@@ -560,7 +556,7 @@ export function HTTPWizard(props: WizardProps) {
                     );
                     modifications.push(addPayload);
                 } else {
-                    const addActionInvo: STModification = createCheckedRemoteServiceCall(
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
@@ -568,7 +564,7 @@ export function HTTPWizard(props: WizardProps) {
                         [serviceCallParams],
                         targetPosition
                     );
-                    modifications.push(addActionInvo);
+                    modifications.push(addActionInvocation);
                 }
             }
         }
@@ -576,8 +572,8 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} actions={actions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm actions={actions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>

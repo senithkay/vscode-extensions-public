@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { FormControl, FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -32,7 +32,7 @@ import { tooltipMessages } from "../../../Portals/utils/constants";
 import '../style.scss';
 
 interface CreateConnectorFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
@@ -48,17 +48,17 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
-    const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : actions.get("init") ? actions.get("init") : actions.get("__init");
-    const [connectorInitFormFields] = useState(connectorConfigFormFields);
+    const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
+    const [connectorInitFormFields, setConnectorInitFormFields] = useState(connectorConfigFormFields);
     const classes = useStyles();
     const radioClasses = useStyleForRadio();
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: connectorConfig.name,
+        value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };
@@ -98,26 +98,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // }
     };
 
-    // generate variable name and set to default text
-    const defaultText: string = (connectorConfig.name === "" || connectorConfig.name === undefined) ?
-        genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)) : connectorConfig.name;
 
     // Set init function of the connector.
     connectorConfig.connectorInit = connectorInitFormFields;
 
-    // check for name when navigating back
-    if ((connectorConfig.name === "" || connectorConfig.name === undefined) && nameState.isValidName) {
-        connectorConfig.name = defaultText;
-        setNameState({
-            value: defaultText,
-            isNameProvided: defaultText !== '',
-            isValidName: nameRegex.test(defaultText)
-        });
-    }
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("connector name", value, defaultText, state);
+            const varValidationResponse = checkVariableName("connector name", value, nameState.value, state);
             if (varValidationResponse?.error){
                 setConnectorNameError(varValidationResponse.message);
                 return false;
@@ -147,7 +135,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         const actionName = event.target.value;
         connectorConfig.action = {
             name: actionName,
-            fields: actions.get(actionName)
+            fields: functionDefinitions.get(actionName).parameters
         };
         setActionNameRadio(actionName);
         // TODO: tour step should update without redux store
@@ -167,7 +155,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}

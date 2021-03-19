@@ -62,15 +62,14 @@ export function IfElse(props: IfElseProps) {
         isMutationProgress,
         syntaxTree,
         stSymbolInfo,
-        appInfo,
         isReadOnly,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
         isCodeEditorActive,
-        currentApp
+        currentApp,
+        isWaitingOnWorkspace
     } = state;
     const { id: appId } = currentApp || {};
-    const { isWaitingOnWorkspace } = appInfo;
     const { model, blockViewState, name } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);

@@ -40,7 +40,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         const values: string[] = [];
         if (model.fields) {
             for (const field of model.fields) {
-                if (field.type) {
+                if (field.type && (!field?.noCodeGen)) {
                     if (field.type === "record") {
                         if (field.typeName) {
                             values.push(field.typeName);
@@ -114,7 +114,7 @@ export function Union(props: FormElementProps<UnionProps>) {
     let typeField: React.ReactNode = null;
     if (fieldModel) {
         if (fieldModel.type !== "nil") {
-            fieldModel.optional = model.optional;
+            fieldModel.optional = model?.optional;
             fieldModel.displayName = "Enter " + textLabel;
             const elementProps: FormElementProps = {
                 model: fieldModel,

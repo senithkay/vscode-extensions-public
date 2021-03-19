@@ -54,14 +54,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: '',
-        isValidName: true,
-        isNameProvided: true
+        value: connectorConfig.name,
+        isValidName:  !!connectorConfig.name,
+        isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name);
     const [connectorNameError, setConnectorNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
@@ -79,21 +79,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         } else {
             setHasReference(symbolRefArray.length > 1);
         }
-    }
-
-    // generate variable name and set to default text
-    const defaultText: string = connectorConfig.name;
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
-
-    if ((connectorConfig.name === "" || connectorConfig.name === undefined) && nameState.isValidName) {
-        connectorConfig.name = defaultText;
-        setNameState({
-            value: defaultText,
-            isNameProvided: defaultText !== '',
-            isValidName: nameRegex.test(defaultText)
-        });
     }
 
     const validateNameValue = (value: string) => {
@@ -134,7 +119,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}

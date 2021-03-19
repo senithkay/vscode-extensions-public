@@ -11,15 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
-
 import { WizardType } from "../../../ConfigurationSpec/types";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
@@ -36,8 +34,6 @@ export interface ProcessorProps {
     model: STNode;
     blockViewState?: BlockViewState;
 }
-
-const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
 
 export function DataProcessor(props: ProcessorProps) {
     const { state, diagramCleanDraw } = useContext(DiagramContext);
@@ -71,7 +67,6 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    let isSupportedVariable = true;
 
     if (model) {
         processType = "Variable";
@@ -86,6 +81,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isLogStmt = true;
             } else {
                 processName = "Call";
+                processType = "Custom";
             }
             // todo : uncomment
             // const expressionStmt = ASTUtil.genSource(model).replace(";", "");
@@ -117,17 +113,18 @@ export function DataProcessor(props: ProcessorProps) {
                 // TODO: handle this type binding pattern.
             }
 
-            if (supportedVarTypes.indexOf(typedBindingPattern.typeDescriptor.source.trim()) === -1) {
-                isSupportedVariable = false;
-            }
-
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
+            processType = "Custom";
+            processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
             }
+        } else {
+            processType = "Custom";
+            processName = "Custom";
         }
     } else if (isDraftStatement) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
@@ -200,7 +197,7 @@ export function DataProcessor(props: ProcessorProps) {
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
-    const editAndDeleteButtons = ((isIntializedVariable && isSupportedVariable) || isLogStmt || isDraftStatement) ? (
+    const editAndDeleteButtons = (
         <>
             <g className={isReferencedVariable ? "disable" : ""}>
                 <DeleteBtn
@@ -219,20 +216,7 @@ export function DataProcessor(props: ProcessorProps) {
                 onHandleEdit={onProcessClick}
             />
         </>
-    ) : (
-            <>
-                <g className={isReferencedVariable ? "disable" : ""}>
-                    <DeleteBtn
-                        model={model}
-                        cx={viewState.bBox.cx - DELETE_SVG_OFFSET}
-                        cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)}
-                        toolTipTitle={toolTip}
-                        isButtonDisabled={isReferencedVariable}
-                        onDraftDelete={onDraftDelete}
-                    />
-                </g>
-            </>
-        );
+    );
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const component: React.ReactNode = (!viewState.collapsed &&
