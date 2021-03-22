@@ -48,16 +48,25 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
 
 export const MAIN_FUNCTION = "main";
 
-const findResource = (st: any, search: any) => {
-    const serviceMember = st.members[0];
-    const resourceMembers = serviceMember.members;
-    return resourceMembers.find((m: any) => (m.relativeResourcePath[0].value === search.split("_")[1]));
+const findResourceIndex = (serviceMembers: any, targetResource: any) => {
+    const index = serviceMembers.findIndex(
+        (m: any) => {
+            const currentPath = m?.relativeResourcePath[0]?.value;
+            const currentMethodType = m?.functionName?.value;
+            const targetPath = targetResource?.relativeResourcePath[0]?.value;
+            const targetMethodType = targetResource?.functionName?.value;
+
+            return currentPath === targetPath && currentMethodType === targetMethodType;
+        }
+    );
+    return index || 0;
 }
 
 export function getLowCodeSTFn(mp: ModulePart, currentResource: any = null) {
     const modulePart: ModulePart = mp;
     const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
+
     for (const node of members) {
         if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
             functionDefinition = node as FunctionDefinition;
@@ -70,7 +79,7 @@ export function getLowCodeSTFn(mp: ModulePart, currentResource: any = null) {
 
             let resourceIndex = 0;
             if (currentResource) {
-                const foundResourceIndex = serviceMembers.findIndex((m: any) => (m?.relativeResourcePath[0]?.value === currentResource?.relativeResourcePath[0]?.value));
+                const foundResourceIndex = findResourceIndex(serviceMembers, currentResource);
                 resourceIndex = foundResourceIndex || 0;
             }
 
