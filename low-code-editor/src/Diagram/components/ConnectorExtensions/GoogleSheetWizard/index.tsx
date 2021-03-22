@@ -246,8 +246,8 @@ export function GoogleSheet(props: WizardProps) {
                                 oauthClientConfig: {
                                     clientId: ${getFormFieldValue("clientId")},
                                     clientSecret: ${getFormFieldValue("clientSecret")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl")},
-                                    refreshUrl: ${getFormFieldValue("refreshToken")}
+                                    refreshToken: ${getFormFieldValue("refreshToken")},
+                                    refreshUrl: ${getFormFieldValue("refreshUrl")}
                                 }
                              });`,
                             targetPosition
