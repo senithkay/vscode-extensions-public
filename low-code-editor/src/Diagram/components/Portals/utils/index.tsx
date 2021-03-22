@@ -544,56 +544,6 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         const listExpr = specificField.valueExpr as ListConstructor;
                         formField.value = listExpr.source;
                         formField.fields = [];
-                        // listExpr.expressions.forEach(element => {
-                            // if (STKindChecker.isStringLiteral(element) ||
-                            //     STKindChecker.isNumericLiteral(element) ||
-                            //     STKindChecker.isBooleanLiteral(element)) {
-
-                            //     const fieldValue = element.literalToken.value;
-                            //     if (formField.type === "union") {
-                            //         formField.fields.forEach((field: FormField) => {
-                            //             if (field.type === formField.selectedDataType) {
-                            //                 formField.value.push(fieldValue);
-                            //             }
-                            //         });
-                            //     } else {
-                            //         formField.value.push(fieldValue);
-                            //     }
-                            // } else if (STKindChecker.isMappingConstructor(element)) {
-                            //         const mappingField: FormField = {
-                            //             type: PrimitiveBalType.String,
-                            //             name: "",
-                            //             fields: []
-                            //         }
-                            //         element.fields.forEach((field) => {
-                            //             if (field.kind !== "CommaToken") {
-                            //                 const mappingSpecificField = field as SpecificField;
-                            //                 if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
-                            //                     mappingField.fields.push({
-                            //                         type: PrimitiveBalType.Float,
-                            //                         name: mappingSpecificField.fieldName.value,
-                            //                         value: mappingSpecificField.valueExpr.source
-                            //                     });
-                            //                 } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                            //                     mappingField.fields.push({
-                            //                         type: PrimitiveBalType.String,
-                            //                         name: mappingSpecificField.fieldName.value,
-                            //                         value: mappingSpecificField.valueExpr.source
-                            //                     });
-                            //                 } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                            //                     mappingField.fields.push({
-                            //                         type: PrimitiveBalType.Boolean,
-                            //                         name: mappingSpecificField.fieldName.value,
-                            //                         value: mappingSpecificField.valueExpr.source
-                            //                     });
-                            //                 }
-                            //             }
-                            //         });
-                            //         formField.fields.push(mappingField);
-                            // } else if (element.kind !== "CommaToken") {
-                            //     formField.fields.push({type: PrimitiveBalType.String, name: "", value: element.source});
-                            // }
-                        // })
                     }
                 }
             })
