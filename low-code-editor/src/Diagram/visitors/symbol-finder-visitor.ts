@@ -13,7 +13,13 @@
 import {
     AssignmentStatement,
     CallStatement,
-    CaptureBindingPattern, ForeachStatement, FunctionDefinition, LocalVarDecl, QualifiedNameReference, RequiredParam,
+    CaptureBindingPattern,
+    ForeachStatement,
+    FunctionDefinition,
+    LocalVarDecl,
+    MethodCall, NumericLiteral,
+    QualifiedNameReference,
+    RequiredParam,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -53,8 +59,8 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement) {
-        const varType = node.typeData?.symbol?.kind;
-        const varName = node.typeData?.symbol?.name;
+        const varType = (node.expression as MethodCall).expression.typeData?.symbol?.kind;
+        const varName = (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value;
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
         }
@@ -62,8 +68,8 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
-        const varType = node.typeData?.symbol?.kind;
-        const varName = node.typeData?.symbol?.name;
+        const varType = node.varRef?.typeData?.symbol.kind;
+        const varName = (node.expression as NumericLiteral).literalToken.value;
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
         }
