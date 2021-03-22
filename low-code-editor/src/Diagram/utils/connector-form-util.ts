@@ -321,11 +321,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             subFields.fields =  subFields.fields[0].fields;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
+                            subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
                             subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
                             subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
                             subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
                             subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
                             subFields.hide = true;
