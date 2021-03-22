@@ -346,8 +346,8 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
 }
 
 export function getMatchingConnector(actionInvo: LocalVarDecl,
-    connectors: BallerinaConnectorsInfo[],
-    stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+                                     connectors: BallerinaConnectorsInfo[],
+                                     stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
 

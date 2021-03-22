@@ -63,7 +63,21 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   } = props;
   const classes = useStyles();
 
-  const [resources, setResources] = useState([]);
+  // const [showResourceAdding, setShowResourceAdding] = useState(true);
+
+  const resourcesIfAny: any[] = [];
+  if (syntaxTree) {
+    const { functionName, relativeResourcePath } = syntaxTree;
+    const stMethod = functionName?.value;
+    const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
+
+    if (stMethod && stPath) {
+      resourcesIfAny.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+      // setShowResourceAdding(false);
+    }
+  }
+
+  const [resources, setResources] = useState(resourcesIfAny);
   // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
@@ -125,6 +139,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     });
 
     return isValidated;
+  }
+
+  const showResourceAdding = (st: any) => {
+    const { functionName, relativeResourcePath } = st;
+    const stMethod = functionName?.value;
+    const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
+
+    return !(stMethod && stPath);
   }
 
   const handleUserConfirm = () => {
@@ -214,15 +236,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           </div>
         ))}
 
-        <button
-          onClick={handleAddResource}
-          className={classes.addResourceBtn}
-        >
-          <div className={classes.addResourceBtnWrap}>
-            <AddIcon />
-            <p>Add resource</p>
-          </div>
-        </button>
+        {showResourceAdding(syntaxTree) && (
+          <button
+            onClick={handleAddResource}
+            className={classes.addResourceBtn}
+          >
+            <div className={classes.addResourceBtnWrap}>
+              <AddIcon />
+              <p>Add resource</p>
+            </div>
+          </button>
+        )}
 
         <div>
           {validateResources(resources) &&

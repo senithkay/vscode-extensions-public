@@ -94,6 +94,7 @@ export function StartButton(props: StartButtonProps) {
                 triggerType={activeTriggerType}
                 onComplete={handleOnComplete}
                 configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
+                disabled={activeTriggerType === "API"}
             />
         );
         if (plusView) {
