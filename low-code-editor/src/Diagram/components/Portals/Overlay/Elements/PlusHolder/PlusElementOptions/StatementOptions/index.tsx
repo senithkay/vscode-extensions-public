@@ -17,7 +17,7 @@ import { STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } from "../../../../../../../../assets/icons";
+import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon } from "../../../../../../../../assets/icons";
 
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -211,7 +211,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelect.bind(undefined, "Custom")}
                 >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Logo_Circle.svg" />
+                        <CustomStatementIcon />
                     </div>
                     <div className="text-label">Custom Statement</div>
                 </div>

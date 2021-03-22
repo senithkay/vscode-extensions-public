@@ -62,7 +62,7 @@ const findResourceIndex = (serviceMembers: any, targetResource: any) => {
     return index || 0;
 }
 
-export function getLowCodeSTFn(mp: ModulePart, currentResource: any = null) {
+export function getLowCodeSTFnSelected(mp: ModulePart, currentResource: any = null) {
     const modulePart: ModulePart = mp;
     const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
@@ -107,6 +107,49 @@ export function getLowCodeSTFn(mp: ModulePart, currentResource: any = null) {
                 }
             }
             // }
+            break;
+        }
+    }
+    return functionDefinition ? functionDefinition : mp;
+}
+
+export function getLowCodeSTFn(mp: ModulePart) {
+    const modulePart: ModulePart = mp;
+    const members: STNode[] = modulePart.members;
+    let functionDefinition: FunctionDefinition;
+
+    for (const node of members) {
+        if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
+            functionDefinition = node as FunctionDefinition;
+            functionDefinition.configurablePosition = node.position;
+            break;
+        } else if (STKindChecker.isServiceDeclaration(node)) {
+            // TODO: Fix with the ST interface generation.
+            const serviceDec = node as any;
+            const serviceMembers: STNode[] = serviceDec.members;
+
+            for (const serviceMember of serviceMembers) {
+                if (serviceMember.kind === "ResourceAccessorDefinition"
+                    || serviceMember.kind === "ObjectMethodDefinition"
+                    || serviceMember.kind === "FunctionDefinition") {
+                    const functionDef = serviceMember as FunctionDefinition;
+                    functionDef.configurablePosition = node.position;
+                    let isRemoteOrResource: boolean = false;
+
+                    functionDef?.qualifierList?.forEach(qualifier => {
+                        if (qualifier.kind === "ResourceKeyword"
+                            || qualifier.kind === "RemoteKeyword") {
+                            isRemoteOrResource = true;
+                        }
+                    });
+
+                    if (isRemoteOrResource) {
+                        functionDefinition = serviceMember as FunctionDefinition;
+                        functionDefinition.kind = "FunctionDefinition";
+                        break;
+                    }
+                }
+            }
             break;
         }
     }
@@ -303,8 +346,8 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
 }
 
 export function getMatchingConnector(actionInvo: LocalVarDecl,
-                                     connectors: BallerinaConnectorsInfo[],
-                                     stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+    connectors: BallerinaConnectorsInfo[],
+    stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
 

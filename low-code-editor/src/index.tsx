@@ -53,7 +53,7 @@ export {
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
 export { Diagram } from "./Diagram";
-export { getDiagnosticsFromVisitor, getLowCodeSTFn } from './Diagram/utils/st-util';
+export { getDiagnosticsFromVisitor, getLowCodeSTFn, getLowCodeSTFnSelected } from './Diagram/utils/st-util';
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";

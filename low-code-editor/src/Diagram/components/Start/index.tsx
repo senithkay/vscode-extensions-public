@@ -76,8 +76,9 @@ export function StartButton(props: StartButtonProps) {
         }
         if (viewState.initPlus?.isTriggerDropdown) {
             viewState.initPlus.isTriggerDropdown = false;
+            viewState.initPlus.selectedComponent = "STATEMENT";
         }
-        diagramCleanDraw(syntaxTree);
+        diagramRedraw(syntaxTree);
     };
 
     const handleEditClick = () => {
@@ -99,7 +100,7 @@ export function StartButton(props: StartButtonProps) {
             plusView.isTriggerDropdown = true;
         }
         setShowDropDownC(true);
-        diagramCleanDraw(syntaxTree);
+        diagramRedraw(syntaxTree);
     };
 
     function handleOnComplete(newTrigger: TriggerType) {

@@ -56,7 +56,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: connectorConfig.name,
+        value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };
@@ -64,7 +64,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [connectorNameError, setConnectorNameError] = useState('');
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
@@ -86,9 +86,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const defaultText: string = (connectorConfig.name === "" || connectorConfig.name === undefined) ?
         genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)) : connectorConfig.name;
 
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
 
     // Set init function of the connector.
     // connectorConfig.connectorInit = connectorInitFormFields;
@@ -146,7 +143,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}
