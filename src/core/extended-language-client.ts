@@ -135,11 +135,11 @@ export interface ExecutorPosition {
     name: string;
 }
 
-export interface LowCodeLangClient1 extends Omit<LowCodeLangClient, 'diagnostics'> {
+export interface LowCodeLangClientTemp extends Omit<LowCodeLangClient, 'diagnostics'> {
     // Diagnostics: (params: BallerinaProjectParams) => Thenable<PublishDiagnosticsParams[]>;
 }
 
-export class ExtendedLangClient extends LanguageClient implements LowCodeLangClient1 {
+export class ExtendedLangClient extends LanguageClient implements LowCodeLangClientTemp {
 
     isInitialized: boolean = true;
 

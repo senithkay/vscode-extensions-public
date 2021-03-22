@@ -15,10 +15,11 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/ballerina-by-examples": "^2.0.0-beta1-rc1-SNAPSHOT",
-    "@ballerina/documentation": "^2.0.0-beta1-rc1-SNAPSHOT",
-    "@ballerina/font": "^2.0.0-beta1-rc1-SNAPSHOT",
-    "@ballerina/theme": "^2.0.0-beta1-rc1-SNAPSHOT"
+    "@ballerina/ballerina-by-examples": "^2.0.0-beta1-SNAPSHOT",
+    "@ballerina/documentation": "^2.0.0-beta1-SNAPSHOT",
+    "@ballerina/font": "^2.0.0-beta1-SNAPSHOT",
+    "@ballerina/low-code-editor": "^2.0.0-beta1-SNAPSHOT",
+    "@ballerina/theme": "^2.0.0-beta1-SNAPSHOT"
   },
   "devDependencies": {
     "@ballerina/composer-cli": "^2.0.0-beta1-rc1-SNAPSHOT"
