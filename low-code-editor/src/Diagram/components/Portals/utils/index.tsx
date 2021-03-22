@@ -637,9 +637,7 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             }
             nextValueIndex++;
         } else if (formField.type === 'collection') {
-            formField.fields = (positionalArg.expression as ListConstructor).expressions
-                .filter(exp => exp.kind !== 'CommaToken')
-                .map(exp => ({ type: formField.collectionDataType, value: exp.source }));
+            formField.value = positionalArg.expression?.source;
             nextValueIndex++;
         } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
             const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
