@@ -291,10 +291,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 } else if (key === "getIdFromUrl") {
                     // hide this isolated function
-                } else if (key === "appendRow") {
-                    // HACK: need to handle collectionDataType in union type arrays (string|int|float)[]
-                    value.parameters.find(fields => fields.name === "values").collectionDataType = PrimitiveBalType.String;
-                    filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
                 }

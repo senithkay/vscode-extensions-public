@@ -918,26 +918,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             addToFormFieldCache(connector, functionDefInfo);
         }
 
-        // // check whether the init method has an error type return
-        // const initFunction: ObjectMethodDefinition[] = connectorDef.members.filter((member: any) => member.functionName && member.functionName.value === 'init');
-        // if (initFunction.length > 0 && initFunction[0].functionSignature.returnTypeDesc) {
-        //     const returnType = initFunction[0].functionSignature.returnTypeDesc.type;
-        //     const typeVS = returnType.kind === 'OptionalTypeDesc' ?
-        //         (returnType as OptionalTypeDesc).typeDescriptor.viewState
-        //         : returnType.viewState;
-        //     await getRecordFields([typeVS], connectorDef.typeData.records, langClient);
-
-        //     if (typeVS.isUnion) {
-        //         typeVS.fields.forEach((field: any) => {
-        //             if (field.isErrorType) {
-        //                 connectorConfig.isReturnError = true;
-        //             }
-        //         })
-        //     } else {
-        //         connectorConfig.isReturnError = typeVS.isErrorType;
-        //     }
-        // }
-
         // Filter connector functions to have better usability.
         functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
