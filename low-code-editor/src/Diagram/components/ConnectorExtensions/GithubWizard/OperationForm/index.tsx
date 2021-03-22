@@ -53,11 +53,12 @@ export function OperationForm(props: OperationFormProps) {
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
 
     const onNameChange = (text: string) => {
         connectionDetails.action.returnVariableName = text;
+        setDefaultResponseVarName(text);
         setValidName(validateNameValue(text));
     };
     const validateNameValue = (value: string) => {
@@ -71,15 +72,7 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
-    const defaultResponseVariableName: string = (connectionDetails.action.returnVariableName === "" ||
-        connectionDetails.action.returnVariableName === undefined) ? genVariableName(
-            connectionDetails.action.name + "Response", getAllVariables(symbolInfo)) :
-        connectionDetails.action.returnVariableName;
-    connectionDetails.action.returnVariableName = defaultResponseVariableName;
-
-    if (defaultResponseVarName === undefined){
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
+    connectionDetails.action.returnVariableName = defaultResponseVarName;
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -137,7 +130,7 @@ export function OperationForm(props: OperationFormProps) {
                         customProps={{
                             validate: validateNameValue
                         }}
-                        defaultValue={defaultResponseVariableName}
+                        defaultValue={defaultResponseVarName}
                         placeholder={"Enter Response Variable Name"}
                         onChange={onNameChange}
                         label={"Response Variable Name"}

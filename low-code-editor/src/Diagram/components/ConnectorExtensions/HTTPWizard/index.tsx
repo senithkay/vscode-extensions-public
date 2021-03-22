@@ -110,133 +110,135 @@ export function HTTPWizard(props: WizardProps) {
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
 
-    const headerObject: HeaderObjectConfig[] = [];
+    const [headerObject] = useState<HeaderObjectConfig[]>([]);
     const httpVar = model as LocalVarDecl;
     const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
         : connectorConfig.action.name);
 
-    if (!isNewConnectorInitWizard) {
-        let actionInitializer: CheckAction;
-        connectorConfig.action.returnVariableName =
-            (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-        connectorConfig.responsePayloadMap.selectedPayloadType = '';
+    React.useEffect(() => {
+        if (!isNewConnectorInitWizard) {
+            let actionInitializer: CheckAction;
+            connectorConfig.action.returnVariableName =
+                (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.responsePayloadMap.selectedPayloadType = '';
 
-        switch (httpVar.initializer.kind) {
-            case 'TypeCastExpression':
-                actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                connectorConfig.responsePayloadMap.isPayloadSelected = true;
+            switch (httpVar.initializer.kind) {
+                case 'TypeCastExpression':
+                    actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
+                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
-                // payload population logic stuff
-                const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-                symbolInfo.variables.forEach((value, key) => {
-                    if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                        const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
+                    // payload population logic stuff
+                    const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+                    symbolInfo.variables.forEach((value, key) => {
+                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
+                            const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
 
-                        const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
+                            const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
 
-                        if (variableStatement) {
-                            connectorConfig
-                                .responsePayloadMap
-                                .payloadVariableName = (variableStatement.typedBindingPattern
-                                    .bindingPattern as CaptureBindingPattern).variableName.value
+                            if (variableStatement) {
+                                connectorConfig
+                                    .responsePayloadMap
+                                    .payloadVariableName = (variableStatement.typedBindingPattern
+                                        .bindingPattern as CaptureBindingPattern).variableName.value
 
 
-                            if (variableStatement.source.includes('getTextPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
-                            } else if (variableStatement.source.includes('getXmlPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
-                            } else if (variableStatement.source.includes('getJsonPayload')) {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
-                            } else {
-                                connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                if (variableStatement.source.includes('getTextPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
+                                } else if (variableStatement.source.includes('getXmlPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
+                                } else if (variableStatement.source.includes('getJsonPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
+                                } else {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                }
                             }
                         }
-                    }
-                });
-                break;
-            default:
-                actionInitializer = httpVar.initializer as CheckAction;
-            // ignored
-        }
+                    });
+                    break;
+                default:
+                    actionInitializer = httpVar.initializer as CheckAction;
+                // ignored
+            }
 
-        if (actionInitializer) {
-            const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-            const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
+            if (actionInitializer) {
+                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
+                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
 
-            if (message) {
-                if (message.kind === 'SimpleNameReference') {
-                    const refName = (message as SimpleNameReference).name.value;
-                    const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
+                if (message) {
+                    if (message.kind === 'SimpleNameReference') {
+                        const refName = (message as SimpleNameReference).name.value;
+                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
 
-                    if (connectorConfig.action.name === 'forward') {
-                        connectorConfig.action.fields[3].value = refName;
-                    }
+                        if (connectorConfig.action.name === 'forward') {
+                            connectorConfig.action.fields[3].value = refName;
+                        }
 
-                    if (refCallStatements) {
-                        refCallStatements
-                            .filter(callStatement =>
-                                (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
-                            .forEach(callStatement => {
-                                const callStatementExp: any = (callStatement as CallStatement).expression;
-                                headerObject.push({
-                                    requestName: refName,
-                                    objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
-                                    objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
-                                })
+                        if (refCallStatements) {
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
+                                .forEach(callStatement => {
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    headerObject.push({
+                                        requestName: refName,
+                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
+                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
+                                    })
+                                });
+
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
+                                .forEach(callStatement => {
+                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                        field.requestName = refName;
+
+                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
+                                            case 'XmlTemplateExpression':
+                                                field.selectedDataType = 'xml';
+                                                break;
+                                            case 'MappingConstructor':
+                                                field.selectedDataType = 'json';
+                                                break;
+                                            default:
+                                                field.selectedDataType = 'string';
+                                        }
+
+                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                            .forEach(unionField => {
+                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                            })
+                                    })
+                                });
+                        }
+                    } else {
+                        if (connectorConfig.action.name !== 'get') {
+                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                switch (message.kind) {
+                                    case 'XmlTemplateExpression':
+                                        field.selectedDataType = 'xml';
+                                        break;
+                                    case 'MappingConstructor':
+                                        field.selectedDataType = 'json';
+                                        break;
+                                    default:
+                                        field.selectedDataType = 'string';
+                                }
+
+                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                    .forEach(unionField => {
+                                        unionField.value = message.source
+                                    })
                             });
-
-                        refCallStatements
-                            .filter(callStatement =>
-                                (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
-                            .forEach(callStatement => {
-                                // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
-                                const callStatementExp: any = (callStatement as CallStatement).expression;
-                                // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                    field.requestName = refName;
-
-                                    switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
-                                        case 'XmlTemplateExpression':
-                                            field.selectedDataType = 'xml';
-                                            break;
-                                        case 'MappingConstructor':
-                                            field.selectedDataType = 'json';
-                                            break;
-                                        default:
-                                            field.selectedDataType = 'string';
-                                    }
-
-                                    field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                        .forEach(unionField => {
-                                            unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                        })
-                                })
-                            });
-                    }
-                } else {
-                    if (connectorConfig.action.name !== 'get') {
-                        connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                            switch (message.kind) {
-                                case 'XmlTemplateExpression':
-                                    field.selectedDataType = 'xml';
-                                    break;
-                                case 'MappingConstructor':
-                                    field.selectedDataType = 'json';
-                                    break;
-                                default:
-                                    field.selectedDataType = 'string';
-                            }
-
-                            field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                .forEach(unionField => {
-                                    unionField.value = message.source
-                                })
-                        });
+                        }
                     }
                 }
             }
         }
-    }
+    }, [isNewConnectorInitWizard])
 
     const handleCreateNew = () => {
         setState(InitFormState.Create);

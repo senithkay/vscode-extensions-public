@@ -22,6 +22,8 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
+import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
 export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
@@ -194,4 +196,32 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField, stat
         }
     }
     return code;
+}
+
+export function createContentWidget(id: string) : monaco.editor.IContentWidget {
+    return {
+        allowEditorOverflow: true,
+        getId() {
+            return id;
+        },
+        getDomNode() {
+            if (!this.domNode) {
+                this.domNode = document.createElement('div');
+                if (id === EXPAND_WIDGET_ID) {
+                    this.domNode.className = "expand-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-expand.svg"/>';
+                } else if (id === COLLAPSE_WIDGET_ID) {
+                    this.domNode.className = "collapse-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-collapse.svg"/>';
+                }
+            }
+            return this.domNode;
+        },
+        getPosition() {
+            return {
+                position: { lineNumber: 1, column: 1 },
+                preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
+            };
+        }
+    }
 }

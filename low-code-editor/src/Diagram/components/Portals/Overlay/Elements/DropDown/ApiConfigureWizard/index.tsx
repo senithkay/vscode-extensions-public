@@ -102,6 +102,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           text = text.replace(paramArray[i], "")
         }
         return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
+      }
+      else if (text.charAt(0) === "[" && text.charAt((text.length - 1)) === "]") {
+        const splitVariable = text.split(" ")
+        if (splitVariable.length !== 2) return false
+        return !(!keywords.includes(splitVariable[0].slice(1)) || keywords.includes(splitVariable[1].slice(0, -1)));
       } else if (text === "[]") return false
       else return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
     } else return true
