@@ -74,7 +74,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 )
             }
             <div className={classes.groupedForm}>
-                {...recordFields}
+                {recordFields}
             </div >
         </div>
     );

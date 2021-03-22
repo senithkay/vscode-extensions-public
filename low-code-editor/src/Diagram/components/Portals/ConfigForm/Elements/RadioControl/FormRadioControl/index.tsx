@@ -97,7 +97,7 @@ export function RadioControl(props: FormElementProps<RadioProps>) {
                 ) : null
             }
             <RadioGroup aria-label={label} name={label} value={selectedValue} onChange={handleChange}>
-                {...radioControls}
+                {radioControls}
                 {customProps && customProps.optional && <FormControlLabel value={none} control={<Radio />} label="None" />}
             </RadioGroup>
         </>
