@@ -103,13 +103,24 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
-  // TODO: We need a proper validation logic in place here
-  const validatePaths = (resArr: any) => {
+  const validateResources = (resArr: any) => {
     let isValidated = true;
+    const resourceSignatures: string[] = [];
 
     resArr.forEach((res: any) => {
+      // Validate method signature
+      const signature: string = `${res.method}_${res.path}`;
+      if (resourceSignatures.includes(signature)) {
+        isValidated = false;
+        return;
+      } else {
+        resourceSignatures.push(signature);
+      }
+
+      // Validate paths
       if (!validatePath(res.path)) {
         isValidated = false;
+        return;
       }
     });
 
@@ -214,7 +225,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         </button>
 
         <div>
-          {validatePaths(resources) &&
+          {validateResources(resources) &&
             (
               <div className={classes.customFooterWrapper}>
                 <div id="product-tour-save" >
