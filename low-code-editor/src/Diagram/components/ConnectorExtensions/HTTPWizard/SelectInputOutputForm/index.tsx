@@ -16,7 +16,14 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, httpResponse, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import {
+    ActionConfig,
+    ConnectorConfig,
+    FormField,
+    FunctionDefinitionInfo,
+    httpRequest,
+    PrimitiveBalType
+} from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -134,7 +141,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         name: "request",
         displayName: "Request",
         type: PrimitiveBalType.Record,
-        typeInfo: httpResponse,
+        typeInfo: httpRequest,
         value: forwardReqField?.value
 
     }
