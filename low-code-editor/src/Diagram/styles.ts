@@ -105,6 +105,23 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: "absolute",
             top: '1.1rem'
         },
+        diagramErrorStateWrapper: {
+            width: 465,
+            bottom: "3.45rem",
+            left: "2.5rem",
+            position: "absolute",
+            marginRight: 'auto',
+            zIndex: 2
+        },
+        diagramErrorMessageWrapper: {
+            height: 42,
+            width: 535,
+            bottom: "16rem",
+            right: 0,
+            position: "absolute",
+            marginRight: 'auto',
+            zIndex: 2
+        },
         updateButton: {
             display: 'flex',
             justifyContent: "flex-end",
