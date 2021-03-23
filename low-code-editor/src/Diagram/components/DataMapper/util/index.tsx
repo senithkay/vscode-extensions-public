@@ -15,9 +15,9 @@ import React from 'react';
 import { STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { TypeInfoEntry } from "../../Portals/ConfigForm/types";
+import { TypeInfo, TypeInfoEntry } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/ParameterTypes';
-import { DataMapperViewState } from "../viewstate";
+import { DataMapperViewState, TypeDescViewState } from "../viewstate";
 
 import { DataMapperInitVisitor } from "./data-mapper-init-visitor";
 
@@ -85,6 +85,36 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                 return returnString;
             } else {
                 return '()'; // todo: this shouldn't be the case ever
+            }
+    }
+}
+
+export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, STNode>) {
+    const paramViewState: TypeDescViewState = paramNode.dataMapperViewState;
+    switch (paramViewState.type) {
+        case 'string':
+        case 'int':
+        case 'float':
+        case 'xml':
+        case 'json':
+            break;
+        default:
+            if (paramViewState.typeInfo) {
+                const typeInfo: TypeInfo = paramViewState.typeInfo;
+                const qualifiedKey: string = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
+                const typeDescST = records.get(qualifiedKey);
+
+                if (!typeDescST) {
+                    // todo: fetch typedesc using records api
+                }
+
+                if (typeDescST) {
+                    typeDescST.dataMapperViewState = paramNode.dataMapperViewState;
+                    traversNode(typeDescST, new DataMapperInitVisitor());
+                }
+
+                paramViewState.type = typeDescST.dataMapperViewState.type;
+                paramNode.dataMapperTypeDescNode = typeDescST;
             }
     }
 }
