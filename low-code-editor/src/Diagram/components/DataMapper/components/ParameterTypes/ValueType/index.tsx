@@ -14,10 +14,9 @@
 import React from 'react';
 
 import { SimpleBBox } from "../../../../../view-state";
-import { DataPointViewState } from "../../../viewstate";
 
 interface ValueTypeProps {
-    viewState: DataPointViewState;
+    viewState: any;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }

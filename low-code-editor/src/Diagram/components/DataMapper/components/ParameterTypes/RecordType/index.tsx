@@ -15,10 +15,10 @@ import React from 'react';
 
 import { SimpleBBox } from "../../../../../view-state";
 import { getDataMapperComponent } from "../../../util";
-import { DataPointViewState } from "../../../viewstate";
+// import { DataPointViewState } from "../../../viewstate";
 
 interface RecordTypeProps {
-    viewState: DataPointViewState;
+    viewState: any;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }
@@ -35,7 +35,7 @@ export function RecordType(props: RecordTypeProps) {
     }
 
     const childComponents: any = [];
-    viewState.fields.forEach(field => {
+    viewState.fields.forEach((field : any) => {
         childComponents.push(getDataMapperComponent(field.type, {
             viewState: field,
             handleSelection: handleSelectionEvent
