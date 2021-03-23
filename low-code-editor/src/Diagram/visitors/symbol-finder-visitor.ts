@@ -72,7 +72,7 @@ class SymbolFindingVisitor implements Visitor {
 
     public beginVisitSimpleNameReference(node: SimpleNameReference) {
         const varType = node.typeData?.symbol?.kind;
-        const varName = node.typeData?.symbol?.name;
+        const varName = node.name?.value;
 
         if (varType === 'VARIABLE') {
             variableNameReferences.get(varName) ?
