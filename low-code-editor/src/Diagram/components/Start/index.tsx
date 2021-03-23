@@ -120,6 +120,7 @@ export function StartButton(props: StartButtonProps) {
                 position={position}
                 onClose={handleOnClose}
                 isEmptySource={emptySource}
+                triggerType={activeTriggerType}
                 onComplete={handleOnComplete}
             />
         );
