@@ -223,12 +223,6 @@ export class STKindChecker {
     return node.kind === "ClassKeyword";
   }
 
-  public static isClientKeyword(
-    node: Ballerina.STNode
-  ): node is Ballerina.ClientKeyword {
-    return node.kind === "ClientKeyword";
-  }
-
   public static isCloseBracePipeToken(
     node: Ballerina.STNode
   ): node is Ballerina.CloseBracePipeToken {
@@ -293,12 +287,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.ConditionalExpression {
     return node.kind === "ConditionalExpression";
-  }
-
-  public static isConfigurableKeyword(
-    node: Ballerina.STNode
-  ): node is Ballerina.ConfigurableKeyword {
-    return node.kind === "ConfigurableKeyword";
   }
 
   public static isConstDeclaration(
@@ -477,22 +465,10 @@ export class STKindChecker {
     return node.kind === "ErrorBindingPattern";
   }
 
-  public static isErrorConstructor(
-    node: Ballerina.STNode
-  ): node is Ballerina.ErrorConstructor {
-    return node.kind === "ErrorConstructor";
-  }
-
   public static isErrorKeyword(
     node: Ballerina.STNode
   ): node is Ballerina.ErrorKeyword {
     return node.kind === "ErrorKeyword";
-  }
-
-  public static isErrorMatchPattern(
-    node: Ballerina.STNode
-  ): node is Ballerina.ErrorMatchPattern {
-    return node.kind === "ErrorMatchPattern";
   }
 
   public static isErrorTypeDesc(
@@ -531,18 +507,6 @@ export class STKindChecker {
     return node.kind === "ExpressionFunctionBody";
   }
 
-  public static isExternalFunctionBody(
-    node: Ballerina.STNode
-  ): node is Ballerina.ExternalFunctionBody {
-    return node.kind === "ExternalFunctionBody";
-  }
-
-  public static isExternalKeyword(
-    node: Ballerina.STNode
-  ): node is Ballerina.ExternalKeyword {
-    return node.kind === "ExternalKeyword";
-  }
-
   public static isFailKeyword(
     node: Ballerina.STNode
   ): node is Ballerina.FailKeyword {
@@ -567,10 +531,10 @@ export class STKindChecker {
     return node.kind === "FieldAccess";
   }
 
-  public static isFieldMatchPattern(
+  public static isFieldBindingPattern(
     node: Ballerina.STNode
-  ): node is Ballerina.FieldMatchPattern {
-    return node.kind === "FieldMatchPattern";
+  ): node is Ballerina.FieldBindingPattern {
+    return node.kind === "FieldBindingPattern";
   }
 
   public static isFinalKeyword(
@@ -679,18 +643,6 @@ export class STKindChecker {
     return node.kind === "GtToken";
   }
 
-  public static isHandleKeyword(
-    node: Ballerina.STNode
-  ): node is Ballerina.HandleKeyword {
-    return node.kind === "HandleKeyword";
-  }
-
-  public static isHandleTypeDesc(
-    node: Ballerina.STNode
-  ): node is Ballerina.HandleTypeDesc {
-    return node.kind === "HandleTypeDesc";
-  }
-
   public static isHashToken(
     node: Ballerina.STNode
   ): node is Ballerina.HashToken {
@@ -755,12 +707,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.InKeyword {
     return node.kind === "InKeyword";
-  }
-
-  public static isIncludedRecordParam(
-    node: Ballerina.STNode
-  ): node is Ballerina.IncludedRecordParam {
-    return node.kind === "IncludedRecordParam";
   }
 
   public static isIndexedExpression(
@@ -895,12 +841,6 @@ export class STKindChecker {
     return node.kind === "ListConstructor";
   }
 
-  public static isListMatchPattern(
-    node: Ballerina.STNode
-  ): node is Ballerina.ListMatchPattern {
-    return node.kind === "ListMatchPattern";
-  }
-
   public static isListenerDeclaration(
     node: Ballerina.STNode
   ): node is Ballerina.ListenerDeclaration {
@@ -969,12 +909,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.MappingConstructor {
     return node.kind === "MappingConstructor";
-  }
-
-  public static isMappingMatchPattern(
-    node: Ballerina.STNode
-  ): node is Ballerina.MappingMatchPattern {
-    return node.kind === "MappingMatchPattern";
   }
 
   public static isMarkdownDeprecationDocumentationLine(
@@ -1053,12 +987,6 @@ export class STKindChecker {
     return node.kind === "MinusToken";
   }
 
-  public static isModulePart(
-    node: Ballerina.STNode
-  ): node is Ballerina.ModulePart {
-    return node.kind === "ModulePart";
-  }
-
   public static isModuleVarDecl(
     node: Ballerina.STNode
   ): node is Ballerina.ModuleVarDecl {
@@ -1073,12 +1001,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.NamedArgBindingPattern {
     return node.kind === "NamedArgBindingPattern";
-  }
-
-  public static isNamedArgMatchPattern(
-    node: Ballerina.STNode
-  ): node is Ballerina.NamedArgMatchPattern {
-    return node.kind === "NamedArgMatchPattern";
   }
 
   public static isNamedWorkerDeclaration(
@@ -1393,34 +1315,16 @@ export class STKindChecker {
     return node.kind === "RecordTypeDesc";
   }
 
-  public static isRemoteKeyword(
-    node: Ballerina.STNode
-  ): node is Ballerina.RemoteKeyword {
-    return node.kind === "RemoteKeyword";
-  }
-
   public static isRemoteMethodCallAction(
     node: Ballerina.STNode
   ): node is Ballerina.RemoteMethodCallAction {
     return node.kind === "RemoteMethodCallAction";
   }
 
-  public static isRequiredExpression(
-    node: Ballerina.STNode
-  ): node is Ballerina.RequiredExpression {
-    return node.kind === "RequiredExpression";
-  }
-
   public static isRequiredParam(
     node: Ballerina.STNode
   ): node is Ballerina.RequiredParam {
     return node.kind === "RequiredParam";
-  }
-
-  public static isResourceAccessorDefinition(
-    node: Ballerina.STNode
-  ): node is Ballerina.ResourceAccessorDefinition {
-    return node.kind === "ResourceAccessorDefinition";
   }
 
   public static isResourceKeyword(
@@ -1437,12 +1341,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.RestBindingPattern {
     return node.kind === "RestBindingPattern";
-  }
-
-  public static isRestMatchPattern(
-    node: Ballerina.STNode
-  ): node is Ballerina.RestMatchPattern {
-    return node.kind === "RestMatchPattern";
   }
 
   public static isRestParam(
@@ -1643,6 +1541,12 @@ export class STKindChecker {
     return node.kind === "StringTypeDesc";
   }
 
+  public static isModulePart(
+    node: Ballerina.STNode
+  ): node is Ballerina.ModulePart {
+    return node.kind === "ModulePart";
+  }
+
   public static isTableConstructor(
     node: Ballerina.STNode
   ): node is Ballerina.TableConstructor {
@@ -1679,10 +1583,16 @@ export class STKindChecker {
     return node.kind === "TransactionStatement";
   }
 
-  public static isTransactionalKeyword(
+  public static isTrapExpression(
     node: Ballerina.STNode
-  ): node is Ballerina.TransactionalKeyword {
-    return node.kind === "TransactionalKeyword";
+  ): node is Ballerina.TrapExpression {
+    return node.kind === "TrapExpression";
+  }
+
+  public static isTrapKeyword(
+    node: Ballerina.STNode
+  ): node is Ballerina.TrapKeyword {
+    return node.kind === "TrapKeyword";
   }
 
   public static isTrippleEqualToken(
