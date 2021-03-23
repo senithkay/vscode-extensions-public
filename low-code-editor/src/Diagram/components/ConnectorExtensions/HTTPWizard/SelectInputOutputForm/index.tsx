@@ -100,19 +100,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
 
-    let responseVariableHasReferences: boolean = false;
-    let payloadVariableHasReferences: boolean = false;
-
-    if (!isNewConnectorInitWizard) {
-        let symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.action.returnVariableName);
-        responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-
-        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
-            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
-            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-        }
-    }
-
     let newField: FormField;
     if (connectorConfig.action.name === "forward") {
         actions.forEach((fields, name) => {
@@ -167,8 +154,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         action = connectorConfig.action;
     }
 
+    let responseVariableHasReferences: boolean = false;
+    let payloadVariableHasReferences: boolean = false;
 
+    if (!isNewConnectorInitWizard) {
+        let symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
+        responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
 
+        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
+            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
+            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
+        }
+    }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
