@@ -350,6 +350,20 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
+        case 'ballerinax_netsuite_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                if (key === "getAll") {
+                    value.parameters[0] = {
+                        type: PrimitiveBalType.String,
+                        name: "RecordType",
+                        optional: false,
+                        isParam: true
+                    }
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         default:
             filteredFunctions = fieldsForFunctions;
             break;
