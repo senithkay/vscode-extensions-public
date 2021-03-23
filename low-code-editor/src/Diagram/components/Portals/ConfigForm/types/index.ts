@@ -16,7 +16,7 @@ import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
-import { DraftUpdateStatement } from "../../../../view-state/draft";
+import { DraftUpdatePosition } from "../../../../view-state/draft";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
     model?: FormField | any;
@@ -54,7 +54,7 @@ export interface ConditionConfig {
     type: string;
     conditionExpression?: string | ForeachConfig;
     scopeSymbols?: string[];
-    conditionPosition?: DraftUpdateStatement;
+    conditionPosition?: DraftUpdatePosition;
 }
 
 export interface ForeachConfig {
@@ -94,7 +94,7 @@ export interface TypeInfo {
 export interface TypeInfoEntry {
     type: string;
     typeInfo?: TypeInfo;
-    fields: any;
+    fields?: any;
 }
 
 export interface DataMapperConfig {

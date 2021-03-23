@@ -42,7 +42,7 @@ import {
     updateObjectDeclaration,
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
-import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
+import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -342,7 +342,7 @@ export function HTTPWizard(props: WizardProps) {
                         }
 
                         if (headerObject.length > 0) {
-                            const updatePosition: DraftUpdateStatement = {
+                            const updatePosition: DraftUpdatePosition = {
                                 startLine,
                                 startColumn,
                                 endColumn,

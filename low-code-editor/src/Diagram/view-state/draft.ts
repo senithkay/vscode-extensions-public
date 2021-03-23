@@ -7,7 +7,7 @@ export interface DraftInsertPosition {
     column: number;
 }
 
-export interface DraftUpdateStatement {
+export interface DraftUpdatePosition {
     startLine: number;
     endLine: number;
     startColumn: number;

@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { DraftUpdateStatement } from "../Diagram/view-state/draft";
+import { DraftUpdatePosition } from "../Diagram/view-state/draft";
 
 // Some of these are types are not primitive types, and will need to be refactored
 export enum PrimitiveBalType {
@@ -106,7 +106,7 @@ export class ConnectorConfig {
     public subExitingConnection?: string;
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
-    public initPosition?: DraftUpdateStatement;
+    public initPosition?: DraftUpdatePosition;
 }
 
 export interface ConfigurationSpec {
