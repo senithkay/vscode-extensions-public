@@ -16,6 +16,7 @@ import { SMTPLogo } from "./SMTPLogo";
 import { SObjectClientLogo } from "./SObjectClientLogo";
 import { TwilioLogo } from "./TwilioLogo";
 import { TwitterLogo } from "./TwitterLogo";
+import { NetsuiteLogo } from "./NetsuiteLogo";
 
 
 export { BulkJobLogo as sfdc_BulkJob };
@@ -36,3 +37,4 @@ export { GoogleCalanderLogo as googleapis_calendar_Client} ;
 export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
 export { PostgreSQLogo as postgresql_Client };
+export { NetsuiteLogo as netsuite_Client };
