@@ -13,22 +13,19 @@
 
 import {
     ArrayTypeDesc,
-    FloatTypeDesc, FunctionBodyBlock,
-    IntTypeDesc,
-    JsonTypeDesc,
-    RecordField,
-    RecordTypeDesc,
-    RequiredParam, ReturnStatement,
-    ReturnTypeDescriptor,
-    SimpleNameReference,
-    STNode,
-    StringTypeDesc,
-    traversNode,
-    Visitor,
-    XmlTypeDesc
+    ExplicitAnonymousFunctionExpression, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, RecordField, RecordTypeDesc,
+    RequiredParam,
+    ReturnTypeDescriptor, SimpleNameReference,
+    STNode, StringTypeDesc,
+    Visitor, XmlTypeDesc
 } from '@ballerina/syntax-tree';
 
-import { DataMapperViewState, DataPointViewState } from '../viewstate';
+import {
+    DataMapperFunctionViewState,
+    DataMapperViewState,
+    SourcePointViewState, TargetPointViewState,
+    TypeDescViewState
+} from '../viewstate';
 
 
 export class DataMapperInitVisitor implements Visitor {
@@ -38,124 +35,151 @@ export class DataMapperInitVisitor implements Visitor {
         }
     }
 
-    beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
+    beginVisitExplicitAnonymousFunctionExpression(node: ExplicitAnonymousFunctionExpression) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new DataMapperViewState();
-            node.type.dataMapperViewState = node.dataMapperViewState;
+            node.dataMapperViewState = new DataMapperFunctionViewState();
         }
     }
 
     beginVisitRequiredParam(node: RequiredParam) {
         if (!node.dataMapperViewState) {
-            const viewState = new DataPointViewState();
+            const viewState: TypeDescViewState = new TypeDescViewState();
+            viewState.sourcePointViewState = new SourcePointViewState();
             viewState.name = node.paramName.value;
+            viewState.isSource = true;
             node.typeName.dataMapperViewState = viewState;
         }
     }
 
-    endVisitRequiredParam(node: RequiredParam) {
-        if (!node.dataMapperViewState && node.typeName.viewState) {
+    endVisitRequiredParam(node: RequiredParam, parent?: STNode) {
+        if (!node.dataMapperViewState) {
             node.dataMapperViewState = node.typeName.dataMapperViewState;
+        }
+    }
+
+    beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
+        if (!node.dataMapperViewState) {
+            node.type.dataMapperViewState = new TypeDescViewState();
+            node.type.dataMapperViewState.isTarget = true;
+        }
+    }
+
+    endVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = node.type.dataMapperViewState;
         }
     }
 
     beginVisitStringTypeDesc(node: StringTypeDesc) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataPointViewState).type = 'string';
-        }
-    }
-
-    beginVisitFloatTypeDesc(node: FloatTypeDesc) {
-        if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataPointViewState).type = 'float';
+            const viewState: TypeDescViewState = node.dataMapperViewState;
+            viewState.type = 'string';
         }
     }
 
     beginVisitIntTypeDesc(node: IntTypeDesc) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataPointViewState).type = 'int';
+            const viewState: TypeDescViewState = node.dataMapperViewState;
+            viewState.type = 'int';
+        }
+    }
+
+    beginVisitFloatTypeDesc(node: FloatTypeDesc) {
+        if (node.dataMapperViewState) {
+            const viewState: TypeDescViewState = node.dataMapperViewState;
+            viewState.type = 'float';
         }
     }
 
     beginVisitXmlTypeDesc(node: XmlTypeDesc) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataPointViewState).type = 'xml';
+            const viewState: TypeDescViewState = node.dataMapperViewState;
+            viewState.type = 'xml';
         }
     }
 
     beginVisitJsonTypeDesc(node: JsonTypeDesc) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataPointViewState).type = 'json';
+            const viewState: TypeDescViewState = node.dataMapperViewState;
+            viewState.type = 'json';
         }
     }
 
     beginVisitArrayTypeDesc(node: ArrayTypeDesc) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
-            viewState.isArray = true;
             node.memberTypeDesc.dataMapperViewState = node.dataMapperViewState;
         }
     }
 
     endVisitArrayTypeDesc(node: ArrayTypeDesc, parent?: STNode) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
+            const viewState: TypeDescViewState = node.memberTypeDesc.dataMapperViewState as TypeDescViewState;
             viewState.collectionDataType = viewState.type;
             viewState.type = 'collection';
         }
     }
 
-    beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState;
-            viewState.name = node.fieldName.value;
-            node.typeName.dataMapperViewState = node.dataMapperViewState;
-        }
-    }
-
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
+            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             viewState.type = 'record';
-            viewState.fields = [];
-            node.fields.forEach(recordFieldNode => {
-                recordFieldNode.dataMapperViewState = new DataPointViewState();
-            });
+            if (viewState.isSource) {
+                viewState.sourcePointViewState = new SourcePointViewState();
+                viewState.sourcePointViewState.text = viewState.name;
+            }
+
+            if (viewState.isTarget) {
+                viewState.targetPointViewState = new TargetPointViewState();
+            }
+
+            node.dataMapperViewState = viewState;
+
+            node.fields.forEach(field => {
+                field.dataMapperViewState = new TypeDescViewState();
+                field.dataMapperViewState.isSource = viewState.isSource;
+                field.dataMapperViewState.isTarget = viewState.isTarget;
+
+                if (viewState.isSource) {
+                    field.dataMapperViewState.sourcePointViewState = new SourcePointViewState();
+                    field.dataMapperViewState.sourcePointViewState.text = viewState.name;
+                }
+
+                if (viewState.isTarget) {
+                    field.dataMapperViewState.targetPointViewState = new TargetPointViewState();
+                }
+            })
         }
     }
 
-    endVisitRecordTypeDesc(node: RecordTypeDesc) {
+    beginVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
-            node.fields.forEach(recordFieldNode => {
-                viewState.fields.push(recordFieldNode.dataMapperViewState)
-            });
+            const viewstate = node.dataMapperViewState as TypeDescViewState;
+            viewstate.name = node.fieldName.value;
+
+            if (viewstate.isSource) {
+                viewstate.sourcePointViewState.text += `.${viewstate.name}`;
+            }
+            node.typeName.dataMapperViewState = viewstate;
         }
     }
 
+    endVisitRecordField(node: RecordField) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = node.typeName.dataMapperViewState;
+        }
+    }
 
     beginVisitSimpleNameReference(node: SimpleNameReference) {
         if (node.dataMapperViewState) {
-            const typeData = node.typeData;
-            const typeSymbol = typeData.typeSymbol;
-            const moduleID = typeSymbol.moduleID;
-            const viewState = node.dataMapperViewState as DataPointViewState;
-            viewState.displayType = node.name.value;
-
-            node.dataMapperViewState.typeInfo = {
-                moduleName: moduleID.moduleName,
+            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
+            const typeSymbol = node.typeData.typeSymbol;
+            viewState.typeInfo = {
                 name: typeSymbol.name,
-                orgName: moduleID.orgName,
-                version: moduleID.version
+                moduleName: typeSymbol.moduleID.moduleName,
+                orgName: typeSymbol.moduleID.orgName,
+                version: typeSymbol.moduleID.version
             }
         }
     }
-
-    beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
-    }
-
-    beginVisitReturnStatement(node: ReturnStatement) {
-    }
-
 }
 

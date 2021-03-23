@@ -12,71 +12,101 @@
  */
 import {
     ExplicitAnonymousFunctionExpression,
+    RecordField,
+    RecordTypeDesc,
     RequiredParam,
-    ReturnTypeDescriptor,
+    ReturnTypeDescriptor, traversNode,
     Visitor
 } from '@ballerina/syntax-tree';
-import { DataPointViewState } from '../viewstate'
+
+import { DataMapperFunctionViewState, TypeDescViewState } from "../viewstate";
 
 const DEFAULT_OFFSET = 20;
 
 export class DataMapperPositionVisitor implements Visitor {
-    private height: number;
     private startHeight: number;
-    private startOffset: number;
+    private height: number;
+    private offset: number;
+    private _maxOffset: number = 0;
 
     constructor(height: number, startOffset: number) {
         this.height = height;
-        this.startOffset = startOffset;
+        this.offset = startOffset;
         this.startHeight = height;
     }
 
     beginVisitRequiredParam(node: RequiredParam) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
-            viewState.bBox.x = this.startOffset;
+            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             viewState.bBox.y = this.height;
-            switch (viewState.type) {
-                case 'record':
-                    this.calculateRecordTypePosition(viewState.fields, this.startOffset + DEFAULT_OFFSET);
-                    break;
-                default:
-                    // ignored
-            }
+            viewState.bBox.x = this.offset;
 
-            this.height += DEFAULT_OFFSET * 2;
+            this.offset += DEFAULT_OFFSET;
+
+            // if (viewState.type === 'record') {
+            //     if (node.dataMapperTypeDescNode) {
+            //         traversNode(node.dataMapperTypeDescNode, this);
+            //     }
+            // }
+        }
+    }
+
+    endVisitRequiredParam(node: RequiredParam) {
+        if (node.dataMapperViewState) {
+            this.height += DEFAULT_OFFSET;
+            this.offset -= DEFAULT_OFFSET;
         }
     }
 
     beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
         if (node.dataMapperViewState) {
-            const viewState: DataPointViewState = node.dataMapperViewState as DataPointViewState;
-            viewState.bBox.x = this.startOffset + 400;
+            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             this.height = this.startHeight;
             viewState.bBox.y = this.height;
-            switch (viewState.type) {
-                case 'record':
-                    this.calculateRecordTypePosition(viewState.fields, this.startOffset + 400 + DEFAULT_OFFSET);
-                    break;
-                default:
-                // ignored
-            }
+            this.offset = 400 + this._maxOffset;
+            viewState.bBox.x = this.offset;
 
-            this.height += DEFAULT_OFFSET * 2;
-
+            this.offset += DEFAULT_OFFSET;
         }
     }
 
-    calculateRecordTypePosition(fields: DataPointViewState[], offset: number) {
-        fields.forEach(field => {
-            this.height += DEFAULT_OFFSET;
-            field.bBox.y = this.height;
-            field.bBox.x = offset;
-
-            if (field.type === 'record') {
-                this.calculateRecordTypePosition(field.fields, offset + DEFAULT_OFFSET);
-            }
-        })
+    endVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
+        if (node.dataMapperViewState) {
+            this.offset -= DEFAULT_OFFSET;
+        }
     }
 
+    beginVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState) {
+            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
+            this.height += DEFAULT_OFFSET;
+            viewState.bBox.y = this.height;
+            viewState.bBox.x = this.offset;
+
+            if (this._maxOffset < this.offset) {
+                this._maxOffset = this.offset;
+            }
+
+            this.offset += DEFAULT_OFFSET;
+
+            // if (viewState.type === 'record') {
+            //     if (node.dataMapperTypeDescNode) {
+            //         traversNode(node.dataMapperTypeDescNode, this);
+            //     }
+            // }
+        }
+    }
+
+    endVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState) {
+            this.height += DEFAULT_OFFSET;
+            this.offset -= DEFAULT_OFFSET;
+        }
+    }
+
+
+    get maxOffset(): number {
+        return this._maxOffset;
+    }
 }
+
