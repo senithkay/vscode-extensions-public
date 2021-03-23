@@ -328,15 +328,6 @@ export function getParams(formFields: FormField[]): string[] {
                     paramString += "{" + recordFieldsString + "}";
                 }
             } else if (formField.type === PrimitiveBalType.Union && formField.isUnion) {
-                // const selectedUnionField: FormField[] = [];
-                // for (const unionField of formField.fields) {
-                //     if (unionField.type === formField.selectedDataType
-                //         || unionField.collectionDataType === formField.selectedDataType
-                //         || unionField.typeName === formField.selectedDataType) {
-                //         selectedUnionField.push(unionField);
-                //         break;
-                //     }
-                // }
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
