@@ -132,7 +132,7 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                 let type;
                 if (field.type === "record" || model.typeInfo) {
                     if (field.typeInfo){
-                        type = field.typeInfo.modName + ":" + field.typeInfo.name;
+                        type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "collection") {
                     if (field.collectionDataType) {
