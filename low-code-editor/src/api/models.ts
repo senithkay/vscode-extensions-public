@@ -5,13 +5,14 @@ export const APP_TYPE_EXTERNAL = "External";
 export const APP_TYPE_WEBHOOK = "Webhook";
 export const APP_TYPE_MANUAL = "Manual";
 export const APP_TYPE_EMAIL = "Email";
-export const APP_TYPE_UNKNOWN = "Unknown";
+export const APP_TYPE_SERVICE_DRAFT = "Service Draft";
+export const APP_TYPE_INTEGRATION_DRAFT = "Integration Draft";
 export const APP_CODE = "Code";
 export const APP_ANALYZE = "Analyze";
 export const APP_SETTINGS = "Settings";
 
 export type AppType = typeof APP_TYPE_JOB | typeof APP_TYPE_API | typeof APP_TYPE_CUSTOM | typeof APP_TYPE_WEBHOOK
-    | typeof APP_TYPE_MANUAL | typeof APP_TYPE_EMAIL | typeof APP_TYPE_UNKNOWN | typeof APP_TYPE_EXTERNAL;
+    | typeof APP_TYPE_MANUAL | typeof APP_TYPE_EMAIL | typeof APP_TYPE_SERVICE_DRAFT | typeof APP_TYPE_INTEGRATION_DRAFT | typeof APP_TYPE_EXTERNAL;
 
 export const LOG_LEVEL_TRACE = "TRACE";
 export const LOG_LEVEL_DEBUG = "DEBUG";
