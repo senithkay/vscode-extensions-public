@@ -313,5 +313,8 @@
         "vscode-debugadapter-testsupport": "^1.43.0",
         "webpack": "^4.46.0",
         "webpack-cli": "^3.3.3"
-    }
+    },
+    "extensionPack": [
+        "bungcip.better-toml"
+    ]
 }
