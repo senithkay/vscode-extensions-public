@@ -12,13 +12,13 @@
  */
 import * as React from "react";
 
-export const TWITTER_LOGO_WIDTH = 48;
-export const TWITTER_LOGO_HEIGHT = 48;
+export const LOGO_WIDTH = 48;
+export const LOGO_HEIGHT = 48;
 
 export function NetsuiteLogo(props: { cx?: number, cy?: number, scale?: number; }) {
     const { cx, cy, scale } = props;
     return (
-        <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns={true}: xlink="http://www.w3.org/1999/xlink">
+        <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (LOGO_HEIGHT / 2)} width={LOGO_WIDTH} height={LOGO_HEIGHT}>
             <title>40F946A2-4E84-4901-8F40-DABEE9749BC1</title>
             <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="develop-UI-kit" transform="translate(-576.000000, -2621.000000)">
