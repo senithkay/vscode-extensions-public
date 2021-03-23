@@ -22,10 +22,13 @@ import {
 } from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
+import { positionVisitor } from "../../../index";
 
-import { Parameter } from './components/Parameter';
+import { completeMissingTypeDesc } from "./util";
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
-import { DataMapperPositionVisitor } from './util/datamapper-position-visitor';
+import { DataPointVisitor } from "./util/data-point-visitor";
+import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
+import { TypeDescViewState } from "./viewstate";
 
 interface DataMapperProps {
     width: number;
@@ -35,7 +38,9 @@ export function DataMapper(props: DataMapperProps) {
     const {
         state: {
             stSymbolInfo,
-            dataMapperFunctionName
+            dataMapperFunctionName,
+            originalSyntaxTree,
+            syntaxTree
         }
     } = useContext(DiagramContext)
     const { width } = props;
@@ -44,10 +49,41 @@ export function DataMapper(props: DataMapperProps) {
 
     const selectedNode = (stSymbolInfo.variables.size > 0) ?
         stSymbolInfo.variables.get("var")
-            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === dataMapperFunctionName)
+            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === "dataMapperFunction")
         : undefined;
     const parameters: any[] = [];
-    debugger;
+
+    if (selectedNode) {
+        traversNode(selectedNode.initializer, new DataMapperInitVisitor());
+        const functionSignature = (selectedNode.initializer as ExplicitAnonymousFunctionExpression).functionSignature;
+
+        // start : fetch missing type desc node traverse with init visitor
+        functionSignature.parameters.forEach((field: any) => {
+            if (field.kind !== 'CommaToken') {
+                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
+            }
+        });
+        completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
+        // end : fetch missing type desc node traverse with init visitor
+
+        const parameterPositionVisitor = new DataMapperPositionVisitor(10, 15);
+
+        // start positioning visitor
+        functionSignature.parameters.forEach((field: STNode) => {
+            if (field.kind !== 'CommaToken') {
+                traversNode(field, parameterPositionVisitor);
+            }
+        });
+        traversNode(functionSignature.returnTypeDesc, parameterPositionVisitor);
+        // end positioning visitor
+        const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
+        traversNode(selectedNode, dataPointVisitor);
+
+        selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
+        selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
+        debugger;
+    }
+
     // if (selectedNode) {
     //     traversNode(selectedNode, new DataMapperInitVisitor());
     //     // todo: fetch missing records and visit
