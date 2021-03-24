@@ -108,7 +108,7 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
 export const transformFormFieldTypeToString = (model?: FormField): string => {
     if (model.type === "record" || model.typeInfo) {
         if (model.typeInfo){
-            return model.typeInfo.modName + ":" + model.typeInfo.name;
+            return model.isArray ? model.typeInfo.modName + ":" + model.typeInfo.name + "[]" : model.typeInfo.modName + ":" + model.typeInfo.name;
         }
     } else if (model.type === "union"){
         if (model.fields) {
@@ -134,7 +134,9 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
         }
     } else if (model.type === "collection") {
-        if (model.collectionDataType) {
+        if (model.typeInfo) {
+            return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
+        } else if (model.collectionDataType) {
             return model.collectionDataType + "[]";
         }
     } else if (model.type) {
