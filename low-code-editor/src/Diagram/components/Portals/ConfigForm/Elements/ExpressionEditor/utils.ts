@@ -115,19 +115,19 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             const allTypes: string[] = [];
             for (const field of model.fields) {
                 let type;
-                if (field.type === "record" || model.typeInfo) {
+                if (field.type === "record" || field.typeInfo) {
                     if (field.typeInfo){
                         type = field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "collection") {
                     if (field.collectionDataType) {
-                        return field.collectionDataType + "[]";
+                        type = field.collectionDataType + "[]";
                     }
                 } else if (field.type) {
                     type = field.type;
                 }
 
-                if (type && !allTypes.includes(type.toString())){
+                if (type && !field.noCodeGen && !allTypes.includes(type.toString())){
                     allTypes.push(type.toString());
                 }
             }
