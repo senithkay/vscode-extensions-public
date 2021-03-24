@@ -61,7 +61,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid);
+        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
+        setIsFormValid(isValidExpression);
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
