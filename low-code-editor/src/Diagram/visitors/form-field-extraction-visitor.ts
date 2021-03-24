@@ -162,8 +162,10 @@ class FieldVisitor implements Visitor {
                         isArray: true,
                         type: PrimitiveBalType.Union
                     }
-
                     viewState.fields.push(fieldViewState);
+                    break;
+                case 'SimpleNameReference':
+                    node.memberTypeDesc.viewState = viewState;
                     break;
             }
         }
