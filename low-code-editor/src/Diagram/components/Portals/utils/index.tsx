@@ -82,6 +82,8 @@ const ignoreList = [
     'ballerinax/github:0.99.12:RepositoryList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:PullRequestList',
+    'ballerinax/netsuite:0.9.3:GetAllRecordType',
+    'ballerinax/netsuite:0.9.3:GetSaveSearchType'
 ]
 
 export function getOverlayElement(
