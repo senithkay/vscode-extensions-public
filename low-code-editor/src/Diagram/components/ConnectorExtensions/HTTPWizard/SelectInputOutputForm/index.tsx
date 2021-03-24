@@ -185,7 +185,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             ...payloadState,
             selectedPayload: value,
             isNameProvided: true,
-            variableName: isNewConnectorInitWizard ?
+            variableName: isNewConnectorInitWizard || (!isNewConnectorInitWizard &&
+                !connectorConfig.responsePayloadMap.payloadVariableName) ?
                 genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
                 :
                 connectorConfig.responsePayloadMap.payloadVariableName
