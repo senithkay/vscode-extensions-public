@@ -149,31 +149,27 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
  * @param codeSnipet Existing code to which the imports will be added
  * @param model formfield model to check the types of the imports
  */
-export const addImportModuleToCode = (codeSnipet: string, model: FormField, state?: any): string => {
+export const addImportModuleToCode = (codeSnipet: string, model: FormField): string => {
     let code = codeSnipet;
-    const { syntaxTree } = state;
-    const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
-    if (functionBodyPosition){
-        if (model.type === "record" || model.typeInfo) {
-            if (model.typeInfo){
-                const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
-                const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-                if (!code.includes(importSnippet)){
-                    // Add import only if its already not imported
-                    code = addToTargetLine(code, functionBodyPosition.startLine, `${importSnippet}`);
-                }
+    if (model.type === "record" || model.typeInfo) {
+        if (model.typeInfo){
+            const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
+            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+            if (!code.includes(importSnippet)){
+                // Add import only if its already not imported
+                code = addToTargetLine(code, 0, `${importSnippet}`);
             }
-        } else if (model.type === "union"){
-            if (model.fields) {
-                for (const field of model.fields) {
-                    if (field.type === "record" || model.typeInfo) {
-                        if (field.typeInfo){
-                            const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
-                            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-                            if (!code.includes(importSnippet)){
-                                // Add import only if its already not imported
-                                code = addToTargetLine(code, functionBodyPosition.startLine, `${importSnippet}`);
-                            }
+        }
+    } else if (model.type === "union"){
+        if (model.fields) {
+            for (const field of model.fields) {
+                if (field.type === "record" || model.typeInfo) {
+                    if (field.typeInfo){
+                        const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
+                        const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+                        if (!code.includes(importSnippet)){
+                            // Add import only if its already not imported
+                            code = addToTargetLine(code, 0, `${importSnippet}`);
                         }
                     }
                 }
