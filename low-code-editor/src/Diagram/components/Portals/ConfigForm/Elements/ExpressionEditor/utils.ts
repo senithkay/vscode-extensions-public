@@ -108,33 +108,35 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
 export const transformFormFieldTypeToString = (model?: FormField): string => {
     if (model.type === "record" || model.typeInfo) {
         if (model.typeInfo){
-            return model.typeInfo.modName + ":" + model.typeInfo.name;
+            return model.isArray ? model.typeInfo.modName + ":" + model.typeInfo.name + "[]" : model.typeInfo.modName + ":" + model.typeInfo.name;
         }
     } else if (model.type === "union"){
         if (model.fields) {
             const allTypes: string[] = [];
             for (const field of model.fields) {
                 let type;
-                if (field.type === "record" || model.typeInfo) {
+                if (field.type === "record" || field.typeInfo) {
                     if (field.typeInfo){
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "collection") {
                     if (field.collectionDataType) {
-                        return field.collectionDataType + "[]";
+                        type = field.collectionDataType + "[]";
                     }
                 } else if (field.type) {
                     type = field.type;
                 }
 
-                if (type && !allTypes.includes(type.toString())){
+                if (type && !field.noCodeGen && !allTypes.includes(type.toString())){
                     allTypes.push(type.toString());
                 }
             }
             return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
         }
     } else if (model.type === "collection") {
-        if (model.collectionDataType) {
+        if (model.typeInfo) {
+            return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
+        } else if (model.collectionDataType) {
             return model.collectionDataType + "[]";
         }
     } else if (model.type) {

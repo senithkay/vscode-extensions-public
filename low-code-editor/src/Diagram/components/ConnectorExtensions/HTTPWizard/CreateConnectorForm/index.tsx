@@ -133,16 +133,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const handleOnOperationRadioChange = (event: any) => {
         const actionName = event.target.value;
-        connectorConfig.action = {
-            name: actionName,
-            fields: functionDefinitions.get(actionName).parameters
-        };
         setActionNameRadio(actionName);
         // TODO: tour step should update without redux store
         // if (actionName === "get") {
         //     dispatchGoToNextTourStep("DIAGRAM_CONFIG_HTTP_METHOD");
         // }
     };
+
+    if (actionNameRadio) {
+        connectorConfig.action.name = actionNameRadio;
+        connectorConfig.action.fields = functionDefinitions.get(actionNameRadio).parameters;
+    }
+    if (initActionNameRadio !== actionNameRadio) {
+        connectorConfig.action.returnVariableName = undefined;
+    }
 
     return (
         <div>

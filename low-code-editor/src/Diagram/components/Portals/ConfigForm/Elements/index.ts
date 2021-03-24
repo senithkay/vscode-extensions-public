@@ -13,7 +13,6 @@
 import ExpressionEditor from "./ExpressionEditor";
 import { FormJson } from "./Json/FormJson"
 import { Record } from "./Record";
-import { Union } from "./Union";
 import { XML } from "./XML";
 
 export { ExpressionEditor as string };
@@ -21,7 +20,7 @@ export { ExpressionEditor as int };
 export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
 export { ExpressionEditor as collection };
+export { ExpressionEditor as union };
 export { Record as record };
-export { Union as union };
 export { FormJson as json };
 export { XML as xml };
