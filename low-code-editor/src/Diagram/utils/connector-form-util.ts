@@ -148,7 +148,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 else if (key === "init") {
                     if (value.parameters[3].name === "clientConfig") {
                         value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
+                            if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
                             }
                         })
