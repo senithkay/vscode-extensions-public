@@ -404,11 +404,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // Replacing the templates lenght with space char to get the LS completions correctly
             const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-            initContent = addImportModuleToCode(initContent, model, state);
+            initContent = addImportModuleToCode(initContent, model);
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-            initContent = addImportModuleToCode(initContent, model, state);
+            initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
@@ -457,12 +457,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Replacing the templates lenght with space char to get the LS completions correctly
                 const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-                newModel = addImportModuleToCode(newModel, model, state);
+                newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
                 const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-                newModel = addImportModuleToCode(newModel, model, state);
+                newModel = addImportModuleToCode(newModel, model);
             }
 
             expressionEditorState.name = model.name;
