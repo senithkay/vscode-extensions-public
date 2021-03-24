@@ -230,22 +230,8 @@ export function getParams(formFields: FormField[]): string[] {
         if (formField.isParam && !formField.noCodeGen) {
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "collection" && !formField.hide) {
-                if (formField.fields.length > 0) {
-                    let firstRecordField = false;
-                    paramString += "[";
-                    formField.fields.forEach(field => {
-                        if (firstRecordField) {
-                            paramString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        paramString += field.value;
-                    });
-                    paramString += "]";
-                } else if (formField.value !== undefined) {
-                    paramString += formField.value.toString();
-                }
+            } else if (formField.type === "collection" && !formField.hide && formField.value) {
+                paramString += formField.value.toString();
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
@@ -272,41 +258,7 @@ export function getParams(formFields: FormField[]): string[] {
                         } else {
                             firstRecordField = true;
                         }
-                        let collectionFieldString: string = "[";
-                        let firstCollectionField = false;
-                        if (field.fields) {
-                            // To check incoming fields from property from
-                            field.fields.forEach((subField: FormField) => {
-                                if (firstCollectionField) {
-                                    collectionFieldString += ", ";
-                                } else {
-                                    firstCollectionField = true;
-                                }
-                                if (field.collectionDataType === "string" && subField.value) {
-                                    collectionFieldString += subField.value;
-                                } else if ((field.type === "int" || field.type === "boolean" ||
-                                    field.type === "float") && subField.value) {
-                                    collectionFieldString += subField.value;
-                                }
-                            });
-                        } else if (field.value) {
-                            // To check incoming values from Array component
-                            field.value.forEach((value: any) => {
-                                if (firstCollectionField) {
-                                    collectionFieldString += ", ";
-                                } else {
-                                    firstCollectionField = true;
-                                }
-                                if (field.collectionDataType === "string" && field.value) {
-                                    collectionFieldString += value;
-                                } else if ((field.type === "int" || field.type === "boolean" ||
-                                    field.type === "float") && field.value) {
-                                    collectionFieldString += value;
-                                }
-                            });
-                        }
-                        collectionFieldString += "]";
-                        recordFieldsString += getFieldName(field.name) + ": " + collectionFieldString;
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion) {
                         recordFieldsString += ", " + getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "record" && !field.hide) {
@@ -466,60 +418,8 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is an array
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
-                        formField.value = [];
+                        formField.value = listExpr.source;
                         formField.fields = [];
-                        listExpr.expressions.forEach(element => {
-                            if (STKindChecker.isStringLiteral(element) ||
-                                STKindChecker.isNumericLiteral(element) ||
-                                STKindChecker.isBooleanLiteral(element)) {
-
-                                const fieldValue = element.literalToken.value;
-                                if (formField.type === "union") {
-                                    formField.fields.forEach((field: FormField) => {
-                                        if (field.type === formField.selectedDataType) {
-                                            formField.value.push(fieldValue);
-                                        }
-                                    });
-                                } else {
-                                    formField.value.push(fieldValue);
-                                }
-                            } else {
-                                if (STKindChecker.isMappingConstructor(element)) {
-                                    const mappingField: FormField = {
-                                        type: PrimitiveBalType.String,
-                                        name: "",
-                                        fields: []
-                                    }
-                                    element.fields.forEach((field) => {
-                                        if (field.kind !== "CommaToken") {
-                                            const mappingSpecificField = field as SpecificField;
-                                            if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.Float,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.String,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.Boolean,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            }
-                                        }
-                                    });
-                                    formField.fields.push(mappingField);
-                                } else if (element.kind !== "CommaToken") {
-                                    formField.fields.push({type: PrimitiveBalType.String, name: "", value: element.source});
-                                }
-                            }
-                        })
                     }
                 }
             })
@@ -563,9 +463,7 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             }
             nextValueIndex++;
         } else if (formField.type === 'collection') {
-            formField.fields = (positionalArg.expression as ListConstructor).expressions
-                .filter(exp => exp.kind !== 'CommaToken')
-                .map(exp => ({ type: formField.collectionDataType, value: exp.source }));
+            formField.value = positionalArg.expression?.source;
             nextValueIndex++;
         } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
             const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;

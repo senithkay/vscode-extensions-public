@@ -117,9 +117,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "replyTo") {
                             param.hide = true;
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "cc" || param.name === "bcc") {
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
@@ -149,7 +149,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 else if (key === "init") {
                     if (value.parameters[3].name === "clientConfig") {
                         value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
+                            if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
                             }
                         })

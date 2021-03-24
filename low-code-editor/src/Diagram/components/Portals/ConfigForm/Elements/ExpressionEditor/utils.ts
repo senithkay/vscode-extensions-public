@@ -93,9 +93,9 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
     }
 }
 
-export function getInitialValue(defaultValue: string, modelValue: string, varType: string): string {
-    const initVal = defaultValue ? defaultValue : modelValue;
-    if (varType === "string") {
+export function getInitialValue(defaultValue: string, model: FormField): string {
+    const initVal = defaultValue ? defaultValue : model.value;
+    if (model.type === PrimitiveBalType.String && !model.optional) {
         return initVal ? initVal : "\"\"";
     } else {
         return initVal;
@@ -123,7 +123,7 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                 let type;
                 if (field.type === "record" || field.typeInfo) {
                     if (field.typeInfo){
-                        type = field.typeInfo.modName + ":" + field.typeInfo.name;
+                        type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "collection") {
                     if (field.collectionDataType) {

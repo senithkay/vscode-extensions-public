@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Array } from "./Array";
 import ExpressionEditor from "./ExpressionEditor";
 import { FormJson } from "./Json/FormJson"
 import { Record } from "./Record";
@@ -20,8 +19,8 @@ export { ExpressionEditor as string };
 export { ExpressionEditor as int };
 export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
-export { Record as record };
-export { Array as collection };
+export { ExpressionEditor as collection };
 export { ExpressionEditor as union };
+export { Record as record };
 export { FormJson as json };
 export { XML as xml };
