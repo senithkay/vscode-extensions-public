@@ -272,9 +272,7 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: LocalVarDecl,
-                                     connectors: BallerinaConnectorsInfo[],
-                                     stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
 
@@ -295,7 +293,10 @@ export function getMatchingConnector(actionInvo: LocalVarDecl,
 
         if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
             remoteMethodCallAction.methodName.typeData) {
-            const endPointName = (actionVariable.expression.expression as SimpleNameReference).name.value;
+            // TODO: Fix this path as we cannot get actual endpoint name from a fieldAccess
+            const endPointName = STKindChecker.isFieldAccess(actionVariable.expression.expression)
+                ? actionVariable.expression.expression.fieldName.name.value
+                : actionVariable.expression.expression.name.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
             const typeData: any = remoteMethodCallAction.methodName.typeData;
             if (typeData?.symbol?.moduleID) {
