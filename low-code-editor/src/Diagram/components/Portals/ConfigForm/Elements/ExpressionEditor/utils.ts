@@ -47,6 +47,12 @@ export function addToTargetLine(oldModelValue: string, targetLine: number, codeS
     return modelContent.join('\n');
 }
 
+export function addToZerothLine(oldModelValue: string, codeSnippet: string): string {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    modelContent[0] = codeSnippet + modelContent[0];
+    return modelContent.join('\n');
+}
+
 export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string): string {
     return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(targetColumn);
 }
@@ -157,7 +163,7 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
             const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
             if (!code.includes(importSnippet)){
                 // Add import only if its already not imported
-                code = addToTargetLine(code, 0, `${importSnippet}`);
+                code = addToZerothLine(code, `${importSnippet}`);
             }
         }
     } else if (model.type === "union"){
@@ -169,7 +175,7 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
                         const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
                         if (!code.includes(importSnippet)){
                             // Add import only if its already not imported
-                            code = addToTargetLine(code, 0, `${importSnippet}`);
+                            code = addToZerothLine(code, `${importSnippet}`);
                         }
                     }
                 }
