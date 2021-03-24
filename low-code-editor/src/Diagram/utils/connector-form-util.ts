@@ -271,6 +271,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
                 } else if (!((key === "watchEvents") || (key === "updateEvent") || (key === "getEventResponse") || (key === "getCalendars"))) {
                     filteredFunctions.set(key, value);
                 }
