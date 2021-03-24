@@ -291,10 +291,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 } else if (key === "getIdFromUrl") {
                     // hide this isolated function
-                } else if (key === "appendRow") {
-                    // HACK: need to handle collectionDataType in union type arrays (string|int|float)[]
-                    value.parameters.find(fields => fields.name === "values").collectionDataType = PrimitiveBalType.String;
-                    filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
                 }
@@ -321,11 +317,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             subFields.fields =  subFields.fields[0].fields;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
+                            subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
                             subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
                             subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
                             subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
                             subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
                             subFields.hide = true;
@@ -346,6 +343,20 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             field.hide = true;
                         }
                     });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_netsuite_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                if (key === "getAll") {
+                    value.parameters[0] = {
+                        type: PrimitiveBalType.String,
+                        name: "RecordType",
+                        optional: false,
+                        isParam: true
+                    }
                 }
                 filteredFunctions.set(key, value);
             });

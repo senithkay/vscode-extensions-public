@@ -7,6 +7,7 @@ import { GoogleCalanderLogo } from "./GoogleCalanderLogo"
 import { GoogleSheetLogo } from "./GoogleSheetLogo"
 import { HttpLogo } from "./HttpLogo";
 import { ImapLogo } from "./ImapLogo"
+import { NetsuiteLogo } from "./NetsuiteLogo";
 import { Pop3Logo } from "./Pop3Logo";
 import { PostgreSQLogo } from "./PostgreSQLogo";
 import { QueryClientLogo } from "./QueryClientLogo";
@@ -36,3 +37,4 @@ export { GoogleCalanderLogo as googleapis_calendar_Client} ;
 export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
 export { PostgreSQLogo as postgresql_Client };
+export { NetsuiteLogo as netsuite_Client };

@@ -10,17 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import ExpressionEditor from "./ExpressionEditor";
-import { FormJson } from "./Json/FormJson"
-import { Record } from "./Record";
-import { XML } from "./XML";
 
-export { ExpressionEditor as string };
-export { ExpressionEditor as int };
-export { ExpressionEditor as boolean };
-export { ExpressionEditor as float };
-export { ExpressionEditor as collection };
-export { ExpressionEditor as union };
-export { Record as record };
-export { FormJson as json };
-export { XML as xml };
+import { FormField } from "../../../../ConfigurationSpec/types";
+import { getParams } from "../../Portals/utils";
+
+export function getOperationParams(fields: FormField[], operation: string): any {
+    const params = getParams(fields);
+    switch (operation) {
+        case "getAll":
+            const paramString = params.toString();
+
+            break;
+        default:
+            return params
+    }
+}
