@@ -228,22 +228,8 @@ export function getParams(formFields: FormField[]): string[] {
         if (formField.isParam && !formField.noCodeGen) {
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "collection" && !formField.hide) {
-                if (formField.fields && formField.fields.length > 0) {
-                    let firstRecordField = false;
-                    paramString += "[";
-                    formField.fields.forEach(field => {
-                        if (firstRecordField) {
-                            paramString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        paramString += field.value;
-                    });
-                    paramString += "]";
-                } else if (formField.value !== undefined) {
-                    paramString += formField.value.toString();
-                }
+            } else if (formField.type === "collection" && !formField.hide && formField.value) {
+                paramString += formField.value.toString();
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
@@ -270,48 +256,7 @@ export function getParams(formFields: FormField[]): string[] {
                         } else {
                             firstRecordField = true;
                         }
-                        let collectionFieldString: string = "[";
-                        let firstCollectionField = false;
-                        if (field.value) {
-                            if (Array.isArray(field.value) && field.value.length > 0) {
-                                // To check incoming values from Array component
-                                field.value.forEach((value: any) => {
-                                    if (firstCollectionField) {
-                                        collectionFieldString += ", ";
-                                    } else {
-                                        firstCollectionField = true;
-                                    }
-                                    if (field.collectionDataType === "string" && field.value) {
-                                        collectionFieldString += value;
-                                    } else if ((field.type === "int" || field.type === "boolean" ||
-                                        field.type === "float") && field.value) {
-                                        collectionFieldString += value;
-                                    }
-                                });
-                                collectionFieldString += "]";
-                            } else {
-                                collectionFieldString = field.value;
-                            }
-                        } else if (field.fields) {
-                            // To check incoming fields from property from
-                            field.fields.forEach((subField: FormField) => {
-                                if (firstCollectionField) {
-                                    collectionFieldString += ", ";
-                                } else {
-                                    firstCollectionField = true;
-                                }
-                                if (field.collectionDataType === "string" && subField.value) {
-                                    collectionFieldString += subField.value;
-                                } else if ((field.type === "int" || field.type === "boolean" ||
-                                    field.type === "float") && subField.value) {
-                                    collectionFieldString += subField.value;
-                                }
-                            });
-                            collectionFieldString += "]";
-                        } else {
-                            collectionFieldString += "]";
-                        }
-                        recordFieldsString += getFieldName(field.name) + ": " + collectionFieldString;
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion) {
                         const selectedUnionField: FormField[] = [];
                         for (const unionField of field.fields) {
