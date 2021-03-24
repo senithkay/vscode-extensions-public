@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -295,7 +295,7 @@ export function getMatchingConnector(actionInvo: LocalVarDecl,
 
         if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
             remoteMethodCallAction.methodName.typeData) {
-            const endPointName = actionVariable.expression.expression.name.value;
+            const endPointName = (actionVariable.expression.expression as SimpleNameReference).name.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
             const typeData: any = remoteMethodCallAction.methodName.typeData;
             if (typeData?.symbol?.moduleID) {

@@ -103,7 +103,6 @@ export const useStyles = makeStyles(() =>
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            width: "100%"
           }
     })
 );
