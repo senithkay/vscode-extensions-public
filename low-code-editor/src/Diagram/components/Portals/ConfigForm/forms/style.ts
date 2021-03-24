@@ -375,6 +375,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         invalidCode: {
             fontSize: '11px !important',
             color: '#ea4c4d !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
         },
         toFieldTooltipWrapper: {
             display: "flex",

@@ -106,18 +106,20 @@ export function Diagram(props: DiagramProps) {
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
             {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledStatus}
+            {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
 
             <div className={classes.diagramStateWrapper}>
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
+
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     <Canvas h={h} w={w} >
                         {child}
                     </Canvas>
-                    {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && textLoader && <OverlayBackground />}
+                    {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
             </PanAndZoom>

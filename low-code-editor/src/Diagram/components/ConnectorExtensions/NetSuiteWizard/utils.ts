@@ -10,18 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.connector {
-    line {
-        stroke: #32324d;
-        stroke-width: 1px;
-    }
 
-    .endpont-name {
-        fill: #32324d;
-        font-family: "Gilmer", sans-serif;
-        font-size: 13px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        line-height: 12px;
+import { FormField } from "../../../../ConfigurationSpec/types";
+import { getParams } from "../../Portals/utils";
+
+export function getOperationParams(fields: FormField[], operation: string): any {
+    const params = getParams(fields);
+    switch (operation) {
+        case "getAll":
+            const paramString = params.toString();
+
+            break;
+        default:
+            return params
     }
 }

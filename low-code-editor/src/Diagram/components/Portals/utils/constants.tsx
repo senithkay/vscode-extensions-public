@@ -55,6 +55,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     currentValue: "Current Value Variable",
     name: "Name of the {0}",
+    customVariableType: "Value of other variable type",
     connectionName: "Add a valid connection name",
     responseVariableName: "Enter a valid name for the response variable",
     headerName: "Header name",
@@ -200,6 +201,10 @@ export const tooltipMessages: Record<string, any> = {
             maxOpenConnections: "Specify the maximum number of open connections",
             minIdleConnections: "Specify the minimum number of idle connections"
         }
+    },
+    netsuite : {
+        title: "Connect your application with Netsuite ",
+        content: "Search customer details \nSearch transactions"
     },
     APIsPlusHolder: {
         title: "A collection of Connections that helps you integrate your application to external services",

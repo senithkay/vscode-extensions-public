@@ -17,16 +17,16 @@ import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName } from "../../../Portals/utils";
+import { tooltipMessages } from "../../../Portals/utils/constants";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -36,6 +36,7 @@ interface CreateConnectorFormProps {
     onSave: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
+    isOauthConnector: boolean;
 }
 
 interface NameState {
@@ -45,24 +46,29 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSave, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
-    const { state } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo } = state;
+    const { state } = useContext(Context);
+    const { stSymbolInfo : symbolInfo } = state;
+    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+            onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: '',
-        isValidName: true,
-        isNameProvided: true
+        value: connectorConfig.name,
+        isValidName:  !!connectorConfig.name,
+        isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
+    const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name);
     const [connectorNameError, setConnectorNameError] = useState('');
-    const [isAccessTokenValid, setIsAccessTokenValid] = useState(false);
-    const [connectorInitFields] = useState(initFields);
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
+
+    const onValidate = (isRequiredFieldsFilled: boolean) => {
+        setIsGenFieldsFilled(isRequiredFieldsFilled);
+    };
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
     if (hasReference === undefined){
@@ -73,24 +79,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         } else {
             setHasReference(symbolRefArray.length > 1);
         }
-    }
-
-    // generate variable name and set to default text
-    const defaultText: string = connectorConfig.name;
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
-
-    // Set init function of the connector.
-    // connectorConfig.connectorInit = initFields;
-
-    if ((connectorConfig.name === "" || connectorConfig.name === undefined) && nameState.isValidName) {
-        connectorConfig.name = defaultText;
-        setNameState({
-            value: defaultText,
-            isNameProvided: defaultText !== '',
-            isValidName: nameRegex.test(defaultText)
-        });
     }
 
     const validateNameValue = (value: string) => {
@@ -104,10 +92,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         return true;
     };
 
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsAccessTokenValid(!isInvalid)
-    };
-
     const onNameChange = (text: string) => {
         setNameState({
             value: text,
@@ -117,37 +101,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onConfigNameChange(text);
     };
 
-    const onAccessTokenChange = (text: string) => {
-        connectorInitFields[0].fields[1].value = text;
-    };
-
-    const expressionModel: FormField = {
-        type: "string",
-        name: "Access Token"
-    }
-
-    let defaultAccessTokenVal = '';
-    if (!isNewConnectorInitWizard) {
-        const gitHubConfig = connectorInitFields.find(field => field.name === 'gitHubConfig');
-        const accessToken = gitHubConfig ? gitHubConfig.fields.find(field => field.name === 'accessToken') : undefined;
-        defaultAccessTokenVal = accessToken ? accessToken.value : '';
-    }
-
-    const expElementProps: FormElementProps = {
-        model: expressionModel,
-        customProps: {
-            validate: validateExpression,
-            statementType: expressionModel.type,
-            expandDefault: true
-        },
-        onChange: onAccessTokenChange,
-        defaultValue: isNewConnectorInitWizard ? '' : defaultAccessTokenVal
-    };
-
     const handleOnSave = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
-        connectorConfig.connectorInit = connectorInitFields;
+        connectorConfig.connectorInit = configForm;
         onSave();
     };
 
@@ -159,25 +116,27 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
+                                tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}
                             placeholder={"Enter Connection Name"}
                         />
-                        <ExpressionEditor {...expElementProps} />
+                        <div className={wizardClasses.formWrapper}>
+                            <Form fields={configForm} onValidate={onValidate} />
+                        </div>
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    {isNewConnectorInitWizard && (
+                    {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
-                        dataTestId={"git-save-next-btn"}
                         text="Save &amp; Next"
-                        disabled={!(isAccessTokenValid && nameState.isNameProvided && nameState.isValidName)}
+                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}
                     />

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -20,18 +20,16 @@ import classNames from 'classnames';
 import { ConnectionDetails } from "../../../../../api/models";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
-import { Gcalendar } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
-import {CirclePreloader} from "../../../../../PreLoader/CirclePreloader";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
-import { FormAutocomplete } from "../../../Portals/ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { CreateEvent } from "../CreateEvent";
+import { Get } from '../Get';
+import { GetAll } from "../GetAll";
 
 export interface OperationFormProps {
     selectedOperation: string;
@@ -49,10 +47,9 @@ export interface OperationFormProps {
 
 export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress, isManualConnection, isNewConnectorInitWizard,
-            connectionInfo } = props;
+            onOperationChange, mutationInProgress, isManualConnection, connectionInfo } = props;
     const { state } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo, currentApp, getGcalendarList } = state;
+    const { stSymbolInfo: symbolInfo } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
 
@@ -60,14 +57,11 @@ export function OperationForm(props: OperationFormProps) {
         onSave();
     };
 
-    const [validForm, setValidForm] = useState(selectedOperation === "createEvent");
+    const [validForm, setValidForm] = useState(selectedOperation === "getAll");
     const [validName, setValidName] = useState(true);
-    const [fieldChecker] = useState(new Map<string, boolean>());
-    const [isCalenderFetching, setIsCalenderFetching] = useState(false);
-    const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
-    const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
+    const customizedOperations = ["getAll", "get"];
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
@@ -93,21 +87,6 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     // validate custom forms
-    const validateFields = (field: string, isInvalid: boolean): void => {
-        fieldChecker.set(field, isInvalid);
-        let allFieldsValid = true;
-        if (isInvalid) {
-            validateForm(false);
-        } else {
-            fieldChecker.forEach((invalid: boolean) => {
-                if (invalid) {
-                    allFieldsValid = false;
-                    return;
-                }
-            });
-            validateForm(allFieldsValid);
-        }
-    }
 
     let isSaveButtonDisabled = showConnectionName ? (!validForm || mutationInProgress || !validName) :
         !validForm || mutationInProgress;
@@ -117,36 +96,6 @@ export function OperationForm(props: OperationFormProps) {
 
     const showCalenderSelector = (!isManualConnection && connectionInfo) ? true : false;
     formFields[0].hide = showCalenderSelector;
-
-    const handleGcalendarChange = (event: object, value: any) => {
-        if (value?.id) {
-            formFields[0].value = "\"" + value?.id + "\"";
-        }
-        setActiveGcalendar(value);
-    };
-    function getActiveGcalendar() {
-        if (gcalenderList && activeGcalendar === null) {
-            // select primary calender from list
-            const calender = gcalenderList.find(calendar => calendar.primary === true);
-            setActiveGcalendar(calender);
-            formFields[0].value = "\"" + calender?.id + "\"";
-        }
-        return activeGcalendar;
-    }
-    function handleItemLabel(gcalendar: Gcalendar) {
-        return gcalendar.summary;
-    }
-
-    useEffect(() => {
-        if (!isManualConnection && connectionInfo) {
-            setIsCalenderFetching(true);
-            (async () => {
-                const calendarList = await getGcalendarList(currentApp?.org, connectionInfo.handle);
-                setGcalenderList(calendarList);
-                setIsCalenderFetching(false);
-            })();
-        }
-    }, [ connectionInfo ]);
 
     return (
         <div>
@@ -190,42 +139,19 @@ export function OperationForm(props: OperationFormProps) {
                     </Box>
                     </>
                     <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <div>
-                                {(selectedOperation === "createEvent") ? (
-                                    <CreateEvent
-                                        isFetching={isCalenderFetching}
-                                        gcalenderList={gcalenderList}
-                                        isManualConnection={isManualConnection}
-                                        isNewConnectorInitWizard={isNewConnectorInitWizard}
-                                        formFields={formFields}
-                                        validateFields={validateFields}
-                                    />
-                                ) : (
-                                    <>
-                                        {showCalenderSelector && (
-                                            <p className={wizardClasses.subTitle}>Select Calendar</p>
-                                        )}
-                                        {showCalenderSelector && isCalenderFetching && (
-                                            <CirclePreloader position="relative" />
-                                        )}
-                                        {showCalenderSelector && !isCalenderFetching && gcalenderList && (
-                                            <>
-                                                <FormAutocomplete
-                                                    placeholder="Choose Calendar"
-                                                    itemList={gcalenderList}
-                                                    value={getActiveGcalendar()}
-                                                    getItemLabel={handleItemLabel}
-                                                    onChange={handleGcalendarChange}
-                                                />
-                                            </>
-                                        )}
-                                        <Form fields={formFields} onValidate={validateForm} />
-                                    </>
+                        {formFields.length > 0 && (
+                            <>
+                                {selectedOperation === "getAll" && (
+                                     <GetAll formFields={formFields} onValidate={validateForm} />
                                 )}
-                            </div>
-                            ) : null
-                        }
+                                {selectedOperation === "get" && (
+                                    <Get formFields={formFields} onValidate={validateForm} />
+                                )}
+                                {customizedOperations.indexOf(selectedOperation) < 0 && (
+                                    <Form fields={formFields} onValidate={validateForm} />
+                                )}
+                            </>
+                        )}
                     </div>
 
                     <FormTextInput
