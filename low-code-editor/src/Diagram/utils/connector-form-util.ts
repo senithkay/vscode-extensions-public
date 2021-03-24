@@ -186,13 +186,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
-                    }
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
                 }
                 filteredFunctions.set(key, value);
             });
@@ -200,13 +195,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_PopClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
-                    }
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
                 }
                 filteredFunctions.set(key, value);
             });
@@ -223,9 +213,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     }
                     if (key === "sendMessage"){
-                        // set content type in sendMessage form
-                        value.parameters.find(fields => fields.name === "message")
-                        .fields.find(fields => fields.name === "contentType").value = `"text/plain"`;
+                        value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                            if (field.name === "contentType"){
+                                // set content type in sendMessage form
+                                field.value = `"text/plain"`;
+                            }
+                            if (field.name === "inlineImagePaths" || field.name === "attachmentPaths"){
+                                field.hide = true;
+                                field.noCodeGen = true;
+                            }
+                        });
                     }
                     // hide optional fields from gmail forms
                     if (key === "readMessage"){
@@ -272,6 +269,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach((field) => {
                         if ((field.name === "sendUpdates")) {
                             field.hide = true;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
                         }
                     });
                     filteredFunctions.set(key, value);
