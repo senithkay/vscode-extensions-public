@@ -59,6 +59,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
+                            param.noCodeGen = true;
                             param.displayName = "Message";
                         }
                     });
