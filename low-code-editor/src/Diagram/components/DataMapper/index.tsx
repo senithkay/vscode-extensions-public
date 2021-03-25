@@ -100,6 +100,9 @@ export function DataMapper(props: DataMapperProps) {
             dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
         });
 
+        selectedNode.initializer.dataMapperViewState.targetPointMap.forEach((dataPoint: SourcePointViewState) => {
+            dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
+        });
     }
     debugger;
     return (
@@ -108,7 +111,6 @@ export function DataMapper(props: DataMapperProps) {
                 {parameters}
                 {returnTypeElement}
                 {dataPoints}
-                {/*<line x1={20} x2={50} y1={20} y2={80} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}/>*/}
             </g>
             <g>
                 <line ref={drawingLineRef}/>

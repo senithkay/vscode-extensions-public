@@ -32,6 +32,7 @@ export function DataPoint(props: DataPointProps) {
     return (
         <>
             {connections}
+            <circle cx={dataPointViewState.bBox.x} cy={dataPointViewState.bBox.y} r="5" stroke="black" stroke-width="3" fill="red" />
         </>
     )
 }
