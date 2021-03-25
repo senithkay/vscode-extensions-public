@@ -23,6 +23,7 @@ import {
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { positionVisitor } from "../../../index";
+import { DataPoint } from "./components/DataPoint";
 import { TypeDescComponent } from "./components/TypeDescComponent";
 
 import { completeMissingTypeDesc } from "./util";
@@ -30,7 +31,7 @@ import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from "./util/data-mapper-mapping-visitor";
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
-import { TypeDescViewState } from "./viewstate";
+import { SourcePointViewState, TypeDescViewState } from "./viewstate";
 
 interface DataMapperProps {
     width: number;
@@ -55,6 +56,7 @@ export function DataMapper(props: DataMapperProps) {
         : undefined;
     const parameters: any[] = [];
     const returnTypeElement: any[] = [];
+    const dataPoints: JSX.Element[] = [];
 
     if (selectedNode) {
         traversNode(selectedNode.initializer, new DataMapperInitVisitor());
@@ -70,7 +72,7 @@ export function DataMapper(props: DataMapperProps) {
         completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
         // end : fetch missing type desc node traverse with init visitor
 
-        const parameterPositionVisitor = new DataMapperPositionVisitor(10, 15);
+        const parameterPositionVisitor = new DataMapperPositionVisitor(15, 15);
 
         // start positioning visitor
         functionSignature.parameters.forEach((field: STNode) => {
@@ -93,13 +95,20 @@ export function DataMapper(props: DataMapperProps) {
         });
 
         returnTypeElement.push(<TypeDescComponent model={functionSignature.returnTypeDesc} isOutput={true}/>);
-    }
 
+        selectedNode.initializer.dataMapperViewState.sourcePoints.forEach((dataPoint: SourcePointViewState) => {
+            dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
+        });
+
+    }
+    debugger;
     return (
         <>
             <g>
                 {parameters}
                 {returnTypeElement}
+                {dataPoints}
+                {/*<line x1={20} x2={50} y1={20} y2={80} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}/>*/}
             </g>
             <g>
                 <line ref={drawingLineRef}/>

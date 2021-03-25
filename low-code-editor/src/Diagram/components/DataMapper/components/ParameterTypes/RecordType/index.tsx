@@ -38,6 +38,7 @@ export function RecordType(props: RecordTypeProps) {
     }
 
     const childComponents: any = [];
+    let type = viewState.type;
 
     if (model.dataMapperTypeDescNode) {
         switch (model.dataMapperTypeDescNode.kind) {
@@ -47,7 +48,8 @@ export function RecordType(props: RecordTypeProps) {
                         handleSelection: handleSelectionEvent,
                         model: field
                     }));
-                })
+                });
+                type = viewState.typeInfo.name;
                 break;
         }
     }
@@ -63,7 +65,7 @@ export function RecordType(props: RecordTypeProps) {
                 fill="blue"
                 onClick={handleOnClick}
             >
-                {`${viewState.name ? `${viewState.name}: ` : ''}${viewState.type}`}
+                {`${viewState.name ? `${viewState.name}: ` : ''}${type}`}
             </text>
             {childComponents}
         </g>
