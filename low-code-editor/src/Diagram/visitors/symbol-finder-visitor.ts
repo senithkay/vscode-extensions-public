@@ -59,19 +59,29 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement) {
-        if (STKindChecker.isMethodCall(node.expression)) {
-            const varType = (node.expression as MethodCall).expression.typeData?.symbol?.kind;
-            const varName = (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value;
-            if (varName === undefined || varName === null || varType !== "VARIABLE") {
-                return;
-            }
-            callStatement.get(varName) ? callStatement.get(varName).push(node) : callStatement.set(varName, [node]);
+        const varType = STKindChecker.isMethodCall(node.expression)
+        ? (node.expression as MethodCall).expression.typeData?.symbol?.kind
+        : node.typeData?.symbol?.kind;
+
+        const varName = STKindChecker.isMethodCall(node.expression)
+        ? (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value
+        : node.typeData?.symbol?.name;
+
+        if (varName === undefined || varName === null || varType !== "VARIABLE") {
+            return;
         }
+        callStatement.get(varName) ? callStatement.get(varName).push(node) : callStatement.set(varName, [node]);
     }
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
-        const varType = node.varRef?.typeData?.symbol.kind;
-        const varName = (node.expression as NumericLiteral).literalToken.value;
+        const varType = node.varRef
+        ? node.varRef?.typeData?.symbol.kind
+        : node.typeData?.symbol?.kind;
+
+        const varName = STKindChecker.isNumericLiteral(node.expression)
+        ? (node.expression as NumericLiteral).literalToken.value
+        : node.typeData?.symbol?.name;
+
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
         }
