@@ -202,6 +202,10 @@ export const tooltipMessages: Record<string, any> = {
             minIdleConnections: "Specify the minimum number of idle connections"
         }
     },
+    netsuite : {
+        title: "Connect your application with Netsuite ",
+        content: "Search customer details \nSearch transactions"
+    },
     APIsPlusHolder: {
         title: "A collection of Connections that helps you integrate your application to external services",
         actionText: "Learn more about Connections",

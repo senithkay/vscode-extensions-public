@@ -17,14 +17,14 @@ import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-t
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
-import { v4 as uuidv4 } from "uuid";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins";
 import {
+    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
@@ -66,28 +66,22 @@ interface WizardProps {
 
 enum FormStates {
     ExistingConnection,
-
     OauthConnect,
     CreateNewConnection,
-
     OperationDropdown,
     OperationForm,
 }
 
-export function GmailWizard(props: WizardProps) {
-    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(DiagramContext);
-
+export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { state } = useContext(DiagramContext);
+    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
-
-    useEffect(() => {
-        setFormState(FormStates.OauthConnect);
-    }, []);
 
     useEffect(() => {
         if (config.existingConnections) {
@@ -103,8 +97,8 @@ export function GmailWizard(props: WizardProps) {
 
     // managing name set by the non oauth connectors
     config.name = isNewConnectorInitWizard ?
-        genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo))
-        : config.name;
+        genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)) :
+        config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
@@ -120,28 +114,13 @@ export function GmailWizard(props: WizardProps) {
         });
     }
 
-    let formFields: FormField[] = null;
+    let formFields: FormField[] = [];
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
         config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
-
-    const sessionId: string = uuidv4();
-    const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
-        setConnectionDetails(connection);
-        setFormState(FormStates.OperationDropdown);
-    };
-
-    const handleConnectionUpdate = () => {
-        setIsManualConnection(false);
-        setFormState(FormStates.OauthConnect);
-    };
-
-    const handleOnFailure = (e: Error) => {
-        //    todo handle error
-    };
 
     const onOperationSelect = (operation: string) => {
         setSelectedAction(operation);
@@ -161,7 +140,7 @@ export function GmailWizard(props: WizardProps) {
     const onCreateNew = () => {
         setConfigName(genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
         setIsManualConnection(false);
-        setFormState(FormStates.OauthConnect);
+        setFormState(FormStates.CreateNewConnection);
         setIsNewConnection(true);
     };
 
@@ -186,7 +165,7 @@ export function GmailWizard(props: WizardProps) {
         if ((isNewConnection) || (isNewConnection && isManualConnection)) {
             setFormState(FormStates.CreateNewConnection);
         } else if (isNewConnection && !isManualConnection) {
-            setFormState(FormStates.OauthConnect);
+            setFormState(FormStates.CreateNewConnection);
         } else {
             setFormState(FormStates.ExistingConnection);
         }
@@ -195,99 +174,19 @@ export function GmailWizard(props: WizardProps) {
     const onCreateConnectorBack = () => {
         setIsManualConnection(false);
         setIsNewConnection(true);
-        setFormState(FormStates.OauthConnect);
+        setFormState(FormStates.CreateNewConnection);
     };
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
-    const getFormFieldValue = (key: string) => {
-        return connectorInitFormFields.find(field => field.name === "gmailConfig").fields
-            .find(field => field.name === "oauthClientConfig").fields
-            .find(field => field.name === key).value || "";
-    }
-
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
-        let modifications: STModification[] = [];
-        if (isNewConnectorInitWizard) {
-            if (targetPosition) {
-                modifications = [];
-                // Add an import.
-                const addImport: STModification = createImportStatement(
-                    connector.org,
-                    connector.module,
-                    targetPosition
-                );
-                modifications.push(addImport);
-
-                // Add an connector client initialization.
-                if (isNewConnection) {
-                    let addConfigurableVars: STModification;
-                    let addConnectorInit: STModification;
-                    if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
-
-                        addConnectorInit = createPropertyStatement(
-                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
-                            targetPosition
-                        );
-                    } else {
-                        addConnectorInit = createPropertyStatement(
-                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                                oauthClientConfig: {
-                                    clientId: ${getFormFieldValue("clientId")},
-                                    clientSecret: ${getFormFieldValue("clientSecret")},
-                                    refreshToken: ${getFormFieldValue("refreshToken")},
-                                    refreshUrl: ${getFormFieldValue("refreshUrl")}
-                                }
-                             });`,
-                            targetPosition
-                        );
-                    }
-                    modifications.push(addConnectorInit);
-                }
-
-                // Add an action invocation on the initialized client.
-                if (isActionReturnError) {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                } else {
-                    const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                }
-            }
-        } else {
+        const modifications: STModification[] = [];
+        if (!isNewConnectorInitWizard) {
             const updateConnectorInit = updatePropertyStatement(
-                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                    oauthClientConfig: {
-                        clientId: ${getFormFieldValue("clientId")},
-                        clientSecret: ${getFormFieldValue("clientSecret")},
-                        refreshToken: ${getFormFieldValue("refreshToken")},
-                        refreshUrl: ${getFormFieldValue("refreshUrl")}
-                    }
-                 });`,
-                config.initPosition
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                connectorConfig.initPosition
             );
             modifications.push(updateConnectorInit);
 
@@ -311,6 +210,60 @@ export function GmailWizard(props: WizardProps) {
                     model.position
                 );
                 modifications.push(updateActionInvocation);
+            }
+        } else {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConnectorInit: STModification;
+                    addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+
+                // Add an action invocation on the initialized client.
+                if (isActionReturnError) {
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation: STModification = createRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
+
+                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
+                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                        config.responsePayloadMap.payloadVariableName,
+                        "var",
+                        config.action.returnVariableName,
+                        config.responsePayloadMap.payloadTypes.get(
+                            config.responsePayloadMap.selectedPayloadType),
+                        targetPosition
+                    );
+                    modifications.push(addPayload);
+                }
+
             }
         }
         onSave(modifications);
@@ -341,47 +294,6 @@ export function GmailWizard(props: WizardProps) {
                     </Typography>
                 </div>
             </div>
-            <div>
-                {isNewConnection && !isManualConnection && (
-                    <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
-                        <div className={wizardClasses.fullWidth}>
-                            <div className={wizardClasses.mainOauthBtnWrapper}>
-                                <OauthConnectButton
-                                    className={classNames(wizardClasses.fullWidth, wizardClasses.oauthBtnWrapper)}
-                                    currentConnection={connectionDetails}
-                                    connectorName={connector.displayName}
-                                    onSelectConnection={handleOnConnection}
-                                    onFailure={handleOnFailure}
-                                    onDeselectConnection={handleConnectionUpdate}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {(formState === FormStates.OauthConnect) &&
-                    (
-                        <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                            <LinePrimaryButton
-                                testId={"gmail-manual-btn"}
-                                className={wizardClasses.fullWidth}
-                                text="Manual Connection"
-                                fullWidth={false}
-                                onClick={onManualConnection}
-                            />
-                            {(config.existingConnections && isNewConnection) && (
-                                <div className={wizardClasses.connectBackBtn}>
-                                    <SecondaryButton
-                                        text="Back"
-                                        fullWidth={false}
-                                        onClick={onOauthConnectorBack}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    )
-                }
-            </div>
             {(formState === FormStates.OperationDropdown) && (
                 <OperationDropdown
                     operations={operations}
@@ -401,6 +313,9 @@ export function GmailWizard(props: WizardProps) {
                     onConnectionChange={onConnectionNameChange}
                     onOperationChange={onOperationChange}
                     mutationInProgress={isMutationProgress}
+                    isManualConnection={isManualConnection}
+                    isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    connectionInfo={connectionDetails}
                 />
             )}
             {(formState === FormStates.ExistingConnection && isNewConnectorInitWizard) && (
@@ -420,6 +335,7 @@ export function GmailWizard(props: WizardProps) {
                     onBackClick={onCreateConnectorBack}
                     connector={connector}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    isOauthConnector={false}
                 />
             )}
             {(formState === FormStates.CreateNewConnection) && (
@@ -431,6 +347,7 @@ export function GmailWizard(props: WizardProps) {
                     onBackClick={onCreateConnectorBack}
                     connector={connector}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    isOauthConnector={false}
                 />
             )}
         </div>
