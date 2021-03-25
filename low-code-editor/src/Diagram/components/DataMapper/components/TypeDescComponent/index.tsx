@@ -13,10 +13,9 @@
 import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
-import { SimpleBBox } from "../../../../view-state";
 
+import { SimpleBBox } from "../../../../view-state";
 import { getDataMapperComponent } from "../../util";
-import { DataPointViewState } from '../../viewstate';
 
 interface ParameterProps {
     model: STNode;
