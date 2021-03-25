@@ -225,4 +225,14 @@ export const tooltipMessages: Record<string, any> = {
         subject: "Subject of the email",
         body: "Body of the email"
     },
+    IMAP: {
+        host: "Host address from your IMAP client configurations ",
+        username: "Username from your IMAP client configurations ",
+        password: "Password from your IMAP client configurations ",
+    },
+    POP3: {
+        host: "Host address from your POP3 client configurations ",
+        username: "Username from your POP3 client configurations ",
+        password: "Password from your POP3 client configurations ",
+    },
 }
