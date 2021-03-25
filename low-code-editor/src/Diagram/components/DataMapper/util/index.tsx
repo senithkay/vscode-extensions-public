@@ -12,7 +12,7 @@
  */
 import React from 'react';
 
-import { STNode, traversNode } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
 import { TypeInfo, TypeInfoEntry } from "../../Portals/ConfigForm/types";
@@ -111,6 +111,14 @@ export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, 
                 if (typeDescST) {
                     typeDescST.dataMapperViewState = paramNode.dataMapperViewState;
                     traversNode(typeDescST, new DataMapperInitVisitor());
+
+                    switch (typeDescST.kind) {
+                        case 'RecordTypeDesc':
+                            (typeDescST as RecordTypeDesc).fields.forEach((field: any) => {
+                                completeMissingTypeDesc(field, records);
+                            });
+                            break;
+                    }
                 }
 
                 paramViewState.type = typeDescST.dataMapperViewState.type;
