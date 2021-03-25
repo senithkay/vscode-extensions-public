@@ -59,12 +59,14 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement) {
-        const varType = (node.expression as MethodCall).expression.typeData?.symbol?.kind;
-        const varName = (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value;
-        if (varName === undefined || varName === null || varType !== "VARIABLE") {
-            return;
+        if (STKindChecker.isMethodCall(node.expression)) {
+            const varType = (node.expression as MethodCall).expression.typeData?.symbol?.kind;
+            const varName = (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value;
+            if (varName === undefined || varName === null || varType !== "VARIABLE") {
+                return;
+            }
+            callStatement.get(varName) ? callStatement.get(varName).push(node) : callStatement.set(varName, [node]);
         }
-        callStatement.get(varName) ? callStatement.get(varName).push(node) : callStatement.set(varName, [node]);
     }
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
