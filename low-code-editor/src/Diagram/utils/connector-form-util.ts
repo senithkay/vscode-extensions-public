@@ -188,6 +188,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "init") {
                     value.parameters.find(field => field.name === "clientConfig").hide = true;
                     value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.IMAP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.IMAP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.IMAP.password
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
@@ -197,6 +206,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "init") {
                     value.parameters.find(field => field.name === "clientConfig").hide = true;
                     value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.POP3.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.POP3.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.POP3.password
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
