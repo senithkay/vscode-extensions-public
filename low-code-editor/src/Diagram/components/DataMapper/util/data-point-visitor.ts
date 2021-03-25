@@ -25,14 +25,14 @@ export class DataPointVisitor implements Visitor {
     private readonly sourceTypeX: number = 0;
 
     constructor(maxOffset: number) {
-        this.sourceTypeX = 100 + maxOffset;
+        this.sourceTypeX = 120 + maxOffset;
     }
 
     beginVisitRequiredParam(node: RequiredParam) {
         if (node.dataMapperViewState) {
             const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
-            viewState.sourcePointViewState.bBox.y = viewState.bBox.y;
+            viewState.sourcePointViewState.bBox.y = viewState.bBox.y - 5;
             this.sourcePointMap.set(viewState.name, viewState.sourcePointViewState);
             this.nameComponents.push(viewState.name);
         }
@@ -49,7 +49,7 @@ export class DataPointVisitor implements Visitor {
             const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             this.returnTypeX = viewState.bBox.x - 20; // todo: move this to a constant file
             viewState.targetPointViewState.bBox.x = this.returnTypeX;
-            viewState.targetPointViewState.bBox.y = viewState.bBox.y;
+            viewState.targetPointViewState.bBox.y = viewState.bBox.y - 5;
             this.targetPointMap.set(MAIN_TARGET_NAME, viewState.targetPointViewState);
             this.nameComponents.push(MAIN_TARGET_NAME);
         }
@@ -67,13 +67,13 @@ export class DataPointVisitor implements Visitor {
             this.nameComponents.push(viewState.name);
             if (viewState.isSource) {
                 viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
-                viewState.sourcePointViewState.bBox.y = viewState.bBox.y;
+                viewState.sourcePointViewState.bBox.y = viewState.bBox.y - 5;
                 this.sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewState.sourcePointViewState);
             }
 
             if (viewState.isTarget) {
                 viewState.targetPointViewState.bBox.x = this.returnTypeX;
-                viewState.targetPointViewState.bBox.y = viewState.bBox.y;
+                viewState.targetPointViewState.bBox.y = viewState.bBox.y - 5;
                 this.targetPointMap.set(this.generateDataPointName(this.nameComponents), viewState.targetPointViewState);
             }
         }
