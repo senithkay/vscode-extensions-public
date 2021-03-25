@@ -42,12 +42,6 @@ export class DataMapperPositionVisitor implements Visitor {
             viewState.bBox.x = this.offset;
 
             this.offset += DEFAULT_OFFSET;
-
-            // if (viewState.type === 'record') {
-            //     if (node.dataMapperTypeDescNode) {
-            //         traversNode(node.dataMapperTypeDescNode, this);
-            //     }
-            // }
         }
     }
 
@@ -83,17 +77,11 @@ export class DataMapperPositionVisitor implements Visitor {
             viewState.bBox.y = this.height;
             viewState.bBox.x = this.offset;
 
-            if (this._maxOffset < this.offset) {
+            if (this._maxOffset < this.offset && viewState.isSource ) {
                 this._maxOffset = this.offset;
             }
 
             this.offset += DEFAULT_OFFSET;
-
-            // if (viewState.type === 'record') {
-            //     if (node.dataMapperTypeDescNode) {
-            //         traversNode(node.dataMapperTypeDescNode, this);
-            //     }
-            // }
         }
     }
 

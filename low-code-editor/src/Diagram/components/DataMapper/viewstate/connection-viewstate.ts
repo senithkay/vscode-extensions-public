@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { SimpleBBox } from "../../../view-state";
 import { DraftUpdatePosition } from "../../../view-state/draft";
 
 export class ConnectionViewState {
@@ -19,4 +20,12 @@ export class ConnectionViewState {
     public y1: number;
     public y2: number;
     public targetPosition: DraftUpdatePosition;
+
+    constructor(sourceBBox: SimpleBBox, targetBBox: SimpleBBox, targetPosition: DraftUpdatePosition) {
+        this.x1 = sourceBBox.x;
+        this.x2 = targetBBox.x;
+        this.y1 = sourceBBox.y;
+        this.y2 = targetBBox.y;
+        this.targetPosition = targetPosition;
+    }
 }

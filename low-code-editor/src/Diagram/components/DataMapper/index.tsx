@@ -26,6 +26,7 @@ import { positionVisitor } from "../../../index";
 
 import { completeMissingTypeDesc } from "./util";
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
+import { DataMapperMappingVisitor } from "./util/data-mapper-mapping-visitor";
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
 import { TypeDescViewState } from "./viewstate";
@@ -55,7 +56,8 @@ export function DataMapper(props: DataMapperProps) {
 
     if (selectedNode) {
         traversNode(selectedNode.initializer, new DataMapperInitVisitor());
-        const functionSignature = (selectedNode.initializer as ExplicitAnonymousFunctionExpression).functionSignature;
+        const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
+        const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
 
         // start : fetch missing type desc node traverse with init visitor
         functionSignature.parameters.forEach((field: any) => {
@@ -79,6 +81,8 @@ export function DataMapper(props: DataMapperProps) {
         const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
         traversNode(selectedNode, dataPointVisitor);
 
+        traversNode(explicitAnonymousFunctionExpression, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap))
+
         selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
         selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
         debugger;
@@ -89,7 +93,7 @@ export function DataMapper(props: DataMapperProps) {
     //     // todo: fetch missing records and visit
     //     traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
     //     ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
-    //         parameters.push(<Parameter model={param}/>)
+    //         parameters.push(<TypeDescComponent model={param}/>)
     //     });
     // }
     // const returnTypeModel = selectedNode ?
@@ -97,7 +101,7 @@ export function DataMapper(props: DataMapperProps) {
     //         .functionSignature
     //         .returnTypeDesc : null;
     //
-    const returnTypeElement: any = null; // returnTypeModel ? <Parameter model={returnTypeModel} isOutput={true} /> : null;
+    const returnTypeElement: any = null; // returnTypeModel ? <TypeDescComponent model={returnTypeModel} isOutput={true} /> : null;
 
     return (
         <>

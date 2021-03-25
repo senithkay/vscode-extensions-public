@@ -25,7 +25,7 @@ export class DataPointVisitor implements Visitor {
     private readonly sourceTypeX: number = 0;
 
     constructor(maxOffset: number) {
-        this.sourceTypeX = 150 + this.sourceTypeX;
+        this.sourceTypeX = 100 + maxOffset;
     }
 
     beginVisitRequiredParam(node: RequiredParam) {

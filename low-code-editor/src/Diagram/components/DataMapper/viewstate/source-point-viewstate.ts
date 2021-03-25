@@ -16,5 +16,5 @@ import { DataMapperViewState } from "./data-mapper-viewstate";
 
 export class SourcePointViewState extends DataMapperViewState {
     public text: string;
-    public connections: ConnectionViewState[];
+    public connections: ConnectionViewState[] = [];
 }

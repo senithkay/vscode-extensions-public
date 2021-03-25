@@ -13,11 +13,20 @@
 
 import {
     ArrayTypeDesc,
-    ExplicitAnonymousFunctionExpression, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, RecordField, RecordTypeDesc,
-    RequiredParam,
-    ReturnTypeDescriptor, SimpleNameReference,
-    STNode, StringTypeDesc,
-    Visitor, XmlTypeDesc
+    ExplicitAnonymousFunctionExpression,
+    FloatTypeDesc,
+    IntTypeDesc,
+    JsonTypeDesc,
+    LocalVarDecl,
+    RecordField,
+    RecordTypeDesc,
+    RequiredParam, ReturnStatement,
+    ReturnTypeDescriptor,
+    SimpleNameReference,
+    STNode,
+    StringTypeDesc,
+    Visitor,
+    XmlTypeDesc
 } from '@ballerina/syntax-tree';
 
 import {
@@ -26,6 +35,7 @@ import {
     SourcePointViewState, TargetPointViewState,
     TypeDescViewState
 } from '../viewstate';
+import { DataMapperStatementViewState } from "../viewstate/data-mapper-statement-viewstate";
 
 
 export class DataMapperInitVisitor implements Visitor {
@@ -179,6 +189,18 @@ export class DataMapperInitVisitor implements Visitor {
                 orgName: typeSymbol.moduleID.orgName,
                 version: typeSymbol.moduleID.version
             }
+        }
+    }
+
+    beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperStatementViewState();
+        }
+    }
+
+    beginVisitReturnStatement(node: ReturnStatement) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperStatementViewState();
         }
     }
 }
