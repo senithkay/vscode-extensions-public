@@ -252,14 +252,14 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "collection" && !field.hide) {
+                    } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion) {
+                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion && field.value) {
                         recordFieldsString += ", " + getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "record" && !field.hide) {
                         if (firstRecordField) {
