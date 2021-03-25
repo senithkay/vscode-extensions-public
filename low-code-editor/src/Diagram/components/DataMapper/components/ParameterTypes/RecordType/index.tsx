@@ -13,18 +13,21 @@
 
 import React from 'react';
 
+import { RecordTypeDesc, STNode } from "@ballerina/syntax-tree";
+
 import { SimpleBBox } from "../../../../../view-state";
 import { getDataMapperComponent } from "../../../util";
-// import { DataPointViewState } from "../../../viewstate";
+import { TypeDescViewState } from "../../../viewstate";
 
 interface RecordTypeProps {
-    viewState: any;
+    model: STNode;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function RecordType(props: RecordTypeProps) {
-    const { viewState, isMain, handleSelection } = props;
+    const { isMain, handleSelection, model } = props;
+    const viewState = model.dataMapperViewState as TypeDescViewState;
 
     const handleSelectionEvent = (path: string, position: SimpleBBox) => {
         handleSelection(`${viewState.name}${path.length ? `.${path}` : ''}`, position);
@@ -35,12 +38,19 @@ export function RecordType(props: RecordTypeProps) {
     }
 
     const childComponents: any = [];
-    viewState.fields.forEach((field : any) => {
-        childComponents.push(getDataMapperComponent(field.type, {
-            viewState: field,
-            handleSelection: handleSelectionEvent
-        }))
-    })
+
+    if (model.dataMapperTypeDescNode) {
+        switch (model.dataMapperTypeDescNode.kind) {
+            case 'RecordTypeDesc':
+                (model.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                    childComponents.push(getDataMapperComponent(field.dataMapperViewState.type, {
+                        handleSelection: handleSelectionEvent,
+                        model: field
+                    }));
+                })
+                break;
+        }
+    }
 
     return (
         <g>
@@ -53,7 +63,7 @@ export function RecordType(props: RecordTypeProps) {
                 fill="blue"
                 onClick={handleOnClick}
             >
-                {`${viewState.name ? `${viewState.name}: ` : ''}${viewState.displayType}`}
+                {`${viewState.name ? `${viewState.name}: ` : ''}${viewState.type}`}
             </text>
             {childComponents}
         </g>

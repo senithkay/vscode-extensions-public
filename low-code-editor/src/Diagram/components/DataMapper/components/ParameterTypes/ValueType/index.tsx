@@ -11,18 +11,22 @@
  * associated services.
  */
 
+import { STNode } from "@ballerina/syntax-tree";
 import React from 'react';
 
 import { SimpleBBox } from "../../../../../view-state";
+import { TypeDescViewState } from "../../../viewstate";
 
 interface ValueTypeProps {
-    viewState: any;
+    model: STNode;
     isMain?: boolean;
     handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { viewState, isMain, handleSelection } = props;
+    const { isMain, handleSelection, model } = props;
+
+    const viewState: TypeDescViewState = model.dataMapperViewState;
 
     const name = viewState.name;
     const type = viewState.isArray ? viewState.collectionDataType : viewState.type;

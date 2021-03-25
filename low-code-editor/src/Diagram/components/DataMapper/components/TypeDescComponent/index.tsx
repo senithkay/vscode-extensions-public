@@ -16,20 +16,21 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { SimpleBBox } from "../../../../view-state";
 import { getDataMapperComponent } from "../../util";
+import { TypeDescViewState } from "../../viewstate";
 
-interface ParameterProps {
+interface TypeDescComponentProps {
     model: STNode;
     isOutput?: boolean;
 }
 
-export function Parameter(props: ParameterProps) {
+export function TypeDescComponent(props: TypeDescComponentProps) {
     const { model, isOutput } = props;
-    const viewState = model.dataMapperViewState as DataPointViewState;
+    const viewState = model.dataMapperViewState as TypeDescViewState;
 
     const handleSelectionForDirectMapping = (selectedPath: string, fieldPosition: SimpleBBox) => {
     }
 
-    const component = getDataMapperComponent(viewState.type, {viewState, isMain: true, handleSelection: handleSelectionForDirectMapping});
+    const component = getDataMapperComponent(viewState.type, {viewState, isMain: true, handleSelection: handleSelectionForDirectMapping, model});
 
     return (
         <g>

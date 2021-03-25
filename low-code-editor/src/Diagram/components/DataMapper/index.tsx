@@ -23,6 +23,7 @@ import {
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { positionVisitor } from "../../../index";
+import { TypeDescComponent } from "./components/TypeDescComponent";
 
 import { completeMissingTypeDesc } from "./util";
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
@@ -53,6 +54,7 @@ export function DataMapper(props: DataMapperProps) {
             .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === "dataMapperFunction")
         : undefined;
     const parameters: any[] = [];
+    const returnTypeElement: any[] = [];
 
     if (selectedNode) {
         traversNode(selectedNode.initializer, new DataMapperInitVisitor());
@@ -85,23 +87,13 @@ export function DataMapper(props: DataMapperProps) {
 
         selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
         selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
-        debugger;
-    }
 
-    // if (selectedNode) {
-    //     traversNode(selectedNode, new DataMapperInitVisitor());
-    //     // todo: fetch missing records and visit
-    //     traversNode(selectedNode, new DataMapperPositionVisitor(15, 10));
-    //     ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression).functionSignature.parameters.forEach(param => {
-    //         parameters.push(<TypeDescComponent model={param}/>)
-    //     });
-    // }
-    // const returnTypeModel = selectedNode ?
-    //     ((selectedNode as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression)
-    //         .functionSignature
-    //         .returnTypeDesc : null;
-    //
-    const returnTypeElement: any = null; // returnTypeModel ? <TypeDescComponent model={returnTypeModel} isOutput={true} /> : null;
+        functionSignature.parameters.forEach(param => {
+            parameters.push(<TypeDescComponent model={param}/>)
+        });
+
+        returnTypeElement.push(<TypeDescComponent model={functionSignature.returnTypeDesc} isOutput={true}/>);
+    }
 
     return (
         <>
