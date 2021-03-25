@@ -77,7 +77,7 @@ export class DataMapperPositionVisitor implements Visitor {
             viewState.bBox.y = this.height;
             viewState.bBox.x = this.offset;
 
-            if (this._maxOffset < this.offset && viewState.isSource ) {
+            if (this._maxOffset < this.offset && viewState.isSource) {
                 this._maxOffset = this.offset;
             }
 
@@ -87,7 +87,6 @@ export class DataMapperPositionVisitor implements Visitor {
 
     endVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState) {
-            this.height += DEFAULT_OFFSET;
             this.offset -= DEFAULT_OFFSET;
         }
     }
