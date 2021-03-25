@@ -402,17 +402,12 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
             formFields.forEach(formField => {
                 if (formField.name === specificField.fieldName.value) {
                     // if the assigned value is one of inbuilt type
-                    if (STKindChecker.isStringLiteral(specificField.valueExpr) ||
+                    formField.value = (STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
-                        STKindChecker.isBooleanLiteral(specificField.valueExpr)) {
+                        STKindChecker.isBooleanLiteral(specificField.valueExpr)) ?
 
-                        const fieldValue = specificField.valueExpr.literalToken.value;
-                        if (formField.type === "union") {
-                            formField.value = fieldValue;
-                        }
-                    } else {
+                        formField.value = specificField.valueExpr.literalToken.value :
                         formField.value = specificField.valueExpr.source;
-                    }
 
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
@@ -477,6 +472,8 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
                 nextValueIndex++;
             }
         } else if (formField.type === "union" && formField.isUnion) {
+            formField.value = positionalArg.expression?.source;
+        } else if (formField.type === "json") {
             formField.value = positionalArg.expression?.source;
         }
     }

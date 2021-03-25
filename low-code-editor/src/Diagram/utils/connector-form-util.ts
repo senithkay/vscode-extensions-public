@@ -278,8 +278,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
                         } else if (field.name === "attendees") {
-                            field.displayName = "email";
-                            field.collectionDataType = PrimitiveBalType.String;
+                            field.displayName = "Attendee Emails";
                         }
                     });
                     filteredFunctions.set(key, value);
