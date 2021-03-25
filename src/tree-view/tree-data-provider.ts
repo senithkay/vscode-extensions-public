@@ -72,6 +72,10 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
+        if (!this.ballerinaExtension.isSwanLake) {
+            window.showErrorMessage("Ballerina package overview is only supported in Swan Lake.");
+            return;
+        }
         if (!element) {
             return this.getPackageStructure();
         } else if (element.getKind() === PROJECT_KIND.PACKAGE) {

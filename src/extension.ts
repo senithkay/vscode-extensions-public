@@ -87,11 +87,11 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Syntax Highlighter
         // activateSyntaxHighlighter(ballerinaExtInstance);
         activateEditorSupport(ballerinaExtInstance);
+        // Enable package overview
+        activatePackageOverview(ballerinaExtInstance);
         if (ballerinaExtInstance.isSwanLake) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);
-            // Enable package overview
-            activatePackageOverview(ballerinaExtInstance);
         }
 
         ballerinaExtInstance.onReady().then(() => {

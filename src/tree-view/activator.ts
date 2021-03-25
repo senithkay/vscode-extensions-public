@@ -34,6 +34,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         packageTreeDataProvider.refresh()
     );
 
+    if (!ballerinaExtInstance.isSwanLake) {
+        return;
+    }
+
     packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
         if (treeViewChildren.length > 0) {
             ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
