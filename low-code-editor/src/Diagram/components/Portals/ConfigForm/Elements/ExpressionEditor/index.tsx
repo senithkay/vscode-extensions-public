@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -132,8 +132,7 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const diagramContext = useContext(Context);
-    const { state } = diagramContext;
+    const { state } = useContext(DiagramContext);
 
     const {
         diagnostics: mainDiagnostics,
@@ -169,7 +168,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
     const varType = transformFormFieldTypeToString(model);
-    const initalValue = getInitialValue(defaultValue, model?.value, varType.toString());
+    const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
@@ -404,11 +403,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // Replacing the templates lenght with space char to get the LS completions correctly
             const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-            initContent = addImportModuleToCode(initContent, model, state);
+            initContent = addImportModuleToCode(initContent, model);
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-            initContent = addImportModuleToCode(initContent, model, state);
+            initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
@@ -457,12 +456,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Replacing the templates lenght with space char to get the LS completions correctly
                 const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-                newModel = addImportModuleToCode(newModel, model, state);
+                newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
                 const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
-                newModel = addImportModuleToCode(newModel, model, state);
+                newModel = addImportModuleToCode(newModel, model);
             }
 
             expressionEditorState.name = model.name;

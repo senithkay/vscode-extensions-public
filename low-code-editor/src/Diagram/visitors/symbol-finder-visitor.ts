@@ -13,7 +13,13 @@
 import {
     AssignmentStatement,
     CallStatement,
-    CaptureBindingPattern, ForeachStatement, FunctionDefinition, LocalVarDecl, QualifiedNameReference, RequiredParam,
+    CaptureBindingPattern,
+    ForeachStatement,
+    FunctionDefinition,
+    LocalVarDecl,
+    MethodCall, NumericLiteral,
+    QualifiedNameReference,
+    RequiredParam,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -53,8 +59,14 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement) {
-        const varType = node.typeData?.symbol?.kind;
-        const varName = node.typeData?.symbol?.name;
+        const varType = STKindChecker.isMethodCall(node.expression)
+        ? (node.expression as MethodCall).expression.typeData?.symbol?.kind
+        : node.typeData?.symbol?.kind;
+
+        const varName = STKindChecker.isMethodCall(node.expression)
+        ? (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value
+        : node.typeData?.symbol?.name;
+
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
         }
@@ -62,8 +74,14 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
-        const varType = node.typeData?.symbol?.kind;
-        const varName = node.typeData?.symbol?.name;
+        const varType = node.varRef
+        ? node.varRef?.typeData?.symbol.kind
+        : node.typeData?.symbol?.kind;
+
+        const varName = STKindChecker.isNumericLiteral(node.expression)
+        ? (node.expression as NumericLiteral).literalToken.value
+        : node.typeData?.symbol?.name;
+
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
         }

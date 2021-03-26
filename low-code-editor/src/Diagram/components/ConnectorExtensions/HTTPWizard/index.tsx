@@ -285,7 +285,8 @@ export function HTTPWizard(props: WizardProps) {
                 const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
                 const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
                 const params: string[] = getParams(connectorConfig.action.fields);
-                const requestNameGen: string = genVariableName("request", getAllVariables(symbolInfo));
+                // only generates the request object name if there is no request object created for the connector
+                const requestNameGen: string = !headerObject[0]?.requestName ? genVariableName("request", getAllVariables(symbolInfo)) : headerObject[0]?.requestName;
                 let serviceCallParams: string;
                 if (message) {
                     if (message.kind === 'SimpleNameReference') {
@@ -325,10 +326,13 @@ export function HTTPWizard(props: WizardProps) {
                         }
 
                         if (previousAction === 'forward' && headerObject.length > 0) {
-                            modifications.push(createPropertyStatement(
-                                `http:Request ${requestNameGen} = new;\n`,
-                                { line: startLine, column: 0 }
-                            ));
+                            // only creates the request object if there is no request object created for the connector
+                            if (!headerObject[0]?.requestName) {
+                                modifications.push(createPropertyStatement(
+                                    `http:Request ${requestNameGen} = new;\n`,
+                                    { line: startLine, column: 0 }
+                                ));
+                            }
 
                             refName = requestNameGen;
                             params[1] = requestNameGen;
