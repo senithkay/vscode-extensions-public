@@ -12,15 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 
-import {closeMultipleTabsOverlay, openMultipleTabsOverlay} from "store/actions";
-import {PortalState} from "store/index";
+import { Typography } from "@material-ui/core";
+import { PortalState } from "store/index";
 
-import {DefaultConfig} from "../../visitors/default";
-import {OverlayBackground} from "../OverlayBackground";
-import {useStyles} from "../OverlayBackground/style";
+import { closeMultipleTabsOverlay, openMultipleTabsOverlay } from "../../../../../../src/store/actions";
+import { DefaultConfig } from "../../visitors/default";
+import { OverlayBackground } from "../OverlayBackground";
+import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { SecondaryButton } from "../Portals/ConfigForm/Elements/Button/SecondaryButton";
 
+import { useStyles } from "./style";
 import "./style.scss";
 
 export interface MultipleTabNotificationProps {
@@ -32,35 +35,28 @@ export interface MultipleTabNotificationProps {
 }
 
 export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
-    const {isMultipleTabsOpen, dispatchCloseMultipleTabsOverlay, dispatchOpenMultipleTabsOverlay} = props;
+    const { isMultipleTabsOpen, dispatchCloseMultipleTabsOverlay, dispatchOpenMultipleTabsOverlay } = props;
     const classes = useStyles();
 
     return (
-        <><svg
-            height={DefaultConfig.overlayBackground.height}
-            width={DefaultConfig.overlayBackground.width}
-            className={classes.confirmationOverlayBackground}
-        />
-        <div className="multiple-tabs-notification">
-            <g>
-                <tspan x={516} y={230}>
-                    <text className="mtn-title">
-                        An instance of this application is already open in another tab
-                    </text>
-                </tspan>
-                <tspan>
-                    <text className="mtn-text">
-                        Please switch to the already open tab to continue
-                    </text>
-                </tspan>
-            </g>
+
+        <div className={classes.multipleTabsNotification}>
+            <Typography variant="h1">
+                An instance of this application is already open in another tab
+            </Typography>
+            <p className={classes.subText}>
+            Please switch to the already open tab to continue
+            </p>
+            <div className={classes.buttonWrapper}>
+                <SecondaryButton text="Close" />
+                <PrimaryButton text="Restore the Session" />
+            </div>
         </div>
-            </>
     );
 }
 
-const mapStateToProps = ({appInfo}: PortalState) => {
-    const {isMultipleTabsOpen} = appInfo;
+const mapStateToProps = ({ appInfo }: PortalState) => {
+    const { isMultipleTabsOpen } = appInfo;
     return {
         isMultipleTabsOpen
     }
