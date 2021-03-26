@@ -144,22 +144,9 @@ export function CreateEvent(props: OperationDropdownProps) {
     // set default value before render
     setDefaultValues();
 
-    useEffect(() => {
-        if (!isNewConnectorInitWizard) {
-            const attendeeField = formFields.find((item: FormField) => item.name === "event")
-                .fields.find((item: FormField) => item.name === "attendees");
-            const emails: FormField[] = [];
-            attendeeField.fields.forEach((field: FormField) => {
-                const email = field.fields.find((item: FormField) => item.name === "email");
-                emails.push(email);
-            })
-            attendeeField.fields = emails;
-        }
-    }, [isNewConnectorInitWizard]);
-
     return (
         <>
-            {!showCalenderSelector && isManualConnection && (
+            {!showCalenderSelector && (
                 <ExpressionEditor {...calIdProps} />
             )}
             {showCalenderSelector && (
