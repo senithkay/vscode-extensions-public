@@ -24,6 +24,7 @@ import {
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { positionVisitor } from "../../../index";
 import { DataPoint } from "./components/DataPoint";
+import { DataMapperFunctionComponent } from "./components/FunctionComponent";
 import { TypeDescComponent } from "./components/TypeDescComponent";
 
 import { completeMissingTypeDesc } from "./util";
@@ -54,9 +55,6 @@ export function DataMapper(props: DataMapperProps) {
         stSymbolInfo.variables.get("var")
             .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === "dataMapperFunction")
         : undefined;
-    const parameters: any[] = [];
-    const returnTypeElement: any[] = [];
-    const dataPoints: JSX.Element[] = [];
 
     if (selectedNode) {
         traversNode(selectedNode.initializer, new DataMapperInitVisitor());
@@ -89,28 +87,12 @@ export function DataMapper(props: DataMapperProps) {
 
         selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
         selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
-
-        functionSignature.parameters.forEach(param => {
-            parameters.push(<TypeDescComponent model={param}/>)
-        });
-
-        returnTypeElement.push(<TypeDescComponent model={functionSignature.returnTypeDesc} isOutput={true}/>);
-
-        selectedNode.initializer.dataMapperViewState.sourcePoints.forEach((dataPoint: SourcePointViewState) => {
-            dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
-        });
-
-        selectedNode.initializer.dataMapperViewState.targetPointMap.forEach((dataPoint: SourcePointViewState) => {
-            dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
-        });
     }
 
     return (
         <>
             <g>
-                {parameters}
-                {returnTypeElement}
-                {dataPoints}
+                <DataMapperFunctionComponent model={selectedNode} />
             </g>
             <g>
                 <line ref={drawingLineRef}/>
