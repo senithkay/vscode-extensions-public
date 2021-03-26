@@ -104,7 +104,7 @@ export function DataMapper(props: DataMapperProps) {
             dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
         });
     }
-    debugger;
+
     return (
         <>
             <g>
