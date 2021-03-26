@@ -105,6 +105,8 @@ export interface LowCodeEditorProps {
     getGithubRepoList?: (orgHandle: string, handler: string, username: string) => Promise<GithubRepo[]>;
     getLangClientForDiagram?: any;
     oauthSessions?: OauthSessionState;
+    dispatchFileChange?: (content: string) => Promise<void>;
+    dispatchCodeChangeCommit?: () => Promise<void>;
 }
 
 export interface STSymbolInfo {

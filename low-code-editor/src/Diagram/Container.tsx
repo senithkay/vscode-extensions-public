@@ -49,6 +49,8 @@ export default function DiagramContainer(props: Props) {
             isConfigPanelOpen={props.isConfigPanelOpen}
             isConfigOverlayFormOpen={props.isConfigPanelOpen}
             isWaitingOnWorkspace={props.isWaitingOnWorkspace}
+            dispatchFileChange={props.dispatchFileChange}
+            dispatchCodeChangeCommit={props.dispatchCodeChangeCommit}
             triggerType={displayType as TriggerType}
         />
     )

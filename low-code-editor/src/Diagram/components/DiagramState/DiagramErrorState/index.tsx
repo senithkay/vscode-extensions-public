@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
+
 import * as React from "react";
 
 export function DiagramErrorState(props: {
@@ -17,8 +19,10 @@ export function DiagramErrorState(props: {
    y: number,
    text: string,
    onClose: () => void,
+   onOpen: () => void,
+   isErrorMsgVisible: boolean,
 }) {
-   const { text, onClose, ...xyProps } = props;
+   const { text, isErrorMsgVisible, onClose, onOpen, ...xyProps } = props;
    return (
       <svg viewBox="0 0 500 45">
          <defs>
@@ -37,11 +41,11 @@ export function DiagramErrorState(props: {
             </clipPath>
          </defs>
          <g id="Group_202" data-name="Group 202" transform="translate(-146 -742)">
-            <g id="TextWrapper">
+            {isErrorMsgVisible && (<g id="TextWrapper">
                <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill="#fceded" />
                <text id="Code_has_errors_fix" data-name="Code has errors, fix" transform="translate(202 768)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
-            </g>
-            <g id="ErrorBtnandIcon" transform="translate(146 744)">
+            </g>)}
+            <g id="ErrorBtnandIcon" transform="translate(146 744)" onClick={onOpen} style={{ cursor: 'pointer' }}>
                <g id="Button_Pill_40_Default_Copy" data-name="Button/Pill/40/Default Copy" clip-path="url(#clip-path)">
                   <g id="Purpose">
                      <rect id="Purpose-2" data-name="Purpose" width="40" height="40" fill="#fe523c" />
@@ -58,11 +62,11 @@ export function DiagramErrorState(props: {
                <text id="_4" data-name="4" transform="translate(175 755)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular">
                   <tspan x="0" y="0">{text}</tspan></text>
             </g>
-            <g id="CloseBtn" transform="translate(539 755)" onClick={onClose}>
+            {isErrorMsgVisible && (<g id="CloseBtn" transform="translate(539 755)" onClick={onClose} style={{ cursor: 'pointer' }}>
                <g id="Group_28" data-name="Group 28">
                   <path id="Combined_Shape-3" d="M8.718,9.781,5,6.063,1.282,9.781a.751.751,0,0,1-1.061,0l0,0a.751.751,0,0,1,0-1.061L3.937,5,.219,1.282a.751.751,0,0,1,0-1.061l0,0a.751.751,0,0,1,1.061,0L5,3.937,8.718.219a.751.751,0,0,1,1.061,0l0,0a.751.751,0,0,1,0,1.061L6.063,5,9.781,8.718a.751.751,0,0,1,0,1.061l0,0a.751.751,0,0,1-1.061,0Z" transform="translate(4 4)" fill="#cbcedb" />
                </g>
-            </g>
+            </g>)}
          </g>
       </svg>
    );

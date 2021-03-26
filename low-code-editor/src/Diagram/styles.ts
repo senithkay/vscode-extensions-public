@@ -113,15 +113,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 'auto',
             zIndex: 2
         },
-        diagramErrorMessageWrapper: {
-            height: 42,
-            width: 535,
-            bottom: "16rem",
-            right: 0,
-            position: "absolute",
-            marginRight: 'auto',
-            zIndex: 2
-        },
         updateButton: {
             display: 'flex',
             justifyContent: "flex-end",

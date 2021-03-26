@@ -21,10 +21,9 @@ import { STModification } from "../Definitions";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
-import { DiagramActiveState } from "./components/DiagramState/DiagramActiveState";
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
-import { ErrorMessage } from "./components/DiagramState/ErrorMessage";
+import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
@@ -46,6 +45,8 @@ export interface DiagramProps {
     isConfigPanelOpen: boolean;
     isConfigOverlayFormOpen: boolean;
     triggerType?: TriggerType;
+    dispatchFileChange?: (content: string) => Promise<void>;
+    dispatchCodeChangeCommit?: () => Promise<void>;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -61,19 +62,30 @@ export function Diagram(props: DiagramProps) {
         isConfigOverlayFormOpen,
         triggerType
     } = props;
-    const { state: { diagnostics } } = useContext(Context);
+    const { state: {
+        diagnostics
+    } } = useContext(Context);
+
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics.length;
-    const diragramErrors = diagnostics.length > 0;
-    const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diragramErrors);
+    const diagramErrors = diagnostics.length > 0;
+    const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
+    const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
+
+    React.useEffect(() => {
+        setIsErrorStateDialogOpen(diagramErrors);
+        setIsErrorDetailsOpen(diagramErrors);
+    }, [diagramErrors])
 
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);
+        setIsErrorDetailsOpen(true);
     }
 
     const closeErrorDialog = () => {
         setIsErrorStateDialogOpen(false);
+        setIsErrorDetailsOpen(false);
     }
 
     const textLoader = (
@@ -89,11 +101,9 @@ export function Diagram(props: DiagramProps) {
     );
 
     const diagramErrorMessage = (
-        <>
-            <div className={classes.diagramErrorStateWrapper} onClick={openErrorDialog}>
-                <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} />
-            </div>
-        </>
+        <div className={classes.diagramErrorStateWrapper}>
+            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen}/>
+        </div>
     );
 
     const diagramStatus = diagnosticInDiagram ? diagramErrorMessage : null;
@@ -131,14 +141,15 @@ export function Diagram(props: DiagramProps) {
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
 
-            <div className={classes.diagramErrorStateWrapper}>
-                <OverlayBackground />
-                {diagramStatus}
+            {diagnosticInDiagram && (
+                <div className={classes.diagramErrorStateWrapper}>
+                    <OverlayBackground />
+                    {diagramStatus}
+                </div>
+            )}
 
-            </div>
-            <div className={classes.diagramErrorMessageWrapper} >
-                <ErrorMessage x={1} y={1} />
-            </div>
+            {isErrorDetailsOpen && <ErrorList />}
+
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
