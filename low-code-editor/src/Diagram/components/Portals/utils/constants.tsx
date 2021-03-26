@@ -217,12 +217,22 @@ export const tooltipMessages: Record<string, any> = {
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/statements.md"
     },
     SMTP: {
-        host: "Host address from your SMTP client configurations ",
-        username: "Username from your SMTP client configurations ",
-        password: "Password from your SMTP client configurations ",
+        host: "Host address from your SMTP client configurations",
+        username: "Username from your SMTP client configurations",
+        password: "Password from your SMTP client configurations",
         from: "Email address of the sender",
         to: "Email address of the receiver(s)",
         subject: "Subject of the email",
         body: "Body of the email"
+    },
+    IMAP: {
+        host: "Host address from your IMAP client configurations",
+        username: "Username from your IMAP client configurations",
+        password: "Password from your IMAP client configurations",
+    },
+    POP3: {
+        host: "Host address from your POP3 client configurations",
+        username: "Username from your POP3 client configurations",
+        password: "Password from your POP3 client configurations",
     },
 }

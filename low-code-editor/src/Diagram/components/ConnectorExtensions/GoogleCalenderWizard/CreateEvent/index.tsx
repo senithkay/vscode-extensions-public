@@ -13,18 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormHelperText } from "@material-ui/core";
 import { addHours, format } from 'date-fns';
 
-import { FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import { FormField } from "../../../../../ConfigurationSpec/types";
 import { Gcalendar } from "../../../../../Definitions";
 import { CirclePreloader } from "../../../../../PreLoader/CirclePreloader";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from "../../../Portals/ConfigForm/Elements/Autocomplete";
 import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelPicker";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { transformFormFieldTypeToString } from '../../../Portals/ConfigForm/Elements/ExpressionEditor/utils';
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
 
@@ -41,7 +38,6 @@ export function CreateEvent(props: OperationDropdownProps) {
     const { formFields, validateFields, isFetching, gcalenderList,
             isManualConnection, isNewConnectorInitWizard } = props;
 
-    const classes = useStyles();
     const wizardClasses = wizardStyles();
 
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
@@ -89,33 +85,12 @@ export function CreateEvent(props: OperationDropdownProps) {
         }
     };
 
-    const startTimeModel: FormField = {
-        type: PrimitiveBalType.String,
-        name: "Start Time"
-    };
-
     const startTimeOnChange = (time: Date) => {
         formFields[1].fields[5].fields[1].value = convertDateToString(time);
     };
 
-    const endTimeModel: FormField = {
-        type: PrimitiveBalType.String,
-        name: "End Time"
-    }
     const endTimeOnChange = (time: Date) => {
         formFields[1].fields[6].fields[1].value = convertDateToString(time);
-    };
-
-    const onChangeAttendee = () => {
-        let record = "";
-        formFields[1].fields[12].fields.forEach((field: any, index: number) => {
-            if (index === (formFields[1].fields[12].fields.length - 1)) {
-                record += "{email: " + field.value + ", responseStatus: no}";
-            } else {
-                record += "{email: " + field.value + ", responseStatus: no},";
-            }
-        });
-        formFields[1].fields[12].value = record;
     };
 
     const setDefaultValues = () => {
@@ -132,10 +107,17 @@ export function CreateEvent(props: OperationDropdownProps) {
         return `"${formattedTime}"`;
     }
 
+
+    const validateAttendee = (fieldName: string, isInvalidFromField: boolean) => {
+        validateFields(fieldName, isInvalidFromField);
+    }
+
     const attendeeComponnet = getFormElement({
         model: formFields[1].fields[12],
-        onChange: onChangeAttendee
-    }, transformFormFieldTypeToString(formFields[1].fields[12]));
+        customProps: {
+            validate: validateAttendee,
+        }
+    }, formFields[1].fields[12].type);
 
     // for oauth authenticated connections
     const handleGcalendarChange = (event: object, value: any) => {
@@ -162,22 +144,9 @@ export function CreateEvent(props: OperationDropdownProps) {
     // set default value before render
     setDefaultValues();
 
-    useEffect(() => {
-        if (!isNewConnectorInitWizard) {
-            const attendeeField = formFields.find((item: FormField) => item.name === "event")
-                .fields.find((item: FormField) => item.name === "attendees");
-            const emails: FormField[] = [];
-            attendeeField.fields.forEach((field: FormField) => {
-                const email = field.fields.find((item: FormField) => item.name === "email");
-                emails.push(email);
-            })
-            attendeeField.fields = emails;
-        }
-    }, [isNewConnectorInitWizard]);
-
     return (
         <>
-            {!showCalenderSelector && isManualConnection && (
+            {!showCalenderSelector && (
                 <ExpressionEditor {...calIdProps} />
             )}
             {showCalenderSelector && (
@@ -210,10 +179,6 @@ export function CreateEvent(props: OperationDropdownProps) {
             />
 
                 <>
-                    <div className={classes.labelWrapper}>
-                        <FormHelperText className={classes.inputLabelForRequired}>Attendees</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
-                    </div>
                     <div>
                         {attendeeComponnet}
                     </div>
