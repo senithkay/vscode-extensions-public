@@ -34,6 +34,7 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
         });
     }
     terminal = window.createTerminal({ name: 'Terminal', cwd: filePath });
+    terminal.sendText(process.platform === 'win32' ? 'cls' : 'clear', true);
     terminal.show(true);
     terminal.sendText(`${executor} ${cmd} ${argsList}`, true);
 }
