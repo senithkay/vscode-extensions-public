@@ -163,7 +163,8 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
         if (model.typeInfo){
             const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
             const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-            if (!code.includes(importSnippet)){
+            const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+            if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
                 // Add import only if its already not imported
                 code = addToZerothLine(code, `${importSnippet}`);
             }
@@ -175,7 +176,8 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
                     if (field.typeInfo){
                         const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
                         const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-                        if (!code.includes(importSnippet)){
+                        const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+                        if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
                             // Add import only if its already not imported
                             code = addToZerothLine(code, `${importSnippet}`);
                         }
