@@ -443,25 +443,15 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'createIssue':
-                    case 'getOrganization':
-                        break;
-                    case 'getRepository':
-                        value.parameters.forEach(field => {
-                            if (field.name === 'repoIdentifier') {
-                                field.isUnion = false;
-                                field.type = PrimitiveBalType.String;
-                                field.value = field.fields[0].value;
-                                field.fields = [];
-                            }
-                        })
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
+                if (key === 'getRepository') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'repoIdentifier') {
+                            field.isUnion = false;
+                            field.type = PrimitiveBalType.String;
+                            field.value = field.fields[0].value;
+                            field.fields = [];
+                        }
+                    })
                 }
             });
             break;
