@@ -24,7 +24,6 @@ import { Canvas } from "./components/Canvas";
 import { DiagramActiveState } from "./components/DiagramState/DiagramActiveState";
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
-import MultipleTabNotification from "./components/MultipleTabNotification";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
@@ -103,13 +102,6 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
-    const temp = (
-        <>
-        <MultipleTabNotification/>
-        <OverlayBackground/>
-        </>
-    );
-
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
@@ -119,7 +111,6 @@ export function Diagram(props: DiagramProps) {
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
-            {/*{temp}*/}
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />

@@ -18,41 +18,44 @@ import { Typography } from "@material-ui/core";
 import { PortalState } from "store/index";
 
 import { closeMultipleTabsOverlay, openMultipleTabsOverlay } from "../../../../../../src/store/actions";
-import { DefaultConfig } from "../../visitors/default";
-import { OverlayBackground } from "../OverlayBackground";
 import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../Portals/ConfigForm/Elements/Button/SecondaryButton";
 
 import { useStyles } from "./style";
-import "./style.scss";
 
 export interface MultipleTabNotificationProps {
     isMultipleTabsOpen: boolean,
-    dispatchOpenMultipleTabsOverlay: () => void,
-    dispatchCloseMultipleTabsOverlay: () => void,
-    // x: number,
-    // y: number
+}
+
+function handleOnclick() {
+    location.reload()
 }
 
 export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
-    const { isMultipleTabsOpen, dispatchCloseMultipleTabsOverlay, dispatchOpenMultipleTabsOverlay } = props;
+    const { isMultipleTabsOpen } = props;
     const classes = useStyles();
 
-    return (
-
-        <div className={classes.multipleTabsNotification}>
-            <Typography variant="h1">
-                An instance of this application is already open in another tab
-            </Typography>
-            <p className={classes.subText}>
-            Please switch to the already open tab to continue
-            </p>
-            <div className={classes.buttonWrapper}>
-                <SecondaryButton text="Close" />
-                <PrimaryButton text="Restore the Session" />
+    const Component: JSX.Element = (
+        <>
+            <div className={classes.multipleTabsNotification}>
+                <Typography variant="h1">
+                    An instance of this application is already open in another tab
+                </Typography>
+                <p className={classes.subText}>
+                    Please switch to the already open tab to continue
+                </p>
+                <div className={classes.buttonWrapper}>
+                    <PrimaryButton text="Restore the Session" onClick={handleOnclick} className={classes.secBtn}/>
+                </div>
             </div>
-        </div>
+            <div className={classes.backgroundOverlay}/>
+        </>
+    )
+
+    return (
+        isMultipleTabsOpen ? Component : null
     );
+
 }
 
 const mapStateToProps = ({ appInfo }: PortalState) => {
@@ -62,11 +65,6 @@ const mapStateToProps = ({ appInfo }: PortalState) => {
     }
 };
 
-const mapDispatchToProps = {
-    dispatchOpenMultipleTabsOverlay: openMultipleTabsOverlay,
-    dispatchCloseMultipleTabsOverlay: closeMultipleTabsOverlay
-}
-
-const MultipleTabNotification = connect(mapStateToProps, mapDispatchToProps)(MultipleTabNotificationC);
+const MultipleTabNotification = connect(mapStateToProps, null)(MultipleTabNotificationC);
 
 export default MultipleTabNotification;

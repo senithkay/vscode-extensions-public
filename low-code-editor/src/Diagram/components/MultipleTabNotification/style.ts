@@ -20,7 +20,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 590,
             borderRadius: 12,
             backgroundColor: '#fff',
-            boxShadow: '0 10px 40px -20px rgba(76, 77, 82, 0.1)',
+            boxShadow: '0 10px 40px -20px rgba(76, 77, 82, 0.3)',
             position: 'absolute',
             top: '20vh',
             left: '30vw',
@@ -40,11 +40,23 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 15,
             letterSpacing: 0,
             textAlign: 'center',
-            marginTop: "2rem"
+            marginTop: "1rem"
         },
         buttonWrapper: {
-            backgroundColor: "red"
-
+            marginTop: 20,
+            paddingTop: 35
+        },
+        backgroundOverlay: {
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+            zIndex: 15,
+            display: 'flex',
+            position: 'absolute'
+        },
+        secBtn: {
+            height: 48,
+            width: 174
         }
     })
 );
