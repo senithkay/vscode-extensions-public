@@ -74,7 +74,6 @@ const ignoreList = [
     'ballerinax/github.webhook:0.99.12:Milestone',
     'ballerinax/github.webhook:0.99.12:Branch',
     'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:CardList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:BranchList',
     'ballerinax/github:0.99.12:IssueList',
@@ -156,6 +155,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
+                            console.warn('recordKey >>>', recordKey)
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
                                     recordRes = await getRecordDefFromCache({
@@ -175,6 +175,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
+                                            console.warn('recordRes >>>', JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -681,6 +682,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
+        console.warn('connectorDef >>>', JSON.stringify(connectorDef))
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();
