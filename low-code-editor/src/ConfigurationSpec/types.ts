@@ -34,6 +34,12 @@ export const httpResponse: NonPrimitiveBal = {
     name: 'Response',
 }
 
+export const httpRequest: NonPrimitiveBal = {
+    orgName: 'ballerina',
+    modName: 'http',
+    name: 'Request',
+}
+
 export interface NonPrimitiveBal {
     orgName: string;
     modName: string;

@@ -102,12 +102,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     });
 
-    const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
+    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig())
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
     const [connectionDetails, setConnectionDetails] = useState(null);
-    const [selectedOperation, setSelectedAction] = useState(connectorConfig?.action?.name);
+    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
 
@@ -129,14 +129,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         functionDefInfo?.get("init").parameters : functionDefInfo?.get("__init").parameters;
 
     // managing name set by the non oauth connectors
-    config.name = isNewConnectorInitWizard ?
+    config.name = (isNewConnectorInitWizard && !config.name) ?
         genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo))
         : config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
     }
-    config.name = configName;
 
     const operations: string[] = [];
     if (functionDefInfo) {
@@ -148,11 +147,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
 
     let formFields: FormField[] = null;
-    if (selectedOperation) {
-        formFields = functionDefInfo.get(selectedOperation).parameters;
+    if (!config.action) {
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
-        config.action.fields = formFields;
     }
 
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
@@ -170,7 +166,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onOperationSelect = (operation: string) => {
-        setSelectedAction(operation);
+        setSelectedOperation(operation);
         setFormState(FormStates.OperationForm);
     };
 
@@ -390,6 +386,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             model
         });
         if (!connectorComponent) {
+            if (selectedOperation) {
+                formFields = functionDefInfo.get(selectedOperation).parameters;
+                config.action.name = selectedOperation;
+                config.action.fields = formFields;
+            }
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>

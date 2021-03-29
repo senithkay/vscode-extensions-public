@@ -15,3 +15,4 @@ export { default as RespondIcon } from "./Respond";
 export { default as ReturnIcon } from "./Return";
 export { default as ScheduleIcon } from "./Schedule";
 export { default as WebhookIcon } from "./Webhook";
+export { default as CustomStatementIcon } from "./CustomStatement";
