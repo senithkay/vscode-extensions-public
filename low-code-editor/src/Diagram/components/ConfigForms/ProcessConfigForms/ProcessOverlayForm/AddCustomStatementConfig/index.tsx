@@ -61,7 +61,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid);
+        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
+        setIsFormValid(isValidExpression);
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
@@ -82,7 +83,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     </div>
                     <div className="exp-wrapper">
                     <ExpressionEditor
-                        model={{ name: "expression", value: expression }}
+                        model={{ name: "statement", value: expression }}
                         customProps={{
                             validate: validateExpression,
                             tooltipTitle: tooltipMessages.expressionEditor.title,

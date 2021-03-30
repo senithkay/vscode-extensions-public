@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
+import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
@@ -345,9 +346,7 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: LocalVarDecl,
-                                     connectors: BallerinaConnectorsInfo[],
-                                     stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
 
@@ -438,4 +437,19 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
         default:
             return undefined;
     }
+}
+
+export function sizingAndPositioningST(st: STNode): STNode {
+    traversNode(st, initVisitor);
+    traversNode(st, sizingVisitor);
+    traversNode(st, positionVisitor);
+    const clone = { ...st };
+    return clone;
+}
+
+export function recalculateSizingAndPositioningST(st: STNode): STNode {
+    traversNode(st, sizingVisitor);
+    traversNode(st, positionVisitor);
+    const clone = { ...st };
+    return clone;
 }

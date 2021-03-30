@@ -31,6 +31,7 @@ export const tooltipTitles: Record<any, string> = {
     SLACK: tooltipMessages.slackConnector,
     SALESFORCE : tooltipMessages.salesforce.title,
     POSTGRESQL : tooltipMessages.postgreSQL.title,
+    NETSUITE : tooltipMessages.netsuite.title,
 };
 
 export const tooltipExamples: Record<any, string> = {
@@ -48,5 +49,6 @@ export const tooltipExamples: Record<any, string> = {
     SLACK: tooltipMessages.slackConnector,
     SALESFORCE : tooltipMessages.salesforce.content,
     POSTGRESQL : tooltipMessages.postgreSQL.content,
+    NETSUITE : tooltipMessages.netsuite.content,
 };
 

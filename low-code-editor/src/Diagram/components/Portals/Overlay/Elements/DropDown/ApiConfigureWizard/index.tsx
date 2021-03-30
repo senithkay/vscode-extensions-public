@@ -23,7 +23,8 @@ import ConfigPanel, { Section } from "../../../../../../../components/ConfigPane
 import RadioControl from "../../../../../../../components/RadioControl";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { validatePath } from "../../../../../../../utils/validator";
-import { ServiceMethodType, SERVICE_METHODS, TRIGGER_TYPE_API } from "../../../../../../models";
+import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
+import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { tooltipMessages } from "../../../../utils/constants";
@@ -36,6 +37,7 @@ interface ApiConfigureWizardProps {
   onClose: () => void;
   method?: ServiceMethodType,
   path?: string,
+  triggerType?: TriggerType
   // handle dispatch
   // dispatchGoToNextTourStep: (id: string) => void
 }
@@ -57,7 +59,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-  const { position, onWizardComplete, onClose, method, path,
+  const { position, onWizardComplete, onClose, method, path, triggerType,
     // todo: handle dispatch
     // dispatchGoToNextTourStep
   } = props;
@@ -201,6 +203,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       <ConfigPanel
         title="API Configuration"
         onClose={onClose}
+        showClose={(triggerType !== undefined && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT)}
       >
         {resources.map((resProps, index: number) => (
           <div

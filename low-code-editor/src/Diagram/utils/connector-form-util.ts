@@ -59,6 +59,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
+                            param.noCodeGen = true;
                             param.displayName = "Message";
                         }
                     });
@@ -116,9 +117,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "replyTo") {
                             param.hide = true;
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "cc" || param.name === "bcc") {
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
@@ -148,7 +149,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 else if (key === "init") {
                     if (value.parameters[3].name === "clientConfig") {
                         value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
+                            if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
                             }
                         })
@@ -178,19 +179,26 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
+                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+                    // todo: add these operations when bal connector class fetch support is there
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.IMAP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.IMAP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.IMAP.password
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -199,12 +207,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_PopClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.POP3.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.POP3.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.POP3.password
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -222,9 +234,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     }
                     if (key === "sendMessage"){
-                        // set content type in sendMessage form
-                        value.parameters.find(fields => fields.name === "message")
-                        .fields.find(fields => fields.name === "contentType").value = `"text/plain"`;
+                        value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                            if (field.name === "contentType"){
+                                // set content type in sendMessage form
+                                field.value = `"text/plain"`;
+                            }
+                            if (field.name === "inlineImagePaths" || field.name === "attachmentPaths"){
+                                field.hide = true;
+                                field.noCodeGen = true;
+                            }
+                        });
                     }
                     // hide optional fields from gmail forms
                     if (key === "readMessage"){
@@ -262,8 +281,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
                         } else if (field.name === "attendees") {
-                            field.displayName = "email";
-                            field.collectionDataType = PrimitiveBalType.String;
+                            field.displayName = "Attendee Emails";
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -271,6 +289,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach((field) => {
                         if ((field.name === "sendUpdates")) {
                             field.hide = true;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -291,10 +316,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 } else if (key === "getIdFromUrl") {
                     // hide this isolated function
-                } else if (key === "appendRow") {
-                    // HACK: need to handle collectionDataType in union type arrays (string|int|float)[]
-                    value.parameters.find(fields => fields.name === "values").collectionDataType = PrimitiveBalType.String;
-                    filteredFunctions.set(key, value);
                 } else {
                     filteredFunctions.set(key, value);
                 }
@@ -321,11 +342,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             subFields.fields =  subFields.fields[0].fields;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
+                            subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
                             subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
                             subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
                             subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
                             subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
                             subFields.hide = true;
@@ -346,6 +368,20 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             field.hide = true;
                         }
                     });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_netsuite_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                if (key === "getAll") {
+                    value.parameters[0] = {
+                        type: PrimitiveBalType.String,
+                        name: "RecordType",
+                        optional: false,
+                        isParam: true
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
@@ -410,25 +446,15 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'createIssue':
-                    case 'getOrganization':
-                        break;
-                    case 'getRepository':
-                        value.parameters.forEach(field => {
-                            if (field.name === 'repoIdentifier') {
-                                field.isUnion = false;
-                                field.type = PrimitiveBalType.String;
-                                field.value = field.fields[0].value;
-                                field.fields = [];
-                            }
-                        })
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
+                if (key === 'getRepository') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'repoIdentifier') {
+                            field.isUnion = false;
+                            field.type = PrimitiveBalType.String;
+                            field.value = field.fields[0].value;
+                            field.fields = [];
+                        }
+                    })
                 }
             });
             break;

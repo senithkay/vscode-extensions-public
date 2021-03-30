@@ -17,7 +17,14 @@ import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
 import Tooltip, { TooltipIcon } from "../../../../../components/Tooltip";
-import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, httpResponse, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import {
+    ActionConfig,
+    ConnectorConfig,
+    FormField,
+    FunctionDefinitionInfo,
+    httpRequest,
+    PrimitiveBalType
+} from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -93,19 +100,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
 
-    let responseVariableHasReferences: boolean = false;
-    let payloadVariableHasReferences: boolean = false;
-
-    if (!isNewConnectorInitWizard) {
-        let symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.action.returnVariableName);
-        responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-
-        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
-            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
-            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-        }
-    }
-
     let newField: FormField;
     if (connectorConfig.action.name === "forward") {
         actions.forEach((fields, name) => {
@@ -134,7 +128,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         name: "request",
         displayName: "Request",
         type: PrimitiveBalType.Record,
-        typeInfo: httpResponse,
+        typeInfo: httpRequest,
         value: forwardReqField?.value
 
     }
@@ -160,8 +154,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         action = connectorConfig.action;
     }
 
+    let responseVariableHasReferences: boolean = false;
+    let payloadVariableHasReferences: boolean = false;
 
+    if (!isNewConnectorInitWizard) {
+        let symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
+        responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
 
+        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
+            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
+            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
+        }
+    }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
@@ -181,7 +185,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             ...payloadState,
             selectedPayload: value,
             isNameProvided: true,
-            variableName: isNewConnectorInitWizard ?
+            variableName: isNewConnectorInitWizard || (!isNewConnectorInitWizard &&
+                !connectorConfig.responsePayloadMap.payloadVariableName) ?
                 genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
                 :
                 connectorConfig.responsePayloadMap.payloadVariableName

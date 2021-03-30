@@ -17,11 +17,10 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
-import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
+import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {
     operations: string[];
@@ -43,34 +42,25 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName && (
+                    { showConnectionName && (
                         <>
-                            <div className={classes.connectionNameWrapper}>
-                                <p className={classes.subTitle}>Connection</p>
-                                <div>
-                                    <TooltipIcon
-                                        title="Name of the connection"
-                                        placement={"left"}
-                                        arrow={true}
-                                    />
-                                </div>
-                            </div>
+                            <p className={classes.subTitle}>Connection</p>
                             <Box border={1} borderRadius={5} className={classes.box}>
                                 <Typography variant="subtitle2">
                                     {connectionDetails.name}
                                 </Typography>
                                 <IconButton
                                     color="primary"
-                                    classes={{
+                                    classes={ {
                                         root: classes.changeConnectionBtn
-                                    }}
+                                    } }
                                     onClick={onConnectionChange}
                                 >
                                     <EditIcon />
                                 </IconButton>
                             </Box>
                         </>
-                    )}
+                    ) }
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
                         placeholder="Search Operation"

@@ -24,6 +24,7 @@ import {
     NilTypeDesc,
     ObjectMethodDefinition,
     OptionalTypeDesc,
+    ParenthesisedTypeDesc,
     QualifiedNameReference,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -162,8 +163,10 @@ class FieldVisitor implements Visitor {
                         isArray: true,
                         type: PrimitiveBalType.Union
                     }
-
                     viewState.fields.push(fieldViewState);
+                    break;
+                case 'SimpleNameReference':
+                    node.memberTypeDesc.viewState = viewState;
                     break;
             }
         }
@@ -178,6 +181,12 @@ class FieldVisitor implements Visitor {
 
             node.leftTypeDesc.viewState = { isParam: true, type: undefined };
             node.rightTypeDesc.viewState = { isParam: true, type: undefined };
+        }
+    }
+
+    beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.typedesc.viewState = node.viewState;
         }
     }
 

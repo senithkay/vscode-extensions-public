@@ -24,6 +24,7 @@ import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins";
 import {
+    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
@@ -71,8 +72,7 @@ enum FormStates {
     OperationForm,
 }
 
-
-export function GoogleCalender(props: WizardProps) {
+export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
@@ -82,10 +82,6 @@ export function GoogleCalender(props: WizardProps) {
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
-
-    useEffect(() => {
-        setFormState(FormStates.OauthConnect);
-    }, []);
 
     useEffect(() => {
         if (config.existingConnections) {
@@ -126,20 +122,6 @@ export function GoogleCalender(props: WizardProps) {
         config.action.fields = formFields;
     }
 
-    const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
-        setConnectionDetails(connection);
-        setFormState(FormStates.OperationDropdown);
-    };
-
-    const handleConnectionUpdate = () => {
-        setIsManualConnection(false);
-        setFormState(FormStates.OauthConnect);
-    };
-
-    const handleOnFailure = () => {
-        //    todo handle error
-    };
-
     const onOperationSelect = (operation: string) => {
         setSelectedAction(operation);
         setFormState(FormStates.OperationForm);
@@ -158,7 +140,7 @@ export function GoogleCalender(props: WizardProps) {
     const onCreateNew = () => {
         setConfigName(genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
         setIsManualConnection(false);
-        setFormState(FormStates.OauthConnect);
+        setFormState(FormStates.CreateNewConnection);
         setIsNewConnection(true);
     };
 
@@ -183,7 +165,7 @@ export function GoogleCalender(props: WizardProps) {
         if ((isNewConnection) || (isNewConnection && isManualConnection)) {
             setFormState(FormStates.CreateNewConnection);
         } else if (isNewConnection && !isManualConnection) {
-            setFormState(FormStates.OauthConnect);
+            setFormState(FormStates.CreateNewConnection);
         } else {
             setFormState(FormStates.ExistingConnection);
         }
@@ -192,103 +174,23 @@ export function GoogleCalender(props: WizardProps) {
     const onCreateConnectorBack = () => {
         setIsManualConnection(false);
         setIsNewConnection(true);
-        setFormState(FormStates.OauthConnect);
+        setFormState(FormStates.CreateNewConnection);
     };
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
-    const getFormFieldValue = (key: string) => {
-        return connectorInitFormFields.find(field => field.name === "calendarConfig").fields
-            .find(field => field.name === "oauth2Config").fields
-            .find(field => field.name === key).value || "";
-    }
-
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
-        let modifications: STModification[] = [];
-        if (isNewConnectorInitWizard) {
-            if (targetPosition) {
-                modifications = [];
-                // Add an import.
-                const addImport: STModification = createImportStatement(
-                    connector.org,
-                    connector.module,
-                    targetPosition
-                );
-                modifications.push(addImport);
-
-                // Add an connector client initialization.
-                if (isNewConnection) {
-                    let addConfigurableVars: STModification;
-                    let addConnectorInit: STModification;
-                    if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
-
-                        addConnectorInit = createPropertyStatement(
-                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
-                            targetPosition
-                        );
-                    } else {
-                        addConnectorInit = createPropertyStatement(
-                            `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                                oauth2Config: {
-                                    clientId: ${getFormFieldValue("clientId")},
-                                    clientSecret: ${getFormFieldValue("clientSecret")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl")},
-                                    refreshUrl: ${getFormFieldValue("refreshToken")}
-                                }
-                             });`,
-                            targetPosition
-                        );
-                    }
-                    modifications.push(addConnectorInit);
-                }
-
-                // Add an action invocation on the initialized client.
-                if (isActionReturnError){
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                }else{
-                    const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                }
-            }
-        } else {
+        const modifications: STModification[] = [];
+        if (!isNewConnectorInitWizard) {
             const updateConnectorInit = updatePropertyStatement(
-                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new ({
-                    oauth2Config: {
-                        clientId: ${getFormFieldValue("clientId")},
-                        clientSecret: ${getFormFieldValue("clientSecret")},
-                        refreshToken: ${getFormFieldValue("refreshUrl")},
-                        refreshUrl: ${getFormFieldValue("refreshToken")}
-                    }
-                 });`,
-                config.initPosition
+                `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                connectorConfig.initPosition
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError){
+            if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
@@ -308,6 +210,60 @@ export function GoogleCalender(props: WizardProps) {
                     model.position
                 );
                 modifications.push(updateActionInvocation);
+            }
+        } else {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConnectorInit: STModification;
+                    addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+
+                // Add an action invocation on the initialized client.
+                if (isActionReturnError) {
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation: STModification = createRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
+
+                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
+                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                        config.responsePayloadMap.payloadVariableName,
+                        "var",
+                        config.action.returnVariableName,
+                        config.responsePayloadMap.payloadTypes.get(
+                            config.responsePayloadMap.selectedPayloadType),
+                        targetPosition
+                    );
+                    modifications.push(addPayload);
+                }
+
             }
         }
         onSave(modifications);
@@ -337,47 +293,6 @@ export function GoogleCalender(props: WizardProps) {
                         {connector.displayName} Connection
                     </Typography>
                 </div>
-            </div>
-            <div>
-                {isNewConnection && !isManualConnection && (
-                    <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
-                        <div className={wizardClasses.fullWidth}>
-                            <div className={wizardClasses.mainOauthBtnWrapper}>
-                                <OauthConnectButton
-                                    className={classNames(wizardClasses.fullWidth, wizardClasses.oauthBtnWrapper)}
-                                    currentConnection={connectionDetails}
-                                    connectorName={connector.displayName}
-                                    onSelectConnection={handleOnConnection}
-                                    onFailure={handleOnFailure}
-                                    onDeselectConnection={handleConnectionUpdate}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {(formState === FormStates.OauthConnect) &&
-                    (
-                        <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                            <LinePrimaryButton
-                                testId={"calender-manual-btn"}
-                                className={wizardClasses.fullWidth}
-                                text="Manual Connection"
-                                fullWidth={false}
-                                onClick={onManualConnection}
-                            />
-                            {(config.existingConnections && isNewConnection) && (
-                                <div className={wizardClasses.connectBackBtn}>
-                                    <SecondaryButton
-                                        text="Back"
-                                        fullWidth={false}
-                                        onClick={onOauthConnectorBack}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    )
-                }
             </div>
             {(formState === FormStates.OperationDropdown) && (
                 <OperationDropdown
@@ -420,6 +335,7 @@ export function GoogleCalender(props: WizardProps) {
                     onBackClick={onCreateConnectorBack}
                     connector={connector}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    isOauthConnector={false}
                 />
             )}
             {(formState === FormStates.CreateNewConnection) && (
@@ -431,6 +347,7 @@ export function GoogleCalender(props: WizardProps) {
                     onBackClick={onCreateConnectorBack}
                     connector={connector}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    isOauthConnector={false}
                 />
             )}
         </div>

@@ -17,6 +17,7 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
+import { ConnectionDetails } from "../../../../../api/models";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
 import { STModification } from "../../../../../Definitions/lang-client-extended";
@@ -27,6 +28,8 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
+import { Get } from '../Get';
+import { GetAll } from "../GetAll";
 
 export interface OperationFormProps {
     selectedOperation: string;
@@ -35,13 +38,16 @@ export interface OperationFormProps {
     onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
+    isManualConnection: boolean;
+    isNewConnectorInitWizard: boolean;
+    connectionInfo: ConnectionDetails;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
 
 export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress } = props;
+            onOperationChange, mutationInProgress, isManualConnection, connectionInfo } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const wizardClasses = wizardStyles();
@@ -51,15 +57,17 @@ export function OperationForm(props: OperationFormProps) {
         onSave();
     };
 
-    const [validForm, setValidForm] = useState(formFields.length === 0);
+    const [validForm, setValidForm] = useState(selectedOperation === "getAll");
     const [validName, setValidName] = useState(true);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
+    const customizedOperations = ["getAll", "get"];
 
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
-        connectionDetails.action.returnVariableName = text;
+        setValidName((text !== '') && nameRegex.test(text));
         setDefaultResponseVarName(text);
-        setValidName(validateNameValue(text));
+        connectionDetails.action.returnVariableName = text;
     };
     const validateNameValue = (value: string) => {
         if (value) {
@@ -77,6 +85,17 @@ export function OperationForm(props: OperationFormProps) {
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
     };
+
+    // validate custom forms
+
+    let isSaveButtonDisabled = showConnectionName ? (!validForm || mutationInProgress || !validName) :
+        !validForm || mutationInProgress;
+    if ((formFields.length === 0) && validName && !mutationInProgress) {
+        isSaveButtonDisabled = false;
+    }
+
+    const showCalenderSelector = (!isManualConnection && connectionInfo) ? true : false;
+    formFields[0].hide = showCalenderSelector;
 
     return (
         <div>
@@ -120,10 +139,19 @@ export function OperationForm(props: OperationFormProps) {
                     </Box>
                     </>
                     <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <Form fields={formFields} onValidate={validateForm} />
-                        ) : null
-                        }
+                        {formFields.length > 0 && (
+                            <>
+                                {selectedOperation === "getAll" && (
+                                     <GetAll formFields={formFields} onValidate={validateForm} />
+                                )}
+                                {selectedOperation === "get" && (
+                                    <Get formFields={formFields} onValidate={validateForm} />
+                                )}
+                                {customizedOperations.indexOf(selectedOperation) < 0 && (
+                                    <Form fields={formFields} onValidate={validateForm} />
+                                )}
+                            </>
+                        )}
                     </div>
 
                     <FormTextInput
@@ -140,11 +168,11 @@ export function OperationForm(props: OperationFormProps) {
             </div>
             <div className={classes.wizardBtnHolder}>
                 <PrimaryButton
-                    dataTestId={"git-save-btn"}
+                    dataTestId={"calender-save-btn"}
                     className={wizardClasses.buttonSm}
                     text="Save"
                     fullWidth={false}
-                    disabled={!validForm || mutationInProgress || !validName}
+                    disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}
                 />
             </div>

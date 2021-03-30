@@ -59,6 +59,11 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
+        } else {
+            const viewState = node.viewState as FunctionViewState;
+            if (viewState.initPlus) {
+                viewState.initPlus = undefined;
+            }
         }
     }
 

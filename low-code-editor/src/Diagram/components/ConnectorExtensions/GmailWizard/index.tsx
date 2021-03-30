@@ -246,8 +246,8 @@ export function GmailWizard(props: WizardProps) {
                                 oauthClientConfig: {
                                     clientId: ${getFormFieldValue("clientId")},
                                     clientSecret: ${getFormFieldValue("clientSecret")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl")},
-                                    refreshUrl: ${getFormFieldValue("refreshToken")}
+                                    refreshToken: ${getFormFieldValue("refreshToken")},
+                                    refreshUrl: ${getFormFieldValue("refreshUrl")}
                                 }
                              });`,
                             targetPosition
@@ -283,8 +283,8 @@ export function GmailWizard(props: WizardProps) {
                     oauthClientConfig: {
                         clientId: ${getFormFieldValue("clientId")},
                         clientSecret: ${getFormFieldValue("clientSecret")},
-                        refreshToken: ${getFormFieldValue("refreshUrl")},
-                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                        refreshToken: ${getFormFieldValue("refreshToken")},
+                        refreshUrl: ${getFormFieldValue("refreshUrl")}
                     }
                  });`,
                 config.initPosition

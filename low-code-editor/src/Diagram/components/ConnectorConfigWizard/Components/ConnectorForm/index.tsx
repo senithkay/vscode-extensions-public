@@ -107,7 +107,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
     const [connectionDetails, setConnectionDetails] = useState(null);
-    const [selectedOperation, setSelectedAction] = useState(connectorConfig?.action?.name);
+    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
 
@@ -147,11 +147,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
 
     let formFields: FormField[] = null;
-    if (selectedOperation) {
-        formFields = functionDefInfo.get(selectedOperation).parameters;
+    if (!config.action) {
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
-        config.action.fields = formFields;
     }
 
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
@@ -169,7 +166,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onOperationSelect = (operation: string) => {
-        setSelectedAction(operation);
+        setSelectedOperation(operation);
         setFormState(FormStates.OperationForm);
     };
 
@@ -389,6 +386,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             model
         });
         if (!connectorComponent) {
+            if (selectedOperation) {
+                formFields = functionDefInfo.get(selectedOperation).parameters;
+                config.action.name = selectedOperation;
+                config.action.fields = formFields;
+            }
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>

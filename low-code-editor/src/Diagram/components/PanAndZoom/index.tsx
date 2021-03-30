@@ -63,7 +63,9 @@ export default function PanAndZoom(props: PanAndZoomProps) {
     function onPanningStop(e: PanningEvent) {
         document.body.style.cursor = 'default';
         const { positionX, positionY } = e;
-        onPanLocation(appId, positionX, positionY);
+        if ((zoomStatus.panX !== positionX) || (zoomStatus.panY !== positionY)) {
+            onPanLocation(appId, positionX, positionY);
+        }
     }
 
     function onWheel(e: any) {

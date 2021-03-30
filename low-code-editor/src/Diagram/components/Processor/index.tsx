@@ -270,8 +270,9 @@ export function DataProcessor(props: ProcessorProps) {
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect
-                                            x={cx + (PROCESS_SVG_WIDTH / 7)}
+                                            x={cx + (PROCESS_SVG_WIDTH / 6.5)}
                                             y={cy + (PROCESS_SVG_HEIGHT / 3)}
+                                            rx="7"
                                             className="process-rect"
                                         />
 
