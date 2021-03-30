@@ -69,7 +69,9 @@ export function delay(ms: number) {
 }
 
 export function killPort(port: number) {
-    (async () => {
-        await killPortProcess(port);
-    })();
+    if (process.platform !== 'win32') {
+        (async () => {
+            await killPortProcess(port);
+        })();
+    }
 }
