@@ -74,7 +74,6 @@ const ignoreList = [
     'ballerinax/github.webhook:0.99.12:Milestone',
     'ballerinax/github.webhook:0.99.12:Branch',
     'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:CardList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:BranchList',
     'ballerinax/github:0.99.12:IssueList',
