@@ -57,7 +57,7 @@ export function Diagram(props: DiagramProps) {
         isWaitingOnWorkspace,
         isMutationInProgress,
         isCodeEditorActive,
-        // isConfigPanelOpen,
+        isConfigPanelOpen,
         triggerType
     } = props;
     const { state: { diagnostics } } = useContext(DiagramContext);
