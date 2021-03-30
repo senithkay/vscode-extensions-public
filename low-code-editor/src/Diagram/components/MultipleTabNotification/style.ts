@@ -54,7 +54,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             position: 'absolute'
         },
-        secBtn: {
+        multipleTabRestoreBtn: {
             height: 48,
             width: 174
         }

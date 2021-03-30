@@ -17,9 +17,7 @@ import { connect } from "react-redux";
 import { Typography } from "@material-ui/core";
 import { PortalState } from "store/index";
 
-import { closeMultipleTabsOverlay, openMultipleTabsOverlay } from "../../../../../../src/store/actions";
 import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../Portals/ConfigForm/Elements/Button/SecondaryButton";
 
 import { useStyles } from "./style";
 
@@ -27,7 +25,7 @@ export interface MultipleTabNotificationProps {
     isMultipleTabsOpen: boolean,
 }
 
-function handleOnclick() {
+function handleOnclickRestore() {
     location.reload()
 }
 
@@ -35,7 +33,7 @@ export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
     const { isMultipleTabsOpen } = props;
     const classes = useStyles();
 
-    const Component: JSX.Element = (
+    const component: JSX.Element = (
         <>
             <div className={classes.multipleTabsNotification}>
                 <Typography variant="h1">
@@ -45,7 +43,7 @@ export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
                     Please switch to the already open tab to continue
                 </p>
                 <div className={classes.buttonWrapper}>
-                    <PrimaryButton text="Restore the Session" onClick={handleOnclick} className={classes.secBtn}/>
+                    <PrimaryButton text="Restore the Session" onClick={handleOnclickRestore} className={classes.multipleTabRestoreBtn}/>
                 </div>
             </div>
             <div className={classes.backgroundOverlay}/>
@@ -53,7 +51,7 @@ export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
     )
 
     return (
-        isMultipleTabsOpen ? Component : null
+        isMultipleTabsOpen ? component : null
     );
 
 }
