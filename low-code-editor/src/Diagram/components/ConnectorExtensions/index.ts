@@ -17,16 +17,10 @@ import { GoogleCalender } from "./GoogleCalenderWizard";
 import { GoogleSheet } from "./GoogleSheetWizard";
 import { HTTPWizard } from "./HTTPWizard";
 import { NetSuiteWizard } from "./NetSuiteWizard";
-import { BulkJob } from "./SFDCWizard/BulkJob";
-import { QueryClient } from "./SFDCWizard/QueryClient";
-import { SObjectClient } from "./SFDCWizard/SObjectClient";
 import { SMTPWizard } from "./SMTPWizard";
 
 export { HTTPWizard as httpClient };
 export { SMTPWizard as emailSmtpClient };
-export { BulkJob as sfdcBulkJob };
-export { QueryClient as sfdcQueryClient };
-export { SObjectClient as sfdcSObjectClient };
 export { GmailWizard as googleapis_gmailClient };
 export { GithubWizard as githubClient };
 export { GoogleCalender as googleapis_calendarClient };
