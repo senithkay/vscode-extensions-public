@@ -50,6 +50,7 @@ export class DataPointVisitor implements Visitor {
             this.returnTypeX = viewState.bBox.x - 20; // todo: move this to a constant file
             viewState.targetPointViewState.bBox.x = this.returnTypeX;
             viewState.targetPointViewState.bBox.y = viewState.bBox.y - 5;
+            viewState.targetPointViewState.position = node.position;
             this.targetPointMap.set(MAIN_TARGET_NAME, viewState.targetPointViewState);
             this.nameComponents.push(MAIN_TARGET_NAME);
         }

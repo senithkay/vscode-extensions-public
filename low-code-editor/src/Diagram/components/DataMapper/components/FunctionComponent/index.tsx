@@ -11,43 +11,94 @@
  * associated services.
  */
 
+import React, { useRef, useState } from "react";
+
 import { ExplicitAnonymousFunctionExpression, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
-import React from "react";
-import { SourcePointViewState } from "../../viewstate";
+
+import { STModification } from "../../../../../Definitions";
+import { updatePropertyStatement } from "../../../../utils/modification-util";
+import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 import { DataPoint } from "../DataPoint";
 import { TypeDescComponent } from "../TypeDescComponent";
-
 export interface DataMapperFunctionComponentProps {
     model: STNode;
+    onSave: (modifications: STModification[]) => void;
 }
 
 export function DataMapperFunctionComponent(props: DataMapperFunctionComponentProps) {
-    const { model } = props;
+    const { model, onSave } = props;
     const functionST = (model as LocalVarDecl).initializer as ExplicitAnonymousFunctionExpression;
+    const drawingLineRef = useRef(null);
+    const [isDataPointSelected, setIsDataPointSelected] = useState(false);
+    const [selectedSource, setSelectedSource] = useState(undefined);
+    const [eventListenerMap] = useState<any>({});
 
     const parameters: JSX.Element[] = [];
     const returnType: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
 
+    const dataPointOnClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
+        // current element is wrapped by a <g/> element
+        const parentSVG = (drawingLineRef.current as SVGGraphicsElement).parentElement.parentElement;
+
+        if (parentSVG instanceof SVGSVGElement) {
+            const ctm = (parentSVG as SVGSVGElement).getScreenCTM();
+            const point = (parentSVG as SVGSVGElement).createSVGPoint();
+
+            const onMouseMove = (evt: MouseEvent) => {
+                point.x = evt.pageX;
+                point.y = evt.pageY;
+                const mappedPoint = point.matrixTransform(ctm.inverse());
+                drawingLineRef.current.setAttribute('x2', mappedPoint.x);
+                drawingLineRef.current.setAttribute('y2', mappedPoint.y);
+            }
+
+            if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
+                setIsDataPointSelected(false);
+                setSelectedSource(undefined);
+                window.removeEventListener("mousemove", eventListenerMap.mousemove);
+                eventListenerMap.mousemove = undefined;
+                onSave([updatePropertyStatement(selectedSource.text, dataPointVS.position)])
+            } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
+                eventListenerMap.mousemove = onMouseMove;
+                drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x);
+                drawingLineRef.current.setAttribute('x2', dataPointVS.bBox.x);
+                drawingLineRef.current.setAttribute('y1', dataPointVS.bBox.y);
+                drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
+                setIsDataPointSelected(true);
+                setSelectedSource(dataPointVS);
+                window.addEventListener('mousemove', eventListenerMap.mousemove);
+            }
+        }
+    }
+
+    if (drawingLineRef.current && !isDataPointSelected) {
+        drawingLineRef.current.setAttribute('x1', 0);
+        drawingLineRef.current.setAttribute('x2', 0);
+        drawingLineRef.current.setAttribute('y1', 0);
+        drawingLineRef.current.setAttribute('y2', 0);
+    }
+
     functionST.functionSignature.parameters.forEach(param => {
-        parameters.push(<TypeDescComponent model={param}/>)
+        parameters.push(<TypeDescComponent model={param} />)
     });
 
-    returnType.push(<TypeDescComponent model={functionST.functionSignature.returnTypeDesc} isOutput={true}/>);
+    returnType.push(<TypeDescComponent model={functionST.functionSignature.returnTypeDesc} isOutput={true} />);
 
     functionST.dataMapperViewState.sourcePoints.forEach((dataPoint: SourcePointViewState) => {
-        dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
+        dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={dataPointOnClick} />);
     });
 
     functionST.dataMapperViewState.targetPointMap.forEach((dataPoint: SourcePointViewState) => {
-        dataPoints.push(<DataPoint dataPointViewState={dataPoint}/>);
+        dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={dataPointOnClick} />);
     });
 
     return (
-        <g>
+        <>
             {parameters}
             {returnType}
             {dataPoints}
-        </g>
+            <line ref={drawingLineRef} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} />
+        </>
     )
 }

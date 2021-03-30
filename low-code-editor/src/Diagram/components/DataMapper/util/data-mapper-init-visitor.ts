@@ -55,6 +55,7 @@ export class DataMapperInitVisitor implements Visitor {
         if (!node.dataMapperViewState) {
             const viewState: TypeDescViewState = new TypeDescViewState();
             viewState.sourcePointViewState = new SourcePointViewState();
+            viewState.sourcePointViewState.text = node.paramName.value;
             viewState.name = node.paramName.value;
             viewState.isSource = true;
             node.typeName.dataMapperViewState = viewState;

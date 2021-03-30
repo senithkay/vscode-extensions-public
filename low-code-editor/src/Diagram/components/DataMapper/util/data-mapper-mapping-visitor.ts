@@ -82,6 +82,10 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             if (this.isVisitingReturnStatement) {
                 this.nameParts.push(node.fieldName.value);
+                const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+                if (targetPoint) {
+                    targetPoint.position = node.valueExpr.position;
+                }
             }
             node.valueExpr.dataMapperViewState = node.dataMapperViewState;
         }

@@ -16,23 +16,43 @@ import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
+    onClick: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
 }
 
 export function DataPoint(props: DataPointProps) {
-    const { dataPointViewState } = props;
-
+    const { dataPointViewState, onClick } = props;
     const connections: JSX.Element[] = [];
 
     if (dataPointViewState instanceof SourcePointViewState) {
         (dataPointViewState as SourcePointViewState).connections.forEach(connection => {
-            connections.push(<line x1={connection.x1} x2={connection.x2} y1={connection.y1} y2={connection.y2} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} />)
+            connections.push(
+                <line
+                    x1={connection.x1}
+                    x2={connection.x2}
+                    y1={connection.y1}
+                    y2={connection.y2}
+                    style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
+                />
+            );
         })
+    }
+
+    const onDataPointClick = () => {
+        onClick(dataPointViewState);
     }
 
     return (
         <>
             {connections}
-            <circle cx={dataPointViewState.bBox.x} cy={dataPointViewState.bBox.y} r="5" stroke="black" stroke-width="3" fill="red" />
+            <circle
+                cx={dataPointViewState.bBox.x}
+                cy={dataPointViewState.bBox.y}
+                r={5}
+                stroke="black"
+                strokeWidth="3"
+                fill="red"
+                onClick={onDataPointClick}
+            />
         </>
     )
 }

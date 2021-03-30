@@ -20,9 +20,9 @@ import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVer
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
+import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
-import { AddDataMappingConfig } from "./AddDataMappingConfig";
 
 interface ProcessOverlayFormProps {
     config: ProcessConfig;

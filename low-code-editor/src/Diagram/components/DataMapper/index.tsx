@@ -12,7 +12,7 @@
  * associated services.
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import {
     CaptureBindingPattern,
@@ -22,17 +22,14 @@ import {
 } from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
-import { positionVisitor } from "../../../index";
-import { DataPoint } from "./components/DataPoint";
-import { DataMapperFunctionComponent } from "./components/FunctionComponent";
-import { TypeDescComponent } from "./components/TypeDescComponent";
+import { STModification } from '../../../Definitions';
 
+import { DataMapperFunctionComponent } from "./components/FunctionComponent";
 import { completeMissingTypeDesc } from "./util";
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from "./util/data-mapper-mapping-visitor";
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
-import { SourcePointViewState, TypeDescViewState } from "./viewstate";
 
 interface DataMapperProps {
     width: number;
@@ -42,6 +39,7 @@ export function DataMapper(props: DataMapperProps) {
     const {
         state: {
             stSymbolInfo,
+            onMutate: dispatchMutations,
             dataMapperFunctionName,
             originalSyntaxTree,
             syntaxTree
@@ -49,7 +47,10 @@ export function DataMapper(props: DataMapperProps) {
     } = useContext(DiagramContext)
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
-    const drawingLineRef = useRef(null);
+
+    const onSave = (modifications: STModification[]) => {
+        dispatchMutations(modifications);
+    }
 
     const selectedNode = (stSymbolInfo.variables.size > 0) ?
         stSymbolInfo.variables.get("var")
@@ -91,12 +92,7 @@ export function DataMapper(props: DataMapperProps) {
 
     return (
         <>
-            <g>
-                <DataMapperFunctionComponent model={selectedNode} />
-            </g>
-            <g>
-                <line ref={drawingLineRef}/>
-            </g>
+            <DataMapperFunctionComponent model={selectedNode} onSave={onSave} />
             {/* <DiagramOverlayContainer>
                     position={{ x: 15, y: 15 }}
                 >
