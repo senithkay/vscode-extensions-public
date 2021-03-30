@@ -72,11 +72,19 @@ suite('Ballerina Debug Adapter', () => {
     });
 
     teardown(() => {
-        dc.terminateRequest({}).then(() => {
+        if (process.platform === 'win32') {
+            dc.stop();
             if (serverProcess) {
                 serverProcess.kill();
             }
-        });
+            return Promise.resolve();
+        } else {
+            dc.terminateRequest({}).then(() => {
+                if (serverProcess) {
+                    serverProcess.kill();
+                }
+            });
+        }
         return new Promise<void>((resolve) => {
             serverProcess.on('close', (code: any) => {
                 resolve();

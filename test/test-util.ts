@@ -26,7 +26,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { killPortProcess } from 'kill-port-process';
 
-const TEST_RESOURCES = __dirname + '/../../extractedDistribution/';
+const TEST_RESOURCES = path.join(__dirname, '..', '..', 'extractedDistribution').toString();
 const PLATFORM_PREFIX = /jballerina-tools-/;
 
 
@@ -40,18 +40,18 @@ function findBallerinaDistribution() {
             if (directory.startsWith('ballerina')) {
                 return directory;
             }
-        }); 
+        });
     }
     throw new Error("Unable to find ballerina distribution in test resources.");
 }
 
 export function getBallerinaHome(): string {
-    const path = TEST_RESOURCES + findBallerinaDistribution();
-    return fs.realpathSync(path);
+    const filePath = TEST_RESOURCES + path.sep + findBallerinaDistribution();
+    return fs.realpathSync(filePath);
 }
 
 export function getBallerinaCmd(): string {
-    const ballerinaDistribution = TEST_RESOURCES + findBallerinaDistribution();
+    const ballerinaDistribution = TEST_RESOURCES + path.sep + findBallerinaDistribution();
     const prefix = path.join(fs.realpathSync(ballerinaDistribution), "bin") + path.sep;
     return prefix + (process.platform === 'win32' ? 'bal.bat' : 'bal');
 }
@@ -61,7 +61,7 @@ export function getBallerinaVersion() {
 }
 
 export function getBBEPath(): any {
-    return path.join(__dirname + '/../../resources/templates/');
+    return path.join(__dirname, '..', '..', 'resources', 'templates');
 }
 
 export function delay(ms: number) {
