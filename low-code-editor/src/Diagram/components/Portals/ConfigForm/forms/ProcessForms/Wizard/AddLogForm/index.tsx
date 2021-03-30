@@ -16,6 +16,7 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, PositionalArg, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
+import { LogIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
@@ -25,8 +26,6 @@ import { RadioControl } from "../../../../Elements/RadioControl/FormRadioControl
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { LogConfig, ProcessConfig } from "../../../../types";
 import { useStyles as useFormStyles } from "../../../style";
-
-import { LogIcon } from "../../../../../../../../assets/icons";
 
 interface LogFormProps {
     config: ProcessConfig;

@@ -17,6 +17,7 @@ import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import classNames from "classnames";
 
+import { ForEachIcon } from "../../../../../../../../assets/icons";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../utils";
@@ -28,8 +29,6 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { ConditionConfig, ForeachConfig } from "../../../../types";
 // import "../../../ConnectorInitForm/Wizard/style.scss";
 import { useStyles } from "../../../style";
-
-import { ForEachIcon } from "../../../../../../../../assets/icons";
 
 interface Iterations {
     start?: string;

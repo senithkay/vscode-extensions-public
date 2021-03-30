@@ -58,8 +58,8 @@ export interface ForeachProps {
 
 export function ForEach(props: ForeachProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, appInfo } = state;
-    const { isWaitingOnWorkspace } = appInfo;
+    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace } = state;
+
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);

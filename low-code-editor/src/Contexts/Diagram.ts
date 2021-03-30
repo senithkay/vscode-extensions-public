@@ -19,7 +19,7 @@ import createContext from "./createContext";
 const reducer = (state: any, action: any) => {
     switch (action.type) {
         case 'UPDATE_STATE':
-            return { ...state, ...action.payload };
+            return { ...state, ...action.payload, targetPosition: state.targetPosition };
         case 'DIAGRAM_CLEAN_DRAW':
             return {
                 ...state,

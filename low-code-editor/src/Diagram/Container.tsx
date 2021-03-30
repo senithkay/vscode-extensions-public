@@ -10,7 +10,6 @@ export default function DiagramContainer(props: Props) {
     const { updateState } = useContext(DiagramContext);
 
     const {
-        langServerURL,
         workingFile,
         currentApp,
         exprEditorState,

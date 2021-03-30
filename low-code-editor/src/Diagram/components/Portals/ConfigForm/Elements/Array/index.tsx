@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { FormHelperText } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import classNames from "classnames";
 
 import { FormField, getType } from "../../../../../../ConfigurationSpec/types";
 import { getFormElement, getParams } from "../../../utils";
@@ -33,12 +34,12 @@ export function Array(props: FormElementProps<ArrayProps>) {
     const { model, customProps, onChange } = props;
     const classes = useStyles();
 
-    let arrayField: React.ReactNode;
     let arrayValues: React.ReactNode[];
     if (!model.fields) {
         model.fields = [];
     }
 
+    const [arrayField, setArrayField] = useState(undefined);
     const [arrayLength, setArrayLength] = useState(model.fields.length);
     const [validForm, setValidForm] = useState(false);
     const [arrayValue, setArrayValue] = useState(undefined);
@@ -200,36 +201,35 @@ export function Array(props: FormElementProps<ArrayProps>) {
         }
     };
 
-    if (model) {
-        if (model.collectionDataType) {
-            const elementProps: FormElementProps = {
-                model: fieldModel,
-            };
-            elementProps.customProps = {
-                validate: validateField,
-                statementType: fieldModel.type
-            };
-            if (model.collectionDataType === "json" || model.collectionDataType === "xml") {
-                elementProps.onChange = onJsonChange;
-                elementProps.defaultValue = arrayValue;
-            } else if (model.collectionDataType === "boolean") {
-                elementProps.onChange = onCollectionChange;
-                elementProps.defaultValue = arrayValue;
-            } else if (model.type === "collection") {
-                elementProps.onChange = onCollectionChange;
-            }
-            arrayField = getFormElement(elementProps, model.collectionDataType);
-        }
-    }
-
     arrayValues = generateComponents(model.fields);
 
     React.useEffect(() => {
+        if (model) {
+            if (model.collectionDataType) {
+                const elementProps: FormElementProps = {
+                    model: fieldModel,
+                };
+                elementProps.customProps = {
+                    validate: validateField,
+                    statementType: fieldModel.type
+                };
+                if (model.collectionDataType === "json" || model.collectionDataType === "xml") {
+                    elementProps.onChange = onJsonChange;
+                    elementProps.defaultValue = arrayValue;
+                } else if (model.collectionDataType === "boolean") {
+                    elementProps.onChange = onCollectionChange;
+                    elementProps.defaultValue = arrayValue;
+                } else if (model.type === "collection") {
+                    elementProps.onChange = onCollectionChange;
+                }
+                setArrayField(getFormElement(elementProps, model.collectionDataType));
+            }
+        }
         setArrayValue(undefined);
     }, [model]);
 
     return (
-        <div data-testid="array" className={classes.groupedForm}>
+        <div data-testid="array" className={classNames(classes.groupedForm, classes.marginTB)}>
             {/* code to be refactored keeping the connented code for refernce
             {
                 (fieldModel.type === "json" || fieldModel.type === "xml" || fieldModel.type === "boolean") ? (
@@ -287,7 +287,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     }
                 </>
                 <div className={classes.valueWrapper}>
-                    {...arrayValues}
+                    {arrayValues}
                 </div>
             </div>
         </div>

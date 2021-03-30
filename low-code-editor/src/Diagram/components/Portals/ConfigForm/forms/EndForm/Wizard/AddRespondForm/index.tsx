@@ -16,6 +16,7 @@ import React, { useContext, useState } from "react";
 import { ActionStatement, RemoteMethodCallAction } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
+import { RespondIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
@@ -25,8 +26,6 @@ import { RadioControl } from "../../../../Elements/RadioControl/FormRadioControl
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { EndConfig, RespondConfig } from "../../../../types";
 import { useStyles as useFormStyles } from "../../../style";
-
-import { RespondIcon } from "../../../../../../../../assets/icons";
 
 interface RespondFormProps {
     config: EndConfig;

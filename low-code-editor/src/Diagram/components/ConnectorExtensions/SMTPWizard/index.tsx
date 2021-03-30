@@ -23,20 +23,22 @@ import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 import clsx from "clsx";
 
-import { ConnectorConfig, FormField } from "../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
-    createObjectDeclaration,
+    createPropertyStatement,
+    createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration
+    updatePropertyStatement,
+    updateRemoteServiceCall
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { getConnectorIcon, getParams } from "../../Portals/utils";
+import { checkErrorsReturnType, getConnectorIcon, getParams } from "../../Portals/utils";
 import "../HTTPWizard/style.scss"
 import { useStyles } from "../HTTPWizard/styles";
 
@@ -44,7 +46,7 @@ import { CreateConnectorForm } from "./CreateConnectorForm";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 
 interface WizardProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onSave: (sourceModifications: STModification[]) => void;
     onClose?: () => void;
@@ -90,8 +92,8 @@ function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
 export function SMTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { actions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
-    const connectorInitFormFields: FormField[] = actions.get("init") ? actions.get("init") : actions.get("__init");
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
     const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
@@ -125,33 +127,43 @@ export function SMTPWizard(props: WizardProps) {
     };
 
     const handleOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isActionReturnError = checkErrorsReturnType(connectorConfig.action.name, functionDefinitions);
         // insert initialized connector logic
         let modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             if (!connectorConfig.isExistingConnection) {
-                const addConnectorInit: STModification = updateObjectDeclaration(
-                    (connector.module + ":" + connector.name),
-                    connectorConfig.name,
-                    getParams(connectorConfig.connectorInit),
+                const updateConnectorInit = updatePropertyStatement(
+                    `${connector.module}:${connector.name} ${connectorConfig.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(connectorConfig.connectorInit).join()});`,
                     connectorConfig.initPosition
                 );
-                modifications.push(addConnectorInit);
+                modifications.push(updateConnectorInit);
             }
             // Add an action invocation on the initialized client.
-            const addActionInvo: STModification = updateCheckedRemoteServiceCall(
-                "var",
-                connectorConfig.action.returnVariableName,
-                connectorConfig.name,
-                connectorConfig.action.name,
-                getParams(connectorConfig.action.fields),
-                model.position
-            );
-            modifications.push(addActionInvo);
-
+            if (isActionReturnError) {
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                    "var",
+                    connectorConfig.action.returnVariableName,
+                    connectorConfig.name,
+                    connectorConfig.action.name,
+                    getParams(connectorConfig.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            } else {
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
+                    "var",
+                    connectorConfig.action.returnVariableName,
+                    connectorConfig.name,
+                    connectorConfig.action.name,
+                    getParams(connectorConfig.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            }
         } else {
             if (targetPosition) {
                 modifications = [];
-
                 // Add an import.
                 const addImport: STModification = createImportStatement(
                     connector.org,
@@ -162,23 +174,32 @@ export function SMTPWizard(props: WizardProps) {
 
                 // Add an connector client initialization.
                 if (!connectorConfig.isExistingConnection) {
-                    const addConnectorInit: STModification = createObjectDeclaration(
-                        (connector.module + ":" + connector.name),
-                        connectorConfig.name,
-                        getParams(connectorConfig.connectorInit),
+                    const addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${connectorConfig.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(connectorConfig.connectorInit).join()});`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
                 }
                 // Add an action invocation on the initialized client.
-                const addActionInvo: STModification = createCheckedRemoteServiceCall(
-                    "var",
-                    connectorConfig.action.returnVariableName,
-                    connectorConfig.name,
-                    connectorConfig.action.name,
-                    getParams(connectorConfig.action.fields), targetPosition
-                );
-                modifications.push(addActionInvo);
+                if (isActionReturnError){
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                        "var",
+                        connectorConfig.action.returnVariableName,
+                        connectorConfig.name,
+                        connectorConfig.action.name,
+                        getParams(connectorConfig.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }else{
+                    const addActionInvocation: STModification = createRemoteServiceCall(
+                        "var",
+                        connectorConfig.action.returnVariableName,
+                        connectorConfig.name,
+                        connectorConfig.action.name,
+                        getParams(connectorConfig.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
 
                 // if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
                 //     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
@@ -196,8 +217,8 @@ export function SMTPWizard(props: WizardProps) {
     };
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} actions={actions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm actions={actions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
@@ -22,6 +22,9 @@ import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
 import { DataMapper } from './components/DataMapper';
+import { DiagramActiveState } from "./components/DiagramState/DiagramActiveState";
+import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
+import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
@@ -57,6 +60,7 @@ export function Diagram(props: DiagramProps) {
         // isConfigPanelOpen,
         triggerType
     } = props;
+    const { state: { diagnostics } } = useContext(DiagramContext);
     const classes = useStyles();
     const { state: { isDataMapperShown, isConfigOverlayFormOpen } } = React.useContext(DiagramContext);
 
@@ -67,16 +71,13 @@ export function Diagram(props: DiagramProps) {
     );
 
     const diagramDisabledStatus = (
-        <div>
-            <img src="../../../../../../images/diagram-disabled.svg" />
+        <div className={classes.disableDiagramIcon}>
+            <DiagramDisableState />
         </div>
     );
 
-    const diagramEnabledStatus = (
-        <div>
-            <img src="../../../../../../images/diagram-enabled.svg" />
-        </div>
-    );
+    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
+    const diagramStatus = diagnosticInDiagram ? <DiagramErrorState /> : <DiagramActiveState />;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -104,18 +105,21 @@ export function Diagram(props: DiagramProps) {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
-            {triggerType !== undefined && isWaitingOnWorkspace && textLoader}
+            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledStatus}
+            {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
 
             <div className={classes.diagramStateWrapper}>
-                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigOverlayFormOpen && !isReadOnly && diagramEnabledStatus}
-                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigOverlayFormOpen && !isReadOnly && diagramDisabledStatus}
+                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
+                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
+
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     <Canvas h={h} w={w} >
                         {child}
                     </Canvas>
+                    {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
             </PanAndZoom>

@@ -5,7 +5,7 @@ import { InitializeParams, InitializeResult,
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
-    BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
+    BallerinaExampleListResponse, BallerinaProject, DidOpenParams, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
     GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
 
@@ -24,6 +24,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
                     this.isInitialized = true;
                     return resp;
                 });
+    }
+
+    public didOpen(params: DidOpenParams) {
+        this.lsConnection.sendNotification("textDocument/didOpen", params);
     }
 
     public getSyntaxTree(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {

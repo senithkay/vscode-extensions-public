@@ -20,6 +20,7 @@ import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVer
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
+import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
@@ -59,6 +60,10 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             parameters: [],
             returnType: undefined
         }
+    } else if (formType === "Custom") {
+        config.config = {
+            expression: ""
+        };
     }
 
     if (isLoading) {
@@ -102,6 +107,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
+                            {formType === "Custom" && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

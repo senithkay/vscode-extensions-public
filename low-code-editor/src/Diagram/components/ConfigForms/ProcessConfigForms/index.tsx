@@ -28,7 +28,7 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import {DataMapperConfig, LogConfig, ProcessConfig} from "../../Portals/ConfigForm/types";
+import { CustomExpressionConfig, LogConfig, ProcessConfig, DataMapperConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
@@ -80,6 +80,11 @@ export function ProcessConfigForm(props: any) {
                 case 'DataMapper':
                     console.log('test :::', processConfig);
                     break;
+                case 'Custom':
+                    const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
+                    const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
+                    modifications.push(editCustomStatement);
+                    break;
             }
         } else {
             if (formArgs?.targetPosition) {
@@ -116,6 +121,10 @@ export function ProcessConfigForm(props: any) {
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
                     modifications.push(dataMapperFunction);
+                } else if (processConfig.type === "Custom") {
+                    const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
+                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
+                    modifications.push(addCustomStatement);
                 }
                 trackAddStatement(processConfig.type);
             }

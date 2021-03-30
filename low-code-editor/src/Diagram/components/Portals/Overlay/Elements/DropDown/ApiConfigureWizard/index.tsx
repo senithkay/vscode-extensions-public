@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
-import { ServiceMethodType, SERVICE_METHODS, TRIGGER_TYPE_API } from "../../../../../../models";
+import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
@@ -35,6 +35,7 @@ interface ApiConfigureWizardProps {
   onClose: () => void;
   method?: ServiceMethodType,
   path?: string,
+  triggerType?: TriggerType
   // handle dispatch
   // dispatchGoToNextTourStep: (id: string) => void
 }
@@ -56,7 +57,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-  const { position, onWizardComplete, onClose, method, path,
+  const { position, onWizardComplete, onClose, method, path, triggerType,
     // todo: handle dispatch
     // dispatchGoToNextTourStep
   } = props;
@@ -103,6 +104,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           text = text.replace(paramArray[i], "")
         }
         return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
+      }
+      else if (text.charAt(0) === "[" && text.charAt((text.length - 1)) === "]") {
+        const splitVariable = text.split(" ")
+        if (splitVariable.length !== 2) return false
+        return !(!keywords.includes(splitVariable[0].slice(1)) || keywords.includes(splitVariable[1].slice(0, -1)));
       } else if (text === "[]") return false
       else return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
     } else return true
@@ -150,10 +156,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       <div id='api-config-panel'>
         <div>
           <div className={classes.titleWrapper}>
-            <p className={classes.title}>API Configuration</p>
-            <button className={classes.closeBtnWrapper} onClick={onClose}>
-              <CloseIcon className={classes.closeBtn} />
-            </button>
+            <p className={classes.title}>Configure API Trigger</p>
+            {(triggerType !== undefined && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT) && (
+              <button className={classes.closeBtnWrapper} onClick={onClose}>
+                <CloseIcon className={classes.closeBtn} />
+              </button>
+            )}
           </div>
           <div className={classes.customWrapper}>
             <p className={classes.subTitle}>HTTP Method</p>
@@ -194,7 +202,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
-                    text="Save API"
+                    text="Save"
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
                     disabled={isFileSaving}
@@ -206,10 +214,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
           {showConfirmDialog && (
             <SourceUpdateConfirmDialog
-              position={{
-                x: position.x + DefaultConfig.configureWizardOffset.x,
-                y: position.y + DefaultConfig.configureWizardOffset.y + 300
-              }}
               onConfirm={handleOnSave}
               onCancel={handleDialogOnCancel}
             />

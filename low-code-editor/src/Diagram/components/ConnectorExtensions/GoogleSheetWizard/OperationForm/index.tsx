@@ -67,12 +67,13 @@ export function OperationForm(props: OperationFormProps) {
     const [isGSpreadsheetFetching, setIsGSpreadsheetFetching] = useState(false);
     const [gSpreadsheetList, setGSpreadsheetList] = useState<GSpreadsheet[]>(undefined);
     const [activeGsheet, setActiveGsheet] = useState<ConnectionDetails>(null);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails.action.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
         setValidName((text !== '') && nameRegex.test(text));
+        setDefaultResponseVarName(text);
         connectionDetails.action.returnVariableName = text;
     };
     const validateNameValue = (value: string) => {
@@ -86,22 +87,17 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
-    const defaultResponseVariableName: string = (connectionDetails.action.returnVariableName === "" ||
-        connectionDetails.action.returnVariableName === undefined) ? genVariableName(
-            connectionDetails.action.name + "Response", getAllVariables(symbolInfo)) :
-        connectionDetails.action.returnVariableName;
-    connectionDetails.action.returnVariableName = defaultResponseVariableName;
+    connectionDetails.action.returnVariableName = defaultResponseVarName;
 
-    if (defaultResponseVarName === undefined){
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
     };
 
     const showSheetSelector = !isManualConnection && connectionInfo && (selectedOperation === "openSpreadsheetById");
-    formFields[0].hide = showSheetSelector;
+    if (formFields.find(field => field.name === "spreadsheetId")){
+        formFields.find(field => field.name === "spreadsheetId").hide = showSheetSelector;
+    }
 
     const handleGsheetChange = (event: object, value: any) => {
         setActiveGsheet(value);
@@ -198,7 +194,7 @@ export function OperationForm(props: OperationFormProps) {
                         customProps={{
                             validate: validateNameValue
                         }}
-                        defaultValue={defaultResponseVariableName}
+                        defaultValue={defaultResponseVarName}
                         placeholder={"Enter Response Variable Name"}
                         onChange={onNameChange}
                         label={"Response Variable Name"}

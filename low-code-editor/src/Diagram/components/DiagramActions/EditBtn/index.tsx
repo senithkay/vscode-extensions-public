@@ -35,13 +35,13 @@ export interface EditBtnProps {
 }
 
 export function EditBtn(props: EditBtnProps) {
-    const { state, editComponentStart: dispatchEditComponentStart } = useContext(DiagramContext);
+    const { state, editorComponentStart: dispatchEditComponentStart } = useContext(DiagramContext);
     const { cx, cy, onHandleEdit, model, isButtonDisabled } = props;
     const onEditClick = () => {
         if (!isButtonDisabled) {
             if (model &&
-                (state.targetPosition?.line !== model.position.line
-                    || state.targetPosition?.column !== model.position.column)) {
+                (state.targetPosition?.startLine !== model.position.startLine
+                    || state.targetPosition?.startColumn !== model.position.startColumn)) {
                 dispatchEditComponentStart(model.position)
             }
             onHandleEdit();

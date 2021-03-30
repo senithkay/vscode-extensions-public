@@ -69,7 +69,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '40px'
+            lineHeight: '35px'
         },
         starLabelForRequired: {
             padding: 0,
@@ -375,6 +375,20 @@ export const useStyles = makeStyles((theme: Theme) =>
         invalidCode: {
             fontSize: '11px !important',
             color: '#ea4c4d !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
+        },
+        toFieldTooltipWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%"
+        },
+        toFieldTooltipIconWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: '-1.5rem !important'
         }
     }),
 );

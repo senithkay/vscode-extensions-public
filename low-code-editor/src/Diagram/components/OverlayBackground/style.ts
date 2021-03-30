@@ -21,5 +21,13 @@ export const useStyles = makeStyles(() =>
             zIndex: 1,
             left: '-250rem',
         },
+
+        confirmationOverlayBackground: {
+            background: 'rgba(255,255,255,0.9)',
+            top: '-250rem;',
+            position: 'fixed',
+            zIndex: 2,
+            left: '-250rem',
+        },
     }),
 );

@@ -20,6 +20,8 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
+import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
+import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
@@ -37,8 +39,8 @@ export interface PlusElementsProps {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 384;
-export const PLUS_HOLDER_API_HEIGHT = 540;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 483;
+export const PLUS_HOLDER_API_HEIGHT = 520;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
@@ -104,16 +106,34 @@ export function PlusElements(props: PlusElementsProps) {
                             ) : null
                     }
                     <div className="holder-options">
-                        <div className="options" onClick={handleStatementClick}>
-                            <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                                Statements
+                        <Tooltip
+                            title={tooltipMessages.statementsPlusHolder.title}
+                            actionText={tooltipMessages.statementsPlusHolder.actionText}
+                            actionLink={tooltipMessages.statementsPlusHolder.actionLink}
+                            interactive={true}
+                            placement="left"
+                            arrow={true}
+                        >
+                            <div className="options" onClick={handleStatementClick}>
+                                <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
+                                    Statements
+                                </div>
                             </div>
-                        </div>
+                        </Tooltip>
                         <div className="options">
 
-                            <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                                APIs
-                            </div>
+                        <Tooltip
+                                title={tooltipMessages.APIsPlusHolder.title}
+                                actionText={tooltipMessages.APIsPlusHolder.actionText}
+                                actionLink={tooltipMessages.APIsPlusHolder.actionLink}
+                                interactive={true}
+                                placement="right"
+                                arrow={true}
+                        >
+                                <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
+                                    Connections
+                                </div>
+                        </Tooltip>
                         </div>
                     </div>
                     <div className="element-options">

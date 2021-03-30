@@ -14,17 +14,16 @@
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
-// import { diagnosticChecker } from "../../../../../../../../$store/actions/app";
 import { ExpressionEditorState } from '../../../../../../Definitions';
 import { DraftInsertPosition } from '../../../../../view-state/draft';
 
 import {
-    BallerinaType,
-    ExpressionEditorType,
     FormField,
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
+import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
 export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
@@ -45,6 +44,12 @@ export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
 export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
     modelContent.splice(targetLine, 0, codeSnippet);
+    return modelContent.join('\n');
+}
+
+export function addToZerothLine(oldModelValue: string, codeSnippet: string): string {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    modelContent[0] = codeSnippet + modelContent[0];
     return modelContent.join('\n');
 }
 
@@ -88,9 +93,9 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
     }
 }
 
-export function getInitialValue(defaultValue: string, modelValue: string, varType: string): string {
-    const initVal = defaultValue ? defaultValue : modelValue;
-    if (varType === "string") {
+export function getInitialValue(defaultValue: string, model: FormField): string {
+    const initVal = defaultValue ? defaultValue : model.value;
+    if (model.type === PrimitiveBalType.String && !model.optional) {
         return initVal ? initVal : "\"\"";
     } else {
         return initVal;
@@ -106,27 +111,44 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
  */
-export const transformFormFieldTypeToString = (formType?: ExpressionEditorType | any): string => {
-    if (formType) {
-        if (Array.isArray(formType)) {
-            // if an array, then could be a primitive or non-primitive type
-            return (formType as BallerinaType[]).map(item => {
-                if ((item as NonPrimitiveBal).typeName) {
-                    const nonPrimitiveItem = item as NonPrimitiveBal;
-                    return `${nonPrimitiveItem.moduleName}:${nonPrimitiveItem.typeName}`
-                }
-                return item.toString();
-            }).join('|')
-        } else if ((formType as NonPrimitiveBal).typeName) {
-            // if it contains the property 'typeName', it has to be a non-primitive type
-            return (formType as NonPrimitiveBal).typeName
-        } else {
-            // else it has to be a simple primitive type
-            return formType.toString();
+export const transformFormFieldTypeToString = (model?: FormField): string => {
+    if (model.type === "record" || model.typeInfo) {
+        if (model.typeInfo){
+            return model.isArray ? model.typeInfo.modName + ":" + model.typeInfo.name + "[]" : model.typeInfo.modName + ":" + model.typeInfo.name;
         }
-    } else {
-        return PrimitiveBalType.Var.toString();
+    } else if (model.type === "union"){
+        if (model.fields) {
+            const allTypes: string[] = [];
+            for (const field of model.fields) {
+                let type;
+                if (field.type === "record" || field.typeInfo) {
+                    if (field.typeInfo){
+                        type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                    }
+                } else if (field.type === "collection") {
+                    if (field.collectionDataType) {
+                        type = field.collectionDataType + "[]";
+                    }
+                } else if (field.type) {
+                    type = field.type;
+                }
+
+                if (type && !field.noCodeGen && !allTypes.includes(type.toString())){
+                    allTypes.push(type.toString());
+                }
+            }
+            return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
+        }
+    } else if (model.type === "collection") {
+        if (model.typeInfo) {
+            return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
+        } else if (model.collectionDataType) {
+            return model.collectionDataType + "[]";
+        }
+    } else if (model.type) {
+        return model.type;
     }
+    return PrimitiveBalType.Var.toString();
 }
 
 /**
@@ -135,32 +157,62 @@ export const transformFormFieldTypeToString = (formType?: ExpressionEditorType |
  * @param codeSnipet Existing code to which the imports will be added
  * @param model formfield model to check the types of the imports
  */
-export const addImportModuleToCode = (codeSnipet: string, model: FormField, state?: any): string => {
+export const addImportModuleToCode = (codeSnipet: string, model: FormField): string => {
     let code = codeSnipet;
-    const { syntaxTree } = state;
-    if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
-        const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
-        if (model.type && Array.isArray(model.type)) {
-            // If type is an array, then loop and only add imports for non-primitive types
-            for (const type of model.type) {
-                if ((type as NonPrimitiveBal).typeName) {
-                    const nonPrimitiveTypeItem = type as NonPrimitiveBal
-                    const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.moduleName};`;
-                    if (!code.includes(importSnippet)) {
-                        // Add import only if its already not imported
-                        code = addToTargetLine(code, functionBodyPosition.startLine, `${importSnippet}`);
+    if (model.type === "record" || model.typeInfo) {
+        if (model.typeInfo){
+            const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
+            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+            const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+            if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
+                // Add import only if its already not imported
+                code = addToZerothLine(code, `${importSnippet}`);
+            }
+        }
+    } else if (model.type === "union"){
+        if (model.fields) {
+            for (const field of model.fields) {
+                if (field.type === "record" || model.typeInfo) {
+                    if (field.typeInfo){
+                        const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
+                        const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+                        const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+                        if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
+                            // Add import only if its already not imported
+                            code = addToZerothLine(code, `${importSnippet}`);
+                        }
                     }
                 }
-            }
-        } else if (model.type && (model.type as NonPrimitiveBal).typeName) {
-            // If type is not an array, then check if it is a non-primitive type
-            const nonPrimitiveTypeItem = model.type as NonPrimitiveBal
-            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.moduleName};`;
-            if (!code.includes(importSnippet)) {
-                // Add import only if its already not imported
-                code = addToTargetLine(code, functionBodyPosition.startLine, importSnippet);
             }
         }
     }
     return code;
+}
+
+export function createContentWidget(id: string) : monaco.editor.IContentWidget {
+    return {
+        allowEditorOverflow: true,
+        getId() {
+            return id;
+        },
+        getDomNode() {
+            if (!this.domNode) {
+                this.domNode = document.createElement('div');
+                if (id === EXPAND_WIDGET_ID) {
+                    this.domNode.className = "expand-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-expand.svg"/>';
+                } else if (id === COLLAPSE_WIDGET_ID) {
+                    this.domNode.className = "collapse-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-collapse.svg"/>';
+                }
+            }
+            return this.domNode;
+        },
+        getPosition() {
+            return {
+                position: { lineNumber: 1, column: 1 },
+                preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
+            };
+        }
+    }
 }

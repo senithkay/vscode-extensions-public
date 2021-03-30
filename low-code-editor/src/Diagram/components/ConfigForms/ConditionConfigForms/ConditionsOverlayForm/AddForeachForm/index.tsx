@@ -131,7 +131,11 @@ export function AddForeachForm(props: ForeachProps) {
             tooltipActionText: tooltipMessages.expressionEditor.actionText,
             tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
             interactive: true,
-            statementType: formField.type
+            statementType: formField.type,
+            customTemplate: {
+                defaultCodeSnippet: 'foreach var temp_var in  {}',
+                targetColumn: 25,
+            },
         },
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,

@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
-import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
+import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
@@ -54,7 +54,7 @@ export enum ConnectorType {
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const { onClose, onComplete, title = "Trigger selector",
+    const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
@@ -103,12 +103,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         setActiveConnector(undefined);
     };
 
-    return (
-        <DiagramOverlayContainer forceRender={true}>
-            <DiagramOverlay
-                className={"trigger-container"}
-                position={position}
-            >
+    const integrationMenu = (
+        <div>
+            <DiagramOverlay className={"trigger-container"} position={position}>
                 <div>
                     <div className="trigger-title-wrap">
                         <p>{title}</p>
@@ -122,73 +119,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             />
                         </div>
                     </div>
-                    {triggerType !== undefined && (
+                    {(triggerType !== undefined && triggerType !== TRIGGER_TYPE_INTEGRATION_DRAFT && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT) && (
                         <button className="close-btn" onClick={onClose}>
                             <CloseIcon />
                         </button>
                     )}
                     <hr className={"trigger-title-underline"} />
                     <div className={"trigger-list"}>
-                        <div>
-                            <Tooltip
-                                title={tooltipMessages.apiTrigger.title}
-                                actionText={tooltipMessages.apiTrigger.actionText}
-                                actionLink={tooltipMessages.apiTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", "product-tour-new-api", { "active": selectedTrigger === TRIGGER_TYPE_API })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_API)}
-                                    data-testid="api-trigger"
-                                >
-                                    <div className="icon-wrapper">
-                                        <ApiIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label">API</div>
-                                </div>
-                            </Tooltip>
-
-                            <Tooltip
-                                title={tooltipMessages.manualTrigger.title}
-                                actionText={tooltipMessages.manualTrigger.actionText}
-                                actionLink={tooltipMessages.manualTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_MANUAL })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_MANUAL)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <ManualIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "> Manual </div>
-                                </div>
-                            </Tooltip>
-
-                            <Tooltip
-                                title={tooltipMessages.gitHubTrigger.title}
-                                actionText={tooltipMessages.gitHubTrigger.actionText}
-                                actionLink={tooltipMessages.gitHubTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.GITHUB) })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.GITHUB)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <GitHubIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label ">GitHub</div>
-                                </div>
-                            </Tooltip>
-                        </div>
-
                         <div>
                             <Tooltip
                                 title={tooltipMessages.scheduleTrigger.title}
@@ -228,20 +165,48 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 </div>
                             </Tooltip>
                         </div>
+                        <div>
+                            <Tooltip
+                                title={tooltipMessages.manualTrigger.title}
+                                actionText={tooltipMessages.manualTrigger.actionText}
+                                actionLink={tooltipMessages.manualTrigger.actionLink}
+                                interactive={true}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <div
+                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_MANUAL })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_MANUAL)}
+                                >
+                                    <div className="icon-wrapper">
+                                        <ManualIcon className="trigger-selector-icon" />
+                                    </div>
+                                    <div className="trigger-label "> Manual </div>
+                                </div>
+                            </Tooltip>
+
+                            <Tooltip
+                                title={tooltipMessages.gitHubTrigger.title}
+                                actionText={tooltipMessages.gitHubTrigger.actionText}
+                                actionLink={tooltipMessages.gitHubTrigger.actionLink}
+                                interactive={true}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <div
+                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.GITHUB) })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.GITHUB)}
+                                >
+                                    <div className="icon-wrapper">
+                                        <GitHubIcon className="trigger-selector-icon" />
+                                    </div>
+                                    <div className="trigger-label ">GitHub</div>
+                                </div>
+                            </Tooltip>
+                        </div>
                     </div>
                 </div>
-
             </DiagramOverlay>
-
-            {selectedTrigger === TRIGGER_TYPE_API && (
-                <ApiConfigureWizard
-                    position={{ x: position.x, y: position.y + 10 }}
-                    onWizardComplete={handleTriggerComplete}
-                    onClose={handleSubMenuClose}
-                    path={configData?.path}
-                    method={configData?.method}
-                />
-            )}
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
@@ -258,18 +223,33 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     onClose={handleSubMenuClose}
                 />
             )}
-            { showConfirmDialog && (
+            {showConfirmDialog && (
                 <SourceUpdateConfirmDialog
-                    position={{
-                        x: position.x + DefaultConfig.configureWizardOffset.x,
-                        y: position.y + DefaultConfig.configureWizardOffset.y
-                    }}
                     onConfirm={handleDialogOnUpdate}
                     onCancel={handleDialogOnCancel}
                 />
             )}
-            {triggerType !== undefined && <OverlayBackground />}
+        </div>
+    );
 
+    return (
+        <DiagramOverlayContainer forceRender={true}>
+            {(selectedTrigger === TRIGGER_TYPE_MANUAL || selectedTrigger === TRIGGER_TYPE_SCHEDULE || selectedTrigger === TRIGGER_TYPE_WEBHOOK || selectedTrigger === TRIGGER_TYPE_INTEGRATION_DRAFT) &&
+                integrationMenu
+            }
+
+            {(selectedTrigger === TRIGGER_TYPE_API || selectedTrigger === TRIGGER_TYPE_SERVICE_DRAFT) && (
+                <ApiConfigureWizard
+                    position={{ x: position.x, y: position.y }}
+                    onWizardComplete={handleTriggerComplete}
+                    onClose={onClose}
+                    path={configData?.path}
+                    method={configData?.method}
+                    triggerType={selectedTrigger}
+                />
+            )}
+
+            {triggerType !== undefined && <OverlayBackground />}
         </DiagramOverlayContainer>
     );
 }

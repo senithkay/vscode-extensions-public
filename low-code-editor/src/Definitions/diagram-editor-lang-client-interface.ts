@@ -12,17 +12,16 @@
  */
 
 import {
-	Diagnostic,
 	DocumentSymbol,
 	DocumentSymbolParams,
 	SymbolInformation,
 } from "monaco-languageclient";
 
+import { BaseLangClientInterface } from "./base-lang-client-interface";
 import {
 	BallerinaConnectorRequest,
 	BallerinaConnectorResponse,
 	BallerinaConnectorsResponse,
-	BallerinaProjectParams,
 	BallerinaRecordRequest,
 	BallerinaRecordResponse,
 	BallerinaSTModifyRequest,
@@ -31,19 +30,6 @@ import {
 	BallerinaSyntaxTreeResponse,
 	TriggerModifyRequest,
 } from "./lang-client-extended";
-
-export interface ProjectAST {
-	[ moduleName: string ]: {
-		name: string;
-		compilationUnits: {
-			[ compilationUnitName: string ]: {
-				name: string;
-				ast: BallerinaAST;
-				uri: string;
-			};
-		};
-	};
-}
 
 export interface BallerinaAST {
 	id: string;
@@ -66,68 +52,8 @@ export interface GetSyntaxTreeResponse {
 	parseSuccess: boolean;
 }
 
-export interface DidOpenParams {
-	textDocument: {
-		uri: string;
-		languageId: string;
-		text: string;
-		version: number;
-	};
-}
-
-export interface DidCloseParams {
-	textDocument: {
-		uri: string;
-	};
-}
-
-export interface DidChangeParams {
-	textDocument: {
-		uri: string;
-		version: number;
-	};
-	contentChanges: [
-		{
-			text: string;
-		}
-	];
-}
-
-export interface CompletionParams {
-	textDocument: {
-		uri: string;
-	};
-	position: {
-		character: number;
-		line: number;
-	};
-	context: {
-		triggerKind: number;
-	};
-}
-
-export interface CompletionResponse {
-	detail: string;
-	insertText: string;
-	insertTextFormat: number;
-	kind: number;
-	label: string;
-}
-
-export interface PublishDiagnosticsParams {
-	uri: string;
-	diagnostics: Diagnostic[];
-}
-
-export interface LowCodeLangClient {
-	isInitialized: boolean;
-	didOpen: (params: DidOpenParams) => void;
+export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
 	registerPublishDiagnostics: () => void;
-	diagnostics: (
-		params: BallerinaProjectParams
-	) => Thenable<PublishDiagnosticsParams[]>;
-	didClose: (params: DidCloseParams) => void;
-	didChange: (params: DidChangeParams) => void;
 	syntaxTreeModify: (
 		params: BallerinaSyntaxTreeModifyRequest
 	) => Thenable<BallerinaSyntaxTreeResponse>;
@@ -150,10 +76,7 @@ export interface LowCodeLangClient {
 	getSyntaxTree: (
 		params: GetSyntaxTreeParams
 	) => Thenable<GetSyntaxTreeResponse>;
-	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
 	getDocumentSymbol: (
 		params: DocumentSymbolParams
 	) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-	close: () => void;
-	getDidOpenParams: () => DidOpenParams;
 }

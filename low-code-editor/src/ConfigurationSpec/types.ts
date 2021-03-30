@@ -13,7 +13,6 @@
 
 import { DraftUpdatePosition } from "../Diagram/view-state/draft";
 
-// Some of these are types are not primitive types, and will need to be refactored
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",
@@ -27,23 +26,25 @@ export enum PrimitiveBalType {
     Nil = "nil",
     Var = "var",
     Error = "error",
-    HttpReq = "http:Request",
-}
-
-export interface NonPrimitiveBal {
-    orgName: string;
-    moduleName: string;
-    typeName: string;
 }
 
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',
-    moduleName: 'http',
-    typeName: 'Response',
+    modName: 'http',
+    name: 'Response',
 }
 
-export const NonPrimitiveBalType = {
-    httpResponse,
+export const httpRequest: NonPrimitiveBal = {
+    orgName: 'ballerina',
+    modName: 'http',
+    name: 'Request',
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    modName: string;
+    name: string;
+    version?: string;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -53,8 +54,13 @@ export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 
 export type ExpressionEditorType = BallerinaType | BallerinaType[];
 
+export interface FunctionDefinitionInfo {
+    parameters: FormField[];
+    returnType: FormField;
+}
+
 export interface FormField {
-    type: ExpressionEditorType | any;
+    type: PrimitiveBalType | any;
     name?: string;
     displayName?: string;
     collectionDataType?: PrimitiveBalType;
@@ -72,12 +78,13 @@ export interface FormField {
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
-    typeInfo?: any;
+    typeInfo?: NonPrimitiveBal;
     hide?: boolean;
     aiSuggestion?: string;
     noCodeGen?: boolean;
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
+    isErrorType?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -107,6 +114,7 @@ export class ConnectorConfig {
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
     public initPosition?: DraftUpdatePosition;
+    public isReturnError?: boolean;
 }
 
 export interface ConfigurationSpec {
