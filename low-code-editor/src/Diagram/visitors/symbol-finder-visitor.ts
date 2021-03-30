@@ -17,7 +17,7 @@ import {
     ForeachStatement,
     FunctionDefinition,
     LocalVarDecl,
-    MethodCall, NumericLiteral,
+    MethodCall, ModuleVarDecl, NumericLiteral,
     QualifiedNameReference,
     RequiredParam,
     SimpleNameReference,
@@ -32,6 +32,7 @@ import { StatementViewState } from "../view-state";
 const endPoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
 const variables: Map<string, STNode[]> = new Map();
+const globalVariables: Map<string, STNode> = new Map();
 const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
@@ -121,6 +122,13 @@ class SymbolFindingVisitor implements Visitor {
             }
         });
     }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl){
+        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)){
+            const varName = node.typedBindingPattern.bindingPattern.variableName.value;
+            globalVariables.set(varName, node);
+        }
+    }
 }
 
 function getType(typeNode: any): any {
@@ -162,6 +170,7 @@ export function cleanAll() {
     endPoints.clear();
     actions.clear();
     variables.clear();
+    globalVariables.clear();
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
@@ -172,6 +181,7 @@ export function getSymbolInfo(): STSymbolInfo {
         endpoints: endPoints,
         actions,
         variables,
+        globalVariables,
         callStatement,
         variableNameReferences,
         assignmentStatement

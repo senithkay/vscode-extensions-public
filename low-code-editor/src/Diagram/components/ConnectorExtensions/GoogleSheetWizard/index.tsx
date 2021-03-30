@@ -226,14 +226,16 @@ export function GoogleSheet(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
+                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                            addConfigurableVars = createPropertyStatement(
+                                `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
+                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (

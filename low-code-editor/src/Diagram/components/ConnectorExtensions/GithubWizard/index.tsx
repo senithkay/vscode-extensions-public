@@ -219,11 +219,13 @@ export function GithubWizard(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification
                     if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
+                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
+                            addConfigurableVars = createPropertyStatement(
+                                `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
+                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
