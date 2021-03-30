@@ -51,7 +51,7 @@ export function OperationForm(props: OperationFormProps) {
         onSave();
     };
 
-    const [validForm, setValidForm] = useState(false);
+    const [validForm, setValidForm] = useState(formFields.length === 0);
     const [validName, setValidName] = useState(true);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
