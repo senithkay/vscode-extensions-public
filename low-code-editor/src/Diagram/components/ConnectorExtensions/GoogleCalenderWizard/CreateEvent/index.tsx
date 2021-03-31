@@ -117,10 +117,10 @@ export function CreateEvent(props: OperationDropdownProps) {
     };
 
     const setDefaultValues = () => {
-        if (!getEventDateTime(EventDateTypes.START)){
+        if (!getEventDateTime(EventDateTypes.START)?.value){
             setEventDateTime(EventDateTypes.START, new Date());
         }
-        if (!getEventDateTime(EventDateTypes.END)){
+        if (!getEventDateTime(EventDateTypes.END)?.value){
             setEventDateTime(EventDateTypes.END, addHours(new Date(), 1));
         }
     }
