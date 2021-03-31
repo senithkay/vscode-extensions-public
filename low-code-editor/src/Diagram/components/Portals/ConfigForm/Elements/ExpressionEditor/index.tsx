@@ -229,6 +229,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const setDefaultTooltips = () => {
+        // add default tooltip if not given by explicitly
+        if (textLabel && model && !(customProps?.tooltipTitle || model?.tooltip)) {
+            const descriptionSplits = model.description?.split('-');
+            if (descriptionSplits?.length > 1) {
+                model.tooltip = descriptionSplits[ descriptionSplits.length - 1 ].trim();
+            }
+        }
+    }
+
     useEffect(() => {
         disposeAllTriggers();
 
@@ -597,6 +607,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         })
     }
+
+    setDefaultTooltips();
 
     return (
         <>
