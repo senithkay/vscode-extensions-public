@@ -184,11 +184,13 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
             const typeSymbol = node.typeData.typeSymbol;
-            viewState.typeInfo = {
-                name: typeSymbol.name,
-                moduleName: typeSymbol.moduleID.moduleName,
-                orgName: typeSymbol.moduleID.orgName,
-                version: typeSymbol.moduleID.version
+            if (typeSymbol.moduleID) {
+                viewState.typeInfo = {
+                    name: typeSymbol.name,
+                    moduleName: typeSymbol.moduleID.moduleName,
+                    orgName: typeSymbol.moduleID.orgName,
+                    version: typeSymbol.moduleID.version
+                }
             }
         }
     }

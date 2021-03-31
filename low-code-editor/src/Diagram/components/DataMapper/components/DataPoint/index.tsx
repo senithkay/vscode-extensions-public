@@ -28,10 +28,11 @@ export function DataPoint(props: DataPointProps) {
             connections.push(
                 <line
                     x1={connection.x1}
-                    x2={connection.x2}
+                    x2={connection.x2 - 20}
                     y1={connection.y1}
                     y2={connection.y2}
                     style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
+                    markerEnd="url(#arrowhead)"
                 />
             );
         })

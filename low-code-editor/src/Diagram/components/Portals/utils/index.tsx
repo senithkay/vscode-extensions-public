@@ -675,7 +675,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
 
     const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-    let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
+    let connectorDef = undefined; // connector ? await getConnectorDefFromCache(connector) : undefined;
 
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);

@@ -49,7 +49,7 @@ export function DataMapperFunctionComponent(props: DataMapperFunctionComponentPr
                 point.x = evt.pageX;
                 point.y = evt.pageY;
                 const mappedPoint = point.matrixTransform(ctm.inverse());
-                drawingLineRef.current.setAttribute('x2', mappedPoint.x);
+                drawingLineRef.current.setAttribute('x2', mappedPoint.x - 20);
                 drawingLineRef.current.setAttribute('y2', mappedPoint.y);
             }
 
@@ -73,10 +73,10 @@ export function DataMapperFunctionComponent(props: DataMapperFunctionComponentPr
     }
 
     if (drawingLineRef.current && !isDataPointSelected) {
-        drawingLineRef.current.setAttribute('x1', 0);
-        drawingLineRef.current.setAttribute('x2', 0);
-        drawingLineRef.current.setAttribute('y1', 0);
-        drawingLineRef.current.setAttribute('y2', 0);
+        drawingLineRef.current.setAttribute('x1', -5);
+        drawingLineRef.current.setAttribute('x2', -5);
+        drawingLineRef.current.setAttribute('y1', -5);
+        drawingLineRef.current.setAttribute('y2', -5);
     }
 
     functionST.functionSignature.parameters.forEach(param => {
@@ -95,10 +95,22 @@ export function DataMapperFunctionComponent(props: DataMapperFunctionComponentPr
 
     return (
         <>
+            <defs>
+                <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="0"
+                    refY="3.5"
+                    orient="auto"
+                >
+                    <polygon points="0 0, 10 3.5, 0 7" />
+                </marker>
+            </defs>
             {parameters}
             {returnType}
             {dataPoints}
-            <line ref={drawingLineRef} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} />
+            <line ref={drawingLineRef} style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }} markerEnd="url(#arrowhead)" />
         </>
     )
 }
