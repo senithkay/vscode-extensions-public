@@ -45,7 +45,7 @@ import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/Second
 import {
     checkErrorsReturnType,
     genVariableName,
-    // getConnectorConfig,
+    getConfigurableFromVariableDefList,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -226,7 +226,7 @@ export function GoogleSheet(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!getConfigurableFromVariableDefList(symbolInfo.variables, getKeyFromConnection(connectionDetails, 'clientIdKey'))){
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;

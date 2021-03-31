@@ -44,6 +44,7 @@ import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/Second
 import {
     checkErrorsReturnType,
     genVariableName,
+    getConfigurableFromVariableDefList,
     // getConnectorConfig,
     getConnectorIcon,
     getKeyFromConnection,
@@ -219,7 +220,7 @@ export function GithubWizard(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification
                     if (!isManualConnection) {
-                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
+                        if (!getConfigurableFromVariableDefList(symbolInfo.variables, getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
                                 {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}

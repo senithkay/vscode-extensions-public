@@ -15,7 +15,7 @@ import React, { ReactNode } from "react";
 import {
     BooleanLiteral, CaptureBindingPattern, CheckAction,
     CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, ModuleVarDecl, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
@@ -485,6 +485,14 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
         return [];
     }
     return (asts as LocalVarDecl[]).map((item) => (item.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value);
+}
+
+export function getConfigurableFromVariableDefList(nodes: Map<string, STNode[]>, varName: string) {
+    if (!nodes) return null;
+    const configurableList = nodes.get("configurable") as ModuleVarDecl[];
+    return configurableList.find(node =>
+        (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === varName
+    );
 }
 
 export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
