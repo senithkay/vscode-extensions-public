@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
+import { connect } from "react-redux";
 
 import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography } from "@material-ui/core";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { PortalState } from "../../../../../../types";
 import { ServiceMethodType, SERVICE_METHODS } from "../../../../../models";
 import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
@@ -26,14 +27,13 @@ import { useStyles as useFormStyles } from "../style";
 export interface APIConfigFormProps {
     onClose: () => void;
     onComplete: (method: ServiceMethodType[], path: string) => void;
+    isMutationInProgress: boolean;
     methods?: ServiceMethodType[],
     path?: string,
 }
 
-export function APIConfigForm(props: APIConfigFormProps) {
-    const { isMutationProgress: isMutationInProgress } = useContext(DiagramContext).state;
-
-    const { onComplete, onClose, methods: currentMethod = ["GET"] } = props;
+export function APIConfigFormC(props: APIConfigFormProps) {
+    const { onComplete, onClose, isMutationInProgress, methods: currentMethod = ["GET"] } = props;
     let { path: currentPath = "" } = props;
     // remove leading / from path
     if (currentPath && currentPath.charAt(0) === '/') {
@@ -97,4 +97,16 @@ export function APIConfigForm(props: APIConfigFormProps) {
         </FormControl>
     );
 }
+
+const mapStateToProps = ({ diagramState }: PortalState) => {
+    const { isMutationProgress } = diagramState;
+    return {
+        isMutationInProgress: isMutationProgress,
+    }
+};
+
+export const APIConfigForm = connect(mapStateToProps)(APIConfigFormC);
+
+
+
 

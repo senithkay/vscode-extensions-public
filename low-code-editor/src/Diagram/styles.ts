@@ -100,10 +100,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: 'inherit',
         },
         diagramStateWrapper: {
-            right: '2rem',
+            right: '4rem',
             marginRight: 'auto',
             position: "absolute",
-            top: '4.1rem'
+            top: '1.1rem'
         },
         updateButton: {
             display: 'flex',
