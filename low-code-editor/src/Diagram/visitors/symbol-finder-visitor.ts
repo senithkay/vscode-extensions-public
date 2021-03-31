@@ -32,7 +32,7 @@ import { StatementViewState } from "../view-state";
 const endPoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
 const variables: Map<string, STNode[]> = new Map();
-const globalVariables: Map<string, STNode> = new Map();
+const configurables: Map<string, STNode> = new Map();
 const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
@@ -123,12 +123,14 @@ class SymbolFindingVisitor implements Visitor {
         });
     }
 
-    public beginVisitModuleVarDecl(node: ModuleVarDecl){
-        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)){
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
+            node.qualifiers.find(token => token.value === "configurable")) {
             const varName = node.typedBindingPattern.bindingPattern.variableName.value;
-            globalVariables.set(varName, node);
+            configurables.set(varName, node);
         }
     }
+
 }
 
 function getType(typeNode: any): any {
@@ -170,7 +172,7 @@ export function cleanAll() {
     endPoints.clear();
     actions.clear();
     variables.clear();
-    globalVariables.clear();
+    configurables.clear();
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
@@ -181,7 +183,7 @@ export function getSymbolInfo(): STSymbolInfo {
         endpoints: endPoints,
         actions,
         variables,
-        globalVariables,
+        configurables,
         callStatement,
         variableNameReferences,
         assignmentStatement

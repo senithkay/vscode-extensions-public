@@ -226,7 +226,7 @@ export function GoogleSheet(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;

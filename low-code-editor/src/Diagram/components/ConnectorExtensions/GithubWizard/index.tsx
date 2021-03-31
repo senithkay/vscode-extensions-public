@@ -219,7 +219,7 @@ export function GithubWizard(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification
                     if (!isManualConnection) {
-                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
                                 {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
