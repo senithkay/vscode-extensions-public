@@ -64,6 +64,9 @@ export function FormAutocomplete(props: AutocompleteProps) {
                 renderInput={renderInnerTextField}
                 onChange={onChange}
                 closeIcon={null}
+                openOnFocus={true}
+                autoComplete={true}
+                autoHighlight={true}
             />
         </div>
     );

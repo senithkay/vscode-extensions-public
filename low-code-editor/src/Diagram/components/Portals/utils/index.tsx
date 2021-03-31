@@ -74,7 +74,6 @@ const ignoreList = [
     'ballerinax/github.webhook:0.99.12:Milestone',
     'ballerinax/github.webhook:0.99.12:Branch',
     'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:CardList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:BranchList',
     'ballerinax/github:0.99.12:IssueList',
@@ -286,7 +285,7 @@ export function getParams(formFields: FormField[]): string[] {
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
                 }
-            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
@@ -473,8 +472,10 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             }
         } else if (formField.type === "union" && formField.isUnion) {
             formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
         } else if (formField.type === "json") {
             formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
         }
     }
 }

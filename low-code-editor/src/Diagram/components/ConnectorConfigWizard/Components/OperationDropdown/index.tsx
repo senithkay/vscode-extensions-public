@@ -17,9 +17,10 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
+import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
+import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import { TooltipIcon } from '../../../Portals/ConfigForm/Elements/Tooltip';
 import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {
@@ -34,15 +35,15 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
     const classes = wizardStyles();
 
-    const handleSelect = (selectedOperation: string) => {
-        onOperationSelect(selectedOperation);
+    const handleSelect = (event: object, value: any, reason: string) => {
+        onOperationSelect(value);
     };
 
     return (
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName ? (
+                    {showConnectionName && (
                         <>
                             <div className={classes.connectionNameWrapper}>
                                 <p className={classes.subTitle}>Connection</p>
@@ -69,13 +70,11 @@ export function OperationDropdown(props: OperationDropdownProps) {
                                 </IconButton>
                             </Box>
                         </>
-                    ) : null
-                    }
-                    <SelectDropdownWithButton
-                        customProps={{ disableCreateNew: true, values: operations, tooltipTitle: "Select an operation to continue" }}
-                        label="Select Operation"
-                        placeholder="Select"
-                        defaultValue=""
+                    )}
+                    <p className={classes.subTitle}>Operation</p>
+                    <FormAutocomplete
+                        placeholder="Search Operation"
+                        itemList={operations}
                         onChange={handleSelect}
                     />
                 </div>

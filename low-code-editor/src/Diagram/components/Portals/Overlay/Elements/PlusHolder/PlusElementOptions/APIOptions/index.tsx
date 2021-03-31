@@ -15,10 +15,10 @@ import React, { ReactNode, useContext, useState } from "react";
 
 import Divider from "@material-ui/core/Divider/Divider";
 
+import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
-import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { getConnectorIconSVG } from "../../../../../utils";
 import "../../style.scss";
 

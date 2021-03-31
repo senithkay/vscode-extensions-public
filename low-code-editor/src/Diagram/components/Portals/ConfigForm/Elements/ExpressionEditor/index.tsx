@@ -27,7 +27,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
-import {TooltipCodeSnippet, TooltipIcon} from "../Tooltip";
+import {TooltipCodeSnippet, TooltipIcon} from "../../../../../../components/Tooltip";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -555,7 +555,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // Block expression editor if there are diagnostics in the source code
         setInvalidSourceCode(diagnosticCheckerExp(mainDiagnostics));
 
-        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + '.bal');
+        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + getRandomInt(100000) + '.bal');
         const existingModel = editor.getModel(MONACO_URI_INMEMO);
         if (existingModel) {
             existingModel.dispose();

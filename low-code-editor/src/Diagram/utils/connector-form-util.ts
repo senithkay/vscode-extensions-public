@@ -179,8 +179,11 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
+                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+                    // todo: add these operations when bal connector class fetch support is there
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
