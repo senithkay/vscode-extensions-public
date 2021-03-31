@@ -27,7 +27,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
-import { TooltipIcon } from "../Tooltip";
+import {TooltipCodeSnippet, TooltipIcon} from "../Tooltip";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -598,6 +598,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         })
     }
 
+    const handleError = (mainDiagnosticsArray: any) => {
+        const errorMsg = mainDiagnosticsArray[0]?.message;
+        if (errorMsg.length > 50)
+            return errorMsg.slice(0, 50) + " ..."
+        else
+            return errorMsg
+    }
+
     return (
         <>
             {textLabel ?
@@ -661,7 +669,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             </div>
             {invalidSourceCode ?
                 (
-                    <FormHelperText className={formClasses.invalidCode}>{mainDiagnostics[0]?.message} (This error is in Code Editor. Please fix them first)</FormHelperText>
+                    <>
+                        <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
+                            <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
+                        </TooltipCodeSnippet>
+                        <FormHelperText className={formClasses.invalidCode}>This error is in Code Editor. Please fix them first</FormHelperText>
+                    </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
                         <FormHelperText className={formClasses.invalidCode}>{expressionEditorState.diagnostic[0].message}</FormHelperText>
