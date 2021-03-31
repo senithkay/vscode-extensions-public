@@ -32,6 +32,7 @@ import { StatementViewState } from "../view-state";
 const endPoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
 const variables: Map<string, STNode[]> = new Map();
+const globalVariables: Map<string, STNode> = new Map();
 const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
@@ -55,19 +56,6 @@ class SymbolFindingVisitor implements Visitor {
             variables.get("map") ? variables.get("map").push(node) : variables.set("map", [node]);
         } else {
             variables.get(type) ? variables.get(type).push(node) : variables.set(type, [node]);
-        }
-    }
-
-    public beginVisitModuleVarDecl(node: ModuleVarDecl){
-        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)){
-            // save configurable separately
-            if (node.qualifiers.find(token => token.value === "configurable")){
-                if (variables.get("configurable")){
-                    variables.get("configurable").push(node);
-                }else{
-                    variables.set("configurable", [node]);
-                }
-            }
         }
     }
 
@@ -134,6 +122,13 @@ class SymbolFindingVisitor implements Visitor {
             }
         });
     }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl){
+        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)){
+            const varName = node.typedBindingPattern.bindingPattern.variableName.value;
+            globalVariables.set(varName, node);
+        }
+    }
 }
 
 function getType(typeNode: any): any {
@@ -175,6 +170,7 @@ export function cleanAll() {
     endPoints.clear();
     actions.clear();
     variables.clear();
+    globalVariables.clear();
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
@@ -185,6 +181,7 @@ export function getSymbolInfo(): STSymbolInfo {
         endpoints: endPoints,
         actions,
         variables,
+        globalVariables,
         callStatement,
         variableNameReferences,
         assignmentStatement

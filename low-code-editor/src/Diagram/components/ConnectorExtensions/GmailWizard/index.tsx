@@ -43,7 +43,6 @@ import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/Second
 import {
     checkErrorsReturnType,
     genVariableName,
-    getConfigurableFromVariableDefList,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -227,7 +226,7 @@ export function GmailWizard(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!getConfigurableFromVariableDefList(symbolInfo.variables, getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!symbolInfo.globalVariables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;

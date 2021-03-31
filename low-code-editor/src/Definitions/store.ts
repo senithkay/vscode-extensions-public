@@ -95,6 +95,7 @@ export interface STSymbolInfo {
     endpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
     variables: Map<string, STNode[]>;
+    globalVariables: Map<string, STNode>;
     callStatement: Map<string, STNode[]>;
     variableNameReferences: Map<string, STNode[]>;
     assignmentStatement: Map<string, STNode[]>;
