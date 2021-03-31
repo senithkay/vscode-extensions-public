@@ -22,9 +22,9 @@ import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import RadioControl from "../../../../../../../components/RadioControl";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
+import { createPropertyStatement, updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
 import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { tooltipMessages } from "../../../../utils/constants";
@@ -54,6 +54,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     syntaxTree,
     connectionData,
     onModify: dispatchModifyTrigger,
+    onMutate,
     trackTriggerSelection
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -65,21 +66,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   } = props;
   const classes = useStyles();
 
-  // const [showResourceAdding, setShowResourceAdding] = useState(true);
-
-  const resourcesIfAny: any[] = [];
-  if (syntaxTree) {
-    const { functionName, relativeResourcePath } = syntaxTree;
-    const stMethod = functionName?.value;
-    const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
-
-    if (stMethod && stPath) {
-      resourcesIfAny.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
-      // setShowResourceAdding(false);
-    }
-  }
-
-  const [resources, setResources] = useState(resourcesIfAny);
+  const [resources, setResources] = useState([]);
+  const [isNewService, setIsNewService] = useState(true);
   // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
@@ -87,11 +75,30 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   useEffect(() => {
+    const members = syntaxTree && syntaxTree.members;
+    if (!members) setIsNewService(false);
+  }, [])
+
+  useEffect(() => {
     if (!isFileSaving && isFileSaved && triggerChanged) {
       onWizardComplete();
       setTriggerChanged(false);
     }
   }, [isFileSaving, isFileSaved]);
+
+  useEffect(() => {
+    if (syntaxTree) {
+      const { functionName, relativeResourcePath } = syntaxTree;
+      const stMethod = functionName?.value;
+      const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
+
+      const resourceMembers = [];
+      if (stMethod && stPath) {
+        resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+      }
+      setResources(resourceMembers)
+    }
+  }, [syntaxTree])
 
   const handleDialogOnCancel = () => {
     setShowConfirmDialog(false);
@@ -119,11 +126,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
-  const validateResources = (resArr: any) => {
+  const validateResources = () => {
+    if (!resources || resources.length === 0) return false;
+
     let isValidated = true;
     const resourceSignatures: string[] = [];
 
-    resArr.forEach((res: any) => {
+    resources.forEach((res: any) => {
       // Validate method signature
       const signature: string = `${res.method}_${res.path}`;
       if (resourceSignatures.includes(signature)) {
@@ -143,40 +152,47 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     return isValidated;
   }
 
-  const showResourceAdding = (st: any) => {
-    const { functionName, relativeResourcePath } = st;
-    const stMethod = functionName?.value;
-    const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
-
-    return !(stMethod && stPath);
-  }
-
   const handleUserConfirm = () => {
     if (isEmptySource) {
-      handleOnSave();
+      handleUpdateResources();
     } else {
       // get user confirmation if code there
       setShowConfirmDialog(true);
     }
   };
 
-  const handleOnSave = () => {
-    setShowConfirmDialog(false);
-    // dispatch and close the wizard
-    setTriggerChanged(true);
-    dispatchModifyTrigger(TRIGGER_TYPE_API, undefined, {
-      "PORT": 8090,
-      "BASE_PATH": "/",
-      "RES_PATH": currentPath,
-      "METHODS": currentMethod.toLocaleLowerCase(),
-      "RESOURCES": resources.map((res) => ({
-        "PATH": res.path,
-        "METHOD": res.method.toLowerCase()
-      }))
-    });
-    trackTriggerSelection("API");
-    // todo: handle dispatch
-    // dispatchGoToNextTourStep("CONFIG_SAVE");
+  const handleUpdateResources = () => {
+    if (isNewService) {
+      setShowConfirmDialog(false);
+      // dispatch and close the wizard
+      setTriggerChanged(true);
+      dispatchModifyTrigger(TRIGGER_TYPE_API, undefined, {
+        "PORT": 8090,
+        "BASE_PATH": "/",
+        "RES_PATH": currentPath,
+        "METHODS": currentMethod.toLocaleLowerCase(),
+        "RESOURCES": resources.map((res) => ({
+          "PATH": res.path,
+          "METHOD": res.method.toLowerCase()
+        }))
+      });
+      trackTriggerSelection("API");
+      // todo: handle dispatch
+      // dispatchGoToNextTourStep("CONFIG_SAVE");
+    } else {
+      const mutations: any[] = [];
+      const updatePosition: any = {
+        startLine: syntaxTree.functionName.position.startLine,
+        startColumn: syntaxTree.functionName.position.startColumn,
+        endLine: syntaxTree.relativeResourcePath[syntaxTree.relativeResourcePath.length - 1].position.endLine,
+        endColumn: syntaxTree.relativeResourcePath[syntaxTree.relativeResourcePath.length - 1].position.endColumn
+      }
+      const selectedResource = resources[0];
+      const resource = `${selectedResource.method.toLocaleLowerCase()} ${selectedResource.path}`;
+      mutations.push(updatePropertyStatement(resource, updatePosition));
+
+      onMutate(mutations);
+    }
   };
 
   const handleAddResource = () => {
@@ -201,7 +217,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       position={position}
     >
       <ConfigPanel
-        title="API Configuration"
+        title="Resource Configuration"
         onClose={onClose}
         showClose={(triggerType !== undefined && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT)}
       >
@@ -239,7 +255,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           </div>
         ))}
 
-        {showResourceAdding(syntaxTree) && (
+        {isNewService && (
           <button
             onClick={handleAddResource}
             className={classes.addResourceBtn}
@@ -252,7 +268,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         )}
 
         <div>
-          {validateResources(resources) &&
+          {validateResources() &&
             (
               <div className={classes.customFooterWrapper}>
                 <div id="product-tour-save" >
@@ -270,7 +286,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
           {showConfirmDialog && (
             <SourceUpdateConfirmDialog
-              onConfirm={handleOnSave}
+              onConfirm={handleUpdateResources}
               onCancel={handleDialogOnCancel}
             />
           )}

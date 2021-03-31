@@ -141,8 +141,8 @@ export function StartButton(props: StartButtonProps) {
 
     // NOTE: Disable edit action for API Triggers
     // TODO: Fix this properly.
-    const onEditHandler = activeTriggerType === "API" ? () => { } : handleEditClick;
-    const showIcon = activeTriggerType !== "API";
+    // const onEditHandler = activeTriggerType === "API" ? () => { } : handleEditClick;
+    // const showIcon = activeTriggerType !== "API";
 
     return (
         <g className="start-wrapper">
@@ -150,8 +150,8 @@ export function StartButton(props: StartButtonProps) {
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
-                showIcon={showIcon}
-                handleEdit={onEditHandler}
+                showIcon={true}
+                handleEdit={handleEditClick}
             />
             {block && initPlusAvailable && !showDropDownC && <PlusButton viewState={plusView} model={block} initPlus={true} />}
             <g>

@@ -81,7 +81,7 @@ export function getLowCodeSTFnSelected(mp: ModulePart, currentResource: any = nu
             let resourceIndex = 0;
             if (currentResource) {
                 const foundResourceIndex = findResourceIndex(serviceMembers, currentResource);
-                resourceIndex = foundResourceIndex || 0;
+                resourceIndex = foundResourceIndex > 0 ? foundResourceIndex : 0;
             }
 
             const serviceMember = serviceMembers[resourceIndex];

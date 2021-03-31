@@ -18,6 +18,7 @@ export const useStyles = makeStyles({
     },
     header: {
         display: "flex",
+        marginBottom: "10px",
     },
     title: {
         marginBottom: 12,
