@@ -17,8 +17,8 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
+import Tooltip from "../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-import Tooltip from "../Portals/ConfigForm/Elements/Tooltip";
 
 import { useStyles } from "./styles";
 

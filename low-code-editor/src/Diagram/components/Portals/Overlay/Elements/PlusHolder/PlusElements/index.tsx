@@ -17,10 +17,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
+import Tooltip from "../../../../../../../components/Tooltip";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
-import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";

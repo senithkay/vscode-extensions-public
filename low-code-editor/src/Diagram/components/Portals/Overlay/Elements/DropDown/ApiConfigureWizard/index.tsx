@@ -18,13 +18,13 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
 import { keywords, tooltipMessages } from "../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
