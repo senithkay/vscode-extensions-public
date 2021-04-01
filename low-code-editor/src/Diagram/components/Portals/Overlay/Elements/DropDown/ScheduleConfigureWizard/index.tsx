@@ -299,22 +299,22 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     </div>
   );
 
-  const repeatEveryDaily: ReactNode = (
-    <div className={toggleClasses.flexWrapper}>
-      <FormControlLabel
-        control={(
-          <Checkbox
-            classes={{
-              root: toggleClasses.checkbox,
-              checked: toggleClasses.checked
-            }}
-            onChange={handleEveryDayChange}
-          />
-        )}
-        label={"Repeat Daily "}
-      />
-    </div>
-  );
+  // const repeatEveryDaily: ReactNode = (
+  //   <div className={toggleClasses.flexWrapper}>
+  //     <FormControlLabel
+  //       control={(
+  //         <Checkbox
+  //           classes={{
+  //             root: toggleClasses.checkbox,
+  //             checked: toggleClasses.checked
+  //           }}
+  //           onChange={handleEveryDayChange}
+  //         />
+  //       )}
+  //       label={"Repeat Daily "}
+  //     />
+  //   </div>
+  // );
 
   const repeatEveryWeek: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
@@ -375,7 +375,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const dayComp: ReactNode = (
     <>
       {minuteAndHourOptionComp}
-      {repeatEveryDaily}
+      {/* {repeatEveryDaily} */}
 
     </>
   );
