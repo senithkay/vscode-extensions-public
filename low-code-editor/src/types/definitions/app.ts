@@ -1,6 +1,5 @@
 import { AppInfo, ApplicationFile, AppRuntimeInfo, DeployLogMessage, DeployLogs, LogMessage } from "../../api/models";
 
-// TODO: Duplicate entry found. Fix
 export interface AppViewState {
     isWaitingOnWorkspace: boolean;
     isCodeChangeInProgress: boolean;
@@ -27,5 +26,4 @@ export interface AppViewState {
     prodLogs?: LogMessage[],
     deployLogs?: DeployLogMessage[],
     deployLogNotFound: boolean;
-    currentResource?: any;
 }

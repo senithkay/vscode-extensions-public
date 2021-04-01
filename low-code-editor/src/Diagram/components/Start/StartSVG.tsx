@@ -73,15 +73,14 @@ export function StartSVG(props: {
                         {text}
                     </tspan>
                 </text>
-                {!isMutationProgress && !isWaitingOnWorkspace && showIcon && (
-                    <>
-                        {(!isReadOnly) && (<g className="start-options-wrapper">
-                            <rect className="start-rect" x={20} y={13} width="80" height="35" />
-                            <g >
-                                <EditIconSVG x={46} y={15} onClick={handleEdit} />
-                            </g>
-                        </g>)}
-                    </>)
+                {!isMutationProgress && !isWaitingOnWorkspace && (<>
+                    {(!isReadOnly) && (<g className="start-options-wrapper">
+                        <rect className="start-rect" x={20} y={13} width="80" height="35" />
+                        <g >
+                            <EditIconSVG x={46} y={15} onClick={handleEdit} />
+                        </g>
+                    </g>)}
+                </>)
                 }
             </g>
         </svg>

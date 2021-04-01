@@ -40,11 +40,11 @@ const variableNameReferences: Map<string, STNode[]> = new Map();
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
-        if (stmtViewState.isEndpoint) {
+        if (stmtViewState && stmtViewState.isEndpoint) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             endPoints.set(captureBindingPattern.variableName.value, node);
-        } else if (stmtViewState.isAction) {
+        } else if (stmtViewState && stmtViewState.isAction) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             actions.set(captureBindingPattern.variableName.value, node);
@@ -60,13 +60,13 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement) {
-        const varType = STKindChecker.isMethodCall(node.expression)
-        ? (node.expression as MethodCall).expression.typeData?.symbol?.kind
-        : node.typeData?.symbol?.kind;
+        const varType = STKindChecker.isMethodCall(node.expression) ?
+            (node.expression as MethodCall).expression.typeData?.symbol?.kind
+            : node.typeData?.symbol?.kind;
 
-        const varName = STKindChecker.isMethodCall(node.expression)
-        ? (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value
-        : node.typeData?.symbol?.name;
+        const varName = STKindChecker.isMethodCall(node.expression) ?
+            (((node.expression as MethodCall).expression) as SimpleNameReference).name?.value
+            : node.typeData?.symbol?.name;
 
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
@@ -75,13 +75,13 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
-        const varType = node.varRef
-        ? node.varRef?.typeData?.symbol.kind
-        : node.typeData?.symbol?.kind;
+        const varType = node.varRef ?
+            node.varRef?.typeData?.symbol.kind
+            : node.typeData?.symbol?.kind;
 
-        const varName = STKindChecker.isNumericLiteral(node.expression)
-        ? (node.expression as NumericLiteral).literalToken.value
-        : node.typeData?.symbol?.name;
+        const varName = STKindChecker.isNumericLiteral(node.expression) ?
+            (node.expression as NumericLiteral).literalToken.value
+            : node.typeData?.symbol?.name;
 
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
