@@ -48,7 +48,8 @@ import {
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams
+    getParams,
+    getReturnType
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -202,6 +203,7 @@ export function GithubWizard(props: WizardProps) {
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const actionReturnType = getReturnType(config.action.name, functionDefinitions);
         const accessTokenKey = connectorInitFormFields[0].fields[1].value;
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
@@ -246,7 +248,7 @@ export function GithubWizard(props: WizardProps) {
                 // Add an action invocation on the initialized client.
                 if (isActionReturnError) {
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
@@ -255,7 +257,7 @@ export function GithubWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                 } else {
                     const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,

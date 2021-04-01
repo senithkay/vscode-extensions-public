@@ -837,6 +837,14 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
     return false;
 }
 
+export function getReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): string {
+    if (functionDefinitions.get(action)?.returnType) {
+        return "var";
+    }else{
+        return "var";
+    }
+}
+
 export interface VariableNameValidationResponse {
     error: boolean;
     message?: string;
