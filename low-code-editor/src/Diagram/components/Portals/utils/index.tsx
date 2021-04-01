@@ -557,7 +557,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
                     "position": 0,
                     "isUsed": 0
                 }
-            } else {
+            } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
                 const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
                     CaptureBindingPattern;
