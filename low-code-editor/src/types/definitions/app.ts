@@ -26,4 +26,5 @@ export interface AppViewState {
     prodLogs?: LogMessage[],
     deployLogs?: DeployLogMessage[],
     deployLogNotFound: boolean;
+    currentResource?: any;
 }
