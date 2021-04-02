@@ -22,7 +22,7 @@ import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import RadioControl from "../../../../../../../components/RadioControl";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
-import { createPropertyStatement, updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
+import { updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
 import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -95,6 +95,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceMembers = [];
       if (stMethod && stPath) {
         resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+      } else {
+        const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
+        resourceMembers.push(defaultConfig);
       }
       setResources(resourceMembers)
     }
