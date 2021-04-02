@@ -114,7 +114,7 @@ export class BallerinaExtension {
 
             // Check if ballerina home is set.
             if (this.overrideBallerinaHome()) {
-                if (!this.overrideBallerinaHome()) {
+                if (!this.getConfiguredBallerinaHome()) {
                     const message = "Trying to get ballerina version without setting ballerina home.";
                     sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
