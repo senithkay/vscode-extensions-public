@@ -146,7 +146,7 @@ export function PlusElements(props: PlusElementsProps) {
                 className={plusContainer}
                 position={position}
             >
-                {isCodeEditorActive ? (<>{plusHolder}</> && <div className="plus-overlay"><OverlayBackground /></div>) : <>{plusHolder}</>}
+                {isCodeEditorActive && !initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
                 {initPlus && isCodeEditorActive ? null : <>{plusHolder}</>}
                 {!initPlus && <OverlayBackground />}
             </DiagramOverlay>
