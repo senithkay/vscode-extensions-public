@@ -27,7 +27,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
-import { TooltipIcon } from "../../../../../../components/Tooltip";
+import { TooltipIcon } from "../Tooltip";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -226,6 +226,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         while (disposableTriggers.length > 0) {
             const disposable: monaco.IDisposable = disposableTriggers.pop();
             disposable.dispose();
+        }
+    }
+
+    const setDefaultTooltips = () => {
+        // add default tooltip if not given by explicitly
+        if (textLabel && model && !(customProps?.tooltipTitle || model?.tooltip) && model?.description) {
+            model.tooltip = model.description.substring(model.description.indexOf('-') + 1).trim();
         }
     }
 
@@ -597,6 +604,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         })
     }
+
+    setDefaultTooltips();
 
     return (
         <>

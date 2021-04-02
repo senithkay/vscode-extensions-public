@@ -100,10 +100,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: 'inherit',
         },
         diagramStateWrapper: {
-            right: '2rem',
+            // right: '2rem',
             marginRight: 'auto',
             position: "absolute",
-            top: '4.1rem'
+            // top: '4.1rem'
+            right: '4.2rem',
+            top: '1rem'
+        },
+        diagramAPIStateWrapper: {
+            right: '4.2rem',
+            marginRight: 'auto',
+            position: "absolute",
+            top: '4.3rem'
         },
         updateButton: {
             display: 'flex',
@@ -125,9 +133,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             lineHeight: '29px',
         },
         disableDiagramIcon: {
-            right: '4rem',
+            right: '1rem',
             position: "fixed",
             top: '1.1rem'
+        },
+        disableAPIDiagramIcon: {
+            right: '1rem',
+            position: "fixed",
+            top: '4.1rem'
         }
     }),
 );

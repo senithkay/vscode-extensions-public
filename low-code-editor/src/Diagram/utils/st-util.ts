@@ -118,7 +118,6 @@ export function getLowCodeSTFn(mp: ModulePart) {
     const modulePart: ModulePart = mp;
     const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
-
     for (const node of members) {
         if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
             functionDefinition = node as FunctionDefinition;
@@ -128,7 +127,6 @@ export function getLowCodeSTFn(mp: ModulePart) {
             // TODO: Fix with the ST interface generation.
             const serviceDec = node as any;
             const serviceMembers: STNode[] = serviceDec.members;
-
             for (const serviceMember of serviceMembers) {
                 if (serviceMember.kind === "ResourceAccessorDefinition"
                     || serviceMember.kind === "ObjectMethodDefinition"
@@ -270,7 +268,6 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
         w
     }
 }
-
 
 export async function getConnectorDefFromCache(connector: Connector) {
     const { org, module: mod, version, name } = connector;

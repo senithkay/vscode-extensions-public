@@ -30,9 +30,12 @@ import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
-    CompilationUnitViewState, ElseViewState, EndpointViewState,
+    CompilationUnitViewState,
+    ElseViewState,
+    EndpointViewState,
     ForEachViewState,
-    FunctionViewState, IfViewState,
+    FunctionViewState,
+    IfViewState,
     PlusViewState,
     StatementViewState
 } from "../view-state";

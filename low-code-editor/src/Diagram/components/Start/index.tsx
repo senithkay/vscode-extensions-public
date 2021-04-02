@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: no-empty
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition, ModulePart, STKindChecker } from "@ballerina/syntax-tree";
@@ -95,7 +94,6 @@ export function StartButton(props: StartButtonProps) {
                 triggerType={activeTriggerType}
                 onComplete={handleOnComplete}
                 configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
-                disabled={activeTriggerType === "API"}
             />
         );
         if (plusView) {
@@ -138,11 +136,6 @@ export function StartButton(props: StartButtonProps) {
     const text: string = (model.kind === "ModulePart") || !activeTriggerType
         ? "START"
         : activeTriggerType.toUpperCase();
-
-    // NOTE: Disable edit action for API Triggers
-    // TODO: Fix this properly.
-    // const onEditHandler = activeTriggerType === "API" ? () => { } : handleEditClick;
-    // const showIcon = activeTriggerType !== "API";
 
     return (
         <g className="start-wrapper">

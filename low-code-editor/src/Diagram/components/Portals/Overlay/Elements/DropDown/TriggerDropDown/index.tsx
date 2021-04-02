@@ -22,7 +22,7 @@ import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
-import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
+import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
 import { tooltipMessages } from '../../../../utils/constants';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
 import { ApiConfigureWizard } from '../ApiConfigureWizard';
@@ -42,7 +42,6 @@ interface TriggerDropDownProps {
     triggerType?: TriggerType;
     configData?: any;
     isDropdownActive?: boolean;
-    disabled?: boolean;
     // createTrigger: (triggerType: TriggerType, model?: any, configObject?: any) => void; // todo: handle dispatch
 }
 
@@ -55,16 +54,8 @@ export enum ConnectorType {
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const {
-        onClose,
-        onComplete,
-        title = "Select Trigger",
-        disabled = false,
-        position,
-        isEmptySource,
-        triggerType,
-        configData /*, createTrigger*/
-    } = props;
+    const { onClose, onComplete, title = "Select Trigger",
+            position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
     const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
@@ -79,8 +70,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     }, [isFileSaving, isFileSaved]);
 
     const handleTriggerChange = (newTrigger: TriggerType, connector?: ConnectorType) => {
-        if (disabled) return;
-
         setSelectedTrigger(newTrigger);
         setActiveConnector((Object.values(ConnectorType).includes(connector)) ? connector : undefined);
         setTriggerChanged(true);
@@ -127,7 +116,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 actionLink={tooltipMessages.triggerSelector.actionLink}
                                 interactive={true}
                                 arrow={true}
-                                disabled={disabled}
                             />
                         </div>
                     </div>
@@ -146,7 +134,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 interactive={true}
                                 placement="right"
                                 arrow={true}
-                                disabled={disabled}
                             >
                                 <div
                                     className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_SCHEDULE })}
@@ -186,7 +173,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
-                                disabled={disabled}
                             >
                                 <div
                                     className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_MANUAL })}
@@ -206,7 +192,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
-                                disabled={disabled}
                             >
                                 <div
                                     className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.GITHUB) })}

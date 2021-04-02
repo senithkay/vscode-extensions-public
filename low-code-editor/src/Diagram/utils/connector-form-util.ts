@@ -275,8 +275,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
 
                     filteredFunctions.set(key, value);
-                }else if (key === "createEvent") {
-                    value.parameters[1].fields.forEach((field) => {
+                } else if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
@@ -299,7 +299,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
-                } else if (!((key === "watchEvents") || (key === "updateEvent") || (key === "getEventResponse") || (key === "getCalendars"))) {
+                } else if (!((key === "watchEvents") || (key === "getEventResponse") || (key === "stopChannel"))) {
                     filteredFunctions.set(key, value);
                 }
             });
