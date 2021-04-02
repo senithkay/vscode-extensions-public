@@ -89,6 +89,26 @@ export interface GetBallerinaProjectParams {
     };
 }
 
+export interface LiteralNodeRequestParams {
+    documentIdentifier: {
+        uri: string;
+    };
+    range: {
+        start: {
+            line: number;
+            character: number;
+        },
+        end: {
+            line: number;
+            character: number;
+        }
+    };
+}
+
+export interface LiteralNodeResponse {
+    isLiteralNode: boolean;
+}
+
 export interface BallerinaAstOasChangeResponse {
     oasAST?: string;
 }
@@ -127,5 +147,9 @@ export class ExtendedLangClient extends LanguageClient {
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.sendRequest("ballerinaDocument/project", params);
+    }
+
+    getLiteralNode(params: LiteralNodeRequestParams): Thenable<LiteralNodeResponse> {
+        return this.sendRequest("ballerinaDocument/literalNode", params);
     }
 }
