@@ -11,12 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
+import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
@@ -44,6 +45,8 @@ export const PLUS_HOLDER_API_HEIGHT = 580;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
+    const { state } = useContext(Context);
+    const { isCodeEditorActive } = state;
 
     const [selectedItem, setSelectedItem] = useState("STATEMENT");
 
@@ -96,50 +99,56 @@ export function PlusElements(props: PlusElementsProps) {
                 className={plusContainer}
                 position={position}
             >
-                <div className={holderClass}>
-                    {
-                        !initPlus ?
-                            (
-                                <button className="close-button" onClick={onClose}>
-                                    <CloseIcon />
-                                </button>
-                            ) : null
-                    }
-                    <div className="holder-options">
-                        <Tooltip
-                            title={tooltipMessages.statementsPlusHolder.title}
-                            actionText={tooltipMessages.statementsPlusHolder.actionText}
-                            actionLink={tooltipMessages.statementsPlusHolder.actionLink}
-                            interactive={true}
-                            placement="left"
-                            arrow={true}
-                        >
-                            <div className="options" onClick={handleStatementClick}>
-                                <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                                    Statements
+                {!isCodeEditorActive ?
+                    (
+                        <div className={holderClass}>
+                            {
+                                !initPlus ?
+                                    (
+                                        <button className="close-button" onClick={onClose}>
+                                            <CloseIcon />
+                                        </button>
+                                    ) : null
+                            }
+                            <div className="holder-options">
+                                <Tooltip
+                                    title={tooltipMessages.statementsPlusHolder.title}
+                                    actionText={tooltipMessages.statementsPlusHolder.actionText}
+                                    actionLink={tooltipMessages.statementsPlusHolder.actionLink}
+                                    interactive={true}
+                                    placement="left"
+                                    arrow={true}
+                                >
+                                    <div className="options" onClick={handleStatementClick}>
+                                        <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
+                                            Statements
+                                </div>
+                                    </div>
+                                </Tooltip>
+                                <div className="options">
+
+                                    <Tooltip
+                                        title={tooltipMessages.APIsPlusHolder.title}
+                                        actionText={tooltipMessages.APIsPlusHolder.actionText}
+                                        actionLink={tooltipMessages.APIsPlusHolder.actionLink}
+                                        interactive={true}
+                                        placement="right"
+                                        arrow={true}
+                                    >
+                                        <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
+                                            Connections
+                                </div>
+                                    </Tooltip>
                                 </div>
                             </div>
-                        </Tooltip>
-                        <div className="options">
-
-                        <Tooltip
-                                title={tooltipMessages.APIsPlusHolder.title}
-                                actionText={tooltipMessages.APIsPlusHolder.actionText}
-                                actionLink={tooltipMessages.APIsPlusHolder.actionLink}
-                                interactive={true}
-                                placement="right"
-                                arrow={true}
-                        >
-                                <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                                    Connections
-                                </div>
-                        </Tooltip>
+                            <div className="element-options">
+                                {component}
+                            </div>
                         </div>
-                    </div>
-                    <div className="element-options">
-                        {component}
-                    </div>
-                </div>
+                    )
+                    :
+                    null
+                }
                 {!initPlus && <OverlayBackground />}
             </DiagramOverlay>
         </DiagramOverlayContainer>
