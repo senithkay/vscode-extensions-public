@@ -161,7 +161,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <CalendarIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label "> Calender </div>
+                                    <div className="trigger-label "> Calendar </div>
                                 </div>
                             </Tooltip>
                         </div>
