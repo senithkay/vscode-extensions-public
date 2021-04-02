@@ -75,7 +75,7 @@ export const tooltipMessages: Record<string, any> = {
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#1-api"
     },
     manualTrigger: {
-        title: "Select to manually run and test your integration",
+        title: "To create an application that can be triggered manually by clicking the 'Run & Test' button",
         actionText: "Learn about manual trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#2-Manual"
     },
