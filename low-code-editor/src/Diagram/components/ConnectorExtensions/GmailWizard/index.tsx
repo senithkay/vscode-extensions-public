@@ -43,6 +43,7 @@ import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/Second
 import {
     checkErrorsReturnType,
     genVariableName,
+    getActionReturnType,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -209,6 +210,7 @@ export function GmailWizard(props: WizardProps) {
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const actionReturnType = getActionReturnType(config.action.name, functionDefinitions);
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -261,7 +263,7 @@ export function GmailWizard(props: WizardProps) {
                 // Add an action invocation on the initialized client.
                 if (isActionReturnError) {
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
@@ -270,7 +272,7 @@ export function GmailWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                 } else {
                     const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
@@ -295,7 +297,7 @@ export function GmailWizard(props: WizardProps) {
 
             if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
@@ -305,7 +307,7 @@ export function GmailWizard(props: WizardProps) {
                 modifications.push(updateActionInvocation);
             } else {
                 const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,

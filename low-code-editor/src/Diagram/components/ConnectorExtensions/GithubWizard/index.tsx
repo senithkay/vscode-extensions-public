@@ -45,6 +45,7 @@ import {
     checkErrorsReturnType,
     genVariableName,
     // getConnectorConfig,
+    getActionReturnType,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -203,8 +204,9 @@ export function GithubWizard(props: WizardProps) {
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
-        const actionReturnType = getReturnType(config.action.name, functionDefinitions);
-        const accessTokenKey = connectorInitFormFields[0].fields[1].value;
+        const actionReturnType = getActionReturnType(config.action.name, functionDefinitions);
+        const accessTokenKey = connectorInitFormFields.find(field => field.name === "gitHubConfig")?.fields.find(field => field.name === "accessToken")?.value;
+
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -277,7 +279,7 @@ export function GithubWizard(props: WizardProps) {
 
             if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,
@@ -287,7 +289,7 @@ export function GithubWizard(props: WizardProps) {
                 modifications.push(updateActionInvocation);
             } else {
                 const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     config.action.returnVariableName,
                     config.name,
                     config.action.name,

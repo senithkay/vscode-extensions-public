@@ -46,7 +46,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getActionReturnType, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -265,6 +265,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
+        const actionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
@@ -283,7 +284,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 if (isActionReturnError) {
                     const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
@@ -293,7 +294,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     modifications.push(updateActionInvocation);
                 } else {
                     const updateActionInvocation: STModification = updateRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         config.action.returnVariableName,
                         config.name,
                         config.action.name,
@@ -334,7 +335,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     // Add an action invocation on the initialized client.
                     if (isActionReturnError){
                         const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            "var",
+                            actionReturnType,
                             config.action.returnVariableName,
                             config.name,
                             config.action.name,
@@ -343,7 +344,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         modifications.push(addActionInvocation);
                     }else{
                         const addActionInvocation: STModification = createRemoteServiceCall(
-                            "var",
+                            actionReturnType,
                             config.action.returnVariableName,
                             config.name,
                             config.action.name,

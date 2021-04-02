@@ -837,10 +837,43 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
     return false;
 }
 
-export function getReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): string {
-    if (functionDefinitions.get(action)?.returnType) {
-        return "var";
-    }else{
+export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): string {
+    const returnTypeField = functionDefinitions.get(action)?.returnType;
+    return getFormFieldReturnType(returnTypeField);
+}
+
+export function getFormFieldReturnType(formField: FormField) {
+    if (formField && formField?.isParam) {
+        switch (formField.type) {
+            case "union":
+                const returnTypes: string[] = [];
+
+                formField?.fields.forEach(field => {
+                    if (field?.isParam){
+                        if (field?.typeInfo) {
+                            returnTypes.push(`${field.typeInfo.modName}:${field.typeInfo.name}`);
+                        }
+                        if (field.type === "error"){
+                            returnTypes.push("error|()");
+                        }
+                        if (field.type === "union"){
+                            // get union form field return types
+                            returnTypes.push(getFormFieldReturnType(field));
+                        }
+                    }
+                });
+
+                if (returnTypes.length > 0) {
+                    // concat all return types with | character
+                    return returnTypes.length > 1 ? returnTypes.join("|") : returnTypes[ 0 ];
+                } else {
+                    // if there is no return types
+                    return "var";
+                }
+            default:
+                return "var";
+        }
+    } else {
         return "var";
     }
 }

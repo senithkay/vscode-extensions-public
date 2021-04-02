@@ -38,7 +38,7 @@ import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { checkErrorsReturnType, getConnectorIcon, getParams } from "../../Portals/utils";
+import { checkErrorsReturnType, getActionReturnType, getConnectorIcon, getParams } from "../../Portals/utils";
 import "../HTTPWizard/style.scss"
 import { useStyles } from "../HTTPWizard/styles";
 
@@ -129,6 +129,7 @@ export function SMTPWizard(props: WizardProps) {
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(connectorConfig.action.name, functionDefinitions);
+        const actionReturnType = getActionReturnType(connectorConfig.action.name, functionDefinitions);
         // insert initialized connector logic
         let modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
@@ -142,7 +143,7 @@ export function SMTPWizard(props: WizardProps) {
             // Add an action invocation on the initialized client.
             if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     connectorConfig.action.returnVariableName,
                     connectorConfig.name,
                     connectorConfig.action.name,
@@ -152,7 +153,7 @@ export function SMTPWizard(props: WizardProps) {
                 modifications.push(updateActionInvocation);
             } else {
                 const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
+                    actionReturnType,
                     connectorConfig.action.returnVariableName,
                     connectorConfig.name,
                     connectorConfig.action.name,
@@ -183,7 +184,7 @@ export function SMTPWizard(props: WizardProps) {
                 // Add an action invocation on the initialized client.
                 if (isActionReturnError){
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
                         connectorConfig.action.name,
@@ -192,7 +193,7 @@ export function SMTPWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                 }else{
                     const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
+                        actionReturnType,
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
                         connectorConfig.action.name,
@@ -200,17 +201,6 @@ export function SMTPWizard(props: WizardProps) {
                     );
                     modifications.push(addActionInvocation);
                 }
-
-                // if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                //     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                //         connectorConfig.responsePayloadMap.payloadVariableName,
-                //         "var",
-                //         connectorConfig.action.returnVariableName,
-                //         connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                //         targetPosition
-                //     );
-                //     modifications.push(addPayload);
-                // }
             }
         }
         onSave(modifications);
