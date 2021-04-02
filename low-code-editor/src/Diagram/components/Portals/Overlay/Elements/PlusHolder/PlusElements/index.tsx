@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { ReactNode, useContext, useState } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
@@ -93,62 +93,61 @@ export function PlusElements(props: PlusElementsProps) {
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
     const holderClass = (selectedItem !== "APIS") ? "holder-wrapper" : "holder-wrapper-large";
 
+    const plusHolder: ReactNode = (
+        <div className={holderClass}>
+            {
+                !initPlus ?
+                    (
+                        <button className="close-button" onClick={onClose}>
+                            <CloseIcon />
+                        </button>
+                    ) : null
+            }
+            <div className="holder-options">
+                <Tooltip
+                    title={tooltipMessages.statementsPlusHolder.title}
+                    actionText={tooltipMessages.statementsPlusHolder.actionText}
+                    actionLink={tooltipMessages.statementsPlusHolder.actionLink}
+                    interactive={true}
+                    placement="left"
+                    arrow={true}
+                >
+                    <div className="options" onClick={handleStatementClick}>
+                        <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
+                            Statements
+            </div>
+                    </div>
+                </Tooltip>
+                <div className="options">
+
+                    <Tooltip
+                        title={tooltipMessages.APIsPlusHolder.title}
+                        actionText={tooltipMessages.APIsPlusHolder.actionText}
+                        actionLink={tooltipMessages.APIsPlusHolder.actionLink}
+                        interactive={true}
+                        placement="right"
+                        arrow={true}
+                    >
+                        <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
+                            Connections
+            </div>
+                    </Tooltip>
+                </div>
+            </div>
+            <div className="element-options">
+                {component}
+            </div>
+        </div>
+    );
+
     return (
         <DiagramOverlayContainer>
             <DiagramOverlay
                 className={plusContainer}
                 position={position}
             >
-                {!isCodeEditorActive ?
-                    (
-                        <div className={holderClass}>
-                            {
-                                !initPlus ?
-                                    (
-                                        <button className="close-button" onClick={onClose}>
-                                            <CloseIcon />
-                                        </button>
-                                    ) : null
-                            }
-                            <div className="holder-options">
-                                <Tooltip
-                                    title={tooltipMessages.statementsPlusHolder.title}
-                                    actionText={tooltipMessages.statementsPlusHolder.actionText}
-                                    actionLink={tooltipMessages.statementsPlusHolder.actionLink}
-                                    interactive={true}
-                                    placement="left"
-                                    arrow={true}
-                                >
-                                    <div className="options" onClick={handleStatementClick}>
-                                        <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                                            Statements
-                                </div>
-                                    </div>
-                                </Tooltip>
-                                <div className="options">
-
-                                    <Tooltip
-                                        title={tooltipMessages.APIsPlusHolder.title}
-                                        actionText={tooltipMessages.APIsPlusHolder.actionText}
-                                        actionLink={tooltipMessages.APIsPlusHolder.actionLink}
-                                        interactive={true}
-                                        placement="right"
-                                        arrow={true}
-                                    >
-                                        <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                                            Connections
-                                </div>
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="element-options">
-                                {component}
-                            </div>
-                        </div>
-                    )
-                    :
-                    null
-                }
+                {isCodeEditorActive ? (<>{plusHolder}</> && <div className="plus-overlay"><OverlayBackground /></div>) : <>{plusHolder}</>}
+                {initPlus && isCodeEditorActive ? null : <>{plusHolder}</>}
                 {!initPlus && <OverlayBackground />}
             </DiagramOverlay>
         </DiagramOverlayContainer>
