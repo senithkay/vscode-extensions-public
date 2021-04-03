@@ -78,6 +78,7 @@ export interface FormField {
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
+    isStream?: boolean;
     typeInfo?: NonPrimitiveBal;
     hide?: boolean;
     aiSuggestion?: string;

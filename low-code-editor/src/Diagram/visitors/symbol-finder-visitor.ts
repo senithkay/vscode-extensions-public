@@ -161,6 +161,8 @@ function getType(typeNode: any): any {
         return "[" + tupleTypes.map((memType) => getType(memType)) + "]";
     } else if (STKindChecker.isParameterizedTypeDesc(typeNode)) {
         return "map<" + getType(typeNode.typeParameter.typeNode) + ">";
+    } else if (STKindChecker.isStreamTypeDesc(typeNode)) {
+        return "stream<" + getType(typeNode.streamTypeParamsNode.leftTypeDescNode) + ">";
     } else if (STKindChecker.isErrorTypeDesc(typeNode)) {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {

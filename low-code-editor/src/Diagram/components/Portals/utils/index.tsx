@@ -850,15 +850,23 @@ export function getFormFieldReturnType(formField: FormField) {
 
                 formField?.fields.forEach(field => {
                     if (field?.isParam){
+                        let type = "";
                         if (field?.typeInfo) {
-                            returnTypes.push(`${field.typeInfo.modName}:${field.typeInfo.name}`);
+                            type = `${field.typeInfo.modName}:${field.typeInfo.name}${field?.optional ? '?' : ''}`;
                         }
                         if (field.type === "error"){
-                            returnTypes.push("error|()");
+                            type = "error?";
                         }
                         if (field.type === "union"){
                             // get union form field return types
-                            returnTypes.push(getFormFieldReturnType(field));
+                            type = getFormFieldReturnType(field);
+                        }
+                        if (field?.isStream){
+                            type = `stream<${type}>`;
+                        }
+                        
+                        if (type){
+                            returnTypes.push(type);
                         }
                     }
                 });

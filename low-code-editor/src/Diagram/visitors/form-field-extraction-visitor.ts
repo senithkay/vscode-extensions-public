@@ -32,6 +32,7 @@ import {
     RequiredParam,
     SimpleNameReference,
     STNode,
+    StreamTypeDesc,
     StringTypeDesc,
     traversNode,
     TypeDefinition,
@@ -272,28 +273,22 @@ class FieldVisitor implements Visitor {
                                 }
                             }
 
+                            // TODO: need to review
+                            // if(element.signature === "error"){
+                            //     const symbol = typeData?.symbol;
+                            //     element.viewState.typeName = symbol.name;
+                            //     element.viewState.optional = viewState?.optional;
+                            //     element.viewState.typeInfo = {
+                            //         modName: symbol.moduleID.moduleName,
+                            //         name: symbol.name,
+                            //         orgName: symbol.moduleID.orgName,
+                            //         version: symbol.moduleID.version
+                            //     }
+                            // }
+
                             viewState.fields.push(element.viewState);
                         });
                     }
-                    // typeSymbol.signature.split('|').forEach((element: string) => {
-                    //     const fieldProperty: FormField = {
-                    //         type: element as balTypes,
-                    //         isParam: true,
-                    //     };
-
-                    //     if (element.endsWith('[]')) {
-                    //         const regExp = /(,*)\[]$/g;
-                    //         fieldProperty.collectionDataType = element.match(regExp)[1] as balTypes;
-                    //         fieldProperty.type = 'collection' as balTypes;
-                    //         fieldProperty.isArray = true;
-                    //     }
-
-                    //     this.addFieldToUnion(
-                    //         fieldProperty.isArray ? fieldProperty.collectionDataType : fieldProperty.type,
-                    //         fieldProperty,
-                    //         viewState
-                    //     );
-                    // });
                 } else {
                     viewState.typeName = node.name.value;
                     if (node.typeData.typeSymbol.kind !== 'CONSTANT' && typeSymbol.moduleID) {
@@ -309,20 +304,23 @@ class FieldVisitor implements Visitor {
         }
     }
 
-    // private addFieldToUnion(type: balTypes, fieldVS: FormField, viewState: FormField) {
-    //     switch (type) {
-    //         case "boolean":
-    //         case "float":
-    //         case "string":
-    //         case "int":
-    //         case "json":
-    //         case "xml":
-    //             viewState.fields.push(fieldVS);
-    //             break;
-    //         default:
-    //         // ignored types atm
-    //     }
-    // }
+    beginVisitStreamTypeDesc(node: StreamTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const typeParameter = node.typeData.typeSymbol.typeParameter;
+            const viewState: FormField = node.viewState;
+            viewState.typeName = typeParameter?.name;
+            viewState.isStream = true;
+
+            if (typeParameter?.moduleID) {
+                viewState.typeInfo = {
+                    modName: typeParameter.moduleID.moduleName,
+                    name: typeParameter?.name,
+                    orgName: typeParameter.moduleID.orgName,
+                    version: typeParameter.moduleID.version
+                };
+            }
+        }
+    }
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
