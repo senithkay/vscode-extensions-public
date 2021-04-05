@@ -32,7 +32,7 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { log, getOutputChannel, outputChannel } from '../utils/index';
+import { debug, log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { BALLERINA_HOME, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -122,7 +122,7 @@ export class BallerinaExtension {
                     });
                 }
 
-                log("Ballerina home is configured in settings.");
+                debug("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getConfiguredBallerinaHome();
             }
 
@@ -248,6 +248,7 @@ export class BallerinaExtension {
     async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
         // if ballerina home is overridden, use ballerina cmd inside distribution
         // otherwise use wrapper command
+        debug(`Ballerina Home: ${ballerinaHome}`);
         let distPath = "";
         if (overrideBallerinaHome) {
             distPath = path.join(ballerinaHome, "bin") + path.sep;
@@ -260,7 +261,10 @@ export class BallerinaExtension {
         let ballerinaExecutor = '';
         const balPromise: Promise<string> = new Promise((resolve, reject) => {
             exec(distPath + 'bal' + exeExtension + ' version', (err, stdout, _stderr) => {
+                debug(`bal command stdout: ${stdout}`);
+                debug(`bal command _stderr: ${_stderr}`);
                 if (err) {
+                    debug(`bal command err: ${err}`);
                     reject(err);
                     return;
                 }
@@ -271,13 +275,16 @@ export class BallerinaExtension {
                 }
 
                 ballerinaExecutor = 'bal';
-                log(`'bal' command is picked up from the plugin.`);
+                debug(`'bal' command is picked up from the plugin.`);
                 resolve(stdout);
             });
         });
         const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
             exec(distPath + 'ballerina' + exeExtension + ' version', (err, stdout, _stderr) => {
+                debug(`ballerina command stdout: ${stdout}`);
+                debug(`ballerina command _stderr: ${_stderr}`);
                 if (err) {
+                    debug(`ballerina command err: ${err}`);
                     reject(err);
                     return;
                 }
@@ -288,13 +295,14 @@ export class BallerinaExtension {
                 }
 
                 ballerinaExecutor = 'ballerina';
-                log(`'ballerina' command is picked up from the plugin.`);
+                debug(`'ballerina' command is picked up from the plugin.`);
                 resolve(stdout);
             });
         });
         const cmdOutput = await any([balPromise, ballerinaPromise]);
         this.ballerinaCmd = distPath + ballerinaExecutor + exeExtension;
         try {
+            debug(`Ballerina version output: ${cmdOutput}`);
             const implVersionLine = cmdOutput.split('\n')[0];
             const replacePrefix = implVersionLine.startsWith("jBallerina")
                 ? /jBallerina /
@@ -421,8 +429,7 @@ export class BallerinaExtension {
                 isBallerinaNotFound = message.includes('command not found')
                     || message.includes('unknown command')
                     || message.includes('is not recognized as an internal or external command');
-                log("Error executing `bal home`. " + "\n<---- cmd output ---->\n"
-                    + message + "<---- cmd output ---->\n");
+                log(`Error executing 'bal home'.\n<---- cmd output ---->\n${message}<---- cmd output ---->\n`);
             }
 
             // specially handle unknown ballerina command scenario for windows
@@ -436,8 +443,7 @@ export class BallerinaExtension {
             isBallerinaNotFound = message.includes('command not found')
                 || message.includes('unknown command')
                 || message.includes('is not recognized as an internal or external command');
-            log("Error executing `bal home`. " + "\n<---- cmd output ---->\n"
-                + message + "<---- cmd output ---->\n");
+            log(`Error executing 'bal home'.\n<---- cmd output ---->\n${message}<---- cmd output ---->\n`);
         }
 
         return {
