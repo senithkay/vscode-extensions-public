@@ -258,7 +258,7 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion && field.value) {
+                    } else if (field.type === "union" && !field.hide && field.isUnion && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
