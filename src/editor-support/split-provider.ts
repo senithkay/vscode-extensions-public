@@ -46,7 +46,7 @@ export class StringSplitter {
             if (!this.langClient) {
                 return;
             }
-            this.langClient.getLiteralNode({
+            this.langClient.getSyntaxTreeNode({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()
                 },
@@ -61,17 +61,19 @@ export class StringSplitter {
                     }
                 }
             }).then((response) => {
-                if (!response.isLiteralNode) {
+                if (!response.kind) {
                     return;
                 }
-                editor.edit(editBuilder => {
-                    const startPosition = new Position(range.start.line, range.start.character);
-                    const nextLinePosition = new Position(range.start.line + 1, documentChange!.text.length - 1);
-                    const endPosition = new Position(range.end.line + 1, documentChange!.text.indexOf('\n'));
-                    editBuilder.insert(startPosition, "\" +\n");
-                    editBuilder.insert(nextLinePosition, "\"");
-                    editBuilder.delete(new Range(startPosition, endPosition));
-                });
+                if (response.kind === 'STRING_LITERAL') {
+                    editor.edit(editBuilder => {
+                        const startPosition = new Position(range.start.line, range.start.character);
+                        const nextLinePosition = new Position(range.start.line + 1, documentChange!.text.length - 1);
+                        const endPosition = new Position(range.end.line + 1, documentChange!.text.indexOf('\n'));
+                        editBuilder.insert(startPosition, "\" +\n");
+                        editBuilder.insert(nextLinePosition, "\"");
+                        editBuilder.delete(new Range(startPosition, endPosition));
+                    });
+                }
             });
         }
     }

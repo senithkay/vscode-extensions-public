@@ -89,7 +89,7 @@ export interface GetBallerinaProjectParams {
     };
 }
 
-export interface LiteralNodeRequestParams {
+export interface SyntaxTreeNodeRequestParams {
     documentIdentifier: {
         uri: string;
     };
@@ -105,8 +105,8 @@ export interface LiteralNodeRequestParams {
     };
 }
 
-export interface LiteralNodeResponse {
-    isLiteralNode: boolean;
+export interface SyntaxTreeNodeResponse {
+    kind: string;
 }
 
 export interface BallerinaAstOasChangeResponse {
@@ -149,7 +149,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaDocument/project", params);
     }
 
-    getLiteralNode(params: LiteralNodeRequestParams): Thenable<LiteralNodeResponse> {
-        return this.sendRequest("ballerinaDocument/literalNode", params);
+    getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
+        return this.sendRequest("ballerinaDocument/syntaxTreeNode", params);
     }
 }
