@@ -146,9 +146,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                             Ballerina Examples
                         </Header>
                         {this.state && this.state.noSearchReults ?
-                            (<>No search results found!</>)
-                            :
-                            null
+                            (<>No search results found!</>) : null
                         }
                         {this.state && this.state.samples && this.state.samples.length > 0 ?
                             (
@@ -195,6 +193,6 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                         </Grid>
                     </Grid.Column>
                 </Grid.Row>
-            </Grid >);
+            </Grid>);
     }
 }
