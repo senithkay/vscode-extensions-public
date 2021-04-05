@@ -23,6 +23,7 @@ import { BallerinaExampleCategory } from "./model";
 export interface SamplesListState {
     samples?: BallerinaExampleCategory[];
     searchQuery?: string;
+    noSearchReults?: boolean;
 }
 
 export interface SamplesListProps {
@@ -55,6 +56,16 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                     }
                     return sampleCategory.samples.length !== 0;
                 });
+                if (samples.length === 0) {
+                    samples = cloneDeep(this.availableSamples);
+                    this.setState({
+                        noSearchReults: true
+                    });
+                } else {
+                    this.setState({
+                        noSearchReults: false
+                    });
+                }
                 this.setState({
                     samples,
                 });
@@ -106,20 +117,20 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                 <List.Item>
                     <List.Header>{column.title}</List.Header>
                     <List animated verticalAlign="middle">
-                    {
-                        column.samples.map((sample) => {
-                            return (
-                            <List.Item className="example" key={sample.url}>
-                                <a
-                                    href="#"
-                                    onClick={
-                                        () => this.props.openSample(sample.url)}
-                                >
-                                    {sample.name}
-                                </a>
-                            </List.Item>);
-                        })
-                    }
+                        {
+                            column.samples.map((sample) => {
+                                return (
+                                    <List.Item className="example" key={sample.url}>
+                                        <a
+                                            href="#"
+                                            onClick={
+                                                () => this.props.openSample(sample.url)}
+                                        >
+                                            {sample.name}
+                                        </a>
+                                    </List.Item>);
+                            })
+                        }
                     </List>
                 </List.Item>
             </List>
@@ -134,6 +145,11 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                         <Header as="h3" dividing>
                             Ballerina Examples
                         </Header>
+                        {this.state && this.state.noSearchReults ?
+                            (<>No search results found!</>)
+                            :
+                            null
+                        }
                         {this.state && this.state.samples && this.state.samples.length > 0 ?
                             (
                                 <Form>
@@ -179,6 +195,6 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                         </Grid>
                     </Grid.Column>
                 </Grid.Row>
-            </Grid>);
+            </Grid >);
     }
 }
