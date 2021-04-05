@@ -864,7 +864,7 @@ export function getFormFieldReturnType(formField: FormField) {
                         if (field?.isStream){
                             type = `stream<${type}>`;
                         }
-                        
+
                         if (type){
                             returnTypes.push(type);
                         }
