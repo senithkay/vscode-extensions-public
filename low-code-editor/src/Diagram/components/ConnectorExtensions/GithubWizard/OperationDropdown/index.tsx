@@ -19,7 +19,7 @@ import classNames from 'classnames';
 
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
-import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 
 export interface OperationDropdownProps {
     operations: string[];
@@ -33,39 +33,37 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
     const classes = wizardStyles();
 
-    const handleSelect = (selectedOperation: string) => {
-        onOperationSelect(selectedOperation);
+    const handleSelect = (event: object, value: any, reason: string) => {
+        onOperationSelect(value);
     };
 
     return (
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName ? (
+                    { showConnectionName && (
                         <>
-                        <p className={classes.subTitle}>OperationS</p>
-                        <Box border={1} borderRadius={5} className={classes.box}>
-                            <Typography variant="subtitle2">
-                                {connectionDetails.name}
-                            </Typography>
-                            <IconButton
-                                color="primary"
-                                classes={ {
-                                    root: classes.changeConnectionBtn
-                                } }
-                                onClick={onConnectionChange}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        </Box>
+                            <p className={classes.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={classes.box}>
+                                <Typography variant="subtitle2">
+                                    {connectionDetails.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={ {
+                                        root: classes.changeConnectionBtn
+                                    } }
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </Box>
                         </>
-                    ) : null
-                    }
-                    <SelectDropdownWithButton
-                        customProps={{ disableCreateNew: true, values: operations }}
-                        label="Select Operation"
-                        placeholder="Select"
-                        defaultValue=""
+                    ) }
+                    <p className={classes.subTitle}>Operation</p>
+                    <FormAutocomplete
+                        placeholder="Search Operation"
+                        itemList={operations}
                         onChange={handleSelect}
                     />
                 </div>

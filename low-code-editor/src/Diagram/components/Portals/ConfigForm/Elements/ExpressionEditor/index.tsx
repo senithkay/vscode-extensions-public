@@ -229,6 +229,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const setDefaultTooltips = () => {
+        // add default tooltip if not given by explicitly
+        if (textLabel && model && !(customProps?.tooltipTitle || model?.tooltip) && model?.description) {
+            model.tooltip = model.description.substring(model.description.indexOf('-') + 1).trim();
+        }
+    }
+
     useEffect(() => {
         disposeAllTriggers();
 
@@ -555,7 +562,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // Block expression editor if there are diagnostics in the source code
         setInvalidSourceCode(diagnosticCheckerExp(mainDiagnostics));
 
-        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + '.bal');
+        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + getRandomInt(100000) + '.bal');
         const existingModel = editor.getModel(MONACO_URI_INMEMO);
         if (existingModel) {
             existingModel.dispose();
@@ -597,6 +604,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         })
     }
+
+    setDefaultTooltips();
 
     return (
         <>

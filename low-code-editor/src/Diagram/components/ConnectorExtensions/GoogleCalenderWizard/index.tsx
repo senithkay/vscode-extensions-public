@@ -203,22 +203,6 @@ export function GoogleCalender(props: WizardProps) {
             .find(field => field.name === key).value || "";
     }
 
-    const setAttendeeFieldValue = () => {
-        let record = "";
-        formFields[1].fields[12].value = [];
-        if (formFields[1].fields[12].fields.length > 0) {
-            formFields[1].fields[12].fields.forEach((field, index) => {
-                if (index === (formFields[1].fields[12].fields.length - 1)) {
-                    record += "{email: " + field.value + ", responseStatus: \"needsAction\"}";
-                } else {
-                    record += "{email: " + field.value + ", responseStatus: \"needsAction\"},";
-                }
-            });
-            formFields[1].fields[12].fields = undefined;
-            formFields[1].fields[12].value.push(record);
-        }
-    }
-
     const handleOnSave = () => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
@@ -239,14 +223,16 @@ export function GoogleCalender(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
-                            configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                            addConfigurableVars = createPropertyStatement(
+                                `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
+                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
@@ -267,11 +253,6 @@ export function GoogleCalender(props: WizardProps) {
                         );
                     }
                     modifications.push(addConnectorInit);
-                }
-
-                if (config.action.name === "createEvent") {
-                    // todo: temporary fix since we are not getting records
-                    setAttendeeFieldValue();
                 }
 
                 // Add an action invocation on the initialized client.
@@ -309,11 +290,6 @@ export function GoogleCalender(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (config.action.name === "createEvent") {
-                // todo: temporary fix since we are not getting records
-                setAttendeeFieldValue();
-            }
-
             if (isActionReturnError){
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
@@ -324,7 +300,7 @@ export function GoogleCalender(props: WizardProps) {
                     model.position
                 );
                 modifications.push(updateActionInvocation);
-            }else{
+            } else {
                 const updateActionInvocation: STModification = updateRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,

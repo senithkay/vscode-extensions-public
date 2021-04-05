@@ -41,7 +41,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
     const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, goToNextTourStep: dispatchGoToNextTourStep } = state;
+    const { isMutationProgress: isMutationInProgress, goToNextTourStep: dispatchGoToNextTourStep, isCodeEditorActive } = state;
     const { config, onCancel, onSave } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
@@ -113,70 +113,76 @@ export function AddRespondForm(props: RespondFormProps) {
 
     return (
         <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-            <div className={overlayClasses.configWizardContainer}>
-                <div className={formClasses.formTitleWrapper}>
-                    <ButtonWithIcon
-                        className={formClasses.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
+            {!isCodeEditorActive ?
+                (
+                    <div className={overlayClasses.configWizardContainer}>
+                        <div className={formClasses.formTitleWrapper}>
+                            <ButtonWithIcon
+                                className={formClasses.overlayDeleteBtn}
+                                onClick={onCancel}
+                                icon={<CloseRounded fontSize="small" />}
+                            />
 
-                    <div className={formClasses.mainTitleWrapper}>
-                        <img src="../../../../../../images/Respond.svg" />
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Respond</Box>
-                        </Typography>
-                    </div>
-                </div>
-                <div className={formClasses.formWrapper}>
-                    <div className="exp-wrapper product-tour-payload-jsonpayload">
-                        <ExpressionEditor
-                            model={{
-                                name: "respond expression",
-                                value: respondFormConfig.respondExpression,
-                                type: PrimitiveBalType.Union,
-                                fields: [
-                                    {
-                                        type: PrimitiveBalType.String
-                                    },
-                                    {
-                                        type: PrimitiveBalType.Xml
-                                    },
-                                    {
-                                        type: PrimitiveBalType.Json
-                                    },
-                                    {
-                                        type: PrimitiveBalType.Record,
-                                        typeInfo: httpResponse
-                                    }
-                                ]
-                            }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: tooltipMessages.expressionEditor.title,
-                                tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                interactive: true,
-                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                            }}
-                            onChange={onExpressionChange}
-                        />
-                    </div>
+                            <div className={formClasses.mainTitleWrapper}>
+                                <img src="../../../../../../images/Respond.svg" />
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>Respond</Box>
+                                </Typography>
+                            </div>
+                        </div>
+                        <div className={formClasses.formWrapper}>
+                            <div className="exp-wrapper product-tour-payload-jsonpayload">
+                                <ExpressionEditor
+                                    model={{
+                                        name: "respond expression",
+                                        value: respondFormConfig.respondExpression,
+                                        type: PrimitiveBalType.Union,
+                                        fields: [
+                                            {
+                                                type: PrimitiveBalType.String
+                                            },
+                                            {
+                                                type: PrimitiveBalType.Xml
+                                            },
+                                            {
+                                                type: PrimitiveBalType.Json
+                                            },
+                                            {
+                                                type: PrimitiveBalType.Record,
+                                                typeInfo: httpResponse
+                                            }
+                                        ]
+                                    }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: tooltipMessages.expressionEditor.title,
+                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
+                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        interactive: true,
+                                        statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
+                                    }}
+                                    onChange={onExpressionChange}
+                                />
+                            </div>
 
-                    {(config.wizardType === WizardType.NEW) ? statusCodeComp : null}
-                </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        dataTestId="save-btn"
-                        className="product-tour-save"
-                        text="Save"
-                        disabled={disableSave}
-                        fullWidth={false}
-                        onClick={onSaveWithTour}
-                    />
-                </div>
-            </div>
+                            {(config.wizardType === WizardType.NEW) ? statusCodeComp : null}
+                        </div>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                dataTestId="save-btn"
+                                className="product-tour-save"
+                                text="Save"
+                                disabled={disableSave}
+                                fullWidth={false}
+                                onClick={onSaveWithTour}
+                            />
+                        </div>
+                    </div>
+                )
+                :
+                null
+            }
         </FormControl>
     );
 }
