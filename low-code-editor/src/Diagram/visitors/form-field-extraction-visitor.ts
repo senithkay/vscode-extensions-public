@@ -35,6 +35,7 @@ import {
     StreamTypeDesc,
     StringTypeDesc,
     traversNode,
+    TupleTypeDesc,
     TypeDefinition,
     TypeReference,
     UnionTypeDesc,
@@ -191,6 +192,14 @@ class FieldVisitor implements Visitor {
         }
     }
 
+    beginVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState as FormField;
+            viewState.typeName = node.typeData?.typeSymbol.typeKind;
+            viewState.type = node.typeData?.typeSymbol.signature;
+        }
+    }
+
     endVisitUnionTypeDesc(node: UnionTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
@@ -272,19 +281,6 @@ class FieldVisitor implements Visitor {
                                     version: element.moduleID.version
                                 }
                             }
-
-                            // TODO: need to review
-                            // if(element.signature === "error"){
-                            //     const symbol = typeData?.symbol;
-                            //     element.viewState.typeName = symbol.name;
-                            //     element.viewState.optional = viewState?.optional;
-                            //     element.viewState.typeInfo = {
-                            //         modName: symbol.moduleID.moduleName,
-                            //         name: symbol.name,
-                            //         orgName: symbol.moduleID.orgName,
-                            //         version: symbol.moduleID.version
-                            //     }
-                            // }
 
                             viewState.fields.push(element.viewState);
                         });

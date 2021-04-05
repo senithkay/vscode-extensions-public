@@ -24,8 +24,7 @@ import {
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
-import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
@@ -823,49 +822,66 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
     }
 }
 
-export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
-    if (functionDefinitions.get(action)?.returnType?.isErrorType) {
-        // return type has an error
-        return true;
-    }
-    if (functionDefinitions.get(action)?.returnType?.fields
-        .find((param: any) => (param?.isErrorType || param?.type === "error"))) {
-        // return type has an error
-        return true;
-    }
-    // return type hasn't any error
-    return false;
+export function getInitReturnType(functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
+    const returnTypeField = functionDefinitions.get("init")?.returnType;
+    return getFormFieldReturnType(returnTypeField).hasError;
 }
 
-export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): string {
+export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): FormFieldReturnType {
     const returnTypeField = functionDefinitions.get(action)?.returnType;
     return getFormFieldReturnType(returnTypeField);
 }
 
-export function getFormFieldReturnType(formField: FormField) {
+function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
+    const response: FormFieldReturnType = {
+        hasError: formField?.isErrorType ? true : false,
+        hasReturn: false,
+        returnType: "var",
+    };
+    const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
+
     if (formField && formField?.isParam) {
         switch (formField.type) {
             case "union":
                 const returnTypes: string[] = [];
 
                 formField?.fields.forEach(field => {
-                    if (field?.isParam){
+                    if (field?.isParam) {
                         let type = "";
-                        if (field?.typeInfo) {
-                            type = `${field.typeInfo.modName}:${field.typeInfo.name}${field?.optional ? '?' : ''}`;
+                        if (field.type === "error" || field?.isErrorType) {
+                            response.hasError = true;
                         }
-                        if (field.type === "error"){
-                            type = "error?";
+                        if (type === "" && field?.typeInfo && !field?.isErrorType) {
+                            // set class/record types
+                            type = `${field.typeInfo.modName}:${field.typeInfo.name}`;
+                            response.hasReturn = true;
                         }
-                        if (field.type === "union"){
-                            // get union form field return types
-                            type = getFormFieldReturnType(field);
+                        if (type === "" && field?.type && primitives.includes(field.type)) {
+                            // set primitive types
+                            type = field.type;
+                            response.hasReturn = true;
                         }
-                        if (field?.isStream){
+                        if (type === "" && field?.type && field?.typeName === 'tuple') {
+                            // set tuple type
+                            type = field.type;
+                            response.hasReturn = true;
+                        }
+                        if (field?.optional) {
+                            // set optional tag
+                            type += '?';
+                        }
+                        if (type !== "" && field?.isStream) {
+                            // set stream tags
                             type = `stream<${type}>`;
                         }
+                        if (field.type === "union") {
+                            // get union form field return types
+                            response.returnType = getFormFieldReturnType(field).returnType;
+                            response.hasError = getFormFieldReturnType(field).hasError || response.hasError;
+                            response.hasReturn = getFormFieldReturnType(field).hasReturn || response.hasError;
+                        }
 
-                        if (type){
+                        if (type) {
                             returnTypes.push(type);
                         }
                     }
@@ -873,17 +889,21 @@ export function getFormFieldReturnType(formField: FormField) {
 
                 if (returnTypes.length > 0) {
                     // concat all return types with | character
-                    return returnTypes.length > 1 ? returnTypes.join("|") : returnTypes[ 0 ];
-                } else {
-                    // if there is no return types
-                    return "var";
+                    if (returnTypes.length > 1) {
+                        response.returnType = returnTypes.reduce((fullType, type) => {
+                            return `${fullType}${type !== '?' ? '|' : ''}${type}`;
+                        });
+                    } else {
+                        response.returnType = returnTypes[ 0 ];
+                        if (response.returnType === '?') {
+                            response.hasReturn = false;
+                        }
+                    }
                 }
-            default:
-                return "var";
         }
-    } else {
-        return "var";
     }
+
+    return response;
 }
 
 export interface VariableNameValidationResponse {

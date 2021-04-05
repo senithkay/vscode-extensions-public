@@ -87,6 +87,11 @@ export interface FormField {
     tooltip?: string;
     isErrorType?: boolean;
 }
+export interface FormFieldReturnType {
+    hasError: boolean;
+    hasReturn: boolean;
+    returnType: string;
+}
 
 // tslint:disable-next-line: max-classes-per-file
 export class ResponsePayloadMap {

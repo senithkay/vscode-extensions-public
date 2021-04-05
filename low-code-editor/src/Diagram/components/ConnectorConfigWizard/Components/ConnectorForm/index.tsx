@@ -32,21 +32,16 @@ import { ConnectionType, OauthConnectButton } from "../../../../components/Oauth
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
-    createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration,
     createPropertyStatement,
-    createRemoteServiceCall,
-    updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
     updatePropertyStatement,
-    updateRemoteServiceCall,
 } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getActionReturnType, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
+import { addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getInitReturnType, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -263,8 +258,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
+        const isInitReturnError = getInitReturnType(functionDefInfo);
         const actionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
@@ -282,23 +276,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(updateConnectorInit);
 
-                if (isActionReturnError) {
-                    const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        actionReturnType,
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
+                if (actionReturnType.hasReturn){
+                    const updateActionInvocation = updatePropertyStatement(
+                        `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
                     );
                     modifications.push(updateActionInvocation);
-                } else {
-                    const updateActionInvocation: STModification = updateRemoteServiceCall(
-                        actionReturnType,
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
+                }else{
+                    const updateActionInvocation = updatePropertyStatement(
+                        `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
                     );
                     modifications.push(updateActionInvocation);
@@ -333,22 +319,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
 
                     // Add an action invocation on the initialized client.
-                    if (isActionReturnError){
-                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            actionReturnType,
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
+                    if (actionReturnType.hasReturn){
+                        const addActionInvocation = createPropertyStatement(
+                            `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                            targetPosition
                         );
                         modifications.push(addActionInvocation);
                     }else{
-                        const addActionInvocation: STModification = createRemoteServiceCall(
-                            actionReturnType,
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
+                        const addActionInvocation = createPropertyStatement(
+                            `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                            targetPosition
                         );
                         modifications.push(addActionInvocation);
                     }
