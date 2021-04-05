@@ -108,7 +108,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         diagramErrorStateWrapper: {
             width: 465,
             bottom: "3.45rem",
-            left: "2.5rem",
+            left: "5.5rem",
             position: "absolute",
             marginRight: 'auto',
             zIndex: 2

@@ -81,7 +81,7 @@ export function ErrorList() {
                     }
                 }
                 const action = await langClient.codeAction(params);
-                actionsArr.push(action)
+                actionsArr.push(action.filter((actionItem: CodeAction) => actionItem.kind === 'quickfix'))
             }
             setCodeActions(actionsArr)
         })
@@ -158,6 +158,7 @@ export function ErrorList() {
                             variant="contained"
                             className={classes.diagramErrorMessageButton}
                             text='Jump to code'
+                            disabled={isCodeEditorActive || isCodeChangeInProgress}
                         />
                         {/* <CloseIcon className={classes.closeIcon}/> */}
                     </div>

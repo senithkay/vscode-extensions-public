@@ -17,7 +17,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         diagramErrorMessageWrapper: {
             width: 600,
             bottom: "12rem",
-            left: "5rem",
+            right: "5rem",
             position: "absolute",
             marginRight: 'auto',
             zIndex: 2,
