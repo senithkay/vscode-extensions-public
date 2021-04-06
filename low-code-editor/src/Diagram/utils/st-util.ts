@@ -63,7 +63,7 @@ const findResourceIndex = (serviceMembers: any, targetResource: any) => {
     return index || 0;
 }
 
-export function getLowCodeSTFnSelected(mp: ModulePart, currentResource: any = null) {
+export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null, fn: boolean = false) {
     const modulePart: ModulePart = mp;
     const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
@@ -73,14 +73,22 @@ export function getLowCodeSTFnSelected(mp: ModulePart, currentResource: any = nu
             functionDefinition = node as FunctionDefinition;
             functionDefinition.configurablePosition = node.position;
             break;
-        } else if (STKindChecker.isServiceDeclaration(node)) {
+        }
+
+        if (fn && STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
+            functionDefinition = node as FunctionDefinition;
+            functionDefinition.configurablePosition = node.position;
+            break;
+        }
+
+        if (STKindChecker.isServiceDeclaration(node)) {
             // TODO: Fix with the ST interface generation.
             const serviceDec = node as any;
             const serviceMembers: STNode[] = serviceDec.members;
 
             let resourceIndex = 0;
-            if (currentResource) {
-                const foundResourceIndex = findResourceIndex(serviceMembers, currentResource);
+            if (fncOrResource) {
+                const foundResourceIndex = findResourceIndex(serviceMembers, fncOrResource);
                 resourceIndex = foundResourceIndex > 0 ? foundResourceIndex : 0;
             }
 
