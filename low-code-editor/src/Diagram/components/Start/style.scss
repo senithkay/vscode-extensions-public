@@ -29,6 +29,49 @@
             filter: url(#StartFilterDefault) #5567d5;
         }
 
+        .start-options-wrapper {
+            fill: transparent;
+            display: none;
+            width: 100px;
+            height: 30px;
+
+            .disable {
+                pointer-events: none !important;
+                opacity: 0.5;
+
+                &:hover {
+                    cursor: none !important;
+                }
+            }
+
+            .start-rect {
+                fill: #5567d5;
+                height: 20px;
+                width: 60px;
+            }
+        }
+    }
+}
+
+.start-wrapper-edit {
+    user-select: none;
+
+    text .start-text {
+        fill: #fff;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.5;
+        text-align: center;
+        text-anchor: middle;
+    }
+
+    .start-button {
+        .start-button-rect {
+            fill: #5567d5;
+            filter: url(#StartFilterDefault) #5567d5;
+        }
+
         &:hover {
             filter: url(#StartFilterHover) #5567d5;
             cursor: pointer;
