@@ -45,6 +45,8 @@ export {
     BaseLangClientInterface,
     DiagramEditorLangClientInterface,
     ExpressionEditorLangClientInterface,
+    ExpressionTypeRequest,
+    ExpressionTypeResponse,
     ExpressionEditorState,
     DiagramSize,
     DiagramState,

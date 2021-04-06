@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 // tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from "react";
-import { FormHelperText } from "@material-ui/core";
+import { FormHelperText, Link } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
@@ -22,7 +22,7 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
@@ -164,6 +164,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [ expand, setExpand ] = useState(expandDefault || false);
+    const [ addCheck, setAddCheck ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -199,6 +200,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     severity: monaco.MarkerSeverity.Error
                 }])
             }
+        }
+    }
+
+    const handleTypeInfo = (typeInfo: string[]) => {
+        if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
+            // expression can resolve to an error
+            setAddCheck(true)
+        } else {
+            setAddCheck(false)
         }
     }
 
@@ -414,8 +424,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.didChange({
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.didChange({
                 contentChanges: [
                     {
                         text: expressionEditorState.content
@@ -428,8 +438,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.diagnostics({
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.diagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -441,7 +451,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        // await dispatchExprEditorStart(expEditorState);
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            const offset = varType.length + 1;
+            await langClient.getType({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                },
+                position: {
+                    line: targetPosition.line,
+                    offset
+                }
+            }).then((resp: any) => {
+                const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+                handleTypeInfo(typeInfo);
+            });
+        });
+
         if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
@@ -474,8 +499,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didChange({
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.didChange({
                     contentChanges: [
                         {
                             text: expressionEditorState.content
@@ -488,8 +513,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.diagnostics({
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.diagnostics({
                     documentIdentifier: {
                         uri: expressionEditorState.uri,
                     }
@@ -498,6 +523,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ...expressionEditorState,
                         diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
                     })
+                });
+            });
+
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                const offset = varType.length + 1;
+                await langClient.getType({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    },
+                    position: {
+                        line: targetPosition.line,
+                        offset
+                    }
+                }).then((resp: any) => {
+                    const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+                    handleTypeInfo(typeInfo);
                 });
             });
 
@@ -598,6 +639,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         })
     }
 
+    const addCheckToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("check " + editorModel.getValue());
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
     return (
         <>
             {textLabel ?
@@ -665,7 +716,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
                         <FormHelperText className={formClasses.invalidCode}>{expressionEditorState.diagnostic[0].message}</FormHelperText>
-                    ) : null
+                    ) : addCheck ?
+                        (
+                            <Link className={formClasses.typeCheckErrorText} onClick={addCheckToExpression}>Expression can resolve into an error. Click here to handle the it</Link>
+                        ) : null
             }
         </>
     );

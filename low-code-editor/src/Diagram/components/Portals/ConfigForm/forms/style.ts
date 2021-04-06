@@ -379,6 +379,16 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
+        typeCheckErrorText: {
+            fontSize: '11px !important',
+            color: '#ea4c4d !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            },
+            "&:hover": {
+                cursor: 'pointer',
+            }
+        },
         toFieldTooltipWrapper: {
             display: "flex",
             justifyContent: "space-between",
