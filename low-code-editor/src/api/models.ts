@@ -112,6 +112,7 @@ export interface AppInfo {
     workspace?: WorkspaceInfo;
     createdAt: string;
     cronSchedule?: string;
+    preBuilt?: boolean;
 }
 
 export interface PerformanceAnalysis {
