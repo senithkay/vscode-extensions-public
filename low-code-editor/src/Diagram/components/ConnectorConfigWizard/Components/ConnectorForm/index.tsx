@@ -229,8 +229,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     if (!isNewConnectorInitWizard) {
-        connectorConfig.action.returnVariableName =
-            (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        if (getActionReturnType(config.action.name, functionDefInfo)?.hasReturn){
+            connectorConfig.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        }
     }
 
     const showConnectionName = !isOauthConnector || isManualConnection || !isNewConnection;

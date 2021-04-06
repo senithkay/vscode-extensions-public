@@ -11,9 +11,11 @@
  * associated services.
  */
 import {
+    ActionStatement,
     AssignmentStatement,
     CallStatement,
     CaptureBindingPattern,
+    CheckAction,
     ForeachStatement,
     FunctionDefinition,
     LocalVarDecl,
@@ -131,6 +133,10 @@ class SymbolFindingVisitor implements Visitor {
         }
     }
 
+    public beginVisitActionStatement(node: ActionStatement) {
+        const actionName = (node.expression as CheckAction).expression.methodName.name.value;
+        actions.set(actionName, node);
+    }
 }
 
 function getType(typeNode: any): any {

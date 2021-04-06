@@ -49,13 +49,8 @@ import {
 import "./style.scss";
 
 export interface ConnectorClientProps {
-    // syntaxTree: STNode;
     model: STNode;
     blockViewState?: BlockViewState | any;
-    // connectors: BallerinaConnectorsInfo[];
-    // stSymbolInfo: STSymbolInfo;
-    // isMutationProgress: boolean;
-    // isWaitingOnWorkspace: boolean;
 }
 
 export function ConnectorClientC(props: ConnectorClientProps) {
@@ -91,7 +86,6 @@ export function ConnectorClientC(props: ConnectorClientProps) {
     let connectorIconId = (model?.viewState as StatementViewState)?.action?.iconId;
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
-    // const [isClosed, setIsClosed] = useState<boolean>(false);
     const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftVS.connector);
 
     if (model === null) {
@@ -107,26 +101,9 @@ export function ConnectorClientC(props: ConnectorClientProps) {
     const isDraftStatement: boolean = connectorClientViewState instanceof DraftStatementViewState;
     const connectorWrapper = isDraftStatement ? cn("main-connector-wrapper active-connector") : cn("main-connector-wrapper connector-client");
 
-    // const connectorDefDeleteMutation = (delModel: STNode): STModification[] => {
     const connectorDefDeleteMutation = (): any => {
         const invokedEPCount: number = 0;
-        // const viewState: StatementViewState = delModel.viewState as StatementViewState;
-        // const endpointName: string = viewState.action.endpointName;
-        // TODO: convert this.
-        // symbolInfo.actions.forEach((variableNode: ASTNode) => {
-        //     const actionVS: StatementViewState = variableNode.viewState as StatementViewState;
-        //     if (actionVS.action.endpointName === endpointName) {
-        //         invokedEPCount++;
-        //     }
-        // });
         if (invokedEPCount === 1) {
-            // todo need to change to ST
-            // const definitionNode: STNode = stSymbolInfo.endpoints.get(endpointName);
-            // const position = definitionNode.position;
-            // const modification: ASTModification = {
-            //     type: "delete",
-            //     ...position
-            // };
             return [];
         }
     };
@@ -153,7 +130,7 @@ export function ConnectorClientC(props: ConnectorClientProps) {
     const icon = getConnectorIcon(connectorIconId, iconProps);
 
     let isReferencedVariable = false;
-    const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
+    const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model) // || STKindChecker.isActionStatement(model);
     if (isLocalVariableDecl) {
         const localVarDecl = model as LocalVarDecl;
         const captureBingingPattern = localVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -162,8 +139,6 @@ export function ConnectorClientC(props: ConnectorClientProps) {
             isReferencedVariable = true;
         }
     }
-
-    // const [isReferencedVariableState] = useState(isReferencedVariable);
 
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
@@ -205,13 +180,12 @@ export function ConnectorClientC(props: ConnectorClientProps) {
                                             createModifications={connectorDefDeleteMutation}
                                         />
                                     </g>
-                                    <g className={!isLocalVariableDecl ? "disable" : ""}>
+                                    <g>
                                         <EditBtn
                                             onHandleEdit={toggleSelection}
                                             model={model}
                                             cx={connectorClientViewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
                                             cy={connectorClientViewState.bBox.cy + (CLIENT_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)}
-                                            isButtonDisabled={!isLocalVariableDecl}
                                         />
                                     </g>
                                     <g>
@@ -237,15 +211,5 @@ export function ConnectorClientC(props: ConnectorClientProps) {
         )
     );
 }
-
-// const mapStateToProps = () => {
-//     return {}
-// };
-
-// const mapDispatchToProps = {
-//     openNewConnectorConfigWizard: dispatchNewConnectorConfigWizard,
-// };
-
-// export const ConnectorClient = connect(mapStateToProps, mapDispatchToProps)(ConnectorClientC);
 
 export const ConnectorClient = ConnectorClientC;

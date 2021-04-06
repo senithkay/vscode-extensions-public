@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { ActionStatement, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -351,49 +351,60 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
-    const variable: LocalVarDecl = actionInvo;
+    let actionVariable: RemoteMethodCallAction;
+    let remoteMethodCallAction: RemoteMethodCallAction;
+    let matchModule: boolean = false;
+    let matchName: boolean = false;
 
-    if (variable.initializer) {
-        let actionVariable: RemoteMethodCallAction;
-        switch (variable.initializer.kind) {
-            case 'TypeCastExpression':
-                const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                break;
-            case 'RemoteMethodCallAction':
-                actionVariable = variable.initializer as RemoteMethodCallAction;
-                break;
-            default:
-                actionVariable = (variable.initializer as CheckAction).expression;
-        }
+    switch (actionInvo.kind) {
+        case "LocalVarDecl":
+            const variable = actionInvo as LocalVarDecl;
+            switch (variable.kind) {
+                case 'TypeCastExpression':
+                    const initializer = variable.initializer as TypeCastExpression;
+                    actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                    break;
+                case 'RemoteMethodCallAction':
+                    actionVariable = variable.initializer as RemoteMethodCallAction;
+                    break;
+                default:
+                    actionVariable = (variable.initializer as CheckAction).expression;
+            }
+            break;
 
-        const remoteMethodCallAction: RemoteMethodCallAction = isSTActionInvocation(actionVariable);
-        let matchModule: boolean = false;
-        let matchName: boolean = false;
+        case "ActionStatement":
+            const statement = actionInvo as ActionStatement;
+            actionVariable = (statement.expression as CheckAction).expression;
+            break;
 
-        if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
-            remoteMethodCallAction.methodName.typeData) {
-            const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
-            const endPoint = stSymbolInfo.endpoints.get(endPointName);
-            const typeData: any = remoteMethodCallAction.methodName.typeData;
-            if (typeData?.symbol?.moduleID) {
-                const moduleId: any = typeData?.symbol?.moduleID;
-                for (const connectorInfo of connectors) {
-                    if (connectorInfo.module === moduleId.moduleName) {
-                        matchModule = true;
-                    }
-                    if (connectorInfo.name ===
-                        ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                            .identifier.value) {
-                        matchName = true;
-                    }
+        default:
+            // TODO: need to handle this flow
+            return undefined;
+    }
 
-                    if (matchModule && matchName) {
-                        connector = connectorInfo;
-                        break;
-                    }
+    remoteMethodCallAction = isSTActionInvocation(actionVariable);
+
+    if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
+        remoteMethodCallAction.methodName.typeData) {
+        const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
+        const endPoint = stSymbolInfo.endpoints.get(endPointName);
+        const typeData: any = remoteMethodCallAction.methodName.typeData;
+        if (typeData?.symbol?.moduleID) {
+            const moduleId: any = typeData?.symbol?.moduleID;
+            for (const connectorInfo of connectors) {
+                if (connectorInfo.module === moduleId.moduleName) {
+                    matchModule = true;
+                }
+                if (connectorInfo.name ===
+                    ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                        .identifier.value) {
+                    matchName = true;
+                }
+                if (matchModule && matchName) {
+                    connector = connectorInfo;
+                    break;
                 }
             }
         }

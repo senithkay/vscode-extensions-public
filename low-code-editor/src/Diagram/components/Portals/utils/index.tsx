@@ -13,6 +13,7 @@
 import React, { ReactNode } from "react";
 
 import {
+    ActionStatement,
     BooleanLiteral, CaptureBindingPattern, CheckAction,
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
@@ -425,19 +426,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     });
 }
 
-export function matchActionToFormField(variable: LocalVarDecl, formFields: FormField[]) {
-    let remoteCall: RemoteMethodCallAction;
-    switch (variable.initializer.kind) {
-        case 'TypeCastExpression':
-            const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
-            remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-            break;
-        case 'RemoteMethodCallAction':
-            remoteCall = variable.initializer as RemoteMethodCallAction;
-            break;
-        default:
-            remoteCall = (variable.initializer as CheckAction).expression;
-    }
+export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formFields: FormField[]) {
     const remoteMethodCallArguments = remoteCall.arguments.filter(arg => arg.kind !== 'CommaToken');
     let nextValueIndex = 0;
     for (const formField of formFields) {
@@ -581,51 +570,21 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
         }
     });
     symbolInfo.actions.forEach((variableNodes: STNode, type: string) => {
-        const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
-        const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
-            CaptureBindingPattern;
-        if (!variableCollection[variable.variableName.value]) {
-            variableCollection[variable.variableName.value] = {
-                "type": type,
-                "position": 0,
-                "isUsed": 0
+        if (variableNodes.kind === "LocalVarDecl"){
+            const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
+            const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
+                CaptureBindingPattern;
+            if (!variableCollection[variable.variableName.value]) {
+                variableCollection[variable.variableName.value] = {
+                    "type": type,
+                    "position": 0,
+                    "isUsed": 0
+                }
             }
         }
     });
     return variableCollection;
 }
-
-// documentSymbol request is no longer supported by the LS
-// export async function getAllVariables(): Promise<{ [key: string]: any }> {
-//     const langClient: BallerinaLangClient = await getLangClientForCurrentApp();
-//     // const { state: { langClient }} = useContext(DiagramContext);
-//     const symbolInfo = await langClient.getDocumentSymbol({
-//         textDocument: {
-//             uri: monaco.Uri.file(store.getState()?.appInfo?.currentApp?.workingFile).toString()
-//         }
-//     });
-//     if (symbolInfo) {
-//         const varList: { [key: string]: any } = {};
-//         if (isDocumentSymbol(symbolInfo[0])) {
-//             (symbolInfo as DocumentSymbol[]).forEach((symbol: DocumentSymbol) => {
-//                 varList[symbol.name] = {
-//                     "type": getSymbolKind(symbol.kind),
-//                     "position": 0,
-//                     "isUsed": 0
-//                 }
-//             })
-//         } else {
-//             (symbolInfo as SymbolInformation[]).forEach((symbol: SymbolInformation) => {
-//                 varList[symbol.name] = {
-//                     "type": getSymbolKind(symbol.kind),
-//                     "position": symbol.location.range.start.line,
-//                     "isUsed": 0
-//                 }
-//             })
-//         }
-//         return varList
-//     }
-// }
 
 function isDocumentSymbol(symbol: DocumentSymbol | SymbolInformation): symbol is DocumentSymbol {
     return symbol && (symbol as DocumentSymbol).range !== undefined;
@@ -657,17 +616,6 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
     iterateFormFields(_formFields);
     return mapTo;
 }
-
-// export function getConnectorConfig(connectorName: string): OauthConnectorConfig {
-//     const configs: OauthConnectorConfig[] = store.getState().oauthProviderConfigs.configList;
-//     let oauthConfig: OauthConnectorConfig = null;
-//     configs.forEach((config) => {
-//         if (config.connectorName.toLocaleLowerCase() === connectorName.toLocaleLowerCase()) {
-//             oauthConfig = config;
-//         }
-//     });
-//     return oauthConfig;
-// }
 
 export async function fetchConnectorInfo(connector: Connector, model?: STNode, state?: any): Promise<ConfigWizardState> {
     // check existing in same code file
@@ -706,33 +654,48 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // Filter connector functions to have better usability.
         functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
-            const variable: LocalVarDecl = model as LocalVarDecl;
             let remoteCall: RemoteMethodCallAction;
-            switch (variable.initializer.kind) {
-                case 'TypeCastExpression':
-                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+            let returnVarName: string;
+
+            switch (model.kind) {
+                case "LocalVarDecl":
+                    const variable = model as LocalVarDecl;
+                    switch (variable.kind) {
+                        case 'TypeCastExpression':
+                            const initializer = variable.initializer as TypeCastExpression;
+                            remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                            break;
+                        case 'RemoteMethodCallAction':
+                            remoteCall = variable.initializer as RemoteMethodCallAction;
+                            break;
+                        default:
+                            remoteCall = (variable.initializer as CheckAction).expression;
+                    }
+                    const bindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+                    returnVarName = bindingPattern.variableName.value;
                     break;
-                case 'RemoteMethodCallAction':
-                    remoteCall = variable.initializer as RemoteMethodCallAction;
+
+                case "ActionStatement":
+                    const statement = model as ActionStatement;
+                    remoteCall = (statement.expression as CheckAction).expression;
                     break;
+
                 default:
-                    remoteCall = (variable.initializer as CheckAction).expression;
+                    // TODO: need to handle this flow
+                    return undefined;
             }
-            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                CaptureBindingPattern;
-            const returnVarName: string = bindingPattern.variableName.value;
-            if (remoteCall && returnVarName) {
+
+            if (remoteCall) {
                 const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
                 const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
-                if (remoteCall && actionName) {
+                if (actionName) {
                     const action: ActionConfig = new ActionConfig();
                     action.name = actionName.name.value;
                     action.returnVariableName = returnVarName;
                     connectorConfig.action = action;
                     connectorConfig.name = configName.name.value;
                     connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
-                    matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+                    matchActionToFormField(remoteCall, connectorConfig.action.fields);
                 }
             }
 
