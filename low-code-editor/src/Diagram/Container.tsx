@@ -18,7 +18,6 @@ export default function DiagramContainer(props: Props) {
         // diagnostics,
         // targetPosition,
         // langClient,
-        dispatch,
         ...restProps
     } = props;
 

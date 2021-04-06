@@ -76,7 +76,6 @@ export default function LowCodeEditor(props: Props) {
         langServerURL,
         workingFile,
         currentApp,
-        dispatch,
         exprEditorState,
         ...restProps
     } = props;
