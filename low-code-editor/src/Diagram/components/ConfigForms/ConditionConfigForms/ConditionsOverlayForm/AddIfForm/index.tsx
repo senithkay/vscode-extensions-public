@@ -40,7 +40,7 @@ export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 export function AddIfForm(props: IfProps) {
     const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress } = state;
+    const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
@@ -83,40 +83,46 @@ export function AddIfForm(props: IfProps) {
     }
 
     return (
-
         <FormControl data-testid="if-form" className={classes.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
-                <div className={classes.formWrapper}>
-                    <ButtonWithIcon
-                        className={classes.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
-                    <div className={classes.formTitleWrapper}>
-                        <div className={classes.mainTitleWrapper}>
-                            <div className={classes.iconWrapper}>
-                                <IfIcon />
+            {!isCodeEditorActive ?
+                // tslint:disable-next-line:jsx-no-multiline-js
+                (
+                <div className={overlayClasses.configWizardContainer}>
+                    <div className={classes.formWrapper}>
+                        <ButtonWithIcon
+                            className={classes.overlayDeleteBtn}
+                            onClick={onCancel}
+                            icon={<CloseRounded fontSize="small" />}
+                        />
+                        <div className={classes.formTitleWrapper}>
+                            <div className={classes.mainTitleWrapper}>
+                                <div className={classes.iconWrapper}>
+                                    <IfIcon />
+                                </div>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>If</Box>
+                                </Typography>
                             </div>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>If</Box>
-                            </Typography>
+                        </div>
+                        <div className="exp-wrapper">
+                            <ExpressionEditor {...expElementProps} />
                         </div>
                     </div>
-                    <div className="exp-wrapper">
-                        <ExpressionEditor {...expElementProps} />
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                        <PrimaryButton
+                            dataTestId={"if-save-btn"}
+                            text="Save"
+                            disabled={isMutationInProgress || isInvalid}
+                            fullWidth={false}
+                            onClick={handleOnSaveClick}
+                        />
                     </div>
                 </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        dataTestId={"if-save-btn"}
-                        text="Save"
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleOnSaveClick}
-                    />
-                </div>
-            </div>
+                )
+                :
+                null
+            }
         </FormControl>
     );
 }

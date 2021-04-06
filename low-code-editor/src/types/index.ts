@@ -62,7 +62,6 @@ export interface AppSplitViews{
 }
 
 export interface LowCodeEditorProps {
-    currentResource?: any;
     appInfo?: AppViewState;
     zoomStatus?: any;
     isLoadingAST?: boolean;
@@ -73,8 +72,7 @@ export interface LowCodeEditorProps {
     getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
     getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
     workingFile?: string;
-    syntaxTree: STNode;
-    originalSyntaxTree?: STNode;
+    syntaxTree: ModulePart;
     stSymbolInfo?: STSymbolInfo;
     isCodeEditorActive?: boolean;
     isConfigPanelOpen?: boolean;
