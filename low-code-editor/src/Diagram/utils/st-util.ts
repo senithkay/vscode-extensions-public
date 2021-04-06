@@ -69,11 +69,11 @@ export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null
     let functionDefinition: FunctionDefinition;
 
     for (const node of members) {
-        if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
-            functionDefinition = node as FunctionDefinition;
-            functionDefinition.configurablePosition = node.position;
-            break;
-        }
+        // if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
+        //     functionDefinition = node as FunctionDefinition;
+        //     functionDefinition.configurablePosition = node.position;
+        //     break;
+        // }
 
         if (fn && STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
             functionDefinition = node as FunctionDefinition;
