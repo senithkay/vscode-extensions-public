@@ -40,7 +40,7 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddReturnForm(props: ReturnFormProps) {
     const { state } = useContext(Context);
-    const { appInfo, isMutationProgress: isMutationInProgress } = state;
+    const { appInfo, isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
     const { currentApp } = appInfo;
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;
@@ -61,56 +61,62 @@ export function AddReturnForm(props: ReturnFormProps) {
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
     return (
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
-                <div className={classes.formTitleWrapper}>
+            {!isCodeEditorActive ?
+                (
+                    <div className={overlayClasses.configWizardContainer}>
+                        <div className={classes.formTitleWrapper}>
 
-                    <ButtonWithIcon
-                        className={classes.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
-                    <div className={classes.mainTitleWrapper}>
-                        <div className={classes.iconWrapper}>
-                            <ReturnIcon />
+                            <ButtonWithIcon
+                                className={classes.overlayDeleteBtn}
+                                onClick={onCancel}
+                                icon={<CloseRounded fontSize="small" />}
+                            />
+                            <div className={classes.mainTitleWrapper}>
+                                <div className={classes.iconWrapper}>
+                                    <ReturnIcon />
+                                </div>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>Return</Box>
+                                </Typography>
+                            </div>
+
+                            <div className={classes.formWrapper}>
+                                {
+                                    containsMainFunction ?
+                                        (
+                                            <div className="exp-wrapper">
+                                                <ExpressionEditor
+                                                    model={{ name: "return expression", type: "error", value: config.expression }}
+                                                    customProps={{
+                                                        validate: validateExpression,
+                                                        tooltipTitle: tooltipMessages.expressionEditor.title,
+                                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
+                                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                                        interactive: true,
+                                                        statementType: 'error'
+                                                    }}
+                                                    onChange={onReturnValueChange}
+                                                />
+                                            </div>
+                                        ) : null
+                                }
+
+                            </div>
                         </div>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Return</Box>
-                        </Typography>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                text="Save"
+                                disabled={isButtonDisabled}
+                                fullWidth={false}
+                                onClick={onSave}
+                            />
+                        </div>
                     </div>
-
-                    <div className={classes.formWrapper}>
-                        {
-                            containsMainFunction ?
-                                (
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor
-                                            model={{ name: "return expression", type: "error", value: config.expression }}
-                                            customProps={{
-                                                validate: validateExpression,
-                                                tooltipTitle: tooltipMessages.expressionEditor.title,
-                                                tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                                tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                                                interactive: true,
-                                                statementType: 'error'
-                                            }}
-                                            onChange={onReturnValueChange}
-                                        />
-                                    </div>
-                                ) : null
-                        }
-
-                    </div>
-                </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        text="Save"
-                        disabled={isButtonDisabled}
-                        fullWidth={false}
-                        onClick={onSave}
-                    />
-                </div>
-            </div>
+                )
+                :
+                null
+            }
         </FormControl>
     );
 }

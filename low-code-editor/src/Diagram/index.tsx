@@ -120,6 +120,7 @@ export function Diagram(props: DiagramProps) {
                         {child}
                     </Canvas>
                     {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
             </PanAndZoom>

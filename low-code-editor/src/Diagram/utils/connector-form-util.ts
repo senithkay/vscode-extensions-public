@@ -179,8 +179,11 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
+                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+                    // todo: add these operations when bal connector class fetch support is there
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
@@ -188,6 +191,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "init") {
                     value.parameters.find(field => field.name === "clientConfig").hide = true;
                     value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.IMAP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.IMAP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.IMAP.password
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
@@ -197,6 +209,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "init") {
                     value.parameters.find(field => field.name === "clientConfig").hide = true;
                     value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.POP3.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.POP3.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.POP3.password
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
@@ -254,14 +275,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
 
                     filteredFunctions.set(key, value);
-                }else if (key === "createEvent") {
-                    value.parameters[1].fields.forEach((field) => {
+                } else if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
                         } else if (field.name === "attendees") {
-                            field.displayName = "email";
-                            field.collectionDataType = PrimitiveBalType.String;
+                            field.displayName = "Attendee Emails";
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -279,7 +299,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
-                } else if (!((key === "watchEvents") || (key === "updateEvent") || (key === "getEventResponse") || (key === "getCalendars"))) {
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
                     filteredFunctions.set(key, value);
                 }
             });
@@ -426,25 +446,15 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'createIssue':
-                    case 'getOrganization':
-                        break;
-                    case 'getRepository':
-                        value.parameters.forEach(field => {
-                            if (field.name === 'repoIdentifier') {
-                                field.isUnion = false;
-                                field.type = PrimitiveBalType.String;
-                                field.value = field.fields[0].value;
-                                field.fields = [];
-                            }
-                        })
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
+                if (key === 'getRepository') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'repoIdentifier') {
+                            field.isUnion = false;
+                            field.type = PrimitiveBalType.String;
+                            field.value = field.fields[0].value;
+                            field.fields = [];
+                        }
+                    })
                 }
             });
             break;
