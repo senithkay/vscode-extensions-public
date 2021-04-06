@@ -135,7 +135,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         disableDiagramIcon: {
             right: '4rem',
             position: "fixed",
-            top: '1.1rem'
+            top: '1.1rem',
+            zIndex: 3
         }
     }),
 );
