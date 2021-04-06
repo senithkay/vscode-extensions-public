@@ -195,8 +195,28 @@ class FieldVisitor implements Visitor {
     beginVisitTupleTypeDesc(node: TupleTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
-            viewState.typeName = node.typeData?.typeSymbol.typeKind;
-            viewState.type = node.typeData?.typeSymbol.signature;
+            viewState.type = "tuple";
+
+            node.memberTypeDesc
+                .filter(param => param.kind !== 'CommaToken')
+                .forEach(param => {
+                    param.viewState = {
+                        isParam: true
+                    };
+                });
+        }
+    }
+
+    endVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState as FormField;
+            viewState.type = "tuple";
+            viewState.fields = [];
+
+            node.memberTypeDesc?.filter(field => field.kind !== 'CommaToken')
+                .forEach(field => {
+                    viewState.fields.push(field.viewState);
+                });
         }
     }
 
