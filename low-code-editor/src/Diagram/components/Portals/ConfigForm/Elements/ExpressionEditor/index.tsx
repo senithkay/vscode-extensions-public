@@ -727,7 +727,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         <FormHelperText className={formClasses.invalidCode}>{expressionEditorState.diagnostic[0].message}</FormHelperText>
                     ) : addCheck ?
                         (
-                            <Link className={formClasses.typeCheckErrorText} onClick={addCheckToExpression}>Expression can resolve into an error. Click here to handle the it</Link>
+                            <div className={formClasses.addCheckWrapper} >
+                                <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
+                                <FormHelperText className={formClasses.addCheckText}>This expression could cause an error. {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>Click here</a>} to handle it</FormHelperText>
+                            </div>
                         ) : null
             }
         </>
