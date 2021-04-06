@@ -14,18 +14,28 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import {
+    FunctionBodyBlock,
+    FunctionDefinition, LocalVarDecl, MappingConstructor,
+    ModulePart,
+    ModuleVarDecl,
+    QualifiedNameReference, SpecificField,
+    STKindChecker, STNode
+} from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { Gcalendar, GcalendarConnectionInfo } from "../../../../../../../../Definitions/connector";
+import { STModification } from "../../../../../../../../Definitions";
+import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
@@ -48,7 +58,10 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
-        getGcalendarList
+        getGcalendarList,
+        stSymbolInfo,
+        originalSyntaxTree,
+        onMutate: dispatchMutations
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
@@ -57,7 +70,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const classes = useStyles();
 
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     const [triggerChanged, setTriggerChanged] = useState(false);
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
@@ -107,29 +119,25 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const handleGcalendarChange = (event: object, value: any) => {
         setActiveGcalendar(value);
     };
-    const getKeyFromConnection = (key: string) => {
+    const getKeyFromCalConnection = (key: string) => {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
-    };
-    const handleDialogOnCancel = () => {
-        setShowConfirmDialog(false);
     };
 
     const handleUserConfirm = () => {
-        if (isEmptySource) {
-            handleConfigureOnSave();
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            createCalendarTrigger();
         } else {
-            // get user confirmation if code there
-            setShowConfirmDialog(true);
+            updateCalendarTrigger();
         }
     };
 
     // handle trigger configure complete
-    const handleConfigureOnSave = () => {
-        const accessToken = getKeyFromConnection('accessTokenKey');
-        const clientId = getKeyFromConnection('clientIdKey');
-        const clientSecret = getKeyFromConnection('clientSecretKey');
-        const refreshUrl = getKeyFromConnection('tokenEpKey');
-        const refreshToken = getKeyFromConnection('refreshTokenKey');
+    const createCalendarTrigger = () => {
+        const accessToken = getKeyFromCalConnection('accessTokenKey');
+        const clientId = getKeyFromCalConnection('clientIdKey');
+        const clientSecret = getKeyFromCalConnection('clientSecretKey');
+        const refreshUrl = getKeyFromCalConnection('tokenEpKey');
+        const refreshToken = getKeyFromCalConnection('refreshTokenKey');
 
         setTriggerChanged(true);
         // dispatch and close the wizard
@@ -145,6 +153,67 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             UUID: Math.floor(Math.random() * 10000000) // FIXME: Use UUID instead
         });
         trackTriggerSelection("Google Calender");
+    };
+
+    // handle calendar trigger creation
+    const updateCalendarTrigger = () => {
+        // get nodes to be edited
+        const calenderConfig = (originalSyntaxTree as ModulePart).members.find(member =>
+            ((member as ModuleVarDecl)?.typedBindingPattern?.typeDescriptor as QualifiedNameReference)?.
+                identifier?.value === "CalendarConfiguration") as ModuleVarDecl;
+        const oauthConfigField = (calenderConfig.initializer as MappingConstructor).fields.find(field =>
+            (field as SpecificField).fieldName.value === "oauth2Config") as SpecificField;
+        const oauthConfigValExprNode = oauthConfigField.valueExpr;
+
+        const functionDefs = (originalSyntaxTree as ModulePart).members.filter(member =>
+            STKindChecker.isFunctionDefinition(member)) as FunctionDefinition[];
+        const intFunction = functionDefs.find(functionDef =>
+            functionDef.functionName.value === "init") as FunctionDefinition;
+        const localVarDecls = (intFunction.functionBody as FunctionBodyBlock).statements.filter(statement =>
+            STKindChecker.isLocalVarDecl(statement)) as LocalVarDecl[];
+        let calIdNode: STNode;
+        localVarDecls.forEach(varDecl => {
+            if (varDecl.initializer?.typeData?.typeSymbol?.name === "WatchResponse" &&
+                STKindChecker.isCheckAction(varDecl.initializer)) {
+                 calIdNode = varDecl.initializer.expression.arguments[0];
+            }
+        });
+
+        // get configurable node if exists
+        const clientIdKeyNode = stSymbolInfo.configurables.get(getKeyFromConnection(activeConnection, 'clientIdKey'));
+
+        // connector Edit
+        const modifications: STModification[] = [];
+
+        if (oauthConfigValExprNode && calIdNode) {
+            if (!clientIdKeyNode) {
+                const initialConfigurable = (originalSyntaxTree as ModulePart).members.find(member =>
+                    (member as ModuleVarDecl)?.qualifiers.find(qualifier =>
+                        STKindChecker.isConfigurableKeyword(qualifier)));
+
+                modifications.push(createPropertyStatement(`\nconfigurable string ${getKeyFromConnection(activeConnection, 'clientIdKey')} = ?;
+                configurable string ${getKeyFromConnection(activeConnection, 'clientSecretKey')} = ?;
+                configurable string ${getKeyFromConnection(activeConnection, 'refreshTokenKey')} = ?;
+                configurable string ${getKeyFromConnection(activeConnection, 'tokenEpKey')} = ?;`,
+                    {column: 0, line: initialConfigurable?.position?.startLine - 1 || 1}));
+            }
+            const clientId = getKeyFromCalConnection('clientIdKey');
+            const clientSecret = getKeyFromCalConnection('clientSecretKey');
+            const refreshToken = getKeyFromCalConnection('refreshTokenKey');
+            const refreshUrl = getKeyFromCalConnection('tokenEpKey');
+
+            const calConfigTemplate = `{\n
+                                            clientId: ${clientId},\n
+                                            clientSecret: ${clientSecret},\n
+                                            refreshUrl: ${refreshUrl},\n
+                                            refreshToken: ${refreshToken}\n
+                                            \n
+                                       }\n`;
+            modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
+            modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
+            dispatchMutations(modifications);
+            setTriggerChanged(true);
+        }
     };
 
     return (
@@ -192,12 +261,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         />
                     </div>
                 )}
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    onConfirm={handleConfigureOnSave}
-                    onCancel={handleDialogOnCancel}
-                />
-            )}
         </>
     )
 }
