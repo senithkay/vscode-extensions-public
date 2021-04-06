@@ -62,7 +62,6 @@ export interface AppSplitViews{
 }
 
 export interface LowCodeEditorProps {
-    currentResource?: any;
     appInfo?: AppViewState;
     zoomStatus?: any;
     isLoadingAST?: boolean;

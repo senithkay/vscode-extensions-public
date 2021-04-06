@@ -83,7 +83,6 @@ export interface DiagramState {
     exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
     resourceMembers?: any;
-    currentResource?: any;
 }
 
 export interface ExpressionEditorState {
