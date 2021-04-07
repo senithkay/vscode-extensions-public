@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, ModulePart, VisibleEndpoint, Visitor } from "@ballerina/syntax-tree";
+import { BlockStatement, DoStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, ModulePart, OnFailClause, STKindChecker, VisibleEndpoint, Visitor } from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
@@ -19,9 +19,10 @@ import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
-    CompilationUnitViewState, ElseViewState, EndpointViewState,
+    CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState,
     ForEachViewState,
     FunctionViewState, IfViewState,
+    OnErrorViewState,
     PlusViewState,
     StatementViewState
 } from "../view-state";
@@ -52,6 +53,7 @@ class PositioningVisitor implements Visitor {
         }
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
+        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
 
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
@@ -64,6 +66,18 @@ class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+
+        if (body.statements.length > 0) {
+            for (const statement of body.statements) {
+                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
+                    if (statement.onFailClause) {
+                        const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
+                        onFailViewState.bBox.cx = viewState.end.bBox.cx;
+                        onFailViewState.bBox.cy = viewState.end.bBox.cy;
+                    }
+                }
+            }
+        }
     }
 
     public endVisitFunctionDefinition(node: FunctionDefinition) {
@@ -85,8 +99,19 @@ class PositioningVisitor implements Visitor {
         }
 
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+        let widthOfOnFailClause = 0;
+        if (body.statements.length > 0) {
+            for (const statement of body.statements) {
+                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
+                    if (statement.onFailClause) {
+                        const onFailBlockViewState = statement.onFailClause.blockStatement.viewState as BlockViewState;
+                        widthOfOnFailClause = onFailBlockViewState.bBox.w;
+                    }
+                }
+            }
+        }
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -325,6 +350,28 @@ class PositioningVisitor implements Visitor {
         }
     }
 
+    public beginVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = viewState.bBox.cx;
+            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
+
+            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w/2);
+            viewState.container.y = blockViewState.bBox.cy;
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = viewState.bBox.cx + DefaultConfig.startingOnErrorX;
+            blockViewState.bBox.cy = viewState.bBox.cy;
+            viewState.lifeLine.x = blockViewState.bBox.cx;
+            viewState.lifeLine.y = blockViewState.bBox.cy;
+        }
+    }
 }
 
 export const visitor = new PositioningVisitor();

@@ -5,6 +5,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -12,6 +13,7 @@ import {
     IfElseStatement,
     LocalVarDecl,
     ModulePart,
+    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceKeyword,
@@ -36,7 +38,9 @@ import {
     StatementViewState,
     ViewState
 } from "../view-state";
+import { DoViewState } from "../view-state/do";
 import { DraftStatementViewState } from "../view-state/draft";
+import { OnErrorViewState } from "../view-state/onError";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock;
@@ -270,6 +274,33 @@ class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const doViewState: DoViewState = node.viewState as DoViewState;
+            if (node.blockStatement) {
+                const viewState = new BlockViewState();
+                viewState.isDoBlock = true;
+                node.blockStatement.viewState = viewState;
+            }
+
+            if (node.onFailClause) {
+                const onFailViewState: OnErrorViewState = new OnErrorViewState();
+                onFailViewState.isFirstInFunctionBody = true;
+                node.onFailClause.viewState = onFailViewState;
+            }
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            if (node.blockStatement) {
+                const viewState = new BlockViewState();
+                viewState.isOnErrorBlock = true;
+                node.blockStatement.viewState = viewState;
+            }
+        }
+    }
+
     private initStatement(node: STNode, parent?: STNode) {
         node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
@@ -350,9 +381,13 @@ class InitVisitor implements Visitor {
         let collapseFrom: number = 0;
         let collapsed: boolean = false;
         let plusButtons: PlusViewState[] = [];
+        let isDoBlock: boolean = false;
+        let isOnErrorBlock: boolean = false;
         if (node.viewState) {
             const viewState: BlockViewState = node.viewState as BlockViewState;
             draft = viewState.draft;
+            isDoBlock = viewState.isDoBlock;
+            isOnErrorBlock = viewState.isOnErrorBlock;
             if (viewState.collapseView) {
                 collapseView = viewState.collapseView;
                 collapseFrom = viewState.collapsedFrom;
@@ -369,6 +404,9 @@ class InitVisitor implements Visitor {
         node.viewState.collapsedFrom = collapseFrom;
         node.viewState.collapsed = collapsed;
         node.viewState.plusButtons = plusButtons;
+
+        node.viewState.isDoBlock = isDoBlock;
+        node.viewState.isOnErrorBlock = isOnErrorBlock;
 
         if (node.VisibleEndpoints) {
             const visibleEndpoints = node.VisibleEndpoints;
@@ -403,8 +441,18 @@ class InitVisitor implements Visitor {
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             node.viewState.isEndComponentAvailable = true;
         }
-    }
 
+        if (STKindChecker.isFunctionDefinition(parent)) {
+            for (const statement of node.statements) {
+                if (STKindChecker.isDoStatement(statement)) {
+                    const viewState: DoViewState = new DoViewState();
+                    viewState.isFirstInFunctionBody = true;
+                    statement.viewState = viewState;
+                    break;
+                }
+            };
+        }
+    }
 }
 
 export const visitor = new InitVisitor();

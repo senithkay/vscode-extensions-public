@@ -12,6 +12,8 @@
  */
 export class DiagramConfig {
 
+    public startingOnErrorX: number = 120;
+
     public startingY: number = 90;
 
     public dotGap: number = 8;

@@ -15,12 +15,14 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
+    DoStatement,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
     LocalVarDecl,
     ModulePart,
+    OnFailClause,
     STKindChecker,
     STNode,
     Visitor
@@ -38,7 +40,7 @@ import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/P
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, isSTActionInvocation } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 
 import { DefaultConfig } from "./default";
@@ -338,6 +340,24 @@ class SizingVisitor implements Visitor {
         // Calculate whole if/else statement width and height
         viewState.bBox.h = viewState.headIf.h + ifBodyViewState.bBox.length;
         viewState.bBox.w = ((viewState.headIf.w / 2) + diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth)) * 2;
+    }
+
+    public endVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        const blockViewState = node.blockStatement.viewState as BlockViewState;
+        viewState.container.h = viewState.container.offsetFromTop + blockViewState.bBox.h + viewState.container.offsetFromBottom;
+        viewState.container.w = blockViewState.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2);
+
+        viewState.bBox.w = viewState.container.w;
+        viewState.bBox.h = viewState.container.h;
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        const blockViewState = node.blockStatement.viewState as BlockViewState;
+        viewState.lifeLine.h = blockViewState.bBox.h;
+        viewState.bBox.w = blockViewState.bBox.w;
+        viewState.bBox.h = blockViewState.bBox.h;
     }
 
     private sizeStatement(node: STNode) {
