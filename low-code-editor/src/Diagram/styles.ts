@@ -113,6 +113,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: "absolute",
             top: '4.3rem'
         },
+        diagramErrorStateWrapper: {
+            width: 465,
+            bottom: "3.45rem",
+            left: "5.5rem",
+            position: "absolute",
+            marginRight: 'auto',
+            zIndex: 2
+        },
         updateButton: {
             display: 'flex',
             justifyContent: "flex-end",
@@ -135,12 +143,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         disableDiagramIcon: {
             right: '1rem',
             position: "fixed",
-            top: '1.1rem'
+            top: '1.1rem',
+            zIndex: 3
         },
         disableAPIDiagramIcon: {
             right: '1rem',
             position: "fixed",
-            top: '4.1rem'
+            top: '4.1rem',
+            zIndex: 3
         }
     }),
 );

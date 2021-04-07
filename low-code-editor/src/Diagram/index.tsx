@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
@@ -21,9 +21,9 @@ import { STModification } from "../Definitions";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
-import { DiagramActiveState } from "./components/DiagramState/DiagramActiveState";
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
+import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
@@ -45,6 +45,8 @@ export interface DiagramProps {
     isConfigPanelOpen: boolean;
     isConfigOverlayFormOpen: boolean;
     triggerType?: TriggerType;
+    dispatchFileChange?: (content: string) => Promise<void>;
+    dispatchCodeChangeCommit?: () => Promise<void>;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -54,16 +56,37 @@ export function Diagram(props: DiagramProps) {
         isLoadingAST,
         error,
         isWaitingOnWorkspace,
-        dispatchMutations,
-        dispatchModifyTrigger,
         isMutationInProgress,
         isCodeEditorActive,
         isConfigPanelOpen,
         isConfigOverlayFormOpen,
         triggerType
     } = props;
-    const { state: { diagnostics } } = useContext(Context);
+    const { state: {
+        diagnostics
+    } } = useContext(Context);
+
     const classes = useStyles();
+    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
+    const numberOfErrors = diagnostics.length;
+    const diagramErrors = diagnostics.length > 0;
+    const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
+    const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
+
+    React.useEffect(() => {
+        setIsErrorStateDialogOpen(diagramErrors);
+        setIsErrorDetailsOpen(diagramErrors);
+    }, [diagramErrors])
+
+    const openErrorDialog = () => {
+        setIsErrorStateDialogOpen(true);
+        setIsErrorDetailsOpen(true);
+    }
+
+    const closeErrorDialog = () => {
+        setIsErrorStateDialogOpen(false);
+        setIsErrorDetailsOpen(false);
+    }
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -81,8 +104,13 @@ export function Diagram(props: DiagramProps) {
         </div>
     );
 
-    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
-    const diagramStatus = diagnosticInDiagram ? <DiagramErrorState /> : <DiagramActiveState />;
+    const diagramErrorMessage = (
+        <div className={classes.diagramErrorStateWrapper}>
+            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen}/>
+        </div>
+    );
+
+    const diagramStatus = diagnosticInDiagram ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -116,6 +144,15 @@ export function Diagram(props: DiagramProps) {
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
+
+            {diagnosticInDiagram && (
+                <div className={classes.diagramErrorStateWrapper}>
+                    <OverlayBackground />
+                    {diagramStatus}
+                </div>
+            )}
+
+            {isErrorDetailsOpen && <ErrorList />}
 
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
