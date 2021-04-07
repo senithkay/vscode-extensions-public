@@ -72,7 +72,9 @@ export interface LowCodeEditorProps {
     getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
     getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
     workingFile?: string;
-    syntaxTree: ModulePart;
+    // syntaxTree: ModulePart | STNode;
+    syntaxTree: any;
+    originalSyntaxTree?: STNode;
     stSymbolInfo?: STSymbolInfo;
     isCodeEditorActive?: boolean;
     isConfigPanelOpen?: boolean;
