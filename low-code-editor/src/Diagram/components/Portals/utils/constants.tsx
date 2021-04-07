@@ -94,6 +94,11 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Learn about calendar trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
     },
+    salesforceTrigger: {
+        title: "To trigger an application based on Salesforce events",
+        actionText: "Learn about salesforce trigger",
+        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+    },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
         title: "Set the path to expose the API.",
