@@ -97,8 +97,10 @@ export function SMTPWizard(props: WizardProps) {
 
     if (!isNewConnectorInitWizard) {
         const smtpVar = model as LocalVarDecl;
-        connectorConfig.action.returnVariableName =
-            (smtpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+        if (getActionReturnType(connectorConfig.action.name, functionDefinitions)?.hasReturn){
+            connectorConfig.action.returnVariableName =
+                (smtpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+        }
     }
 
     const handleCreateNew = () => {

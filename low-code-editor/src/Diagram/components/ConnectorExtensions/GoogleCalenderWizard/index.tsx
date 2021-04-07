@@ -301,8 +301,10 @@ export function GoogleCalender(props: WizardProps) {
         config.connectorInit = connectorInitFormFields;
     } else {
         connectorInitFormFields = config.connectorInit;
-        config.action.returnVariableName =
-            (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        if (getActionReturnType(config.action.name, functionDefinitions)?.hasReturn){
+            config.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        }
     }
 
     return (
