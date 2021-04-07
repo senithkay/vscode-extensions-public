@@ -71,8 +71,12 @@ export function Diagram(props: DiagramProps) {
         </div>
     );
 
+    const disableIconClassCheck = (triggerType === "API") ? classes.disableAPIDiagramIcon : classes.disableDiagramIcon;
+    const enableIconClassCheck = (triggerType === "API") ? classes.diagramAPIStateWrapper : classes.diagramStateWrapper;
+
     const diagramDisabledStatus = (
-        <div className={classes.disableDiagramIcon}>
+
+        <div className={disableIconClassCheck}>
             <DiagramDisableState />
         </div>
     );
@@ -108,7 +112,7 @@ export function Diagram(props: DiagramProps) {
             {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledStatus}
             {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
 
-            <div className={classes.diagramStateWrapper}>
+            <div className={enableIconClassCheck}>
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
                 {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
             </div>
