@@ -100,10 +100,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: 'inherit',
         },
         diagramStateWrapper: {
-            right: '4rem',
+            // right: '2rem',
             marginRight: 'auto',
             position: "absolute",
-            top: '1.1rem'
+            // top: '4.1rem'
+            right: '4.2rem',
+            top: '1rem'
+        },
+        diagramAPIStateWrapper: {
+            right: '4.2rem',
+            marginRight: 'auto',
+            position: "absolute",
+            top: '4.3rem'
         },
         diagramErrorStateWrapper: {
             width: 465,
@@ -133,9 +141,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             lineHeight: '29px',
         },
         disableDiagramIcon: {
-            right: '4rem',
+            right: '1rem',
             position: "fixed",
             top: '1.1rem',
+            zIndex: 3
+        },
+        disableAPIDiagramIcon: {
+            right: '1rem',
+            position: "fixed",
+            top: '4.1rem',
             zIndex: 3
         }
     }),

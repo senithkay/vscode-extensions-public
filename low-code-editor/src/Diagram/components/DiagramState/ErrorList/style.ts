@@ -20,7 +20,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             right: "5rem",
             position: "absolute",
             marginRight: 'auto',
-            zIndex: 2,
+            zIndex: 101,
             background: "white",
             borderRadius: "1rem",
             border: "1px solid #fe523c",
