@@ -145,32 +145,19 @@ class FieldVisitor implements Visitor {
 
     beginVisitArrayTypeDesc(node: ArrayTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
-            const viewState: FormField | any = node.viewState as FormField;
+            const viewState: FormField = node.viewState as FormField;
             viewState.isArray = true;
             viewState.type = PrimitiveBalType.Collection;
 
-            switch (node.memberTypeDesc.kind) {
-                case 'StringTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.String;
-                    break;
-                case 'IntTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.Int
-                    break;
-                case 'FloatTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.Float
-                    break;
-                case 'UnionTypeDesc':
-                    const fieldViewState: FormField = {
-                        isParam: viewState.isParam,
-                        isArray: true,
-                        type: PrimitiveBalType.Union
-                    }
-                    viewState.fields.push(fieldViewState);
-                    break;
-                case 'SimpleNameReference':
-                    node.memberTypeDesc.viewState = viewState;
-                    break;
+            if (node.memberTypeDesc) {
+                node.memberTypeDesc.viewState = { isParam: true };
             }
+        }
+    }
+
+    endVisitArrayTypeDesc(node: ArrayTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.viewState.collectionDataType = node.memberTypeDesc?.viewState;
         }
     }
 

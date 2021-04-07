@@ -63,7 +63,7 @@ export interface FormField {
     type: PrimitiveBalType | any;
     name?: string;
     displayName?: string;
-    collectionDataType?: PrimitiveBalType;
+    collectionDataType?: FormField;
     selectedDataType?: string;
     typeName?: string;
     description?: string;

@@ -823,31 +823,42 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                             type = field.type;
                             response.hasReturn = true;
                         }
+
+                        if (field.type === 'tuple') {
+                            // set tuple type
+                            const returnTypeResponse = getFormFieldReturnType(field);
+                            response.hasError = returnTypeResponse.hasError || response.hasError;
+                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
+                            type = returnTypeResponse.returnType;
+                        }
+                        if (field.type === "union") {
+                            // get union form field return types
+                            const returnTypeResponse = getFormFieldReturnType(field);
+                            response.hasError = returnTypeResponse.hasError || response.hasError;
+                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
+                            type = returnTypeResponse.returnType;
+                        }
+                        if (field.type === "collection" && field?.collectionDataType) {
+                            // get union form field return types
+                            const returnTypeResponse = getFormFieldReturnType(field.collectionDataType);
+                            response.hasError = returnTypeResponse.hasError || response.hasError;
+                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
+                            type = returnTypeResponse.returnType;
+                        }
+                        // filters
                         if (field?.isArray) {
                             // set array type
-                            type += '[]';
+                            type = type.includes('|') ? `(${type})[]` : `${type}[]`;
                         }
                         if (field?.optional) {
                             // set optional tag
-                            type += '?';
+                            type = type.includes('|') ? `(${type})?` : `${type}?`;
                         }
                         if (type !== "" && field?.isStream) {
                             // set stream tags
                             type = `stream<${type}>`;
                         }
-                        if (field.type === 'tuple') {
-                            // set tuple type
-                            response.hasError = getFormFieldReturnType(field).hasError || response.hasError;
-                            response.hasReturn = getFormFieldReturnType(field).hasReturn || response.hasError;
-                            response.returnType = getFormFieldReturnType(field).returnType;
-                        }
-                        if (field.type === "union") {
-                            // get union form field return types
-                            response.hasError = getFormFieldReturnType(field).hasError || response.hasError;
-                            response.hasReturn = getFormFieldReturnType(field).hasReturn || response.hasError;
-                            response.returnType = getFormFieldReturnType(field).returnType;
-                        }
-
+                        // collector
                         if (type) {
                             returnTypes.push(type);
                         }
@@ -886,7 +897,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                             type = field.type;
                             response.hasReturn = true;
                         }
-
+                        // collector
                         if (type) {
                             returnTypes.push(type);
                         }

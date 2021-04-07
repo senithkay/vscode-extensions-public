@@ -46,8 +46,8 @@ export function Union(props: FormElementProps<UnionProps>) {
                             values.push(field.typeName);
                         }
                     } else if ((field.type === "collection")) {
-                        if (field.collectionDataType) {
-                            values.push(field.collectionDataType);
+                        if (field.collectionDataType?.type) {
+                            values.push(field.collectionDataType.type);
                         }
                     } else {
                         values.push(transformFormFieldTypeToString(field));
@@ -65,8 +65,8 @@ export function Union(props: FormElementProps<UnionProps>) {
                 let type: string = "";
                 if (field.type === "record") {
                     type = field.typeName;
-                } else if (field.type === "collection" && field.collectionDataType) {
-                    type = field.collectionDataType;
+                } else if (field.type === "collection" && field.collectionDataType?.type) {
+                    type = field.collectionDataType.type;
                 } else {
                     type = transformFormFieldTypeToString(field);
                 }

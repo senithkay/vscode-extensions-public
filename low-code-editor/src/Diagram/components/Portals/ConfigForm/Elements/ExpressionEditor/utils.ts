@@ -126,8 +126,8 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "collection") {
-                    if (field.collectionDataType) {
-                        type = field.collectionDataType + "[]";
+                    if (field.collectionDataType?.type) {
+                        type = field.collectionDataType.type + "[]";
                     }
                 } else if (field.type) {
                     type = field.type;
@@ -142,8 +142,8 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
     } else if (model.type === "collection") {
         if (model.typeInfo) {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
-        } else if (model.collectionDataType) {
-            return model.collectionDataType + "[]";
+        } else if (model.collectionDataType?.type) {
+            return model.collectionDataType.type + "[]";
         }
     } else if (model.type) {
         return model.type;
