@@ -17,20 +17,20 @@
  * under the License.
  *
  */
-import * as path from 'path';
+import { delimiter, join, sep } from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
 export function getServerOptions(ballerinaCmd: string): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
-    let cmd = ballerinaCmd;
+    let cmd = process.platform === 'win32' ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
     let args = ["start-language-server"];
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
 
     if (process.env.LS_EXTENSIONS_PATH !== "") {
         if (opt.env.BALLERINA_CLASSPATH_EXT) {
-            opt.env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;
+            opt.env.BALLERINA_CLASSPATH_EXT += delimiter + process.env.LS_EXTENSIONS_PATH;
         } else {
             opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
         }
@@ -51,4 +51,10 @@ export function getServerOptions(ballerinaCmd: string): ServerOptions {
         args,
         options: opt
     };
+}
+
+function getConvertedPath(ballerinaCmd: string): string {
+    let paths = ballerinaCmd.split(sep);
+    paths = paths.map(path => path.startsWith("\"") && path.endsWith("\"") ? path.substring(1, path.length - 1) : path);
+    return join.apply(null, paths);
 }
