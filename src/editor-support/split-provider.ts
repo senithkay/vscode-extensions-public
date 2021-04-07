@@ -19,10 +19,14 @@
 import { BallerinaExtension } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 
+const newLine: string = process.platform === "win32" ? '\r\n' : '\n';
+const STRING_LITERAL: string = 'STRING_LITERAL';
+
 /**
  * Provides string split capablity upon new line event.
  */
 export class StringSplitter {
+
 
     public updateDocument(event: TextDocumentChangeEvent) {
         const editor = window.activeTextEditor;
@@ -32,7 +36,7 @@ export class StringSplitter {
 
         let documentChange: TextDocumentContentChangeEvent | undefined;
         event.contentChanges.forEach(change => {
-            if (change.text.startsWith('\n')) {
+            if (change.text.startsWith(newLine)) {
                 documentChange = change;
             }
         });
@@ -64,13 +68,13 @@ export class StringSplitter {
                 if (!response.kind) {
                     return;
                 }
-                if (response.kind === 'STRING_LITERAL') {
+                if (response.kind === STRING_LITERAL) {
                     editor.edit(editBuilder => {
                         const startPosition = new Position(range.start.line, range.start.character);
                         const nextLinePosition = new Position(range.start.line + 1, documentChange!.text.length - 1);
                         const endPosition = new Position(range.end.line + 1, documentChange!.text.indexOf('\n'));
-                        editBuilder.insert(startPosition, "\" +\n");
-                        editBuilder.insert(nextLinePosition, "\"");
+                        editBuilder.insert(startPosition, `\" +${newLine}`);
+                        editBuilder.insert(nextLinePosition, `\"`);
                         editBuilder.delete(new Range(startPosition, endPosition));
                     });
                 }
