@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { DoStatement } from "./DoStatement";
 import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
 import { ModulePart } from "./ModulePart";
 import { Statement } from "./Statement";
-import { DoStatement } from "./DoStatement";
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };

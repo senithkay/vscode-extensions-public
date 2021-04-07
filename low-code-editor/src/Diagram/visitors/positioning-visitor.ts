@@ -357,7 +357,7 @@ class PositioningVisitor implements Visitor {
             blockViewState.bBox.cx = viewState.bBox.cx;
             blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
 
-            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w/2);
+            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
             viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
         }
     }
@@ -366,11 +366,11 @@ class PositioningVisitor implements Visitor {
         const viewState = node.viewState as OnErrorViewState;
         if (viewState.isFirstInFunctionBody) {
             const blockViewState = node.blockStatement.viewState as BlockViewState;
-            
+
             viewState.header.cx = viewState.bBox.cx + DefaultConfig.startingOnErrorX;
             viewState.header.cy = viewState.bBox.cy;
-            blockViewState.bBox.cx = viewState.header.cx + (viewState.header.w/2);
-            blockViewState.bBox.cy = viewState.header.cy + (viewState.header.h/2);
+            blockViewState.bBox.cx = viewState.header.cx + (viewState.header.w / 2);
+            blockViewState.bBox.cy = viewState.header.cy + (viewState.header.h / 2);
             viewState.lifeLine.x = blockViewState.bBox.cx;
             viewState.lifeLine.y = blockViewState.bBox.cy;
         }
