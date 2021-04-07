@@ -35,7 +35,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
         },
         diagramErrorItemDivider: {
-            height: "0.5px",
+            height: 0.5,
             background: "#E6E7EC",
         },
         diagramErrorMessageText: {
