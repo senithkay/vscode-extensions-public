@@ -25,6 +25,8 @@ export interface DoStatementProps {
     model: BallerinaDoStatement;
 }
 
+const DOTEXTWIDTH: number = 14;
+
 export function DoStatement(props: DoStatementProps) {
 
     const { state, insertComponentStart } = useContext(DiagramContext);
@@ -59,6 +61,7 @@ export function DoStatement(props: DoStatementProps) {
                 rx="6.5"
                 className="error-handdling"
             />
+            <text x={doViewState.container.x} y={doViewState.container.y + DOTEXTWIDTH} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">DO</text>
             {...pluses}
             {...drafts}
             {...children}

@@ -51,6 +51,7 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             node.viewState = new ViewState();
         }
+        this.initStatement(node, parent);
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -71,7 +72,11 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        this.visitBlock(node, parent);
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.initStatement(node, parent);
+        } else {
+            this.visitBlock(node, parent);
+        }
     }
 
     public beginVisitActionStatement(node: ActionStatement, parent?: STNode) {
@@ -275,12 +280,14 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+        if (!node.viewState) {
+            node.viewState = new DoViewState();
+        }
+        const viewState = new BlockViewState();
         if (node.viewState && node.viewState.isFirstInFunctionBody) {
             const doViewState: DoViewState = node.viewState as DoViewState;
             if (node.blockStatement) {
-                const viewState = new BlockViewState();
                 viewState.isDoBlock = true;
-                node.blockStatement.viewState = viewState;
             }
 
             if (node.onFailClause) {
@@ -288,16 +295,26 @@ class InitVisitor implements Visitor {
                 onFailViewState.isFirstInFunctionBody = true;
                 node.onFailClause.viewState = onFailViewState;
             }
+        } else {
+            this.initStatement(node, parent);
+        }
+
+        if (node.blockStatement) {
+            node.blockStatement.viewState = viewState;
         }
     }
 
     public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            if (node.blockStatement) {
-                const viewState = new BlockViewState();
-                viewState.isOnErrorBlock = true;
-                node.blockStatement.viewState = viewState;
-            }
+        if (!node.viewState) {
+            node.viewState = new OnErrorViewState();
+        }
+        const viewState = new BlockViewState();
+        if (node.viewState && node.viewState.isFirstInFunctionBody && node.blockStatement) {
+            viewState.isOnErrorBlock = true;
+        }
+
+        if (node.blockStatement) {
+            node.blockStatement.viewState = viewState;
         }
     }
 

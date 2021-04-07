@@ -13,6 +13,7 @@
 export class DiagramConfig {
 
     public startingOnErrorX: number = 120;
+    public startingOnErrorY: number = 25;
 
     public startingY: number = 90;
 

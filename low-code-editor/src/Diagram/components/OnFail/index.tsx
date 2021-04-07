@@ -16,42 +16,66 @@ import { OnFailClause as BallerinaOnFailClause } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-import { getSTComponents } from "../../utils";
-import { FunctionViewState, OnErrorViewState } from "../../view-state";
+import { getDraftComponent, getSTComponents } from "../../utils";
+import { BlockViewState, FunctionViewState, OnErrorViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { End } from "../End";
+import { PlusButton } from "../Plus";
 import { WorkerLine } from "../WorkerLine";
-import "../workerLine/style.scss";
+
+import "./style.scss";
 
 export interface OnFailClauseProps {
     model: BallerinaOnFailClause;
 }
 
+const ERRORTITLEWIDTH = 33;
+const TITLEWIDTH = 56;
+const GLOBALERRORPATH = 127;
+
 export function OnFailClause(props: OnFailClauseProps) {
-    // const { state, insertComponentStart } = useContext(DiagramContext);
+    const { state, insertComponentStart } = useContext(DiagramContext);
 
     const { model } = props;
-    const classes = cn("worker-line");
+    const classes = cn("on-error-line");
+    const onFailSeparator = cn("on-error-separator");
+    const onFailClauseSVGClass = cn("on-fail-container");
     const viewState: OnErrorViewState = model.viewState as OnErrorViewState;
-    const endViewState: FunctionViewState = model.viewState;
+    const blockViewState: BlockViewState = model.blockStatement.viewState as BlockViewState;
     const children = getSTComponents(model.blockStatement.statements);
+    const pluses: React.ReactNode[] = [];
+    const drafts: React.ReactNode[] = [];
+
+    // TODO: Figureout how to provide plus UI in to on error diagram.
+    // for (const plusView of blockViewState.plusButtons) {
+    //     pluses.push(<PlusButton viewState={plusView} model={model.blockStatement} initPlus={false} />)
+    // }
+
+    // if (blockViewState?.draft) {
+    //     drafts = getDraftComponent(blockViewState, state, insertComponentStart);
+    // }
 
     let lifeLine: React.ReactNode = null;
     if (viewState) {
         lifeLine = <line x1={viewState.lifeLine.x} y1={viewState.lifeLine.y} x2={viewState.lifeLine.x} y2={viewState.lifeLine.y + viewState.lifeLine.h} />
     }
 
-    const ERRORTITLEWIDTH = 33;
-    const TITLEWIDTH = 56;
-
     return (
-        <g>
-            <g className={classes}>
-                {lifeLine}
+        <svg x={viewState.bBox.cx} y={viewState.bBox.cy} width={viewState.bBox.w} height={viewState.bBox.h} className={onFailClauseSVGClass}>
+            <g>
+                <g className={classes}>
+                    {lifeLine}
+                </g>
+                <g className={onFailSeparator}>
+                    <line x1={-(viewState.bBox.w / 2)} y1={0} x2={-(viewState.bBox.w / 2)} y2={viewState.lifeLine.h + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2)} />
+                </g>
+                <rect id="Rectangle" width={ERRORTITLEWIDTH} height="1" x={viewState.lifeLine.x - ERRORTITLEWIDTH / 2} y={viewState.lifeLine.y} fill="#5567d5" />
+                <text x={viewState.header.cx - (GLOBALERRORPATH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom - (DefaultConfig.startingOnErrorY * 2)} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
+                <text x={viewState.header.cx - (TITLEWIDTH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
+                {...pluses}
+                {...drafts}
+                {...children}
             </g>
-            <rect id="Rectangle" width={ERRORTITLEWIDTH} height="1" x={viewState.lifeLine.x - ERRORTITLEWIDTH / 2} y={viewState.lifeLine.y} fill="#5567d5" />
-            <text x={viewState.lifeLine.x - (TITLEWIDTH / 2)} y={viewState.lifeLine.y - DefaultConfig.dotGap} fill="#32324d" font-size="10" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON ERROR</text>
-            {...children}
-        </g>
+        </svg>
     );
 }
