@@ -21,7 +21,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: "absolute",
             marginRight: 'auto',
             zIndex: 101,
-            background: "white",
+            background: "#efefef9e",
             borderRadius: "1rem",
             border: "1px solid #fe523c6e",
             maxHeight: '70vh',
