@@ -3,6 +3,7 @@ import { SimpleBBox } from "./simple-bbox";
 
 export class OnErrorViewState extends StatementViewState {
     public isFirstInFunctionBody: boolean = false;
+    public header: SimpleBBox = new SimpleBBox();
     public lifeLine: SimpleBBox = new SimpleBBox();
     constructor() {
         super();

@@ -352,12 +352,22 @@ class SizingVisitor implements Visitor {
         viewState.bBox.h = viewState.container.h;
     }
 
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        const blockViewState = node.blockStatement.viewState as BlockViewState;
+        viewState.header.h = DefaultConfig.onErrorHeader.h;
+        viewState.header.w = DefaultConfig.onErrorHeader.w;
+        viewState.lifeLine.h = blockViewState.bBox.h;
+        viewState.bBox.w = blockViewState.bBox.w + viewState.header.w + DefaultConfig.onErrorHeader.w;
+        viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
+    }
+
     public endVisitOnFailClause(node: OnFailClause) {
         const viewState = node.viewState as OnErrorViewState;
         const blockViewState = node.blockStatement.viewState as BlockViewState;
         viewState.lifeLine.h = blockViewState.bBox.h;
-        viewState.bBox.w = blockViewState.bBox.w;
-        viewState.bBox.h = blockViewState.bBox.h;
+        viewState.bBox.w = blockViewState.bBox.w + viewState.header.w;
+        viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
     }
 
     private sizeStatement(node: STNode) {

@@ -162,6 +162,11 @@ export class DiagramConfig {
         x: 350,
         y: 54,
     };
+
+    public onErrorHeader = {
+        h: 100,
+        w: 200,
+    }
 }
 
 export const DefaultConfig = new DiagramConfig();
