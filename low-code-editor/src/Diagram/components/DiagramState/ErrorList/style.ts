@@ -40,12 +40,26 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         diagramErrorMessageText: {
             flex: 1,
-            textTransform: 'capitalize',
         },
         diagramErrorMessageButton: {
             height: '2.5rem !important',
             marginLeft: theme.spacing(1),
             textTransform: 'unset',
+        },
+        diagramErrorMessageGreyButton: {
+            height: '2.5rem !important',
+            marginLeft: theme.spacing(1),
+            textTransform: 'unset',
+            "&:hover": {
+                boxShadow: 'inset 0 0 0 1px rgb(0 0 0 / 6%), 0 2px 4px 0 rgb(0 0 0 / 9%)',
+                backgroundColor: '#f1f4ff',
+            },
+            "&:disabled": {
+                color: '#9e9e9eba !important',
+                opacity: 0.75,
+                boxShadow: 'inset 0 0 0 1px rgb(255 255 255 / 30%), 0 0 0 0 rgb(0 0 0 / 7%)',
+                backgroundColor: '#d4d4d48c !important',
+            }
         },
         closeIcon: {
             margin: 5,

@@ -156,7 +156,7 @@ export function ErrorList() {
                         <GreyButton
                             onClick={() => onJumpToCodeClick(item.range)}
                             variant="contained"
-                            className={classes.diagramErrorMessageButton}
+                            className={classes.diagramErrorMessageGreyButton}
                             text='Jump to code'
                             disabled={isCodeEditorActive || isCodeChangeInProgress}
                         />

@@ -11,6 +11,7 @@
  * associated services.
  */
 import * as React from "react";
+
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -24,15 +25,15 @@ const LightTooltip = withStyles((theme) => ({
       borderTopLeftRadius: 20,
       borderBottomLeftRadius: 20,
     },
-    popperInteractive:{
-        padding:'5px',
+    popperInteractive: {
+        padding: '5px',
         left: '25px !important'
     }
   }))(Tooltip);
 
 export function DiagramDisableState() {
     return (
-            <LightTooltip title="Diagram is inactive" interactive placement='left'>
+            <LightTooltip title="Diagram is inactive" interactive={true} placement='left'>
                 <img height='40px' src="../../../../../../images/disable-diagram-icon.svg" />
             </LightTooltip>
     );
