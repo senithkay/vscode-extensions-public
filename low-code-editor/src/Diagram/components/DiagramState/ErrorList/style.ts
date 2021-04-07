@@ -41,10 +41,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         diagramErrorMessageText: {
             flex: 1,
             textTransform: 'capitalize',
-            // marginRight: '5px'
         },
         diagramErrorMessageButton: {
-            // width: '7rem',
             height: '2.5rem !important',
             marginLeft: theme.spacing(1),
             textTransform: 'unset',
