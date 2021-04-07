@@ -275,7 +275,7 @@ export class BallerinaExtension {
                 }
 
                 ballerinaExecutor = 'bal';
-                debug(`'bal' command is picked up from the plugin.`);
+                debug(`'bal' executor is picked up by the plugin.`);
                 resolve(stdout);
             });
         });
@@ -295,7 +295,7 @@ export class BallerinaExtension {
                 }
 
                 ballerinaExecutor = 'ballerina';
-                debug(`'ballerina' command is picked up from the plugin.`);
+                debug(`'ballerina' executor is picked up by the plugin.`);
                 resolve(stdout);
             });
         });
