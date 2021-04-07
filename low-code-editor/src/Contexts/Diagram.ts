@@ -12,6 +12,7 @@
  */
 import { STNode } from "@ballerina/syntax-tree";
 
+import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
 
 import createContext from "./createContext";
@@ -44,13 +45,14 @@ const reducer = (state: any, action: any) => {
             return {
                 ...state,
                 isDataMapperShown: !state.isDataMapperShown,
-                dataMapperFunctionName: action.payload
+                dataMapperConfig: action.payload
             }
-            case 'TOGGLE_DIAGRAM_OVERLAY':
-                return {
-                    ...state,
-                    isConfigOverlayFormOpen: !state.isConfigOverlayFormOpen
-                }
+        case 'TOGGLE_DIAGRAM_OVERLAY':
+            return {
+                ...state,
+                isConfigOverlayFormOpen: !state.isConfigOverlayFormOpen,
+                dataMapperConfig: undefined
+            }
         default:
             return state;
     }
@@ -83,13 +85,13 @@ const actions = {
         }
     },
     dataMapperStart: (dispatch: any) => {
-        return (dataMapperFunctionName: string) => {
-            dispatch({type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperFunctionName})
+        return (dataMapperConfig: DataMapperConfig) => {
+            dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
         }
     },
     toggleDiagramOverlay: (dispatch: any) => {
         return () => {
-            dispatch({type: 'TOGGLE_DIAGRAM_OVERLAY'})
+            dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
         }
     }
 };

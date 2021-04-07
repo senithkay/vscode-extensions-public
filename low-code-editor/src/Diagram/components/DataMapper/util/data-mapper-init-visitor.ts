@@ -31,12 +31,11 @@ import {
 
 import {
     DataMapperFunctionViewState,
-    DataMapperViewState,
-    SourcePointViewState, TargetPointViewState,
+    DataMapperStatementViewState,
+    DataMapperViewState, SourcePointViewState,
+    TargetPointViewState,
     TypeDescViewState
 } from '../viewstate';
-import { DataMapperStatementViewState } from "../viewstate/data-mapper-statement-viewstate";
-
 
 export class DataMapperInitVisitor implements Visitor {
     beginVisitSTNode(node: STNode) {
@@ -71,6 +70,7 @@ export class DataMapperInitVisitor implements Visitor {
     beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
         if (!node.dataMapperViewState) {
             node.type.dataMapperViewState = new TypeDescViewState();
+            node.type.dataMapperViewState.targetPointViewState = new TargetPointViewState();
             node.type.dataMapperViewState.isTarget = true;
         }
     }

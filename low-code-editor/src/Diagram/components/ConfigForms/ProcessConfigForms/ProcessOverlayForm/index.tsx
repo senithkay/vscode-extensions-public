@@ -56,9 +56,9 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
         };
     } else if (formType === "DataMapper") {
         config.config = {
-            functionName: '',
-            parameters: [],
-            returnType: undefined
+            elementName: '',
+            inputTypes: [],
+            outputType: undefined
         }
     } else if (formType === "Custom") {
         config.config = {

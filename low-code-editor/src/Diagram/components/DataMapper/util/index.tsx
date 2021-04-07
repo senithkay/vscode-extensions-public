@@ -61,20 +61,21 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
             if (type.typeInfo) {
                 const typeInfo = type.typeInfo;
                 const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
-                const recordNode = recordMap.get(recordIdentifier);
+                const recordNode: any = recordMap.get(recordIdentifier);
                 if (recordNode) {
                     recordNode.dataMapperViewState = new DataMapperViewState();
                     traversNode(recordNode, new DataMapperInitVisitor());
                     returnString += '{'
-                    recordNode.dataMapperViewState.fields?.forEach((field: any, index: number) => {
-                        returnString += `${field.name}: `;
+                    recordNode.fields?.forEach((field: any, index: number) => {
+                        const fieldVS = field.dataMapperViewState as TypeDescViewState;
+                        returnString += `${fieldVS.name}: `;
                         returnString += getDefaultValueForType(
-                            field,
+                            fieldVS,
                             recordMap,
                             ""
                         );
 
-                        if (index < recordNode.dataMapperViewState.fields.length - 1) {
+                        if (index < recordNode.fields.length - 1) {
                             returnString += ',';
                         }
                     });

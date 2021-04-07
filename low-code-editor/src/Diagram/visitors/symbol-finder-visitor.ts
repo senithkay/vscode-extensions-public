@@ -17,7 +17,7 @@ import {
     ForeachStatement,
     FunctionDefinition,
     LocalVarDecl,
-    MethodCall, 
+    MethodCall,
     NumericLiteral,
     QualifiedNameReference,
     RecordTypeDesc,
@@ -146,6 +146,9 @@ function getType(typeNode: any): any {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";
         return packageName + nameRef.identifier.value;
+    } else if (STKindChecker.isSimpleNameReference(typeNode)) {
+        const nameRef: SimpleNameReference = typeNode as SimpleNameReference;
+        return nameRef.name.value;
     } else if (STKindChecker.isArrayTypeDesc(typeNode)) {
         return getType(typeNode.memberTypeDesc) + "[]";
     } else if (STKindChecker.isUnionTypeDesc(typeNode)) {

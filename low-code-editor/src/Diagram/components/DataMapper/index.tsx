@@ -40,7 +40,7 @@ export function DataMapper(props: DataMapperProps) {
         state: {
             stSymbolInfo,
             onMutate: dispatchMutations,
-            dataMapperFunctionName,
+            dataMapperConfig,
             originalSyntaxTree,
             syntaxTree
         }
@@ -52,47 +52,56 @@ export function DataMapper(props: DataMapperProps) {
         dispatchMutations(modifications);
     }
 
-    const selectedNode = (stSymbolInfo.variables.size > 0) ?
-        stSymbolInfo.variables.get("var")
-            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value === "dataMapperFunction")
+    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(dataMapperConfig.outputType.type) : undefined;
+    const selectedNode = outputTypeVariables ?
+        outputTypeVariables
+            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                .variableName.value === dataMapperConfig.elementName)
         : undefined;
 
+
+
+    const component: JSX.Element[] = [];
+
     if (selectedNode) {
-        traversNode(selectedNode.initializer, new DataMapperInitVisitor());
-        const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
-        const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
 
-        // start : fetch missing type desc node traverse with init visitor
-        functionSignature.parameters.forEach((field: any) => {
-            if (field.kind !== 'CommaToken') {
-                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
-            }
-        });
-        completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
-        // end : fetch missing type desc node traverse with init visitor
+        debugger;
+        //     traversNode(selectedNode.initializer, new DataMapperInitVisitor());
+        //     const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
+        //     const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
 
-        const parameterPositionVisitor = new DataMapperPositionVisitor(15, 15);
+        //     // start : fetch missing type desc node traverse with init visitor
+        //     functionSignature.parameters.forEach((field: any) => {
+        //         if (field.kind !== 'CommaToken') {
+        //             completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
+        //         }
+        //     });
+        //     completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
+        //     // end : fetch missing type desc node traverse with init visitor
 
-        // start positioning visitor
-        functionSignature.parameters.forEach((field: STNode) => {
-            if (field.kind !== 'CommaToken') {
-                traversNode(field, parameterPositionVisitor);
-            }
-        });
-        traversNode(functionSignature.returnTypeDesc, parameterPositionVisitor);
-        // end positioning visitor
-        const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
-        traversNode(selectedNode, dataPointVisitor);
+        //     const parameterPositionVisitor = new DataMapperPositionVisitor(15, 15);
 
-        traversNode(explicitAnonymousFunctionExpression, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap))
+        //     // start positioning visitor
+        //     functionSignature.parameters.forEach((field: STNode) => {
+        //         if (field.kind !== 'CommaToken') {
+        //             traversNode(field, parameterPositionVisitor);
+        //         }
+        //     });
+        //     traversNode(functionSignature.returnTypeDesc, parameterPositionVisitor);
+        //     // end positioning visitor
+        //     const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
+        //     traversNode(selectedNode, dataPointVisitor);
 
-        selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
-        selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
+        //     traversNode(explicitAnonymousFunctionExpression, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap))
+
+        //     selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
+        //     selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
+        //     component.push(<DataMapperFunctionComponent model={selectedNode} onSave={onSave} />);
     }
 
     return (
         <>
-            <DataMapperFunctionComponent model={selectedNode} onSave={onSave} />
+            {component}
             {/* <DiagramOverlayContainer>
                     position={{ x: 15, y: 15 }}
                 >

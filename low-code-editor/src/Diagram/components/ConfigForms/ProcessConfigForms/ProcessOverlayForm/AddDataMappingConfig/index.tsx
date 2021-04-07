@@ -13,6 +13,7 @@
  */
 import React, { useContext, useState } from 'react';
 
+import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-tree';
 import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
@@ -25,12 +26,13 @@ import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/Pr
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, ProcessConfig, TypeInfoEntry } from '../../../../Portals/ConfigForm/types';
+import { DataMapperConfig, ProcessConfig, TypeInfoEntry, VariableInfoEntry } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
 import { OutputTypeSelector } from './OutputTypeSelector';
 import { ParameterSelector } from './ParameterSelector';
+
 
 interface AddDataMappingConfigProps {
     processConfig: ProcessConfig;
@@ -39,8 +41,8 @@ interface AddDataMappingConfigProps {
 }
 
 enum DataMapperSteps {
+    SELECT_OUTPUT,
     SELECT_INPUT,
-    SELECT_OUTPUT
 }
 
 
@@ -61,31 +63,42 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { stSymbolInfo } = state;
     const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
     const defaultFunctionName = stSymbolInfo ?
-        genVariableName("dataMapperFunction", getAllVariables(stSymbolInfo)) : 'dataMapperFunction';
-    const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_INPUT);
-    const [parameters, setParameters] = useState(dataMapperConfig.parameters);
-    const [returnType, setReturnType] = useState(dataMapperConfig.returnType);
-    const [functionName, setFunctionName] = useState(defaultFunctionName);
+        genVariableName("mappedValue", getAllVariables(stSymbolInfo)) : 'mappedValue';
+    const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_OUTPUT);
+    const [inputTypes, setParameters] = useState(dataMapperConfig.inputTypes);
+    const [outputType, setReturnType] = useState(dataMapperConfig.outputType);
+    const [elementName, setFunctionName] = useState(defaultFunctionName);
     const [functionNameError, setFunctionNameError] = useState('');
     const [isFunctionNameValid, setIsFunctionNameValid] = useState(true);
 
+    const varData: VariableInfoEntry[] = [];
+
+    stSymbolInfo.variables.forEach((values: STNode[], key: string) => {
+        values.forEach((varNode: LocalVarDecl) => {
+            varData.push({
+                type: key,
+                name: (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
+                node: varNode
+            });
+        })
+    });
 
     const handleNextClick = () => {
-        if (dataMapperStep === DataMapperSteps.SELECT_INPUT) {
-            setDataMapperStep(DataMapperSteps.SELECT_OUTPUT);
+        if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
+            setDataMapperStep(DataMapperSteps.SELECT_INPUT);
         } else {
-            processConfig.config = { functionName, parameters, returnType };
+            processConfig.config = { elementName, inputTypes, outputType };
             onSave();
-            dataMapperStart(functionName);
+            dataMapperStart(processConfig.config);
         }
     }
 
-    const addNewParam = (name: string, type: TypeInfoEntry) => {
-        setParameters([...parameters, { name, type }])
+    const addNewParam = (type: VariableInfoEntry) => {
+        setParameters([...inputTypes, type])
     }
 
     const removeParam = (index: number) => {
-        setParameters([...parameters.splice(index, 1)])
+        setParameters([...inputTypes.splice(index, 1)])
     }
 
     const validateNameValue = (value: string) => {
@@ -115,12 +128,12 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 <ButtonWithIcon
                     className={formClasses.overlayDeleteBtn}
                     onClick={onCancel}
-                    icon={<CloseRounded fontSize="small"/>}
+                    icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={formClasses.formTitleWrapper}>
                     <div className={formClasses.mainTitleWrapper}>
                         <div className={formClasses.iconWrapper}>
-                            <LogIcon/> {/* TODO: Need a datamapper icon */}
+                            <LogIcon /> {/* TODO: Need a datamapper icon */}
                         </div>
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Data Mapping Function</Box>
@@ -128,34 +141,35 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                     </div>
                 </div>
                 <FormTextInput
-                    dataTestId="function-name"
-                    label={"Data Mapper function Name"}
+                    dataTestId="datamapper-variable-name"
+                    label={"Variable Name"}
                     customProps={{
                         validate: validateNameValue
                     }}
                     onChange={handleFunctionNameOnChange}
-                    defaultValue={functionName}
+                    defaultValue={elementName}
                     errorMessage={functionNameError}
                     placeholder={"Enter Variable Name"}
                 />
                 {
                     dataMapperStep === DataMapperSteps.SELECT_INPUT &&
+                    // tslint:disable-next-line: jsx-wrap-multiline
                     <ParameterSelector
-                        parameters={parameters}
-                        insetParameter={addNewParam}
+                        parameters={inputTypes}
+                        insertParameter={addNewParam}
                         removeParameter={removeParam}
-                        types={typeArray}
+                        types={varData}
                     />
                 }
                 {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
-                <OutputTypeSelector types={typeArray} updateReturnType={setReturnType}/>}
+                    <OutputTypeSelector types={typeArray} updateReturnType={setReturnType} />}
 
                 <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel}/>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
                         disabled={!isFunctionNameValid}
                         dataTestId={"datamapper-save-btn"}
-                        text={dataMapperStep === DataMapperSteps.SELECT_OUTPUT ? "Save" : "Next"}
+                        text={dataMapperStep === DataMapperSteps.SELECT_INPUT ? "Save" : "Next"}
                         fullWidth={false}
                         onClick={handleNextClick}
                     />

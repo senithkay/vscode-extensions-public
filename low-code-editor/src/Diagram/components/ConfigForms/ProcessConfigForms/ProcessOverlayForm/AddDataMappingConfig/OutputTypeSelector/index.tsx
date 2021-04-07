@@ -12,10 +12,12 @@
  */
 import React from 'react';
 
-import { TextField } from "@material-ui/core";
+import { Box, TextField, Typography } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 
 import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import classNames from 'classnames';
+import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 
 interface OutputTypeSelectorProps {
     types: TypeInfoEntry[];
@@ -24,37 +26,48 @@ interface OutputTypeSelectorProps {
 
 export function OutputTypeSelector(props: OutputTypeSelectorProps) {
     const { types, updateReturnType } = props;
-
+    const formClasses = useFormStyles();
     const handleUpdateReturnType = (evt: any, option: TypeInfoEntry) => {
         updateReturnType(option);
     }
 
     return (
         <>
-            <Autocomplete
-                id="country-select-demo"
-                options={types}
-                autoHighlight={true}
-                getOptionLabel={(option) => option.type}
-                renderOption={(option) => (
-                    <React.Fragment>
-                        <span>{option.type}</span>
-                        {option.typeInfo?.moduleName}
-                    </React.Fragment>
-                )}
-                onChange={handleUpdateReturnType}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label="Select Type"
-                        variant="outlined"
-                        inputProps={{
-                            ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
-                        }}
+            <div>
+                <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                    <div className={formClasses.formTitleWrapper}>
+                        <div className={formClasses.subtitle}>
+                            <Typography variant="h4">
+                                <Box paddingTop={2} paddingBottom={2}>Select Output Variable Type</Box>
+                            </Typography>
+                        </div>
+                    </div>
+                    <Autocomplete
+                        id="country-select-demo"
+                        options={types}
+                        autoHighlight={true}
+                        getOptionLabel={(option) => option.type}
+                        renderOption={(option) => (
+                            <React.Fragment>
+                                <span>{option.type}</span>
+                                {option.typeInfo?.moduleName}
+                            </React.Fragment>
+                        )}
+                        onChange={handleUpdateReturnType}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Select Type"
+                                variant="outlined"
+                                inputProps={{
+                                    ...params.inputProps,
+                                    autoComplete: 'new-password', // disable autocomplete and autofill
+                                }}
+                            />
+                        )}
                     />
-                )}
-            />
+                </div>
+            </div>
         </>
     );
 }

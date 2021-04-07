@@ -13,6 +13,7 @@
 
 import { ConnectionViewState } from './connection-viewstate';
 import { DataMapperFunctionViewState } from './data-mapper-function-viewstate';
+import { DataMapperStatementViewState } from './data-mapper-statement-viewstate';
 import { DataMapperViewState } from "./data-mapper-viewstate";
 import { SourcePointViewState } from './source-point-viewstate';
 import { TargetPointViewState } from './target-point-viewstate';
@@ -24,5 +25,6 @@ export {
     TargetPointViewState,
     TypeDescViewState,
     ConnectionViewState,
-    DataMapperFunctionViewState
+    DataMapperFunctionViewState,
+    DataMapperStatementViewState
 };

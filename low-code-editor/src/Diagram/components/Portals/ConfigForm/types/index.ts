@@ -65,7 +65,7 @@ export interface ForeachConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig| DataMapperConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -95,6 +95,12 @@ export interface TypeInfo {
     version: string;
 }
 
+export interface VariableInfoEntry {
+    type: string;
+    name: string;
+    node?: STNode;
+}
+
 export interface TypeInfoEntry {
     type: string;
     typeInfo?: TypeInfo;
@@ -102,12 +108,9 @@ export interface TypeInfoEntry {
 }
 
 export interface DataMapperConfig {
-    functionName: string;
-    parameters: {
-        name: string,
-        type: TypeInfoEntry
-    }[]; // todo ::: finalize the interface
-    returnType: TypeInfoEntry;
+    elementName: string;
+    inputTypes: VariableInfoEntry[]; // todo ::: finalize the interface
+    outputType: TypeInfoEntry;
 }
 
 export interface EndConfig {

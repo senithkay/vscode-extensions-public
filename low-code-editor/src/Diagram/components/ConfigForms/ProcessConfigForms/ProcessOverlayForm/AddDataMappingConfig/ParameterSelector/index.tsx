@@ -24,34 +24,27 @@ import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Butto
 import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
 import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
-import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { TypeInfoEntry, VariableInfoEntry } from "../../../../../Portals/ConfigForm/types";
 
 interface ParameterSelectorProps {
     parameters: any[];
-    insetParameter: (name: string, type: TypeInfoEntry) => void;
+    insertParameter: (type: VariableInfoEntry) => void;
     removeParameter: (index: number) => void;
-    types: TypeInfoEntry[];
+    types: VariableInfoEntry[];
 }
 
 export function ParameterSelector(props: ParameterSelectorProps) {
     const formClasses = useFormStyles();
-    const { parameters, insetParameter, removeParameter, types } = props;
+    const { parameters, insertParameter, removeParameter, types } = props;
 
-    const [parameterName, setParameterName] = useState('');
-    const [parameterType, setParameterType] = useState<TypeInfoEntry>(undefined);
+    const [parameterType, setParameterType] = useState<VariableInfoEntry>(undefined);
 
-
-    const handleChangeVariableName = (value: string) => {
-        setParameterName(value)
-    }
-
-    const handleChangeVariableType = (evt: any, typeEntry: TypeInfoEntry) => {
+    const handleChangeVariableType = (evt: any, typeEntry: VariableInfoEntry) => {
         setParameterType(typeEntry);
     }
 
     const onParameterAddClick = () => {
-        insetParameter(parameterName, parameterType);
-        setParameterName('');
+        insertParameter(parameterType);
         setParameterType(undefined);
     }
 
@@ -64,8 +57,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
         parameterElements.push(
             <div key={index} className={formClasses.headerWrapper}>
                 <div className={formClasses.headerLabel}>
-                    {`${element.name} : ${element.type.type}`}
-
+                    {`${element.name} : ${element.type}`}
                     <ButtonWithIcon
                         className={formClasses.deleteBtn}
                         onClick={removeParam}
@@ -82,26 +74,19 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                 <div className={formClasses.formTitleWrapper}>
                     <div className={formClasses.subtitle}>
                         <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Add New Parameter</Box>
+                            <Box paddingTop={2} paddingBottom={2}>Select Input Variables </Box>
                         </Typography>
                     </div>
                 </div>
-                <FormTextInput
-                    dataTestId="variable-name"
-                    label={"Name"}
-                    onChange={handleChangeVariableName}
-                    defaultValue={parameterName}
-                    placeholder={"Enter Variable Name"}
-                />
                 <Autocomplete
                     id="country-select-demo"
                     options={types}
                     autoHighlight={true}
-                    getOptionLabel={(option) => option.type}
+                    getOptionLabel={(option) => option.name}
                     renderOption={(option) => (
                         <React.Fragment>
-                            <span>{option.type}</span>
-                            {option.typeInfo?.moduleName}
+                            <span>{option.name}</span>
+                            {option.type}
                         </React.Fragment>
                     )}
                     onChange={handleChangeVariableType}

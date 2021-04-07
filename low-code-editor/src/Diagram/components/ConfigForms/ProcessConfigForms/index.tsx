@@ -28,12 +28,11 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { CustomExpressionConfig, LogConfig, ProcessConfig, DataMapperConfig } from "../../Portals/ConfigForm/types";
+import { getDefaultValueForType } from "../../DataMapper/util";
+import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
-import {parameters} from "../../../../../../../.storybook/preview";
-import { getDefaultValueForType } from "../../DataMapper/util";
 
 export interface AddProcessFormProps {
     type: string;
@@ -105,19 +104,17 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
                     const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-                    const defaultReturn = getDefaultValueForType(datamapperConfig.returnType, stSymbolInfo.recordTypeDescriptions, "");
+                    const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
                     let signatureString = '';
 
-                    datamapperConfig.parameters.forEach((param, i) => {
-                        signatureString += `${param.type.type} ${param.name}`;
-                        if (i < datamapperConfig.parameters.length - 1) {
+                    datamapperConfig.inputTypes.forEach((param, i) => {
+                        signatureString += `${param.type} ${param.name}`;
+                        if (i < datamapperConfig.inputTypes.length - 1) {
                             signatureString += ',';
                         }
                     })
 
-                    const functionString = `var ${datamapperConfig.functionName} = function (${signatureString}) returns ${datamapperConfig.returnType.type} {
-                        return ${defaultReturn};
-                    };`
+                    const functionString = `${datamapperConfig.outputType.type} ${datamapperConfig.elementName} = ${defaultReturn};`
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
                     modifications.push(dataMapperFunction);
