@@ -42,25 +42,26 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         window.onDidChangeActiveTextEditor(activatedTextEditor => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === BALLERINA) {
-                this.refresh(activatedTextEditor);
+                this.refresh();
             }
         });
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === BALLERINA) {
-                this.refresh(document);
+                this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === BALLERINA) {
-                this.refresh(activatedTextEditor);
+            if (activatedTextEditor && activatedTextEditor.document.languageId === BALLERINA ||
+                activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
+                this.refresh();
             }
         });
     }
     private _onDidChangeTreeData: EventEmitter<PackageTreeItem | undefined> = new EventEmitter<PackageTreeItem | undefined>();
     readonly onDidChangeTreeData: Event<PackageTreeItem | undefined> = this._onDidChangeTreeData.event;
 
-    refresh(eventObject): void {
-        this._onDidChangeTreeData.fire(eventObject);
+    refresh(): void {
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: PackageTreeItem): TreeItem | Thenable<TreeItem> {

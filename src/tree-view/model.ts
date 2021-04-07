@@ -39,20 +39,10 @@ export class PackageTreeItem extends TreeItem {
     private startColumn: number;
     private endLine: number;
     private endColumn: number;
-    constructor(
-        public readonly label: string,
-        private version: string,
-        public readonly collapsibleState: TreeItemCollapsibleState,
-        kind: string,
-        filePath: string,
-        extensionPath: string,
-        hasIcon: boolean,
-        parent: PackageTreeItem | null,
-        childrenData: ChildrenData,
-        startLine: number = -1,
-        startColumn: number = -1,
-        endLine: number = -1,
-        endColumn: number = -1
+    constructor(public readonly label: string, private version: string, public readonly collapsibleState:
+        TreeItemCollapsibleState, kind: string, filePath: string, extensionPath: string, hasIcon: boolean,
+        parent: PackageTreeItem | null, childrenData: ChildrenData, startLine: number = -1, startColumn: number = -1,
+        endLine: number = -1, endColumn: number = -1
     ) {
         super(label, collapsibleState);
         this.tooltip = `${this.label} ${kind}`;

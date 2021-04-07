@@ -30,8 +30,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         treeDataProvider: packageTreeDataProvider
     });
 
-    commands.registerCommand(TREE_REFRESH_COMMAND, (event) =>
-        packageTreeDataProvider.refresh(event)
+    commands.registerCommand(TREE_REFRESH_COMMAND, () =>
+        packageTreeDataProvider.refresh()
     );
 
     if (!ballerinaExtInstance.isSwanLake) {

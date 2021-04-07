@@ -54,7 +54,6 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
-    // langClient.registerFeature(new SyntaxHighlightingFeature());
 }
 
 export function activate(context: ExtensionContext): Promise<any> {
