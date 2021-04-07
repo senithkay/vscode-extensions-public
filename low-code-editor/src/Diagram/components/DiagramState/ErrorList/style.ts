@@ -50,7 +50,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             textTransform: 'unset',
         },
         closeIcon: {
-            margin: '5px',
+            margin: 5,
             color: "#8D91A3",
             cursor: 'pointer',
         },
