@@ -46,7 +46,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         diagramErrorMessageButton: {
             // width: '7rem',
             height: '2.5rem !important',
-            marginLeft: '8px',
+            marginLeft: theme.spacing(1),
             textTransform: 'unset',
         },
         closeIcon: {
