@@ -304,6 +304,7 @@ export function GmailWizard(props: WizardProps) {
         config.connectorInit = connectorInitFormFields;
     } else if (actionReturnType.hasReturn) {
         if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
+            connectorInitFormFields = config.connectorInit;
             config.action.returnVariableName =
                 (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
                     CaptureBindingPattern).variableName.value;

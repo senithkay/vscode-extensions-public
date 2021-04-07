@@ -281,6 +281,7 @@ export function GithubWizard(props: WizardProps) {
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
     } else if (actionReturnType.hasReturn) {
+        connectorInitFormFields = config.connectorInit;
         if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
             config.action.returnVariableName =
                 (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
