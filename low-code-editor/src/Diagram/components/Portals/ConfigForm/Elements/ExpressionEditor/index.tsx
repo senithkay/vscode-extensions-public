@@ -682,7 +682,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                             <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
                         </TooltipCodeSnippet>
-                        <FormHelperText className={formClasses.invalidCode}>This error is in Code Editor. Please fix them first</FormHelperText>
+                        <FormHelperText className={formClasses.invalidCode}>Error occured in the code-editor. Please fix it first to continue.</FormHelperText>
                     </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
