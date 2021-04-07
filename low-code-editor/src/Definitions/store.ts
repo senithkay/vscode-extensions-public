@@ -82,6 +82,7 @@ export interface DiagramState {
     isLoadingSuccess: boolean;
     exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
+    resourceMembers?: any;
 }
 
 export interface ExpressionEditorState {
