@@ -60,7 +60,7 @@ export function DiagramErrorState(props: {
                   <circle id="Oval-2" data-name="Oval" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke="#fe523c" stroke-miterlimit="10" stroke-width="1" />
                </g>
                <text id="_4" data-name="4" transform="translate(175 755)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular">
-                  <tspan x="0" y="0">{text}</tspan></text>
+                  <tspan x="1" y="0">{text}</tspan></text>
             </g>
             {isErrorMsgVisible && (<g id="CloseBtn" transform="translate(539 755)" onClick={onClose} style={{ cursor: 'pointer' }}>
                <g id="Group_28" data-name="Group 28">
