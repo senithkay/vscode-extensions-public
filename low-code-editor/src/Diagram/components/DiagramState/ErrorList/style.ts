@@ -23,7 +23,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 101,
             background: "white",
             borderRadius: "1rem",
-            border: "1px solid #fe523c",
+            border: "1px solid #fe523c6e",
             maxHeight: '70vh',
             overflowY: 'auto',
             padding: '0 1rem',
