@@ -22,7 +22,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 'auto',
             zIndex: 101,
             background: "#efefef9e",
-            borderRadius: "1rem",
+            borderRadius: "0.5rem",
             border: "1px solid #fe523c6e",
             maxHeight: '70vh',
             overflowY: 'auto',
