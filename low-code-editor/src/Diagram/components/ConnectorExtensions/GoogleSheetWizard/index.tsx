@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
@@ -118,7 +118,6 @@ export function GoogleSheet(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -199,9 +198,10 @@ export function GoogleSheet(props: WizardProps) {
             .find(field => field.name === key).value || "";
     }
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
         const isInitReturnError = getInitReturnType(functionDefinitions);
-        const actionReturnType = getActionReturnType(config.action.name, functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -298,13 +298,18 @@ export function GoogleSheet(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
+    } else if (actionReturnType.hasReturn) {
         connectorInitFormFields = config.connectorInit;
-        if (getActionReturnType(config.action.name, functionDefinitions)?.hasReturn){
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
             config.action.returnVariableName =
-                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
         }
     }
+
+    config.action.name = selectedOperation;
 
     return (
         <div className={wizardClasses.fullWidth}>
@@ -385,6 +390,7 @@ export function GoogleSheet(props: WizardProps) {
                     mutationInProgress={isMutationProgress}
                     isManualConnection={isManualConnection}
                     connectionInfo={connectionDetails}
+                    hasReturnType={actionReturnType.hasReturn}
                 />
             )}
             {(formState === FormStates.ExistingConnection && isNewConnectorInitWizard) && (

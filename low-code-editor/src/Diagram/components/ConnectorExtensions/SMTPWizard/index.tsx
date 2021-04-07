@@ -95,12 +95,12 @@ export function SMTPWizard(props: WizardProps) {
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
 
-    if (!isNewConnectorInitWizard) {
+    const actionReturnType = getActionReturnType(connectorConfig.action.name, functionDefinitions);
+
+    if (!isNewConnectorInitWizard && actionReturnType.hasReturn) {
         const smtpVar = model as LocalVarDecl;
-        if (getActionReturnType(connectorConfig.action.name, functionDefinitions)?.hasReturn){
-            connectorConfig.action.returnVariableName =
-                (smtpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-        }
+        connectorConfig.action.returnVariableName =
+            (smtpVar.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName.value;
     }
 
     const handleCreateNew = () => {
@@ -125,7 +125,6 @@ export function SMTPWizard(props: WizardProps) {
 
     const handleOnSave = () => {
         const isInitReturnError = getInitReturnType(functionDefinitions);
-        const actionReturnType = getActionReturnType(connectorConfig.action.name, functionDefinitions);
         // insert initialized connector logic
         let modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
@@ -174,7 +173,7 @@ export function SMTPWizard(props: WizardProps) {
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
     const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} hasReturn={actionReturnType.hasReturn} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>

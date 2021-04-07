@@ -39,6 +39,7 @@ interface SelectInputOutputFormProps {
     onBackClick?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
+    hasReturn: boolean;
 }
 
 interface ReturnNameState {
@@ -47,7 +48,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, hasReturn } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -250,18 +251,20 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                             </Box>
                         </Typography>
                         {selectedOperationParams}
-                        <FormTextInput
-                            customProps={{
-                                validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.responseVariableName,
-                                disabled: returnVariableName
-                            }}
-                            defaultValue={defaultResponseVariableName}
-                            placeholder={"Enter Response Variable Name"}
-                            onChange={onNameChange}
-                            label={"Response Variable Name"}
-                            errorMessage={responseVarError}
-                        />
+                        {hasReturn && (
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    tooltipTitle: tooltipMessages.responseVariableName,
+                                    disabled: returnVariableName
+                                }}
+                                defaultValue={defaultResponseVariableName}
+                                placeholder={"Enter Response Variable Name"}
+                                onChange={onNameChange}
+                                label={"Response Variable Name"}
+                                errorMessage={responseVarError}
+                            />
+                        )}
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>

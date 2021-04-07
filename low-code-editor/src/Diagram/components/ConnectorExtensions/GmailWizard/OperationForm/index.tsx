@@ -36,6 +36,7 @@ export interface OperationFormProps {
     onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
+    hasReturn: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
@@ -44,7 +45,7 @@ export function OperationForm(props: OperationFormProps) {
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress } = props;
+            onOperationChange, mutationInProgress, hasReturn } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
 
@@ -140,16 +141,18 @@ export function OperationForm(props: OperationFormProps) {
                         }
                     </div>
 
-                    <FormTextInput
-                        customProps={{
-                            validate: validateNameValue
-                        }}
-                        defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
-                        onChange={onNameChange}
-                        label={"Response Variable Name"}
-                        errorMessage={responseVarError}
-                    />
+                    {hasReturn && (
+                        <FormTextInput
+                            customProps={{
+                                validate: validateNameValue
+                            }}
+                            defaultValue={defaultResponseVarName}
+                            placeholder={"Enter Response Variable Name"}
+                            onChange={onNameChange}
+                            label={"Response Variable Name"}
+                            errorMessage={responseVarError}
+                        />
+                    )}
                 </div>
             </div>
             <div className={classes.wizardBtnHolder}>

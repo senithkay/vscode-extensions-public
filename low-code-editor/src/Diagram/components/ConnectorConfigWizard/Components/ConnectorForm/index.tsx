@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
@@ -163,6 +163,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const onOperationSelect = (operation: string) => {
         setSelectedOperation(operation);
         setFormState(FormStates.OperationForm);
+        config.action.returnVariableName = undefined;
     };
 
     const onOperationChange = () => {
@@ -228,10 +229,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
-    if (!isNewConnectorInitWizard) {
-        if (getActionReturnType(config.action.name, functionDefInfo)?.hasReturn){
-            connectorConfig.action.returnVariableName =
-                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
+
+    if (!isNewConnectorInitWizard && actionReturnType.hasReturn) {
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
+            config.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
         }
     }
 
@@ -261,7 +267,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        const actionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
@@ -274,7 +279,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (!isNewConnectorInitWizard) {
                 const updateConnectorInit = updatePropertyStatement(
                     `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                    connectorConfig.initPosition
+                    config.initPosition
                 );
                 modifications.push(updateConnectorInit);
 
@@ -284,7 +289,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         model.position
                     );
                     modifications.push(updateActionInvocation);
-                }else{
+                } else {
                     const updateActionInvocation = updatePropertyStatement(
                         `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
@@ -327,7 +332,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addActionInvocation);
-                    }else{
+                    } else {
                         const addActionInvocation = createPropertyStatement(
                             `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -447,6 +452,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             onOperationChange={onOperationChange}
                             mutationInProgress={isMutationProgress}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
+                            hasReturn={actionReturnType.hasReturn}
                         />
                     )}
                     {(formState === FormStates.ExistingConnection) && isNewConnectorInitWizard && (

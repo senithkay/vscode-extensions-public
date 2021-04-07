@@ -40,6 +40,7 @@ export interface OperationFormProps {
     onConnectionChange: () => void;
     onOperationChange: () => void;
     isNewConnectorInitWizard?: boolean;
+    hasReturn: boolean;
 }
 
 export function OperationForm(props: OperationFormProps) {
@@ -47,7 +48,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress, isNewConnectorInitWizard } = props;
+            onOperationChange, mutationInProgress, isNewConnectorInitWizard, hasReturn } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
 
@@ -145,18 +146,20 @@ export function OperationForm(props: OperationFormProps) {
                         }
                     </div>
 
-                    <FormTextInput
-                        customProps={{
-                            validate: validateNameValue,
-                            tooltipTitle: tooltipMessages.responseVariableName,
-                            disabled: responseVariableHasReferences
-                        }}
-                        defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
-                        onChange={onNameChange}
-                        label={"Response Variable Name"}
-                        errorMessage={responseVarError}
-                    />
+                    {hasReturn && (
+                        <FormTextInput
+                            customProps={{
+                                validate: validateNameValue,
+                                tooltipTitle: tooltipMessages.responseVariableName,
+                                disabled: responseVariableHasReferences
+                            }}
+                            defaultValue={defaultResponseVarName}
+                            placeholder={"Enter Response Variable Name"}
+                            onChange={onNameChange}
+                            label={"Response Variable Name"}
+                            errorMessage={responseVarError}
+                        />
+                    )}
                 </div>
             </div>
             <div className={classes.wizardBtnHolder}>

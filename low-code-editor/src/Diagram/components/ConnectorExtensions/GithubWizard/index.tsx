@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
@@ -42,7 +42,6 @@ import {
     getKeyFromConnection,
     getOauthConnectionParams,
     getParams,
-    getReturnType
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -118,7 +117,6 @@ export function GithubWizard(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -193,9 +191,10 @@ export function GithubWizard(props: WizardProps) {
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
         const isInitReturnError = getInitReturnType(functionDefinitions);
-        const actionReturnType = getActionReturnType(config.action.name, functionDefinitions);
         const accessTokenKey = connectorInitFormFields.find(field => field.name === "gitHubConfig")?.fields.find(field => field.name === "accessToken")?.value;
 
         let modifications: STModification[] = [];
@@ -281,13 +280,17 @@ export function GithubWizard(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
-        connectorInitFormFields = config.connectorInit;
-        if (getActionReturnType(config.action.name, functionDefinitions)?.hasReturn){
+    } else if (actionReturnType.hasReturn) {
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
             config.action.returnVariableName =
-                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
         }
     }
+
+    config.action.name = selectedOperation;
 
     return (
         <div className={wizardClasses.fullWidth}>
@@ -362,6 +365,7 @@ export function GithubWizard(props: WizardProps) {
                     showConnectionName={showConnectionName}
                     formFields={formFields}
                     selectedOperation={config.action.name}
+                    hasReturn={actionReturnType.hasReturn}
                     onSave={handleOnSave}
                     onConnectionChange={onConnectionNameChange}
                     onOperationChange={onOperationChange}
