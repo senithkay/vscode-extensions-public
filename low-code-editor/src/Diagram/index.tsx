@@ -68,8 +68,8 @@ export function Diagram(props: DiagramProps) {
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
-    const numberOfErrors = diagnostics.length;
-    const diagramErrors = diagnostics.length > 0;
+    const numberOfErrors = diagnostics?.length;
+    const diagramErrors = diagnostics?.length > 0;
     const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
 
