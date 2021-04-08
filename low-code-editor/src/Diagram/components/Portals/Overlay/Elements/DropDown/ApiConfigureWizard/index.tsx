@@ -273,7 +273,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         <div>
           {validateResources() &&
             (
-              <div className={classes.customFooterWrapper}>
+              <div className={classes.serviceFooterWrapper}>
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
