@@ -10,12 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
-
-export function DiagramActiveState() {
-    return (
-        <div>
-            <img src="../../../../../../images/diagram-enabled.svg" />
-        </div>
-    );
+.error-handdling {
+    stroke-width: 0.5px;
+    stroke: #cbcedb;
+    border-radius: 12px;
+    fill: #f7f8fb99;
 }
