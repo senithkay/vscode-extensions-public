@@ -351,8 +351,23 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   );
 
   const customCron: ReactNode = (
+
     <div className={toggleClasses.cronGenWrapper}>
-      <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+
+      <div>
+        <TooltipIcon
+          title={tooltipMessages.cronExpression.title}
+          actionText={tooltipMessages.cronExpression.actionText}
+          actionLink={tooltipMessages.cronExpression.actionLink}
+          placement="left"
+          arrow={true}
+          interactive={true}
+        >
+          <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+        </TooltipIcon>
+      </div>
+
+
       <FormTextInput
         placeholder="* * * * *"
         defaultValue={currentCron}
@@ -362,7 +377,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         }}
         errorMessage="Please enter valid cron expression"
       />
+
     </div>
+
   );
 
   const handleSchedule = (selectedRepeatRange: string) => {
@@ -405,14 +422,14 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       <>
         <div className={classes.titleWrapper}>
           <p className={classes.title}>Configure Schedule Trigger</p>
-          <TooltipIcon
-            title={tooltipMessages.cronExpression.title}
-            actionText={tooltipMessages.cronExpression.actionText}
-            actionLink={tooltipMessages.cronExpression.actionLink}
-            placement="left"
-            arrow={true}
-            interactive={true}
-          />
+          <div>
+            <TooltipIcon
+              title={tooltipMessages.scheduleConfig}
+              placement="left"
+              arrow={true}
+              interactive={true}
+            />
+          </div>
         </div>
 
         <button className={classes.closeBtnWrapper} onClick={onClose}>
