@@ -232,7 +232,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "gmailConfig")
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                 }
-                if (key === "sendMessage") {
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
                     value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
                         if (field.name === "contentType") {
                             // set content type in sendMessage form
