@@ -47,7 +47,7 @@ interface TriggerDropDownProps {
 
 export enum ConnectorType {
     GITHUB = "GitHub",
-    G_CALENDAR = "Google Calender",
+    G_CALENDAR = "Google Calendar",
     G_SHEET = "Google Sheet",
 }
 
