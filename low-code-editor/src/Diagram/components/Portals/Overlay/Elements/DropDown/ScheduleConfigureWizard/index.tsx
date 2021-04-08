@@ -354,17 +354,17 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
     <div className={toggleClasses.cronGenWrapper}>
 
-<div>
-      <TooltipIcon
-        title={tooltipMessages.cronExpression.title}
-        actionText={tooltipMessages.cronExpression.actionText}
-        actionLink={tooltipMessages.cronExpression.actionLink}
-        placement="left"
-        arrow={true}
-        interactive={true}
-      >
-        <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
-      </TooltipIcon>
+      <div>
+        <TooltipIcon
+          title={tooltipMessages.cronExpression.title}
+          actionText={tooltipMessages.cronExpression.actionText}
+          actionLink={tooltipMessages.cronExpression.actionLink}
+          placement="left"
+          arrow={true}
+          interactive={true}
+        >
+          <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+        </TooltipIcon>
       </div>
 
 
@@ -424,11 +424,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           <p className={classes.title}>Configure Schedule Trigger</p>
           <div>
             <TooltipIcon
-            title={tooltipMessages.scheduleConfig}
-            placement="left"
-            arrow={true}
-            interactive={true}
-          />
+              title={tooltipMessages.scheduleConfig}
+              placement="left"
+              arrow={true}
+              interactive={true}
+            />
           </div>
         </div>
 
