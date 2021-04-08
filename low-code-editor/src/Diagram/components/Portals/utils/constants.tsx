@@ -237,7 +237,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     BalVersionLabel: {
         title: "We are using Ballerina Swan Lake Alpha2",
-        actionText: "Learn more at Balerina.io",
+        actionText: "Learn more at ballerina.io",
         actionLink: "https://ballerina.io/"
     }
 }
