@@ -15,7 +15,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-
         container: {
             width: 338,
             paddingBottom: 12,
@@ -89,7 +88,20 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             letterSpacing: 0,
         },
+        resourceWrapper: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
         customWrapper: {
+            marginLeft: 24,
+            marginRight: 24,
+            marginBottom: 11,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important'
+            }
+        },
+        sectionWrapper: {
             marginLeft: 24,
             marginRight: 24,
             marginBottom: 11,
@@ -99,7 +111,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         customFooterWrapper: {
             marginLeft: 24,
-            marginRight: 24,
+            // marginRight: 24,
             marginBottom: 11,
             display: "flex",
             justifyContent: "flex-end"
@@ -134,6 +146,21 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         saveBtn: {
             // width: "100%",
+        },
+        addResourceBtn: {
+            outline: "none",
+            background: "transparent",
+            border: "none",
+            color: "#5567D5",
+            fontSize: "13px",
+            letterSpacing: 0,
+            lineHeight: "16px",
+            padding: 0,
+            cursor: "pointer"
+        },
+        addResourceBtnWrap: {
+            display: "flex",
+            alignItems: "center"
         },
         linkBtn: {
             marginTop: 12,

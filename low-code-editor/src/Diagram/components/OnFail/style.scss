@@ -10,20 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { End } from "./End";
-import { ForEach } from './ForEach';
-import { Function } from "./Function";
-import { IfElse } from './IfElse';
-import { ModulePart } from "./ModulePart";
-import { Statement } from "./Statement";
+svg {
+    overflow: visible !important;
+}
 
-export { IfElse as IfElseStatement };
-export { ForEach as ForeachStatement };
-export { Statement as LocalVarDecl };
-export { Statement as CallStatement };
-export { Statement as ActionStatement };
-export { Statement as AssignmentStatement };
-export { Statement as DoStatement };
-export { End as ReturnStatement };
-export { Function as FunctionDefinition };
-export { ModulePart as ModulePart};
+.on-error-line {
+    line {
+        stroke: #5567d5;
+        stroke-width: 1px;
+    }
+}
+
+.on-error-separator {
+    line {
+        stroke: #e0e2eb;
+        stroke-width: 1px;
+    }
+}

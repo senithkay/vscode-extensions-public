@@ -24,6 +24,8 @@ export class BlockViewState extends ViewState {
     public collapsedFrom: number = 0;
     public draft: [number, DraftStatementViewState] = undefined;
     public isElseBlock: boolean = false;
+    public isDoBlock: boolean = false;
+    public isOnErrorBlock: boolean = false;
 
     constructor() {
         super();
