@@ -170,14 +170,17 @@ export const tooltipMessages: Record<string, any> = {
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
-        content: "Send SMS, Make voice calls "
+        content: "Send SMS, Make voice calls"
+    },
+    slackConnector: {
+        title: "Connect your application with Slack API",
+        content: "Post messages, Send files"
     },
     codePanelButton: "Code panel",
     analyzerButton: "Performance Forecast",
     fitToScreenButton: "Fit to screen",
     zoomInButton: "Zoom In",
     zoomOutButton: "Zoom Out",
-    slackConnector: "Add a Slack Connector",
     salesforceBase: "Salesforce BaseClient Connector",
     salesforceBulk: "Salesforce BulkJob Connector",
     salesforce : {
