@@ -67,6 +67,7 @@ export interface DiagramState {
     size?: DiagramSize;
     originalSyntaxTree?: STNode;
     syntaxTree?: STNode;
+    diagramSt?: STNode;
     positions?: DiagramCoordinates;
     isLoadingAST?: boolean;
     configPanelStatus?: ConfigPanelStatus;
@@ -82,6 +83,7 @@ export interface DiagramState {
     isLoadingSuccess: boolean;
     exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
+    resourceMembers?: any;
 }
 
 export interface ExpressionEditorState {
@@ -95,6 +97,7 @@ export interface STSymbolInfo {
     endpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
     variables: Map<string, STNode[]>;
+    configurables: Map<string, STNode>;
     callStatement: Map<string, STNode[]>;
     variableNameReferences: Map<string, STNode[]>;
     assignmentStatement: Map<string, STNode[]>;

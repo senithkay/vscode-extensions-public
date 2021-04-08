@@ -16,7 +16,7 @@ import React from 'react';
 import { ClickAwayListener } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import CloseIcon from '@material-ui/icons/Close';
-import Autocomplete, { RenderInputParams, RenderOptionState } from '@material-ui/lab/Autocomplete';
+import Autocomplete, { AutocompleteRenderInputParams, AutocompleteRenderOptionState } from '@material-ui/lab/Autocomplete';
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../index';
 import "../style.scss";
@@ -27,19 +27,19 @@ export interface DropDownMenuProps<DataType> {
     title: string;
     isDropdownActive?: boolean;
     genLabel: (value: DataType) => any;
-    renderOption?: (value: DataType, state: RenderOptionState) => React.ReactNode;
-    onChange?: (value: DataType) => void;
+    renderOption?: (value: DataType, state: AutocompleteRenderOptionState) => React.ReactNode;
+    onChange?: (value: string | DataType) => void;
     onClose?: () => void;
 }
 
 export function DropDownMenu<DataType>(props: DropDownMenuProps<DataType>) {
     const { position, options, title, isDropdownActive, genLabel, onChange, onClose, renderOption } = props;
 
-    const handleChange = (evt: any, value: DataType) => {
+    const handleChange = (evt: any, value: string | DataType) => {
         onChange(value);
     };
 
-    const textField = (params: RenderInputParams) =>
+    const textField = (params: AutocompleteRenderInputParams) =>
         (<TextField className="input-text" {...params} placeholder="Please select" variant="filled" />);
 
     return (

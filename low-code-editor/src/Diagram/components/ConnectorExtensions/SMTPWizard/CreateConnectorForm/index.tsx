@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { FormControl } from "@material-ui/core";
 
-import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -30,7 +30,7 @@ import { tooltipMessages } from "../../../Portals/utils/constants";
 
 // import '../style.scss'
 interface CreateConnectorFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
@@ -46,17 +46,17 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
-        connectorConfig.connectorInit : actions.get("init") ? actions.get("init") : actions.get("__init");
-    const [connectorInitFormFields] = useState(configForm);
+        connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
+    const [connectorInitFormFields, setConnectorInitFormFields] = useState(configForm);
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: connectorConfig.name,
+        value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };
@@ -64,7 +64,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [connectorNameError, setConnectorNameError] = useState('');
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
@@ -86,9 +86,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const defaultText: string = (connectorConfig.name === "" || connectorConfig.name === undefined) ?
         genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)) : connectorConfig.name;
 
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
 
     // Set init function of the connector.
     // connectorConfig.connectorInit = connectorInitFormFields;
@@ -128,7 +125,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.action = {
             name: actionName,
-            fields: actions.get(actionName)
+            fields: functionDefinitions.get(actionName)?.parameters
         }
         connectorConfig.connectorInit = connectorInitFormFields;
         onSave();
@@ -146,7 +143,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}

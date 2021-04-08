@@ -35,6 +35,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             typeData?: any;
             VisibleEndpoints?: VisibleEndpoint[];
             source: string;
+            configurablePosition?: NodePosition;
         }
 
         ${interfaces.join("\n")}

@@ -21,7 +21,32 @@ import { LowCodeEditorProps as Props } from "./types";
 
 export { LowCodeEditorProps, PortalState } from "./types";
 export {
-    LowCodeLangClient,
+    BallerinaConnectorRequest,
+    BallerinaConnectorResponse,
+    BallerinaConnectorsResponse,
+    BallerinaRecordRequest,
+    BallerinaRecordResponse,
+    BallerinaSTModifyRequest,
+    BallerinaSTModifyResponse,
+    BallerinaSyntaxTreeModifyRequest,
+    BallerinaSyntaxTreeResponse,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    TriggerModifyRequest,
+    BallerinaProjectParams,
+    CompletionParams,
+    CompletionResponse,
+    defaultInitParams,
+    DidChangeParams,
+    DidCloseParams,
+    DidOpenParams,
+    initParams,
+    PublishDiagnosticsParams,
+    BaseLangClientInterface,
+    DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
+    ExpressionTypeRequest,
+    ExpressionTypeResponse,
     ExpressionEditorState,
     DiagramSize,
     DiagramState,
@@ -30,7 +55,13 @@ export {
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
 export { Diagram } from "./Diagram";
-export { getDiagnosticsFromVisitor, getLowCodeSTFn } from './Diagram/utils/st-util';
+export {
+    getDiagnosticsFromVisitor,
+    getLowCodeSTFn,
+    getLowCodeSTFnSelected,
+    sizingAndPositioningST,
+    recalculateSizingAndPositioningST
+} from './Diagram/utils/st-util';
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
@@ -38,7 +69,8 @@ export { cleanAll, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/vis
 export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
-export { getSampleSource } from './Diagram/utils/template-utils';
+export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
+export { InsertorDelete } from "./Diagram/utils/modification-util";
 
 export default function LowCodeEditor(props: Props) {
 
@@ -46,7 +78,6 @@ export default function LowCodeEditor(props: Props) {
         langServerURL,
         workingFile,
         currentApp,
-        dispatch,
         exprEditorState,
         ...restProps
     } = props;

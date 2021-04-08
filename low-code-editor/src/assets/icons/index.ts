@@ -1,3 +1,5 @@
+export { default as AddIcon } from '@material-ui/icons/Add';
+
 export { default as ApiIcon } from "./Api";
 export { default as CalendarIcon } from "./Calendar";
 export { default as CustomIcon } from "./Custom";
@@ -15,3 +17,4 @@ export { default as RespondIcon } from "./Respond";
 export { default as ReturnIcon } from "./Return";
 export { default as ScheduleIcon } from "./Schedule";
 export { default as WebhookIcon } from "./Webhook";
+export { default as CustomStatementIcon } from "./CustomStatement";

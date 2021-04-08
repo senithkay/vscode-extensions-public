@@ -104,6 +104,15 @@ export interface GetSyntaxTreeResponse {
     parseSuccess: boolean;
 }
 
+export interface DidOpenParams {
+    textDocument: {
+        uri: string;
+        languageId: string;
+        text: string;
+        version: number
+    };
+}
+
 export interface IBallerinaLangClient {
 
     isInitialized: boolean;

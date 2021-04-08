@@ -77,7 +77,7 @@ export function EndConfigForm(props: any) {
                         break;
                     case 'Respond':
                         const respondConfig: RespondConfig = endConfig.expression as RespondConfig;
-                        let respondExpression = "checkpanic $caller->respond($expression);";
+                        let respondExpression = "check $caller->respond($expression);";
                         respondExpression = respondExpression
                             .replace("$caller", respondConfig.caller)
                             .replace("$expression", respondConfig.respondExpression);
@@ -121,7 +121,7 @@ export function EndConfigForm(props: any) {
                             modifications.push(responsePayoadStatementModification);
                         }
 
-                        let respondStatusCodeExpression = "checkpanic $caller->respond($expression);";
+                        let respondStatusCodeExpression = "check $caller->respond($expression);";
                         respondStatusCodeExpression = respondStatusCodeExpression
                             .replace("$caller", respondConfig.caller)
                             .replace("$expression", responseName);
@@ -132,7 +132,7 @@ export function EndConfigForm(props: any) {
 
                     } else {
                         trackAddStatement(endConfig.type);
-                        let respondExpression = "checkpanic $caller->respond($expression);";
+                        let respondExpression = "check $caller->respond($expression);";
                         respondExpression = respondExpression
                             .replace("$caller", respondConfig.caller)
                             .replace("$expression", respondConfig.respondExpression);

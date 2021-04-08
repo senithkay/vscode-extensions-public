@@ -15,7 +15,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-
         container: {
             width: 338,
             paddingBottom: 12,
@@ -48,6 +47,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 24,
             marginBottom: 11,
             display: "flex",
+            justifyContent: "space-between"
         },
         title: {
             marginBottom: 12,
@@ -89,7 +89,20 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             letterSpacing: 0,
         },
+        resourceWrapper: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
         customWrapper: {
+            marginLeft: 24,
+            marginRight: 24,
+            marginBottom: 11,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important'
+            }
+        },
+        sectionWrapper: {
             marginLeft: 24,
             marginRight: 24,
             marginBottom: 11,
@@ -99,7 +112,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         customFooterWrapper: {
             marginLeft: 24,
-            marginRight: 24,
+            // marginRight: 24,
             marginBottom: 11,
             display: "flex",
             justifyContent: "flex-end"
@@ -135,6 +148,21 @@ export const useStyles = makeStyles((theme: Theme) =>
         saveBtn: {
             // width: "100%",
         },
+        addResourceBtn: {
+            outline: "none",
+            background: "transparent",
+            border: "none",
+            color: "#5567D5",
+            fontSize: "13px",
+            letterSpacing: 0,
+            lineHeight: "16px",
+            padding: 0,
+            cursor: "pointer"
+        },
+        addResourceBtnWrap: {
+            display: "flex",
+            alignItems: "center"
+        },
         linkBtn: {
             marginTop: 12,
             color: theme.palette.primary.main
@@ -155,7 +183,47 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         loaderTitle: {
             textAlign: "center",
+        },
+        customLabel: {
+            color: theme.palette.primary.main,
+            textTransform: 'uppercase',
+            fontSize: 13,
+            textAlign: "right",
+            marginTop: "0.5rem",
+            fontWeight: 500,
+            '&:hover': {
+                textDecoration: "underline"
+            }
+        },
+        hrDivider: {
+            background: theme.palette.primary.main,
+            borderTop: "0 solid #dee0e7"
+        },
+        cronWrapper: {
+            height: 48,
+            width: "100%",
+            borderRadius: 5,
+            backgroundColor: "#FFFFFF",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0, 0, 0, 0.07), 0 0 0 0 rgba(50, 50, 77, 0.07)",
+            display: "flex"
+        },
+        cronColumns: {
+            width: '20%',
+            overflow: 'hidden',
+            marginTop: '-0.5rem'
+        },
+        cronColumnDropDown: {
+            border: 0,
+            boxShadow: 'none',
+            background: 'none',
+            marginTop: '1.5rem',
+            textAlign: 'center',
+            "& .MuiSelect-icon": {
+                display: 'none'
+            },
+            "& .MuiSelect-root.MuiSelect-select.MuiSelect-selectMenu.MuiInputBase-input.MuiInput-input": {
+                fontSize: 20
+            }
         }
-
     })
 );

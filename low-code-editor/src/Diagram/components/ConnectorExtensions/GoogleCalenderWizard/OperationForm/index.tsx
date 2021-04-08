@@ -60,18 +60,20 @@ export function OperationForm(props: OperationFormProps) {
         onSave();
     };
 
-    const [validForm, setValidForm] = useState(selectedOperation === "createEvent");
+    const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
     const [fieldChecker] = useState(new Map<string, boolean>());
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
+    let showCalendarSelector = false;
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
         setValidName((text !== '') && nameRegex.test(text));
+        setDefaultResponseVarName(text);
         connectionDetails.action.returnVariableName = text;
     };
     const validateNameValue = (value: string) => {
@@ -85,18 +87,13 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
-    const defaultResponseVariableName: string = (connectionDetails.action.returnVariableName === "" ||
-        connectionDetails.action.returnVariableName === undefined) ? genVariableName(
-            connectionDetails.action.name + "Response", getAllVariables(symbolInfo)) :
-        connectionDetails.action.returnVariableName;
-    connectionDetails.action.returnVariableName = defaultResponseVariableName;
+    connectionDetails.action.returnVariableName = defaultResponseVarName;
 
-    if (defaultResponseVarName === undefined){
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
-
-    const validateForm = (isRequiredFilled: boolean) => {
-        setValidForm(isRequiredFilled);
+    const validateForm = (validity: boolean) => {
+        // check form validity before update state to avoid too many renders
+        if (validForm !== validity){
+            setValidForm(validity);
+        }
     };
 
     // validate custom forms
@@ -122,30 +119,39 @@ export function OperationForm(props: OperationFormProps) {
         isSaveButtonDisabled = false;
     }
 
-    const showCalenderSelector = (!isManualConnection && connectionInfo) ? true : false;
-    formFields[0].hide = showCalenderSelector;
+    // if calendar id needed in form field show calendar list and hide calendar id field
+    if (formFields.find(field => field.name === "calendarId") && !isManualConnection && connectionInfo) {
+        showCalendarSelector = true;
+        formFields.find(field => field.name === "calendarId").hide = true;
+        // validate form if only calendar id in form field
+        if (formFields.length === 1){
+            validateForm(true);
+        }
+    }
 
     const handleGcalendarChange = (event: object, value: any) => {
         if (value?.id) {
-            formFields[0].value = "\"" + value?.id + "\"";
+            formFields.find(field => field.name === "calendarId").value = `"${value.id}"`;
+            setActiveGcalendar(value);
         }
-        setActiveGcalendar(value);
     };
+
     function getActiveGcalendar() {
         if (gcalenderList && activeGcalendar === null) {
             // select primary calender from list
             const calender = gcalenderList.find(calendar => calendar.primary === true);
             setActiveGcalendar(calender);
-            formFields[0].value = "\"" + calender?.id + "\"";
+            formFields.find(field => field.name === "calendarId").value = `"${calender.id}"`;
         }
         return activeGcalendar;
     }
+
     function handleItemLabel(gcalendar: Gcalendar) {
         return gcalendar.summary;
     }
 
     useEffect(() => {
-        if (!isManualConnection && connectionInfo) {
+        if (showCalendarSelector) {
             setIsCalenderFetching(true);
             (async () => {
                 const calendarList = await getGcalendarList(currentApp?.org, connectionInfo.handle);
@@ -199,7 +205,7 @@ export function OperationForm(props: OperationFormProps) {
                     <div className={wizardClasses.formWrapper}>
                         {formFields.length > 0 ? (
                             <div>
-                                {(selectedOperation === "createEvent") ? (
+                                {(selectedOperation === "createEvent" || selectedOperation === "updateEvent") ? (
                                     <CreateEvent
                                         isFetching={isCalenderFetching}
                                         gcalenderList={gcalenderList}
@@ -210,13 +216,13 @@ export function OperationForm(props: OperationFormProps) {
                                     />
                                 ) : (
                                     <>
-                                        {showCalenderSelector && (
+                                        {showCalendarSelector && (
                                             <p className={wizardClasses.subTitle}>Select Calendar</p>
                                         )}
-                                        {showCalenderSelector && isCalenderFetching && (
+                                        {showCalendarSelector && isCalenderFetching && (
                                             <CirclePreloader position="relative" />
                                         )}
-                                        {showCalenderSelector && !isCalenderFetching && gcalenderList && (
+                                        {showCalendarSelector && !isCalenderFetching && gcalenderList && (
                                             <>
                                                 <FormAutocomplete
                                                     placeholder="Choose Calendar"
@@ -239,7 +245,7 @@ export function OperationForm(props: OperationFormProps) {
                         customProps={{
                             validate: validateNameValue
                         }}
-                        defaultValue={defaultResponseVariableName}
+                        defaultValue={defaultResponseVarName}
                         placeholder={"Enter Response Variable Name"}
                         onChange={onNameChange}
                         label={"Response Variable Name"}

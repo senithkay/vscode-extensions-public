@@ -69,7 +69,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '40px'
+            lineHeight: '35px'
         },
         starLabelForRequired: {
             padding: 0,
@@ -375,6 +375,45 @@ export const useStyles = makeStyles((theme: Theme) =>
         invalidCode: {
             fontSize: '11px !important',
             color: '#ea4c4d !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
+        },
+        addCheckWrapper: {
+            display: 'flex',
+            marginTop: '4px'
+        },
+        addCheckIcon: {
+            marginRight: '6px',
+            marginTop: '3px',
+            height: '16px',
+            width: '16px'
+        },
+        addCheckText: {
+            fontSize: '13px !important',
+            color: '#8d91a3 !important',
+            marginTop: '0 !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
+        },
+        addCheckTextClickable: {
+            color: '#5567d5 !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        toFieldTooltipWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%"
+        },
+        toFieldTooltipIconWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: '-1.5rem !important'
         }
     }),
 );

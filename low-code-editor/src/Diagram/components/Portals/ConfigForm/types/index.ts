@@ -65,7 +65,7 @@ export interface ForeachConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -73,6 +73,10 @@ export interface ProcessConfig {
 
 export interface LogConfig {
     type: string;
+    expression: string;
+}
+
+export interface CustomExpressionConfig {
     expression: string;
 }
 

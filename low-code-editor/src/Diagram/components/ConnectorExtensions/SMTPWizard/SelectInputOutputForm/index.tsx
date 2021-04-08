@@ -16,17 +16,16 @@ import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
+import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
-import { smtpTooltips } from "../../../../utils/connectors";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { FormChipTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormChipTextInput";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
@@ -34,10 +33,8 @@ import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 
-// import '../style.scss'
-
 interface SelectInputOutputFormProps {
-    actions: Map<string, FormField[]>;
+    functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
@@ -50,7 +47,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -97,8 +94,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
 
     const operations: string[] = [];
-    if (actions) {
-        actions.forEach((value, key) => {
+    if (functionDefinitions) {
+        functionDefinitions.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }
@@ -150,7 +147,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             index: 1,
             customProps: {
                 validate: validateField,
-                tooltipTitle: smtpTooltips[field?.name],
                 statementType: field.type
             }
         };
@@ -160,25 +156,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "to") {
-            if (field) {
-                field.fields = undefined;
-            }
             return (
-                <div className={classes.emailFormTo}>
-                    <TooltipIcon
-                        title={smtpTooltips.to}
-                    >
-                    <FormChipTextInput {...elementProps} />
-                    </TooltipIcon>
-                </div>
+                <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            if (field) {
-                field.fields = undefined;
-            }
-            // setExpandCc(field.value[0])
             return expandCc ? (
-                <FormChipTextInput {...elementProps} />
+                <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
                         text={"Add " + field.name}
@@ -187,12 +170,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     />
                 );
         } else if (field.name === "bcc") {
-            if (field) {
-                field.fields = undefined;
-            }
-            // setExpandBcc(field.value[0])
             return expandBcc ? (
-                <FormChipTextInput {...elementProps} />
+                <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
                         text={"Add " + field.name}
@@ -208,6 +187,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             );
         } else if (field.name === "body") {
             elementProps.model = field;
+            elementProps.customProps = { ...elementProps.customProps, expandDefault: true }
             const onBodyChange = (body: string) => {
                 elementProps.model.value = body
             }

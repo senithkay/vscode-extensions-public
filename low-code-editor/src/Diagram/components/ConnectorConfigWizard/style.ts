@@ -208,7 +208,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         box: {
-            width:  "100%",
+            width: "100%",
             height: 45,
             borderRadius: 5,
             padding: theme.spacing(1),
@@ -226,6 +226,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             height: "100%",
             width: "100%",
             display: 'flex',
+        },
+        connectionNameWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%"
         }
     }),
 );
