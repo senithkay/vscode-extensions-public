@@ -71,7 +71,7 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
         const resources = m.members;
-        const found = resources.find((r: any) => {
+        const found = resources?.find((r: any) => {
             const { functionName, relativeResourcePath } = r;
             const method = functionName?.value;
             const path = relativeResourcePath[0]?.value;
