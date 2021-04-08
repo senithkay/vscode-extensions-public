@@ -67,6 +67,7 @@ export interface DiagramState {
     size?: DiagramSize;
     originalSyntaxTree?: STNode;
     syntaxTree?: STNode;
+    diagramSt?: STNode;
     positions?: DiagramCoordinates;
     isLoadingAST?: boolean;
     configPanelStatus?: ConfigPanelStatus;
