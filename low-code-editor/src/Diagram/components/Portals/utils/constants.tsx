@@ -99,7 +99,7 @@ export const tooltipMessages: Record<string, any> = {
         title: "Set the path to expose the API.",
         content: "/users/[string name]"
     },
-    scheduleConfig: "Set the schedule for the trigger",
+    scheduleConfig: "Set the schedule to trigger your application based on time",
     cronExpression: {
         title: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively.",
         actionText: "Read More",
