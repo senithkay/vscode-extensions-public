@@ -13,12 +13,6 @@ export default function DiagramContainer(props: Props) {
         workingFile,
         currentApp,
         exprEditorState,
-        // currentFile,
-        // exprEditorState,
-        // diagnostics,
-        // targetPosition,
-        // langClient,
-        dispatch,
         ...restProps
     } = props;
 
@@ -28,11 +22,6 @@ export default function DiagramContainer(props: Props) {
         updateState({
             ...restProps,
             currentApp, // TODO Should remove this later as we already can access this via appInfo
-            // currentFile,
-            // exprEditorState,
-            // diagnostics,
-            // targetPosition,
-            // langClient,
         });
     }, [props])
 
@@ -49,6 +38,8 @@ export default function DiagramContainer(props: Props) {
             isConfigPanelOpen={props.isConfigPanelOpen}
             isConfigOverlayFormOpen={props.isConfigPanelOpen}
             isWaitingOnWorkspace={props.isWaitingOnWorkspace}
+            dispatchFileChange={props.dispatchFileChange}
+            dispatchCodeChangeCommit={props.dispatchCodeChangeCommit}
             triggerType={displayType as TriggerType}
         />
     )

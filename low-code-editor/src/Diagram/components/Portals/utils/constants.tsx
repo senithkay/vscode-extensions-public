@@ -105,8 +105,8 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Read More",
         actionLink: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
     },
-    gitHubEvent: "Select a Github event to setup the trigger",
-    gitHubAction: "Select a Github action to setup the trigger",
+    gitHubEvent: "Select a GitHub event to setup the trigger",
+    gitHubAction: "Select a GitHub action to setup the trigger",
     calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
@@ -170,14 +170,17 @@ export const tooltipMessages: Record<string, any> = {
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
-        content: "Send SMS, Make voice calls "
+        content: "Send SMS, Make voice calls"
+    },
+    slackConnector: {
+        title: "Connect your application with Slack API",
+        content: "Post messages, send files"
     },
     codePanelButton: "Code panel",
     analyzerButton: "Performance Forecast",
     fitToScreenButton: "Fit to screen",
     zoomInButton: "Zoom In",
     zoomOutButton: "Zoom Out",
-    slackConnector: "Add a Slack Connector",
     salesforceBase: "Salesforce BaseClient Connector",
     salesforceBulk: "Salesforce BulkJob Connector",
     salesforce : {
@@ -235,4 +238,9 @@ export const tooltipMessages: Record<string, any> = {
         username: "Username from your POP3 client configurations",
         password: "Password from your POP3 client configurations",
     },
+    BalVersionLabel: {
+        title: "We are using Ballerina Swan Lake Alpha2",
+        actionText: "Learn more at ballerina.io",
+        actionLink: "https://ballerina.io/"
+    }
 }
