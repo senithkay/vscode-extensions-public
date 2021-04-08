@@ -27,6 +27,7 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
+import { CreateDraftForm } from '../CreateDraftForm';
 import {SendMessageForm} from "../SendMessageForm";
 
 export interface OperationFormProps {
@@ -86,6 +87,20 @@ export function OperationForm(props: OperationFormProps) {
         isSaveButtonDisabled = false;
     }
 
+    const renderForm = () => {
+        switch (selectedOperation) {
+            case "sendMessage":
+                return (<SendMessageForm formFields={formFields} onValidate={validateForm}/>);
+
+            case "createDraft":
+            case "updateDraft":
+                return (<CreateDraftForm formFields={formFields} onValidate={validateForm}/>);
+
+            default:
+                return (<Form fields={formFields} onValidate={validateForm} />);
+        }
+    }
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
@@ -128,16 +143,9 @@ export function OperationForm(props: OperationFormProps) {
                     </Box>
                     </>
                     <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <div>
-                                {(selectedOperation === "sendMessage") ? (
-                                    <SendMessageForm formFields={formFields} onValidate={validateForm}/>
-                                ) : (
-                                    <Form fields={formFields} onValidate={validateForm} />
-                                )}
-                            </div>
-                            ) : null
-                        }
+                        {formFields.length > 0 && (
+                            <div>{renderForm()}</div>
+                        )}
                     </div>
 
                     <FormTextInput

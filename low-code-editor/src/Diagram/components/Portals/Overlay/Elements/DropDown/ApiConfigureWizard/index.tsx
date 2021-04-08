@@ -90,7 +90,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (syntaxTree) {
       const { functionName, relativeResourcePath } = syntaxTree;
       const stMethod = functionName?.value;
-      const stPath = relativeResourcePath && relativeResourcePath[0] && relativeResourcePath[0].value || "";
+      const stPath = relativeResourcePath && relativeResourcePath[0] && (relativeResourcePath[0]?.value || relativeResourcePath[0]?.source) || "";
 
       const resourceMembers = [];
       if (stMethod && stPath) {

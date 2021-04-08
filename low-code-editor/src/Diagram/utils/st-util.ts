@@ -65,17 +65,14 @@ const findResourceIndex = (serviceMembers: any, targetResource: any) => {
 
 export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null, fn: boolean = false) {
     const modulePart: ModulePart = mp;
-    const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
 
-    for (const node of members) {
-        // if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
-        //     functionDefinition = node as FunctionDefinition;
-        //     functionDefinition.configurablePosition = node.position;
-        //     break;
-        // }
+    const members: STNode[] = fn ? (modulePart?.members || []).filter((m: any) => (m.kind === "FunctionDefinition"))
+        : (modulePart?.members || []).filter((m: any) => (m.kind !== "FunctionDefinition"));
 
-        if (fn && STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
+    for (const node of members) {
+        // FunctionDefinition
+        if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
             functionDefinition = node as FunctionDefinition;
             functionDefinition.configurablePosition = node.position;
             break;
@@ -117,6 +114,7 @@ export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null
             }
             // }
             break;
+
         }
     }
     return functionDefinition ? functionDefinition : mp;
