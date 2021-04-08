@@ -101,7 +101,7 @@ export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null
             }
         }
     } else {
-        const serviceMembers = members.filter((m: any) => (m.kind !== "FunctionDefinition"));
+        const serviceMembers = members.filter((m: any) => (STKindChecker.isServiceDeclaration(m)));
 
         if (fncOrResource) {
             const serviceMember: STNode = findServiceForGivenResource(serviceMembers, fncOrResource);
