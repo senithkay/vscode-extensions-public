@@ -76,7 +76,7 @@ class SymbolFindingVisitor implements Visitor {
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
         const varType = node.varRef ?
-            node.varRef?.typeData?.symbol?.kind
+            node.varRef?.typeData?.symbol.kind
             : node.typeData?.symbol?.kind;
 
         const varName = STKindChecker.isNumericLiteral(node.expression) ?
