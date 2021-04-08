@@ -174,7 +174,7 @@ export const tooltipMessages: Record<string, any> = {
     },
     slackConnector: {
         title: "Connect your application with Slack API",
-        content: "Post messages, Send files"
+        content: "Post messages, send files"
     },
     codePanelButton: "Code panel",
     analyzerButton: "Performance Forecast",
