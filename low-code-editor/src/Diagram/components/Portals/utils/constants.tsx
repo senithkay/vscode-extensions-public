@@ -105,8 +105,8 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Read More",
         actionLink: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
     },
-    gitHubEvent: "Select a Github event to setup the trigger",
-    gitHubAction: "Select a Github action to setup the trigger",
+    gitHubEvent: "Select a GitHub event to setup the trigger",
+    gitHubAction: "Select a GitHub action to setup the trigger",
     calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
