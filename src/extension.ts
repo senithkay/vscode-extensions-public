@@ -26,8 +26,8 @@ import { activate as activateBBE } from './bbe';
 import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
-import { activate as activateSyntaxHighlighter } from './syntax-highlighter';
 import { activate as activateEditorSupport } from './editor-support';
+import { activate as activatePackageOverview } from './tree-view';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
@@ -52,18 +52,8 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
     }
 
-    class SyntaxHighlightingFeature implements StaticFeature {
-        fillClientCapabilities(capabilities: ClientCapabilities): void {
-            capabilities.experimental = capabilities.experimental || {};
-            capabilities.experimental.semanticSyntaxHighlighter = false;
-        }
-        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
-        }
-    }
-
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
-    langClient.registerFeature(new SyntaxHighlightingFeature());
 }
 
 export function activate(context: ExtensionContext): Promise<any> {
@@ -83,11 +73,13 @@ export function activate(context: ExtensionContext): Promise<any> {
         // activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures();
-        // Enable Ballerina Syntax Highlighter
-        activateSyntaxHighlighter(ballerinaExtInstance);
-        // Enable Ballerina Telemetry listener
-        activateTelemetryListener(ballerinaExtInstance);
         activateEditorSupport(ballerinaExtInstance);
+        // Enable package overview
+        activatePackageOverview(ballerinaExtInstance);
+        if (ballerinaExtInstance.isSwanLake) {
+            // Enable Ballerina Telemetry listener
+            activateTelemetryListener(ballerinaExtInstance);
+        }
 
         ballerinaExtInstance.onReady().then(() => {
             const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
