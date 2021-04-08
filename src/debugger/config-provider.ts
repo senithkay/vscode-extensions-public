@@ -44,21 +44,32 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         config.request = 'launch';
     }
 
-    if (!config.script || config.script === "${file}") {
-        if (!window.activeTextEditor) {
-            ballerinaExtInstance.showMessageInvalidFile();
-            return Promise.reject();
-        }
-
-        const activeDoc = window.activeTextEditor.document;
-
-        if (!activeDoc.fileName.endsWith('.bal')) {
-            ballerinaExtInstance.showMessageInvalidFile();
-            return Promise.reject();
-        }
-
-        config.script = window.activeTextEditor.document.uri.fsPath;
+    if (!window.activeTextEditor) {
+        ballerinaExtInstance.showMessageInvalidFile();
+        return Promise.reject();
     }
+
+    const activeDoc = window.activeTextEditor.document;
+
+    if (!activeDoc.fileName.endsWith('.bal')) {
+        if (ballerinaExtInstance.isSwanLake && ballerinaExtInstance.langClient) {
+            await ballerinaExtInstance.langClient.getBallerinaProject({
+                documentIdentifier: {
+                    uri: activeDoc.uri.toString()
+                }
+            }).then((project) => {
+                if (project.kind !== 'BUILD_PROJECT') {
+                    ballerinaExtInstance.showMessageInvalidFile();
+                    return Promise.reject();
+                }
+            });
+        } else {
+            ballerinaExtInstance.showMessageInvalidFile();
+            return Promise.reject();
+        }
+    }
+
+    config.script = activeDoc.uri.fsPath;
 
     let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     if (langClient.initializeResult) {
@@ -71,8 +82,12 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         }
     }
 
-    config.debuggeePort = debuggeePort.toString();
+    // To make compatible with 1.2.x which supports scriptArguments
+    if (config.programArgs) {
+        config.scriptArguments = config.programArgs;
+    }
 
+    config.debuggeePort = debuggeePort.toString();
 
     if (!config.debugServer) {
         const debugServer = await getPortPromise({ port: 10001, stopPort: 20000 });

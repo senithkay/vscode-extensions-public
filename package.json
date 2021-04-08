@@ -135,16 +135,14 @@
                 "program": "/usr/local/Cellar/ballerina/0.991.0/libexec/lib/tools/debug-adapter/launcher/debug-adapter-launcher.sh",
                 "configurationAttributes": {
                     "launch": {
-                        "required": [
-                            "script"
-                        ],
+                        "required": [],
                         "properties": {
                             "script": {
                                 "type": "string",
                                 "default": "${file}",
                                 "description": "Path of the script that need to be executed (e.g. ${workspaceRoot}/main.bal)"
                             },
-                            "scriptArguments": [],
+                            "programArgs": [],
                             "commandOptions": [],
                             "env": {},
                             "debugServerTimeout": {
@@ -159,7 +157,7 @@
                             },
                             "networkLogs": {
                                 "type": "boolean",
-                                "default": true,
+                                "default": false,
                                 "description": "Indicates whether to capture network logs."
                             }
                         }
@@ -167,8 +165,7 @@
                     "attach": {
                         "required": [
                             "debuggeePort",
-                            "debuggeeHost",
-                            "script"
+                            "debuggeeHost"
                         ],
                         "properties": {
                             "debuggeeHost": {
@@ -180,34 +177,32 @@
                                 "type": "string",
                                 "description": "Remote debug server port",
                                 "default": "5005"
-                            },
-                            "script": {
-                                "type": "string",
-                                "default": "${file}"
                             }
                         }
                     }
                 },
                 "initialConfigurations": [
                     {
-                        "type": "ballerina",
-                        "request": "launch",
                         "name": "Ballerina Debug",
-                        "script": "${file}",
-                        "networkLogs": false
-                    },
-                    {
                         "type": "ballerina",
                         "request": "launch",
-                        "name": "Ballerina Test",
-                        "script": "${file}",
-                        "debugTests": true
+                        "programArgs": [],
+                        "commandOptions": [],
+                        "env": {}
                     },
                     {
+                        "name": "Ballerina Test",
+                        "type": "ballerina",
+                        "request": "launch",
+                        "debugTests": true,
+                        "programArgs": [],
+                        "commandOptions": [],
+                        "env": {}
+                    },
+                    {
+                        "name": "Ballerina Remote",
                         "type": "ballerina",
                         "request": "attach",
-                        "name": "Ballerina Remote",
-                        "script": "${file}",
                         "debuggeeHost": "127.0.0.1",
                         "debuggeePort": "5005"
                     }

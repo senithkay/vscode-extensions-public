@@ -9,6 +9,7 @@ export interface AttachRequestArguments extends DebugProtocol.AttachRequestArgum
 export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     script: string;
     scriptArguments: Array<string>;
+    programArgs: Array<string>;
     commandOptions: Array<string>;
     'ballerina.home': string;
     debugTests: boolean;
