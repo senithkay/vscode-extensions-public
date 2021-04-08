@@ -18,7 +18,6 @@ import cn from "classnames";
 import { EndpointViewState, StatementViewState } from '../../view-state';
 import { ActionInvocation } from '../ActionInvocation';
 import { Connector } from "../Connector";
-import { DoStatement } from '../DoStatement';
 import { DataProcessor } from '../Processor';
 import { Respond } from "../Respond";
 
@@ -32,7 +31,6 @@ export function StatementC(props: StatementProps) {
     const { model } = props;
 
     const statements: React.ReactNode[] = [];
-    let doStatement: React.ReactNode = null;
     const classes = cn("statement");
 
     if (STKindChecker.isLocalVarDecl(model)
@@ -79,8 +77,6 @@ export function StatementC(props: StatementProps) {
                 <Respond model={model} />
             </g>
         );
-    } else if (STKindChecker.isDoStatement(model) && model.viewState.isFirstInFunctionBody) {
-        doStatement = <DoStatement model={model} />;
     } else {
         statements.push(
             <g>
@@ -90,11 +86,8 @@ export function StatementC(props: StatementProps) {
     }
 
     return (
-        <g>
-            <g className={classes}>
-                {...statements}
-            </g>
-            {doStatement}
+        <g className={classes}>
+            {...statements}
         </g>
     );
 }
