@@ -13,8 +13,9 @@
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React from "react";
 
-import cn from "classnames";
+import classNames from "classnames";
 
+import "./style.scss"
 import { useStyles } from "./styles";
 
 export default function RadioControl(props: any) {
@@ -27,7 +28,7 @@ export default function RadioControl(props: any) {
         return (
             <button
                 key={opt}
-                className={cn(classes.radioBtn, selectedValue === opt ? classes.radioSelected : "")}
+                className={classNames(classes.radioBtn, selectedValue === opt ? classNames(classes.radioSelected, "selected" + opt) : "")}
                 onClick={handleOnSelect}
             >
                 {opt}
