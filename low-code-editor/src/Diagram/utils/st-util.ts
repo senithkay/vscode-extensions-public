@@ -290,10 +290,8 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
         case "STATEMENT":
             switch (subType) {
                 case "If":
-                    h = IFELSE_SVG_HEIGHT;
-                    w = IFELSE_SVG_WIDTH;
-                    break;
                 case "ForEach":
+                case "While":
                     h = IFELSE_SVG_HEIGHT;
                     w = IFELSE_SVG_WIDTH;
                     break;
