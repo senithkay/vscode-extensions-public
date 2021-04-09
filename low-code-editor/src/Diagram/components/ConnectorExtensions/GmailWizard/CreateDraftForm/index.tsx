@@ -26,7 +26,7 @@ export interface OperationDropdownProps {
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
 }
 
-export function CreateDraftForm(props: OperationDropdownProps) {
+export default function CreateDraftForm(props: OperationDropdownProps) {
     const { formFields, onValidate } = props;
     const classes = useStyles();
     const [ expandCc, setExpandCc ] = useState(false);
