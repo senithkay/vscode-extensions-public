@@ -14,9 +14,10 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import {
+    CaptureBindingPattern,
     FunctionBodyBlock,
     FunctionDefinition,
-    ModulePart,
+    ModulePart, ModuleVarDecl,
     ServiceDeclaration, SimpleNameReference,
     STKindChecker,
 } from "@ballerina/syntax-tree";
@@ -106,13 +107,22 @@ export function StartButton(props: StartButtonProps) {
 
     const getWebhookType = () : ConnectorType => {
         const webHookSyntaxTree = originalSyntaxTree as ModulePart;
-        const service = webHookSyntaxTree.members.find(member => member.kind === "ServiceDeclaration");
+        const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
+            STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
         let webHookType = "";
-        if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath => resourcePath.value === "calendar")) {
-            webHookType = ConnectorType.G_CALENDAR;
-        } else if ((service as ServiceDeclaration)?.expressions.find(expression => (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
-            webHookType = ConnectorType.GITHUB;
-        }
+        services.forEach(service => {
+            if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
+                resourcePath.value === "calendar")) {
+                webHookType = ConnectorType.G_CALENDAR;
+            } else if ((service as ServiceDeclaration)?.expressions?.find(expression =>
+                (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
+                webHookType = ConnectorType.GITHUB;
+            } else if ((webHookSyntaxTree).members?.find(member => (((member as ModuleVarDecl)?.
+                typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
+                typeSymbol?.moduleID?.moduleName === "sfdc")) {
+                webHookType = ConnectorType.SALESFORCE;
+            }
+        });
         return webHookType as ConnectorType;
     }
 
