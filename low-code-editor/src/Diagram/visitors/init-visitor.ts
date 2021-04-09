@@ -51,6 +51,7 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             node.viewState = new ViewState();
         }
+        this.initStatement(node, parent);
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -90,7 +91,11 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        this.visitBlock(node, parent);
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.initStatement(node, parent);
+        } else {
+            this.visitBlock(node, parent);
+        }
     }
 
     public beginVisitActionStatement(node: ActionStatement, parent?: STNode) {

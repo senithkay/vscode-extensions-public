@@ -6,11 +6,9 @@ import { ConnectorClient } from "../components/ActionInvocation/ConnectorClient"
 import { IfElse } from "../components/IfElse";
 import { DataProcessor } from "../components/Processor";
 import { Respond } from "../components/Respond";
-// import { insertComponentStart } from "../$store/actions/expression-editor";
+import { Statement } from "../components/Statement";
 import { BlockViewState } from "../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../view-state/draft";
-
-// import { store } from "../../../../$store";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -21,8 +19,11 @@ export function getSTComponents(nodeArray: any): React.ReactNode[] {
     const children: any = [];
     nodeArray.forEach((node: any) => {
         const ChildComp = (stComponents as any)[node.kind];
-        if (!ChildComp) { return; }
-        children.push(<ChildComp model={node} />);
+        if (!ChildComp) {
+            children.push(<Statement model={node} />);
+        } else {
+            children.push(<ChildComp model={node} />);
+        }
     });
 
     return children;
@@ -30,7 +31,9 @@ export function getSTComponents(nodeArray: any): React.ReactNode[] {
 
 export function getSTComponent(node: any): React.ReactElement {
     const ChildComp = (stComponents as any)[node.kind];
-    if (!ChildComp) { return <></>; }
+    if (!ChildComp) {
+        return <Statement model={node} />;
+    }
     return <ChildComp model={node} />;
 }
 

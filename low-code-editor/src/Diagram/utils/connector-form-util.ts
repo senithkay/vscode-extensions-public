@@ -331,13 +331,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_sfdc_BaseClient':
+        case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
-                            subFields.fields =  subFields.fields[0].fields;
+                            // HACK: a quick fix to show salesforce connector init form input fields. Need to fix form generation with inner level records
+                            subFields.fields =  subFields.fields[0].fields[0].fields;
+                            subFields.type = PrimitiveBalType.Record;
+                            subFields.isUnion = undefined;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
                             subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
