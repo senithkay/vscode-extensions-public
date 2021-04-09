@@ -36,7 +36,6 @@ import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConne
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
-import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface CalendarConfigureFormProps {
@@ -65,7 +64,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
-    const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
     const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
 
@@ -155,24 +153,31 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         trackTriggerSelection("Google Calender");
     };
 
-    // handle calendar trigger creation
+    // handle calendar trigger update
     const updateCalendarTrigger = () => {
         // get nodes to be edited
-        const calenderConfig = (originalSyntaxTree as ModulePart).members.find(member =>
-            ((member as ModuleVarDecl)?.typedBindingPattern?.typeDescriptor as QualifiedNameReference)?.
-                identifier?.value === "CalendarConfiguration") as ModuleVarDecl;
-        const oauthConfigField = (calenderConfig.initializer as MappingConstructor).fields.find(field =>
-            (field as SpecificField).fieldName.value === "oauth2Config") as SpecificField;
-        const oauthConfigValExprNode = oauthConfigField.valueExpr;
-
         const functionDefs = (originalSyntaxTree as ModulePart).members.filter(member =>
             STKindChecker.isFunctionDefinition(member)) as FunctionDefinition[];
-        const intFunction = functionDefs.find(functionDef =>
+        const initFunction: FunctionDefinition = functionDefs.find(functionDef =>
             functionDef.functionName.value === "init") as FunctionDefinition;
-        const localVarDecls = (intFunction.functionBody as FunctionBodyBlock).statements.filter(statement =>
+
+        let oauthConfigValExprNode: SpecificField;
+        if (initFunction) {
+            (initFunction.functionBody as FunctionBodyBlock).statements.forEach(statement => {
+                if (STKindChecker.isLocalVarDecl(statement)) {
+                    if (((statement as LocalVarDecl).typedBindingPattern?.typeDescriptor as
+                        QualifiedNameReference)?.identifier?.value === "CalendarConfiguration") {
+                        oauthConfigValExprNode = ((statement.initializer) as MappingConstructor).fields.find(field =>
+                            (field as SpecificField).fieldName.value === "oauth2Config") as SpecificField;
+                    }
+                }
+
+            })
+        }
+        const localVarDecls = (initFunction.functionBody as FunctionBodyBlock).statements.filter(statement =>
             STKindChecker.isLocalVarDecl(statement)) as LocalVarDecl[];
         let calIdNode: STNode;
-        localVarDecls.forEach(varDecl => {
+        localVarDecls?.forEach(varDecl => {
             if (varDecl.initializer?.typeData?.typeSymbol?.name === "WatchResponse" &&
                 STKindChecker.isCheckAction(varDecl.initializer)) {
                  calIdNode = varDecl.initializer.expression.arguments[0];
@@ -202,13 +207,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             const refreshToken = getKeyFromCalConnection('refreshTokenKey');
             const refreshUrl = getKeyFromCalConnection('tokenEpKey');
 
-            const calConfigTemplate = `{\n
-                                            clientId: ${clientId},\n
-                                            clientSecret: ${clientSecret},\n
-                                            refreshUrl: ${refreshUrl},\n
-                                            refreshToken: ${refreshToken}\n
-                                            \n
-                                       }\n`;
+            const calConfigTemplate = `oauth2Config: {\n
+                                         clientId: ${clientId},\n
+                                         clientSecret: ${clientSecret},\n
+                                         refreshUrl: ${refreshUrl},\n
+                                         refreshToken: ${refreshToken}\n
+                                      }`;
             modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
             modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
             dispatchMutations(modifications);
