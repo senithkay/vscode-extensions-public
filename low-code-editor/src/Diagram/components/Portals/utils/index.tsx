@@ -285,7 +285,7 @@ export function getParams(formFields: FormField[]): string[] {
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
                 }
-            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
@@ -472,8 +472,10 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             }
         } else if (formField.type === "union" && formField.isUnion) {
             formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
         } else if (formField.type === "json") {
             formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
         }
     }
 }
@@ -555,7 +557,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
                     "position": 0,
                     "isUsed": 0
                 }
-            } else {
+            } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
                 const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
                     CaptureBindingPattern;

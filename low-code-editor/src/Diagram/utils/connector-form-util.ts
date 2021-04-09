@@ -179,8 +179,11 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
+                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+                    // todo: add these operations when bal connector class fetch support is there
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
@@ -221,38 +224,36 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerinax_googleapis_gmail_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "listMessages" || key === "sendMessage" || key === "readMessage" || key === "init") {
-                    if (key === "init"){
-                        // replace single record inside "oauthClientConfig" record with inner field list
-                        const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
-                        .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
+                if (key === "init") {
+                    // replace single record inside "oauthClientConfig" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields[ 0 ].fields;
 
-                        value.parameters.find(fields => fields.name === "gmailConfig")
+                    value.parameters.find(fields => fields.name === "gmailConfig")
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
-                    }
-                    if (key === "sendMessage"){
-                        value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
-                            if (field.name === "contentType"){
-                                // set content type in sendMessage form
-                                field.value = `"text/plain"`;
-                            }
-                            if (field.name === "inlineImagePaths" || field.name === "attachmentPaths"){
-                                field.hide = true;
-                                field.noCodeGen = true;
-                            }
-                        });
-                    }
-                    // hide optional fields from gmail forms
-                    if (key === "readMessage"){
-                        value.parameters.find(fields => fields.name === "format").hide = true;
-                        value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
-                    }
-                    if (key === "listMessages"){
-                        value.parameters.find(fields => fields.name === "filter").hide = true;
-                    }
-
-                    filteredFunctions.set(key, value);
                 }
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
+                    value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                        if (field.name === "contentType") {
+                            // set content type in sendMessage form
+                            field.value = `"text/plain"`;
+                        }
+                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
+                            field.hide = true;
+                            field.noCodeGen = true;
+                        }
+                    });
+                }
+                // hide optional fields from gmail forms
+                if (key === "readMessage") {
+                    value.parameters.find(fields => fields.name === "format").hide = true;
+                    value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
+                }
+                if (key === "listMessages") {
+                    value.parameters.find(fields => fields.name === "filter").hide = true;
+                }
+
+                filteredFunctions.set(key, value);
 
                 // add default value to userId field
                 let formField: FormField[] = [];
@@ -272,8 +273,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
 
                     filteredFunctions.set(key, value);
-                }else if (key === "createEvent") {
-                    value.parameters[1].fields.forEach((field) => {
+                } else if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
@@ -296,7 +297,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
-                } else if (!((key === "watchEvents") || (key === "updateEvent") || (key === "getEventResponse") || (key === "getCalendars"))) {
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
                     filteredFunctions.set(key, value);
                 }
             });
@@ -476,21 +477,6 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                     })
                 }
             });
-            break;
-        case "ballerinax_googleapis_gmail_Client":
-            functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'readMessage':
-                    case 'sendMessage':
-                    case 'listMessages':
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
-                }
-            })
             break;
         case 'ballerinax_googleapis_sheets_Client':
             functionDefInfoMap.forEach((value, key) => {

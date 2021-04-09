@@ -81,6 +81,35 @@ export function updateForEachCondition(collection: string, variableName: string,
     return foreachStatement;
 }
 
+export function createWhileStatement(conditionExpression: string, targetPosition: DraftInsertPosition): STModification {
+    const ifStatement: STModification = {
+        startLine: targetPosition.line,
+        startColumn: 0,
+        endLine: targetPosition.line,
+        endColumn: 0,
+        type: "WHILE_STATEMENT",
+        config: {
+            "CONDITION": conditionExpression,
+        }
+    };
+
+    return ifStatement;
+}
+
+export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdateStatement): STModification {
+    const updatedIfStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "WHILE_STATEMENT_CONDITION",
+        config: {
+            "CONDITION": conditionExpression,
+        }
+    };
+
+    return updatedIfStatement;
+}
 
 export function createPropertyStatement(property: string, targetPosition: DraftInsertPosition): STModification {
     const propertyStatement: STModification = {

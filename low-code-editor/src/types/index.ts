@@ -73,7 +73,9 @@ export interface LowCodeEditorProps {
     getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
     getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
     workingFile?: string;
-    syntaxTree: ModulePart;
+    // syntaxTree: ModulePart | STNode;
+    syntaxTree: any;
+    originalSyntaxTree?: STNode;
     stSymbolInfo?: STSymbolInfo;
     isCodeEditorActive?: boolean;
     isConfigPanelOpen?: boolean;
@@ -106,6 +108,8 @@ export interface LowCodeEditorProps {
     getGithubRepoList?: (orgHandle: string, handler: string, username: string) => Promise<GithubRepo[]>;
     getLangClientForDiagram?: any;
     oauthSessions?: OauthSessionState;
+    dispatchFileChange?: (content: string) => Promise<void>;
+    dispatchCodeChangeCommit?: () => Promise<void>;
 }
 
 export interface STSymbolInfo {

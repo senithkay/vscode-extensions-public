@@ -49,6 +49,7 @@ export interface ConnectorConfigWizardProps {
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const { state, toggleDiagramOverlay } = useContext(DiagramContext);
+    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen, isCodeEditorActive } = state;
 
     const { position, connectorInfo, targetPosition, model, onClose } = props;
 
@@ -72,31 +73,37 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
 
     const handleClose = () => {
         onClose();
-        toggleDiagramOverlay()
+        dispatchOverlayClose();
     }
 
     return (
         <div>
             <DiagramOverlayContainer>
-                <DiagramOverlay
-                    className={classes.configWizardContainer}
-                    position={position}
-                >
-                    <>
-                        {wizardState.isLoading ? (
-                            <div className={classes.loaderWrapper}>
-                                <TextPreloaderVertical position='relative' />
-                            </div>
-                        ) : (
-                                <ConnectorForm
-                                    targetPosition={targetPosition}
-                                    configWizardArgs={wizardState}
-                                    connectorInfo={connectorInfo}
-                                    onClose={handleClose}
-                                />
-                            )}
-                    </>
-                </DiagramOverlay>
+                {!isCodeEditorActive ?
+                    (
+                        <DiagramOverlay
+                            className={classes.configWizardContainer}
+                            position={position}
+                        >
+                            <>
+                                {wizardState.isLoading ? (
+                                    <div className={classes.loaderWrapper}>
+                                        <TextPreloaderVertical position='relative' />
+                                    </div>
+                                ) : (
+                                        <ConnectorForm
+                                            targetPosition={targetPosition}
+                                            configWizardArgs={wizardState}
+                                            connectorInfo={connectorInfo}
+                                            onClose={handleClose}
+                                        />
+                                    )}
+                            </>
+                        </DiagramOverlay>
+                    )
+                    :
+                    null
+                }
             </DiagramOverlayContainer>
         </div>
     );

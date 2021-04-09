@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 // tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from "react";
-import { FormHelperText } from "@material-ui/core";
+import { FormHelperText, Link } from "@material-ui/core";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
@@ -22,12 +22,12 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
-import { TooltipIcon } from "../Tooltip";
+import { TooltipCodeSnippet, TooltipIcon } from "../Tooltip";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -164,6 +164,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [ expand, setExpand ] = useState(expandDefault || false);
+    const [ addCheck, setAddCheck ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -202,6 +203,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const handleTypeInfo = (typeInfo: string[]) => {
+        if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
+            // expression can resolve to an error
+            setAddCheck(true)
+        } else {
+            setAddCheck(false)
+        }
+    }
+
     const handleDiagnostic = () => {
         if (invalidSourceCode) {
             notValidExpEditor("Code has errors, please fix them first.");
@@ -226,6 +236,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         while (disposableTriggers.length > 0) {
             const disposable: monaco.IDisposable = disposableTriggers.pop();
             disposable.dispose();
+        }
+    }
+
+    const setDefaultTooltips = () => {
+        // add default tooltip if not given by explicitly
+        if (textLabel && model && !(customProps?.tooltipTitle || model?.tooltip) && model?.description) {
+            model.tooltip = model.description.substring(model.description.indexOf('-') + 1).trim();
         }
     }
 
@@ -414,8 +431,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.didChange({
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.didChange({
                 contentChanges: [
                     {
                         text: expressionEditorState.content
@@ -428,8 +445,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.diagnostics({
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.diagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -441,7 +458,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        // await dispatchExprEditorStart(expEditorState);
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            const offset = varType.length + 1;
+            await langClient.getType({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                },
+                position: {
+                    line: targetPosition.line,
+                    offset
+                }
+            }).then((resp: any) => {
+                const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+                handleTypeInfo(typeInfo);
+            });
+        });
+
         if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
@@ -474,8 +506,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didChange({
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.didChange({
                     contentChanges: [
                         {
                             text: expressionEditorState.content
@@ -488,8 +520,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
-                langClient.diagnostics({
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                await langClient.diagnostics({
                     documentIdentifier: {
                         uri: expressionEditorState.uri,
                     }
@@ -498,6 +530,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ...expressionEditorState,
                         diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
                     })
+                });
+            });
+
+            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+                const offset = varType.length + 1;
+                await langClient.getType({
+                    documentIdentifier: {
+                        uri: expressionEditorState.uri,
+                    },
+                    position: {
+                        line: targetPosition.line,
+                        offset
+                    }
+                }).then((resp: any) => {
+                    const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+                    handleTypeInfo(typeInfo);
                 });
             });
 
@@ -555,7 +603,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // Block expression editor if there are diagnostics in the source code
         setInvalidSourceCode(diagnosticCheckerExp(mainDiagnostics));
 
-        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + '.bal');
+        const MONACO_URI_INMEMO = monaco.Uri.file('inmemory://' + varName + getRandomInt(100000) + '.bal');
         const existingModel = editor.getModel(MONACO_URI_INMEMO);
         if (existingModel) {
             existingModel.dispose();
@@ -597,6 +645,26 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         })
     }
+
+    const addCheckToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("check " + editorModel.getValue());
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
+    const handleError = (mainDiagnosticsArray: any) => {
+        const errorMsg = mainDiagnosticsArray[0]?.message;
+        if (errorMsg.length > 50)
+            return errorMsg.slice(0, 50) + " ..."
+        else
+            return errorMsg
+    }
+
+    setDefaultTooltips();
 
     return (
         <>
@@ -661,11 +729,24 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             </div>
             {invalidSourceCode ?
                 (
-                    <FormHelperText className={formClasses.invalidCode}>{mainDiagnostics[0]?.message} (This error is in Code Editor. Please fix them first)</FormHelperText>
+                    <>
+                        <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
+                            <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
+                        </TooltipCodeSnippet>
+                        <FormHelperText className={formClasses.invalidCode}>Error occured in the code-editor. Please fix it first to continue.</FormHelperText>
+                    </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
-                        <FormHelperText className={formClasses.invalidCode}>{expressionEditorState.diagnostic[0].message}</FormHelperText>
-                    ) : null
+                        <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                            <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                        </TooltipCodeSnippet>
+                    ) : addCheck ?
+                        (
+                            <div className={formClasses.addCheckWrapper} >
+                                <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
+                                <FormHelperText className={formClasses.addCheckText}>This expression could cause an error. {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>Click here</a>} to handle it</FormHelperText>
+                            </div>
+                        ) : null
             }
         </>
     );

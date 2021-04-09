@@ -29,7 +29,7 @@ export function Form(props: FormProps) {
     const classes = useStyles();
     const elements: ReactNode[] = [];
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
 
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
@@ -46,26 +46,10 @@ export function Form(props: FormProps) {
                     }
                 }
             } else if (formValue.type === "union") {
-                for (const unionField of formValue.fields) {
-                    if (unionField.type === "record") {
-                        for (const recordField of unionField.fields) {
-                            const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                            // breaks the loop if one field is empty
-                            if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                                allFieldsValid = !isFieldValueInValid;
-                                break;
-                            }
-                        }
-                    } else {
-                        const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                        // breaks the loop if one field is empty
-                        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                            allFieldsValid = !isFieldValueInValid;
-                            break;
-                        }
-                    }
-                }
-                if (!allFieldsValid) {
+                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
+                // breaks the loop if one field is empty
+                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
+                    allFieldsValid = !isFieldValueInValid;
                     break;
                 }
             } else {
