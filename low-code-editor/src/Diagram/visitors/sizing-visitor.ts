@@ -39,13 +39,13 @@ import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
-import {WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH} from "../components/While/WhileSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
+import {WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH} from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import {WhileViewState} from "../view-state/while";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
+import {WhileViewState} from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
