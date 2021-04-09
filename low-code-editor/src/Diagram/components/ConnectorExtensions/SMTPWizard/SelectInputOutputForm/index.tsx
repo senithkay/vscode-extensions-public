@@ -148,7 +148,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            return expandCc ? (
+            return expandCc || field.value !== "" ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
@@ -158,7 +158,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     />
                 );
         } else if (field.name === "bcc") {
-            return expandBcc ? (
+            return expandBcc || field.value !== "" ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
