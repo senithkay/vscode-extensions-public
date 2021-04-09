@@ -98,9 +98,9 @@ export const tooltipMessages: Record<string, any> = {
         title: "To trigger an application based on Salesforce events",
         actionText: "Learn about Salesforce trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md",
-        username: "Your Salesforce username",
-        password: "Your Salesforce password appended by your Salesforce security token",
-        topic: "Name of the Push Topic added at your Salesforce account to get notifications",
+        username: "Key in your Salesforce username",
+        password: "Enter the Salesforce password appended by your Salesforce security token",
+        topic: "Name of the Push Topic added to your Salesforce account to receive notifications",
     },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
