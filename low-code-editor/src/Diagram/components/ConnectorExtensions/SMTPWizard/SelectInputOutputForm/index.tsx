@@ -33,8 +33,6 @@ import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 
-
-
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
@@ -60,39 +58,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
     const [responseVarError, setResponseVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.fields && connectorConfig.action.fields.length > 0;
-    const [expandBcc, setExpandBcc] = useState(false);
-    const [expandCc, setExpandCc] = useState(false);
-    const [isFromFieldValid, setValidationFromField] = useState(false);
-    const [isToFieldValid, setValidationToField] = useState(false);
-    const [isSubjectFieldValid, setValidationSubjectField] = useState(false);
-    const [isBodyFieldValid, setValidationBodyField] = useState(false);
-    const [isCCFieldValid, setValidationCCField] = useState(false);
-    const [isBCCFieldValid, setValidationBCCField] = useState(false);
 
-
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
-
-    const validateField = (field: string, isInvalid: boolean): void => {
-        emptyFieldChecker.set(field, isInvalid);
-        let allFieldsValid = true;
-        for (const formValue of connectorConfig.action.fields) {
-            for (const recordField of formValue.fields) {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-
-                }
-            }
-        }
-        if (expandBcc === true || expandCc === true) {
-            validateAllFields()
-        }
-        // else {
-        onValidate(allFieldsValid);
-        // }
-    }
     const initialReturnNameState: ReturnNameState = {
         isNameProvided: true,
         isValidName: true
@@ -135,74 +101,28 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             }
         });
     }
-    const validateAllFields = () => {
-        if (!isFromFieldValid && !isToFieldValid && !isSubjectFieldValid && !isBodyFieldValid && !isCCFieldValid && !isBCCFieldValid) {
-            onValidate(false)
+
+    const [expandCc, setExpandCc] = useState(false);
+    const onCcClicked = () => {
+        setExpandCc(true);
+    }
+    const [expandBcc, setExpandBcc] = useState(false);
+    const onBccClicked = () => {
+        setExpandBcc(true);
+    }
+
+    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
+    const validateField = (field: string, isInvalid: boolean): void => {
+        emptyFieldChecker.set(field, isInvalid);
+        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
+        const CcChecker = expandCc ? emptyFieldChecker.get("cc") || false : false;
+        if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
+            && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
+            onValidate(true);
         } else {
-            onValidate(true)
+            onValidate(false);
         }
     }
-    const validateFromField = (field: string, isInvalid: boolean) => {
-        setValidationFromField(isInvalid)
-        validateAllFields()
-    }
-    const validateToField = (field: string, isInvalid: boolean) => {
-        setValidationToField(isInvalid)
-        validateAllFields()
-        // setTemp({to: isInvalid, ...temp})
-    }
-    const validateSubjectField = (field: string, isInvalid: boolean) => {
-        setValidationSubjectField(isInvalid)
-        validateAllFields()
-    }
-    const validateBodyField = (field: string, isInvalid: boolean) => {
-        setValidationBodyField(isInvalid)
-        validateAllFields()
-    }
-    const validateCCField = (field: string, isInvalid: boolean) => {
-        setValidationCCField(isInvalid)
-        validateAllFields()
-    }
-    const validateBCCField = (field: string, isInvalid: boolean) => {
-        setValidationBCCField(isInvalid)
-        validateAllFields()
-    }
-    // const onCcClicked = () => {
-    //     // validateField("to",true)
-    //     onValidate(false)
-    //     setExpandCc(true);
-    // }
-    // const onBccClicked = () => {
-    //     onValidate(false)
-    //     // validateField("to",true)
-    //     setExpandBcc(true);
-    // }
-
-    // const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
-    // const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") : false;
-    // const CcChecker = expandCc ? emptyFieldChecker.get("cc") : false;
-    // const validateField = (field: string, isInvalid: boolean): void => {
-    //     emptyFieldChecker.set(field, isInvalid);
-    // let allFieldsValid = true;
-    // for (const formValue of connectorConfig.action.fields) {
-    //     for (const recordField of formValue.fields) {
-    //         const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-    //         // breaks the loop if one field is empty
-    //         if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-    //             allFieldsValid = !isFieldValueInValid;
-    //             break;
-    //         }
-    //     }
-    // }
-
-    // if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
-    //     && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
-    //     onValidate(true);
-    // } else {
-    //     onValidate(false);
-    // }
-    // onValidate(allFieldsValid);
-    // }
 
     const getFormFieldComponent = (component: string): any => {
         const field = connectorConfig.action.fields[0].fields.find(inputField => inputField.name === component);
@@ -219,45 +139,35 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             }
         };
         if (field.name === "'from") {
-            elementProps.customProps = { ...elementProps.customProps }
+            elementProps.customProps = { ...elementProps.customProps, isEmail: true }
             return (
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "to") {
-            elementProps.customProps = { ...elementProps.customProps }
             return (
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            elementProps.customProps = { ...elementProps.customProps }
-            const onCcClicked = () => {
-                setExpandCc(true);
-            };
             return expandCc ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
-                <IconBtnWithText
-                    text={"Add " + field.name}
-                    onClick={onCcClicked}
-                    icon={<AddCircleOutline />}
-                />
-            );
+                    <IconBtnWithText
+                        text={"Add " + field.name}
+                        onClick={onCcClicked}
+                        icon={<AddCircleOutline />}
+                    />
+                );
         } else if (field.name === "bcc") {
-            elementProps.customProps = { ...elementProps.customProps }
-            const onBccClicked = () => {
-                setExpandBcc(true);
-            };
             return expandBcc ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
-                <IconBtnWithText
-                    text={"Add " + field.name}
-                    onClick={onBccClicked}
-                    icon={<AddCircleOutline />}
-                />
-            );
+                    <IconBtnWithText
+                        text={"Add " + field.name}
+                        onClick={onBccClicked}
+                        icon={<AddCircleOutline />}
+                    />
+                );
         } else if (field.name === "subject") {
-            elementProps.customProps = { ...elementProps.customProps }
             return (
                 <div className={classes.emailFormSubject}>
                     <ExpressionEditor {...elementProps} />
