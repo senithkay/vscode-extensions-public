@@ -19,6 +19,7 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 
 import { AddForeachForm } from "./AddForeachForm";
 import { AddIfForm } from "./AddIfForm/index";
+import {AddWhileForm} from "./AddWhileForm";
 
 interface ConditionsWizardProps {
     condition: ConditionConfig;
@@ -33,7 +34,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
 
-    if (formType === "if") {
+    if (formType === "if" || formType === "While") {
         if (isNewConditionForm) {
             condition.conditionExpression = "";
         }
@@ -85,6 +86,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
                         <>
                             {formType === "If" && <AddIfForm condition={condition} onSave={onSave} onCancel={onCancel} />}
                             {formType === "ForEach" && <AddForeachForm condition={condition} onSave={onSave} onCancel={onCancel} isNewConditionForm={isNewConditionForm} />}
+                            {formType === "While" && <AddWhileForm condition={condition} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

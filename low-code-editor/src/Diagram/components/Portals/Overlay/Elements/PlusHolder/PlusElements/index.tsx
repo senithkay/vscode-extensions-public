@@ -40,7 +40,7 @@ export interface PlusElementsProps {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 450;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 500;
 export const PLUS_HOLDER_API_HEIGHT = 580;
 
 export function PlusElements(props: PlusElementsProps) {

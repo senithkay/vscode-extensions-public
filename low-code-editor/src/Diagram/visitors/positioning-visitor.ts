@@ -20,7 +20,8 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     VisibleEndpoint,
-    Visitor
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
@@ -38,7 +39,8 @@ import {
     FunctionViewState,
     IfViewState,
     PlusViewState,
-    StatementViewState
+    StatementViewState,
+    WhileViewState
 } from "../view-state";
 
 import { DefaultConfig } from "./default";
@@ -393,6 +395,24 @@ class PositioningVisitor implements Visitor {
 
         viewState.foreachBodyRect.cx = viewState.foreachHead.cx;
         viewState.foreachBodyRect.cy = viewState.foreachHead.cy;
+    }
+
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: WhileViewState = node.viewState;
+        viewState.whileBody = bodyViewState;
+
+        viewState.whileHead.cx = viewState.bBox.cx;
+        viewState.whileHead.cy = viewState.bBox.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileLifeLine.cx = viewState.bBox.cx;
+        viewState.whileLifeLine.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileBody.bBox.cx = viewState.whileHead.cx;
+        viewState.whileBody.bBox.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2) + viewState.whileHead.offsetFromBottom;
+
+        viewState.whileBodyRect.cx = viewState.whileHead.cx;
+        viewState.whileBodyRect.cy = viewState.whileHead.cy;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
