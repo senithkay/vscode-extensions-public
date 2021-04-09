@@ -20,8 +20,8 @@ import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
 import {
     createForeachStatement,
-    createIfStatement, updateForEachCondition,
-    updateIfStatementCondition
+    createIfStatement, createWhileStatement, updateForEachCondition,
+    updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { ConditionConfig, ForeachConfig } from "../../Portals/ConfigForm/types";
@@ -56,6 +56,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
 
     switch (formType) {
         case "If":
+        case "While":
             conditionConfig = {
                 type: formType,
                 conditionExpression: formArgs?.config && formArgs?.config.conditionExpression ? formArgs?.config.conditionExpression : '',
@@ -103,6 +104,15 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))
                 }
                 // modifications.push();
+            } else if (type === "While") {
+                const whileConfig: ConditionConfig = conditionConfig as ConditionConfig;
+                const conditionExpression: string = whileConfig.conditionExpression as string;
+                if (wizardType === WizardType.NEW) {
+                    trackAddStatement(type);
+                    modifications.push(createWhileStatement(conditionExpression, formArgs?.targetPosition));
+                } else {
+                    modifications.push(updateWhileStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
+                }
             }
             dispatchMutations(modifications);
             onSave();

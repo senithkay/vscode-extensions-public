@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,18 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./simple-bbox";
-export * from "./view-state";
-export * from "./compilationUnit";
-export * from "./function";
-export * from "./statement";
-export * from "./endpoint";
-export * from "./block";
-export * from "./if";
-export * from "./foreach";
-export * from "./plus";
-export * from "./end";
-export * from "./else";
-export * from "./plus";
-export * from "./collapse";
-export * from "./while";
+import { BlockViewState } from "./block";
+import { SimpleBBox } from "./simple-bbox";
+import { StatementViewState } from "./statement";
+
+export class WhileViewState extends StatementViewState {
+    public whileLifeLine: SimpleBBox = new SimpleBBox();
+    public whileHead: SimpleBBox = new SimpleBBox();
+    public whileBody: BlockViewState = new BlockViewState();
+    public whileBodyRect: SimpleBBox = new SimpleBBox();
+
+    constructor() {
+        super();
+    }
+}
