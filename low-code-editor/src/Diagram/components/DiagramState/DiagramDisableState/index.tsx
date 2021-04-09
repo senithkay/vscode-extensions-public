@@ -12,10 +12,29 @@
  */
 import * as React from "react";
 
+import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
+
+const LightTooltip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: 'rgba(235, 236, 241, 0.6)',
+      color: theme.palette.common.black,
+      boxShadow: theme.shadows[0],
+      fontSize: 14,
+      padding: '8px 30px',
+      borderTopLeftRadius: 20,
+      borderBottomLeftRadius: 20,
+    },
+    popperInteractive: {
+        padding: '5px',
+        left: '25px !important'
+    }
+  }))(Tooltip);
+
 export function DiagramDisableState() {
     return (
-        <div>
-            <img src="../../../../../../images/disable-diagram-icon.svg" />
-        </div>
+            <LightTooltip title="Diagram is inactive" interactive={true} placement='left'>
+                <img height='40px' src="../../../../../../images/disable-diagram-icon.svg" />
+            </LightTooltip>
     );
 }

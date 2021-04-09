@@ -44,6 +44,7 @@ export interface OauthConnectButtonProps {
 export function OauthConnectButton(props: OauthConnectButtonProps) {
   const {
     oauthSessions,
+    dispatchGetAllConfiguration,
     dispatchFetchConnectionList,
     dispatchInitOauthSession,
     dispatchResetOauthSession,
@@ -146,6 +147,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     onDeselectConnection();
     dispatchResetOauthSession(session);
     dispatchInitOauthSession(session, connectorName, oauthProviderConfig);
+    dispatchGetAllConfiguration();
   };
 
   const handleClickChangeConnection = () => {

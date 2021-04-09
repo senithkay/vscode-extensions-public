@@ -94,19 +94,24 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Learn about calendar trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
     },
+    salesforceTrigger: {
+        title: "To trigger an application based on Salesforce events",
+        actionText: "Learn about salesforce trigger",
+        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+    },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
         title: "Set the path to expose the API.",
         content: "/users/[string name]"
     },
-    scheduleConfig: "Set the schedule for the trigger",
+    scheduleConfig: "Set a schedule to run the integration",
     cronExpression: {
         title: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively.",
         actionText: "Read More",
         actionLink: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
     },
-    gitHubEvent: "Select a Github event to setup the trigger",
-    gitHubAction: "Select a Github action to setup the trigger",
+    gitHubEvent: "Select a GitHub event to setup the trigger",
+    gitHubAction: "Select a GitHub action to setup the trigger",
     calenderId: "Select your Google Calendar",
     logStatement: {
         title: "Log is a record of an event or an error that occurs in the application",
@@ -174,14 +179,17 @@ export const tooltipMessages: Record<string, any> = {
     },
     twilioConnector: {
         title: "Connect your application with Twilio API, and communicate with external services",
-        content: "Send SMS, Make voice calls "
+        content: "Send SMS, Make voice calls"
+    },
+    slackConnector: {
+        title: "Connect your application with Slack API",
+        content: "Post messages, send files"
     },
     codePanelButton: "Code panel",
     analyzerButton: "Performance Forecast",
     fitToScreenButton: "Fit to screen",
     zoomInButton: "Zoom In",
     zoomOutButton: "Zoom Out",
-    slackConnector: "Add a Slack Connector",
     salesforceBase: "Salesforce BaseClient Connector",
     salesforceBulk: "Salesforce BulkJob Connector",
     salesforce : {
@@ -239,4 +247,9 @@ export const tooltipMessages: Record<string, any> = {
         username: "Username from your POP3 client configurations",
         password: "Password from your POP3 client configurations",
     },
+    BalVersionLabel: {
+        title: "We are using Ballerina Swan Lake Alpha2",
+        actionText: "Learn more at ballerina.io",
+        actionLink: "https://ballerina.io/"
+    }
 }
