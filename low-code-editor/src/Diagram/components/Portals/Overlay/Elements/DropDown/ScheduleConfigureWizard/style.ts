@@ -57,6 +57,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: '0.5rem',
             margin: '0 0.5rem 0.5rem 0',
             width: "auto",
+            marginBottom: '0.8rem !important'
         },
         repeatDropdown: {
             marginRight: '0.5rem',

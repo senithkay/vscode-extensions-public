@@ -111,7 +111,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         customFooterWrapper: {
             marginLeft: 24,
-            // marginRight: 24,
+            marginRight: 24,
+            marginBottom: 11,
+            display: "flex",
+            justifyContent: "flex-end"
+        },
+        serviceFooterWrapper: {
+            marginLeft: 24,
             marginBottom: 11,
             display: "flex",
             justifyContent: "flex-end"
@@ -146,6 +152,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         saveBtn: {
             // width: "100%",
+            marginRight: '0.8rem'
         },
         addResourceBtn: {
             outline: "none",

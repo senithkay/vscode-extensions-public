@@ -94,12 +94,17 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Learn about calendar trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
     },
+    salesforceTrigger: {
+        title: "To trigger an application based on Salesforce events",
+        actionText: "Learn about salesforce trigger",
+        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+    },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
         title: "Set the path to expose the API.",
         content: "/users/[string name]"
     },
-    scheduleConfig: "Set the schedule for the trigger",
+    scheduleConfig: "Set a schedule to run the integration",
     cronExpression: {
         title: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively.",
         actionText: "Read More",
@@ -123,6 +128,10 @@ export const tooltipMessages: Record<string, any> = {
     foreachStatement: {
         title: "Foreach is a control flow statement to iterate over a list of items",
         content: 'string [] flowers = ["Rose","Lily"]\nforeach var v in flowers {\nio:println("flower: ", v);}'
+    },
+    whileStatement: {
+        title: "While is a control flow statement to iterate over a given condition",
+        content: 'int i = 0;\nwhile (i < 3) {\nio:println("i: ", i);}'
     },
     returnStatement: {
         title: "Return statement is used to stop executing the current sub routine and go back to the caller",
