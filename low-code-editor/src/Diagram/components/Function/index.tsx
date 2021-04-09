@@ -39,7 +39,7 @@ export function Function(props: FunctionProps) {
     const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
     const isStatementsAvailable: boolean = block.statements.length > 0;
     const bodyViewState: BlockViewState = block.viewState;
-    const isTriggerParamsAvailable: boolean = viewState.triggerParams.visible;
+    const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
 
     return (
         <g>

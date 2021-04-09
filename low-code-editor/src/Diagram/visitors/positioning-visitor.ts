@@ -71,11 +71,25 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
 
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
+
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
