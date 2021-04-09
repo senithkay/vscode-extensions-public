@@ -24,3 +24,4 @@ export * from "./end";
 export * from "./else";
 export * from "./plus";
 export * from "./collapse";
+export * from "./while";

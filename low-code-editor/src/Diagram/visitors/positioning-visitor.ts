@@ -38,9 +38,9 @@ import {
     FunctionViewState,
     IfViewState,
     PlusViewState,
-    StatementViewState
+    StatementViewState,
+    WhileViewState
 } from "../view-state";
-import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
