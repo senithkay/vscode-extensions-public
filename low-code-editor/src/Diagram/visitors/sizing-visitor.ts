@@ -39,7 +39,7 @@ import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
-import { Endpoint, getDraftComponentSizes, getPlusViewState, isSTActionInvocation } from "../utils/st-util";
+import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 
@@ -48,6 +48,13 @@ import { DefaultConfig } from "./default";
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
 class SizingVisitor implements Visitor {
+
+    public endVisitSTNode(node: STNode, parent?: STNode) {
+        if (!node.viewState) {
+            return;
+        }
+        this.sizeStatement(node);
+    }
 
     public endVisitModulePart(node: ModulePart) {
         const viewState: CompilationUnitViewState = node.viewState;
@@ -220,12 +227,20 @@ class SizingVisitor implements Visitor {
         this.endSizingBlock(node);
     }
 
-    public beginVisitBlockStatement(node: BlockStatement) {
-        this.beginSizingBlock(node);
+    public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.sizeStatement(node);
+        } else {
+            this.beginSizingBlock(node);
+        }
     }
 
-    public endVisitBlockStatement(node: BlockStatement) {
-        this.endSizingBlock(node);
+    public endVisitBlockStatement(node: BlockStatement, parent?: STNode) {
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.sizeStatement(node);
+        } else {
+            this.endSizingBlock(node);
+        }
     }
 
     public endVisitLocalVarDecl(node: LocalVarDecl) {
@@ -441,6 +456,9 @@ class SizingVisitor implements Visitor {
     }
 
     private sizeStatement(node: STNode) {
+        if (!node.viewState) {
+            return;
+        }
         const viewState: StatementViewState = node.viewState;
         if ((viewState.isAction || viewState.isEndpoint) && !viewState.isCallerAction) {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
@@ -475,6 +493,9 @@ class SizingVisitor implements Visitor {
     }
 
     private beginSizingBlock(node: BlockStatement) {
+        if (!node.viewState) {
+            return;
+        }
         const blockViewState: BlockViewState = node.viewState;
         let index: number = 0;
         node.statements.forEach((element) => {
@@ -495,7 +516,7 @@ class SizingVisitor implements Visitor {
                 stmtViewState.collapsed = false;
             }
 
-            if (isSTActionInvocation(element)) { // check if it's the same as actioninvocation
+            if (isSTActionInvocation(element) && !haveBlockStatement(element)) { // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
             }
             ++index;
@@ -511,6 +532,9 @@ class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement) {
+        if (!node.viewState) {
+            return;
+        }
         const blockViewState: BlockViewState = node.viewState;
         let height = 0;
         let width = 0;

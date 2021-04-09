@@ -10,19 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RemoteMethodCallAction, STNode, Visitor } from "@ballerina/syntax-tree";
+import { BlockStatement, Visitor } from "@ballerina/syntax-tree";
 
-export class ActionInvocationFinder implements Visitor {
-    public action: RemoteMethodCallAction = undefined;
+export class BlockStatementFinder implements Visitor {
+    public haveBlockStatement: boolean = false;
     constructor() {
-        this.action = undefined;
+        this.haveBlockStatement = false;
     }
 
-    public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
-        this.action = node;
+    public beginVisitBlockStatement(node: BlockStatement) {
+        this.haveBlockStatement = true;
     }
 
-    public getIsAction(): RemoteMethodCallAction {
-        return this.action;
+    public getHaveBlockStatement(): boolean {
+        return this.haveBlockStatement;
     }
 }
