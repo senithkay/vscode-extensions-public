@@ -148,6 +148,16 @@ export async function getRecordFields(formFields: any, records: object, langClie
                     case 'collection':
                         // fine as it is
                         break;
+                    case 'union':
+                        if (formField.fields) {
+                            await getRecordFields(formField.fields, records, langClient);
+                            formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
+                                if (property?.length > 0) {
+                                    formField.fields = [ ...formField.fields, ...property.fields ];
+                                }
+                            });
+                        }
+                        break;
                     default:
                         // every other type can be a record or union
                         if (formField.typeInfo) {
@@ -155,6 +165,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
+                            console.warn(`recordKey >>>`, recordKey)
                             if (ignoreList.indexOf(recordKey) === -1) {
                                 if (recordRes === undefined) {
                                     recordRes = await getRecordDefFromCache({
@@ -174,6 +185,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                         if (record && record.ast) {
                                             recordRes = record.ast;
+                                            console.warn(`recordRes >>>`, JSON.stringify(recordRes))
                                         }
                                     }
                                 }
@@ -682,6 +694,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!connectorDef && connector) {
         const connectorResp = await langClient.getConnector(connector);
         connectorDef = connectorResp.ast;
+        console.warn(`connectorResp >>>`, JSON.stringify(connectorDef))
     }
     if (connectorDef) {
         const connectorConfig = new ConnectorConfig();
