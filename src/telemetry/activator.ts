@@ -19,41 +19,64 @@
 
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { window } from "vscode";
-import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_LANG_SERVER } from ".";
+import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+import { TM_EVENT_TYPE_ERROR, TM_EVENT_TYPE_FEATURE_USAGE } from "./events";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 
     // Start listening telemtry events from language server
-    ballerinaExtInstance.onReady().then(() => {
-        langClient.onNotification('telemetry/event', (event: LSErrorTelemetryEvent | LSTelemetryEvent) => {
-            if ('errorMessage' in event) {
-                const errorEvent: LSErrorTelemetryEvent = event;
-                const props: { [key: string]: string; } = getTelemetryProperties(ballerinaExtInstance, event.component, event.message)
-                props["ballerina.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
-                props["ballerina.langserver.error.message"] = errorEvent.errorMessage;
-                reporter.sendTelemetryEvent(TM_ERROR_LANG_SERVER, props);
-            } else {
-                reporter.sendTelemetryEvent(TM_EVENT_LANG_SERVER, getTelemetryProperties(ballerinaExtInstance, event.component, event.message));
-            }
-        });
-    })
+    ballerinaExtInstance.onReady()
+        .then(() => {
+            langClient.onNotification('telemetry/event', (event: LSTelemetryEvent) => {
+                let props: { [key: string]: string; };
+                switch (event.type) {
+                    case TM_EVENT_TYPE_ERROR:
+                        const errorEvent: LSErrorTelemetryEvent = <LSErrorTelemetryEvent>event;
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, errorEvent.message);
+                        props["ballerina.langserver.error.description"] = errorEvent.message;
+                        props["ballerina.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
+                        props["ballerina.langserver.error.message"] = errorEvent.errorMessage;
+                        props["ballerina.langserver.event"] = JSON.stringify(event);
+                        reporter.sendTelemetryEvent(TM_ERROR_LANG_SERVER, props);
+                        break;
+                    case TM_EVENT_TYPE_FEATURE_USAGE:
+                        const usageEvent: LSFeatureUsageTelemetryEvent = <LSFeatureUsageTelemetryEvent>event;
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, usageEvent.featureName);
+                        props["ballerina.langserver.feature.name"] = usageEvent.featureName;
+                        props["ballerina.langserver.feature.class"] = usageEvent.featureClass;
+                        props["ballerina.langserver.feature.message"] = usageEvent.featureMessage;
+                        props["ballerina.langserver.event"] = JSON.stringify(event);
+                        reporter.sendTelemetryEvent(TM_FEATURE_USAGE_LANG_SERVER, props);
+                        break;
+                    default:
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, event.type);
+                        props["ballerina.langserver.event"] = JSON.stringify(event);
+                        reporter.sendTelemetryEvent(TM_EVENT_LANG_SERVER, props);
+                        break;
+                }
+            });
+        })
         .catch((e) => {
             window.showErrorMessage('Could not start telemetry listener feature', e.message);
         });
 }
 
-interface LSErrorTelemetryEvent {
+interface LSTelemetryEvent {
+    type: string;
     component: string;
     version: string;
+}
+
+interface LSErrorTelemetryEvent extends LSTelemetryEvent {
     message: string;
     errorMessage: string;
     errorStackTrace: string;
 }
 
-interface LSTelemetryEvent {
-    component: string;
-    version: string;
-    message: string;
+interface LSFeatureUsageTelemetryEvent extends LSTelemetryEvent {
+    featureName: string;
+    featureClass: string;
+    featureMessage: string;
 }
