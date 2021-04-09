@@ -94,12 +94,17 @@ export const tooltipMessages: Record<string, any> = {
         actionText: "Learn about calendar trigger",
         actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
     },
+    salesforceTrigger: {
+        title: "To trigger an application based on Salesforce events",
+        actionText: "Learn about salesforce trigger",
+        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+    },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
         title: "Set the path to expose the API.",
         content: "/users/[string name]"
     },
-    scheduleConfig: "Set the schedule for the trigger",
+    scheduleConfig: "Set a schedule to run the integration",
     cronExpression: {
         title: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively.",
         actionText: "Read More",
