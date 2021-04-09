@@ -187,7 +187,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
                             text="Save"
-                            className={classes.saveBtn}
                             onClick={handleUserConfirm}
                             disabled={isFileSaving}
                         />
