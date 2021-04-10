@@ -20,7 +20,10 @@
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { window } from "vscode";
 import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
-import { TM_EVENT_TYPE_ERROR, TM_EVENT_TYPE_FEATURE_USAGE } from "./events";
+
+// Language server telemetry event types
+const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
+const TM_EVENT_TYPE_FEATURE_USAGE= "FeatureUsageTelemetryEvent";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;

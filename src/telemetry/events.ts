@@ -37,7 +37,3 @@ export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";
 export const TM_EVENT_LANG_SERVER = "ballerina.langserver.event";
 export const TM_ERROR_LANG_SERVER = "ballerina.langserver.error";
 export const TM_FEATURE_USAGE_LANG_SERVER = "ballerina.langserver.feature.usage";
-
-// Language server telemetry event types
-export const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
-export const TM_EVENT_TYPE_FEATURE_USAGE= "FeatureUsageTelemetryEvent";
