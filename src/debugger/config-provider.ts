@@ -51,22 +51,21 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (!activeDoc.fileName.endsWith('.bal')) {
-        if (ballerinaExtInstance.isSwanLake && ballerinaExtInstance.langClient) {
-            await ballerinaExtInstance.langClient.getBallerinaProject({
-                documentIdentifier: {
-                    uri: activeDoc.uri.toString()
-                }
-            }).then((project) => {
-                if (project.kind !== 'BUILD_PROJECT') {
-                    ballerinaExtInstance.showMessageInvalidFile();
-                    return Promise.reject();
-                }
-            });
-        } else {
-            ballerinaExtInstance.showMessageInvalidFile();
-            return Promise.reject();
-        }
+    if (ballerinaExtInstance.isSwanLake && ballerinaExtInstance.langClient) {
+        await ballerinaExtInstance.langClient.getBallerinaProject({
+            documentIdentifier: {
+                uri: activeDoc.uri.toString()
+            }
+        }).then((project) => {
+            if ((config.request === 'launch' && project.kind === 'BALA_PROJECT') ||
+                (config.request === 'attach' && !project.kind)) {
+                ballerinaExtInstance.showMessageInvalidFile();
+                return Promise.reject();
+            }
+        });
+    } else if (!activeDoc.fileName.endsWith('.bal')) {
+        ballerinaExtInstance.showMessageInvalidFile();
+        return Promise.reject();
     }
 
     config.script = activeDoc.uri.fsPath;
