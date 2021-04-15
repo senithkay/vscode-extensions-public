@@ -25,6 +25,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -35,6 +36,7 @@ interface LogConfigProps {
 export function AddCustomStatementConfig(props: LogConfigProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
@@ -64,6 +66,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
         setIsFormValid(isValidExpression);
     }
+
+    const saveCustomStatementButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.customStatement.saveButton.label",
+        defaultMessage: "Save"
+    });
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -79,7 +86,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <img src="../../../../../../images/Logo_Circle.svg" />
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Custom Statement</Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.customStatement.title" defaultMessage="Custom Statement"/></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -105,7 +112,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
-                                text="Save"
+                                text={saveCustomStatementButtonLabel}
                                 disabled={isMutationInProgress || !isFormValid}
                                 fullWidth={false}
                                 onClick={onSaveBtnClick}
