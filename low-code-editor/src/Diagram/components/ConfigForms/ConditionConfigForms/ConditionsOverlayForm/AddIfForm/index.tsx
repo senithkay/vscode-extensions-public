@@ -89,6 +89,11 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Save"
     });
 
+    const cancelIfButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.if.cancelButton.label",
+        defaultMessage: "Cancel"
+    });
+
     return (
         <FormControl data-testid="if-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -120,7 +125,7 @@ export function AddIfForm(props: IfProps) {
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 dataTestId={"if-save-btn"}
                                 text={saveIfConditionButtonLabel}
