@@ -158,6 +158,11 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Invalid Collection Name"
     });
 
+    const cancelForEachButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.cancelButton.label",
+        defaultMessage: "Cancel"
+    });
+
     return (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -195,7 +200,7 @@ export function AddForeachForm(props: ForeachProps) {
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 text={saveForEachButtonLabel}
                                 disabled={isMutationInProgress || isInvalid}
