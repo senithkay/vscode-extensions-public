@@ -30,6 +30,7 @@ interface FormTextInputProps {
     tooltipTitle?: string;
     focused?: boolean;
     disabled?: boolean;
+    secret?: boolean;
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
@@ -129,6 +130,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 helperText={isInvalid ? errorMessage : ""}
                 autoFocus={customProps?.focused}
                 disabled={customProps?.disabled}
+                type={customProps?.secret ? "password" : "text"}
             />
 
         </>

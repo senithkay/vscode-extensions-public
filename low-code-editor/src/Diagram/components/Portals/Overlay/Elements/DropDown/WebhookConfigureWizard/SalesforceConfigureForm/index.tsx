@@ -27,9 +27,10 @@ import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
-import {updatePropertyStatement} from "../../../../../../../utils/modification-util";
+import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
+import { tooltipMessages } from "../../../../../utils/constants";
 import { useStyles } from "../../styles";
 
 interface SalesforceConfigureFormProps {
@@ -137,19 +138,29 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     label="Username"
                     defaultValue={username}
                     onChange={handleUsernameOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.username
+                    } }
                 />
                 <FormTextInput
                     label="Password"
                     defaultValue={password}
                     onChange={handlePasswordOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        secret: true,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.password
+                    } }
                 />
                 <FormTextInput
                     label="Topic"
                     defaultValue={topic}
                     onChange={handleTopicOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.topic
+                    } }
                 />
             </div>
             { topic && username && password &&
