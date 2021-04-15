@@ -27,7 +27,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -55,6 +55,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validStatusCode, setValidStatusCode] = useState(validForm);
     const [isStatusCode, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
+    const intl = useIntl();
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -94,6 +95,11 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.responseCode = value;
         setStatusCode(value);
     }
+
+    const saveRespondButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.respond.saveButton.label",
+        defaultMessage: "Save"
+    });
 
     const statusCodeComp: ReactNode = (
         <>
@@ -173,7 +179,7 @@ export function AddRespondForm(props: RespondFormProps) {
                             <PrimaryButton
                                 dataTestId="save-btn"
                                 className="product-tour-save"
-                                text="Save"
+                                text={saveRespondButtonLabel}
                                 disabled={disableSave}
                                 fullWidth={false}
                                 onClick={onSaveWithTour}
