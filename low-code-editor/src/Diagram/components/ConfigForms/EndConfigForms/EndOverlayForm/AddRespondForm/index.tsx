@@ -27,6 +27,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage } from "react-intl";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -106,7 +107,7 @@ export function AddRespondForm(props: RespondFormProps) {
                 customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
                 onChange={onStatusCodeChange}
             />
-            {!validStatusCode ? <p className={formClasses.invalidCode}> Invalid Status Code</p> : null}
+            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid Status Code"/></p> : null}
         </>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
@@ -126,7 +127,7 @@ export function AddRespondForm(props: RespondFormProps) {
                             <div className={formClasses.mainTitleWrapper}>
                                 <img src="../../../../../../images/Respond.svg" />
                                 <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>Respond</Box>
+                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
                                 </Typography>
                             </div>
                         </div>
