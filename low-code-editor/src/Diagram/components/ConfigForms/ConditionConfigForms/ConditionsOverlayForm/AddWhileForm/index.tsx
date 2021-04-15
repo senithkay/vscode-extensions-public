@@ -28,6 +28,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface WhileProps {
     condition: ConditionConfig;
@@ -41,6 +42,7 @@ export function AddWhileForm(props: WhileProps) {
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
@@ -78,6 +80,16 @@ export function AddWhileForm(props: WhileProps) {
         onSave();
     }
 
+    const saveWhileButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.saveButton.label",
+        defaultMessage: "Save"
+    });
+
+    const cancelWhileButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.cancelButton.label",
+        defaultMessage: "Cancel"
+    });
+
     return (
 
         <FormControl data-testid="while-form" className={classes.wizardFormControl}>
@@ -95,7 +107,12 @@ export function AddWhileForm(props: WhileProps) {
                                 <IfIcon />
                             </div>
                             <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>While</Box>
+                                <Box paddingTop={2} paddingBottom={2}>
+                                    <FormattedMessage
+                                        id="lowcode.develop.configForms.while.title"
+                                        defaultMessage="While" 
+                                    />
+                                </Box>
                             </Typography>
                         </div>
                     </div>
@@ -104,10 +121,10 @@ export function AddWhileForm(props: WhileProps) {
                     </div>
                 </div>
                 <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                    <SecondaryButton text={cancelWhileButtonLabel} fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
                         dataTestId={"while-save-btn"}
-                        text="Save"
+                        text={saveWhileButtonLabel}
                         disabled={isMutationInProgress || isInvalid}
                         fullWidth={false}
                         onClick={handleOnSaveClick}
