@@ -57,8 +57,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
                 uri: activeDoc.uri.toString()
             }
         }).then((project) => {
-            if ((config.request === 'launch' && project.kind === 'BALA_PROJECT') ||
-                (config.request === 'attach' && !project.kind)) {
+            if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
                 ballerinaExtInstance.showMessageInvalidProject();
                 return Promise.reject();
             }
