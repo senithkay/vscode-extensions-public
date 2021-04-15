@@ -28,6 +28,7 @@ import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
 import { ReturnIcon } from "../../../../../../assets/icons";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -46,6 +47,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     const { config, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const onReturnValueChange = (value: any) => {
         config.expression = value;
@@ -57,6 +59,11 @@ export function AddReturnForm(props: ReturnFormProps) {
     };
 
     const isButtonDisabled = isMutationInProgress || !isValidValue;
+
+    const saveReturnButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.return.saveButton.label",
+        defaultMessage: "Save"
+    });
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
     return (
@@ -76,7 +83,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <ReturnIcon />
                                 </div>
                                 <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>Return</Box>
+                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return"/></Box>
                                 </Typography>
                             </div>
 
@@ -106,7 +113,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         <div className={overlayClasses.buttonWrapper}>
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
-                                text="Save"
+                                text={saveReturnButtonLabel}
                                 disabled={isButtonDisabled}
                                 fullWidth={false}
                                 onClick={onSave}
