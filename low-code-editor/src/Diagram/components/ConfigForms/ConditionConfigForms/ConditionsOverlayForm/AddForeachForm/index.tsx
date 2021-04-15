@@ -33,6 +33,7 @@ import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Po
 import { genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { useIntl } from "react-intl";
 
 interface Iterations {
     start?: string;
@@ -82,6 +83,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -141,6 +143,20 @@ export function AddForeachForm(props: ForeachProps) {
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,
     };
+    const saveForEachButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.saveButton.label",
+        defaultMessage: "Save"
+    });
+
+    const currentValueVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
+        defaultMessage: "Current Value Variable"
+    });
+
+    const invalidConnectionErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
+        defaultMessage: "Invalid Collection Name"
+    });
 
     return (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
@@ -170,9 +186,9 @@ export function AddForeachForm(props: ForeachProps) {
                                 }}
                                 onChange={onVariableNameChange}
                                 defaultValue={conditionExpression.variable}
-                                label={"Current Value Variable"}
+                                label={currentValueVariableLabel}
                                 placeholder={""}
-                                errorMessage={"Invalid Collection Name"}
+                                errorMessage={invalidConnectionErrorMessage}
                             />
                             <div className="exp-wrapper">
                                 <ExpressionEditor {...expElementProps} />
@@ -181,7 +197,7 @@ export function AddForeachForm(props: ForeachProps) {
                         <div className={overlayClasses.buttonWrapper}>
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
-                                text="Save"
+                                text={saveForEachButtonLabel}
                                 disabled={isMutationInProgress || isInvalid}
                                 fullWidth={false}
                                 onClick={handleSave}

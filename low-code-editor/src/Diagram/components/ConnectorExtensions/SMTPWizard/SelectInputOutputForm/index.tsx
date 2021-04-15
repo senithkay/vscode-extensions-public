@@ -32,6 +32,7 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
+import { FormattedMessage } from "react-intl";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -246,7 +247,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     <div className={classes.fullWidth}>
                         <Typography variant="h4" className={classes.titleWrapper}>
                             <Box className={classes.formTitle}>
-                                <div className={classes.formTitleTag} >Create an Email</div>
+                                <div className={classes.formTitleTag} >
+                                    <FormattedMessage
+                                    id="lowcode.develop.connector.SMTP.createEmail.formTitle"
+                                    defaultMessage="Create an Email"
+                                    />
+                                    </div>
                             </Box>
                         </Typography>
                         {selectedOperationParams}

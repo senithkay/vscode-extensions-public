@@ -28,6 +28,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -44,6 +45,7 @@ export function AddIfForm(props: IfProps) {
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
@@ -82,43 +84,52 @@ export function AddIfForm(props: IfProps) {
         onSave();
     }
 
+    const saveIfConditionButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.if.saveButton.label",
+        defaultMessage: "Save"
+    });
+
     return (
         <FormControl data-testid="if-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 // tslint:disable-next-line:jsx-no-multiline-js
                 (
-                <div className={overlayClasses.configWizardContainer}>
-                    <div className={classes.formWrapper}>
-                        <ButtonWithIcon
-                            className={classes.overlayDeleteBtn}
-                            onClick={onCancel}
-                            icon={<CloseRounded fontSize="small" />}
-                        />
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <div className={classes.iconWrapper}>
-                                    <IfIcon />
+                    <div className={overlayClasses.configWizardContainer}>
+                        <div className={classes.formWrapper}>
+                            <ButtonWithIcon
+                                className={classes.overlayDeleteBtn}
+                                onClick={onCancel}
+                                icon={<CloseRounded fontSize="small" />}
+                            />
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <div className={classes.iconWrapper}>
+                                        <IfIcon />
+                                    </div>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id ="lowcode.develop.configForms.if.title"
+                                                defaultMessage="If"/>
+                                        </Box>
+                                    </Typography>
                                 </div>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>If</Box>
-                                </Typography>
+                            </div>
+                            <div className="exp-wrapper">
+                                <ExpressionEditor {...expElementProps} />
                             </div>
                         </div>
-                        <div className="exp-wrapper">
-                            <ExpressionEditor {...expElementProps} />
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                dataTestId={"if-save-btn"}
+                                text={saveIfConditionButtonLabel}
+                                disabled={isMutationInProgress || isInvalid}
+                                fullWidth={false}
+                                onClick={handleOnSaveClick}
+                            />
                         </div>
                     </div>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                        <PrimaryButton
-                            dataTestId={"if-save-btn"}
-                            text="Save"
-                            disabled={isMutationInProgress || isInvalid}
-                            fullWidth={false}
-                            onClick={handleOnSaveClick}
-                        />
-                    </div>
-                </div>
                 )
                 :
                 null
