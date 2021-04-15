@@ -19,7 +19,7 @@
 
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { window } from "vscode";
-import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
 
 // Language server telemetry event types
 const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
@@ -37,26 +37,22 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 switch (event.type) {
                     case TM_EVENT_TYPE_ERROR:
                         const errorEvent: LSErrorTelemetryEvent = <LSErrorTelemetryEvent>event;
-                        props = getTelemetryProperties(ballerinaExtInstance, event.component, errorEvent.message);
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, TM_EVENT_TYPE_ERROR);
                         props["ballerina.langserver.error.description"] = errorEvent.message;
                         props["ballerina.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
                         props["ballerina.langserver.error.message"] = errorEvent.errorMessage;
-                        props["ballerina.langserver.event"] = JSON.stringify(event);
                         reporter.sendTelemetryEvent(TM_ERROR_LANG_SERVER, props);
                         break;
                     case TM_EVENT_TYPE_FEATURE_USAGE:
                         const usageEvent: LSFeatureUsageTelemetryEvent = <LSFeatureUsageTelemetryEvent>event;
-                        props = getTelemetryProperties(ballerinaExtInstance, event.component, usageEvent.featureName);
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, TM_EVENT_TYPE_FEATURE_USAGE);
                         props["ballerina.langserver.feature.name"] = usageEvent.featureName;
                         props["ballerina.langserver.feature.class"] = usageEvent.featureClass;
                         props["ballerina.langserver.feature.message"] = usageEvent.featureMessage;
-                        props["ballerina.langserver.event"] = JSON.stringify(event);
                         reporter.sendTelemetryEvent(TM_FEATURE_USAGE_LANG_SERVER, props);
                         break;
                     default:
-                        props = getTelemetryProperties(ballerinaExtInstance, event.component, event.type);
-                        props["ballerina.langserver.event"] = JSON.stringify(event);
-                        reporter.sendTelemetryEvent(TM_EVENT_LANG_SERVER, props);
+                        // Do nothing
                         break;
                 }
             });
