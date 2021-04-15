@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
-import { connect } from "react-redux";
 
 import {FunctionDefinition, RequiredParam, STNode} from "@ballerina/syntax-tree";
 
@@ -28,7 +27,7 @@ export interface TriggerParamsProps {
     blockViewState?: BlockViewState;
 }
 
-export function TriggerParamsC(props: TriggerParamsProps) {
+export function TriggerParams(props: TriggerParamsProps) {
     const { model, blockViewState } = props;
 
     const viewState = model.viewState;
@@ -59,5 +58,3 @@ export function TriggerParamsC(props: TriggerParamsProps) {
         </g>
     );
 }
-
-export const TriggerParams = connect(null)(TriggerParamsC);
