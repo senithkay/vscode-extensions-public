@@ -21,6 +21,7 @@ import { Context as DiagramContext } from "../../../../../../../../Contexts/Diag
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
+import { tooltipMessages } from "../../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
@@ -103,19 +104,29 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     label="Username"
                     defaultValue={username}
                     onChange={handleUsernameOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.username
+                    } }
                 />
                 <FormTextInput
                     label="Password"
                     defaultValue={password}
                     onChange={handlePasswordOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        secret: true,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.password
+                    } }
                 />
                 <FormTextInput
                     label="Topic"
                     defaultValue={topic}
                     onChange={handleTopicOnChange}
-                    customProps={{ optional: false }}
+                    customProps={ {
+                        optional: false,
+                        tooltipTitle: tooltipMessages.salesforceTrigger.topic
+                    } }
                 />
             </div>
             { topic && username && password &&

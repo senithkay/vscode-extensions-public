@@ -25,6 +25,7 @@ import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/Res
 import { TriggerType } from '../models';
 import { EndpointViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
+import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
 
@@ -290,10 +291,8 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
         case "STATEMENT":
             switch (subType) {
                 case "If":
-                    h = IFELSE_SVG_HEIGHT;
-                    w = IFELSE_SVG_WIDTH;
-                    break;
                 case "ForEach":
+                case "While":
                     h = IFELSE_SVG_HEIGHT;
                     w = IFELSE_SVG_WIDTH;
                     break;
@@ -457,6 +456,12 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
+}
+
+export function haveBlockStatement(node: STNode): boolean {
+    const blockStatementFinder: BlockStatementFinder = new BlockStatementFinder();
+    traversNode(node, blockStatementFinder);
+    return blockStatementFinder.getHaveBlockStatement();
 }
 
 export function isSTResourceFunction(node: FunctionDefinition): boolean {

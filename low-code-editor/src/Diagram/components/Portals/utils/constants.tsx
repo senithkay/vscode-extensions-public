@@ -96,8 +96,11 @@ export const tooltipMessages: Record<string, any> = {
     },
     salesforceTrigger: {
         title: "To trigger an application based on Salesforce events",
-        actionText: "Learn about salesforce trigger",
-        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+        actionText: "Learn about Salesforce trigger",
+        actionLink: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md",
+        username: "Key in your Salesforce username",
+        password: "Enter the Salesforce password appended by your Salesforce security token",
+        topic: "Name of the Push Topic added to your Salesforce account to receive notifications",
     },
     httpMethod: "Select a suitable HTTP method to configure the API",
     path: {
@@ -128,6 +131,10 @@ export const tooltipMessages: Record<string, any> = {
     foreachStatement: {
         title: "Foreach is a control flow statement to iterate over a list of items",
         content: 'string [] flowers = ["Rose","Lily"]\nforeach var v in flowers {\nio:println("flower: ", v);}'
+    },
+    whileStatement: {
+        title: "While is a control flow statement to iterate over a given condition",
+        content: 'int i = 0;\nwhile (i < 3) {\nio:println("i: ", i);}'
     },
     returnStatement: {
         title: "Return statement is used to stop executing the current sub routine and go back to the caller",

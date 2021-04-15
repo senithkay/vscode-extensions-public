@@ -21,7 +21,7 @@ import { TwitterLogo } from "./TwitterLogo";
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
-export { SalesforceLogo as sfdc_BaseClient };
+export { SalesforceLogo as sfdc_Client };
 export { SObjectClientLogo as sfdc_SObjectClient };
 export { SlackLogo as slack_Client };
 export { TwilioLogo as twilio_Client };

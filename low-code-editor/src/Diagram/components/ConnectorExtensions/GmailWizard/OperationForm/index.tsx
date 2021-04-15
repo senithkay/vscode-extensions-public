@@ -27,8 +27,8 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { CreateDraftForm } from '../CreateDraftForm';
-import {SendMessageForm} from "../SendMessageForm";
+import CreateDraftForm from '../CreateDraftForm';
+import SendMessageForm from "../SendMessageForm";
 
 export interface OperationFormProps {
     selectedOperation: string;

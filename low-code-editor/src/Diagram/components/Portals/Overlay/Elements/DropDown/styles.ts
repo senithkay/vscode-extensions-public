@@ -153,7 +153,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         saveBtn: {
             // width: "100%",
-            marginRight: '0.8rem'
         },
         addResourceBtn: {
             outline: "none",

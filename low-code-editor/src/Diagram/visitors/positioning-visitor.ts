@@ -20,13 +20,15 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     VisibleEndpoint,
-    Visitor
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
@@ -37,7 +39,8 @@ import {
     FunctionViewState,
     IfViewState,
     PlusViewState,
-    StatementViewState
+    StatementViewState,
+    WhileViewState
 } from "../view-state";
 
 import { DefaultConfig } from "./default";
@@ -70,11 +73,25 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
 
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
+
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
@@ -110,11 +127,24 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
 
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
+
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
@@ -134,7 +164,18 @@ class PositioningVisitor implements Visitor {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                if (viewState.triggerParams) {
+                    node?.functionSignature?.parameters?.length > 0 ?
+                        viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+                    viewState.triggerParams.visible ?
+                        plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4) + TRIGGER_PARAMS_SVG_HEIGHT + (DefaultConfig.dotGap / 2)
+                        : plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                } else {
+                    plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                }
             }
         }
 
@@ -354,6 +395,24 @@ class PositioningVisitor implements Visitor {
 
         viewState.foreachBodyRect.cx = viewState.foreachHead.cx;
         viewState.foreachBodyRect.cy = viewState.foreachHead.cy;
+    }
+
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: WhileViewState = node.viewState;
+        viewState.whileBody = bodyViewState;
+
+        viewState.whileHead.cx = viewState.bBox.cx;
+        viewState.whileHead.cy = viewState.bBox.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileLifeLine.cx = viewState.bBox.cx;
+        viewState.whileLifeLine.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileBody.bBox.cx = viewState.whileHead.cx;
+        viewState.whileBody.bBox.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2) + viewState.whileHead.offsetFromBottom;
+
+        viewState.whileBodyRect.cx = viewState.whileHead.cx;
+        viewState.whileBodyRect.cy = viewState.whileHead.cy;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {

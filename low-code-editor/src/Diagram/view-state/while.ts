@@ -10,19 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RemoteMethodCallAction, STNode, Visitor } from "@ballerina/syntax-tree";
+import { BlockViewState } from "./block";
+import { SimpleBBox } from "./simple-bbox";
+import { StatementViewState } from "./statement";
 
-export class ActionInvocationFinder implements Visitor {
-    public action: RemoteMethodCallAction = undefined;
+export class WhileViewState extends StatementViewState {
+    public whileLifeLine: SimpleBBox = new SimpleBBox();
+    public whileHead: SimpleBBox = new SimpleBBox();
+    public whileBody: BlockViewState = new BlockViewState();
+    public whileBodyRect: SimpleBBox = new SimpleBBox();
+
     constructor() {
-        this.action = undefined;
-    }
-
-    public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
-        this.action = node;
-    }
-
-    public getIsAction(): RemoteMethodCallAction {
-        return this.action;
+        super();
     }
 }
