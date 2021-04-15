@@ -39,10 +39,12 @@ import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
+import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import {WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH} from "../components/While/WhileSVG";
-import { Endpoint, getDraftComponentSizes, getPlusViewState, isSTActionInvocation } from "../utils/st-util";
+import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { TriggerParamsViewState } from "../view-state/triggerParams";
 import {WhileViewState} from "../view-state/while";
 
 import { DefaultConfig } from "./default";
@@ -50,6 +52,13 @@ import { DefaultConfig } from "./default";
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
 class SizingVisitor implements Visitor {
+
+    public endVisitSTNode(node: STNode, parent?: STNode) {
+        if (!node.viewState) {
+            return;
+        }
+        this.sizeStatement(node);
+    }
 
     public endVisitModulePart(node: ModulePart) {
         const viewState: CompilationUnitViewState = node.viewState;
@@ -144,15 +153,30 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
+        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
+        if (triggerParams) {
+            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        }
+
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        if (viewState.triggerParams) {
+            viewState.triggerParams.visible ?
+                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
+                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        } else {
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        }
         if (body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
@@ -222,12 +246,20 @@ class SizingVisitor implements Visitor {
         this.endSizingBlock(node);
     }
 
-    public beginVisitBlockStatement(node: BlockStatement) {
-        this.beginSizingBlock(node);
+    public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.sizeStatement(node);
+        } else {
+            this.beginSizingBlock(node);
+        }
     }
 
-    public endVisitBlockStatement(node: BlockStatement) {
-        this.endSizingBlock(node);
+    public endVisitBlockStatement(node: BlockStatement, parent?: STNode) {
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.sizeStatement(node);
+        } else {
+            this.endSizingBlock(node);
+        }
     }
 
     public endVisitLocalVarDecl(node: LocalVarDecl) {
@@ -485,6 +517,9 @@ class SizingVisitor implements Visitor {
     }
 
     private sizeStatement(node: STNode) {
+        if (!node.viewState) {
+            return;
+        }
         const viewState: StatementViewState = node.viewState;
         if ((viewState.isAction || viewState.isEndpoint) && !viewState.isCallerAction) {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
@@ -519,6 +554,9 @@ class SizingVisitor implements Visitor {
     }
 
     private beginSizingBlock(node: BlockStatement) {
+        if (!node.viewState) {
+            return;
+        }
         const blockViewState: BlockViewState = node.viewState;
         let index: number = 0;
         node.statements.forEach((element) => {
@@ -539,7 +577,7 @@ class SizingVisitor implements Visitor {
                 stmtViewState.collapsed = false;
             }
 
-            if (isSTActionInvocation(element)) { // check if it's the same as actioninvocation
+            if (isSTActionInvocation(element) && !haveBlockStatement(element)) { // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
             }
             ++index;
@@ -555,6 +593,9 @@ class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement) {
+        if (!node.viewState) {
+            return;
+        }
         const blockViewState: BlockViewState = node.viewState;
         let height = 0;
         let width = 0;
