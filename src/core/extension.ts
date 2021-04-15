@@ -25,7 +25,7 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE, INSTALL_NEW_BALLERINA,
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT
 } from "./messages";
 import * as path from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -334,25 +334,6 @@ export class BallerinaExtension {
         });
     }
 
-    showMessageInstallLatestBallerina(): any {
-        const download: string = 'Download';
-        const openSettings: string = 'Open Settings';
-        const viewLogs: string = 'View Logs';
-        window.showWarningMessage(ballerinaExtInstance.getVersion() + INSTALL_NEW_BALLERINA, download, openSettings, viewLogs).then((selection) => {
-            if (openSettings === selection) {
-                commands.executeCommand('workbench.action.openGlobalSettings');
-            }
-            if (download === selection) {
-                commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
-            } else if (viewLogs === selection) {
-                const balOutput = ballerinaExtInstance.getOutPutChannel();
-                if (balOutput) {
-                    balOutput.show();
-                }
-            }
-        });
-    }
-
     showMessageInvalidBallerinaHome(): void {
         const action = 'Open Settings';
         window.showWarningMessage(INVALID_HOME_MSG, action).then((selection) => {
@@ -391,6 +372,10 @@ export class BallerinaExtension {
 
     showMessageInvalidFile(): any {
         window.showErrorMessage(INVALID_FILE);
+    }
+
+    showMessageInvalidProject(): any {
+        window.showErrorMessage(INVALID_PROJECT);
     }
 
     /**

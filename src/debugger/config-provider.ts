@@ -59,7 +59,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         }).then((project) => {
             if ((config.request === 'launch' && project.kind === 'BALA_PROJECT') ||
                 (config.request === 'attach' && !project.kind)) {
-                ballerinaExtInstance.showMessageInvalidFile();
+                ballerinaExtInstance.showMessageInvalidProject();
                 return Promise.reject();
             }
         });
