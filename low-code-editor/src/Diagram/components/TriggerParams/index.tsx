@@ -16,7 +16,6 @@ import { connect } from "react-redux";
 
 import {FunctionDefinition, RequiredParam, STNode} from "@ballerina/syntax-tree";
 
-import {PortalState} from "../../../types";
 import {BlockViewState} from "../../view-state";
 import {DefaultConfig} from "../../visitors/default";
 import {START_SVG_HEIGHT_WITH_SHADOW} from "../Start/StartSVG";
@@ -27,16 +26,15 @@ import {TriggerParamsSVG, TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW} from "./TriggerP
 export interface TriggerParamsProps {
     model?: STNode;
     blockViewState?: BlockViewState;
-    syntaxTree: STNode;
 }
 
 export function TriggerParamsC(props: TriggerParamsProps) {
-    const { model, blockViewState, syntaxTree } = props;
+    const { model, blockViewState } = props;
 
     const viewState = model.viewState;
     const cx = viewState.triggerParams.bBox.cx;
     const cy = viewState.triggerParams.bBox.cy;
-    const modelTriggerParams: FunctionDefinition = syntaxTree as FunctionDefinition;
+    const modelTriggerParams: FunctionDefinition = model as FunctionDefinition
     let triggerParamsText = "";
     let funcParam;
 
@@ -62,11 +60,4 @@ export function TriggerParamsC(props: TriggerParamsProps) {
     );
 }
 
-const mapStateToProps = ({ diagramState }: PortalState) => {
-    const { syntaxTree} = diagramState;
-    return {
-        syntaxTree
-    }
-};
-
-export const TriggerParams = connect(mapStateToProps)(TriggerParamsC);
+export const TriggerParams = connect(null)(TriggerParamsC);
