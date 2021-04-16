@@ -33,7 +33,7 @@ import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Po
 import { genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Iterations {
     start?: string;
@@ -180,7 +180,12 @@ export function AddForeachForm(props: ForeachProps) {
                                         <ForEachIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.foreach.title"
+                                                defaultMessage="Foreach" 
+                                            />
+                                    </Box>
                                     </Typography>
                                 </div>
                             </div>
