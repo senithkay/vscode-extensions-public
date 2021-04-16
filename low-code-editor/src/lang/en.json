@@ -1,8 +1,20 @@
 {
+  "lowcode.develop.configForms.Respond.invalidCodeError": "Invalid Status Code",
+  "lowcode.develop.configForms.Respond.title": "Respond",
+  "lowcode.develop.configForms.Return.title": "Return",
+  "lowcode.develop.configForms.customStatement.saveButton.label": "Save",
+  "lowcode.develop.configForms.customStatement.title": "Custom Statement",
+  "lowcode.develop.configForms.forEach.cancelButton.label": "Cancel",
   "lowcode.develop.configForms.forEach.currentValueVariable.label": "Current Value Variable",
   "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage": "Invalid Collection Name",
   "lowcode.develop.configForms.forEach.saveButton.label": "Save",
+  "lowcode.develop.configForms.if.cancelButton.label": "Cancel",
   "lowcode.develop.configForms.if.saveButton.label": "Save",
   "lowcode.develop.configForms.if.title": "If",
+  "lowcode.develop.configForms.respond.saveButton.label": "Save",
+  "lowcode.develop.configForms.return.saveButton.label": "Save",
+  "lowcode.develop.configForms.while.cancelButton.label": "Cancel",
+  "lowcode.develop.configForms.while.saveButton.label": "Save",
+  "lowcode.develop.configForms.while.title": "While",
   "lowcode.develop.connector.SMTP.createEmail.formTitle": "Create an Email"
 }
