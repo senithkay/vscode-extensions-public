@@ -224,38 +224,36 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerinax_googleapis_gmail_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "listMessages" || key === "sendMessage" || key === "readMessage" || key === "init") {
-                    if (key === "init"){
-                        // replace single record inside "oauthClientConfig" record with inner field list
-                        const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
-                        .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
+                if (key === "init") {
+                    // replace single record inside "oauthClientConfig" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields[ 0 ].fields;
 
-                        value.parameters.find(fields => fields.name === "gmailConfig")
+                    value.parameters.find(fields => fields.name === "gmailConfig")
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
-                    }
-                    if (key === "sendMessage"){
-                        value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
-                            if (field.name === "contentType"){
-                                // set content type in sendMessage form
-                                field.value = `"text/plain"`;
-                            }
-                            if (field.name === "inlineImagePaths" || field.name === "attachmentPaths"){
-                                field.hide = true;
-                                field.noCodeGen = true;
-                            }
-                        });
-                    }
-                    // hide optional fields from gmail forms
-                    if (key === "readMessage"){
-                        value.parameters.find(fields => fields.name === "format").hide = true;
-                        value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
-                    }
-                    if (key === "listMessages"){
-                        value.parameters.find(fields => fields.name === "filter").hide = true;
-                    }
-
-                    filteredFunctions.set(key, value);
                 }
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
+                    value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                        if (field.name === "contentType") {
+                            // set content type in sendMessage form
+                            field.value = `"text/plain"`;
+                        }
+                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
+                            field.hide = true;
+                            field.noCodeGen = true;
+                        }
+                    });
+                }
+                // hide optional fields from gmail forms
+                if (key === "readMessage") {
+                    value.parameters.find(fields => fields.name === "format").hide = true;
+                    value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
+                }
+                if (key === "listMessages") {
+                    value.parameters.find(fields => fields.name === "filter").hide = true;
+                }
+
+                filteredFunctions.set(key, value);
 
                 // add default value to userId field
                 let formField: FormField[] = [];
@@ -299,7 +297,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
-                } else if (!((key === "watchEvents") || (key === "getEventResponse") || (key === "stopChannel"))) {
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
                     filteredFunctions.set(key, value);
                 }
             });
@@ -333,13 +331,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_sfdc_BaseClient':
+        case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
-                            subFields.fields =  subFields.fields[0].fields;
+                            // HACK: a quick fix to show salesforce connector init form input fields. Need to fix form generation with inner level records
+                            subFields.fields =  subFields.fields[0].fields[0].fields;
+                            subFields.type = PrimitiveBalType.Record;
+                            subFields.isUnion = undefined;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
                             subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
@@ -479,21 +480,6 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                     })
                 }
             });
-            break;
-        case "ballerinax_googleapis_gmail_Client":
-            functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'readMessage':
-                    case 'sendMessage':
-                    case 'listMessages':
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
-                }
-            })
             break;
         case 'ballerinax_googleapis_sheets_Client':
             functionDefInfoMap.forEach((value, key) => {

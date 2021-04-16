@@ -30,12 +30,6 @@ import { tooltipMessages } from "../../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
-export const CONNECTOR_TYPES = {
-    GITHUB: "github",
-    GOOGLE_SHEETS: "googleSheets",
-    GOOGLE_CALENDAR: "googleCalendar"
-};
-
 interface GitHubConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;

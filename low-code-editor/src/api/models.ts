@@ -70,7 +70,7 @@ export interface DeployLogs {
 export interface EnvInfo {
     observabilityUrl: string;
     accessUrl: string;
-    status: "running" | "stopped" | "deploy in progress" | "undeploy in progress";
+    status: "running" | "stopped" | "deploy in progress" | "undeploy in progress" | "pending";
 }
 
 export interface AppRuntimeInfo {
@@ -112,6 +112,7 @@ export interface AppInfo {
     workspace?: WorkspaceInfo;
     createdAt: string;
     cronSchedule?: string;
+    preBuilt?: boolean;
 }
 
 export interface PerformanceAnalysis {

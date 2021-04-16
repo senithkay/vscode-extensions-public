@@ -25,6 +25,7 @@ import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../../../../components/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
+import While from "../../../../../../../../assets/icons/While";
 
 export const PROCESS_TYPES = [""];
 
@@ -138,6 +139,29 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const whileStmt: StatementComponent = {
+        name: "foreach",
+        category: 'condition',
+        component: (
+            <Tooltip
+                title={tooltipMessages.whileStatement.title}
+                placement="right"
+                arrow={true}
+                example={true}
+                codeSnippet={true}
+                interactive={true}
+                content={tooltipMessages.whileStatement.content}
+            >
+                <div className="sub-option enabled" data-testid="addWhile" onClick={onSelect.bind(undefined, "While")} >
+                    <div className="icon-wrapper">
+                        <While />
+                    </div>
+                    <div className="text-label">While</div>
+                </ div>
+            </Tooltip>
+        )
+    }
+
     const returnStm: StatementComponent = {
         name: "return",
         category: 'stop',
@@ -224,6 +248,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(propertyStm);
     statements.push(ifStm);
     statements.push(foreachStm);
+    statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
     statements.push(customStatement);

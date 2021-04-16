@@ -148,6 +148,16 @@ export async function getRecordFields(formFields: any, records: object, langClie
                     case 'collection':
                         // fine as it is
                         break;
+                    case 'union':
+                        if (formField.fields) {
+                            await getRecordFields(formField.fields, records, langClient);
+                            formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
+                                if (property?.length > 0) {
+                                    formField.fields = [ ...formField.fields, ...property.fields ];
+                                }
+                            });
+                        }
+                        break;
                     default:
                         // every other type can be a record or union
                         if (formField.typeInfo) {
@@ -557,7 +567,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
                     "position": 0,
                     "isUsed": 0
                 }
-            } else {
+            } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
                 const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
                     CaptureBindingPattern;

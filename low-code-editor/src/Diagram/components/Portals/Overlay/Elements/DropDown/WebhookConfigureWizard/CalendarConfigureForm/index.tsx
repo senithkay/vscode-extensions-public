@@ -29,12 +29,6 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
-export const CONNECTOR_TYPES = {
-    GITHUB: "github",
-    GOOGLE_SHEETS: "googleSheets",
-    GOOGLE_CALENDAR: "googleCalendar"
-};
-
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;
@@ -193,7 +187,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
                             text="Save"
-                            className={classes.saveBtn}
                             onClick={handleUserConfirm}
                             disabled={isFileSaving}
                         />

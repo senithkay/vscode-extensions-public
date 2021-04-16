@@ -51,7 +51,7 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
     const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
+    const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
@@ -102,7 +102,7 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [isInvalid, setIsInvalid] = useState(true);
+    const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
@@ -114,7 +114,8 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsInvalid(isInvalidFromField)
+        const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
+        setIsInvalid(!isValidExpression)
     }
 
     const formField: FormField = {
@@ -143,48 +144,54 @@ export function AddForeachForm(props: ForeachProps) {
 
     return (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
-                <div className={classes.formWrapper}>
-                    <ButtonWithIcon
-                        className={classes.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
-                    <div className={classes.formTitleWrapper}>
-                        <div className={classes.mainTitleWrapper}>
-                            <div className={classes.iconWrapper}>
-                                <ForEachIcon />
+            {!isCodeEditorActive ?
+                (
+                    <div className={overlayClasses.configWizardContainer}>
+                        <div className={classes.formWrapper}>
+                            <ButtonWithIcon
+                                className={classes.overlayDeleteBtn}
+                                onClick={onCancel}
+                                icon={<CloseRounded fontSize="small" />}
+                            />
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <div className={classes.iconWrapper}>
+                                        <ForEachIcon />
+                                    </div>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
+                                    </Typography>
+                                </div>
                             </div>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
-                            </Typography>
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    tooltipTitle: tooltipMessages.currentValue
+                                }}
+                                onChange={onVariableNameChange}
+                                defaultValue={conditionExpression.variable}
+                                label={"Current Value Variable"}
+                                placeholder={""}
+                                errorMessage={"Invalid Collection Name"}
+                            />
+                            <div className="exp-wrapper">
+                                <ExpressionEditor {...expElementProps} />
+                            </div>
+                        </div>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                text="Save"
+                                disabled={isMutationInProgress || isInvalid}
+                                fullWidth={false}
+                                onClick={handleSave}
+                            />
                         </div>
                     </div>
-                    <FormTextInput
-                        customProps={{
-                            validate: validateNameValue,
-                            tooltipTitle: tooltipMessages.currentValue
-                        }}
-                        onChange={onVariableNameChange}
-                        defaultValue={conditionExpression.variable}
-                        label={"Current Value Variable"}
-                        placeholder={""}
-                        errorMessage={"Invalid Collection Name"}
-                    />
-                    <div className="exp-wrapper">
-                        <ExpressionEditor {...expElementProps} />
-                    </div>
-                </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        text="Save"
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleSave}
-                    />
-                </div>
-            </div>
+                )
+                :
+                null
+            }
         </FormControl>
     );
 }
