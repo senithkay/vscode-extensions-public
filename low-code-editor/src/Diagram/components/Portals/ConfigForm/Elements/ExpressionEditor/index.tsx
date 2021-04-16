@@ -171,7 +171,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
-    const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
@@ -418,11 +417,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.optional === true && (currentContent === undefined || currentContent === "")) {
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
-            const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
+            const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         } else {
-            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
@@ -486,12 +485,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
-                const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
+                const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
-                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             }
