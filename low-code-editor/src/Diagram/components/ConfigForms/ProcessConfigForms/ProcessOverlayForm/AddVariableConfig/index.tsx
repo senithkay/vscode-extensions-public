@@ -32,6 +32,7 @@ import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -42,6 +43,7 @@ interface AddVariableConfigProps {
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
     const { config, onCancel, onSave } = props;
 
     const { state } = useContext(DiagramContext);
@@ -142,7 +144,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const revertEditorFocus = () => {
         setEditorFocus(false);
-    }
+    };
+
+    const saveVariableButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.saveButton.label",
+        defaultMessage: "Save"
+    });
 
     modelType = (selectedType === "other") ? otherType : selectedType;
 
@@ -168,7 +175,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         <PropertyIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Variable</Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable"/></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -231,7 +238,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 dataTestId="save-btn"
-                                text="Save"
+                                text={saveVariableButtonLabel}
                                 disabled={isMutationInProgress || !validForm}
                                 fullWidth={false}
                                 onClick={handleSave}
