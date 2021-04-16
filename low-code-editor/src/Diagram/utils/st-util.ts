@@ -19,6 +19,7 @@ import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
+import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
@@ -350,6 +351,25 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
         // IGNORE
     }
     return recordDef;
+}
+
+export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+    const { org, module, version } = connector;
+    const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+    try {
+        await fetch(`/connectors/cache/${org}/${module}/${version}/fields.json`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                for (const [key, fieldsInfo] of Object.entries(data)) {
+                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                }
+            }
+        });
+    } catch (error) {
+        // IGNORE
+    }
+    return functionDef.size > 0 ? functionDef : undefined;
 }
 
 export interface FormFieldCache {
