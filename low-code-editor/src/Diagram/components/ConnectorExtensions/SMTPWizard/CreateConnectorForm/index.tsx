@@ -35,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
+    onSaveNext?: () => void;
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
 }
@@ -46,7 +47,8 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard,
+            homePageEnabled, onSaveNext } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
@@ -119,14 +121,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const handleOnSave = () => {
-        const actionName = "sendEmailMessage";
-
         // if connector name available skip setting new value
         connectorConfig.name = nameState.value;
-        connectorConfig.action = {
-            name: actionName,
-            fields: functionDefinitions.get(actionName)?.parameters
-        }
         connectorConfig.connectorInit = connectorInitFormFields;
         onSave();
     };
@@ -155,16 +151,24 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     </div>
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text="Save &amp; Next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <SecondaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                        <PrimaryButton
+                            text="Save &amp; Next"
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            fullWidth={false}
+                            onClick={onSaveNext}
+                        />
+                    </div>
                     {/* </div> */}
                 </div>
             </FormControl>

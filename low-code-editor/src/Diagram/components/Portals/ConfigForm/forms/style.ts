@@ -173,11 +173,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         formTitleTag: {
-            justifyContent: 'space-between',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            padding: '0 0.5rem',
+            padding: '0',
             width: 164
         },
         inputHelpTips: {

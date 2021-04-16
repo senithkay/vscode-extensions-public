@@ -84,7 +84,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [responseVarError, setResponseVarError] = useState("");
     const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
-    const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.name !== "get" && connectorConfig.action.fields.length > 0;
+    const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
     const mapPayload = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "" ? NO_PAYLOAD : SELECT_PAYLOAD;
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
@@ -266,8 +266,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     }
 
-    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "get" &&
-        action.name !== "forward" && (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
+    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "forward" &&
+        (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
 
     const onPayloadNameChange = (value: string) => {
         if (connectorConfig.responsePayloadMap) {

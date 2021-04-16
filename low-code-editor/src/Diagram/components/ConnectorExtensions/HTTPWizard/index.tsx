@@ -221,6 +221,7 @@ export function HTTPWizard(props: WizardProps) {
     }, [isNewConnectorInitWizard])
 
     const handleCreateNew = () => {
+        connectorConfig.name = undefined;
         setIsNewConnection(true);
         setState(InitFormState.Create);
     };
@@ -265,7 +266,7 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleCreateConnectorOnSave = () => {
         const modifications: STModification[] = [];
-        if (!isNewConnectorInitWizard && targetPosition) {
+        if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
                 `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(
                     connectorConfig.connectorInit).join()});`, connectorConfig.initPosition);

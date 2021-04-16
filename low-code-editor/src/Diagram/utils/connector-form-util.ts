@@ -56,7 +56,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
                             param.noCodeGen = true;
@@ -69,7 +68,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.displayName = "Message";
                         }
@@ -81,7 +79,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"\"";
-                            param.hide = true;
                         } else if (param.name === "request") {
                             param.hide = true;
                         } else if (param.name === "forwardReq") {
