@@ -33,6 +33,7 @@ import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+import Tooltip from "../../../../Portals/ConfigForm/Elements/Tooltip";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -146,9 +147,39 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setEditorFocus(false);
     };
 
-    const saveVariableButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveButton.label",
+    const saveVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.saveButton.text",
         defaultMessage: "Save"
+    });
+
+    const cancelVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.cancelButton.text",
+        defaultMessage: "Cancel"
+    });
+
+    const addVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.addVariable.placeholder",
+        defaultMessage: "Enter Variable Name"
+    });
+
+    const addVariableNameLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.addVariable.name.label",
+        defaultMessage: "Name"
+    });
+
+    const enterTypePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.enterType.placeholder",
+        defaultMessage: "Enter Type"
+    });
+
+    const otherTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.otherType.label",
+        defaultMessage: "Other Type"
+    });
+
+    const variableTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.type.label",
+        defaultMessage: "Type"
     });
 
     modelType = (selectedType === "other") ? otherType : selectedType;
@@ -175,7 +206,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         <PropertyIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable"/></Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -188,15 +219,15 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         disableCreateNew: true,
                                         values: variableTypes,
                                     }}
-                                    label={"Type"}
+                                    label={variableTypeLabel}
                                     onChange={handleTypeChange}
                                 />
                                 {(selectedType === "other") && (
                                     <FormTextInput
                                         defaultValue={otherType}
                                         onChange={handleOtherTypeOnChange}
-                                        label={"Other Type"}
-                                        placeholder={"Enter Type"}
+                                        label={otherTypeLabel}
+                                        placeholder={enterTypePlaceholder}
                                         customProps={{
                                             tooltipTitle: tooltipMessages.customVariableType,
                                         }}
@@ -211,9 +242,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     }}
                                     defaultValue={varName}
                                     onChange={handleNameOnChange}
-                                    label={"Name"}
+                                    label={addVariableNameLabel}
                                     errorMessage={varNameError}
-                                    placeholder={"Enter Variable Name"}
+                                    placeholder={addVariablePlaceholder}
                                 />
                                 <div className="exp-wrapper">
                                     <ExpressionEditor
@@ -235,14 +266,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={saveVariableButtonLabel}
-                                disabled={isMutationInProgress || !validForm}
-                                fullWidth={false}
-                                onClick={handleSave}
-                            />
+                            <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />                           
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={saveVariableButtonText}
+                                    disabled={isMutationInProgress || !validForm}
+                                    fullWidth={false}
+                                    onClick={handleSave}
+                                />
                         </div>
                     </div>
                 )
