@@ -31,6 +31,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -44,6 +45,7 @@ export const SELECT_PROPERTY: string = "Select Existing Property";
 export function AddLogConfig(props: LogConfigProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
@@ -82,11 +84,16 @@ export function AddLogConfig(props: LogConfigProps) {
         logFormConfig.expression = expression;
         logFormConfig.type = logType === "Info" ? "" : logType;
         onSave();
-    }
+    };
 
     const validateExpression = (field: string, isInvalid: boolean) => {
         setIsFormValid(!isInvalid && logType);
-    }
+    };
+
+    const saveLogButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.log.saveButton.label",
+        defaultMessage: "Save"
+    });
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -104,7 +111,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                         <LogIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Log</Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -138,7 +145,7 @@ export function AddLogConfig(props: LogConfigProps) {
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 dataTestId={"log-save-btn"}
-                                text="Save"
+                                text={saveLogButtonLabel}
                                 disabled={isMutationInProgress || !isFormValid}
                                 fullWidth={false}
                                 onClick={onSaveBtnClick}
