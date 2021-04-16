@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
 
-import { FormControl, FormHelperText } from "@material-ui/core";
+import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
 import {
@@ -33,7 +34,7 @@ import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/D
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { RadioControl } from "../../../Portals/ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import Tooltip, { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
+import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
@@ -45,7 +46,8 @@ import '../style.scss'
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
-    onBackClick?: () => void;
+    onConnectionChange?: () => void;
+    onOperationChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
     headerObject?: HeaderObjectConfig[];
@@ -69,10 +71,10 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
+    const { onConnectionChange, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard,
+            headerObject, onOperationChange } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
-    // const { model } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -176,7 +178,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             connectorConfig.responsePayloadMap.isPayloadSelected = true;
             connectorConfig.responsePayloadMap.selectedPayloadType = value;
             connectorConfig.responsePayloadMap.payloadVariableName =
-                isNewConnectorInitWizard ?
+                isNewConnectorInitWizard || !connectorConfig.responsePayloadMap.payloadVariableName ?
                     genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
                     :
                     connectorConfig.responsePayloadMap.payloadVariableName;
@@ -266,8 +268,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "get" &&
         action.name !== "forward" && (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
-
-
 
     const onPayloadNameChange = (value: string) => {
         if (connectorConfig.responsePayloadMap) {
@@ -360,10 +360,46 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                        <>
+                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: wizardClasses.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon/>
+                                </IconButton>
+                            </Box>
+                        </>
+                        <>
+                            <p className={wizardClasses.subTitle}>Operation</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.action.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={ {
+                                        root: wizardClasses.changeConnectionBtn
+                                    } }
+                                    onClick={onOperationChange}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </Box>
+                        </>
                         <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
                         <div className={classNames(classes.groupedForm, classes.marginTB)}>
                             {selectedOperationParams}
                             {forwardReq}
+                        </div>
+                        <div className={classes.marginTB}>
                             <FormTextInput
                                 dataTestId={"response-variable-name"}
                                 customProps={{
@@ -395,7 +431,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
+                    <SecondaryButton text="Back" fullWidth={false} onClick={onConnectionChange} />
                     <PrimaryButton
                         dataTestId={"http-save-done"}
                         className="product-tour-save-done"

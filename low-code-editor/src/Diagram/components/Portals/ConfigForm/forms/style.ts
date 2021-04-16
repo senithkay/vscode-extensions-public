@@ -116,6 +116,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             marginTop: "2.5rem",
         },
+        wizardCreateBtnHolder: {
+            display: "flex",
+            justifyContent: "space-between",
+            height: "auto",
+            marginTop: "2.5rem",
+        },
+        saveBtnHolder: {
+            display: "flex",
+        },
         formCreate: {
             width: 191.2,
             height: 191.2,
