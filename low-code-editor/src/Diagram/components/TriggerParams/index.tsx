@@ -46,7 +46,7 @@ export function TriggerParams(props: TriggerParamsProps) {
 
     const component: React.ReactElement = ((!model?.viewState.collapsed || blockViewState) &&
         (<TriggerParamsSVG
-            x={(cx - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2))}
+            x={(cx - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 8))}
             y={(cy + START_SVG_HEIGHT_WITH_SHADOW) - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap * 2}
             text={triggerParamsText.slice(1, -1)}
         />)
