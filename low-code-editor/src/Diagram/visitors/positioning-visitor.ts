@@ -26,7 +26,7 @@ import {
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
-import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
@@ -270,7 +270,11 @@ class PositioningVisitor implements Visitor {
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS") {
-                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                        if (plusForIndex.isAPICallsExisting) {
+                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        } else {
+                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                        }
                     }
 
                     if (statementViewState.collapsed) {
@@ -289,9 +293,14 @@ class PositioningVisitor implements Visitor {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                         height += PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS") {
-                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
-                        height += PLUS_HOLDER_API_HEIGHT;
+                        if (plusForIndex.isAPICallsExisting) {
+                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        } else {
+                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                            height += PLUS_HOLDER_API_HEIGHT;
+                        }
                     }
+
                 } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
                     plusForIndex.bBox.cx = blockViewState.bBox.cx;
                     statementViewState.bBox.cy += PLUS_SVG_HEIGHT;

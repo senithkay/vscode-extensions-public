@@ -15,6 +15,7 @@ export class PlusViewState extends ViewState {
     public isLast: boolean = false;
     public selectedComponent: string;
     public isTriggerDropdown: boolean = false;
+    public isAPICallsExisting: boolean = true;
     constructor() {
         super();
     }

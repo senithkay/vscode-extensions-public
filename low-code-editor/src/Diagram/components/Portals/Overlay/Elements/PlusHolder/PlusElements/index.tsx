@@ -24,6 +24,7 @@ import { OverlayBackground } from "../../../../../OverlayBackground";
 import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
+import { ExistingAPIOptions } from "../PlusElementOptions/ExistingAPIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 
@@ -40,8 +41,10 @@ export interface PlusElementsProps {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 500;
-export const PLUS_HOLDER_API_HEIGHT = 580;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
+export const PLUS_HOLDER_API_HEIGHT = 608;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT = 360;
+export const EXISTING_PLUS_HOLDER_WIDTH = 286;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
@@ -86,12 +89,17 @@ export function PlusElements(props: PlusElementsProps) {
             break;
         }
         case "APIS": {
-            component = (<APIOptions onSelect={onAPITypeSelect} />);
+            component = (
+                viewState.isAPICallsExisting ?
+                    <ExistingAPIOptions onSelect={onAPITypeSelect} />
+                    :
+                    <APIOptions onSelect={onAPITypeSelect} />);
             break;
         }
     }
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
-    const holderClass = (selectedItem !== "APIS") ? "holder-wrapper" : "holder-wrapper-large";
+    const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
+    const holderClass = selectedItem !== "APIS" ? "holder-wrapper" : exitingApiCall;
 
     const plusHolder: ReactNode = (
         <div className={holderClass}>
@@ -129,7 +137,7 @@ export function PlusElements(props: PlusElementsProps) {
                         arrow={true}
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                            Connections
+                            API Calls
             </div>
                     </Tooltip>
                 </div>

@@ -35,17 +35,17 @@ import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/For
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
-import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_WIDTH, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
-import {WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH} from "../components/While/WhileSVG";
+import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
-import {WhileViewState} from "../view-state/while";
+import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
@@ -619,7 +619,11 @@ class SizingVisitor implements Visitor {
             if (plusViewState.selectedComponent === "STATEMENT") {
                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
             } else if (plusViewState.selectedComponent === "APIS") {
-                height += PLUS_HOLDER_API_HEIGHT;
+                if (plusViewState.isAPICallsExisting) {
+                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                } else {
+                    height += PLUS_HOLDER_API_HEIGHT;
+                }
             }
             if (width < PLUS_HOLDER_WIDTH) {
                 width = PLUS_HOLDER_WIDTH;
@@ -691,7 +695,11 @@ class SizingVisitor implements Visitor {
                                 if (plusForIndex.selectedComponent === "STATEMENT") {
                                     height += PLUS_HOLDER_STATEMENT_HEIGHT;
                                 } else if (plusForIndex.selectedComponent === "APIS") {
-                                    height += PLUS_HOLDER_API_HEIGHT;
+                                    if (plusViewState.isAPICallsExisting) {
+                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                    } else {
+                                        height += PLUS_HOLDER_API_HEIGHT;
+                                    }
                                 }
                                 if (width < PLUS_HOLDER_WIDTH) {
                                     width = PLUS_HOLDER_WIDTH;
@@ -713,7 +721,11 @@ class SizingVisitor implements Visitor {
                             if (plusForIndex.selectedComponent === "STATEMENT") {
                                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
                             } else if (plusForIndex.selectedComponent === "APIS") {
-                                height += PLUS_HOLDER_API_HEIGHT;
+                                if (plusViewState.isAPICallsExisting) {
+                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                } else {
+                                    height += PLUS_HOLDER_API_HEIGHT;
+                                }
                             }
                             if (width < PLUS_HOLDER_WIDTH) {
                                 width = PLUS_HOLDER_WIDTH;
@@ -737,7 +749,11 @@ class SizingVisitor implements Visitor {
                         if (plusForIndex.selectedComponent === "STATEMENT") {
                             height += PLUS_HOLDER_STATEMENT_HEIGHT;
                         } else if (plusForIndex.selectedComponent === "APIS") {
-                            height += PLUS_HOLDER_API_HEIGHT;
+                            if (plusViewState.isAPICallsExisting) {
+                                height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            } else {
+                                height += PLUS_HOLDER_API_HEIGHT;
+                            }
                         }
                         if (width < PLUS_HOLDER_WIDTH) {
                             width = PLUS_HOLDER_WIDTH;
