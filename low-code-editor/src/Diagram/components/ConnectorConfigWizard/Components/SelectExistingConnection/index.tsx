@@ -58,7 +58,7 @@ export function SelectConnectionForm(props: SelectConnectionFormProps) {
         <div>
             <FormControl className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.operationForm.operation.title" defaultMessage="Select/Create Connection"/></FormHelperText>
+                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.selectExistingConnection.title" defaultMessage="Select/Create Connection"/></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
                 <SelectDropdownWithButton
