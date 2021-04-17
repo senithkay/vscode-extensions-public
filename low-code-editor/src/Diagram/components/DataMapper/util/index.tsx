@@ -90,10 +90,39 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                     // todo: do the fetching!
                 }
             }
-
             return returnString;
         default:
-            return '()'; // todo: this shouldn't be the case ever
+            if (type.typeInfo) {
+                const typeInfo = type.typeInfo;
+                const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
+                const recordNode: any = recordMap.get(recordIdentifier);
+                if (recordNode) {
+                    recordNode.dataMapperViewState = new DataMapperViewState();
+                    traversNode(recordNode, new DataMapperInitVisitor());
+                    returnString += '{'
+                    recordNode.fields?.forEach((field: any, index: number) => {
+                        const fieldVS = field.dataMapperViewState as TypeDescViewState;
+                        returnString += `${fieldVS.name}: `;
+                        returnString += getDefaultValueForType(
+                            fieldVS,
+                            recordMap,
+                            ""
+                        );
+
+                        if (index < recordNode.fields.length - 1) {
+                            returnString += ',';
+                        }
+                    });
+                    returnString += '}'
+                } else {
+                    // todo: do the fetching!
+                }
+            } else {
+                return '()';
+            }
+
+            return returnString;
+
     }
 }
 

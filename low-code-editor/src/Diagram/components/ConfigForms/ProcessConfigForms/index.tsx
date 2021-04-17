@@ -114,7 +114,24 @@ export function ProcessConfigForm(props: any) {
                         }
                     })
 
-                    const functionString = `${datamapperConfig.outputType.type} ${datamapperConfig.elementName} = ${defaultReturn};`
+                    let outputType = '';
+
+                    switch (datamapperConfig.outputType.type) {
+                        case 'json':
+                            outputType = 'json';
+                            break;
+                        case 'record':
+                            const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
+                            outputType = outputTypeInfo.moduleName === '.' ?
+                                outputTypeInfo.name
+                                : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                            break;
+                        default:
+                            outputType = datamapperConfig.outputType.type;
+                    }
+
+
+                    const functionString = `${outputType} ${datamapperConfig.elementName} = ${defaultReturn};`
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
                     modifications.push(dataMapperFunction);
