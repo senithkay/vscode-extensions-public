@@ -22,7 +22,6 @@ import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
 import { DataMapper } from './components/DataMapper';
-import { DiagramActiveState } from "./components/DiagramState/DiagramActiveState";
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
@@ -65,8 +64,8 @@ export function Diagram(props: DiagramProps) {
     } = props;
     const { state: {
         diagnostics,
-        isDataMapperShown, 
-        isConfigOverlayFormOpen, 
+        isDataMapperShown,
+        isConfigOverlayFormOpen,
         dataMapperFunctionName
     } } = useContext(DiagramContext);
 
@@ -110,7 +109,7 @@ export function Diagram(props: DiagramProps) {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen}/>
+            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
         </div>
     );
 
@@ -138,7 +137,7 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
-    const child =  isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
+    const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
     // const child =  <DataMapper width={w} />;
 
     return (

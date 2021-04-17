@@ -38,27 +38,33 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
             return '0';
         case PrimitiveBalType.Json:
             // todo: look into default json type
+            if (type.sampleStructure) {
+                const jsonStructure = JSON.parse(type.sampleStructure);
+                resetJsonValueToDefault(jsonStructure);
+                return JSON.stringify(jsonStructure);
+            } else {
+                return '{}';
+            }
             break;
         case PrimitiveBalType.Xml:
             // todo: look into default xml type
             break;
         case 'record':
-            returnString += '{';
-            type.fields.forEach((field: any, index: number) => {
-                returnString += `${field.name}: `;
-                returnString += getDefaultValueForType(
-                    field,
-                    recordMap,
-                    ""
-                );
-                if (index < type.fields.length - 1) {
-                    returnString += ',';
-                }
-            })
-            returnString += '}';
-            return returnString;
-        default:
-            if (type.typeInfo) {
+            if (type.fields) {
+                returnString += '{';
+                type.fields.forEach((field: any, index: number) => {
+                    returnString += `${field.name}: `;
+                    returnString += getDefaultValueForType(
+                        field,
+                        recordMap,
+                        ""
+                    );
+                    if (index < type.fields.length - 1) {
+                        returnString += ',';
+                    }
+                })
+                returnString += '}';
+            } else if (type.typeInfo) {
                 const typeInfo = type.typeInfo;
                 const recordIdentifier = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
                 const recordNode: any = recordMap.get(recordIdentifier);
@@ -81,12 +87,13 @@ export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<strin
                     });
                     returnString += '}'
                 } else {
-                    // todo: do the fetching boi!
+                    // todo: do the fetching!
                 }
-                return returnString;
-            } else {
-                return '()'; // todo: this shouldn't be the case ever
             }
+
+            return returnString;
+        default:
+            return '()'; // todo: this shouldn't be the case ever
     }
 }
 
@@ -126,4 +133,30 @@ export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, 
                 paramNode.dataMapperTypeDescNode = typeDescST;
             }
     }
+}
+
+export function resetJsonValueToDefault(json: any) {
+    Object.keys(json).forEach((key: string) => {
+        switch (typeof json[key]) {
+            case 'string':
+                json[key] = '';
+                break;
+            case 'boolean':
+                json[key] = false;
+                break;
+            case 'number':
+                json[key] = 0;
+                break;
+            case 'object':
+                if (Array.isArray(json[key])) {
+                    json[key] = [];
+                } else {
+                    resetJsonValueToDefault(json[key]);
+                }
+
+                break;
+            default:
+            // ignored
+        }
+    })
 }

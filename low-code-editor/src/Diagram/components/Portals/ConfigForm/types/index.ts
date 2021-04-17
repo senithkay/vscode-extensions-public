@@ -105,6 +105,7 @@ export interface TypeInfoEntry {
     type: string;
     typeInfo?: TypeInfo;
     fields?: any;
+    sampleStructure?: string;
 }
 
 export interface DataMapperConfig {

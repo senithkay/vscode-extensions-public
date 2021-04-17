@@ -1,4 +1,3 @@
-/* tslint:disable:jsx-no-multiline-js */
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -11,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable:jsx-no-multiline-js
+// tslint:disable: jsx-wrap-multiline
 import React, { useContext, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-tree';
@@ -47,14 +48,8 @@ enum DataMapperSteps {
 
 
 const typeArray: TypeInfoEntry[] = [
-    { type: 'string' },
-    { type: 'int' },
-    { type: 'float' },
-    { type: 'boolean' },
-    { type: 'xml' },
-    { type: 'json' },
-    { type: 'Person', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
-    { type: 'Employee', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
+    { type: 'record', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
+    { type: 'record', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
 ]
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
@@ -68,8 +63,10 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const [inputTypes, setParameters] = useState(dataMapperConfig.inputTypes);
     const [outputType, setReturnType] = useState(dataMapperConfig.outputType);
     const [elementName, setFunctionName] = useState(defaultFunctionName);
+    const [sampleStructure, setSampleStructure] = useState<string>('');
     const [functionNameError, setFunctionNameError] = useState('');
     const [isFunctionNameValid, setIsFunctionNameValid] = useState(true);
+    const [isJsonValid, setIsJsonValid] = useState(true);
 
     const varData: VariableInfoEntry[] = [];
 
@@ -87,7 +84,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
             setDataMapperStep(DataMapperSteps.SELECT_INPUT);
         } else {
-            processConfig.config = { elementName, inputTypes, outputType };
+            processConfig.config = { elementName, inputTypes, outputType: { ...outputType, sampleStructure } };
             onSave();
             dataMapperStart(processConfig.config);
         }
@@ -99,6 +96,14 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
 
     const removeParam = (index: number) => {
         setParameters([...inputTypes.splice(index, 1)])
+    }
+
+    const handleSampleStructureUpdate = (value: string) => {
+        setSampleStructure(value);
+    }
+
+    const handleJsonValidation = (isValid: boolean) => {
+        setIsJsonValid(isValid);
     }
 
     const validateNameValue = (value: string) => {
@@ -153,7 +158,6 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 />
                 {
                     dataMapperStep === DataMapperSteps.SELECT_INPUT &&
-                    // tslint:disable-next-line: jsx-wrap-multiline
                     <ParameterSelector
                         parameters={inputTypes}
                         insertParameter={addNewParam}
@@ -162,12 +166,17 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                     />
                 }
                 {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
-                    <OutputTypeSelector types={typeArray} updateReturnType={setReturnType} />}
+                    <OutputTypeSelector
+                        types={typeArray}
+                        updateReturnType={setReturnType}
+                        updateSampleStructure={handleSampleStructureUpdate}
+                        updateValidity={handleJsonValidation}
+                    />}
 
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
-                        disabled={!isFunctionNameValid}
+                        disabled={!isFunctionNameValid && isJsonValid}
                         dataTestId={"datamapper-save-btn"}
                         text={dataMapperStep === DataMapperSteps.SELECT_INPUT ? "Save" : "Next"}
                         fullWidth={false}

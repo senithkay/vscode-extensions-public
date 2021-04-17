@@ -96,7 +96,7 @@ export function createWhileStatement(conditionExpression: string, targetPosition
     return ifStatement;
 }
 
-export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdatePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,

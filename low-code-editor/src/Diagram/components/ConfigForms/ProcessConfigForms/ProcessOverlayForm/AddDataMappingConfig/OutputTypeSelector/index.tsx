@@ -10,25 +10,72 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
+// tslint:disable: jsx-wrap-multiline
+import React, { useState } from 'react';
 
-import { Box, TextField, Typography } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
-
-import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { Box, Typography } from "@material-ui/core";
 import classNames from 'classnames';
+
+import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
+import { SelectDropdownWithButton } from '../../../../../../components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
+import { FormJson } from '../../../../../Portals/ConfigForm/Elements/Json/FormJson';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
 
 interface OutputTypeSelectorProps {
     types: TypeInfoEntry[];
     updateReturnType: (returnType: TypeInfoEntry) => void,
+    updateSampleStructure: (value: string) => void,
+    updateValidity: (value: boolean) => void
+}
+
+enum SelectedDataType {
+    RECORD,
+    JSON,
+    DEFAULT
 }
 
 export function OutputTypeSelector(props: OutputTypeSelectorProps) {
-    const { types, updateReturnType } = props;
+    const { types, updateReturnType, updateSampleStructure, updateValidity } = props;
+    const [jsonValue, setJsonValue] = useState('');
     const formClasses = useFormStyles();
     const handleUpdateReturnType = (evt: any, option: TypeInfoEntry) => {
         updateReturnType(option);
+    }
+
+    const jsonFormField = { isParam: true, type: 'json' }
+
+    const [selectedDataType, setSelectedDataType] = useState<SelectedDataType>(SelectedDataType.DEFAULT);
+
+    const returnTypes: string[] = ['String', 'Int', 'Float', 'Boolean', 'Json', 'Record'];
+
+    const handleOnTypeChange = (value: string) => {
+        switch (value.toLocaleLowerCase()) {
+            case 'record':
+                setSelectedDataType(SelectedDataType.RECORD);
+                break;
+            case 'json':
+                updateReturnType({ type: value.toLocaleLowerCase() })
+                setSelectedDataType(SelectedDataType.JSON);
+                break;
+            default:
+                updateReturnType({ type: value.toLowerCase() })
+        }
+    }
+
+    const handleOnJsonValueChange = (value: string) => {
+        setJsonValue(value);
+    }
+
+    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+        if (!isInvalid) {
+            updateSampleStructure(jsonValue);
+            updateValidity(true);
+        } else {
+            updateValidity(false);
+        }
     }
 
     return (
@@ -42,30 +89,39 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
                             </Typography>
                         </div>
                     </div>
-                    <Autocomplete
-                        id="country-select-demo"
-                        options={types}
-                        autoHighlight={true}
-                        getOptionLabel={(option) => option.type}
-                        renderOption={(option) => (
-                            <React.Fragment>
-                                <span>{option.type}</span>
-                                {option.typeInfo?.moduleName}
-                            </React.Fragment>
-                        )}
-                        onChange={handleUpdateReturnType}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Select Type"
-                                variant="outlined"
-                                inputProps={{
-                                    ...params.inputProps,
-                                    autoComplete: 'new-password', // disable autocomplete and autofill
-                                }}
-                            />
-                        )}
+                    <SelectDropdownWithButton
+                        defaultValue={'String'} // todo: get the initial default value from parent
+                        onChange={handleOnTypeChange}
+                        customProps={{
+                            disableCreateNew: true,
+                            values: returnTypes
+                        }}
+                        placeholder="Select Type"
+                        label="Select Variable Type"
                     />
+                    {selectedDataType === SelectedDataType.RECORD &&
+                        <FormAutocomplete
+                            itemList={types}
+                            onChange={handleUpdateReturnType}
+                            label={'Select output type'}
+                            getItemLabel={(option) => option.typeInfo?.name}
+                            renderItem={(option) => (
+                                <React.Fragment>
+                                    <span>{option.typeInfo?.name}</span>
+                                    {option.typeInfo?.moduleName}
+                                </React.Fragment>
+                            )}
+                        />
+                    }
+                    {selectedDataType === SelectedDataType.JSON &&
+                        <FormJson
+                            model={jsonFormField}
+                            onChange={handleOnJsonValueChange}
+                            customProps={{
+                                validate: validateExpression,
+                            }}
+                        />
+                    }
                 </div>
             </div>
         </>

@@ -13,18 +13,18 @@
 
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
+// tslint:disable: jsx-no-lambda
 import React, { ReactNode, useState } from 'react';
 
 import { Box, FormHelperText, TextField, Typography } from '@material-ui/core';
 import { AddRounded, CloseRounded } from '@material-ui/icons';
-import { Autocomplete } from "@material-ui/lab";
 import classNames from 'classnames';
 
+import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
 import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
-import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
-import { TypeInfoEntry, VariableInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { VariableInfoEntry } from "../../../../../Portals/ConfigForm/types";
 
 interface ParameterSelectorProps {
     parameters: any[];
@@ -61,7 +61,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                     <ButtonWithIcon
                         className={formClasses.deleteBtn}
                         onClick={removeParam}
-                        icon={<CloseRounded fontSize="small"/>}
+                        icon={<CloseRounded fontSize="small" />}
                     />
                 </div>
             </div>
@@ -78,34 +78,22 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                         </Typography>
                     </div>
                 </div>
-                <Autocomplete
-                    id="country-select-demo"
-                    options={types}
-                    autoHighlight={true}
-                    getOptionLabel={(option) => option.name}
-                    renderOption={(option) => (
+                <FormAutocomplete
+                    itemList={types}
+                    label={'Select parameter'}
+                    onChange={handleChangeVariableType}
+                    renderItem={(option) => (
                         <React.Fragment>
                             <span>{option.name}</span>
                             {option.type}
                         </React.Fragment>
                     )}
-                    onChange={handleChangeVariableType}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Select Type"
-                            variant="outlined"
-                            inputProps={{
-                                ...params.inputProps,
-                                autoComplete: 'new-password', // disable autocomplete and autofill
-                            }}
-                        />
-                    )}
+                    getItemLabel={(option) => option.name}
                 />
                 <IconBtnWithText
                     onClick={onParameterAddClick}
                     text="Add Parameter"
-                    icon={<AddRounded fontSize="small" className={formClasses.iconButton}/>}
+                    icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
                     disabled={false}
                 />
             </div>
