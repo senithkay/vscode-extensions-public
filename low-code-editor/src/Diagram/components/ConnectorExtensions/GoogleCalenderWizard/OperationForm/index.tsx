@@ -183,7 +183,6 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Save"
     });
 
-
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>

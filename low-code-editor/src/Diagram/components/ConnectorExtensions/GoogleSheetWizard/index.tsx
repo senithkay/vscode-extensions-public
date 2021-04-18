@@ -55,6 +55,7 @@ import {
 import { CreateConnectorForm } from "./CreateNewConnection";
 import { OperationDropdown } from "./OperationDropdown";
 import { OperationForm } from "./OperationForm";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface WizardProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -79,6 +80,7 @@ enum FormStates {
 
 export function GoogleSheet(props: WizardProps) {
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
@@ -324,7 +326,17 @@ export function GoogleSheet(props: WizardProps) {
         connectorInitFormFields = config.connectorInit;
         config.action.returnVariableName =
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
-    }
+    };
+
+    const manualConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.manualConnection.button.text",
+        defaultMessage: "Manual Connection"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.backButton.text",
+        defaultMessage: "Back"
+    });
 
     return (
         <div className={wizardClasses.fullWidth}>
@@ -339,7 +351,7 @@ export function GoogleSheet(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.GSheet.title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>
@@ -363,18 +375,18 @@ export function GoogleSheet(props: WizardProps) {
                 {(formState === FormStates.OauthConnect) &&
                     (
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
+                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GSheet.manualConnection" defaultMessage="Or use manual configurations"/></p>
                             <LinePrimaryButton
                                 testId={"sheet-manual-btn"}
                                 className={wizardClasses.fullWidth}
-                                text="Manual Connection"
+                                text={manualConnectionButtonText}
                                 fullWidth={false}
                                 onClick={onManualConnection}
                             />
                             {(config.existingConnections && isNewConnection) && (
                                 <div className={wizardClasses.connectBackBtn}>
                                     <SecondaryButton
-                                        text="Back"
+                                        text={backButtonText}
                                         fullWidth={false}
                                         onClick={onOauthConnectorBack}
                                     />
