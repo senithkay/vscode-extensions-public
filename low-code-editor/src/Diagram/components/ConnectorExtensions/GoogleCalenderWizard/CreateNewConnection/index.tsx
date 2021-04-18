@@ -26,6 +26,7 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
+import { useIntl } from "react-intl";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -49,6 +50,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { stSymbolInfo: symbolInfo } = state;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: '',
@@ -126,7 +128,27 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         return connectorInitFields.find(config => config.name === "calendarConfig").fields
             .find(field => field.name === "oauth2Config").fields
             .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId");
-    }
+    };
+
+    const createConnectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const createConnectionPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.placeholder",
+        defaultMessage: "Enter Connection Name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.saveButton.label",
+        defaultMessage: "Save & Next"
+    });
 
     return (
         <div>
@@ -140,20 +162,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={createConnectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={createConnectionPlaceholder}
                         />
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
                         dataTestId={"calender-save-next-btn"}
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
                         fullWidth={false}
                         onClick={handleOnSave}

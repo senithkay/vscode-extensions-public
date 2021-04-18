@@ -24,6 +24,7 @@ import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelP
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface OperationDropdownProps {
     formFields: FormField[] | any;
@@ -37,6 +38,7 @@ export interface OperationDropdownProps {
 export function CreateEvent(props: OperationDropdownProps) {
     const { formFields, validateFields, isFetching, gcalenderList, isManualConnection } = props;
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     enum EventDateTypes {
         START = "'start",
@@ -171,20 +173,35 @@ export function CreateEvent(props: OperationDropdownProps) {
     // set default value before render
     setDefaultValues();
 
+    const chooseCalendarPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.chooseCalendar.placeholder",
+        defaultMessage: "Choose Calendar"
+    });
+
+    const startDateLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.datePicker.startDate.label",
+        defaultMessage: "Select Start Date"
+    });
+
+    const endDateLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.datePicker.endDate.label",
+        defaultMessage: "Select End Date"
+    });
+
     return (
         <>
             {!showCalenderSelector && (
                 <ExpressionEditor {...calIdProps} />
             )}
             {showCalenderSelector && (
-                <p className={wizardClasses.subTitle}>Select Calendar</p>
+                <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.GCalendar.selectCalendar.title" defaultMessage="Select Calendar"/></p>
             )}
             {showCalenderSelector && isFetching && (
                 <CirclePreloader position="relative" />
             )}
             {showCalenderSelector && !isFetching && gcalenderList && (
                 <FormAutocomplete
-                    placeholder="Choose Calendar"
+                    placeholder={chooseCalendarPlaceholder}
                     itemList={gcalenderList}
                     value={getActiveGcalendar()}
                     getItemLabel={handleItemLabel}
@@ -198,12 +215,12 @@ export function CreateEvent(props: OperationDropdownProps) {
             <DateLabelPicker
                 model={getEventDateTime(EventDateTypes.START)}
                 onChange={startTimeOnChange}
-                label={"Select Start Date"}
+                label={startDateLabel}
             />
             <DateLabelPicker
                 model={getEventDateTime(EventDateTypes.END)}
                 onChange={endTimeOnChange}
-                label={"Select End Date"}
+                label={endDateLabel}
             />
             <div>{attendeeComponnet}</div>
         </>

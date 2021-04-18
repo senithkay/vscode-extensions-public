@@ -351,7 +351,7 @@ export function GmailWizard(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.Gmail..title" defaultMessage="Connection"/>
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.Gmail.title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>
