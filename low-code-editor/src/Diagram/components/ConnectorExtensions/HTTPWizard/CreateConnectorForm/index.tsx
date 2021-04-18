@@ -30,6 +30,7 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import '../style.scss';
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface CreateConnectorFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -56,6 +57,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const classes = useStyles();
     const radioClasses = useStyleForRadio();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
@@ -148,6 +150,57 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.action.returnVariableName = undefined;
     }
 
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.name.placeholder",
+        defaultMessage: "Enter Connection Name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
+    const GETOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.GET.label",
+        defaultMessage: "GET"
+    });
+
+    const POSTOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.POST.label",
+        defaultMessage: "POST"
+    });
+
+    const PUTOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PUT.label",
+        defaultMessage: "PUT"
+    });
+
+    const PATCHOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PATCH.label",
+        defaultMessage: "PATCH"
+    });
+
+    const FORWARDOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.FORWARD.label",
+        defaultMessage: "FORWARD"
+    });
+
+    const DELETEOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.DELETE.label",
+        defaultMessage: "DELETE"
+    });
+
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -161,49 +214,49 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
                         </div>
                         <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-operation")}>
                             <div className={classes.labelWrapper}>
-                                <FormHelperText className={classes.inputLabelForRequired}>Select an Operation</FormHelperText>
+                                <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.createConnection.selectOperation.title" defaultMessage="Select an Operation"/></FormHelperText>
                                 <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                             </div>
                             <RadioGroup aria-label={"operations"} name={"operations"} value={actionNameRadio} onChange={handleOnOperationRadioChange} >
                                 <FormControlLabel
                                     value={"get"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"GET"}
+                                    label={GETOperationLabel}
                                 />
                                 <FormControlLabel
                                     data-testid={"post"}
                                     value={"post"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"POST"}
+                                    label={POSTOperationLabel}
                                 />
                                 <FormControlLabel
                                     value={"put"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"PUT"}
+                                    label={PUTOperationLabel}
                                 />
                                 <FormControlLabel
                                     value={"delete"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"DELETE"}
+                                    label={DELETEOperationLabel}
                                 />
                                 <FormControlLabel
                                     value={"patch"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"PATCH"}
+                                    label={PATCHOperationLabel}
                                 />
                                 <FormControlLabel
                                     value={"forward"}
                                     control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"FORWARD"}
+                                    label={FORWARDOperationLabel}
                                 />
                             </RadioGroup>
                         </div>
@@ -212,11 +265,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
                         dataTestId={"http-save-next"}
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         className="product-tour-next"
                         disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName && ((actionNameSelect && actionNameSelect !== "") || (actionNameRadio && actionNameRadio !== "")))}
                         fullWidth={false}
