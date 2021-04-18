@@ -133,17 +133,17 @@ export function OperationForm(props: OperationFormProps) {
     });
 
     const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.GSheet.variable.addResponseVariable.placeholder",
+        id: "lowcode.develop.configForms.GSheet.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.GSheet.variable.addResponseVariable.label",
+        id: "lowcode.develop.configForms.GSheet.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.GSheet.variable.saveConnectionButton.text",
+        id: "lowcode.develop.configForms.GSheet.saveConnectionButton.text",
         defaultMessage: "Save"
     });
 

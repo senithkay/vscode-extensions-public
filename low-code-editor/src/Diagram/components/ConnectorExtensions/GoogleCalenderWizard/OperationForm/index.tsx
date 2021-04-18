@@ -169,17 +169,17 @@ export function OperationForm(props: OperationFormProps) {
     });
 
     const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.GCalendar.variable.addResponseVariable.placeholder",
+        id: "lowcode.develop.configForms.GCalendar.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.GCalendar.variable.addResponseVariable.label",
+        id: "lowcode.develop.configForms.GCalendar.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.GCalendar.variable.saveConnectionButton.text",
+        id: "lowcode.develop.configForms.GCalendar.saveConnectionButton.text",
         defaultMessage: "Save"
     });
 

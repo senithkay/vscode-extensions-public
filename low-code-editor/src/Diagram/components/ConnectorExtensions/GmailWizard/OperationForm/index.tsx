@@ -104,17 +104,17 @@ export function OperationForm(props: OperationFormProps) {
     }
 
     const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.Gmail.variable.addResponseVariable.placeholder",
+        id: "lowcode.develop.configForms.Gmail.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.Gmail.variable.addResponseVariable.label",
+        id: "lowcode.develop.configForms.Gmail.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.Gmail.variable.saveConnectionButton.text",
+        id: "lowcode.develop.configForms.Gmail.saveConnectionButton.text",
         defaultMessage: "Save"
     });
 

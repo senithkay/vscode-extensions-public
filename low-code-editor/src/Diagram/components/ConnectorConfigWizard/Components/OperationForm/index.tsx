@@ -100,17 +100,17 @@ export function OperationForm(props: OperationFormProps) {
     }
 
     const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.addResponseVariable.placeholder",
+        id: "lowcode.develop.configForms.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.addResponseVariable.label",
+        id: "lowcode.develop.configForms.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveConnectionButton.text",
+        id: "lowcode.develop.configForms.saveConnectionButton.text",
         defaultMessage: "Save"
     });
 

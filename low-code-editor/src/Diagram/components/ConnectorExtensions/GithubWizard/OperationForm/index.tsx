@@ -81,17 +81,17 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.GitHub.variable.addResponseVariable.placeholder",
+        id: "lowcode.develop.configForms.GitHub.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.GitHub.variable.addResponseVariable.label",
+        id: "lowcode.develop.configForms.GitHub.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.GitHub.variable.saveConnectionButton.text",
+        id: "lowcode.develop.configForms.GitHub.saveConnectionButton.text",
         defaultMessage: "Save"
     });
 
