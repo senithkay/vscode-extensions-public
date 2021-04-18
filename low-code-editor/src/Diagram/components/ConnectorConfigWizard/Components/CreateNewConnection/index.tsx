@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -27,7 +28,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
-import { useIntl } from "react-intl";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -157,7 +157,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
-                        text= {saveConnectionButtonLabel}
+                        text={saveConnectionButtonLabel}
                         disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}

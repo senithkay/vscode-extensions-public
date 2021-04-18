@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { addHours, format } from 'date-fns';
 
@@ -24,7 +25,6 @@ import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelP
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
-import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface OperationDropdownProps {
     formFields: FormField[] | any;

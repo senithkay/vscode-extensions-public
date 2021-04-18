@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -30,7 +31,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { Get } from '../Get';
 import { GetAll } from "../GetAll";
-import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface OperationFormProps {
     selectedOperation: string;

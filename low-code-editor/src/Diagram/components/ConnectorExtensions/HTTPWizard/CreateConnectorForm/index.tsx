@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 import classNames from "classnames";
@@ -30,7 +31,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import '../style.scss';
-import { FormattedMessage, useIntl } from "react-intl";
 
 interface CreateConnectorFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;

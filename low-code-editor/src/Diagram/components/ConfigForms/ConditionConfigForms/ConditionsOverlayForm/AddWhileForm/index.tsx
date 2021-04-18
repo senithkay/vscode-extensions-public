@@ -110,7 +110,7 @@ export function AddWhileForm(props: WhileProps) {
                                 <Box paddingTop={2} paddingBottom={2}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.while.title"
-                                        defaultMessage="While" 
+                                        defaultMessage="While"
                                     />
                                 </Box>
                             </Typography>

@@ -14,6 +14,7 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: no-unused-expression
 import React, { ReactNode, SyntheticEvent, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormHelperText, TextField } from "@material-ui/core";
 import { AddRounded, CloseRounded } from "@material-ui/icons";
@@ -27,7 +28,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import '../style.scss'
 
 import { useStyles as headerStyles } from "./style";
-import { FormattedMessage, useIntl } from "react-intl";
 
 export interface HeaderObjectConfig {
     requestName?: string;

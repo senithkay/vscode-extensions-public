@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -21,7 +22,6 @@ import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface OperationDropdownProps {
     operations: string[];

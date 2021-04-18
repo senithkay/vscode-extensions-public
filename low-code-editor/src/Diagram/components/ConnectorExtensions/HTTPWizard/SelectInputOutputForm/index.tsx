@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
@@ -41,7 +42,6 @@ import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
-import { FormattedMessage, useIntl } from "react-intl";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;

@@ -14,6 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -28,7 +29,6 @@ import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 import { TooltipIcon } from "../../Portals/ConfigForm/Elements/Tooltip";
 
 import { useStyles } from "./../styles";
-import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface ConnectionListProps {
     activeConnection: ConnectionDetails;
@@ -69,10 +69,10 @@ export const ConnectionList = (props: ConnectionListProps) => {
             >
                 <div className={classes.titleWrap}>
                     <Typography variant="subtitle1" className={classes.title}><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.title" defaultMessage="Choose Account"/>
-                        
+
                     </Typography>
                     <Link href="/user-settings/connections"><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.manage" defaultMessage="(Manage)"/>
-                        
+
                     </Link>
                 </div>
             </TooltipIcon>

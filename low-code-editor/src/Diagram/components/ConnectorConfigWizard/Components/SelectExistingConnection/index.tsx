@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl } from "@ballerina/syntax-tree";
 import { FormControl, FormHelperText } from "@material-ui/core";
@@ -23,7 +24,6 @@ import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/D
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { matchEndpointToFormField } from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
-import { FormattedMessage } from "react-intl";
 
 interface SelectConnectionFormProps {
     onSelectExisting?: (value: any) => void;

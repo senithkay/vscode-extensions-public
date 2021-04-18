@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -27,13 +28,12 @@ import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import Tooltip from "../../../../Portals/ConfigForm/Elements/Tooltip";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
-import { FormattedMessage, useIntl } from "react-intl";
-import Tooltip from "../../../../Portals/ConfigForm/Elements/Tooltip";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -266,7 +266,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />                           
+                            <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
                                 <PrimaryButton
                                     dataTestId="save-btn"
                                     text={saveVariableButtonText}

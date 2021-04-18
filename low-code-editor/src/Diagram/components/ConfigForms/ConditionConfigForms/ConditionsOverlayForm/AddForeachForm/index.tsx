@@ -183,7 +183,7 @@ export function AddForeachForm(props: ForeachProps) {
                                         <Box paddingTop={2} paddingBottom={2}>
                                             <FormattedMessage
                                                 id="lowcode.develop.configForms.foreach.title"
-                                                defaultMessage="Foreach" 
+                                                defaultMessage="Foreach"
                                             />
                                     </Box>
                                     </Typography>

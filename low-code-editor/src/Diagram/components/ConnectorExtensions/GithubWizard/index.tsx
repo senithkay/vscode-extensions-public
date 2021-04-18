@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
@@ -54,7 +55,6 @@ import {
 import { CreateConnectorForm } from "./CreateNewConnection";
 import { OperationDropdown } from "./OperationDropdown";
 import { OperationForm } from "./OperationForm";
-import { FormattedMessage, useIntl } from "react-intl";
 
 interface WizardProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;

@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
@@ -52,7 +53,6 @@ import { HeaderObjectConfig } from "./HTTPHeaders";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
-import { FormattedMessage } from "react-intl";
 interface WizardProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl } from '@ballerina/syntax-tree';
 import { Typography } from "@material-ui/core";
@@ -54,7 +55,6 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationDropdown } from "../OperationDropdown";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
-import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;

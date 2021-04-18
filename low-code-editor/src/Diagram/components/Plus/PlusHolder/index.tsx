@@ -12,18 +12,19 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { useIntl } from "react-intl";
 
 import cn from "classnames";
 
 import { PlusViewState } from "../../../view-state";
 import { DefaultConfig } from "../../../visitors/default";
 
-// import { DottedConditionSVG, DOTTED_CONDITION_SVG_WIDTH, DOTTED_CONDITION_SVG_WIDTH_WITH_SHADOW } from "./DottedConditionSVG";
 import { DottedConnectorSVG /*, DOTTED_CONNECTOR_SVG_WIDTH, DOTTED_CONNECTOR_SVG_WIDTH_WITH_SHADOW */ } from "./DottedConnectorSVG";
 import { DottedProcessSVG, DOTTED_PROCESS_SVG_WIDTH, DOTTED_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./DottedProcessSVG";
 import { DOTTED_STOP_SVG_WIDTH, /* DottedStopSVG, DOTTED_STOP_SVG_WIDTH_WITH_SHADOW */ } from "./DottedStopSVG";
 import "./style.scss"
-import { useIntl } from "react-intl";
+
+// import { DottedConditionSVG, DOTTED_CONDITION_SVG_WIDTH, DOTTED_CONDITION_SVG_WIDTH_WITH_SHADOW } from "./DottedConditionSVG";
 
 export const PLUS_HOLDER_HEIGHT = 121;
 export const PLUS_HOLDER_WIDTH = 385;

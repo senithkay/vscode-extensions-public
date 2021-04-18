@@ -114,7 +114,7 @@ export function AddIfForm(props: IfProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
                                             <FormattedMessage
-                                                id ="lowcode.develop.configForms.if.title"
+                                                id="lowcode.develop.configForms.if.title"
                                                 defaultMessage="If"/>
                                         </Box>
                                     </Typography>
