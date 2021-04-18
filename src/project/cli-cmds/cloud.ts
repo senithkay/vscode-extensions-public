@@ -31,10 +31,10 @@ const CLOUD_TOML_DEFAULT_CONTENT = `# This file contains most used configeration
 #
 #[cloud.deployment]
 #external_accessible = true
-#max_cpu = "100Mi"
+#max_cpu = "1000m"
+#min_cpu = "100m"
 #max_memory = "256Mi"
-#min_cpu = "1000m"
-#max_cpu = "1500m"
+#min_memory= "2048Mi"
 #
 #[cloud.deployment.autoscaling]
 #enable = true
