@@ -271,10 +271,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                             <Box className={classes.formTitle}>
                                 <div className={classes.formTitleTag} >
                                     <FormattedMessage
-                                    id="lowcode.develop.connector.SMTP.createEmail.title"
-                                    defaultMessage="Create an Email"
+                                        id="lowcode.develop.connector.SMTP.createEmail.title"
+                                        defaultMessage="Create an Email"
                                     />
-                                    </div>
+                                </div>
                             </Box>
                         </Typography>
                         {selectedOperationParams}
