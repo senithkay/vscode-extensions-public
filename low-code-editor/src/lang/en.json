@@ -1,4 +1,7 @@
 {
+  "lowcode.develop.OAuthConnect.ConnectionList.manage": "(Manage)",
+  "lowcode.develop.OAuthConnect.ConnectionList.title": "Choose Account",
+  "lowcode.develop.Plus.PlusHolder.API.text": "APIS",
   "lowcode.develop.configForms.GCalendar.addResponseVariable.label": "Response Variable Name",
   "lowcode.develop.configForms.GCalendar.addResponseVariable.placeholder": "Enter Response Variable Name",
   "lowcode.develop.configForms.GCalendar.chooseCalendar.placeholder": "Choose Calendar",
@@ -147,6 +150,8 @@
   "lowcode.develop.connectorForms.NetSuite.operationDropdown.searchOperation.placeholder": "Search Operation",
   "lowcode.develop.connectorForms.NetSuite.operationForm.connectionName.title": "Connection",
   "lowcode.develop.connectorForms.NetSuite.operationForm.operation.title": "Operation",
+  "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text": "Connect another account",
+  "lowcode.develop.connectorForms.Plus.PlusHolder.Statements.text": "STATEMENT",
   "lowcode.develop.connectorForms.SMTP.createConnection.backButton.text": "Back",
   "lowcode.develop.connectorForms.SMTP.createConnection.name.label": "Connection Name",
   "lowcode.develop.connectorForms.SMTP.createConnection.name.placeholder": "Enter Connection Name",
