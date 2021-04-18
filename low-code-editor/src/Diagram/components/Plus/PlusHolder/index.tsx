@@ -56,7 +56,7 @@ export const PlusHolderC = (props: PlusHolderProps) => {
 
     const APIText = intl.formatMessage({
         id: "lowcode.develop.Plus.PlusHolder.API.text",
-        defaultMessage: "CAPIS"
+        defaultMessage: "APIS"
     });
 
     const StatementsText = intl.formatMessage({
