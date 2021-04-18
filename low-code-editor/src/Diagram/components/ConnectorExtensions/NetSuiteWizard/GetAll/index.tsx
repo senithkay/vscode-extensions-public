@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
 import { SelectDropdownWithButton } from '../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
@@ -23,6 +24,7 @@ export interface OperationDropdownProps {
 
 export function GetAll(props: OperationDropdownProps) {
     const { formFields, onValidate } = props;
+    const intl = useIntl();
     // HACK: use hardcoded types until ENUM fix from lang-server
     const getAllRecordType = [
         "budgetCategory",
@@ -53,7 +55,18 @@ export function GetAll(props: OperationDropdownProps) {
     const onChange = (value: any) => {
         setDefaultSelection(value);
         onValidate(true);
-    }
+    };
+
+    const selectRecordTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.GetAll.selectRecordType.label",
+        defaultMessage: "Select Record Type"
+    });
+
+    const selectRecordTypePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.GetAll.selectRecordType.placeholder",
+        defaultMessage: "Select"
+    });
+
 
     if (!defaultSelection){
         // set initial selection
@@ -69,8 +82,8 @@ export function GetAll(props: OperationDropdownProps) {
         <>
             <SelectDropdownWithButton
                 customProps={{ disableCreateNew: true, values: getAllRecordType }}
-                label="Select Record Type"
-                placeholder="Select"
+                label={selectRecordTypeLabel}
+                placeholder={selectRecordTypePlaceholder}
                 defaultValue={defaultSelection}
                 onChange={onChange}
             />

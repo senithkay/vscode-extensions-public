@@ -27,6 +27,7 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
+import { useIntl } from "react-intl";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -52,6 +53,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name,
@@ -108,6 +110,26 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.createConnection.name.placeholder",
+        defaultMessage: "Enter Connection Name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -121,9 +143,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
@@ -132,10 +154,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 </div>
                 <div className={classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}

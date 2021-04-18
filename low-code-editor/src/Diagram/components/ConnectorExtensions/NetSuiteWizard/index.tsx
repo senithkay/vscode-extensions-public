@@ -52,6 +52,7 @@ import {
 import { CreateConnectorForm } from "./CreateNewConnection";
 import { OperationDropdown } from "./OperationDropdown";
 import { OperationForm } from "./OperationForm";
+import { FormattedMessage } from "react-intl";
 
 interface WizardProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -290,7 +291,7 @@ export function NetSuiteWizard(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.NetSuite.connectionName.title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>
