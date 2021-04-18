@@ -121,7 +121,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     });
 
     const backButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.backButton.label",
+        id: "lowcode.develop.connectorForms.createConnection.backButton.text",
         defaultMessage: "Back"
     });
 
