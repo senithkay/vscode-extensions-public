@@ -52,6 +52,7 @@ import {
 import { CreateConnectorForm } from "./CreateNewConnection";
 import { OperationDropdown } from "./OperationDropdown";
 import { OperationForm } from "./OperationForm";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface WizardProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -78,6 +79,7 @@ export function GmailWizard(props: WizardProps) {
     const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(DiagramContext);
 
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
@@ -326,6 +328,16 @@ export function GmailWizard(props: WizardProps) {
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
     }
 
+    const manualConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.manualConnection.button.text",
+        defaultMessage: "Manual Connection"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.backButton.text",
+        defaultMessage: "Back"
+    });
+
     return (
         <div className={wizardClasses.fullWidth}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -339,7 +351,7 @@ export function GmailWizard(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.Gmail..title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>
@@ -363,18 +375,18 @@ export function GmailWizard(props: WizardProps) {
                 {(formState === FormStates.OauthConnect) &&
                     (
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
+                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.Gmail.manualConnection" defaultMessage="Or use manual configurations"/></p>
                             <LinePrimaryButton
                                 testId={"gmail-manual-btn"}
                                 className={wizardClasses.fullWidth}
-                                text="Manual Connection"
+                                text={manualConnectionButtonText}
                                 fullWidth={false}
                                 onClick={onManualConnection}
                             />
                             {(config.existingConnections && isNewConnection) && (
                                 <div className={wizardClasses.connectBackBtn}>
                                     <SecondaryButton
-                                        text="Back"
+                                        text={backButtonText}
                                         fullWidth={false}
                                         onClick={onOauthConnectorBack}
                                     />
