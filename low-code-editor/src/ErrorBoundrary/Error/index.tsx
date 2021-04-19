@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 
 import ErrorSvg from "./ErrorSvg";
 import { useStyles } from "./style";
+import { FormattedMessage } from "react-intl";
 
 export default function Default() {
     const classes = useStyles();
@@ -23,12 +24,12 @@ export default function Default() {
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="h1" className={classes.errorTitle} component="div">
-                        Oops! this is embarrassing
+                    <FormattedMessage id="lowcode.develop.errorBoundary.errorMessage.text" defaultMessage="Oops! this is embarrassing"/>
                     </Typography>
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle1" component="div" className={classes.errorMsg}>
-                        Something went terribly wrong. Will you please refresh and try again
+                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong. Will you please refresh and try again"/>
                     </Typography>
                 </Grid>
             </Grid>
