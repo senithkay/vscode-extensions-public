@@ -19,6 +19,7 @@ import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { useStyles as useRadioControlStyles } from "../style";
 import '../style.scss'
+import { FormattedMessage } from "react-intl";
 
 export interface RadioProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -86,7 +87,7 @@ export function RadioControl(props: FormElementProps<RadioProps>) {
                     (
                         <div className={formClasses.labelWrapper}>
                             <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
-                            <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                            <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.formRadioControl.optional.label" defaultMessage="Optional"/></FormHelperText>
                         </div>
                     ) : (
                         <div className={formClasses.labelWrapper}>
