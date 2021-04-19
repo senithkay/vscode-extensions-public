@@ -35,6 +35,7 @@ import {
     addImportModuleToCode,
     addToTargetLine,
     addToTargetPosition,
+    checkIfStringExist,
     createContentWidget,
     diagnosticCheckerExp,
     getInitialValue,
@@ -176,6 +177,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
+    const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
 
     const validExpEditor = () => {
         validate(model.name, false);
@@ -250,6 +252,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         disposeAllTriggers();
 
         if (monacoRef.current) {
+            // Check if string is selected
+            setStringCheck(checkIfStringExist(varType))
+
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
@@ -656,6 +661,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const stringCheckToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("\"" + editorModel.getValue() + "\"");
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
     const handleError = (mainDiagnosticsArray: any) => {
         const errorMsg = mainDiagnosticsArray[0]?.message;
         if (errorMsg.length > 50)
@@ -742,12 +757,23 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         </TooltipCodeSnippet>
                     ) : addCheck ?
                         (
-                            <div className={formClasses.addCheckWrapper} >
-                                <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
-                                <FormHelperText className={formClasses.addCheckText}>This expression could cause an error. {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>Click here</a>} to handle it</FormHelperText>
+                            <div className={formClasses.suggestionsWrapper} >
+                                <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
+                                <FormHelperText className={formClasses.suggestionsText}>
+                                    This expression could cause an error. {<a className={formClasses.suggestionsTextInfo} onClick={addCheckToExpression}>Click here</a>} to handle it
+                                </FormHelperText>
                             </div>
                         ) : null
             }
+            {!invalidSourceCode && stringCheck && (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
+                        {(!model.value || model.value === "") ?  " add double quotes to the empty field" : " add double quotes"}
+                    </FormHelperText>
+                </div>
+            )}
         </>
     );
 }
