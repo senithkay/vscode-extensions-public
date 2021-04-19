@@ -22,6 +22,7 @@ import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
 import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
+import { FormattedMessage } from "react-intl";
 
 export interface SelectDropdownProps {
     values?: string[];
@@ -93,7 +94,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                             <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
-                                <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional" defaultMessage="Optional"/></FormHelperText>
                             </div>
                             {customProps?.tooltipTitle  &&
                                 (
@@ -161,7 +162,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         </MenuItem>
                     ) : (
                         <MenuItem value="" disabled={true}>
-                            <span className="TextSpan">No Items to Select</span>
+                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No Items to Select"/></span>
                         </MenuItem>
                     )
                 }
