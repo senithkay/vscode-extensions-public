@@ -38,7 +38,6 @@ import {
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
     updatePropertyStatement,
     updateRemoteServiceCall,
 } from "../../../../utils/modification-util";
@@ -181,6 +180,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onCreateNew = () => {
+        config.name = undefined;
         setConfigName(genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo)));
         if (isOauthConnector) {
             setIsManualConnection(false);
@@ -205,13 +205,56 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         setFormState(FormStates.OperationDropdown);
     };
 
-    const onCreateConnectorSave = () => {
+    const handleCreateConnectorSaveNext = () => {
         if (isNewConnection) {
             setFormState(FormStates.OperationDropdown);
         } else {
             setFormState(FormStates.OperationForm);
         }
     };
+
+    const handleCreateConnectorOnSave = () => {
+        const modifications: STModification[] = [];
+        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+        if (!isNewConnectorInitWizard) {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                connectorConfig.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        } else if (targetPosition) {
+            // Add an import.
+            const addImport: STModification = createImportStatement(
+                connectorInfo.org,
+                connectorInfo.module,
+                targetPosition
+            );
+            modifications.push(addImport);
+
+            // Add an connector client initialization.
+            if (isNewConnection) {
+                let addConnectorInit: STModification
+                if (isOauthConnector && !isManualConnection) {
+                    addConnectorInit = createObjectDeclaration(
+                        (connectorInfo.module + ":" + connectorInfo.name),
+                        config.name,
+                        getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
+                        targetPosition
+                    );
+                } else {
+                    addConnectorInit = createPropertyStatement(
+                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                }
+                modifications.push(addConnectorInit);
+            }
+        }
+        if (modifications.length > 0) {
+            dispatchMutations(modifications);
+            onClose();
+        }
+    }
 
     const onConnectionNameChange = () => {
         if ((isNewConnection && !isOauthConnector) || (isNewConnection && isOauthConnector && isManualConnection)) {
@@ -477,7 +520,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     {(formState === FormStates.ExistingConnection) && !isNewConnectorInitWizard && (
                         <CreateConnectorForm
                             initFields={connectorInitFormFields}
-                            onSave={onCreateConnectorSave}
+                            onSave={handleCreateConnectorOnSave}
+                            onSaveNext={handleCreateConnectorSaveNext}
                             connectorConfig={config}
                             onConfigNameChange={handleConfigNameChange}
                             onBackClick={onCreateConnectorBack}
@@ -489,7 +533,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     {(formState === FormStates.CreateNewConnection) && (
                         <CreateConnectorForm
                             initFields={connectorInitFormFields}
-                            onSave={onCreateConnectorSave}
+                            onSave={handleCreateConnectorOnSave}
+                            onSaveNext={handleCreateConnectorSaveNext}
                             connectorConfig={config}
                             onConfigNameChange={handleConfigNameChange}
                             onBackClick={onCreateConnectorBack}
