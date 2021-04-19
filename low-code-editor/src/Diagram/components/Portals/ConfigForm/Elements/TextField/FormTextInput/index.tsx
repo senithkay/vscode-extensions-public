@@ -19,6 +19,7 @@ import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
+import { FormattedMessage } from "react-intl";
 
 interface FormTextInputProps {
     validate?: (value: any) => boolean;
@@ -82,7 +83,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.textField.formTextInput.optional.label" defaultMessage="Optional"/></FormHelperText>
                                 </div>
 
                             </div>
