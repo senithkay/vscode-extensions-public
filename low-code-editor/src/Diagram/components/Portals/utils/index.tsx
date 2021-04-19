@@ -812,6 +812,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                         let type = "";
                         if (field.type === "error" || field?.isErrorType) {
                             response.hasError = true;
+                            response.returnType = "";
                         }
                         if (type === "" && field?.typeInfo && !field?.isErrorType) {
                             // set class/record types
