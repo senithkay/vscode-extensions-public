@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { useIntl } from 'react-intl';
 
 import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
@@ -36,7 +37,14 @@ export const overlayPosition: DiagramOverlayPosition = {
 
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
 
+    const intl = useIntl();
     const { onConfirm, onCancel, title, subTitle } = props;
+
+    const triggerUpdateWarningMessage = intl.formatMessage({
+        id: "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text",
+        defaultMessage: "Updating trigger will remove your current source code"
+
+    });
 
     return (
         <div>
@@ -55,7 +63,7 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
                     {subTitle ? (
                         <p className="subtitle"> {subTitle} </p>
                     ) : (
-                        <p className="subtitle">Updating trigger will remove your current source code</p>
+                        <p className="subtitle">{triggerUpdateWarningMessage}</p>
                     )}
 
                     <div className="updateBtnWrapper">

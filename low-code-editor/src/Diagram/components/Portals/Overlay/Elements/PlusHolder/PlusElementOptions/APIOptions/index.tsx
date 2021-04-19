@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import Divider from "@material-ui/core/Divider/Divider";
 
@@ -43,6 +44,7 @@ export function APIOptions(props: APIOptionsProps) {
     const { connectors } = state;
     const { onSelect } = props;
     const [selectedContName, setSelectedContName] = useState("");
+    const intl = useIntl();
 
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
@@ -101,15 +103,25 @@ export function APIOptions(props: APIOptionsProps) {
         });
     }
 
+    const chooseFromListLabel = intl.formatMessage({
+        id: "lowcode.develop.elements.plusHolder.APIoptions.chooseFromList.label",
+        defaultMessage: "Choose from list"
+    });
+
+    const searchPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.elements.plusHolder.APIoptions.search.placeholder",
+        defaultMessage: "Search"
+    });
+
     return (
         <div className="connector-option-holder" >
             <div className="search-options-wrapper">
-                <label>Choose from list</label>
+                <label>{chooseFromListLabel}</label>
             </div>
             <div className="top-connector-wrapper">
                 <input
                     type="search"
-                    placeholder="Search"
+                    placeholder={searchPlaceholder}
                     value={selectedContName}
                     onChange={handleSearchChange}
                     className='search-wrapper'

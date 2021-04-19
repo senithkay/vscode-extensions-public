@@ -32,8 +32,12 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
     const { position, onConfirm, onCancel } = props;
     const { message = "Remove this logic block?" } = props;
     const removeButtonText = intl.formatMessage({
-        id: "lowcode.develop.elements.deleteConfirmationDialog.RemoveButton.text",
+        id: "lowcode.develop.elements.deleteConfirmationDialog.removeButton.text",
         defaultMessage: "Remove"
+    });
+    const cancelButtonText = intl.formatMessage({
+        id: "lowcode.develop.elements.deleteConfirmationDialog.cancelButton.text",
+        defaultMessage: "Cancel"
     })
     return (
         <ClickAwayListener
@@ -49,7 +53,7 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
                     >
                         <p>{message}</p>
 
-                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>Cancel</Button>
+                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
                         <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
 
                     </DiagramOverlay>
