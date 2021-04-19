@@ -94,7 +94,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                             <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
-                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional" defaultMessage="Optional"/></FormHelperText>
+                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label" defaultMessage="Optional"/></FormHelperText>
                             </div>
                             {customProps?.tooltipTitle  &&
                                 (
