@@ -179,5 +179,19 @@
   "lowcode.develop.elements.array.addedElements": "Added Elements",
   "lowcode.develop.elements.dateLabelPicker.optional": "Optional",
   "lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text": "No Items to Select",
-  "lowcode.develop.elements.dropDown.selectDropDownWithButton.optional": "Optional"
+  "lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label": "Optional",
+  "lowcode.develop.elements.expressionEditor.expressionError.errorMessage": "This expression could cause an error.",
+  "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage": "Error occured in the code-editor. Please fix it first to continue.",
+  "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text": "Click here",
+  "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text": "to handle it",
+  "lowcode.develop.elements.expressionEditor.optional.label": "Optional",
+  "lowcode.develop.elements.formFieldRadioControl.optional.label": "Optional",
+  "lowcode.develop.elements.formRadioControl.optional.label": "Optional",
+  "lowcode.develop.elements.record.optional.label": "Optional",
+  "lowcode.develop.elements.textField.formFieldTextInput.optional.label": "Optional",
+  "lowcode.develop.elements.textField.formTextInput.optional.label": "Optional",
+  "lowcode.develop.elements.textField.tooltip.viewInEditor.text": "View in Code Editor",
+  "lowcode.develop.elements.union.optional.label": "Optional",
+  "lowcode.develop.elements.wizard.resetButton.text": "Reset",
+  "lowcode.develop.elements.wizard.stepsCompleted.text": "All steps completed"
 }

@@ -28,6 +28,7 @@ import { PrimaryButton } from '../Button/PrimaryButton';
 import { SecondaryButton } from '../Button/SecondaryButton';
 
 import "./style.scss"
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const QontoConnector = withStyles({
     alternativeLabel: {
@@ -175,6 +176,7 @@ function getStepContent(step: number) {
 
 export default function CustomizedSteppers() {
     const classes = useStyles();
+    const intl = useIntl();
     const [activeStep, setActiveStep] = React.useState(1);
     const steps = getSteps();
 
@@ -189,6 +191,11 @@ export default function CustomizedSteppers() {
     const handleReset = () => {
         setActiveStep(0);
     };
+
+    const resetButtonText = intl.formatMessage({
+        id:"lowcode.develop.elements.wizard.resetButton.text",
+        defaultMessage:"Reset"
+    });
 
     return (
         <div className={classes.root}>
@@ -211,11 +218,11 @@ export default function CustomizedSteppers() {
                     ((
                         <div>
                             <Typography className={classes.instructions}>
-                                All steps completed
+                            <FormattedMessage id="lowcode.develop.elements.wizard.stepsCompleted.text" defaultMessage="All steps completed"/>
                             </Typography>
                             <div className="button-container">
                                 <SecondaryButton onClick={handleReset} className={classes.button}>
-                                    Reset
+                                    {resetButtonText}
                                 </SecondaryButton>
                             </div>
                         </div>
