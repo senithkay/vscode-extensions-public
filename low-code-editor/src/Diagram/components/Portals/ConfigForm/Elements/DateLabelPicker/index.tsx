@@ -23,6 +23,7 @@ import {useStyles as useTextInputStyles} from "../TextField/style";
 import {TooltipIcon} from "../Tooltip";
 
 import { useStyles } from "./styles";
+import { FormattedMessage } from 'react-intl';
 
 export interface DateLabelPickerProps {
     onChange: (date: Date) => void,
@@ -55,7 +56,7 @@ export function DateLabelPicker(props: FormElementProps<DateLabelPickerProps>) {
                                 <div className={textFieldClasses.inputWrapper}>
                                     <div className={textFieldClasses.labelWrapper}>
                                         <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                        <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                        <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dateLabelPicker.optional" defaultMessage="Optional"/></FormHelperText>
                                     </div>
 
                                 </div>
