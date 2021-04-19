@@ -18,6 +18,7 @@ import { FormHelperText } from "@material-ui/core";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
+import { FormattedMessage } from "react-intl";
 
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -64,7 +65,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.record.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>

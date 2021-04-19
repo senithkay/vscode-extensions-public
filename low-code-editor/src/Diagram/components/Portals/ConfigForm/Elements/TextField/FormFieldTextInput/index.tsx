@@ -19,6 +19,7 @@ import { isValidTextInput, validateEmail } from "../../../../utils";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { useStyles as useTextInputStyles } from "../style";
+import { FormattedMessage } from "react-intl";
 
 export interface FormFieldTextInputProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -90,7 +91,7 @@ export function FormFieldTextInput(props: FormElementProps<FormFieldTextInputPro
                     (
                         <div className={formClasses.labelWrapper}>
                             <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                            <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                            <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.textField.formFieldTextInput.optional.label" defaultMessage="Optional"/></FormHelperText>
                         </div>
                     ) : (
                         <div className={formClasses.labelWrapper}>
