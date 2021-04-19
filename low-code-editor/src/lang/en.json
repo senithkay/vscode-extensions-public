@@ -178,6 +178,8 @@
   "lowcode.develop.elements.array.addValue.iconText": "Add Value",
   "lowcode.develop.elements.array.addedElements": "Added Elements",
   "lowcode.develop.elements.dateLabelPicker.optional": "Optional",
+  "lowcode.develop.elements.deleteConfirmationDialog.cancelButton.text": "Cancel",
+  "lowcode.develop.elements.deleteConfirmationDialog.removeButton.text": "Remove",
   "lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text": "No Items to Select",
   "lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label": "Optional",
   "lowcode.develop.elements.expressionEditor.expressionError.errorMessage": "This expression could cause an error.",
@@ -193,5 +195,8 @@
   "lowcode.develop.elements.textField.tooltip.viewInEditor.text": "View in Code Editor",
   "lowcode.develop.elements.union.optional.label": "Optional",
   "lowcode.develop.elements.wizard.resetButton.text": "Reset",
-  "lowcode.develop.elements.wizard.stepsCompleted.text": "All steps completed"
+  "lowcode.develop.elements.wizard.stepsCompleted.text": "All steps completed",
+  "lowcode.develop.errorBoundary.errorMessage.text": "Oops! this is embarrassing",
+  "lowcode.develop.errorBoundary.tryAgainMessage.text": "Something went terribly wrong. Will you please refresh and try again",
+  "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text": "Updating trigger will remove your current source code"
 }
