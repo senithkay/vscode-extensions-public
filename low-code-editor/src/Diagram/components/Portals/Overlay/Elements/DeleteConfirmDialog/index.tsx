@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { useIntl } from 'react-intl';
 
 import { Button, ClickAwayListener } from "@material-ui/core";
 
@@ -27,9 +28,13 @@ export interface DeleteConfirmDialogProps {
 }
 
 export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
-
+    const intl = useIntl();
     const { position, onConfirm, onCancel } = props;
     const { message = "Remove this logic block?" } = props;
+    const removeButtonText = intl.formatMessage({
+        id: "lowcode.develop.elements.deleteConfirmationDialog.RemoveButton.text",
+        defaultMessage: "Remove"
+    })
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
@@ -45,7 +50,7 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
                         <p>{message}</p>
 
                         <Button variant="contained" className="cancelbtn" onClick={onCancel}>Cancel</Button>
-                        <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>Remove</Button>
+                        <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
 
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
