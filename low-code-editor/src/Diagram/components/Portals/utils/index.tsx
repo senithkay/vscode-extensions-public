@@ -644,6 +644,8 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!functionDefInfo) {
         // get form fields from file cache
         functionDefInfo = await getFormFieldFromFileCache(connector);
+        // save form fields in browser cache
+        addToFormFieldCache(connector, functionDefInfo);
     }
 
     if (!functionDefInfo) {

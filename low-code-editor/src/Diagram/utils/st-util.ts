@@ -354,10 +354,10 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module, version } = connector;
+    const { org, module, version, cacheVersion} = connector;
     const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
     try {
-        await fetch(`/connectors/cache/${org}/${module}/${version}/fields.json`)
+        await fetch(`/connectors/cache/${org}/${module}/${version}/${cacheVersion || "0"}/fields.json`)
         .then(response => response.json())
         .then(data => {
             if (data) {
@@ -383,8 +383,8 @@ export interface FormFiledCacheEntry {
 export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
 
 export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
     const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
     const fieldsMap: { [key: string]: FunctionDefinitionInfo } = {};
@@ -396,8 +396,8 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
     const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
     const fieldsKVMap: FormFiledCacheEntry = formFieldCacheMap[cacheId];
