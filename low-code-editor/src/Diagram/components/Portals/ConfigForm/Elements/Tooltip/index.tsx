@@ -18,6 +18,7 @@ import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
+import { FormattedMessage } from 'react-intl';
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
@@ -81,7 +82,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         const OpenInCodeLink = () => (
             <React.Fragment>
                 <Divider className={styles.divider} light={true} />
-                <span className={styles.editorLink} onClick={openInCodeView}>View in Code Editor</span>
+                <span className={styles.editorLink} onClick={openInCodeView}><FormattedMessage id="lowcode.develop.elements.textField.tooltip.viewInEditor.text" defaultMessage="View in Code Editor"/></span>
             </React.Fragment>
         )
 
