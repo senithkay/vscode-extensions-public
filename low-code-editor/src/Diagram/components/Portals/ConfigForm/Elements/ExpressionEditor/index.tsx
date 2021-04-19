@@ -42,6 +42,7 @@ import {
     transformFormFieldTypeToString
 } from "./utils";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
+import { FormattedMessage, useIntl } from "react-intl";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -175,6 +176,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
+    const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
 
     const validExpEditor = () => {
@@ -664,6 +666,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return errorMsg
     }
 
+    const clickHereText = intl.formatMessage({
+        id:"lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
+        defaultMessage:"Click here"
+    })
+
+    const toHandleItText = intl.formatMessage({
+        id:"lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
+        defaultMessage:"to handle it"
+    })
+
     setDefaultTooltips();
 
     return (
@@ -675,7 +687,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>
                                 </div>
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
@@ -733,7 +745,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                             <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
                         </TooltipCodeSnippet>
-                        <FormHelperText className={formClasses.invalidCode}>Error occured in the code-editor. Please fix it first to continue.</FormHelperText>
+                        <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occured in the code-editor. Please fix it first to continue."/></FormHelperText>
                     </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
@@ -744,7 +756,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                             <div className={formClasses.addCheckWrapper} >
                                 <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
-                                <FormHelperText className={formClasses.addCheckText}>This expression could cause an error. {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>Click here</a>} to handle it</FormHelperText>
+                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
                         ) : null
             }
