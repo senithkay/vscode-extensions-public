@@ -32,8 +32,10 @@ import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addToFormFieldCache,
+    getConnectorDefFromCache,
     getFormFieldFromFileCache,
-    getFromFormFieldCache} from "../../../utils/st-util";
+    getFromFormFieldCache,
+    getRecordDefFromCache} from "../../../utils/st-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
@@ -164,15 +166,24 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
                             if (ignoreList.indexOf(recordKey) === -1 && recordRes === undefined) {
-                                const record = await langClient.getRecord({
+                                recordRes = await getRecordDefFromCache({
                                     module: typeInfo.modName,
                                     org: typeInfo.orgName,
                                     version: typeInfo.version,
                                     name: typeInfo.name
                                 });
 
-                                if (record && record.ast) {
-                                    recordRes = record.ast;
+                                if (recordRes === undefined) {
+                                    const record = await langClient.getRecord({
+                                        module: typeInfo.modName,
+                                        org: typeInfo.orgName,
+                                        version: typeInfo.version,
+                                        name: typeInfo.name
+                                    });
+
+                                    if (record && record.ast) {
+                                        recordRes = record.ast;
+                                    }
                                 }
                             }
 
@@ -638,8 +649,11 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     if (!functionDefInfo) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-        const connectorResp = await langClient.getConnector(connector);
-        const connectorDef = connectorResp.ast;
+        let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
+        if (!connectorDef && connector) {
+            const connectorResp = await langClient.getConnector(connector);
+            connectorDef = connectorResp.ast;
+        }
         connectorDef.viewState = {};
 
         cleanFields();
