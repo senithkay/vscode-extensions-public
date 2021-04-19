@@ -176,5 +176,8 @@
   "lowcode.develop.connectorForms.selectExistingConnection.title": "Select/Create Connection",
   "lowcode.develop.connectorForms.title": "Connection",
   "lowcode.develop.elements.array.addValue.iconText": "Add Value",
-  "lowcode.develop.elements.array.addedElements": "Added Elements"
+  "lowcode.develop.elements.array.addedElements": "Added Elements",
+  "lowcode.develop.elements.dateLabelPicker.optional": "Optional",
+  "lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text": "No Items to Select",
+  "lowcode.develop.elements.dropDown.selectDropDownWithButton.optional": "Optional"
 }
