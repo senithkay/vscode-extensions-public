@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
@@ -25,7 +26,6 @@ import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ButtonWithIcon } from "../Button/ButtonWithIcon";
 import { IconBtnWithText } from "../Button/IconBtnWithText";
-import { FormattedMessage, useIntl } from "react-intl";
 
 export interface ArrayProps {
     validate?: (field: string, isInvalid: boolean) => void;

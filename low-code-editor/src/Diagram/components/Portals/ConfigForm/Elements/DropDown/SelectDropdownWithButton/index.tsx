@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { SyntheticEvent } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
@@ -22,7 +23,6 @@ import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
 import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
-import { FormattedMessage } from "react-intl";
 
 export interface SelectDropdownProps {
     values?: string[];

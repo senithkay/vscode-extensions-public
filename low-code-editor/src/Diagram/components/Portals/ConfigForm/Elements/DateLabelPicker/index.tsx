@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react'
+import { FormattedMessage } from 'react-intl';
 
 import {FormHelperText} from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
@@ -23,7 +24,6 @@ import {useStyles as useTextInputStyles} from "../TextField/style";
 import {TooltipIcon} from "../Tooltip";
 
 import { useStyles } from "./styles";
-import { FormattedMessage } from 'react-intl';
 
 export interface DateLabelPickerProps {
     onChange: (date: Date) => void,
