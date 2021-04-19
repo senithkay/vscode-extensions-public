@@ -174,5 +174,7 @@
   "lowcode.develop.connectorForms.operationForm.operation.title": "Operation",
   "lowcode.develop.connectorForms.operationForm.title": "Connection",
   "lowcode.develop.connectorForms.selectExistingConnection.title": "Select/Create Connection",
-  "lowcode.develop.connectorForms.title": "Connection"
+  "lowcode.develop.connectorForms.title": "Connection",
+  "lowcode.develop.elements.array.addValue.iconText": "Add Value",
+  "lowcode.develop.elements.array.addedElements": "Added Elements"
 }
