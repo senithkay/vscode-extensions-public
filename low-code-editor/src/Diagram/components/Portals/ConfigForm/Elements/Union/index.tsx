@@ -20,6 +20,7 @@ import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
+import { FormattedMessage } from "react-intl";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
@@ -155,7 +156,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{textLabel}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.union.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>
