@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
@@ -18,7 +19,6 @@ import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
-import { FormattedMessage } from 'react-intl';
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 

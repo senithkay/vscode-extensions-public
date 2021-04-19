@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import Step from '@material-ui/core/Step';
 import StepConnector from '@material-ui/core/StepConnector';
@@ -28,7 +29,6 @@ import { PrimaryButton } from '../Button/PrimaryButton';
 import { SecondaryButton } from '../Button/SecondaryButton';
 
 import "./style.scss"
-import { FormattedMessage, useIntl } from 'react-intl';
 
 const QontoConnector = withStyles({
     alternativeLabel: {
@@ -193,8 +193,8 @@ export default function CustomizedSteppers() {
     };
 
     const resetButtonText = intl.formatMessage({
-        id:"lowcode.develop.elements.wizard.resetButton.text",
-        defaultMessage:"Reset"
+        id: "lowcode.develop.elements.wizard.resetButton.text",
+        defaultMessage: "Reset"
     });
 
     return (

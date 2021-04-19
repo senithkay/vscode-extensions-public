@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
@@ -19,7 +20,6 @@ import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
-import { FormattedMessage } from "react-intl";
 
 interface FormTextInputProps {
     validate?: (value: any) => boolean;

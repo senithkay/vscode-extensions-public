@@ -667,13 +667,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }
 
     const clickHereText = intl.formatMessage({
-        id:"lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
-        defaultMessage:"Click here"
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
+        defaultMessage: "Click here"
     })
 
     const toHandleItText = intl.formatMessage({
-        id:"lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
-        defaultMessage:"to handle it"
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
+        defaultMessage: "to handle it"
     })
 
     setDefaultTooltips();

@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
@@ -20,7 +21,6 @@ import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
-import { FormattedMessage } from "react-intl";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;

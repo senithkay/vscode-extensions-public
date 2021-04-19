@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, TextField as MuiTextField } from "@material-ui/core";
 
@@ -19,7 +20,6 @@ import { isValidTextInput, validateEmail } from "../../../../utils";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { useStyles as useTextInputStyles } from "../style";
-import { FormattedMessage } from "react-intl";
 
 export interface FormFieldTextInputProps {
     validate?: (field: string, isInvalid: boolean) => void;

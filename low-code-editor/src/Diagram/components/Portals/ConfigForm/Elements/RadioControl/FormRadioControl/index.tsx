@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 
@@ -19,7 +20,6 @@ import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { useStyles as useRadioControlStyles } from "../style";
 import '../style.scss'
-import { FormattedMessage } from "react-intl";
 
 export interface RadioProps {
     validate?: (field: string, isInvalid: boolean) => void;

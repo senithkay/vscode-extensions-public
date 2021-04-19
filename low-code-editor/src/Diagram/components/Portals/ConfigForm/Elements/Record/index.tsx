@@ -12,13 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
-import { FormattedMessage } from "react-intl";
 
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean) => void;
