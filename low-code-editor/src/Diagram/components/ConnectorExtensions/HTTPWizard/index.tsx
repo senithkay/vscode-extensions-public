@@ -10,18 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
 import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
-import Step from "@material-ui/core/Step";
-import StepConnector from "@material-ui/core/StepConnector";
-import StepLabel from "@material-ui/core/StepLabel";
-import Stepper from "@material-ui/core/Stepper";
-import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
-import classNames from "classnames";
-import clsx from "clsx";
 
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
@@ -46,6 +40,7 @@ import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/Sel
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
+import { OperationDropdown } from "../NetSuiteWizard/OperationDropdown";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
@@ -66,34 +61,8 @@ interface WizardProps {
 enum InitFormState {
     Home = -1,
     Create,
+    OperationDropdown,
     SelectInputOutput
-}
-
-const QontoConnector = withStyles({
-    alternativeLabel: {
-        top: 5,
-        left: 'calc(-50% + 16px)',
-        right: 'calc(50% + 16px)',
-    },
-    line: {
-        borderColor: '#fff',
-        borderTopWidth: 0,
-        borderRadius: 0,
-        borderLeftWidth: 20,
-    },
-})(StepConnector);
-
-function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
-    const { active, completed } = props;
-    const classes = useStyles();
-
-    return (
-        <div
-            className={clsx(classNames(classes.stepWrapper, "stepWrapper"), { [classNames(classes.stepActive, "stepActive")]: active })}
-        >
-            {completed ? <div className={classNames(classes.completedStep, "completedStep")} /> : <div className={classNames(classes.currentStep, "currentStep")} />}
-        </div>
-    );
 }
 
 export function HTTPWizard(props: WizardProps) {
@@ -109,11 +78,22 @@ export function HTTPWizard(props: WizardProps) {
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
+    const [isNewConnection, setIsNewConnection] = useState<boolean>(true);
+    const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig.action.name);
 
     const [headerObject] = useState<HeaderObjectConfig[]>([]);
     const httpVar = model as LocalVarDecl;
     const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
         : connectorConfig.action.name);
+
+    if (selectedOperation) {
+        connectorConfig.action.fields = functionDefinitions.get(selectedOperation).parameters;
+    }
+
+    if (selectedOperation !== connectorConfig.action.name) {
+        connectorConfig.action.returnVariableName = undefined;
+    }
+    connectorConfig.action.name = selectedOperation;
 
     React.useEffect(() => {
         if (!isNewConnectorInitWizard) {
@@ -241,14 +221,26 @@ export function HTTPWizard(props: WizardProps) {
     }, [isNewConnectorInitWizard])
 
     const handleCreateNew = () => {
+        connectorConfig.name = undefined;
+        setIsNewConnection(true);
         setState(InitFormState.Create);
     };
 
     const handleSelectExisting = () => {
-        setState(InitFormState.Create);
+        setIsNewConnection(false);
+        if (enableHomePage) {
+            setState(InitFormState.OperationDropdown);
+        } else {
+            setState(InitFormState.Create);
+        }
     };
 
-    const handleInputOutputForm = () => {
+    const handleCreateConnectorOnSaveNext = () => {
+        setState(isNewConnectorInitWizard ? InitFormState.OperationDropdown : InitFormState.SelectInputOutput);
+    };
+
+    const handleOnOperationSelect = (operation: string) => {
+        setSelectedOperation(operation);
         setState(InitFormState.SelectInputOutput);
     };
 
@@ -258,6 +250,46 @@ export function HTTPWizard(props: WizardProps) {
         } else if (state === InitFormState.Create && enableHomePage) {
             setState(InitFormState.Home);
         }
+    };
+
+    const handleConnectionChange = () => {
+        if (isNewConnection) {
+            setState(InitFormState.Create);
+        } else {
+            setState(InitFormState.Home);
+        }
+    };
+
+    const handleOperationChange = () => {
+        setState(InitFormState.OperationDropdown);
+    }
+
+    const handleCreateConnectorOnSave = () => {
+        const modifications: STModification[] = [];
+        if (!isNewConnectorInitWizard) {
+            const updatedConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(
+                    connectorConfig.connectorInit).join()});`, connectorConfig.initPosition);
+            modifications.push(updatedConnectorInit);
+        } else {
+            // Add an import.
+            const addImport: STModification = createImportStatement(
+                connector.org,
+                connector.module,
+                targetPosition
+            );
+            modifications.push(addImport);
+
+            // Add an connector client initialization.
+            if (!connectorConfig.isExistingConnection) {
+                const addConnectorInit = createPropertyStatement(
+                    `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                    targetPosition
+                );
+                modifications.push(addConnectorInit);
+            }
+        }
+        onSave(modifications);
     };
 
     const handleOnSave = () => {
@@ -450,7 +482,7 @@ export function HTTPWizard(props: WizardProps) {
                     symbolInfo.variables.forEach((value, key) => {
                         if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
                             value.forEach(val => {
-                                const varName = (((val as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value
+                                const varName = (((val as LocalVarDecl).typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.variableName.value
                                 if (varName === connectorConfig.responsePayloadMap.payloadVariableName) {
                                     responseModel = val;
                                 }
@@ -575,20 +607,6 @@ export function HTTPWizard(props: WizardProps) {
         onSave(modifications);
     };
 
-    const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const stepper = (
-        <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
-            <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >CONNECTION</StepLabel>
-            </Step>
-            <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.SelectInputOutput}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >INPUT/OUTPUT</StepLabel>
-            </Step>
-        </Stepper>
-    );
-
     return (
         <div className={classes.root}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -602,12 +620,48 @@ export function HTTPWizard(props: WizardProps) {
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} Connection</Typography>
                 </div>
             </div>
-            {state !== InitFormState.Home && stepper}
-            <div className={classes.stepper}>
-                {state === InitFormState.Home && homeForm}
-                {state === InitFormState.Create && createConnectorForm}
-                {state === InitFormState.SelectInputOutput && inputOutptForm}
-            </div>
+            <>
+                {state === InitFormState.Home && (
+                    <SelectConnectionForm
+                        onCreateNew={handleCreateNew}
+                        connectorConfig={connectorConfig}
+                        connector={connector}
+                        onSelectExisting={handleSelectExisting}
+                    />
+                )}
+                {state === InitFormState.Create && (
+                    <CreateConnectorForm
+                        homePageEnabled={enableHomePage}
+                        functionDefinitions={functionDefinitions}
+                        onSaveNext={handleCreateConnectorOnSaveNext}
+                        onSave={handleCreateConnectorOnSave}
+                        connectorConfig={connectorConfig}
+                        onBackClick={handleBack}
+                        connector={connector}
+                        isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    />
+                )}
+                {state === InitFormState.OperationDropdown && (
+                    <OperationDropdown
+                        operations={["get", "post", "put", "delete", "patch", "forward"]}
+                        onOperationSelect={handleOnOperationSelect}
+                        connectionDetails={connectorConfig}
+                        onConnectionChange={handleConnectionChange}
+                        showConnectionName={true}
+                    />
+                )}
+                {state === InitFormState.SelectInputOutput && (
+                    <SelectInputOutputForm
+                        functionDefinitions={functionDefinitions}
+                        onSave={handleOnSave}
+                        headerObject={headerObject}
+                        onConnectionChange={handleConnectionChange}
+                        onOperationChange={handleOperationChange}
+                        connectorConfig={connectorConfig}
+                        isNewConnectorInitWizard={isNewConnectorInitWizard}
+                    />
+                )}
+            </>
         </div>
     );
 }

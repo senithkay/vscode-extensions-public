@@ -17,9 +17,8 @@ import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-t
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
-import { v4 as uuidv4 } from "uuid";
 
-import { ConnectionDetails, OauthProviderConfig } from "../../../../api/models";
+import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -27,11 +26,9 @@ import { getAllVariables } from "../../../utils/mixins"
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
     updatePropertyStatement,
     updateRemoteServiceCall
 } from "../../../utils/modification-util";
@@ -41,11 +38,12 @@ import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ConnectionType, OauthConnectButton } from "../../OauthConnectButton";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import {PrimaryButton} from "../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import {useStyles} from "../../Portals/ConfigForm/forms/style";
 import {
     checkErrorsReturnType,
     genVariableName,
-    // getConnectorConfig,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
@@ -79,6 +77,8 @@ enum FormStates {
 
 export function GoogleSheet(props: WizardProps) {
     const wizardClasses = wizardStyles();
+    const classes = useStyles();
+
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
@@ -132,10 +132,10 @@ export function GoogleSheet(props: WizardProps) {
 
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
         setConnectionDetails(connection);
-        setFormState(FormStates.OperationDropdown);
     };
 
     const handleConnectionUpdate = () => {
+        setConnectionDetails(null);
         setIsManualConnection(false);
         setFormState(FormStates.OauthConnect);
     };
@@ -179,8 +179,116 @@ export function GoogleSheet(props: WizardProps) {
         setFormState(FormStates.OperationDropdown);
     };
 
-    const onCreateConnectorSave = () => {
+    const handleManualConnectorSaveNext = () => {
         setFormState(isNewConnectorInitWizard ? FormStates.OperationDropdown : FormStates.OperationForm);
+    };
+
+    const handleOauthConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const modifications: STModification[] = [];
+        if (isNewConnectorInitWizard) {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConfigurableVars: STModification;
+                    let addConnectorInit: STModification;
+                    if (!isManualConnection) {
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                            addConfigurableVars = createPropertyStatement(
+                                `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
+                                configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
+                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
+
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                            targetPosition
+                        );
+                    }
+                    modifications.push(addConnectorInit);
+                }
+            }
+        } else {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                    oauthClientConfig: {
+                        clientId: ${getFormFieldValue("clientId")},
+                        clientSecret: ${getFormFieldValue("clientSecret")},
+                        refreshToken: ${getFormFieldValue("refreshUrl")},
+                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                    }
+                 });`,
+                config.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        }
+        onSave(modifications);
+    };
+
+    const handleManualConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const modifications: STModification[] = [];
+        if (isNewConnectorInitWizard) {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConnectorInit: STModification;
+                    if (isManualConnection) {
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                                oauthClientConfig: {
+                                    clientId: ${getFormFieldValue("clientId")},
+                                    clientSecret: ${getFormFieldValue("clientSecret")},
+                                    refreshToken: ${getFormFieldValue("refreshToken")},
+                                    refreshUrl: ${getFormFieldValue("refreshUrl")}
+                                }
+                             });`,
+                            targetPosition
+                        );
+                    }
+                    modifications.push(addConnectorInit);
+                }
+            }
+        } else {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                    oauthClientConfig: {
+                        clientId: ${getFormFieldValue("clientId")},
+                        clientSecret: ${getFormFieldValue("clientSecret")},
+                        refreshToken: ${getFormFieldValue("refreshToken")},
+                        refreshUrl: ${getFormFieldValue("refreshUrl")}
+                    }
+                 });`,
+                config.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        }
+        onSave(modifications);
+    };
+
+    const handleOauthConnectorSaveNext = () => {
+        setFormState(FormStates.OperationDropdown);
     };
 
     const onConnectionNameChange = () => {
@@ -285,8 +393,8 @@ export function GoogleSheet(props: WizardProps) {
                     oauthClientConfig: {
                         clientId: ${getFormFieldValue("clientId")},
                         clientSecret: ${getFormFieldValue("clientSecret")},
-                        refreshToken: ${getFormFieldValue("refreshUrl")},
-                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                        refreshToken: ${getFormFieldValue("refreshToken")},
+                        refreshUrl: ${getFormFieldValue("refreshUrl")}
                     }
                  });`,
                 config.initPosition
@@ -361,17 +469,36 @@ export function GoogleSheet(props: WizardProps) {
                     </div>
                 )}
                 {(formState === FormStates.OauthConnect) &&
-                    (
-                        <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                            <LinePrimaryButton
-                                testId={"sheet-manual-btn"}
-                                className={wizardClasses.fullWidth}
-                                text="Manual Connection"
-                                fullWidth={false}
-                                onClick={onManualConnection}
-                            />
-                            {(config.existingConnections && isNewConnection) && (
+                (
+                    <div className={classNames(wizardClasses.manualBtnWrapper)}>
+                        {(connectionDetails === null) && (
+                            <>
+                                <p className={wizardClasses.subTitle}>Or use manual configurations</p>
+                                <LinePrimaryButton
+                                    testId={"sheet-manual-btn"}
+                                    className={wizardClasses.fullWidth}
+                                    text="Manual Connection"
+                                    fullWidth={false}
+                                    onClick={onManualConnection}
+                                />
+                            </>
+                        )}
+                        <>
+                            {(connectionDetails && isNewConnection) && (
+                                <div className={classes.wizardBtnHolder}>
+                                    <SecondaryButton
+                                        text="Save"
+                                        fullWidth={false}
+                                        onClick={handleOauthConnectorOnSave}
+                                    />
+                                    <PrimaryButton
+                                        text="Save &amp; Next"
+                                        fullWidth={false}
+                                        onClick={handleOauthConnectorSaveNext}
+                                    />
+                                </div>
+                            )}
+                            {(config.existingConnections && isNewConnection && !connectionDetails) && (
                                 <div className={wizardClasses.connectBackBtn}>
                                     <SecondaryButton
                                         text="Back"
@@ -380,8 +507,9 @@ export function GoogleSheet(props: WizardProps) {
                                     />
                                 </div>
                             )}
-                        </div>
-                    )
+                        </>
+                    </div>
+                )
                 }
             </div>
             {(formState === FormStates.OperationDropdown) && (
@@ -418,7 +546,8 @@ export function GoogleSheet(props: WizardProps) {
             {(formState === FormStates.ExistingConnection && !isNewConnectorInitWizard) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleManualConnectorOnSave}
+                    onSaveNext={handleManualConnectorSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}
@@ -429,7 +558,8 @@ export function GoogleSheet(props: WizardProps) {
             {(formState === FormStates.CreateNewConnection) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleManualConnectorOnSave}
+                    onSaveNext={handleManualConnectorSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}

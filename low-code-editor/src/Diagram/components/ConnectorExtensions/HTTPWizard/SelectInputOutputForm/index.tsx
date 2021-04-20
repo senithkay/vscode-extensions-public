@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
 
-import { FormControl, FormHelperText } from "@material-ui/core";
+import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
 import {
@@ -28,12 +29,11 @@ import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { RadioControl } from "../../../Portals/ConfigForm/Elements/RadioControl/FormRadioControl";
+import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import Tooltip, { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
+import Tooltip  from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
@@ -45,7 +45,8 @@ import '../style.scss'
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
-    onBackClick?: () => void;
+    onConnectionChange?: () => void;
+    onOperationChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
     headerObject?: HeaderObjectConfig[];
@@ -58,21 +59,18 @@ interface ReturnNameState {
 }
 
 interface PayloadState {
-    mapPayload: string;
+    isPayloadSelected: boolean;
     selectedPayload: string;
     validPayloadName: boolean;
     isNameProvided: boolean;
     variableName: string;
 }
 
-const SELECT_PAYLOAD = "Select Payload";
-const NO_PAYLOAD = "No Payload";
-
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
+    const { onConnectionChange, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard,
+            headerObject, onOperationChange } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
-    // const { model } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -82,9 +80,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [responseVarError, setResponseVarError] = useState("");
     const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
-    const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.name !== "get" && connectorConfig.action.fields.length > 0;
+    const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const mapPayload = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "" ? NO_PAYLOAD : SELECT_PAYLOAD;
+    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
 
     const initialReturnNameState: ReturnNameState = {
@@ -93,7 +91,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         isValidName: true
     };
     const initialPayloadState: PayloadState = {
-        mapPayload,
+        isPayloadSelected: payloadSelected,
         selectedPayload: payloadType,
         isNameProvided: !!connectorConfig?.responsePayloadMap?.payloadVariableName,
         validPayloadName: true,
@@ -176,7 +174,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             connectorConfig.responsePayloadMap.isPayloadSelected = true;
             connectorConfig.responsePayloadMap.selectedPayloadType = value;
             connectorConfig.responsePayloadMap.payloadVariableName =
-                isNewConnectorInitWizard ?
+                isNewConnectorInitWizard || !connectorConfig.responsePayloadMap.payloadVariableName ?
                     genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
                     :
                     connectorConfig.responsePayloadMap.payloadVariableName;
@@ -193,28 +191,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
-    };
-
-    const onPayloadMapSelect = (value: string) => {
-        if (value === SELECT_PAYLOAD) {
-            setPayloadState({
-                ...payloadState,
-                mapPayload: SELECT_PAYLOAD
-            });
-        } else {
-            if (connectorConfig.responsePayloadMap) {
-                connectorConfig.responsePayloadMap.isPayloadSelected = false;
-                connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
-            }
-            setPayloadState({
-                mapPayload: NO_PAYLOAD,
-                selectedPayload: "",
-                isNameProvided: false,
-                validPayloadName: true,
-                variableName: ""
-            });
-        }
     };
 
     const handleOnSave = () => {
@@ -264,10 +240,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     }
 
-    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "get" &&
-        action.name !== "forward" && (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
-
-
+    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "forward" &&
+        (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
 
     const onPayloadNameChange = (value: string) => {
         if (connectorConfig.responsePayloadMap) {
@@ -303,7 +277,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             />
         );
 
-        const payloadConfig = payloadState.mapPayload === SELECT_PAYLOAD && (
+        const payloadConfig = payloadState.isPayloadSelected && (
             <>
                 <div className={classes.labelWrapper}>
                     <FormHelperText className={classes.inputLabelForRequired}>Select Payload Type</FormHelperText>
@@ -330,17 +304,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         );
         payloadComponent = (
             <>
-                {
-                    !isNewConnectorInitWizard && responseVariableHasReferences ?
-                        null :
-                        (
-                            <RadioControl
-                                onChange={onPayloadMapSelect}
-                                defaultValue={payloadState.mapPayload}
-                                customProps={{ collection: [SELECT_PAYLOAD, NO_PAYLOAD] }}
-                            />
-                        )
-                }
                 {payloadConfig}
                 {payloadVariable}
             </>
@@ -348,22 +311,80 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     const isPayloadMapped = connectorConfig.responsePayloadMap
-        ? ((payloadState.mapPayload === SELECT_PAYLOAD && payloadState.selectedPayload !== "" && payloadState.isNameProvided && payloadState.validPayloadName)
-            || payloadState.mapPayload === NO_PAYLOAD)
+        ? ((payloadState.isPayloadSelected && payloadState.selectedPayload !== "" && payloadState.isNameProvided && payloadState.validPayloadName)
+            || !payloadState.isPayloadSelected)
         : true;
     const isSaveDisabled: boolean = isMutationProgress
         || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
             && isPayloadMapped);
+
+    const handleSwitchToggleChange = () => {
+        if (!payloadState.isPayloadSelected) {
+            setPayloadState({
+                ...payloadState,
+                isPayloadSelected: true
+            });
+        } else {
+            if (connectorConfig.responsePayloadMap) {
+                connectorConfig.responsePayloadMap.isPayloadSelected = false;
+                connectorConfig.responsePayloadMap.selectedPayloadType = "";
+                connectorConfig.responsePayloadMap.payloadVariableName = "";
+            }
+            setPayloadState({
+                isPayloadSelected: false,
+                selectedPayload: "",
+                isNameProvided: false,
+                validPayloadName: true,
+                variableName: ""
+            });
+        }
+    };
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                        <>
+                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: wizardClasses.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon/>
+                                </IconButton>
+                            </Box>
+                        </>
+                        <>
+                            <p className={wizardClasses.subTitle}>Operation</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.action.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={ {
+                                        root: wizardClasses.changeConnectionBtn
+                                    } }
+                                    onClick={onOperationChange}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </Box>
+                        </>
                         <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
                         <div className={classNames(classes.groupedForm, classes.marginTB)}>
                             {selectedOperationParams}
                             {forwardReq}
+                        </div>
+                        <div className={classes.marginTB}>
                             <FormTextInput
                                 dataTestId={"response-variable-name"}
                                 customProps={{
@@ -377,25 +398,32 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 errorMessage={responseVarError}
                             />
                         </div>
-                        <TooltipIcon
-                            title={tooltipMessages.HTTPPayload.title}
-                            content={tooltipMessages.HTTPPayload.content}
-                            placement="left"
-                            arrow={true}
-                            codeSnippet={true}
-                            example={true}
-                            interactive={true}
-                        >
-                            <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
-                        </TooltipIcon>
-                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                            {payloadComponent}
-                        </div>
+
+                        {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                            <Tooltip
+                                title={tooltipMessages.HTTPPayload.title}
+                                content={tooltipMessages.HTTPPayload.content}
+                                interactive={true}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <SwitchToggle
+                                    text="Do you want to extract a payload?"
+                                    onChange={handleSwitchToggleChange}
+                                    initSwitch={payloadSelected}
+                                />
+                            </Tooltip>
+                        ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
+
+                        {payloadState.isPayloadSelected && (
+                            <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                {payloadComponent}
+                            </div>
+                        )}
                         <HTTPHeaders headerObject={headerObject} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
                     <PrimaryButton
                         dataTestId={"http-save-done"}
                         className="product-tour-save-done"

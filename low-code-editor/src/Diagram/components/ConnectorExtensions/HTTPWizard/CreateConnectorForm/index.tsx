@@ -13,18 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { FormControl, FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
-import { Connector } from "../../../../../Definitions/lang-client-extended";
+import { Connector } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { useStyles as useStyleForRadio } from "../../../Portals/ConfigForm/Elements/RadioControl/style";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import Tooltip from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
@@ -36,6 +36,7 @@ interface CreateConnectorFormProps {
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
+    onSaveNext?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
@@ -48,33 +49,21 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled, onSave } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
-    const [connectorInitFormFields, setConnectorInitFormFields] = useState(connectorConfigFormFields);
+    const [connectorInitFormFields] = useState(connectorConfigFormFields);
     const classes = useStyles();
-    const radioClasses = useStyleForRadio();
     const wizardClasses = wizardStyles();
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };
-    // Action for the connector
-    let action: ActionConfig = new ActionConfig();
-    if (connectorConfig.action) {
-        action = connectorConfig.action;
-    }
-
-    const initActionNameSelect: string = action.name && action.name !== "get" && action.name !== "post" && action.name !== "put" ? action.name : "";
-    const initActionNameRadio: string = action.name ? action.name : "";
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
-    const [actionNameSelect] = useState(initActionNameSelect);
-    const [actionNameRadio, setActionNameRadio] = useState(initActionNameRadio);
     const [connectorNameError, setConnectorNameError] = useState('');
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
@@ -122,31 +111,21 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         });
     };
 
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        // if connector name available skip setting new value
+        connectorConfig.name = nameState.value;
+        onSaveNext();
+        // TODO: tour step should update without redux store
+        // dispatchGoToNextTourStep("DIAGRAM_CONFIG_HTTP_NEXT");
+    };
+
     const handleOnSave = () => {
         // update config connector name, when user click next button
         // if connector name available skip setting new value
         connectorConfig.name = nameState.value;
         onSave();
-        // TODO: tour step should update without redux store
-        // dispatchGoToNextTourStep("DIAGRAM_CONFIG_HTTP_NEXT");
     };
-
-    const handleOnOperationRadioChange = (event: any) => {
-        const actionName = event.target.value;
-        setActionNameRadio(actionName);
-        // TODO: tour step should update without redux store
-        // if (actionName === "get") {
-        //     dispatchGoToNextTourStep("DIAGRAM_CONFIG_HTTP_METHOD");
-        // }
-    };
-
-    if (actionNameRadio) {
-        connectorConfig.action.name = actionNameRadio;
-        connectorConfig.action.fields = functionDefinitions.get(actionNameRadio).parameters;
-    }
-    if (initActionNameRadio !== actionNameRadio) {
-        connectorConfig.action.returnVariableName = undefined;
-    }
 
     return (
         <div>
@@ -168,60 +147,42 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
                         </div>
-                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-operation")}>
-                            <div className={classes.labelWrapper}>
-                                <FormHelperText className={classes.inputLabelForRequired}>Select an Operation</FormHelperText>
-                                <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-                            </div>
-                            <RadioGroup aria-label={"operations"} name={"operations"} value={actionNameRadio} onChange={handleOnOperationRadioChange} >
-                                <FormControlLabel
-                                    value={"get"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"GET"}
-                                />
-                                <FormControlLabel
-                                    data-testid={"post"}
-                                    value={"post"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"POST"}
-                                />
-                                <FormControlLabel
-                                    value={"put"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"PUT"}
-                                />
-                                <FormControlLabel
-                                    value={"delete"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"DELETE"}
-                                />
-                                <FormControlLabel
-                                    value={"patch"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"PATCH"}
-                                />
-                                <FormControlLabel
-                                    value={"forward"}
-                                    control={<Radio classes={{ root: radioClasses.radiobtn, checked: radioClasses.checked }} />}
-                                    label={"FORWARD"}
-                                />
-                            </RadioGroup>
-                        </div>
                     </div>
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        dataTestId={"http-save-next"}
-                        text="Save &amp; Next"
-                        className="product-tour-next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName && ((actionNameSelect && actionNameSelect !== "") || (actionNameRadio && actionNameRadio !== "")))}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <Tooltip
+                            title={tooltipMessages.connectorButtons.savaButton}
+                            placement="top"
+                            arrow={true}
+                        >
+                            <SecondaryButton
+                                text="Save"
+                                fullWidth={false}
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                onClick={handleOnSave}
+                            />
+                        </Tooltip>
+                        <Tooltip
+                            title={tooltipMessages.connectorButtons.savaNextButton}
+                            interactive={true}
+                            placement="top"
+                            arrow={true}
+                        >
+                            <PrimaryButton
+                                dataTestId={"http-save-next"}
+                                text="Save &amp; Next"
+                                className="product-tour-next"
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                fullWidth={false}
+                                onClick={handleOnSaveNext}
+                            />
+                        </Tooltip>
+                    </div>
                 </div>
                 {/* <ProductTourStep
                     startCondition={true}
