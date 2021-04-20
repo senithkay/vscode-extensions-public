@@ -119,7 +119,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                             param.value = "[]";
                         } else if (param.name === "cc" || param.name === "bcc") {
-                            param.value = "[]";
+                            // param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
