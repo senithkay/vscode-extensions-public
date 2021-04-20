@@ -97,11 +97,11 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     };
     function handleTriggerComplete() {
         onComplete(selectedTrigger);
-    };
+    }
     function handleSubMenuClose() {
         setSelectedTrigger(undefined);
         setActiveConnector(undefined);
-    };
+    }
 
     const integrationMenu = (
         <div>
