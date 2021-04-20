@@ -29,12 +29,10 @@ import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { RadioControl } from "../../../Portals/ConfigForm/Elements/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
+import Tooltip  from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
@@ -42,6 +40,7 @@ import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
+import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -60,15 +59,12 @@ interface ReturnNameState {
 }
 
 interface PayloadState {
-    mapPayload: string;
+    isPayloadSelected: boolean;
     selectedPayload: string;
     validPayloadName: boolean;
     isNameProvided: boolean;
     variableName: string;
 }
-
-const SELECT_PAYLOAD = "Select Payload";
-const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard,
@@ -86,7 +82,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const mapPayload = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "" ? NO_PAYLOAD : SELECT_PAYLOAD;
+    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
 
     const initialReturnNameState: ReturnNameState = {
@@ -95,7 +91,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         isValidName: true
     };
     const initialPayloadState: PayloadState = {
-        mapPayload,
+        isPayloadSelected: payloadSelected,
         selectedPayload: payloadType,
         isNameProvided: !!connectorConfig?.responsePayloadMap?.payloadVariableName,
         validPayloadName: true,
@@ -197,28 +193,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
     };
 
-    const onPayloadMapSelect = (value: string) => {
-        if (value === SELECT_PAYLOAD) {
-            setPayloadState({
-                ...payloadState,
-                mapPayload: SELECT_PAYLOAD
-            });
-        } else {
-            if (connectorConfig.responsePayloadMap) {
-                connectorConfig.responsePayloadMap.isPayloadSelected = false;
-                connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
-            }
-            setPayloadState({
-                mapPayload: NO_PAYLOAD,
-                selectedPayload: "",
-                isNameProvided: false,
-                validPayloadName: true,
-                variableName: ""
-            });
-        }
-    };
-
     const handleOnSave = () => {
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_SAVE_AND_DONE");
@@ -303,7 +277,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             />
         );
 
-        const payloadConfig = payloadState.mapPayload === SELECT_PAYLOAD && (
+        const payloadConfig = payloadState.isPayloadSelected && (
             <>
                 <div className={classes.labelWrapper}>
                     <FormHelperText className={classes.inputLabelForRequired}>Select Payload Type</FormHelperText>
@@ -330,17 +304,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         );
         payloadComponent = (
             <>
-                {
-                    !isNewConnectorInitWizard && responseVariableHasReferences ?
-                        null :
-                        (
-                            <RadioControl
-                                onChange={onPayloadMapSelect}
-                                defaultValue={payloadState.mapPayload}
-                                customProps={{ collection: [SELECT_PAYLOAD, NO_PAYLOAD] }}
-                            />
-                        )
-                }
                 {payloadConfig}
                 {payloadVariable}
             </>
@@ -348,12 +311,34 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     const isPayloadMapped = connectorConfig.responsePayloadMap
-        ? ((payloadState.mapPayload === SELECT_PAYLOAD && payloadState.selectedPayload !== "" && payloadState.isNameProvided && payloadState.validPayloadName)
-            || payloadState.mapPayload === NO_PAYLOAD)
+        ? ((payloadState.isPayloadSelected && payloadState.selectedPayload !== "" && payloadState.isNameProvided && payloadState.validPayloadName)
+            || !payloadState.isPayloadSelected)
         : true;
     const isSaveDisabled: boolean = isMutationProgress
         || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
             && isPayloadMapped);
+
+    const handleSwitchToggleChange = () => {
+        if (!payloadState.isPayloadSelected) {
+            setPayloadState({
+                ...payloadState,
+                isPayloadSelected: true
+            });
+        } else {
+            if (connectorConfig.responsePayloadMap) {
+                connectorConfig.responsePayloadMap.isPayloadSelected = false;
+                connectorConfig.responsePayloadMap.selectedPayloadType = "";
+                connectorConfig.responsePayloadMap.payloadVariableName = "";
+            }
+            setPayloadState({
+                isPayloadSelected: false,
+                selectedPayload: "",
+                isNameProvided: false,
+                validPayloadName: true,
+                variableName: ""
+            });
+        }
+    };
 
     return (
         <div>
@@ -413,25 +398,32 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 errorMessage={responseVarError}
                             />
                         </div>
-                        <TooltipIcon
-                            title={tooltipMessages.HTTPPayload.title}
-                            content={tooltipMessages.HTTPPayload.content}
-                            placement="left"
-                            arrow={true}
-                            codeSnippet={true}
-                            example={true}
-                            interactive={true}
-                        >
-                            <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
-                        </TooltipIcon>
-                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                            {payloadComponent}
-                        </div>
+
+                        {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                            <Tooltip
+                                title={tooltipMessages.HTTPPayload.title}
+                                content={tooltipMessages.HTTPPayload.content}
+                                interactive={true}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <SwitchToggle
+                                    text="Do you want to extract a payload?"
+                                    onChange={handleSwitchToggleChange}
+                                    initSwitch={payloadSelected}
+                                />
+                            </Tooltip>
+                        ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
+
+                        {payloadState.isPayloadSelected && (
+                            <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                {payloadComponent}
+                            </div>
+                        )}
                         <HTTPHeaders headerObject={headerObject} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onConnectionChange} />
                     <PrimaryButton
                         dataTestId={"http-save-done"}
                         className="product-tour-save-done"
