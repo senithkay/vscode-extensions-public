@@ -16,12 +16,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
-import classNames from "classnames";
 
-import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
-import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
+import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -36,16 +34,11 @@ import {
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
-import { ConnectionType, OauthConnectButton } from "../../OauthConnectButton";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
-import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {
     checkErrorsReturnType,
     genVariableName,
     getConnectorIcon,
-    getKeyFromConnection,
-    getOauthConnectionParams,
     getParams
 } from "../../Portals/utils";
 
@@ -131,24 +124,11 @@ export function NetSuiteWizard(props: WizardProps) {
         setFormState(FormStates.OperationDropdown);
     };
 
-    const onManualConnection = () => {
-        setConfigName(genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
-        setIsManualConnection(true);
-        setFormState(FormStates.CreateNewConnection);
-    };
-
     const onCreateNew = () => {
         setConfigName(genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
         setIsManualConnection(false);
         setFormState(FormStates.CreateNewConnection);
         setIsNewConnection(true);
-    };
-
-    const onOauthConnectorBack = () => {
-        if (config.existingConnections) {
-            setIsNewConnection(false);
-            setFormState(FormStates.ExistingConnection);
-        }
     };
 
     const onSelectExisting = (value: any) => {
@@ -157,8 +137,41 @@ export function NetSuiteWizard(props: WizardProps) {
         setFormState(FormStates.OperationDropdown);
     };
 
-    const onCreateConnectorSave = () => {
+    const handleCreateConnectorOnSaveNext = () => {
         setFormState(isNewConnectorInitWizard ? FormStates.OperationDropdown : FormStates.OperationForm);
+    };
+
+    const handleCreateConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const modifications: STModification[] = [];
+        if (!isNewConnectorInitWizard) {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                connectorConfig.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        } else {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConnectorInit: STModification;
+                    addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+            }
+        }
+        onSave(modifications);
     };
 
     const onConnectionNameChange = () => {
@@ -174,7 +187,7 @@ export function NetSuiteWizard(props: WizardProps) {
     const onCreateConnectorBack = () => {
         setIsManualConnection(false);
         setIsNewConnection(true);
-        setFormState(FormStates.CreateNewConnection);
+        setFormState(FormStates.ExistingConnection);
     };
 
     const showConnectionName = isManualConnection || !isNewConnection;
@@ -329,7 +342,8 @@ export function NetSuiteWizard(props: WizardProps) {
             {(formState === FormStates.ExistingConnection && !isNewConnectorInitWizard) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleCreateConnectorOnSave}
+                    onSaveNext={handleCreateConnectorOnSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}
@@ -341,7 +355,8 @@ export function NetSuiteWizard(props: WizardProps) {
             {(formState === FormStates.CreateNewConnection) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleCreateConnectorOnSave}
+                    onSaveNext={handleCreateConnectorOnSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}

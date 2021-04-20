@@ -23,6 +23,7 @@ import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import Tooltip from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
@@ -34,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
@@ -48,7 +50,7 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -108,6 +110,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = configForm;
+        onSaveNext();
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -130,16 +139,39 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text="Save &amp; Next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <Tooltip
+                            title={tooltipMessages.connectorButtons.savaButton}
+                            placement="top"
+                            arrow={true}
+                        >
+                            <SecondaryButton
+                                text="Save"
+                                fullWidth={false}
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                onClick={handleOnSave}
+                            />
+                        </Tooltip>
+                        <Tooltip
+                            title={tooltipMessages.connectorButtons.savaNextButton}
+                            interactive={true}
+                            placement="top"
+                            arrow={true}
+                        >
+                            <PrimaryButton
+                                dataTestId={"net-suit-save-next"}
+                                text="Save &amp; Next"
+                                className="product-tour-next"
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                fullWidth={false}
+                                onClick={handleOnSaveNext}
+                            />
+                        </Tooltip>
+                    </div>
                 </div>
             </FormControl>
         </div>
