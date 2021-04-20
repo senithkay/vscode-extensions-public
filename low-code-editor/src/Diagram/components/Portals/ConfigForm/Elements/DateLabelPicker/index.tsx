@@ -18,10 +18,10 @@ import {FormHelperText} from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
 import { format, parse } from 'date-fns';
 
+import { TooltipIcon } from "../../../../../../components/Tooltip";
 import {useStyles as useFormStyles} from "../../forms/style";
 import { FormElementProps } from '../../types';
 import {useStyles as useTextInputStyles} from "../TextField/style";
-import {TooltipIcon} from "../Tooltip";
 
 import { useStyles } from "./styles";
 

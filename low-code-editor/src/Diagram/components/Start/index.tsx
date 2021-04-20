@@ -13,15 +13,30 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
-import { FunctionBodyBlock, FunctionDefinition, ModulePart, STKindChecker } from "@ballerina/syntax-tree";
+import {
+    CaptureBindingPattern,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    ModulePart, ModuleVarDecl,
+    ServiceDeclaration, SimpleNameReference,
+    STKindChecker,
+} from "@ballerina/syntax-tree";
 
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-import { TriggerType, TRIGGER_TYPES } from "../../models";
+import {
+    TriggerType,
+    TRIGGER_TYPES,
+    TRIGGER_TYPE_API,
+    TRIGGER_TYPE_MANUAL,
+    TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK
+} from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
 import { DefaultConfig } from "../../visitors/default";
 import { PlusButton } from "../Plus";
-import { DiagramOverlayPosition } from "../Portals/Overlay";
-import { TriggerDropDown } from "../Portals/Overlay/Elements/DropDown";
+import { DiagramOverlayContainer, DiagramOverlayPosition } from "../Portals/Overlay";
+import { ConnectorType, TriggerDropDown } from "../Portals/Overlay/Elements";
+import { ScheduleConfigureWizard } from "../Portals/Overlay/Elements/DropDown/ScheduleConfigureWizard";
+import { WebhookConfigureWizard } from "../Portals/Overlay/Elements/DropDown/WebhookConfigureWizard";
 
 import {
     StartSVG,
@@ -37,7 +52,7 @@ export interface StartButtonProps {
 export function StartButton(props: StartButtonProps) {
     const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
     const isMutationProgress = state.isMutationProgress || false;
-    const { syntaxTree, appInfo } = state;
+    const { syntaxTree, appInfo, originalSyntaxTree } = state;
 
     const { currentApp } = appInfo || {};
     let displayType = currentApp ? currentApp.displayType : "";
@@ -81,21 +96,80 @@ export function StartButton(props: StartButtonProps) {
         diagramRedraw(syntaxTree);
     };
 
+    const handleSubMenuClose = () => {
+        setShowDropDownC(false);
+        setdropDownC(undefined);
+    };
+
+    const handleOnScheduleComplete = () => {
+        handleOnComplete(activeTriggerType);
+    }
+
+    const getWebhookType = () : ConnectorType => {
+        const webHookSyntaxTree = originalSyntaxTree as ModulePart;
+        const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
+            STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
+        let webHookType = "";
+        services.forEach(service => {
+            if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
+                resourcePath.value === "calendar")) {
+                webHookType = ConnectorType.G_CALENDAR;
+            } else if ((service as ServiceDeclaration)?.expressions?.find(expression =>
+                (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
+                webHookType = ConnectorType.GITHUB;
+            } else if ((webHookSyntaxTree).members?.find(member => (((member as ModuleVarDecl)?.
+                typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
+                typeSymbol?.moduleID?.moduleName === "sfdc")) {
+                webHookType = ConnectorType.SALESFORCE;
+            }
+        });
+        return webHookType as ConnectorType;
+    }
+
+    const handleWebhookEditOnComplete = () => {
+        setdropDownC(undefined);
+        handleOnComplete(TRIGGER_TYPE_WEBHOOK);
+    }
+
     const handleEditClick = () => {
         const position: DiagramOverlayPosition = {
             x: cx + DefaultConfig.triggerPortalOffset.x,
             y: cy + DefaultConfig.triggerPortalOffset.y
         };
-        setdropDownC(
-            <TriggerDropDown
-                position={position}
-                onClose={handleOnClose}
-                isEmptySource={emptySource}
-                triggerType={activeTriggerType}
-                onComplete={handleOnComplete}
-                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
-            />
-        );
+        if (activeTriggerType === TRIGGER_TYPE_API) {
+            setdropDownC(
+                <TriggerDropDown
+                    position={position}
+                    onClose={handleOnClose}
+                    isEmptySource={emptySource}
+                    triggerType={activeTriggerType}
+                    onComplete={handleOnComplete}
+                    configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
+                />
+            );
+        } else if (activeTriggerType === TRIGGER_TYPE_SCHEDULE) {
+            setdropDownC(
+                <DiagramOverlayContainer forceRender={true}>
+                    <ScheduleConfigureWizard
+                        position={{ x: position.x, y: position.y + 10 }}
+                        onWizardComplete={handleOnScheduleComplete}
+                        onClose={handleSubMenuClose}
+                        cron={(getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)).cron}
+                    />
+                </DiagramOverlayContainer>
+            );
+        } else if (activeTriggerType === TRIGGER_TYPE_WEBHOOK) {
+            setdropDownC(
+                <DiagramOverlayContainer forceRender={true}>
+                    <WebhookConfigureWizard
+                        position={{ x: position.x, y: position.y }}
+                        connector={getWebhookType()}
+                        onWizardComplete={handleWebhookEditOnComplete}
+                        onClose={handleOnClose}
+                    />
+                </DiagramOverlayContainer>
+            );
+        }
         if (plusView) {
             plusView.isTriggerDropdown = true;
         }
@@ -109,7 +183,7 @@ export function StartButton(props: StartButtonProps) {
         if (plusView) {
             plusView.isTriggerDropdown = false;
         }
-    };
+    }
 
     React.useEffect(() => {
         const position: DiagramOverlayPosition = {
@@ -138,9 +212,9 @@ export function StartButton(props: StartButtonProps) {
         : activeTriggerType.toUpperCase();
 
     return (
-        <g className="start-wrapper">
+        <g className={triggerType === TRIGGER_TYPE_MANUAL ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
-                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2)}
+                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
                 showIcon={true}

@@ -40,6 +40,7 @@ export interface Connector {
     org: string;
     module: string;
     version: string;
+    cacheVersion?: string; // to keep track of frontend cache file changes
     name: string;
     displayName: string;
     beta: boolean;
