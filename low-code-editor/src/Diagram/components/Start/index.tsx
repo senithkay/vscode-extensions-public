@@ -214,7 +214,7 @@ export function StartButton(props: StartButtonProps) {
     return (
         <g className={triggerType === TRIGGER_TYPE_MANUAL ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
-                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2)}
+                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
                 showIcon={true}
