@@ -13,21 +13,25 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import {
+    ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
+    ServiceDeclaration, STKindChecker, STNode
+} from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { GithubRepo } from "../../../../../../../../Definitions";
+import { GithubRepo, STModification } from "../../../../../../../../Definitions";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { getKeyFromConnection } from "../../../../../utils";
 import { tooltipMessages } from "../../../../../utils/constants";
-import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface GitHubConfigureFormProps {
@@ -51,12 +55,12 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
-        getGithubRepoList
+        getGithubRepoList,
+        stSymbolInfo,
+        originalSyntaxTree,
+        onMutate: dispatchMutations
     } = state;
-    const model: FunctionDefinition = syntaxTree as FunctionDefinition;
-    const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
-    const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-    const { position, onComplete, currentEvent, currentAction, currentConnection } = props;
+    const { onComplete, currentEvent, currentAction, currentConnection } = props;
     const classes = useStyles();
 
     const [activeEvent, setActiveEvent] = useState<string>(currentEvent);
@@ -277,11 +281,11 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     function handleEventOnChange(event: object, value: any, reason: string) {
         setActiveEvent(value);
         setActiveAction(undefined);
-    };
+    }
     // handle action drop down callbacks
     function handleActionOnChange(event: object, value: any, reason: string) {
         setActiveAction(value);
-    };
+    }
     function handleOnDeselectConnection() {
         setActiveConnection(undefined);
     }
@@ -299,15 +303,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     };
 
     const handleUserConfirm = () => {
-        if (isEmptySource) {
-            handleConfigureOnSave();
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            createGithubTrigger();
         } else {
-            // get user confirmation if code there
-            setShowConfirmDialog(true);
+            updateGithubTrigger();
         }
     };
-    // handle trigger configure complete
-    const handleConfigureOnSave = () => {
+    // handle github trigger creation
+    const createGithubTrigger = () => {
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
         const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
 
@@ -325,6 +328,63 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         });
         trackTriggerSelection("Github");
     };
+
+    const updateGithubTrigger = () => {
+        // get nodes to be updated
+        const serviceDeclNode = (originalSyntaxTree as ModulePart).members.find(
+            member => STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration;
+        const webSubNode: STNode = serviceDeclNode?.metadata?.annotations.find(annotation =>
+            (annotation.annotReference as QualifiedNameReference).identifier.value === "SubscriberServiceConfig");
+        let resourceFunctionNameNode: STNode;
+        let recordNameNode: STNode;
+
+        serviceDeclNode.members.forEach(member => {
+            if (STKindChecker.isFunctionDefinition(member)) {
+                resourceFunctionNameNode = member.functionName;
+                (member.functionSignature.parameters as RequiredParam[]).forEach(param => {
+                    if ((param.typeName as QualifiedNameReference).modulePrefix.value === "webhook") {
+                        recordNameNode = (param.typeName as QualifiedNameReference).identifier;
+                    }
+                })
+                return;
+            }
+        });
+
+        const accessTokenNode = stSymbolInfo.configurables.get(getKeyFromConnection(activeConnection, 'accessTokenKey'));
+
+        const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
+
+        // update nodes
+        const webSubUpdateTemplate = `@websub:SubscriberServiceConfig {\n
+                                          target: [webhook:HUB, "${activeGithubRepo.url}/events/*.json"],\n
+                                          secret: ${clientSecretKey},\n
+                                          callback: CHOREO_APP_INVOCATION_URL,\n
+                                          httpConfig: {\n
+                                              auth: {\n
+                                                  token: ${accessTokenKey}\n
+                                              }\n
+                                          }\n
+                                      }\n`
+
+        const modifications: STModification[] = [];
+        if (resourceFunctionNameNode && recordNameNode) {
+            if (!accessTokenNode) {
+                const initialConfigurable = (originalSyntaxTree as ModulePart).members.find(member =>
+                    (member as ModuleVarDecl)?.qualifiers.find(qualifier =>
+                        STKindChecker.isConfigurableKeyword(qualifier)));
+
+                modifications.push(createPropertyStatement(`\nconfigurable string ${getKeyFromConnection(activeConnection, 'accessTokenKey')} = ?;
+                configurable string ${getKeyFromConnection(activeConnection, 'clientSecretKey')} = ?;`,
+                    {column: 0, line: initialConfigurable?.position?.startLine - 1 || 1}));
+            }
+            modifications.push(updatePropertyStatement(webSubUpdateTemplate, webSubNode.position));
+            modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][0], resourceFunctionNameNode.position));
+            modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][1], recordNameNode.position));
+            dispatchMutations(modifications);
+        }
+        setTriggerChanged(true);
+    }
 
     return (
         <>
@@ -404,12 +464,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         disabled={isFileSaving}
                     />
                 </div>
-            )}
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    onConfirm={handleConfigureOnSave}
-                    onCancel={handleDialogOnCancel}
-                />
             )}
         </>
     );
