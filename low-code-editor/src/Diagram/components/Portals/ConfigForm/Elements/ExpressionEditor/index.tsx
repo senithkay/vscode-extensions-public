@@ -752,9 +752,20 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
-                        <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                            <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                        </TooltipCodeSnippet>
+                        <>
+                            {stringCheck && (
+                                <div className={formClasses.suggestionsWrapper} >
+                                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
+                                    <FormHelperText className={formClasses.suggestionsText}>
+                                        {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
+                                        {(!model.value || model.value === "") ?  " add double quotes to the empty field" : " add double quotes"}
+                                    </FormHelperText>
+                                </div>
+                            )}
+                            <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                            </TooltipCodeSnippet>
+                        </>
                     ) : addCheck ?
                         (
                             <div className={formClasses.suggestionsWrapper} >
@@ -765,15 +776,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             </div>
                         ) : null
             }
-            {!invalidSourceCode && stringCheck && (
-                <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
-                    <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                        {(!model.value || model.value === "") ?  " add double quotes to the empty field" : " add double quotes"}
-                    </FormHelperText>
-                </div>
-            )}
         </>
     );
 }

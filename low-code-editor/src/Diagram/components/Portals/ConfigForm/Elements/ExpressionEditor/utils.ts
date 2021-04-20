@@ -148,6 +148,10 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
 }
 
 export function checkIfStringExist(varType: string) : boolean {
+    if (varType.endsWith(")[]")) {
+        // Check for union array
+        return false;
+    }
     const types: string[] = varType.split("|");
     return types.includes("string")
 }
