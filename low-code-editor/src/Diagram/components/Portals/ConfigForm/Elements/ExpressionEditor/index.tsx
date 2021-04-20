@@ -758,7 +758,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
                                     <FormHelperText className={formClasses.suggestionsText}>
                                         {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                        {(!model.value || model.value === "") ?  " add double quotes to the empty field" : " add double quotes"}
+                                        {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ?  " add double quotes to the empty field" : " add double quotes"}
                                     </FormHelperText>
                                 </div>
                             )}
