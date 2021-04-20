@@ -19,6 +19,7 @@ import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
+import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
@@ -352,6 +353,25 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
     return recordDef;
 }
 
+export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+    const { org, module, version, cacheVersion} = connector;
+    const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+    try {
+        await fetch(`/connectors/cache/${org}/${module}/${version}/${cacheVersion || "0"}/fields.json`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                for (const [key, fieldsInfo] of Object.entries(data)) {
+                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                }
+            }
+        });
+    } catch (error) {
+        // IGNORE
+    }
+    return functionDef.size > 0 ? functionDef : undefined;
+}
+
 export interface FormFieldCache {
     [key: string]: FormFiledCacheEntry
 }
@@ -363,8 +383,8 @@ export interface FormFiledCacheEntry {
 export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
 
 export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
     const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
     const fieldsMap: { [key: string]: FunctionDefinitionInfo } = {};
@@ -376,8 +396,8 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
     const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
     const fieldsKVMap: FormFiledCacheEntry = formFieldCacheMap[cacheId];
