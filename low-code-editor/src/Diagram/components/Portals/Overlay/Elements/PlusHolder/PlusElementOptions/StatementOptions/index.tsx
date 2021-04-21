@@ -26,6 +26,7 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
+import { FormattedMessage, useIntl } from "react-intl";
 
 export const PROCESS_TYPES = [""];
 
@@ -47,6 +48,7 @@ export interface Statements {
 
 export function StatementOptions(props: StatementOptionsProps) {
     const { state } = useContext(DiagramContext);
+    const intl = useIntl();
     const { syntaxTree } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
     const { onSelect, viewState } = props;
@@ -68,7 +70,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
-                        <div className="text-label">Log</div>
+                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log"/></div>
                     </div>
                 </Tooltip>
             )
@@ -90,7 +92,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <PropertyIcon />
                     </div>
-                    <div className="text-label">Variable</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.variable.title" defaultMessage="Variable"/></div>
                 </div>
             </Tooltip>
         )
@@ -112,7 +114,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <IfIcon />
                     </div>
-                    <div className="text-label">If</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.if.title" defaultMessage="If"/></div>
                 </div>
             </Tooltip>
         )
@@ -134,7 +136,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <ForEachIcon />
                     </div>
-                    <div className="text-label">ForEach</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.foreach.title" defaultMessage="ForEach"/></div>
                 </ div>
             </Tooltip>
         )
@@ -156,7 +158,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <While />
                     </div>
-                    <div className="text-label">While</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.while.title" defaultMessage="While"/></div>
                 </ div>
             </Tooltip>
         )
@@ -184,7 +186,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <ReturnIcon />
                     </div>
-                    <div className="text-label">Return</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.return.title" defaultMessage="Return"/></div>
                 </div>
             </Tooltip>
         )
@@ -211,7 +213,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <RespondIcon />
                     </div>
-                    <div className="text-label">Respond</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.respond.title" defaultMessage="Respond"/></div>
                 </div>
             </Tooltip>
         )
@@ -237,7 +239,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <CustomStatementIcon />
                     </div>
-                    <div className="text-label">Custom Statement</div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Custom Statement"/></div>
                 </div>
             </Tooltip>
         )
@@ -290,14 +292,19 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     }
 
+    const searchPlaceholder = intl.formatMessage({
+        id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
+        defaultMessage:"Search"
+    })
+
     return (
         <>
             <div className="search-options-wrapper">
-                <label>Choose from list</label>
+                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Choose from list"/></label>
 
                 <input
                     type="search"
-                    placeholder="Search"
+                    placeholder={searchPlaceholder}
                     value={selectedCompName}
                     onChange={handleSearchChange}
                     className='search-wrapper'

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
@@ -114,7 +115,7 @@ export function PlusElements(props: PlusElementsProps) {
                 >
                     <div className="options" onClick={handleStatementClick}>
                         <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                            Statements
+                        <FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.title" defaultMessage="Statements"/>
             </div>
                     </div>
                 </Tooltip>
@@ -129,7 +130,7 @@ export function PlusElements(props: PlusElementsProps) {
                         arrow={true}
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                            Connections
+                        <FormattedMessage id="lowcode.develop.plusHolder.plusElements.connections.title" defaultMessage="Connections"/>
             </div>
                     </Tooltip>
                 </div>
