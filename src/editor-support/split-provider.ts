@@ -18,6 +18,7 @@
  */
 import { BallerinaExtension } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
+import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
 
 const newLine: string = process.platform === "win32" ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
@@ -50,6 +51,7 @@ export class StringSplitter {
             if (!this.langClient) {
                 return;
             }
+            const extension: BallerinaExtension = this;
             this.langClient.getSyntaxTreeNode({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()
@@ -69,6 +71,7 @@ export class StringSplitter {
                     return;
                 }
                 if (response.kind === STRING_LITERAL) {
+                    sendTelemetryEvent(extension, TM_EVENT_STRING_SPLIT, CMP_STRING_SPLIT);
                     editor.edit(editBuilder => {
                         const startPosition = new Position(range.start.line, range.start.character);
                         const nextLinePosition = new Position(range.start.line + 1, documentChange!.text.length - 1);
