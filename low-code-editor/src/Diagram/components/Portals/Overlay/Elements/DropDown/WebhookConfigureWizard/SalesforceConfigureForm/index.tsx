@@ -154,8 +154,8 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     });
 
     const salesforceConfigTooltips = {
-        salesforceTrigger:{
-        username:intl.formatMessage({
+        salesforceTrigger: {
+        username: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.username.tooltip.title",
             defaultMessage: "Key in your Salesforce username"
         }),
@@ -165,7 +165,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         }),
         topic : intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
-            defaultMessage: "Name of the Push Topic added to your Salesforce account to receive notifications" 
+            defaultMessage: "Name of the Push Topic added to your Salesforce account to receive notifications"
         })
     }
 }

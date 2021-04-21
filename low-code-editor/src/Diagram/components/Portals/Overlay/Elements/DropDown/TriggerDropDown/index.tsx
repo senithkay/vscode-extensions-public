@@ -159,15 +159,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     const gitHubTriggerTooltipMessages = {
         gitHubTrigger: {
         title: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
+            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.title",
             defaultMessage: "To trigger an application based on GitHub events."
         }),
         actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
+            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionText",
             defaultMessage: "Learn about GitHub trigger"
         }),
         actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
+            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionTitle",
             defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#5-GitHub"
         })
     }
@@ -176,15 +176,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     const calendarTriggerTooltipMessages = {
         calendarTrigger: {
         title: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
+            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.title",
             defaultMessage: "To trigger an application based on Google Calendar events."
         }),
         actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
+            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionText",
             defaultMessage: "Learn about calendar trigger"
         }),
         actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
+            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionTitle",
             defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
         })
     }
