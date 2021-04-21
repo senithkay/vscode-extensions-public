@@ -37,3 +37,6 @@ export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";
 export const TM_EVENT_LANG_SERVER = "ballerina.langserver.event";
 export const TM_ERROR_LANG_SERVER = "ballerina.langserver.error";
 export const TM_FEATURE_USAGE_LANG_SERVER = "ballerina.langserver.feature.usage";
+
+// events related to editor support features
+export const TM_EVENT_STRING_SPLIT = "ballerina.string.split";
