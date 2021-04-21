@@ -52,19 +52,61 @@ export function StatementOptions(props: StatementOptionsProps) {
     const { syntaxTree } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
     const { onSelect, viewState } = props;
+
+    const plusHolderStatementTooltipMessages = {
+        logStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
+                defaultMessage: "Log can be used to log an event with an information message or an error that occurs in a service or an integration.These logs can be viewed from Run & Test console or Observability page if that particular event has occured."
+            })},
+        variableStatement: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
+            defaultMessage: "Variable can be used to hold a value belonging to a type (String, Integer, etc) which can be later used in the logical processes."
+        })},
+        ifStatement: {
+        title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
+                defaultMessage: "IF can be used to specify two blocks of logical components where execution of each block will be decided based on the provided condition being true or false."
+        })},
+        foreachStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.foreach.tooltip.title",
+                defaultMessage: "Foreach is a control flow statement which can be used to iterate over a list of items.",
+            })},
+        whileStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.while.tooltip.title",
+                defaultMessage: "While can be used to execute a block of components in a loop untill the provided condition is true. If the provided condition is false then it will not execute."
+            })},
+        returnStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.return.tooltip.title",
+                defaultMessage: "Return is used to stop executing the current path or to return a value back to the caller."
+            })},
+        respondStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.respond.tooltip.title",
+                defaultMessage: "Respond is used to send a response back to the client from the service."
+            })},
+        customStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.customStatement.tooltip.title",
+                defaultMessage: "Custom Statement can be used to write a single or multiline code snippet which is not supported by the lowcode diagram."
+            }),
+    }
+    }
+        
     const logStm: StatementComponent = {
         name: "log",
         category: 'process',
         component:
             (
                 <Tooltip
-                    title={tooltipMessages.logStatement.title}
+                    title={plusHolderStatementTooltipMessages.logStatement.title}
                     placement="left"
                     arrow={true}
-                    codeSnippet={true}
-                    example={true}
                     interactive={true}
-                    content={tooltipMessages.logStatement.content}
                 >
                     <div className="sub-option enabled" data-testid="addLog" onClick={onSelect.bind(undefined, "Log")}>
                         <div className="icon-wrapper">
@@ -80,13 +122,10 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'process',
         component: (
             <Tooltip
-                title={tooltipMessages.variableStatement.title}
+                title={plusHolderStatementTooltipMessages.variableStatement.title}
                 placement="right"
                 arrow={true}
-                example={true}
-                codeSnippet={true}
                 interactive={true}
-                content={tooltipMessages.variableStatement.content}
             >
                 <div className="sub-option enabled" data-testid="addVariable" onClick={onSelect.bind(undefined, "Variable")}>
                     <div className="icon-wrapper">
@@ -102,13 +141,10 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'condition',
         component: (
             <Tooltip
-                title={tooltipMessages.ifStatement.title}
+                title={plusHolderStatementTooltipMessages.ifStatement.title}
                 placement="left"
                 arrow={true}
-                example={true}
                 interactive={true}
-                codeSnippet={true}
-                content={tooltipMessages.ifStatement.content}
             >
                 <div className="sub-option enabled" data-testid="addIf" onClick={onSelect.bind(undefined, "If")}>
                     <div className="icon-wrapper">
@@ -124,13 +160,10 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'condition',
         component: (
             <Tooltip
-                title={tooltipMessages.foreachStatement.title}
+                title={plusHolderStatementTooltipMessages.foreachStatement.title}
                 placement="right"
                 arrow={true}
-                example={true}
-                codeSnippet={true}
                 interactive={true}
-                content={tooltipMessages.foreachStatement.content}
             >
                 <div className="sub-option enabled" data-testid="addForeach" onClick={onSelect.bind(undefined, "ForEach")} >
                     <div className="icon-wrapper">
@@ -146,13 +179,10 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'condition',
         component: (
             <Tooltip
-                title={tooltipMessages.whileStatement.title}
-                placement="right"
+                title={plusHolderStatementTooltipMessages.whileStatement.title}
+                placement="left"
                 arrow={true}
-                example={true}
-                codeSnippet={true}
                 interactive={true}
-                content={tooltipMessages.whileStatement.content}
             >
                 <div className="sub-option enabled" data-testid="addWhile" onClick={onSelect.bind(undefined, "While")} >
                     <div className="icon-wrapper">
@@ -169,14 +199,11 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'stop',
         component: (
             <Tooltip
-                title={tooltipMessages.returnStatement.title}
+                title={plusHolderStatementTooltipMessages.returnStatement.title}
                 placement="left"
                 arrow={true}
                 disabled={!(!isResource && viewState.isLast)}
-                example={true}
                 interactive={true}
-                codeSnippet={true}
-                content={tooltipMessages.returnStatement.content}
             >
                 <div
                     data-testid="addReturn"
@@ -196,14 +223,11 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'stop',
         component: (
             <Tooltip
-                title={tooltipMessages.respondStatement.title}
+                title={plusHolderStatementTooltipMessages.respondStatement.title}
                 placement="right"
                 arrow={true}
                 disabled={!isResource}
-                example={true}
                 interactive={true}
-                codeSnippet={true}
-                content={tooltipMessages.respondStatement.content}
             >
                 <div
                     className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource })}
@@ -223,13 +247,10 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'process',
         component: (
             <Tooltip
-                title={tooltipMessages.customStatement.title}
+                title={plusHolderStatementTooltipMessages.customStatement.title}
                 placement="left"
                 arrow={true}
-                example={true}
                 interactive={true}
-                codeSnippet={true}
-                content={tooltipMessages.customStatement.content}
             >
                 <div
                     className={cn("sub-option enabled", {height: 'unset'})}

@@ -408,6 +408,19 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         defaultMessage: "Save"
     });
 
+    const gitHubTriggerTooltipMessages = {
+        gitHubEvent: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.gitHubTriggerTooltipMessages.gitHubEvent.tooltip.title",
+            defaultMessage: "Select a GitHub event to setup the trigger"
+        })},
+        gitHubAction: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.gitHubTriggerTooltipMessages.gitHubAction.tooltip.title",
+                defaultMessage: "Select a GitHub action to setup the trigger"
+            }),
+    }
+    }
     return (
         <>
             <div className={classes.customWrapper}>
@@ -444,7 +457,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeGithubRepo && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
-                        title={tooltipMessages.gitHubEvent}
+                        title={gitHubTriggerTooltipMessages.gitHubEvent.title}
                         placement="left"
                         arrow={true}
                     >
@@ -462,7 +475,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeGithubRepo && activeEvent && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
-                        title={tooltipMessages.gitHubAction}
+                        title={gitHubTriggerTooltipMessages.gitHubAction.title}
                         placement="left"
                         arrow={true}
                     >
