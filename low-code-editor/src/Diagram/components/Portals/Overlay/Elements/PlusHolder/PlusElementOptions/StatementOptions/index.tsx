@@ -96,7 +96,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             }),
     }
     }
-        
+
     const logStm: StatementComponent = {
         name: "log",
         category: 'process',
