@@ -69,48 +69,48 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test getBallerinaProject - Ballerina project", (done) => {
-        const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-        const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
-                const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-                const documentIdentifier = {
-                    documentIdentifier: {
-                        uri: uri.toString()
-                    }
-                };
-                langClient.getBallerinaProject(documentIdentifier).then((response) => {
-                    assert.equal(response.packageName, 'helloproject', "Invalid package name.");
-                    process.platform !== 'win32' ? assert.equal(response.path, projectPath, 'Invalid project path') :
-                        assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
-                    assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
-                    done();
-                }, (reason) => {
-                    done(reason);
-                });
-            });
-        });
-    });
+    // test("Test getBallerinaProject - Ballerina project", (done) => {
+    //     const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+    //     const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
+    //     commands.executeCommand('vscode.open', uri).then(() => {
+    //         langClient.onReady().then(() => {
+    //             const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+    //             const documentIdentifier = {
+    //                 documentIdentifier: {
+    //                     uri: uri.toString()
+    //                 }
+    //             };
+    //             langClient.getBallerinaProject(documentIdentifier).then((response) => {
+    //                 assert.equal(response.packageName, 'helloproject', "Invalid package name.");
+    //                 process.platform !== 'win32' ? assert.equal(response.path, projectPath, 'Invalid project path') :
+    //                     assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
+    //                 assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
+    //                 done();
+    //             }, (reason) => {
+    //                 done(reason);
+    //             });
+    //         });
+    //     });
+    // });
 
-    test("Test getBallerinaProject - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
-                const documentIdentifier = {
-                    documentIdentifier: {
-                        uri: uri.toString()
-                    }
-                };
-                langClient.getBallerinaProject(documentIdentifier).then((response) => {
-                    assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
-                    done();
-                }, (reason) => {
-                    done(reason);
-                });
-            });
-        });
-    });
+    // test("Test getBallerinaProject - Single file", (done) => {
+    //     const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+    //     commands.executeCommand('vscode.open', uri).then(() => {
+    //         langClient.onReady().then(() => {
+    //             const documentIdentifier = {
+    //                 documentIdentifier: {
+    //                     uri: uri.toString()
+    //                 }
+    //             };
+    //             langClient.getBallerinaProject(documentIdentifier).then((response) => {
+    //                 assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
+    //                 done();
+    //             }, (reason) => {
+    //                 done(reason);
+    //             });
+    //         });
+    //     });
+    // });
 
     test("Test fetchExamples", (done) => {
         langClient.onReady().then(() => {
@@ -548,9 +548,11 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 1, 'Invalid number of code actions.');
+                    assert.equal(response.length, 2, 'Invalid number of code actions.');
                     assert.equal(response[0].title, "Add type cast to assignment", 'Invalid type cast action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
+                    assert.equal(response[1].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
+                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 1st.");
                     done();
                 });
             });
@@ -674,9 +676,10 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 1, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, 'Update documentation', 'Invalid update documentation action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
+                    assert.equal(response.length, 3, 'Invalid number of code actions.');
+                    assert.equal(response[0].title, 'Document this', 'Invalid document this action.');
+                    assert.equal(response[1].title, 'Document all', 'Invalid document all action.');
+                    assert.equal(response[2].title, 'Update documentation', 'Invalid update documentation action.');
                     done();
                 });
             });
