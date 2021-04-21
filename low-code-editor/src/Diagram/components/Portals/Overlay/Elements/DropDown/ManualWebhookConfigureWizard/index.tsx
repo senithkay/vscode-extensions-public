@@ -93,32 +93,32 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
     });
   };
 
-  const webhookConfigTitle = intl.formatMessage({
-    id: "lowcode.develop.webhookConfigWizard.resourceConfig.Title",
+  const manualwebhookConfigTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.resourceConfig.Title",
     defaultMessage: "Webhook Configuration"
   });
 
-  const webhookHttpMethodTitle = intl.formatMessage({
-    id: "lowcode.develop.webhookConfigWizard.httpMethod.Title",
+  const manualwebhookHttpMethodTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.httpMethod.Title",
     defaultMessage: "HTTP Method"
   });
 
-  const webhookPathTitle = intl.formatMessage({
-    id: "lowcode.develop.webhookConfigWizard.path.Title",
+  const manualwebhookPathTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.Title",
     defaultMessage: "PATH"
   });
-  const webhookPathErrorMessage = intl.formatMessage({
-    id: "lowcode.develop.webhookConfigWizard.path.errorMessage",
+  const wmanualwebhookPathErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.errorMessage",
     defaultMessage: "Cannot start with a number & only [a-zA-Z0-9{}_/ [].] chars allowed"
   });
 
-  const webhookPathPlaceholder = intl.formatMessage({
-    id: "lowcode.develop.webhookConfigWizard.path.placeholder",
+  const manualwebhookPathPlaceholder = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.placeholder",
     defaultMessage: "Relative path from host"
   });
 
   const saveWebhookButton = intl.formatMessage({
-    id: "lowcode.develop.webHookConfigWizard.saveWehHookButton.text",
+    id: "lowcode.develop.manualwebhookConfigWizard.saveWehHookButton.text",
     defaultMessage: "Save Webhook"
   });
   return (
@@ -127,13 +127,13 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
       position={position}
     >
       <div className={classes.titleWrapper}>
-        <p className={classes.title}>{webhookConfigTitle}</p>
+        <p className={classes.title}>{manualwebhookConfigTitle}</p>
         <button className={classes.closeBtnWrapper} onClick={onClose}>
           <CloseIcon className={classes.closeBtn} />
         </button>
       </div>
       <div className={classes.customWrapper}>
-        <p className={classes.subTitle}>{webhookHttpMethodTitle}</p>
+        <p className={classes.subTitle}>{manualwebhookHttpMethodTitle}</p>
         <div className={classes.radioBtnWrapper}>
           <RadioControl
             customProps={{ collection: WEBHOOK_METHODS }}
@@ -143,7 +143,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
         </div>
       </div>
       <div className={classes.customWrapper}>
-        <p className={classes.subTitle}>{webhookPathTitle}</p>
+        <p className={classes.subTitle}>{manualwebhookPathTitle}</p>
         <FormTextInput
           defaultValue={currentPath}
           onChange={handleOnChangePath}
@@ -151,8 +151,8 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
             startAdornment: "/",
             validate: validatePath
           }}
-          errorMessage={webhookPathErrorMessage}
-          placeholder={webhookPathPlaceholder}
+          errorMessage={wmanualwebhookPathErrorMessage}
+          placeholder={manualwebhookPathPlaceholder}
         />
       </div>
       { validatePath(currentPath) &&
