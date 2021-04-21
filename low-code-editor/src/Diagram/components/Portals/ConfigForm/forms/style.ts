@@ -379,6 +379,31 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
+        addCheckWrapper: {
+            display: 'flex',
+            marginTop: '4px'
+        },
+        addCheckIcon: {
+            marginRight: '6px',
+            marginTop: '3px',
+            height: '16px',
+            width: '16px'
+        },
+        addCheckText: {
+            fontSize: '13px !important',
+            color: '#8d91a3 !important',
+            marginTop: '0 !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
+        },
+        addCheckTextClickable: {
+            color: '#5567d5 !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
         toFieldTooltipWrapper: {
             display: "flex",
             justifyContent: "space-between",

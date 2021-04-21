@@ -102,7 +102,7 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [isInvalid, setIsInvalid] = useState(true);
+    const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
@@ -114,7 +114,8 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsInvalid(isInvalidFromField)
+        const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
+        setIsInvalid(!isValidExpression)
     }
 
     const formField: FormField = {

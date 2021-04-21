@@ -24,20 +24,20 @@ export const useStyles = makeStyles({
         },
     },
     radioBtn: {
-        border: "1px solid #8D91A3",
+        border: "1px solid #8d91a3",
         borderRadius: "4px",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#fff",
         letterSpacing: 0,
-        lineHeight: "14px",
+        lineHeight: "16px",
         fontSize: "11px",
-        color: "#8D91A3",
-        padding: "4px 12px",
+        color: "#8d91a3",
+        padding: "6px 12px 5px",
         margin: "0 6px 0 0",
         outline: "none",
-        cursor: "pointer"
+        cursor: "pointer",
     },
     radioSelected: {
-        backgroundColor: "#0095FF",
-        color: "#ffffff"
+        color: "#fff",
+        border: 0,
     }
 });

@@ -15,7 +15,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-
         container: {
             width: 338,
             paddingBottom: 12,
@@ -112,7 +111,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         customFooterWrapper: {
             marginLeft: 24,
-            // marginRight: 24,
+            marginRight: 24,
+            marginBottom: 11,
+            display: "flex",
+            justifyContent: "flex-end"
+        },
+        serviceFooterWrapper: {
+            marginLeft: 24,
             marginBottom: 11,
             display: "flex",
             justifyContent: "flex-end"

@@ -10,12 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
+.selectedPUT {
+    background-color: #fca130 !important;
+    border: 0;
+}
 
-export function DiagramActiveState() {
-    return (
-        <div>
-            <img src="../../../../../../images/diagram-enabled.svg" />
-        </div>
-    );
+.selectedGET {
+    background-color: #61affe !important;
+    border: 0;
+}
+
+.selectedPOST {
+    background-color: #49cc90 !important;
+    border: 0;
+}
+
+.selectedDELETE {
+    background-color: #f93e3e !important;
+    border: 0;
 }

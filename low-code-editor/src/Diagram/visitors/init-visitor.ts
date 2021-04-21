@@ -20,7 +20,8 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
@@ -39,6 +40,7 @@ import {
     ViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { WhileViewState } from "../view-state/while";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock;
@@ -49,6 +51,7 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             node.viewState = new ViewState();
         }
+        this.initStatement(node, parent);
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -88,7 +91,11 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        this.visitBlock(node, parent);
+        if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
+            this.initStatement(node, parent);
+        } else {
+            this.visitBlock(node, parent);
+        }
     }
 
     public beginVisitActionStatement(node: ActionStatement, parent?: STNode) {
@@ -152,6 +159,10 @@ class InitVisitor implements Visitor {
 
     public endVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        node.viewState = new WhileViewState();
     }
 
     public endVisitActionStatement(node: ActionStatement, parent?: STNode) {
