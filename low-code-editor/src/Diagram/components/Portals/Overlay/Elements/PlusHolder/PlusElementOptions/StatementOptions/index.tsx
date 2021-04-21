@@ -294,7 +294,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const searchPlaceholder = intl.formatMessage({
         id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
-        defaultMessage:"Search"
+        defaultMessage: "Search"
     })
 
     return (
