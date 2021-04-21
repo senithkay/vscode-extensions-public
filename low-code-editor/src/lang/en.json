@@ -210,5 +210,11 @@
   "lowcode.develop.elements.wizard.stepsCompleted.text": "All steps completed",
   "lowcode.develop.errorBoundary.errorMessage.text": "Oops! this is embarrassing",
   "lowcode.develop.errorBoundary.tryAgainMessage.text": "Something went terribly wrong. Will you please refresh and try again",
-  "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text": "Updating trigger will remove your current source code"
+  "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text": "Updating trigger will remove your current source code",
+  "lowcode.develop.webHookConfigWizard.saveWehHookButton.text": "Save Webhook",
+  "lowcode.develop.webhookConfigWizard.httpMethod.Title": "HTTP Method",
+  "lowcode.develop.webhookConfigWizard.path.Title": "PATH",
+  "lowcode.develop.webhookConfigWizard.path.errorMessage": "Cannot start with a number & only [a-zA-Z0-9{}_/ [].] chars allowed",
+  "lowcode.develop.webhookConfigWizard.path.placeholder": "Relative path from host",
+  "lowcode.develop.webhookConfigWizard.resourceConfig.Title": "Webhook Configuration"
 }
