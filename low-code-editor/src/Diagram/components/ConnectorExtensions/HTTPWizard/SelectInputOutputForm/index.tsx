@@ -313,19 +313,19 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         defaultMessage: "Save & Done"
     });
 
-    const tooltipMessages = {
-        HTTPPayload:{
-            title:intl.formatMessage({
+    const HTTPtooltipMessages = {
+        HTTPPayload: {
+            title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.title",
                 defaultMessage: "Add a valid payload variable"
             }),
-            content:intl.formatMessage({
+            content: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
                 defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
             }),
     },
-        payloadVariableName:{
-            title:intl.formatMessage({
+        payloadVariableName: {
+            title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
                 defaultMessage: "Add a valid name for the payload"
             }),
@@ -343,7 +343,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormTextInput
                 customProps={{
                     validate: validatePayloadNameValue,
-                    tooltipTitle: tooltipMessages.payloadVariableName.title,
+                    tooltipTitle: HTTPtooltipMessages.payloadVariableName.title,
                     disabled: payloadVariableHasReferences
                 }}
                 defaultValue={payloadState.variableName}
@@ -429,8 +429,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                             />
                         </div>
                         <TooltipIcon
-                            title={tooltipMessages.HTTPPayload.title}
-                            content={tooltipMessages.HTTPPayload.content}
+                            title={HTTPtooltipMessages.HTTPPayload.title}
+                            content={HTTPtooltipMessages.HTTPPayload.content}
                             placement="left"
                             arrow={true}
                             codeSnippet={true}

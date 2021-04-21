@@ -153,9 +153,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const tooltipMessages = {
-        connectionName:{
-            title:intl.formatMessage({
+    const SMTPCreateConnectionTooltipMessages = {
+        connectionName: {
+            title: intl.formatMessage({
                 id: "lowcode.develop.connectorForms.SMTP.createConnection.connectionName.tooltip.title",
                 defaultMessage: "Add a valid connection name"
             })
@@ -170,7 +170,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.connectionName.title,
+                                tooltipTitle: SMTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
