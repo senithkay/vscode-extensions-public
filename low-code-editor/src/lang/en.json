@@ -1,4 +1,9 @@
 {
+  "lowcode.develop.GCalendarConfigWizard.Google Calendar.title.text": "Google Calendar",
+  "lowcode.develop.GCalendarConfigWizard.chooseCalendar.placeholder": "Choose Calendar",
+  "lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text": "Fetching Calendars ...",
+  "lowcode.develop.GCalendarConfigWizard.googleConnection.title": "Google Connection",
+  "lowcode.develop.GCalendarConfigWizard.saveConfigButton.text": "Save",
   "lowcode.develop.OAuthConnect.ConnectionList.manage": "(Manage)",
   "lowcode.develop.OAuthConnect.ConnectionList.title": "Choose Account",
   "lowcode.develop.Plus.PlusHolder.API.text": "APIS",
