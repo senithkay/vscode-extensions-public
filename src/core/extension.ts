@@ -300,7 +300,7 @@ export class BallerinaExtension {
             });
         });
         const cmdOutput = await any([balPromise, ballerinaPromise]);
-        this.ballerinaCmd = distPath + ballerinaExecutor + exeExtension;
+        this.ballerinaCmd = (distPath + ballerinaExecutor + exeExtension).trim();
         try {
             debug(`Ballerina version output: ${cmdOutput}`);
             const implVersionLine = cmdOutput.split('\n')[0];
