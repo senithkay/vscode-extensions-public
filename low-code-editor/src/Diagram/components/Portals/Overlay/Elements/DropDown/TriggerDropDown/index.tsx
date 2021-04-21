@@ -30,6 +30,7 @@ import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
+import { FormattedMessage } from 'react-intl';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -142,7 +143,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <ScheduleIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">  Schedule </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.schedule.title" defaultMessage="Schedule"/></div>
                                 </div>
                             </Tooltip>
                             {/* INFO:webhook trigger has been removed */}
@@ -161,7 +162,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <CalendarIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label "> Calendar </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.calendar.title" defaultMessage="Calendar"/></div>
                                 </div>
                             </Tooltip>
 
@@ -180,7 +181,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <SalesforceIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">Salesforce</div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.salesforce.title" defaultMessage="Salesforce"/></div>
                                 </div>
                             </Tooltip>
                         </div>
@@ -200,7 +201,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <ManualIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label "> Manual </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.manual.title" defaultMessage="Manual"/></div>
                                 </div>
                             </Tooltip>
 
@@ -219,7 +220,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <GitHubIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">GitHub</div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.GitHub.title" defaultMessage="GitHub"/></div>
                                 </div>
                             </Tooltip>
                         </div>

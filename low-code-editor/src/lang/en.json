@@ -238,5 +238,10 @@
   "lowcode.develop.scheduleConfigWizard.weekOptions.Thursday": "Th",
   "lowcode.develop.scheduleConfigWizard.weekOptions.Tuesday": "Tu",
   "lowcode.develop.scheduleConfigWizard.weekOptions.Wednesday": "We",
+  "lowcode.develop.triggerDropDown.GitHub.title": "GitHub",
+  "lowcode.develop.triggerDropDown.calendar.title": "Calendar",
+  "lowcode.develop.triggerDropDown.manual.title": "Manual",
+  "lowcode.develop.triggerDropDown.salesforce.title": "Salesforce",
+  "lowcode.develop.triggerDropDown.schedule.title": "Schedule",
   "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text": "Updating trigger will remove your current source code"
 }
