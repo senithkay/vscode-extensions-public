@@ -118,8 +118,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         } else if (param.name === "replyTo") {
                             param.hide = true;
                             param.value = "[]";
-                        } else if (param.name === "cc" || param.name === "bcc") {
-                            // param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
