@@ -1,17 +1,17 @@
 .delete-icon-show {
     rect {
-        stroke: #ea4c4d;
+        stroke: transparent;
         stroke-miterlimit: 10;
         stroke-width: 0.5;
-        fill: url(#DeleteLinearGradient);
+        fill: transparent;
     }
 
     .delete-circle {
         rect {
-            stroke: #ea4c4d;
+            stroke: transparent;
             stroke-miterlimit: 10;
             stroke-width: 0.5;
-            fill: url(#DeleteLinearGradient);
+            fill: transparent;
         }
 
         .delete-bin-icon {
