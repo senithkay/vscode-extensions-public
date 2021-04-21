@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
 import {
     CaptureBindingPattern,
@@ -59,6 +60,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
     const { onComplete } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const [ triggerChanged, setTriggerChanged ] = useState(false);
     const [ topic, setTopic ] = useState("");
@@ -131,11 +133,31 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         }
     };
 
+    const userNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.username.placeholder",
+        defaultMessage: "Username"
+    });
+
+    const passwordPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.password.placeholder",
+        defaultMessage: "Password"
+    });
+
+    const topicPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.topic.placeholder",
+        defaultMessage: "Topic"
+    })
+
+    const saveConfigButton = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.saveConfigButton.text",
+        defaultMessage: "Save"
+    });
+
     return (
         <>
             <div className={classes.customWrapper}>
                 <FormTextInput
-                    label="Username"
+                    label={userNamePlaceholder}
                     defaultValue={username}
                     onChange={handleUsernameOnChange}
                     customProps={ {
@@ -144,7 +166,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     } }
                 />
                 <FormTextInput
-                    label="Password"
+                    label={passwordPlaceholder}
                     defaultValue={password}
                     onChange={handlePasswordOnChange}
                     customProps={ {
@@ -154,7 +176,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     } }
                 />
                 <FormTextInput
-                    label="Topic"
+                    label={topicPlaceholder}
                     defaultValue={topic}
                     onChange={handleTopicOnChange}
                     customProps={ {
@@ -167,7 +189,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
-                            text="Save"
+                            text={saveConfigButton}
                             className={classes.saveBtn}
                             onClick={handleConfigureOnSave}
                             disabled={isFileSaving}
