@@ -161,14 +161,14 @@
                     display: flex;
                     align-items: center;
                     width: 173px;
-                    padding: 6px 0;
+                    padding: 1rem 0;
 
                     .connector-icon {
                         display: flex;
                         align-items: center;
-                        width: 50px;
-                        transform: scale(0.55, 0.55);
-                        -webkit-transform: scale(0.55, 0.55);
+                        width: 40px;
+                        transform: scale(1, 1);
+                        -webkit-transform: scale(1, 1);
 
                         img {
                             width: 25px;
@@ -230,6 +230,7 @@
                     margin: 5px;
                     display: flex;
                     align-items: center;
+                    transform: scale(1.25);
                 }
 
                 .text-label {
