@@ -323,6 +323,28 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   defaultMessage: "Save"
 });
 
+  const scheduleTriggerTooltipMessages = {
+  scheduleConfig: {
+  title: intl.formatMessage({
+      id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.tooltip.title",
+      defaultMessage: "Set a schedule to run the integration"
+  })
+},
+  cronExpression: {
+  title: intl.formatMessage({
+    id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.title",
+    defaultMessage: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
+}),
+  actionText: intl.formatMessage({
+  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionText",
+  defaultMessage: "Read More"
+}),
+  actionLink: intl.formatMessage({
+  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionLink",
+  defaultMessage: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
+})
+}
+}
   const weekOptionComp: ReactNode = (
     <div>
       <WeekOptions
@@ -390,9 +412,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
       <div>
         <TooltipIcon
-          title={tooltipMessages.cronExpression.title}
-          actionText={tooltipMessages.cronExpression.actionText}
-          actionLink={tooltipMessages.cronExpression.actionLink}
+          title={scheduleTriggerTooltipMessages.cronExpression.title}
+          actionText={scheduleTriggerTooltipMessages.cronExpression.actionText}
+          actionLink={scheduleTriggerTooltipMessages.cronExpression.actionLink}
           placement="left"
           arrow={true}
           interactive={true}
@@ -458,7 +480,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           <p className={classes.title}>{scheduleTriggerConfigTitle}</p>
           <div>
             <TooltipIcon
-              title={tooltipMessages.scheduleConfig}
+              title={scheduleTriggerTooltipMessages.scheduleConfig.title}
               placement="left"
               arrow={true}
               interactive={true}
