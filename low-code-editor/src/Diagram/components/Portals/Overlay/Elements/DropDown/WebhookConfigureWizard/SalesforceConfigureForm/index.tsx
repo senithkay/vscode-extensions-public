@@ -153,6 +153,22 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         defaultMessage: "Save"
     });
 
+    const salesforceConfigTooltips = {
+        salesforceTrigger:{
+        username:intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.username.tooltip.title",
+            defaultMessage: "Key in your Salesforce username"
+        }),
+        password : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.password.tooltip.title",
+            defaultMessage: "Enter the Salesforce password appended by your Salesforce security token"
+        }),
+        topic : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
+            defaultMessage: "Name of the Push Topic added to your Salesforce account to receive notifications" 
+        })
+    }
+}
     return (
         <>
             <div className={classes.customWrapper}>
@@ -162,7 +178,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     onChange={handleUsernameOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.username
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.username
                     } }
                 />
                 <FormTextInput
@@ -172,7 +188,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     customProps={ {
                         optional: false,
                         secret: true,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.password
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.password
                     } }
                 />
                 <FormTextInput
@@ -181,7 +197,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                     onChange={handleTopicOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.topic
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.topic
                     } }
                 />
             </div>

@@ -114,6 +114,15 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Save"
     });
 
+    const connectorOperationsTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
@@ -165,7 +174,7 @@ export function OperationForm(props: OperationFormProps) {
                     <FormTextInput
                         customProps={{
                             validate: validateNameValue,
-                            tooltipTitle: tooltipMessages.responseVariableName,
+                            tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                             disabled: responseVariableHasReferences
                         }}
                         defaultValue={defaultResponseVarName}

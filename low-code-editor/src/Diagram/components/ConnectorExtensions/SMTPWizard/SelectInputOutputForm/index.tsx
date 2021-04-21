@@ -240,7 +240,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         returnVariableName = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
 
-
+    const SMTPInputOutputTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.SMTP.SelectInputOutput.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.placeholder",
         defaultMessage: "Enter Response Variable Name"
@@ -280,7 +287,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.responseVariableName,
+                                tooltipTitle: SMTPInputOutputTooltipMessages.responseVariableName.title,
                                 disabled: returnVariableName
                             }}
                             defaultValue={defaultResponseVariableName}
