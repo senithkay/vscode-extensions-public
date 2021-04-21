@@ -181,6 +181,29 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultMessage: "Type"
     });
 
+    const tooltipMessages = {
+        customVariableType:{
+            title:intl.formatMessage({
+                id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
+                defaultMessage: "Value of other variable type"
+            })
+    },
+    expressionEditor:{
+        title:intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText:intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read More"
+        }),
+        actionLink:intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    }
+    };
+
     modelType = (selectedType === "other") ? otherType : selectedType;
 
     const validForm: boolean = (isValidVarName && validExpresssionValue);
@@ -228,7 +251,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         label={otherTypeLabel}
                                         placeholder={enterTypePlaceholder}
                                         customProps={{
-                                            tooltipTitle: tooltipMessages.customVariableType,
+                                            tooltipTitle: tooltipMessages.customVariableType.title,
                                         }}
                                     />
                                 )}
@@ -236,13 +259,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     dataTestId="variable-name"
                                     customProps={{
                                         validate: validateNameValue,
-                                        tooltipTitle: tooltipMessages.name.replace("{0}", selectedType),
+                                        tooltipTitle: "Name of the {0}".replace("{0}", selectedType),
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}
                                     onChange={handleNameOnChange}
                                     label={addVariableNameLabel}
-                                    errorMessage={varNameError}
+                                    errorMessage={varNameError} 
                                     placeholder={addVariablePlaceholder}
                                 />
                                 <div className="exp-wrapper">

@@ -200,6 +200,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "DELETE"
     });
 
+    const tooltipMessages = {
+        connectionName:{
+            title:intl.formatMessage({
+                id: "lowcode.develop.connectorForms.HTTP.createConnection.connectionName.tooltip.title",
+                defaultMessage: "Add a valid connection name"
+            })
+    }
+    };
 
     return (
         <div>
@@ -209,7 +217,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.connectionName,
+                                tooltipTitle: tooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}

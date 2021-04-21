@@ -313,6 +313,24 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         defaultMessage: "Save & Done"
     });
 
+    const tooltipMessages = {
+        HTTPPayload:{
+            title:intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.title",
+                defaultMessage: "Add a valid payload variable"
+            }),
+            content:intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
+                defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
+            }),
+    },
+        payloadVariableName:{
+            title:intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
+                defaultMessage: "Add a valid name for the payload"
+            }),
+        }
+    };
 
     let payloadComponent: React.ReactNode = null;
     if (connectorConfig.responsePayloadMap) {
@@ -325,7 +343,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormTextInput
                 customProps={{
                     validate: validatePayloadNameValue,
-                    tooltipTitle: tooltipMessages.payloadVariableName,
+                    tooltipTitle: tooltipMessages.payloadVariableName.title,
                     disabled: payloadVariableHasReferences
                 }}
                 defaultValue={payloadState.variableName}

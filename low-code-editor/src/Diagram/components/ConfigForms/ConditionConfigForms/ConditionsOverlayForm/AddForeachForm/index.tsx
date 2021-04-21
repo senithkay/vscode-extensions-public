@@ -124,24 +124,23 @@ export function AddForeachForm(props: ForeachProps) {
         name: "iterable expression",
         displayName: "Iterable Expression",
         type: "var"
-    }
+    };
 
-    const expElementProps: FormElementProps = {
-        model: formField,
-        customProps: {
-            validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-            interactive: true,
-            statementType: formField.type,
-            customTemplate: {
-                defaultCodeSnippet: 'foreach var temp_var in  {}',
-                targetColumn: 25,
-            },
-        },
-        onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection,
+    const tooltipMessages = {
+        expressionEditor:{
+            title:intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
+                defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+            }),
+            actionText:intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
+                defaultMessage: "Read More"
+            }),
+            actionLink:intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
+                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            })
+    }
     };
     const saveForEachButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.saveButton.label",
@@ -162,6 +161,24 @@ export function AddForeachForm(props: ForeachProps) {
         id: "lowcode.develop.configForms.forEach.cancelButton.label",
         defaultMessage: "Cancel"
     });
+    const expElementProps: FormElementProps = {
+        model: formField,
+        customProps: {
+            validate: validateField,
+            tooltipTitle: tooltipMessages.expressionEditor.title,
+            tooltipActionText: tooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            interactive: true,
+            statementType: formField.type,
+            customTemplate: {
+                defaultCodeSnippet: 'foreach var temp_var in  {}',
+                targetColumn: 25,
+            },
+        },
+        onChange: handleExpEditorChange,
+        defaultValue: conditionExpression.collection,
+    };
+
 
     return (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
@@ -192,7 +209,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: tooltipMessages.currentValue
+                                    tooltipTitle: "Current Value Variable"
                                 }}
                                 onChange={onVariableNameChange}
                                 defaultValue={conditionExpression.variable}
