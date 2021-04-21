@@ -12,3 +12,4 @@ export const CMP_TRACE_LOGS = "component.trace.logs";
 export const CMP_DEBUGGER = "component.debugger";
 export const CMP_PACKAGE_VIEW = "component.package.view";
 export const CMP_STRING_SPLIT = "component.string.split";
+export const CMP_EXECUTOR_CODELENS = "component.executor.codelens";

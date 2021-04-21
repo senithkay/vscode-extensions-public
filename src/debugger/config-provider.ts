@@ -9,7 +9,7 @@ import {
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
 import * as path from "path";
-import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
+import { ballerinaExtInstance, BallerinaExtension, LANGUAGE } from '../core';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
@@ -17,6 +17,15 @@ import { log, debug as debugLog } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
 
 const BALLERINA_COMMAND = "ballerina.command";
+
+export enum DEBUG_REQUEST {
+    LAUNCH = 'launch'
+}
+
+export enum DEBUG_CONFIG {
+    SOURCE_DEBUG_NAME = 'Ballerina Debug',
+    TEST_DEBUG_NAME = 'Ballerina Test'
+}
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -34,14 +43,14 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config[BALLERINA_HOME] = ballerinaHome;
-    config[BALLERINA_COMMAND] = ballerinaExtInstance.ballerinaCmd;
+    config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
 
     if (!config.type) {
-        config.type = 'ballerina';
+        config.type = LANGUAGE.BALLERINA;
     }
 
     if (!config.request) {
-        config.request = 'launch';
+        config.request = DEBUG_REQUEST.LAUNCH;
     }
 
     if (!window.activeTextEditor) {
@@ -131,7 +140,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         const serverProcess = child_process.spawn(cmd, args, opt);
 
-        log(`Starting debug adapter: '${this.ballerinaExtInstance.ballerinaCmd} start-debugger-adapter ${port.toString()}`);
+        log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
 
         return new Promise<void>((resolve) => {
             serverProcess.stdout.on('data', (data) => {
@@ -153,7 +162,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         });
     }
     getScriptPath(args: string[]): string {
-        let cmd = this.ballerinaExtInstance.ballerinaCmd;
+        let cmd = this.ballerinaExtInstance.getBallerinaCmd();
         args.push('start-debugger-adapter');
         return cmd;
     }

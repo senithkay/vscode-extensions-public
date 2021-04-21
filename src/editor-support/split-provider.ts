@@ -28,7 +28,6 @@ const STRING_LITERAL: string = 'STRING_LITERAL';
  */
 export class StringSplitter {
 
-
     public updateDocument(event: TextDocumentChangeEvent) {
         const editor = window.activeTextEditor;
         if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0) {

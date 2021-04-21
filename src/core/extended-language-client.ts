@@ -33,9 +33,7 @@ export interface BallerinaSyntaxTreeResponse {
 }
 
 export interface GetSyntaxTreeRequest {
-    documentIdentifier: {
-        uri: string;
-    };
+    documentIdentifier: DocumentIdentifier;
 }
 
 export interface BallerinaExample {
@@ -57,24 +55,6 @@ export interface BallerinaExampleListResponse {
     samples: Array<BallerinaExampleCategory>;
 }
 
-export interface BallerinaOASResponse {
-    ballerinaOASJson?: string;
-}
-
-export interface BallerinaOASRequest {
-    ballerinaDocument: {
-        uri: string;
-    };
-    ballerinaService?: string;
-}
-
-export interface BallerinaAstOasChangeRequest {
-    oasDefinition?: string;
-    documentIdentifier: {
-        uri: string;
-    };
-}
-
 export interface BallerinaProject {
     kind?: string;
     path?: string;
@@ -88,25 +68,12 @@ export interface BallerinaProjectComponents {
 }
 
 export interface GetBallerinaProjectParams {
-    documentIdentifier: {
-        uri: string;
-    };
+    documentIdentifier: DocumentIdentifier;
 }
 
 export interface SyntaxTreeNodeRequestParams {
-    documentIdentifier: {
-        uri: string;
-    };
-    range: {
-        start: {
-            line: number;
-            character: number;
-        },
-        end: {
-            line: number;
-            character: number;
-        }
-    };
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
 }
 
 export interface SyntaxTreeNodeResponse {
@@ -121,14 +88,18 @@ export interface DocumentIdentifier {
     uri: string;
 }
 
-export interface BallerinaAstOasChangeResponse {
-    oasAST?: string;
+export interface Range {
+    start: Position;
+    end: Position;
+}
+
+export interface Position {
+    line: number;
+    character: number;
 }
 
 export interface BallerinaServiceListRequest {
-    documentIdentifier: {
-        uri: string;
-    };
+    documentIdentifier: DocumentIdentifier;
 }
 
 export interface BallerinaServiceListResponse {
@@ -141,6 +112,16 @@ export interface BallerinaSynResponse {
 
 export interface GetSynRequest {
     Params: string;
+}
+
+export interface ExecutorPositionsResponse {
+    executorPositions?: ExecutorPosition[];
+}
+
+export interface ExecutorPosition {
+    kind: string;
+    range: Range;
+    name: string;
 }
 
 export class ExtendedLangClient extends LanguageClient {
@@ -167,5 +148,9 @@ export class ExtendedLangClient extends LanguageClient {
 
     getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
         return this.sendRequest("ballerinaDocument/syntaxTreeNode", params);
+    }
+
+    getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
+        return this.sendRequest("ballerinaDocument/executorPositions", params);
     }
 }

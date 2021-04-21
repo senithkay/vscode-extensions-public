@@ -5,6 +5,8 @@ import { activateRunCommand } from "./cli-cmds/run";
 import { activateDocCommand } from "./cli-cmds/doc";
 import { activateAddCommand } from "./cli-cmds/add";
 
+export * from "./cli-cmds/cmd-runner";
+
 export function activate() {
     // activate ballerina test command
     activateTestRunner();

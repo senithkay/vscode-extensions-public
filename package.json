@@ -93,6 +93,11 @@
                     "default": true,
                     "description": "Enable documentation code lens feature."
                 },
+                "ballerina.codeLens.executor.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable executor code lens feature."
+                },
                 "ballerina.dataMapper.enabled": {
                     "type": "boolean",
                     "default": false,
