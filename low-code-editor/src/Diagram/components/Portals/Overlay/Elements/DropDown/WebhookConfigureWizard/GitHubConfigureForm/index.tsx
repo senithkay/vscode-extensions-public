@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import {
     ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
@@ -62,6 +63,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     } = state;
     const { onComplete, currentEvent, currentAction, currentConnection } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const [activeEvent, setActiveEvent] = useState<string>(currentEvent);
     const [activeAction, setActiveAction] = useState<string>(currentAction);
@@ -386,10 +388,30 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         setTriggerChanged(true);
     }
 
+    const chooseRepoPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseRepository.placeholder",
+        defaultMessage: "Choose GitHub Repository"
+    });
+
+    const chooseActionPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseAction.placeholder",
+        defaultMessage: "Choose an action"
+    });
+
+    const chooseEventPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseEvent.placeholder",
+        defaultMessage: "Choose an event"
+    })
+
+    const saveConfigButton = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.saveConfigButton.text",
+        defaultMessage: "Save"
+    });
+
     return (
         <>
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}>GitHub Connection</p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubConnection.title" defaultMessage="GitHub Connection"/></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     onSelectConnection={handleOnSelectConnection}
@@ -401,16 +423,16 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
                     <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        Fetching Repositories&nbsp;...
+                    <FormattedMessage id="lowcode.develop.GitHubConfigWizard.fetchingReposMessage.text" defaultMessage="Fetching Repositories ..."/>
                                         </Typography>
                 </div>
 
             )}
             { activeConnection && !isRepoListFetching && githubRepoList && (
                 <div className={classes.customWrapper}>
-                    <p className={classes.subTitle}>GitHub Repository</p>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubrepository.title.text" defaultMessage="GitHub Repository"/></p>
                     <FormAutocomplete
-                        placeholder="Choose GitHub Repository"
+                        placeholder={chooseRepoPlaceholder}
                         itemList={githubRepoList}
                         value={activeGithubRepo}
                         getItemLabel={handleItemLabel}
@@ -426,10 +448,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}>SELECT EVENT</p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectEvent.title.text" defaultMessage="SELECT EVENT"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
-                        placeholder="Choose an event"
+                        placeholder={chooseEventPlaceholder}
                         itemList={Object.keys(githubEvents)}
                         value={activeEvent}
                         onChange={handleEventOnChange}
@@ -444,10 +466,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}>SELECT ACTION</p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectAction.title.text" defaultMessage="SELECT ACTION"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
-                        placeholder="Choose an action"
+                        placeholder={chooseActionPlaceholder}
                         itemList={Object.keys(githubEvents[activeEvent]?.action)}
                         value={activeAction}
                         onChange={handleActionOnChange}
@@ -458,7 +480,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeConnection && activeGithubRepo && activeEvent && activeAction && (
                 <div className={classes.customFooterWrapper}>
                     <PrimaryButton
-                        text="Save"
+                        text={saveConfigButton}
                         className={classes.saveBtn}
                         onClick={handleUserConfirm}
                         disabled={isFileSaving}
