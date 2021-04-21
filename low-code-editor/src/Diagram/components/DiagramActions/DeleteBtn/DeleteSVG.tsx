@@ -25,14 +25,23 @@ export const DELETE_SHADOW_OFFSET = DELETE_SVG_HEIGHT_WITH_SHADOW - DELETE_SVG_H
 export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }) {
     const { toolTipTitle, ...xyProps } = props;
     const deleteSVGIcon = (
-        <g id="DeleteGroup" className="delete-circle" transform="translate(4.5 3.5)">
-            <g transform="matrix(1, 0, 0, 1, -4.5, -3.5)">
+        <g id="DeleteGroup" className="delete-circle" transform="translate(3.5 3.5)">
+            <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
                 <g id="Delete" transform="translate(4.5 3.5)">
-                    <rect width="25" height="25" rx="12.5" stroke="none" />
-                    <rect x="0.5" y="0.5" width="24" height="24" rx="12" fill="none" />
+                    <rect width="18" height="18" rx="10.5" stroke="none" />
+                    <rect x="0.5" y="0.5" width="17" height="17" rx="10" fill="none" />
                 </g>
             </g>
             <path
+                id="DeleteIcon"
+                className="delete-bin-icon"
+                d="M3.745,12a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7a2,2,0,0,1-2,2Zm-1-2a1,1,
+                0,0,0,1,1h4.5a1,1,0,0,0,1-1V3h-6.5Zm4-1.5v-4a.5.5,0,1,1,1,0v4a.5.5,0,1,1-1,0Zm-2.5,0v-4a.5.5,0,1,1,1,
+                0v4a.5.5,0,1,1-1,0Zm0-7.5a.5.5,0,1,1,0-1h3.5a.5.5,0,0,1,0,1Z"
+                fill="#fe523c"
+            />
+
+            {/* <path
                 id="DeleteIcon"
                 className="delete-bin-icon"
                 d="M2.706,11A1.368,1.368,0,0,1,1.324,9.711L1,3.224a.2.2,0,0,1,.051-.157A.207.207,0,0,1,1.209,
@@ -42,7 +51,7 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }
                     .457.761H2.864V.739A.775.775,0,0,1,3.682,0H5.318a.775.775,0,0,1,.818.739V.761H8.543A.437.437,0,0,1,
                     9,1.174v.413A.436.436,0,0,1,8.543,2Z"
                 transform="translate(8 7)"
-            />
+            /> */}
         </g>
     );
     return (
@@ -60,18 +69,18 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }
                     <feComposite in="SourceGraphic" />
                 </filter>
                 <filter id="DeleteFilter" x="0" y="0" width="40" height="40" filterUnits="userSpaceOnUse">
-                    <feOffset dy="2" in="SourceAlpha"/>
-                    <feGaussianBlur stdDeviation="2.5" result="blur"/>
-                    <feFlood floodColor="#9a9eac" floodOpacity="0.502"/>
-                    <feComposite operator="in" in2="blur"/>
-                    <feComposite in="SourceGraphic"/>
+                    <feOffset dy="2" in="SourceAlpha" />
+                    <feGaussianBlur stdDeviation="2.5" result="blur" />
+                    <feFlood floodColor="#9a9eac" floodOpacity="0.502" />
+                    <feComposite operator="in" in2="blur" />
+                    <feComposite in="SourceGraphic" />
                 </filter>
                 <filter id="DeleteFilter" x="0" y="0" width="40" height="40" filterUnits="userSpaceOnUse">
-                    <feOffset dy="2" in="SourceAlpha"/>
-                    <feGaussianBlur stdDeviation="2.5" result="blur"/>
-                    <feFlood floodColor="#9a9eac" floodOpacity="0.502"/>
-                    <feComposite operator="in" in2="blur"/>
-                    <feComposite in="SourceGraphic"/>
+                    <feOffset dy="2" in="SourceAlpha" />
+                    <feGaussianBlur stdDeviation="2.5" result="blur" />
+                    <feFlood floodColor="#9a9eac" floodOpacity="0.502" />
+                    <feComposite operator="in" in2="blur" />
+                    <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
             {props.toolTipTitle ? (

@@ -40,7 +40,7 @@
                     filter: none;
 
                     &.click-effect {
-                        stroke-width: 1px !important;
+                        stroke-width: 0.5px !important;
                         stroke: #5566d5 !important;
                     }
                 }
@@ -102,7 +102,7 @@
                 rect {
                     stroke: #5567d5;
                     stroke-miterlimit: 10;
-                    stroke-width: 1;
+                    stroke-width: 0.5;
                     fill: url(#IfElseLinearGradient) #fafafc;
                     filter: url(#IfElseFilterDefault) #fafafc;
                 }
@@ -112,7 +112,7 @@
                         cursor: pointer;
                         stroke: #5259d2;
                         stroke-miterlimit: 10;
-                        stroke-width: 1;
+                        stroke-width: 0.5;
                         fill: url(#IfElseLinearGradient) #fafafc;
                         filter: url(#IfElseFilterHover) #fafafc;
                     }
@@ -196,10 +196,16 @@
 
                     .condition-rect {
                         fill: #fbfbfd;
-                        height: 30px;
-                        width: 57px;
+                        height: 21px;
+                        width: 25px;
                     }
                 }
+
+                .condition-assignment {
+                    fill: #5567d5;
+                    font-family: "Gilmer", sans-serif;
+                }
+
             }
         }
 
