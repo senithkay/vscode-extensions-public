@@ -293,9 +293,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   defaultMessage: "Repeat Monthly"
 });
 
-  const generatedCronExpressionTitle = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.generatedCronExpression.title",
-  defaultMessage: "Generated Cron Expression :"
+  const cronExpressionTitle = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.cronExpression.title",
+  defaultMessage: "Cron Expression :"
 });
 
   const cronExpressionErrorMessage = intl.formatMessage({
@@ -308,9 +308,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   defaultMessage: "Configure Schedule Trigger"
 });
 
-  const repeatEveryDropDown = intl.formatMessage({
+  const repeatScheduleDropDown = intl.formatMessage({
   id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
-  defaultMessage: "Repeat every :"
+  defaultMessage: "Schedule:"
 });
 
   const invalidValueErrorMessage = intl.formatMessage({
@@ -397,7 +397,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           arrow={true}
           interactive={true}
         >
-          <p className={toggleClasses.cronExpressionTitle}>{generatedCronExpressionTitle}</p>
+          <p className={toggleClasses.cronExpressionTitle}>{cronExpressionTitle}</p>
         </TooltipIcon>
       </div>
 
@@ -479,7 +479,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label={repeatEveryDropDown}
+              label={repeatScheduleDropDown}
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />

@@ -142,7 +142,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         )
     }
     const whileStmt: StatementComponent = {
-        name: "foreach",
+        name: "while",
         category: 'condition',
         component: (
             <Tooltip
