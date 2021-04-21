@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
 import React, { ReactNode, useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
@@ -65,6 +66,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const { position, onWizardComplete, onClose, cron } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const toggleClasses = toggleStyles();
 
   const [currentCron, setCurrentCron] = useState<string>(cron || "");
@@ -232,7 +234,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteAndHourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Start Time: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startTime.title" defaultMessage="Start Time:"/></FormHelperText>
       <div className={toggleClasses.timeWrapper}>
         <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
       </div>
@@ -241,33 +243,33 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyMinute.title" defaultMessage="Every:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultMinute}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}>Minute(s)</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.minutes.title" defaultMessage="Minute(s):"/></FormHelperText>
     </div>
   );
 
   const hourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyHour.title" defaultMessage="Every:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultHour}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}>Hour(s)</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.hours.title" defaultMessage="Hour(s)"/></FormHelperText>
     </div>
   );
 
   const dayOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Start date:</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start date:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultDay}
@@ -276,12 +278,56 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       </div>
     </div>
   );
+  const repeatLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatLabel.text",
+  defaultMessage: "Repeat on the:"
+});
+
+  const repeatWeeklyLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatWeeklyLabel.text",
+  defaultMessage: "Repeat Weekly"
+});
+
+  const repeatMonthlyLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatMonthlyLabel.text",
+  defaultMessage: "Repeat Monthly"
+});
+
+  const generatedCronExpressionTitle = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.generatedCronExpression.title",
+  defaultMessage: "Generated Cron Expression :"
+});
+
+  const cronExpressionErrorMessage = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.cronExpressionErrorMessage.title",
+  defaultMessage: "Please enter valid cron expression"
+});
+
+  const scheduleTriggerConfigTitle = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.Config.Title",
+  defaultMessage: "Configure Schedule Trigger"
+});
+
+  const repeatEveryDropDown = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
+  defaultMessage: "Repeat every :"
+});
+
+  const invalidValueErrorMessage = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.invalidValueErrorMessage.text",
+  defaultMessage: "Invalid value"
+});
+
+  const saveScheduleButton = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.saveButton.text",
+  defaultMessage: "Save"
+});
 
   const weekOptionComp: ReactNode = (
     <div>
       <WeekOptions
         onWeekOptionChange={handleWeekOptionChange}
-        textLabel="Repeat on the:"
+        textLabel={repeatLabel}
         defaultValue={cronWeekValue.replace("\n", "").split(",")}
       />
     </div>
@@ -316,7 +362,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             onChange={handleEveryWeekChange}
           />
         )}
-        label={"Repeat Weekly"}
+        label={repeatWeeklyLabel}
       />
     </div>
   );
@@ -333,7 +379,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             onChange={handleEveryMonthChange}
           />
         )}
-        label={"Repeat Monthly"}
+        label={repeatMonthlyLabel}
       />
     </div>
   );
@@ -351,7 +397,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           arrow={true}
           interactive={true}
         >
-          <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+          <p className={toggleClasses.cronExpressionTitle}>{generatedCronExpressionTitle}</p>
         </TooltipIcon>
       </div>
 
@@ -363,7 +409,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         customProps={{
           validate: validateCron
         }}
-        errorMessage="Please enter valid cron expression"
+        errorMessage={cronExpressionErrorMessage}
       />
 
     </div>
@@ -409,7 +455,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     >
       <>
         <div className={classes.titleWrapper}>
-          <p className={classes.title}>Configure Schedule Trigger</p>
+          <p className={classes.title}>{scheduleTriggerConfigTitle}</p>
           <div>
             <TooltipIcon
               title={tooltipMessages.scheduleConfig}
@@ -433,7 +479,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label="Repeat every :"
+              label={repeatEveryDropDown}
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />
@@ -446,12 +492,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           {scheduledComp === "Monthly" && monthComp}
           {scheduledComp === "Custom" && customCron}
 
-          {!validCron ? <p className={toggleClasses.invalidCron}> Invalid value</p> : null}
+          {!validCron ? <p className={toggleClasses.invalidCron}> {invalidValueErrorMessage}</p> : null}
 
         </div>
         <div className={classes.customFooterWrapper}>
           <PrimaryButton
-            text="Save"
+            text={saveScheduleButton}
             className={classes.saveBtn}
             onClick={handleOnSave}
             disabled={!validCron}
