@@ -99,7 +99,7 @@ export function PlusElements(props: PlusElementsProps) {
         statementsPlusHolder: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
-                defaultMessage: "A collection of syntactic units that can be added to your application"
+                defaultMessage: "Collection of code fragments that can be added to your application"
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionText",
@@ -113,7 +113,7 @@ export function PlusElements(props: PlusElementsProps) {
         APIsPlusHolder: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-            defaultMessage: "A collection of Connections that helps you integrate your application to external services"
+            defaultMessage: "Collection of API calls that helps you integrate your application to external services"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionText",
