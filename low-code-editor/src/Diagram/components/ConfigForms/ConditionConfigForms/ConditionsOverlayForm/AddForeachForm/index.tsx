@@ -126,21 +126,27 @@ export function AddForeachForm(props: ForeachProps) {
         type: "var"
     };
 
-    const tooltipMessages = {
-        expressionEditor:{
-            title:intl.formatMessage({
+    const forEachTooltipMessages = {
+        expressionEditor: {
+            title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
                 defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
             }),
-            actionText:intl.formatMessage({
+            actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
                 defaultMessage: "Read More"
             }),
-            actionLink:intl.formatMessage({
+            actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
             })
-    }
+    },
+        currentValueVariable: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
+                defaultMessage: "Current Value Variable"
+            }),
+        }
     };
     const saveForEachButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.saveButton.label",
@@ -165,9 +171,9 @@ export function AddForeachForm(props: ForeachProps) {
         model: formField,
         customProps: {
             validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            tooltipTitle: forEachTooltipMessages.expressionEditor.title,
+            tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
             interactive: true,
             statementType: formField.type,
             customTemplate: {
@@ -209,7 +215,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: "Current Value Variable"
+                                    tooltipTitle: forEachTooltipMessages.currentValueVariable.title
                                 }}
                                 onChange={onVariableNameChange}
                                 defaultValue={conditionExpression.variable}

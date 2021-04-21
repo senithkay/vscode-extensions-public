@@ -181,23 +181,23 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultMessage: "Type"
     });
 
-    const tooltipMessages = {
-        customVariableType:{
-            title:intl.formatMessage({
+    const variableTooltipMessages = {
+        customVariableType: {
+            title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
                 defaultMessage: "Value of other variable type"
             })
     },
-    expressionEditor:{
-        title:intl.formatMessage({
+        expressionEditor: {
+        title: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
             defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
         }),
-        actionText:intl.formatMessage({
+        actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
             defaultMessage: "Read More"
         }),
-        actionLink:intl.formatMessage({
+        actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
             defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
         })
@@ -251,7 +251,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         label={otherTypeLabel}
                                         placeholder={enterTypePlaceholder}
                                         customProps={{
-                                            tooltipTitle: tooltipMessages.customVariableType.title,
+                                            tooltipTitle: variableTooltipMessages.customVariableType.title,
                                         }}
                                     />
                                 )}
@@ -265,7 +265,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     defaultValue={varName}
                                     onChange={handleNameOnChange}
                                     label={addVariableNameLabel}
-                                    errorMessage={varNameError} 
+                                    errorMessage={varNameError}
                                     placeholder={addVariablePlaceholder}
                                 />
                                 <div className="exp-wrapper">
@@ -273,9 +273,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         model={{ name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType }}
                                         customProps={{
                                             validate: validateExpression,
-                                            tooltipTitle: tooltipMessages.expressionEditor.title,
-                                            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+                                            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+                                            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
                                             interactive: true,
                                             focus: editorFocus,
                                             statementType: (modelType ? modelType : "other") as PrimitiveBalType,
