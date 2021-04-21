@@ -24,6 +24,7 @@ import { Performance } from "../Performace";
 import { ActionInvoLine } from "./ActionInvoLine";
 import { ConnectorClient } from "./ConnectorClient";
 import { CLIENT_RADIUS } from "./ConnectorClient/ConnectorClientSVG";
+import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcess/ConnectorProcessSVG";
 import "./style.scss";
 import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
 export interface ConnectorLineProps {
@@ -62,8 +63,9 @@ export function ActionInvocation(props: ConnectorLineProps) {
 
     return (
         <g>
+            <ConnectorProcessSVG x={x - (CONNECTOR_PROCESS_SVG_WIDTH / 2)} y={y} />
+            <ConnectorClient model={model} />
             <g className={classes}>
-
                 <ActionInvoLine
                     clientInvoX={actionLineStartX}
                     clientInvoY={actionRightLineY}
@@ -77,12 +79,12 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     y={triggerSVGY}
                 />
                 <text
-                    x={triggerViewState.cx + (TRIGGER_SVG_WIDTH / 2)}
-                    y={viewState.bBox.cy + (TRIGGER_SVG_HEIGHT / 2) + DefaultConfig.textLine.height}
+                    x={x + CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW / 2 + (DefaultConfig.dotGap / 2)}
+                    y={viewState.bBox.cy + DefaultConfig.textLine.height + DefaultConfig.dotGap}
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {obsViewState?.analysisInfo.isPerformanceViewOpen ?  truncatedActionName : viewState.action.actionName}
+                    {obsViewState?.analysisInfo.isPerformanceViewOpen ? truncatedActionName : viewState.action.actionName}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}
@@ -106,7 +108,6 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     triggerSVGY={triggerSVGY}
                 />
             </g>
-            <ConnectorClient model={model} />
         </g>
     );
 }

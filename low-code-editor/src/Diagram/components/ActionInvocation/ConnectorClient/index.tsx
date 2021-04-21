@@ -26,7 +26,6 @@ import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
-    DELETE_SVG_OFFSET,
     DELETE_SVG_WIDTH_WITH_SHADOW
 } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
@@ -71,9 +70,7 @@ export function ConnectorClientC(props: ConnectorClientProps) {
         diagramCleanDraw
     } = useContext(DiagramContext);
 
-    const {
-        model, blockViewState
-    } = props
+    const { model, blockViewState } = props
     const connectorClientViewState: ViewState = (model === null)
         ? blockViewState.draft[1]
         : model.viewState as StatementViewState;
@@ -150,6 +147,7 @@ export function ConnectorClientC(props: ConnectorClientProps) {
         cx: connectorClientViewState.bBox.cx,
         cy: connectorClientViewState.bBox.cy + CLIENT_RADIUS
     };
+
     const icon = getConnectorIcon(connectorIconId, iconProps);
 
     let isReferencedVariable = false;
@@ -196,8 +194,8 @@ export function ConnectorClientC(props: ConnectorClientProps) {
                                     />
                                     <g className={isReferencedVariable ? "disable" : ""}>
                                         <DeleteBtn
-                                            cx={connectorClientViewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET}
-                                            cy={connectorClientViewState.bBox.cy + (CLIENT_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)}
+                                            cx={connectorClientViewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + CLIENT_SVG_WIDTH / 4}
+                                            cy={connectorClientViewState.bBox.cy + (CLIENT_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)}
                                             model={model}
                                             toolTipTitle={toolTip}
                                             isButtonDisabled={isReferencedVariable}
@@ -210,7 +208,7 @@ export function ConnectorClientC(props: ConnectorClientProps) {
                                             onHandleEdit={toggleSelection}
                                             model={model}
                                             cx={connectorClientViewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
-                                            cy={connectorClientViewState.bBox.cy + (CLIENT_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)}
+                                            cy={connectorClientViewState.bBox.cy + (CLIENT_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)}
                                             isButtonDisabled={!isLocalVariableDecl}
                                         />
                                     </g>
