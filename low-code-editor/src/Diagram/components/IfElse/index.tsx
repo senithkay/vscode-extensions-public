@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { BlockStatement, BracedExpression, IfElseStatement, STNode } from "@ballerina/syntax-tree";
+import { BlockStatement, BracedExpression, IfElseStatement, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
@@ -23,6 +23,7 @@ import { getConditionConfig } from "../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
 import { BlockViewState, ElseViewState, IfViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
+import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
@@ -38,6 +39,7 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
 import { PlusButton } from "../Plus";
+import { PROCESS_SVG_WIDTH } from "../Processor/ProcessSVG";
 
 import { Else } from "./Else";
 import {
@@ -125,16 +127,19 @@ export function IfElse(props: IfElseProps) {
     let conditionType = "If";
 
     const deleteTriggerPosition = {
-        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((IFELSE_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2))
+        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + IFELSE_SVG_WIDTH / 4,
+        cy: viewState.bBox.cy + ((IFELSE_SVG_HEIGHT / 2)) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)
     };
     const editTriggerPosition = {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((IFELSE_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2))
+        cy: viewState.bBox.cy + ((IFELSE_SVG_HEIGHT / 2)) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
     const ConditionWrapper = isDraftStatement ? cn("main-condition-wrapper active-condition") : cn("main-condition-wrapper if-condition-wrapper");
+
+    let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
+    assignmentText = (model as IfElseStatement)?.condition.source;
 
     if (model === null) {
         viewState = blockViewState.draft[1] as DraftStatementViewState;
@@ -154,6 +159,8 @@ export function IfElse(props: IfElseProps) {
                     conditionType={conditionType}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
+                <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y} assignment={assignmentText} className="condition-assignment" />
+
                 <>
                     {
                         (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
@@ -165,7 +172,7 @@ export function IfElse(props: IfElseProps) {
                                 y={viewState.bBox.cy - (IFELSE_SHADOW_OFFSET / 2)}
                             >
                                 {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
-                                // {model === null && blockViewState?.draft && isDraftStatement &&
+                                    // {model === null && blockViewState?.draft && isDraftStatement &&
                                     <ConditionConfigForm
                                         type={blockViewState.draft[1].subType}
                                         position={{
@@ -306,6 +313,7 @@ export function IfElse(props: IfElseProps) {
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                         />
+                        <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 2} assignment={assignmentText} className="condition-assignment" />
                         <>
                             {
                                 (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
