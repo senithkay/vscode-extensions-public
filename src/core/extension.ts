@@ -248,7 +248,9 @@ export class BallerinaExtension {
     async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
         // if ballerina home is overridden, use ballerina cmd inside distribution
         // otherwise use wrapper command
-        debug(`Ballerina Home: ${ballerinaHome}`);
+        if (ballerinaHome) {
+            debug(`Ballerina Home: ${ballerinaHome}`);
+        }
         let distPath = "";
         if (overrideBallerinaHome) {
             distPath = path.join(ballerinaHome, "bin") + path.sep;
@@ -260,9 +262,13 @@ export class BallerinaExtension {
 
         let ballerinaExecutor = '';
         const balPromise: Promise<string> = new Promise((resolve, reject) => {
-            exec(distPath + 'bal' + exeExtension + ' version', (err, stdout, _stderr) => {
-                debug(`bal command stdout: ${stdout}`);
-                debug(`bal command _stderr: ${_stderr}`);
+            exec(distPath + 'bal' + exeExtension + ' version', (err, stdout, stderr) => {
+                if (stdout) {
+                    debug(`bal command stdout: ${stdout}`);
+                }
+                if (stderr) {
+                    debug(`bal command _stderr: ${stderr}`);
+                }
                 if (err) {
                     debug(`bal command err: ${err}`);
                     reject(err);
@@ -280,9 +286,13 @@ export class BallerinaExtension {
             });
         });
         const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
-            exec(distPath + 'ballerina' + exeExtension + ' version', (err, stdout, _stderr) => {
-                debug(`ballerina command stdout: ${stdout}`);
-                debug(`ballerina command _stderr: ${_stderr}`);
+            exec(distPath + 'ballerina' + exeExtension + ' version', (err, stdout, stderr) => {
+                if (stdout) {
+                    debug(`ballerina command stdout: ${stdout}`);
+                }
+                if (stderr) {
+                    debug(`ballerina command _stderr: ${stderr}`);
+                }
                 if (err) {
                     debug(`ballerina command err: ${err}`);
                     reject(err);
