@@ -426,7 +426,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
                         formField.value = listExpr.source;
-                        formField.fields = [];
+                        formField.fields = formField?.fields ? formField.fields : [];
                     }
                 }
             })
