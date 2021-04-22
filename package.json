@@ -337,6 +337,6 @@
         "webpack-cli": "^3.3.3"
     },
     "extensionPack": [
-        "bungcip.better-toml"
+        "be5invis.toml"
     ]
 }
