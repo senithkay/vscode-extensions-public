@@ -351,7 +351,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           arrow={true}
           interactive={true}
         >
-          <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+          <p className={toggleClasses.cronExpressionTitle}>Cron Expression :</p>
         </TooltipIcon>
       </div>
 
@@ -433,7 +433,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label="Repeat every :"
+              label="Schedule:"
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />

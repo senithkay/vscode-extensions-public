@@ -645,7 +645,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // get form fields from file cache
         functionDefInfo = await getFormFieldFromFileCache(connector);
         // save form fields in browser cache
-        addToFormFieldCache(connector, functionDefInfo);
+        await addToFormFieldCache(connector, functionDefInfo);
     }
 
     if (!functionDefInfo) {
@@ -674,19 +674,19 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             }
         }
         // save form fields in browser cache
-        addToFormFieldCache(connector, functionDefInfo);
+        await addToFormFieldCache(connector, functionDefInfo);
 
         // INFO: uncomment below code to get connector form field json object
         // const formFieldJsonObject: any = {};
         // functionDefInfo.forEach((value, key) => {
         //     formFieldJsonObject[key] = value;
         // });
-        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/fields.json`)
+        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
         // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 
     // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
+    const filteredFunctionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
 
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
@@ -714,14 +714,14 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                 action.returnVariableName = returnVarName;
                 connectorConfig.action = action;
                 connectorConfig.name = configName.name.value;
-                connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
+                connectorConfig.action.fields = filteredFunctionDefInfo.get(connectorConfig.action.name).parameters;
                 matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
             }
         }
 
-        connectorConfig.connectorInit = functionDefInfo.get("init") ?
-            functionDefInfo.get("init").parameters
-            : functionDefInfo.get("__init").parameters;
+        connectorConfig.connectorInit = filteredFunctionDefInfo.get("init") ?
+        filteredFunctionDefInfo.get("init").parameters
+            : filteredFunctionDefInfo.get("__init").parameters;
         const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
         connectorConfig.initPosition = matchingEndPoint.position;
         matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
@@ -732,7 +732,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         isLoading: false,
         connector,
         wizardType: model ? WizardType.EXISTING : WizardType.NEW,
-        functionDefInfo,
+        functionDefInfo: filteredFunctionDefInfo,
         connectorConfig,
         model
     };
