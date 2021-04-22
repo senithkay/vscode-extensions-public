@@ -60,9 +60,6 @@ interface ReturnNameState {
 interface PayloadState {
     mapPayload: string;
     selectedPayload: string;
-    validPayloadName: boolean;
-    isNameProvided: boolean;
-    variableName: string;
 }
 
 const SELECT_PAYLOAD = "Select Payload";
@@ -80,8 +77,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
-    const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
-    const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.name !== "get" && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
     const mapPayload = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "" ? NO_PAYLOAD : SELECT_PAYLOAD;
@@ -94,10 +89,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
     const initialPayloadState: PayloadState = {
         mapPayload,
-        selectedPayload: payloadType,
-        isNameProvided: !!connectorConfig?.responsePayloadMap?.payloadVariableName,
-        validPayloadName: true,
-        variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
+        selectedPayload: payloadType
     };
 
     let newField: FormField;
@@ -155,16 +147,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     let responseVariableHasReferences: boolean = false;
-    let payloadVariableHasReferences: boolean = false;
 
     if (!isNewConnectorInitWizard) {
         let symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-
-        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
-            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
-            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-        }
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -175,21 +161,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         if (connectorConfig.responsePayloadMap) {
             connectorConfig.responsePayloadMap.isPayloadSelected = true;
             connectorConfig.responsePayloadMap.selectedPayloadType = value;
-            connectorConfig.responsePayloadMap.payloadVariableName =
-                isNewConnectorInitWizard ?
-                    genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
-                    :
-                    connectorConfig.responsePayloadMap.payloadVariableName;
         }
         setPayloadState({
             ...payloadState,
-            selectedPayload: value,
-            isNameProvided: true,
-            variableName: isNewConnectorInitWizard || (!isNewConnectorInitWizard &&
-                !connectorConfig.responsePayloadMap.payloadVariableName) ?
-                genVariableName(value.toLowerCase() + "Payload", getAllVariables(symbolInfo))
-                :
-                connectorConfig.responsePayloadMap.payloadVariableName
+            selectedPayload: value
         });
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
@@ -205,14 +180,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             if (connectorConfig.responsePayloadMap) {
                 connectorConfig.responsePayloadMap.isPayloadSelected = false;
                 connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
             }
             setPayloadState({
                 mapPayload: NO_PAYLOAD,
-                selectedPayload: "",
-                isNameProvided: false,
-                validPayloadName: true,
-                variableName: ""
+                selectedPayload: ""
             });
         }
     };
@@ -222,17 +193,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         // dispatchGoToNextTourStep("CONFIG_SAVE_AND_DONE");
         action.returnVariableName = returnNameState.value;
         onSave();
-    };
-
-    const validatePayloadNameValue = (value: string) => {
-        if (value) {
-            const varValidationResponse = checkVariableName("payload name", value, defaultPayloadVarName, diagramState);
-            if (varValidationResponse?.error) {
-                setPayloadVarError(varValidationResponse.message);
-                return false;
-            }
-        }
-        return true;
     };
 
     const validateResponseNameValue = (value: string) => {
@@ -267,41 +227,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "get" &&
         action.name !== "forward" && (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
 
-
-
-    const onPayloadNameChange = (value: string) => {
-        if (connectorConfig.responsePayloadMap) {
-            connectorConfig.responsePayloadMap.payloadVariableName = value;
-        }
-        setPayloadState({
-            ...payloadState,
-            isNameProvided: value && value !== "",
-            validPayloadName: nameRegex.test(value),
-            variableName: value
-        });
-    };
-
     let payloadComponent: React.ReactNode = null;
     if (connectorConfig.responsePayloadMap) {
         const payloadTypes: string[] = [];
         connectorConfig.responsePayloadMap.payloadTypes.forEach((value, key) => {
             payloadTypes.push(key);
         });
-
-        const payloadVariable = payloadState.selectedPayload && (
-            <FormTextInput
-                customProps={{
-                    validate: validatePayloadNameValue,
-                    tooltipTitle: tooltipMessages.payloadVariableName,
-                    disabled: payloadVariableHasReferences
-                }}
-                defaultValue={payloadState.variableName}
-                placeholder={"Enter Payload Variable Name"}
-                onChange={onPayloadNameChange}
-                label={"Payload Variable Name"}
-                errorMessage={payloadVarError}
-            />
-        );
 
         const payloadConfig = payloadState.mapPayload === SELECT_PAYLOAD && (
             <>
@@ -342,13 +273,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         )
                 }
                 {payloadConfig}
-                {payloadVariable}
             </>
         );
     }
 
     const isPayloadMapped = connectorConfig.responsePayloadMap
-        ? ((payloadState.mapPayload === SELECT_PAYLOAD && payloadState.selectedPayload !== "" && payloadState.isNameProvided && payloadState.validPayloadName)
+        ? ((payloadState.mapPayload === SELECT_PAYLOAD && payloadState.selectedPayload !== "")
             || payloadState.mapPayload === NO_PAYLOAD)
         : true;
     const isSaveDisabled: boolean = isMutationProgress

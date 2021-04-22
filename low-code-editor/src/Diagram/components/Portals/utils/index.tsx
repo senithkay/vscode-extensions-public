@@ -19,7 +19,7 @@ import {
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, traversNode, TypeCastExpression
+    STNode, StringLiteral, traversNode, TypeCastExpression, XmlTypeDesc
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
@@ -484,6 +484,14 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
         } else if (formField.type === "json") {
             formField.value = positionalArg.expression?.source;
             nextValueIndex++;
+        } else if (formField.typeName === "TargetType") {
+            if (STKindChecker.isJsonTypeDesc(positionalArg.expression)) {
+                formField.value = positionalArg.expression.name.value;
+            } else if (STKindChecker.isXmlTypeDesc(positionalArg.expression)) {
+                formField.value = ((positionalArg.expression) as any).name.value;
+            } else if (STKindChecker.isStringTypeDesc(positionalArg.expression)) {
+                formField.value = positionalArg.expression.name.value;
+            }
         }
     }
 }

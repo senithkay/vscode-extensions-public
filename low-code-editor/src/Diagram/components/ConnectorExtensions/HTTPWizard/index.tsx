@@ -29,12 +29,10 @@ import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createHeaderObjectDeclaration,
     createImportStatement,
     createPropertyStatement,
-    createServiceCallForPayload,
     updateCheckedPayloadFunctionInvocation,
     updateCheckedRemoteServiceCall,
     updateHeaderObjectDeclaration,
@@ -125,39 +123,20 @@ export function HTTPWizard(props: WizardProps) {
             switch (httpVar.initializer.kind) {
                 case 'TypeCastExpression':
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
-
-                    // payload population logic stuff
-                    const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-                    symbolInfo.variables.forEach((value, key) => {
-                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                            const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
-
-                            const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
-
-                            if (variableStatement) {
-                                connectorConfig
-                                    .responsePayloadMap
-                                    .payloadVariableName = (variableStatement.typedBindingPattern
-                                        .bindingPattern as CaptureBindingPattern).variableName.value
-
-
-                                if (variableStatement.source.includes('getTextPayload')) {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
-                                } else if (variableStatement.source.includes('getXmlPayload')) {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
-                                } else if (variableStatement.source.includes('getJsonPayload')) {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
-                                } else {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
-                                }
-                            }
-                        }
-                    });
                     break;
                 default:
                     actionInitializer = httpVar.initializer as CheckAction;
                 // ignored
+            }
+
+            // payload population logic stuff
+            const targetTypeValue = connectorConfig.action.fields.find(field => field.name === "targetType").value;
+            if (targetTypeValue === "xml") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
+            } else if (targetTypeValue === "string") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = 'TEXT';
+            } else if (targetTypeValue === "json") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
             }
 
             if (actionInitializer) {
@@ -436,58 +415,25 @@ export function HTTPWizard(props: WizardProps) {
                     }
                 }
 
+                let responseVarType = "http:Response";
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = updateServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
-                    let responseModel: STNode;
-                    symbolInfo.variables.forEach((value, key) => {
-                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                            value.forEach(val => {
-                                const varName = (((val as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value
-                                if (varName === connectorConfig.responsePayloadMap.payloadVariableName) {
-                                    responseModel = val;
-                                }
-                            })
-                        }
-                    })
-
-                    if (responseModel) {
-                        const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            responseModel.position
-                        );
-                        modifications.push(addPayload);
+                    if (connectorConfig.responsePayloadMap.selectedPayloadType === "Text") {
+                        responseVarType = "string";
+                        serviceCallParams = serviceCallParams + `, targetType = string`;
                     } else {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            { line: model.position.startLine + 1, column: 0 }
-                        );
-                        modifications.push(addPayload);
+                        responseVarType = connectorConfig.responsePayloadMap.selectedPayloadType.toLocaleLowerCase();
+                        serviceCallParams = serviceCallParams + ` , targetType = ${connectorConfig.responsePayloadMap.selectedPayloadType.toLocaleLowerCase()}`;
                     }
-                } else {
-                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
                 }
+                const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                    responseVarType,
+                    connectorConfig.action.returnVariableName,
+                    connectorConfig.name,
+                    connectorConfig.action.name,
+                    [serviceCallParams],
+                    model.position
+                );
+                modifications.push(addActionInvocation);
             }
         } else {
             if (targetPosition) {
@@ -541,35 +487,25 @@ export function HTTPWizard(props: WizardProps) {
                 } else {
                     serviceCallParams = params.toString();
                 }
+                let responseVarType = "http:Response";
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = createServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        connectorConfig.responsePayloadMap.payloadVariableName,
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                } else {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
+                    if (connectorConfig.responsePayloadMap.selectedPayloadType === "Text") {
+                        responseVarType = "string";
+                        serviceCallParams = serviceCallParams + `, targetType = string`;
+                    } else {
+                        responseVarType = connectorConfig.responsePayloadMap.selectedPayloadType.toLocaleLowerCase();
+                        serviceCallParams = serviceCallParams + ` , targetType = ${connectorConfig.responsePayloadMap.selectedPayloadType.toLocaleLowerCase()}`;
+                    }
                 }
+                const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                    responseVarType,
+                    connectorConfig.action.returnVariableName,
+                    connectorConfig.name,
+                    connectorConfig.action.name,
+                    [serviceCallParams],
+                    targetPosition
+                );
+                modifications.push(addActionInvocation);
             }
         }
         onSave(modifications);
