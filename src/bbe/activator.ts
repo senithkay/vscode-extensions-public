@@ -25,6 +25,28 @@ import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../ut
 import { TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 
 let examplesPanel: WebviewPanel | undefined;
+const exampleMaps = new Map([
+    ['distributed-transactions', 'initiator.bal'],
+    ['basic-https-listener-client', 'basic_https_listener.bal'],
+    ['mutual-ssl', 'mutual_ssl_service.bal'],
+    ['http-cookies', 'cookie_server.bal'],
+    ['http-2-0-server-push', 'http_2_0_service.bal'],
+    ['grpc-unary-blocking', 'grpc_unary_blocking_service.bal'],
+    ['grpc-server-streaming', 'grpc_server_streaming_service.bal'],
+    ['grpc-client-streaming', 'grpc_client_streaming_service.bal'],
+    ['grpc-bidirectional-streaming', 'grpc_bidirectional_streaming_service.bal'],
+    ['grpc-secured-unary', 'grpc_secured_unary_service.bal'],
+    ['proto-to-ballerina', 'proto_to_ballerina.proto'],
+    ['openapi-to-ballerina', 'openapi_to_ballerina.yaml'],
+    ['testerina-mocking-functions', 'testerina_mocking_functions_test.bal'],
+    ['testerina-mocking-objects', 'testerina_mocking_objects_test.bal'],
+    ['nats-basic-client', 'publisher.bal'],
+    ['nats-streaming-client', 'publisher.bal'],
+    ['nats-streaming-durable-subscriptions', 'publisher.bal'],
+    ['nats-streaming-queue-group', 'publisher.bal'],
+    ['nats-streaming-start-position', 'publisher.bal'],
+    ['tcp-transport-security', 'tcp_transport_security_client.bal']
+]);
 
 function showExamples(context: ExtensionContext, langClient: ExtendedLangClient): void {
     if (examplesPanel) {
@@ -46,7 +68,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                 const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
                 if (ballerinaHome) {
                     const folderPath = path.join(ballerinaHome, 'examples', url);
-                    const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
+                    const filePath = path.join(folderPath, exampleMaps.has(url) ? exampleMaps.get(url)! : `${url.replace(/-/g, '_')}.bal`);
                     workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                         window.showTextDocument(doc);
                     }, (err: Error) => {
