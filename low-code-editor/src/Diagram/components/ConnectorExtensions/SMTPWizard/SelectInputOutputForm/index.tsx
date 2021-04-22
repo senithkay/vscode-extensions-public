@@ -110,7 +110,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setExpandBcc(true);
     }
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
         // let allFieldsValid = true;

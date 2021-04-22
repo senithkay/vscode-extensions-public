@@ -102,6 +102,14 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     }
 }
 
+/** Check if a mandatory fields is empty or not */
+export function isFieldEmpty(model?: FormField, value= ""): boolean {
+    if (!model.optional && (!value || !value.replace(/"/g, ''))){
+        return true;
+    }
+    return false;
+}
+
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     // check for severity level == 1
     return diagnosticChecker(diagnostics)

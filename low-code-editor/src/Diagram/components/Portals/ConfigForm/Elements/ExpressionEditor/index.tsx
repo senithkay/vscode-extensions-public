@@ -39,6 +39,7 @@ import {
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
+    isFieldEmpty,
     transformFormFieldTypeToString
 } from "./utils";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
@@ -178,7 +179,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
 
     const validExpEditor = () => {
-        validate(model.name, false);
+        const currentContent = monacoRef.current ? monacoRef.current?.editor?.getModel()?.getValue() : model.value;
+        if (isFieldEmpty(model, currentContent)){
+            validate(model.name, true);
+        }else{
+            validate(model.name, false);
+        }
         if (monacoRef.current) {
             monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
         }
