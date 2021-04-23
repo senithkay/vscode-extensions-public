@@ -17,9 +17,9 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
+import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
-import { TooltipIcon } from '../../../Portals/ConfigForm/Elements/Tooltip';
 import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {

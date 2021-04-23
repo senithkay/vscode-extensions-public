@@ -18,13 +18,16 @@ import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import * as formFieldDatabase from "../../utils/idb";
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
+import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
 import { EndpointViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
+import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
 
@@ -49,8 +52,8 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
 
 export const MAIN_FUNCTION = "main";
 
-const findResourceIndex = (serviceMembers: any, targetResource: any) => {
-    const index = serviceMembers.findIndex(
+const findResourceIndex = (resourceMembers: any, targetResource: any) => {
+    const index = resourceMembers.findIndex(
         (m: any) => {
             const currentPath = m?.relativeResourcePath[0]?.value;
             const currentMethodType = m?.functionName?.value;
@@ -61,64 +64,116 @@ const findResourceIndex = (serviceMembers: any, targetResource: any) => {
         }
     );
     return index || 0;
+};
+
+const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
+    const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
+    const targetMethod = tFunctionName?.value;
+    const targetPath = tRelativeResourcePath[0]?.value;
+
+    let service = serviceMembers[0];
+    serviceMembers.forEach((m: any) => {
+        const resources = m.members;
+        const found = resources?.find((r: any) => {
+            const { functionName, relativeResourcePath } = r;
+            const method = functionName?.value;
+            const path = relativeResourcePath[0]?.value;
+            return method === targetMethod && path === targetPath;
+        });
+        if (found) service = m;
+    });
+
+    return service;
 }
 
 export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null, fn: boolean = false) {
+    // TODO: Simplify this code block.
+
     const modulePart: ModulePart = mp;
-    const members: STNode[] = modulePart.members;
     let functionDefinition: FunctionDefinition;
+    const members: STNode[] = modulePart?.members || [];
 
-    for (const node of members) {
-        // if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === MAIN_FUNCTION) {
-        //     functionDefinition = node as FunctionDefinition;
-        //     functionDefinition.configurablePosition = node.position;
-        //     break;
-        // }
-
-        if (fn && STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
-            functionDefinition = node as FunctionDefinition;
-            functionDefinition.configurablePosition = node.position;
-            break;
-        }
-
-        if (STKindChecker.isServiceDeclaration(node)) {
-            // TODO: Fix with the ST interface generation.
-            const serviceDec = node as any;
-            const serviceMembers: STNode[] = serviceDec.members;
-
-            let resourceIndex = 0;
-            if (fncOrResource) {
-                const foundResourceIndex = findResourceIndex(serviceMembers, fncOrResource);
-                resourceIndex = foundResourceIndex > 0 ? foundResourceIndex : 0;
+    if (fn) {
+        // FunctionDefinition
+        const fnMembers = members.filter((m: any) => (m.kind === "FunctionDefinition"));
+        for (const node of fnMembers) {
+            if (STKindChecker.isFunctionDefinition(node) && node.functionName.value === fncOrResource.functionName.value) {
+                functionDefinition = node as FunctionDefinition;
+                functionDefinition.configurablePosition = node.position;
+                break;
             }
+        }
+    } else {
+        const serviceMembers = members.filter((m: any) => (STKindChecker.isServiceDeclaration(m)));
 
-            const serviceMember = serviceMembers[resourceIndex];
+        if (fncOrResource) {
+            const serviceMember: STNode = findServiceForGivenResource(serviceMembers, fncOrResource);
+            if (STKindChecker.isServiceDeclaration(serviceMember)) {
+                const resourceMembers: STNode[] = serviceMember.members;
 
-            // for (const serviceMember of serviceMembers) {
-            if (serviceMember.kind === "ResourceAccessorDefinition"
-                || serviceMember.kind === "ObjectMethodDefinition"
-                || serviceMember.kind === "FunctionDefinition") {
-                const functionDef = serviceMember as FunctionDefinition;
-                functionDef.configurablePosition = node.position;
-                let isRemoteOrResource: boolean = false;
+                let resourceIndex = 0;
+                if (fncOrResource) {
+                    const foundResourceIndex = findResourceIndex(resourceMembers, fncOrResource);
+                    resourceIndex = foundResourceIndex > 0 ? foundResourceIndex : 0;
+                }
 
-                functionDef?.qualifierList?.forEach(qualifier => {
-                    if (qualifier.kind === "ResourceKeyword"
-                        || qualifier.kind === "RemoteKeyword") {
-                        isRemoteOrResource = true;
+                const resourceMember = resourceMembers[resourceIndex];
+
+                if (resourceMember.kind === "ResourceAccessorDefinition"
+                    || resourceMember.kind === "ObjectMethodDefinition"
+                    || resourceMember.kind === "FunctionDefinition") {
+                    const functionDef = resourceMember as FunctionDefinition;
+                    functionDef.configurablePosition = serviceMember.position;
+                    let isRemoteOrResource: boolean = false;
+
+                    functionDef?.qualifierList?.forEach(qualifier => {
+                        if (qualifier.kind === "ResourceKeyword"
+                            || qualifier.kind === "RemoteKeyword") {
+                            isRemoteOrResource = true;
+                        }
+                    });
+
+                    if (isRemoteOrResource) {
+                        functionDefinition = resourceMember as FunctionDefinition;
+                        functionDefinition.kind = "FunctionDefinition";
                     }
-                });
+                }
+            }
+        } else {
+            for (const node of serviceMembers) {
+                if (STKindChecker.isServiceDeclaration(node)) {
+                    // TODO: Fix with the ST interface generation.
+                    const serviceDec = node as any;
+                    const resourceMembers: STNode[] = serviceDec.members;
 
-                if (isRemoteOrResource) {
-                    functionDefinition = serviceMember as FunctionDefinition;
-                    functionDefinition.kind = "FunctionDefinition";
+                    for (const resourceMember of resourceMembers) {
+                        if (resourceMember.kind === "ResourceAccessorDefinition"
+                            || resourceMember.kind === "ObjectMethodDefinition"
+                            || resourceMember.kind === "FunctionDefinition") {
+                            const functionDef = resourceMember as FunctionDefinition;
+                            functionDef.configurablePosition = node.position;
+                            let isRemoteOrResource: boolean = false;
+
+                            functionDef?.qualifierList?.forEach(qualifier => {
+                                if (qualifier.kind === "ResourceKeyword"
+                                    || qualifier.kind === "RemoteKeyword") {
+                                    isRemoteOrResource = true;
+                                }
+                            });
+
+                            if (isRemoteOrResource) {
+                                functionDefinition = resourceMember as FunctionDefinition;
+                                functionDefinition.kind = "FunctionDefinition";
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
             }
-            // }
-            break;
         }
     }
+
     return functionDefinition ? functionDefinition : mp;
 }
 
@@ -238,10 +293,8 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
         case "STATEMENT":
             switch (subType) {
                 case "If":
-                    h = IFELSE_SVG_HEIGHT;
-                    w = IFELSE_SVG_WIDTH;
-                    break;
                 case "ForEach":
+                case "While":
                     h = IFELSE_SVG_HEIGHT;
                     w = IFELSE_SVG_WIDTH;
                     break;
@@ -301,6 +354,25 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
     return recordDef;
 }
 
+export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+    const { org, module, version, name, cacheVersion} = connector;
+    const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+    try {
+        await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                for (const [key, fieldsInfo] of Object.entries(data)) {
+                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                }
+            }
+        });
+    } catch (error) {
+        // IGNORE
+    }
+    return functionDef.size > 0 ? functionDef : undefined;
+}
+
 export interface FormFieldCache {
     [key: string]: FormFiledCacheEntry
 }
@@ -312,30 +384,27 @@ export interface FormFiledCacheEntry {
 export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
 
 export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
-    const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
-    const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
-    const fieldsMap: { [key: string]: FunctionDefinitionInfo } = {};
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+    const formFieldJsonObject: any = {};
     fields.forEach((value, key) => {
-        fieldsMap[key] = value;
+        formFieldJsonObject[ key ] = value;
     });
-    formFieldCacheMap[cacheId] = fieldsMap;
-    localStorage.setItem(FORM_FIELD_CACHE, JSON.stringify(formFieldCacheMap));
+    formFieldDatabase.put(cacheId, formFieldJsonObject);
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
-    const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
-    const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
-    const fieldsKVMap: FormFiledCacheEntry = formFieldCacheMap[cacheId];
-    const clonedFieldsKVMap: FormFiledCacheEntry = cloneDeep(fieldsKVMap);
-    if (clonedFieldsKVMap) {
-        const fieldsMap: Map<string, FunctionDefinitionInfo> = new Map();
-        Object.entries(clonedFieldsKVMap).forEach((value) => fieldsMap.set(value[0], value[1]));
-        return fieldsMap;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+    const formFieldCache = await formFieldDatabase.get(cacheId);
+    if (formFieldCache) {
+        const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+        for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
+            functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+        }
+        return functionDef.size > 0 ? functionDef : undefined;
     }
+    return undefined;
 }
 
 export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement): any {
@@ -416,6 +485,12 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
+}
+
+export function haveBlockStatement(node: STNode): boolean {
+    const blockStatementFinder: BlockStatementFinder = new BlockStatementFinder();
+    traversNode(node, blockStatementFinder);
+    return blockStatementFinder.getHaveBlockStatement();
 }
 
 export function isSTResourceFunction(node: FunctionDefinition): boolean {

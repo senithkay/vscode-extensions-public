@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,20 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-svg {
-    overflow: visible !important;
-}
+import { BlockStatement, Visitor } from "@ballerina/syntax-tree";
 
-.on-error-line {
-    line {
-        stroke: #5567d5;
-        stroke-width: 1px;
+export class BlockStatementFinder implements Visitor {
+    public haveBlockStatement: boolean = false;
+    constructor() {
+        this.haveBlockStatement = false;
     }
-}
 
-.on-error-separator {
-    line {
-        stroke: #e0e2eb;
-        stroke-width: 1px;
+    public beginVisitBlockStatement(node: BlockStatement) {
+        this.haveBlockStatement = true;
+    }
+
+    public getHaveBlockStatement(): boolean {
+        return this.haveBlockStatement;
     }
 }

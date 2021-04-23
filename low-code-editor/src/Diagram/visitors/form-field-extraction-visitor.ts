@@ -233,7 +233,7 @@ class FieldVisitor implements Visitor {
                     viewState.fields = [];
                     const typeDesc: RecordTypeDesc = typeDef.typeDescriptor as RecordTypeDesc;
 
-                    if (typeDesc.kind === 'RecordTypeDesc') {
+                    if (typeDesc?.kind === 'RecordTypeDesc') {
                         viewState.type = PrimitiveBalType.Record
 
                         viewState.typeName = typeDef.typeName.value;

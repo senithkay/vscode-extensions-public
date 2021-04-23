@@ -18,6 +18,7 @@ import DiagramContainer from "./Diagram/Container";
 import { TriggerType } from "./Diagram/models";
 import { DiagramErrorBoundary } from "./ErrorBoundrary";
 import { LowCodeEditorProps as Props } from "./types";
+import { init as formFieldIndexDB } from './utils/idb';
 
 export { LowCodeEditorProps, PortalState } from "./types";
 export {
@@ -45,6 +46,8 @@ export {
     BaseLangClientInterface,
     DiagramEditorLangClientInterface,
     ExpressionEditorLangClientInterface,
+    ExpressionTypeRequest,
+    ExpressionTypeResponse,
     ExpressionEditorState,
     DiagramSize,
     DiagramState,
@@ -100,6 +103,9 @@ export default function LowCodeEditor(props: Props) {
         onMutate,
         onModifyTrigger
     };
+
+    // Initialized form field IndexedDB
+    formFieldIndexDB();
 
     return (
         <DiagramErrorBoundary>

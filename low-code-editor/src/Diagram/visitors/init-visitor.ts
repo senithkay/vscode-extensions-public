@@ -5,7 +5,6 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
-    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -14,7 +13,6 @@ import {
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
-    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -22,7 +20,8 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
@@ -40,9 +39,8 @@ import {
     StatementViewState,
     ViewState
 } from "../view-state";
-import { DoViewState } from "../view-state/do";
 import { DraftStatementViewState } from "../view-state/draft";
-import { OnErrorViewState } from "../view-state/onError";
+import { WhileViewState } from "../view-state/while";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock;
@@ -161,6 +159,10 @@ class InitVisitor implements Visitor {
 
     public endVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        node.viewState = new WhileViewState();
     }
 
     public endVisitActionStatement(node: ActionStatement, parent?: STNode) {
@@ -300,45 +302,6 @@ class InitVisitor implements Visitor {
         }
     }
 
-    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new DoViewState();
-        }
-        const viewState = new BlockViewState();
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const doViewState: DoViewState = node.viewState as DoViewState;
-            if (node.blockStatement) {
-                viewState.isDoBlock = true;
-            }
-
-            if (node.onFailClause) {
-                const onFailViewState: OnErrorViewState = new OnErrorViewState();
-                onFailViewState.isFirstInFunctionBody = true;
-                node.onFailClause.viewState = onFailViewState;
-            }
-        } else {
-            this.initStatement(node, parent);
-        }
-
-        if (node.blockStatement) {
-            node.blockStatement.viewState = viewState;
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new OnErrorViewState();
-        }
-        const viewState = new BlockViewState();
-        if (node.viewState && node.viewState.isFirstInFunctionBody && node.blockStatement) {
-            viewState.isOnErrorBlock = true;
-        }
-
-        if (node.blockStatement) {
-            node.blockStatement.viewState = viewState;
-        }
-    }
-
     private initStatement(node: STNode, parent?: STNode) {
         node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
@@ -419,13 +382,9 @@ class InitVisitor implements Visitor {
         let collapseFrom: number = 0;
         let collapsed: boolean = false;
         let plusButtons: PlusViewState[] = [];
-        let isDoBlock: boolean = false;
-        let isOnErrorBlock: boolean = false;
         if (node.viewState) {
             const viewState: BlockViewState = node.viewState as BlockViewState;
             draft = viewState.draft;
-            isDoBlock = viewState.isDoBlock;
-            isOnErrorBlock = viewState.isOnErrorBlock;
             if (viewState.collapseView) {
                 collapseView = viewState.collapseView;
                 collapseFrom = viewState.collapsedFrom;
@@ -442,9 +401,6 @@ class InitVisitor implements Visitor {
         node.viewState.collapsedFrom = collapseFrom;
         node.viewState.collapsed = collapsed;
         node.viewState.plusButtons = plusButtons;
-
-        node.viewState.isDoBlock = isDoBlock;
-        node.viewState.isOnErrorBlock = isOnErrorBlock;
 
         if (node.VisibleEndpoints) {
             const visibleEndpoints = node.VisibleEndpoints;
@@ -479,18 +435,8 @@ class InitVisitor implements Visitor {
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             node.viewState.isEndComponentAvailable = true;
         }
-
-        if (STKindChecker.isFunctionDefinition(parent)) {
-            for (const statement of node.statements) {
-                if (STKindChecker.isDoStatement(statement)) {
-                    const viewState: DoViewState = new DoViewState();
-                    viewState.isFirstInFunctionBody = true;
-                    statement.viewState = viewState;
-                    break;
-                }
-            };
-        }
     }
+
 }
 
 export const visitor = new InitVisitor();

@@ -12,9 +12,9 @@
 */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
-import React, { ReactNode, SyntheticEvent, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import CloseIcon from "@material-ui/icons/Close";
@@ -22,14 +22,13 @@ import { isValidCron } from "cron-validator";
 import { addMinutes, format } from "date-fns";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
-import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
 import { repeatRange, weekOptions } from "./ScheduleConstants";
@@ -55,7 +54,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     onModify: dispatchModifyTrigger,
-    trackTriggerSelection
+    trackTriggerSelection,
+    onMutate,
+    originalSyntaxTree
   } = state;
 
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -67,7 +68,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const toggleClasses = toggleStyles();
 
   const [currentCron, setCurrentCron] = useState<string>(cron || "");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const cronSplit = currentCron?.split(" ", 5);
@@ -94,10 +94,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   }, [isFileSaving, isFileSaved]);
 
-  const handleDialogOnCancel = () => {
-    setShowConfirmDialog(false);
-  };
-
   useEffect(() => {
     const genCron = cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue;
     setCurrentCron(genCron);
@@ -116,15 +112,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
     setValidCron(false);
   }
-
-  const handleUserConfirm = () => {
-    if (isEmptySource) {
-      handleOnSave();
-    } else {
-      // get user confirmation if code there
-      setShowConfirmDialog(true);
-    }
-  };
 
   const handleDayChange = (dayValue: string) => {
     setCronDayValue(dayValue);
@@ -226,7 +213,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   }
 
   const handleOnSave = () => {
-    setShowConfirmDialog(false);
     const utcCron = UTCCronForSelectedType();
     // dispatch and close the wizard
     setTriggerChanged(true);
@@ -234,6 +220,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
+      "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
+      "SYNTAX_TREE": originalSyntaxTree
     });
     trackTriggerSelection("Schedule");
   };
@@ -351,8 +339,23 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   );
 
   const customCron: ReactNode = (
+
     <div className={toggleClasses.cronGenWrapper}>
-      <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+
+      <div>
+        <TooltipIcon
+          title={tooltipMessages.cronExpression.title}
+          actionText={tooltipMessages.cronExpression.actionText}
+          actionLink={tooltipMessages.cronExpression.actionLink}
+          placement="left"
+          arrow={true}
+          interactive={true}
+        >
+          <p className={toggleClasses.cronExpressionTitle}>Cron Expression :</p>
+        </TooltipIcon>
+      </div>
+
+
       <FormTextInput
         placeholder="* * * * *"
         defaultValue={currentCron}
@@ -362,7 +365,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         }}
         errorMessage="Please enter valid cron expression"
       />
+
     </div>
+
   );
 
   const handleSchedule = (selectedRepeatRange: string) => {
@@ -405,14 +410,14 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       <>
         <div className={classes.titleWrapper}>
           <p className={classes.title}>Configure Schedule Trigger</p>
-          <TooltipIcon
-            title={tooltipMessages.cronExpression.title}
-            actionText={tooltipMessages.cronExpression.actionText}
-            actionLink={tooltipMessages.cronExpression.actionLink}
-            placement="left"
-            arrow={true}
-            interactive={true}
-          />
+          <div>
+            <TooltipIcon
+              title={tooltipMessages.scheduleConfig}
+              placement="left"
+              arrow={true}
+              interactive={true}
+            />
+          </div>
         </div>
 
         <button className={classes.closeBtnWrapper} onClick={onClose}>
@@ -428,7 +433,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label="Repeat every :"
+              label="Schedule:"
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />
@@ -448,18 +453,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           <PrimaryButton
             text="Save"
             className={classes.saveBtn}
-            onClick={handleUserConfirm}
+            onClick={handleOnSave}
             disabled={!validCron}
           />
         </div>
-        {
-          showConfirmDialog && (
-            <SourceUpdateConfirmDialog
-              onConfirm={handleOnSave}
-              onCancel={handleDialogOnCancel}
-            />
-          )
-        }
       </>
     </DiagramOverlay>
   );

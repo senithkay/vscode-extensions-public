@@ -17,11 +17,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
+import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
-import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
@@ -40,7 +40,7 @@ export interface PlusElementsProps {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 450;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 500;
 export const PLUS_HOLDER_API_HEIGHT = 580;
 
 export function PlusElements(props: PlusElementsProps) {

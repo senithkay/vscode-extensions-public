@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { SimpleBBox, StatementViewState } from ".";
-
-export class DoViewState extends StatementViewState {
-    public isFirstInFunctionBody: boolean = false;
-    public container: SimpleBBox = new SimpleBBox();
-    constructor() {
-        super();
+.trigger-params-wrapper {
+    .trigger-params-text {
+        fill: #40404b;
+        font-size: 10px;
+        font-family: inherit;
+        letter-spacing: 0.05em;
+        font-weight: 500;
     }
 }

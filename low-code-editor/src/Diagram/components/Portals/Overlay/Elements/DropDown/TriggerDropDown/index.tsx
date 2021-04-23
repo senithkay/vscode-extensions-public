@@ -20,9 +20,8 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
-import { DefaultConfig } from '../../../../../../visitors/default';
 import { OverlayBackground } from '../../../../../OverlayBackground';
-import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
+import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
 import { tooltipMessages } from '../../../../utils/constants';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
 import { ApiConfigureWizard } from '../ApiConfigureWizard';
@@ -30,7 +29,7 @@ import { ScheduleConfigureWizard } from '../ScheduleConfigureWizard';
 import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
-import { ApiIcon, ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon } from "../../../../../../../assets/icons";
+import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -47,8 +46,9 @@ interface TriggerDropDownProps {
 
 export enum ConnectorType {
     GITHUB = "GitHub",
-    G_CALENDAR = "Google Calender",
+    G_CALENDAR = "Google Calendar",
     G_SHEET = "Google Sheet",
+    SALESFORCE = "Salesforce"
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
@@ -97,11 +97,11 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
     };
     function handleTriggerComplete() {
         onComplete(selectedTrigger);
-    };
+    }
     function handleSubMenuClose() {
         setSelectedTrigger(undefined);
         setActiveConnector(undefined);
-    };
+    }
 
     const integrationMenu = (
         <div>
@@ -162,6 +162,25 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                         <CalendarIcon className="trigger-selector-icon" />
                                     </div>
                                     <div className="trigger-label "> Calendar </div>
+                                </div>
+                            </Tooltip>
+
+                            <Tooltip
+                                title={tooltipMessages.salesforceTrigger.title}
+                                actionText={tooltipMessages.salesforceTrigger.actionText}
+                                actionLink={tooltipMessages.salesforceTrigger.actionLink}
+                                interactive={true}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <div
+                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.SALESFORCE) })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.SALESFORCE)}
+                                >
+                                    <div className="icon-wrapper">
+                                        <SalesforceIcon className="trigger-selector-icon" />
+                                    </div>
+                                    <div className="trigger-label ">Salesforce</div>
                                 </div>
                             </Tooltip>
                         </div>
@@ -253,9 +272,3 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         </DiagramOverlayContainer>
     );
 }
-
-// const mapDispatchToProps = {
-//     createTrigger: dispatchModifyTriggerWizard,
-// }; // todo: handle dispatch function
-
-// export const TriggerDropDown = connect(null, mapDispatchToProps)(TriggerDropDownC);

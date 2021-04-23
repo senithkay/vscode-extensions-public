@@ -10,9 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.error-handdling {
-    stroke-width: 0.5px;
-    stroke: #cbcedb;
-    border-radius: 12px;
-    fill: #f7f8fb99;
+.selectedPUT {
+    background-color: #fca130 !important;
+    border: 0;
+}
+
+.selectedGET {
+    background-color: #61affe !important;
+    border: 0;
+}
+
+.selectedPOST {
+    background-color: #49cc90 !important;
+    border: 0;
+}
+
+.selectedDELETE {
+    background-color: #f93e3e !important;
+    border: 0;
 }

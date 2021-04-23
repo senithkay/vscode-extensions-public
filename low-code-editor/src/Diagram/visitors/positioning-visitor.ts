@@ -10,21 +10,37 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BlockStatement, DoStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, ModulePart, ObjectMethodDefinition, OnFailClause, ResourceAccessorDefinition, STKindChecker, STNode, VisibleEndpoint, Visitor } from "@ballerina/syntax-tree";
+import {
+    BlockStatement,
+    ForeachStatement,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    IfElseStatement,
+    ModulePart,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
+    VisibleEndpoint,
+    Visitor,
+    WhileStatement
+} from "@ballerina/syntax-tree";
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
-    CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState,
+    CompilationUnitViewState,
+    ElseViewState,
+    EndpointViewState,
     ForEachViewState,
-    FunctionViewState, IfViewState,
-    OnErrorViewState,
+    FunctionViewState,
+    IfViewState,
     PlusViewState,
-    StatementViewState
+    StatementViewState,
+    WhileViewState
 } from "../view-state";
 
 import { DefaultConfig } from "./default";
@@ -53,31 +69,32 @@ class PositioningVisitor implements Visitor {
         }
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
 
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
 
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
-
-        // if (body.statements.length > 0) {
-        //     for (const statement of body.statements) {
-        //         if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
-        //             if (statement.onFailClause) {
-        //                 const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
-        //                 onFailViewState.bBox.cx = viewState.end.bBox.cx;
-        //                 onFailViewState.bBox.cy = viewState.end.bBox.cy;
-        //             }
-        //         }
-        //     }
-        // }
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -110,11 +127,24 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = DefaultConfig.canvas.paddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
 
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
+
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
 
         viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
@@ -134,32 +164,24 @@ class PositioningVisitor implements Visitor {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                if (viewState.triggerParams) {
+                    node?.functionSignature?.parameters?.length > 0 ?
+                        viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+                    viewState.triggerParams.visible ?
+                        plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4) + TRIGGER_PARAMS_SVG_HEIGHT + (DefaultConfig.dotGap / 2)
+                        : plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                } else {
+                    plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+
+                }
             }
         }
 
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
-        let widthOfOnFailClause = 0;
-        if (body.statements.length > 0) {
-            for (const statement of body.statements) {
-                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
-                    if (statement.onFailClause) {
-                        const onFailBlockViewState = statement.onFailClause.blockStatement.viewState as BlockViewState;
-                        widthOfOnFailClause = onFailBlockViewState.bBox.w;
-                        const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
-                        onFailViewState.bBox.cx = viewState.end.bBox.cx + (DefaultConfig.startingOnErrorX * 2);
-                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2);
-
-                        onFailViewState.header.cx = onFailBlockViewState.bBox.cx;
-                        onFailViewState.header.cy = onFailBlockViewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom * 2);
-                        onFailViewState.lifeLine.x = onFailBlockViewState.bBox.cx;
-                        onFailViewState.lifeLine.y = onFailBlockViewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom * 2);
-                    }
-                }
-            }
-        }
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -212,124 +234,10 @@ class PositioningVisitor implements Visitor {
         const blockViewState: BlockViewState = node.viewState;
         allEndpoints = blockViewState.connectors;
         epCount = 0;
-        this.visitBlockStatement(node);
+        this.beginVisitBlockStatement(node);
     }
 
-    public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        if (parent && (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent))) {
-            return;
-        }
-        this.visitBlockStatement(node);
-    }
-
-    public beginVisitForeachStatement(node: ForeachStatement) {
-        const bodyViewState: BlockViewState = node.blockStatement.viewState;
-        const viewState: ForEachViewState = node.viewState;
-        viewState.foreachBody = bodyViewState;
-
-        viewState.foreachHead.cx = viewState.bBox.cx;
-        viewState.foreachHead.cy = viewState.bBox.cy + (viewState.foreachHead.h / 2);
-
-        viewState.foreachLifeLine.cx = viewState.bBox.cx;
-        viewState.foreachLifeLine.cy = viewState.foreachHead.cy + (viewState.foreachHead.h / 2);
-
-        viewState.foreachBody.bBox.cx = viewState.foreachHead.cx;
-        viewState.foreachBody.bBox.cy = viewState.foreachHead.cy + (viewState.foreachHead.h / 2) + viewState.foreachHead.offsetFromBottom;
-
-        viewState.foreachBodyRect.cx = viewState.foreachHead.cx;
-        viewState.foreachBodyRect.cy = viewState.foreachHead.cy;
-    }
-
-    public beginVisitIfElseStatement(node: IfElseStatement) {
-        const viewState: IfViewState = node.viewState as IfViewState;
-        const ifBodyViewState: BlockViewState = node.ifBody.viewState as BlockViewState;
-
-        viewState.headIf.cx = viewState.bBox.cx;
-        viewState.headIf.cy = viewState.bBox.cy + (viewState.headIf.h / 2);
-
-        ifBodyViewState.bBox.cx = viewState.bBox.cx;
-        ifBodyViewState.bBox.cy = viewState.headIf.cy + (viewState.headIf.h / 2) + viewState.headIf.offsetFromBottom;
-
-        if (node.elseBody) {
-            if (node.elseBody.elseBody.kind === "BlockStatement") {
-                const elseViewStatement: ElseViewState = node.elseBody.elseBody.viewState as ElseViewState;
-
-                elseViewStatement.elseTopHorizontalLine.x = viewState.bBox.cx + elseViewStatement.ifHeadWidthOffset;
-                elseViewStatement.elseTopHorizontalLine.y = viewState.bBox.cy + elseViewStatement.ifHeadHeightOffset;
-
-                elseViewStatement.bBox.cx = elseViewStatement.elseTopHorizontalLine.x +
-                    elseViewStatement.elseTopHorizontalLine.length;
-                elseViewStatement.bBox.cy = ifBodyViewState.bBox.cy;
-
-                elseViewStatement.elseBody.x = elseViewStatement.bBox.cx;
-                elseViewStatement.elseBody.y = elseViewStatement.elseTopHorizontalLine.y;
-
-                elseViewStatement.elseBottomHorizontalLine.x = viewState.bBox.cx;
-                elseViewStatement.elseBottomHorizontalLine.y = elseViewStatement.elseBody.y +
-                    elseViewStatement.elseBody.length;
-            } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
-                const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
-                const elseIfViewState: IfViewState = elseIfStmt.viewState;
-
-                elseIfViewState.elseIfTopHorizontalLine.x = viewState.bBox.cx + elseIfViewState.elseIfHeadWidthOffset;
-                elseIfViewState.elseIfTopHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfHeadHeightOffset;
-
-                elseIfViewState.bBox.cx = elseIfViewState.elseIfTopHorizontalLine.x
-                    + elseIfViewState.elseIfTopHorizontalLine.length + (elseIfViewState.headIf.w / 2);
-                elseIfViewState.bBox.cy = viewState.bBox.cy;
-
-                elseIfViewState.elseIfLifeLine.x = elseIfViewState.bBox.cx;
-                elseIfViewState.elseIfLifeLine.y = elseIfViewState.bBox.cy + elseIfViewState.headIf.h;
-
-                elseIfViewState.elseIfBottomHorizontalLine.x = viewState.bBox.cx;
-                elseIfViewState.elseIfBottomHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfLifeLine.h +
-                    elseIfViewState.headIf.h;
-            }
-        } else {
-            const defaultElseVS: ElseViewState = viewState.defaultElseVS;
-
-            defaultElseVS.elseTopHorizontalLine.x = viewState.bBox.cx + defaultElseVS.ifHeadWidthOffset;
-            defaultElseVS.elseTopHorizontalLine.y = viewState.bBox.cy + defaultElseVS.ifHeadHeightOffset;
-
-            defaultElseVS.bBox.cx = defaultElseVS.elseTopHorizontalLine.x +
-                defaultElseVS.elseTopHorizontalLine.length;
-            defaultElseVS.bBox.cy = ifBodyViewState.bBox.cy;
-
-            defaultElseVS.elseBody.x = defaultElseVS.bBox.cx;
-            defaultElseVS.elseBody.y = defaultElseVS.elseTopHorizontalLine.y;
-
-            defaultElseVS.elseBottomHorizontalLine.x = viewState.bBox.cx;
-            defaultElseVS.elseBottomHorizontalLine.y = defaultElseVS.elseBody.y +
-                defaultElseVS.elseBody.length;
-
-            // This is to check a else-if else and add else curve offset.
-            if (viewState.childElseViewState) {
-                defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
-            }
-        }
-    }
-
-    public beginVisitDoStatement(node: DoStatement) {
-        const viewState = node.viewState as DoViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cx = viewState.bBox.cx;
-            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
-
-            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
-            viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause) {
-        const viewState = node.viewState as OnErrorViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
-        }
-    }
-
-    private visitBlockStatement(node: BlockStatement) {
+    public beginVisitBlockStatement(node: BlockStatement) {
         const blockViewState: BlockViewState = node.viewState;
         let height = 0;
         let index = 0;
@@ -470,6 +378,112 @@ class PositioningVisitor implements Visitor {
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         }
     }
+
+    public beginVisitForeachStatement(node: ForeachStatement) {
+        const bodyViewState: BlockViewState = node.blockStatement.viewState;
+        const viewState: ForEachViewState = node.viewState;
+        viewState.foreachBody = bodyViewState;
+
+        viewState.foreachHead.cx = viewState.bBox.cx;
+        viewState.foreachHead.cy = viewState.bBox.cy + (viewState.foreachHead.h / 2);
+
+        viewState.foreachLifeLine.cx = viewState.bBox.cx;
+        viewState.foreachLifeLine.cy = viewState.foreachHead.cy + (viewState.foreachHead.h / 2);
+
+        viewState.foreachBody.bBox.cx = viewState.foreachHead.cx;
+        viewState.foreachBody.bBox.cy = viewState.foreachHead.cy + (viewState.foreachHead.h / 2) + viewState.foreachHead.offsetFromBottom;
+
+        viewState.foreachBodyRect.cx = viewState.foreachHead.cx;
+        viewState.foreachBodyRect.cy = viewState.foreachHead.cy;
+    }
+
+    public beginVisitWhileStatement(node: WhileStatement) {
+        const bodyViewState: BlockViewState = node.whileBody.viewState;
+        const viewState: WhileViewState = node.viewState;
+        viewState.whileBody = bodyViewState;
+
+        viewState.whileHead.cx = viewState.bBox.cx;
+        viewState.whileHead.cy = viewState.bBox.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileLifeLine.cx = viewState.bBox.cx;
+        viewState.whileLifeLine.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2);
+
+        viewState.whileBody.bBox.cx = viewState.whileHead.cx;
+        viewState.whileBody.bBox.cy = viewState.whileHead.cy + (viewState.whileHead.h / 2) + viewState.whileHead.offsetFromBottom;
+
+        viewState.whileBodyRect.cx = viewState.whileHead.cx;
+        viewState.whileBodyRect.cy = viewState.whileHead.cy;
+    }
+
+    public beginVisitIfElseStatement(node: IfElseStatement) {
+        const viewState: IfViewState = node.viewState as IfViewState;
+        const ifBodyViewState: BlockViewState = node.ifBody.viewState as BlockViewState;
+
+        viewState.headIf.cx = viewState.bBox.cx;
+        viewState.headIf.cy = viewState.bBox.cy + (viewState.headIf.h / 2);
+
+        ifBodyViewState.bBox.cx = viewState.bBox.cx;
+        ifBodyViewState.bBox.cy = viewState.headIf.cy + (viewState.headIf.h / 2) + viewState.headIf.offsetFromBottom;
+
+        if (node.elseBody) {
+            if (node.elseBody.elseBody.kind === "BlockStatement") {
+                const elseViewStatement: ElseViewState = node.elseBody.elseBody.viewState as ElseViewState;
+
+                elseViewStatement.elseTopHorizontalLine.x = viewState.bBox.cx + elseViewStatement.ifHeadWidthOffset;
+                elseViewStatement.elseTopHorizontalLine.y = viewState.bBox.cy + elseViewStatement.ifHeadHeightOffset;
+
+                elseViewStatement.bBox.cx = elseViewStatement.elseTopHorizontalLine.x +
+                    elseViewStatement.elseTopHorizontalLine.length;
+                elseViewStatement.bBox.cy = ifBodyViewState.bBox.cy;
+
+                elseViewStatement.elseBody.x = elseViewStatement.bBox.cx;
+                elseViewStatement.elseBody.y = elseViewStatement.elseTopHorizontalLine.y;
+
+                elseViewStatement.elseBottomHorizontalLine.x = viewState.bBox.cx;
+                elseViewStatement.elseBottomHorizontalLine.y = elseViewStatement.elseBody.y +
+                    elseViewStatement.elseBody.length;
+            } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
+                const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
+                const elseIfViewState: IfViewState = elseIfStmt.viewState;
+
+                elseIfViewState.elseIfTopHorizontalLine.x = viewState.bBox.cx + elseIfViewState.elseIfHeadWidthOffset;
+                elseIfViewState.elseIfTopHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfHeadHeightOffset;
+
+                elseIfViewState.bBox.cx = elseIfViewState.elseIfTopHorizontalLine.x
+                    + elseIfViewState.elseIfTopHorizontalLine.length + (elseIfViewState.headIf.w / 2);
+                elseIfViewState.bBox.cy = viewState.bBox.cy;
+
+                elseIfViewState.elseIfLifeLine.x = elseIfViewState.bBox.cx;
+                elseIfViewState.elseIfLifeLine.y = elseIfViewState.bBox.cy + elseIfViewState.headIf.h;
+
+                elseIfViewState.elseIfBottomHorizontalLine.x = viewState.bBox.cx;
+                elseIfViewState.elseIfBottomHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfLifeLine.h +
+                    elseIfViewState.headIf.h;
+            }
+        } else {
+            const defaultElseVS: ElseViewState = viewState.defaultElseVS;
+
+            defaultElseVS.elseTopHorizontalLine.x = viewState.bBox.cx + defaultElseVS.ifHeadWidthOffset;
+            defaultElseVS.elseTopHorizontalLine.y = viewState.bBox.cy + defaultElseVS.ifHeadHeightOffset;
+
+            defaultElseVS.bBox.cx = defaultElseVS.elseTopHorizontalLine.x +
+                defaultElseVS.elseTopHorizontalLine.length;
+            defaultElseVS.bBox.cy = ifBodyViewState.bBox.cy;
+
+            defaultElseVS.elseBody.x = defaultElseVS.bBox.cx;
+            defaultElseVS.elseBody.y = defaultElseVS.elseTopHorizontalLine.y;
+
+            defaultElseVS.elseBottomHorizontalLine.x = viewState.bBox.cx;
+            defaultElseVS.elseBottomHorizontalLine.y = defaultElseVS.elseBody.y +
+                defaultElseVS.elseBody.length;
+
+            // This is to check a else-if else and add else curve offset.
+            if (viewState.childElseViewState) {
+                defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
+            }
+        }
+    }
+
 }
 
 export const visitor = new PositioningVisitor();
