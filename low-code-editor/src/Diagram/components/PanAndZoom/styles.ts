@@ -26,7 +26,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "column",
             position: "absolute",
-            top: 'calc(50% - 50px)',
+            top: theme.spacing(31.25),
             right: 15,
             zIndex: 400
         },
