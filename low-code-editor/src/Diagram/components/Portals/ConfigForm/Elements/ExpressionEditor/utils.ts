@@ -145,6 +145,15 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
         } else if (model.collectionDataType) {
             return model.collectionDataType + "[]";
         }
+    } else if (model.type === "map") {
+        if (model.fields) {
+            const returnTypesList: string[] = [];
+            model.fields.forEach(field => {
+                const fieldTypeString = transformFormFieldTypeToString(field);
+                returnTypesList.push(fieldTypeString);
+            });
+            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
+        }
     } else if (model.type) {
         return model.type;
     }

@@ -24,6 +24,7 @@ import {
     NilTypeDesc,
     ObjectMethodDefinition,
     OptionalTypeDesc,
+    ParameterizedTypeDesc,
     ParenthesisedTypeDesc,
     QualifiedNameReference,
     RecordField,
@@ -35,6 +36,7 @@ import {
     StringTypeDesc,
     traversNode,
     TypeDefinition,
+    TypeParameter,
     TypeReference,
     UnionTypeDesc,
     VarTypeDesc,
@@ -78,7 +80,7 @@ class FieldVisitor implements Visitor {
         const viewState: FormField = node.viewState as FormField;
         if (node.viewState && node.typeName) {
             viewState.name = node.paramName.value;
-            viewState.typeName = undefined;
+            // viewState.typeName = undefined;
             node.typeName.viewState = viewState;
             viewState.optional = true;
         }
@@ -476,6 +478,23 @@ class FieldVisitor implements Visitor {
             const viewState: FormField = node.viewState;
             viewState.optional = true;
             node.typeDescriptor.viewState = viewState;
+        }
+    }
+
+    beginVisitParameterizedTypeDesc(node: ParameterizedTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState;
+            viewState.type = node.parameterizedType.value;
+            node.typeParameter.viewState = viewState;
+        }
+    }
+
+    beginVisitTypeParameter(node: TypeParameter) {
+        if (node.viewState && node.viewState.isParam) {
+            const mapViewState: FormField = { isParam: true, type: undefined };
+            const viewState: FormField = node.viewState;
+            viewState.fields = [mapViewState];
+            node.typeNode.viewState = mapViewState;
         }
     }
 

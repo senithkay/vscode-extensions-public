@@ -21,6 +21,7 @@ export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
 export { ExpressionEditor as collection };
 export { ExpressionEditor as union };
+export { ExpressionEditor as map };
 export { Record as record };
 export { FormJson as json };
 export { XML as xml };
