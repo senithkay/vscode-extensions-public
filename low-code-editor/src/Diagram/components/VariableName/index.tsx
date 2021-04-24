@@ -44,7 +44,6 @@ export function VariableName(props: { x: number, y: number, variableName: string
                     </g>
                 </g>
                 <g id="Variable_icon" transform="matrix(1, 0, 0, 1, 110.5, 304)">
-                    {processType === "Log" && <LogIcon height={16} width={15.251} x={1} y={1} />}
                     {processType === "Variable" && <PropertyIcon height={16} width={16} x={1} y={1} />}
                     {processType === "Custom" && <CustomStatementIcon height={16} width={15.251} x={1} y={1} />}
                 </g>

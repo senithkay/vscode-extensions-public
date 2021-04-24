@@ -13,10 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { CustomStatementIcon, LogIcon, PropertyIcon } from "../../../../src/assets/icons";
 import { ModelCodePosition } from "../../../api/models";
 import { TooltipCodeSnippet } from "../Portals/ConfigForm/Elements/Tooltip"
-import { VariableName } from "../VariableName";
 
 import "./style.scss";
 
@@ -30,8 +28,8 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void }) {
-    const { varName, sourceSnippet, openInCodeView, ...xyProps } = props;
+export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void, processType: string }) {
+    const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
 
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
@@ -64,12 +62,23 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                                 <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
                             </g>
                         </g>
-                        <path
-                            id="Icon"
-                            className="process-icon"
-                            d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
-                            transform="translate(112 258)"
-                        />
+                        {processType === "Log" ?
+                            (
+                                <text id="new" transform="translate(242 538)" fill="#5567d5" font-size="12" font-family="GilmerMedium, Gilmer Medium">
+                                    <tspan x="0" y="0">Log</tspan>
+                                </text>
+                            )
+                            :
+                            (
+                                <path
+                                    id="Icon"
+                                    className="process-icon"
+                                    d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
+                                    transform="translate(112 258)"
+                                />
+                            )
+                        }
+
                     </g>
                 </TooltipCodeSnippet>
             </g>

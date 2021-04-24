@@ -233,11 +233,14 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
                     <React.Fragment>
-                        <VariableName processType={processType} variableName={processName} x={cx - VARIABLE_NAME_WIDTH} y={cy + PROCESS_SVG_HEIGHT / 4} />
+                        {processType !== "Log" &&
+                            <VariableName processType={processType} variableName={processName} x={cx - VARIABLE_NAME_WIDTH} y={cy + PROCESS_SVG_HEIGHT / 4} />
+                        }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             varName={variableName}
+                            processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
