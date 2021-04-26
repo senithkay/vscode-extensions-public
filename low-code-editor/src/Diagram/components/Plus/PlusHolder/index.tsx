@@ -57,12 +57,12 @@ export const PlusHolderC = (props: PlusHolderProps) => {
 
     const APIText = intl.formatMessage({
         id: "lowcode.develop.Plus.PlusHolder.API.text",
-        defaultMessage: "APIS"
+        defaultMessage: "APIs"
     });
 
     const StatementsText = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.Plus.PlusHolder.Statements.text",
-        defaultMessage: "STATEMENT"
+        id: "lowcode.develop.Plus.PlusHolder.Statements.text",
+        defaultMessage: "Statements"
     });
 
     return (

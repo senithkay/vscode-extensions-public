@@ -223,7 +223,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     };
     const chooseCalendarPlaceholder = intl.formatMessage({
             id: "lowcode.develop.GCalendarConfigWizard.chooseCalendar.placeholder",
-            defaultMessage: "Choose Calendar"
+            defaultMessage: "Choose calendar"
         });
 
     const saveConfigButton = intl.formatMessage({
@@ -246,7 +246,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     <div className={classes.loader}>
                         <CirclePreloader position="relative" />
                         <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching Calendars ..."/>
+                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..."/>
                         </Typography>
                     </div>
 

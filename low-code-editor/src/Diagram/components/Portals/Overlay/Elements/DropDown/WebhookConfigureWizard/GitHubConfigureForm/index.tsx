@@ -390,7 +390,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
 
     const chooseRepoPlaceholder = intl.formatMessage({
         id: "lowcode.develop.GitHubConfigWizard.chooseRepository.placeholder",
-        defaultMessage: "Choose GitHub Repository"
+        defaultMessage: "Choose a GitHub repository"
     });
 
     const chooseActionPlaceholder = intl.formatMessage({
@@ -436,7 +436,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
                     <Typography variant="subtitle2" className={classes.loaderTitle}>
-                    <FormattedMessage id="lowcode.develop.GitHubConfigWizard.fetchingReposMessage.text" defaultMessage="Fetching Repositories ..."/>
+                    <FormattedMessage id="lowcode.develop.GitHubConfigWizard.fetchingReposMessage.text" defaultMessage="Fetching repositories ..."/>
                                         </Typography>
                 </div>
 
@@ -461,7 +461,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectEvent.title.text" defaultMessage="SELECT EVENT"/></p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectEvent.title.text" defaultMessage="Select Event"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
                         placeholder={chooseEventPlaceholder}
@@ -479,7 +479,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectAction.title.text" defaultMessage="SELECT ACTION"/></p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectAction.title.text" defaultMessage="Select Action"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
                         placeholder={chooseActionPlaceholder}

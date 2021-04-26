@@ -28,7 +28,6 @@ import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { tooltipMessages } from "../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
@@ -207,37 +206,37 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathInstructions = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip",
-    defaultMessage: "Enter a valid path following these instructions, Please avoid using:"
+    defaultMessage: "A valid path should not :"
   });
 
   const pathInstructionsBullet1 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1",
-    defaultMessage: "Spaces outside square brackets"
+    defaultMessage: "include spaces outside the square brackets"
   });
 
   const pathInstructionsBullet2 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint2",
-    defaultMessage: "Starting the path with a number"
+    defaultMessage: "start with a numerical character"
   });
 
   const pathInstructionsBullet3 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
-    defaultMessage: "Keywords for param names"
+    defaultMessage: "include keywords such as Return , Foreach , Resource, Object etc."
   });
 
   const resourceConfigTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.resourceConfig.Title",
-    defaultMessage: "Resource Configuration"
+    id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
+    defaultMessage: "Configure Resource"
   });
 
   const httpMethodTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.httpMethod.Title",
+    id: "lowcode.develop.apiConfigWizard.httpMethod.title",
     defaultMessage: "HTTP Method"
   });
 
   const pathTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.Title",
-    defaultMessage: "PATH"
+    id: "lowcode.develop.apiConfigWizard.path.title",
+    defaultMessage: "Path"
   });
 
   const pathErrorMessage = intl.formatMessage({
@@ -253,6 +252,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const saveAPIButton = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.saveAPIButton.text",
     defaultMessage: "Save API"
+  });
+
+  const pathExample = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
+    defaultMessage: "/users/[string name]"
   });
 
   const title = (
@@ -293,7 +297,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
             <Section
               title={pathTitle}
-              tooltip={{ title, content: tooltipMessages.path.content }}
+              tooltip={{ title,content:pathExample}}
             >
               <FormTextInput
                 dataTestId="api-path"
@@ -317,7 +321,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           >
             <div className={classes.addResourceBtnWrap}>
               <AddIcon />
-              <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addResource.title" defaultMessage="Add resource"/></p>
+              <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addResource.title" defaultMessage="Add Resource"/></p>
             </div>
           </button>
         )}
