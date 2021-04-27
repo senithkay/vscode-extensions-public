@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
@@ -82,7 +83,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.textField.formTextInput.optional.label" defaultMessage="Optional"/></FormHelperText>
                                 </div>
 
                             </div>

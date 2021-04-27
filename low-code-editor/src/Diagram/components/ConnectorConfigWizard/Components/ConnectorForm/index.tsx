@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl } from '@ballerina/syntax-tree';
 import { Typography } from "@material-ui/core";
@@ -80,6 +81,7 @@ export interface ConnectorConfigWizardProps {
 
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const { state } = useContext(DiagramContext);
     const {
         stSymbolInfo,
@@ -370,6 +372,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             onClose();
         }
     };
+    const manualConnectionButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.button.label",
+        defaultMessage: "Manual Connection"
+    });
+
+    const backButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.backButton.label",
+        defaultMessage: "Back"
+    });
 
     let connectorComponent: ReactNode = null;
 
@@ -401,7 +412,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         />
                         <div className={wizardClasses.titleWrapper}>
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
-                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName} Connection</Typography>
+                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection"/></Typography>
                         </div>
                     </div>
                     <div>
@@ -424,17 +435,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         {(formState === FormStates.OauthConnect) &&
                             (
                                 <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                    <p className={wizardClasses.subTitle}>Or use manual configurations</p>
+                                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations"/></p>
                                     <LinePrimaryButton
                                         className={wizardClasses.fullWidth}
-                                        text="Manual Connection"
+                                        text={manualConnectionButtonLabel}
                                         fullWidth={false}
                                         onClick={onManualConnection}
                                     />
                                     {(config.existingConnections && isNewConnection) && (
                                         <div className={wizardClasses.connectBackBtn}>
                                             <SecondaryButton
-                                                text="Back"
+                                                text={backButtonLabel}
                                                 fullWidth={false}
                                                 onClick={onOauthConnectorBack}
                                             />

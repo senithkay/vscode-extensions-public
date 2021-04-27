@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 
@@ -26,7 +27,6 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 
 // import '../style.scss'
 interface CreateConnectorFormProps {
@@ -54,6 +54,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [connectorInitFormFields, setConnectorInitFormFields] = useState(configForm);
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
@@ -131,6 +132,34 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.name.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
+    const SMTPCreateConnectionTooltipMessages = {
+        connectionName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.connectorForms.SMTP.createConnection.connectionName.tooltip.title",
+                defaultMessage: "Add a valid connection name"
+            })
+    }
+    };
 
     return (
         <div>
@@ -140,14 +169,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.connectionName,
+                                tooltipTitle: SMTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={connectorInitFormFields} onValidate={onValidate} />
@@ -157,10 +186,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}

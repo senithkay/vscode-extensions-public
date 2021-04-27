@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
@@ -64,7 +65,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.record.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import CloseIcon from "@material-ui/icons/Close";
@@ -45,7 +46,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
   const { position, onWizardComplete, onClose, method, path } = props;
   const classes = useStyles();
-
+  const intl = useIntl();
   const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -92,19 +93,47 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
     });
   };
 
+  const manualwebhookConfigTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.resourceConfig.Title",
+    defaultMessage: "Webhook Configuration"
+  });
+
+  const manualwebhookHttpMethodTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.httpMethod.Title",
+    defaultMessage: "HTTP Method"
+  });
+
+  const manualwebhookPathTitle = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.Title",
+    defaultMessage: "Path"
+  });
+  const wmanualwebhookPathErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.errorMessage",
+    defaultMessage: "You cannot start with a number, and only [a-zA-Z0-9{}_/ [].] characters are allowed."
+  });
+
+  const manualwebhookPathPlaceholder = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.path.placeholder",
+    defaultMessage: "Relative path from host"
+  });
+
+  const saveWebhookButton = intl.formatMessage({
+    id: "lowcode.develop.manualwebhookConfigWizard.saveWehHookButton.text",
+    defaultMessage: "Save Webhook"
+  });
   return (
     <DiagramOverlay
       className={classes.container}
       position={position}
     >
       <div className={classes.titleWrapper}>
-        <p className={classes.title}>Webhook Configuration</p>
+        <p className={classes.title}>{manualwebhookConfigTitle}</p>
         <button className={classes.closeBtnWrapper} onClick={onClose}>
           <CloseIcon className={classes.closeBtn} />
         </button>
       </div>
       <div className={classes.customWrapper}>
-        <p className={classes.subTitle}>HTTP Method</p>
+        <p className={classes.subTitle}>{manualwebhookHttpMethodTitle}</p>
         <div className={classes.radioBtnWrapper}>
           <RadioControl
             customProps={{ collection: WEBHOOK_METHODS }}
@@ -114,7 +143,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
         </div>
       </div>
       <div className={classes.customWrapper}>
-        <p className={classes.subTitle}>PATH</p>
+        <p className={classes.subTitle}>{manualwebhookPathTitle}</p>
         <FormTextInput
           defaultValue={currentPath}
           onChange={handleOnChangePath}
@@ -122,15 +151,15 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
             startAdornment: "/",
             validate: validatePath
           }}
-          errorMessage="cannot start with a number & only [a-zA-Z0-9{}_/ [].] chars allowed"
-          placeholder="Relative path from host"
+          errorMessage={wmanualwebhookPathErrorMessage}
+          placeholder={manualwebhookPathPlaceholder}
         />
       </div>
       { validatePath(currentPath) &&
         (
           <div className={classes.customFooterWrapper}>
             <PrimaryButton
-              text="Save Webhook"
+              text={saveWebhookButton}
               className={classes.saveBtn}
               onClick={handleUserConfirm}
               disabled={isFileSaving}

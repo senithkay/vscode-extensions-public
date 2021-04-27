@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import Step from '@material-ui/core/Step';
 import StepConnector from '@material-ui/core/StepConnector';
@@ -175,6 +176,7 @@ function getStepContent(step: number) {
 
 export default function CustomizedSteppers() {
     const classes = useStyles();
+    const intl = useIntl();
     const [activeStep, setActiveStep] = React.useState(1);
     const steps = getSteps();
 
@@ -189,6 +191,11 @@ export default function CustomizedSteppers() {
     const handleReset = () => {
         setActiveStep(0);
     };
+
+    const resetButtonText = intl.formatMessage({
+        id: "lowcode.develop.elements.wizard.resetButton.text",
+        defaultMessage: "Reset"
+    });
 
     return (
         <div className={classes.root}>
@@ -211,11 +218,11 @@ export default function CustomizedSteppers() {
                     ((
                         <div>
                             <Typography className={classes.instructions}>
-                                All steps completed
+                            <FormattedMessage id="lowcode.develop.elements.wizard.stepsCompleted.text" defaultMessage="All steps completed"/>
                             </Typography>
                             <div className="button-container">
                                 <SecondaryButton onClick={handleReset} className={classes.button}>
-                                    Reset
+                                    {resetButtonText}
                                 </SecondaryButton>
                             </div>
                         </div>
