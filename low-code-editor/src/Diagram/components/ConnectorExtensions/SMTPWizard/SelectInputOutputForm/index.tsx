@@ -113,9 +113,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
-    const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
-    const CcChecker = expandCc ? emptyFieldChecker.get("cc") || false : false;
-    if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
+        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
+        const CcChecker = expandCc ? emptyFieldChecker.get("cc") || false : false;
+        if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
             && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
             onValidate(true);
     } else {
