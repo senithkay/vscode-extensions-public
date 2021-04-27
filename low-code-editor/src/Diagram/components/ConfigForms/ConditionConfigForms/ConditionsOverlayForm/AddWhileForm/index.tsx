@@ -61,13 +61,28 @@ export function AddWhileForm(props: WhileProps) {
         type: "boolean"
     }
 
+    const whileStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    };
+
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            tooltipTitle: whileStatementTooltipMessages.title,
+            tooltipActionText: whileStatementTooltipMessages.actionText,
+            tooltipActionLink: whileStatementTooltipMessages.actionLink,
             interactive: true,
             statementType: formField.type
         },

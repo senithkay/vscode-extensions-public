@@ -65,6 +65,21 @@ export function AddReturnForm(props: ReturnFormProps) {
         defaultMessage: "Save"
     });
 
+    const returnStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    };
+
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
     return (
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
@@ -96,9 +111,9 @@ export function AddReturnForm(props: ReturnFormProps) {
                                                     model={{ name: "return expression", type: "error", value: config.expression }}
                                                     customProps={{
                                                         validate: validateExpression,
-                                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                                        tooltipTitle: returnStatementTooltipMessages.title,
+                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                                         interactive: true,
                                                         statementType: 'error'
                                                     }}

@@ -101,6 +101,21 @@ export function AddRespondForm(props: RespondFormProps) {
         defaultMessage: "Save"
     });
 
+    const respondStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    };
+
     const statusCodeComp: ReactNode = (
         <>
             <ExpressionEditor
@@ -162,9 +177,9 @@ export function AddRespondForm(props: RespondFormProps) {
                                     }}
                                     customProps={{
                                         validate: validateExpression,
-                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        tooltipTitle: respondStatementTooltipMessages.title,
+                                        tooltipActionText: respondStatementTooltipMessages.actionText,
+                                        tooltipActionLink: respondStatementTooltipMessages.actionLink,
                                         interactive: true,
                                         statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
                                     }}

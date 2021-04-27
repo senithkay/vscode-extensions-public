@@ -65,13 +65,28 @@ export function AddIfForm(props: IfProps) {
         type: "boolean"
     }
 
+    const IFStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    };
+
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            tooltipTitle: IFStatementTooltipMessages.title,
+            tooltipActionText: IFStatementTooltipMessages.actionText,
+            tooltipActionLink: IFStatementTooltipMessages.actionLink,
             interactive: true,
             statementType: formField.type
         },

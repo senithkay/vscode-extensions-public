@@ -94,6 +94,21 @@ export function AddLogConfig(props: LogConfigProps) {
         id: "lowcode.develop.configForms.log.saveButton.label",
         defaultMessage: "Save"
     });
+
+    const logTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    }
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -130,9 +145,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                     model={{ name: "expression", type: 'string' }}
                                     customProps={{
                                         validate: validateExpression,
-                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        tooltipTitle: logTooltipMessages.title,
+                                        tooltipActionText: logTooltipMessages.actionText,
+                                        tooltipActionLink: logTooltipMessages.actionLink,
                                         interactive: true,
                                         statementType: 'string'
                                     }}

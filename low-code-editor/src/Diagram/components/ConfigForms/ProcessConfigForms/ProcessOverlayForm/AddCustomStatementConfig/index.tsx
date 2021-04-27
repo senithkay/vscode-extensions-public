@@ -71,6 +71,21 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
         defaultMessage: "Save"
     });
+    
+    const customStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
+    }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -95,9 +110,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                     model={{ name: "statement", value: expression }}
                                     customProps={{
                                         validate: validateExpression,
-                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        tooltipTitle: customStatementTooltipMessages.title,
+                                        tooltipActionText: customStatementTooltipMessages.actionText,
+                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
                                         interactive: true,
                                         customTemplate: {
                                             defaultCodeSnippet: '',
