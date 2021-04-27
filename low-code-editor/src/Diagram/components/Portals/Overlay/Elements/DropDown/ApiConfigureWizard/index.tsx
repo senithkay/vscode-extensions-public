@@ -194,6 +194,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resource = `${selectedResource.method.toLocaleLowerCase()} ${selectedResource.path}`;
       mutations.push(updatePropertyStatement(resource, updatePosition));
 
+      setTriggerChanged(true);
       onMutate(mutations);
     }
   };
