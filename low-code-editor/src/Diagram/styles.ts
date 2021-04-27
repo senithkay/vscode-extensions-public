@@ -115,14 +115,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         diagramErrorStateWrapper: {
             width: 465,
-            bottom: "3.5rem",
+            bottom: "3.45rem",
             left: "5.5rem",
             position: "absolute",
             marginRight: 'auto',
-            zIndex: 2,
-        },
-        diagramErrorStateWrapperWithConfig: {
-            left: "8rem",
+            zIndex: 2
         },
         updateButton: {
             display: 'flex',
