@@ -23,7 +23,6 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
-import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";

@@ -39,7 +39,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
 

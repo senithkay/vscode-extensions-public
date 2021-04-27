@@ -30,7 +30,6 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface SelectInputOutputFormProps {

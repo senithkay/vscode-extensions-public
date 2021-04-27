@@ -26,7 +26,6 @@ import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
 interface RespondFormProps {

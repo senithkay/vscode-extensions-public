@@ -23,7 +23,6 @@ import { Context as DiagramContext } from "../../../../../../../../Contexts/Diag
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
 import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../../../../components/Tooltip";
-import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";

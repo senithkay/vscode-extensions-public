@@ -32,7 +32,6 @@ import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConne
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
-import { tooltipMessages } from "../../../../../utils/constants";
 import { useStyles } from "../../styles";
 
 interface GitHubConfigureFormProps {

@@ -29,7 +29,6 @@ import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Element
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 

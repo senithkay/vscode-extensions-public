@@ -31,7 +31,6 @@ import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { genVariableName } from "../../../../Portals/utils";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 

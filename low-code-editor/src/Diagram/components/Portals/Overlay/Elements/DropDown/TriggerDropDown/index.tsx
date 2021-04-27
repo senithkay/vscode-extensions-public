@@ -22,7 +22,6 @@ import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
-import { tooltipMessages } from '../../../../utils/constants';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
 import { ApiConfigureWizard } from '../ApiConfigureWizard';
 import { ScheduleConfigureWizard } from '../ScheduleConfigureWizard';

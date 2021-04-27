@@ -31,7 +31,6 @@ import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {

@@ -26,7 +26,6 @@ import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 

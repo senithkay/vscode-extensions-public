@@ -31,7 +31,6 @@ import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { tooltipMessages } from "../../../../../utils/constants";
 import { useStyles } from "../../styles";
 
 interface SalesforceConfigureFormProps {

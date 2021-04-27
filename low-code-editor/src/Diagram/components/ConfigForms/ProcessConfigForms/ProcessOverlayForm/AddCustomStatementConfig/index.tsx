@@ -23,7 +23,6 @@ import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -71,7 +70,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
         defaultMessage: "Save"
     });
-    
+
     const customStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
