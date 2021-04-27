@@ -262,14 +262,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
             dispatchMutations(sourceModifications);
             onClose();
         } else {
+            const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+            const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
             // insert initialized connector logic
             const modifications: STModification[] = [];
 

@@ -21,9 +21,7 @@ import {
     ActionConfig,
     ConnectorConfig,
     FormField,
-    FunctionDefinitionInfo,
-    httpRequest,
-    PrimitiveBalType
+    FunctionDefinitionInfo
 } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
@@ -96,11 +94,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     if (connectorConfig.action.name === "forward") {
         actions.forEach((fields, name) => {
             if (name === "forward") {
-                fields.parameters.forEach((field, key) => {
-                    if (field.name === "forwardReq") {
-                        newField = field;
-                    }
-                });
+                newField = fields.parameters.find(field => field.name === "request");
             }
         });
     }
@@ -116,20 +110,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setIsGenFieldsFilled(!isInvalidFromField)
     }
 
-    const reqField: FormField = {
-        name: "request",
-        displayName: "Request",
-        type: PrimitiveBalType.Record,
-        typeInfo: httpRequest,
-        value: forwardReqField?.value
-
-    }
-
     const expElementProps: FormElementProps = {
-        model: reqField,
+        model: forwardReqField,
         customProps: {
             validate: validateReqField,
-            statementType: reqField.type
+            statementType: forwardReqField?.type
         },
         onChange: onForwardReqChange,
     };
