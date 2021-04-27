@@ -119,7 +119,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const handleOnSave = () => {
-        const actionName = "sendEmailMessage";
+        const actionName = "sendMessage";
 
         // if connector name available skip setting new value
         connectorConfig.name = nameState.value;
