@@ -43,7 +43,7 @@ export function DiagramErrorState(props: {
          <g id="Group_202" data-name="Group 202" transform="translate(-146 -742)">
             {isErrorMsgVisible && (<g id="TextWrapper">
                <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill="#fceded" />
-               <text id="Code_has_errors_fix" data-name="Code has errors, fix" transform="translate(202 768)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
+               <text id="Code_has_errors_fix" data-name="Code has errors, fix" transform="translate(202 768)" fill="#40404b" font-size="12"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
             </g>)}
             <g id="ErrorBtnandIcon" transform="translate(146 744)" onClick={onOpen} style={{ cursor: 'pointer' }}>
                <g id="Button_Pill_40_Default_Copy" data-name="Button/Pill/40/Default Copy" clip-path="url(#clip-path)">
