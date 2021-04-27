@@ -237,7 +237,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <CustomStatementIcon />
                     </div>
-                    <div className="text-label">Custom Statement</div>
+                    <div className="text-label">Other</div>
                 </div>
             </Tooltip>
         )
