@@ -79,7 +79,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         return selectedField;
     };
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = useState(new Map<string, boolean>());
     const validate = (field: string, isInvalid: boolean) => {
         const name: string = !field ? model.name : field;
         emptyFieldChecker.set(name, isInvalid);

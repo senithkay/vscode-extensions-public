@@ -37,8 +37,10 @@ import {
     addToTargetPosition,
     createContentWidget,
     diagnosticCheckerExp,
+    generateErrorMarkers,
     getInitialValue,
     getTargetPosition,
+    isFieldEmpty,
     transformFormFieldTypeToString
 } from "./utils";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
@@ -178,9 +180,25 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
 
     const validExpEditor = () => {
-        validate(model.name, false);
-        if (monacoRef.current) {
-            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+        const currentContent = monacoRef.current ? monacoRef.current?.editor?.getModel()?.getValue() : model.value;
+        if (isFieldEmpty(currentContent, model)){
+            const message = 'Required field';
+            validate(model.name, true);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', generateErrorMarkers(message))
+            }
+            if (expressionEditorState.diagnostic[0]?.message !== message){
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: [{message}]
+                })
+            }
+
+        }else{
+            validate(model.name, false);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 
@@ -191,14 +209,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         } else {
             validate(model.name, true);
             if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
-                    startLineNumber: 1,
-                    startColumn: 1,
-                    endLineNumber: 2,
-                    endColumn: 1000,
-                    message,
-                    severity: monaco.MarkerSeverity.Error
-                }])
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', generateErrorMarkers(message))
             }
         }
     }
