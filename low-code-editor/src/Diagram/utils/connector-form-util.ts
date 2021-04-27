@@ -11,7 +11,14 @@
  * associated services.
  */
 // import { store } from "../../../../$store";
-import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, ResponsePayloadMap } from "../../ConfigurationSpec/types";
+import {
+    ConnectorConfig,
+    FormField,
+    FunctionDefinitionInfo,
+    httpRequest,
+    PrimitiveBalType,
+    ResponsePayloadMap
+} from "../../ConfigurationSpec/types";
 import { Connector } from "../../Definitions/lang-client-extended";
 import { tooltipMessages } from "../components/Portals/utils/constants";
 
@@ -76,23 +83,17 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     filteredFunctions.set(key, value);
                 } else if (key === "forward") {
-                    let isForwardAvailable = false;
                     value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"\"";
                             param.hide = true;
                         } else if (param.name === "request") {
-                            param.hide = true;
-                        } else if (param.name === "forwardReq") {
-                            isForwardAvailable = true;
+                            param.displayName = "Request";
+                            param.type = PrimitiveBalType.Record;
+                            param.typeInfo = httpRequest;
                         }
                     });
-                    // adding forward request field since the type
-                    // of request field is not supported in forms
-                    if (!isForwardAvailable) {
-                        value.parameters.push({name: "forwardReq", type: PrimitiveBalType.Int, isParam: true});
-                    }
                     filteredFunctions.set(key, value);
                 }
             });
@@ -408,6 +409,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                         });
                         break;
                     case 'get':
+                        // allowed functions
+                        break;
                     case 'post':
                     case 'put':
                     case 'delete':

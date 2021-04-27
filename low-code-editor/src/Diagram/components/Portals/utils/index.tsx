@@ -15,11 +15,11 @@ import React, { ReactNode } from "react";
 import {
     CaptureBindingPattern, CheckAction,
     CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, traversNode, TypeCastExpression
+    STNode, StringLiteral, traversNode, TypeCastExpression, XmlTypeDesc
 } from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
@@ -454,36 +454,48 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             break;
         }
 
-        const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
-        if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" || formField.type === "float") {
-            if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
-                formField.value = stringLiteral.literalToken.value;
-            } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                formField.value = numericLiteral.literalToken.value;
-            } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                formField.value = booleanLiteral.literalToken.value;
-            } else {
-                formField.value = positionalArg.expression.source;
+        if (STKindChecker.isNamedArg(remoteMethodCallArguments[nextValueIndex])) {
+            const namedArg: NamedArg = remoteMethodCallArguments[nextValueIndex] as NamedArg;
+            const fieldForNamedArg = formFields.find(field => field.name === namedArg.argumentName.name.value);
+            if (fieldForNamedArg) {
+                fieldForNamedArg.value = namedArg.expression.source;
             }
             nextValueIndex++;
-        } else if (formField.type === 'collection') {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
-        } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
-            const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-            if (mappingConstructor) {
-                mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+        } else {
+            const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
+            if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" || formField.type === "float") {
+                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
+                    const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
+                    formField.value = stringLiteral.literalToken.value;
+                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
+                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
+                    formField.value = numericLiteral.literalToken.value;
+                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
+                    const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
+                    formField.value = booleanLiteral.literalToken.value;
+                } else {
+                    formField.value = positionalArg.expression.source;
+                }
+                nextValueIndex++;
+            } else if (formField.type === 'collection') {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+                    nextValueIndex++;
+                }
+            } else if (formField.type === "record" && STKindChecker.isSimpleNameReference(positionalArg.expression)) {
+                formField.value = positionalArg.expression.name.value;
+                nextValueIndex++;
+            } else if (formField.type === "union" && formField.isUnion) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.type === "json") {
+                formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
-        } else if (formField.type === "union" && formField.isUnion) {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
-        } else if (formField.type === "json") {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
         }
     }
 }

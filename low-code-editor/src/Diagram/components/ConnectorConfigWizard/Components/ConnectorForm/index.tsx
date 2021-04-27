@@ -31,7 +31,6 @@ import { BallerinaConnectorsInfo, STModification } from "../../../../../Definiti
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration,
@@ -263,14 +262,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
             dispatchMutations(sourceModifications);
             onClose();
         } else {
+            const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+            const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
             // insert initialized connector logic
             const modifications: STModification[] = [];
 
@@ -341,7 +340,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             getParams(config.action.fields), targetPosition
                         );
                         modifications.push(addActionInvocation);
-                    }else{
+                    } else {
                         const addActionInvocation: STModification = createRemoteServiceCall(
                             "var",
                             config.action.returnVariableName,
@@ -351,19 +350,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addActionInvocation);
                     }
-
-                    if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            config.responsePayloadMap.payloadVariableName,
-                            "var",
-                            config.action.returnVariableName,
-                            config.responsePayloadMap.payloadTypes.get(
-                                config.responsePayloadMap.selectedPayloadType),
-                            targetPosition
-                        );
-                        modifications.push(addPayload);
-                    }
-
                 }
             }
             dispatchMutations(modifications);
