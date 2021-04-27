@@ -110,29 +110,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setExpandBcc(true);
     }
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
-        // let allFieldsValid = true;
-        // for (const formValue of connectorConfig.action.fields) {
-        //     for (const recordField of formValue.fields) {
-        //         const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-        //         // breaks the loop if one field is empty
-        //         if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-        //             allFieldsValid = !isFieldValueInValid;
-        //             break;
-        //         }
-        //     }
-        // }
-        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") : false;
-        const CcChecker = expandCc ? emptyFieldChecker.get("cc") : false;
+        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
+        const CcChecker = expandCc ? emptyFieldChecker.get("cc") || false : false;
         if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
             && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
             onValidate(true);
         } else {
             onValidate(false);
         }
-        // onValidate(allFieldsValid);
     }
 
     const getFormFieldComponent = (component: string): any => {
@@ -159,7 +147,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            return expandCc ? (
+            return (expandCc || (field.value)) ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
@@ -169,7 +157,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     />
                 );
         } else if (field.name === "bcc") {
-            return expandBcc ? (
+                return (expandBcc || (field.value)) ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
