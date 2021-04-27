@@ -55,7 +55,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
-                            param.value = "\"/\"";
+                            param.value = "\"\"";
                             param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
@@ -68,7 +68,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
-                            param.value = "\"/\"";
+                            param.value = "\"\"";
                             param.hide = true;
                         } else if (param.name === "message") {
                             param.displayName = "Message";
@@ -117,8 +117,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "replyTo") {
                             param.hide = true;
-                            param.value = "[]";
-                        } else if (param.name === "cc" || param.name === "bcc") {
                             param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
