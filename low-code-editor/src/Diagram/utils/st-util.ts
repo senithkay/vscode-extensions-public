@@ -354,10 +354,10 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module, version, cacheVersion} = connector;
+    const { org, module, version, name, cacheVersion} = connector;
     const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
     try {
-        await fetch(`/connectors/cache/${org}/${module}/${version}/${cacheVersion || "0"}/fields.json`)
+        await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
         .then(response => response.json())
         .then(data => {
             if (data) {

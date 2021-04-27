@@ -681,7 +681,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // functionDefInfo.forEach((value, key) => {
         //     formFieldJsonObject[key] = value;
         // });
-        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/fields.json`)
+        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
         // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 

@@ -110,7 +110,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerina_email_SmtpClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo , key) => {
-                if (key === "sendEmailMessage") {
+                if (key === "sendMessage") {
                     let formField: FormField[] = [];
                     value.parameters[0].fields.forEach((param) => {
                         if (param.name === "contentType" || param.name === "sender") {
@@ -434,7 +434,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
-                    case 'sendEmailMessage':
+                    case 'sendMessage':
                         break;
                     default:
                         value.parameters.forEach(fields => {
