@@ -144,7 +144,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   }
 
   const minuteGenCron = cronMinuteValue === "0" ? "0" : (cronMinuteValue.substring(0, 2) === "*/" ? cronMinuteValue :  "*/" + cronMinuteValue);
-  const hourGenCron = cronHourValue === "0" ? "0" : "*/" + cronHourValue;
+  const hourGenCron = cronHourValue === "0" ? "0" : (cronHourValue.substring(0, 2) === "*/" ? cronHourValue : "*/" + cronHourValue);
 
   const cronForSelectedType = () => {
     if (scheduledComp === "Minute") {
