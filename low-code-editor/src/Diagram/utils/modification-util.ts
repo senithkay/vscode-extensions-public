@@ -10,10 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
-import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
-import { getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdateStatement } from "../view-state/draft";
 /* tslint:disable ordered-imports */
 import { getInsertComponentSource } from "./template-utils";
@@ -441,80 +438,6 @@ export function removeStatement(targetPosition: DraftUpdateStatement): STModific
     }
 
     return removeLine;
-}
-
-export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
-    if (operation !== "forward") {
-        let httpRequest: string = "http:Request ";
-        httpRequest += requestName;
-        httpRequest += " = new;";
-        if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = "\n" + requestName + ".setPayload(" + getParams([message]).toString() + ");";
-            httpRequest += payload;
-        }
-        const requestGeneration: STModification = {
-            startLine: targetPosition.line,
-            startColumn: 0,
-            endLine: targetPosition.line,
-            endColumn: 0,
-            type: "PROPERTY_STATEMENT",
-            config: {
-                "PROPERTY": httpRequest,
-            }
-        };
-        modifications.push(requestGeneration);
-    }
-
-    headerObject.forEach((header) => {
-        let headerStmt: string = ("$requestName.setHeader(\"$key\", \"$value\");").replace("$requestName", requestName);
-        headerStmt = headerStmt.replace("$key", header.objectKey);
-        headerStmt = headerStmt.replace("$value", header.objectValue);
-        const headerObjectDeclaration: STModification = {
-            startLine: targetPosition.line,
-            startColumn: 0,
-            endLine: targetPosition.line,
-            endColumn: 0,
-            type: "PROPERTY_STATEMENT",
-            config: {
-                "PROPERTY": headerStmt,
-            }
-        };
-        modifications.push(headerObjectDeclaration);
-    });
-}
-
-export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdateStatement): STModification {
-    let headerDecl: string = "";
-    if (operation !== "forward") {
-        if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = requestName + ".setPayload(" + getParams([message]).toString() + ");";
-            headerDecl += payload;
-        }
-
-    }
-
-    headerObject.forEach((header) => {
-        let headerStmt: string = ("$requestName.setHeader($key, $value);\n").replace("$requestName", requestName);
-        const regexExp = /"(.*?)"/g
-        headerStmt = headerStmt.replace("$key", header.objectKey.match(regexExp) ? header.objectKey : `"${header.objectKey}"`);
-        headerStmt = headerStmt.replace("$value", header.objectValue.match(regexExp) ? header.objectValue : `"${header.objectValue}"`);
-        headerDecl += headerStmt;
-    });
-
-    const requestGeneration: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: targetPosition.startColumn,
-        endLine: targetPosition.endLine,
-        endColumn: targetPosition.endColumn,
-        type: "PROPERTY_STATEMENT",
-        config: {
-            "PROPERTY": headerDecl,
-        }
-    };
-
-    return requestGeneration;
 }
 
 export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {

@@ -37,7 +37,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
-import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
 
 interface SelectInputOutputFormProps {
@@ -46,7 +45,6 @@ interface SelectInputOutputFormProps {
     onBackClick?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
-    headerObject?: HeaderObjectConfig[];
 }
 
 interface ReturnNameState {
@@ -64,7 +62,7 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard, headerObject } = props;
+    const { onBackClick, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     // const { model } = props;
@@ -134,7 +132,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     let responseVariableHasReferences: boolean = false;
 
     if (!isNewConnectorInitWizard) {
-        let symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
+        const symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
 
@@ -306,7 +304,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
                             {payloadComponent}
                         </div>
-                        <HTTPHeaders headerObject={headerObject} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>

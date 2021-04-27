@@ -10,9 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
-import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
 import StepConnector from "@material-ui/core/StepConnector";
 import StepLabel from "@material-ui/core/StepLabel";
@@ -24,27 +24,21 @@ import classNames from "classnames";
 import clsx from "clsx";
 
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../Definitions";
-import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
-import { getAllVariables } from "../../../utils/mixins";
+import { Connector, STModification } from "../../../../Definitions";
 import {
     createCheckedRemoteServiceCall,
-    createHeaderObjectDeclaration,
     createImportStatement,
     createPropertyStatement,
     updateCheckedRemoteServiceCall,
-    updateHeaderObjectDeclaration,
     updatePropertyStatement,
 } from "../../../utils/modification-util";
-import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
+import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
+import { getConnectorIcon, getParams } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
-import { HeaderObjectConfig } from "./HTTPHeaders";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -104,7 +98,6 @@ export function HTTPWizard(props: WizardProps) {
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
 
-    const [headerObject] = useState<HeaderObjectConfig[]>([]);
     const httpVar = model as LocalVarDecl;
 
     React.useEffect(() => {
@@ -188,7 +181,7 @@ export function HTTPWizard(props: WizardProps) {
                 if (connectorConfig.action.name === "forward") {
                     serviceCallParams += `, ${connectorConfig.action.fields.find(field => field.name === "request").value}`;
                 }
-                if (headerField.value) {
+                if (headerField?.value) {
                     // updating headers
                     serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
                 }
@@ -273,7 +266,7 @@ export function HTTPWizard(props: WizardProps) {
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
     const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} headerObject={headerObject} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} onBackClick={handleBack} connectorConfig={connectorConfig} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>
