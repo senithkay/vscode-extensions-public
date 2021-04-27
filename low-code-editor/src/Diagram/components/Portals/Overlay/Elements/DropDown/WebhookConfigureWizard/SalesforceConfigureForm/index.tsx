@@ -157,15 +157,15 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         salesforceTrigger: {
         username: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.username.tooltip.title",
-            defaultMessage: "Key in your Salesforce username"
+            defaultMessage: "The key in your Salesforce username."
         }),
         password : intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.password.tooltip.title",
-            defaultMessage: "Enter the Salesforce password appended by your Salesforce security token"
+            defaultMessage: "Enter the Salesforce password appended with your Salesforce security token."
         }),
         topic : intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
-            defaultMessage: "Name of the Push Topic added to your Salesforce account to receive notifications"
+            defaultMessage: "The topic of the Push type that was added to your Salesforce account to receive notifications."
         })
     }
 }

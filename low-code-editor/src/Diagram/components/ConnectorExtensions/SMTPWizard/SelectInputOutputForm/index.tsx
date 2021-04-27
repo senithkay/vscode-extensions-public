@@ -260,7 +260,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const saveConnectionButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.saveConnectionButton.text",
-        defaultMessage: "Save & Done"
+        defaultMessage: "Save"
     });
 
     const backButtonText = intl.formatMessage({

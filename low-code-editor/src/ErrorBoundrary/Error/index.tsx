@@ -24,12 +24,12 @@ export default function Default() {
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="h1" className={classes.errorTitle} component="div">
-                    <FormattedMessage id="lowcode.develop.errorBoundary.errorMessage.text" defaultMessage="Oops! this is embarrassing"/>
+                    <FormattedMessage id="lowcode.develop.errorBoundary.errorMessage.text" defaultMessage="Oops! This is embarrassing."/>
                     </Typography>
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle1" component="div" className={classes.errorMsg}>
-                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong. Will you please refresh and try again"/>
+                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong. Can you please refresh and try again"/>
                     </Typography>
                 </Grid>
             </Grid>

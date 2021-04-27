@@ -113,7 +113,7 @@ export function AddRespondForm(props: RespondFormProps) {
                 customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
                 onChange={onStatusCodeChange}
             />
-            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid Status Code"/></p> : null}
+            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code"/></p> : null}
         </>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);

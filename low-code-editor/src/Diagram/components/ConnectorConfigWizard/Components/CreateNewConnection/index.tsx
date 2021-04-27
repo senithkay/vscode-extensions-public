@@ -117,7 +117,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const createConnectionPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.placeholder",
-        defaultMessage: "Enter Connection Name"
+        defaultMessage: "Enter connection name"
     });
 
     const backButtonLabel = intl.formatMessage({

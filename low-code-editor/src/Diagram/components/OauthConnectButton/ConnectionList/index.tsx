@@ -57,7 +57,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
 
     const connectAnotherAccountButtonText = intl.formatMessage({
         id: "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text",
-        defaultMessage: "Connect another account"
+        defaultMessage: "Connect Another Account"
     });
 
     return (

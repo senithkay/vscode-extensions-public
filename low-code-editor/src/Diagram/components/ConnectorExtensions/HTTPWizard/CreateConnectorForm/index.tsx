@@ -157,7 +157,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const connectionNamePlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.name.placeholder",
-        defaultMessage: "Enter Connection Name"
+        defaultMessage: "Enter connection name"
     });
 
     const backButtonText = intl.formatMessage({
@@ -231,7 +231,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                         <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-operation")}>
                             <div className={classes.labelWrapper}>
-                                <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.createConnection.selectOperation.title" defaultMessage="Select an Operation"/></FormHelperText>
+                                <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.createConnection.selectOperation.title" defaultMessage="Select an operation"/></FormHelperText>
                                 <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                             </div>
                             <RadioGroup aria-label={"operations"} name={"operations"} value={actionNameRadio} onChange={handleOnOperationRadioChange} >

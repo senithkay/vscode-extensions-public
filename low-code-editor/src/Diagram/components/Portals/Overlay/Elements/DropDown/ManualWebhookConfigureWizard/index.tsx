@@ -105,11 +105,11 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
 
   const manualwebhookPathTitle = intl.formatMessage({
     id: "lowcode.develop.manualwebhookConfigWizard.path.Title",
-    defaultMessage: "PATH"
+    defaultMessage: "Path"
   });
   const wmanualwebhookPathErrorMessage = intl.formatMessage({
     id: "lowcode.develop.manualwebhookConfigWizard.path.errorMessage",
-    defaultMessage: "Cannot start with a number & only [a-zA-Z0-9{}_/ [].] chars allowed"
+    defaultMessage: "You cannot start with a number, and only [a-zA-Z0-9{}_/ [].] characters are allowed."
   });
 
   const manualwebhookPathPlaceholder = intl.formatMessage({

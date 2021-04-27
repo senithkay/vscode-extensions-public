@@ -129,7 +129,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const chooseGSheetPlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GSheet.operationForm.chooseCalendar.placeholder",
-        defaultMessage: "Choose Sheet"
+        defaultMessage: "Choose a spreadsheet"
     });
 
     const addResponseVariablePlaceholder = intl.formatMessage({

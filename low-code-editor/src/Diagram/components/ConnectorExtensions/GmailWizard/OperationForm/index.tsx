@@ -143,7 +143,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.Gmail.operationForm.operation.title" defaultMessage="Operation"/></p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.Gmail.operationForm.operation.title" defaultMessage="Operation :"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}

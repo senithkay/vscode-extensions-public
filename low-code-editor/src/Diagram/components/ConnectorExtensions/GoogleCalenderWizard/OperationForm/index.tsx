@@ -239,7 +239,7 @@ export function OperationForm(props: OperationFormProps) {
                                 ) : (
                                     <>
                                         {showCalendarSelector && (
-                                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.operationForm.showCalendar.title" defaultMessage="Select Calendar"/></p>
+                                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.operationForm.showCalendar.title" defaultMessage="Select Calendar :"/></p>
                                         )}
                                         {showCalendarSelector && isCalenderFetching && (
                                             <CirclePreloader position="relative" />

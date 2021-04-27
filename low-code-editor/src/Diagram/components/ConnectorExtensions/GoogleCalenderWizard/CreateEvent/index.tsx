@@ -194,7 +194,7 @@ export function CreateEvent(props: OperationDropdownProps) {
                 <ExpressionEditor {...calIdProps} />
             )}
             {showCalenderSelector && (
-                <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.GCalendar.selectCalendar.title" defaultMessage="Select Calendar"/></p>
+                <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.GCalendar.selectCalendar.title" defaultMessage="Select calendar :"/></p>
             )}
             {showCalenderSelector && isFetching && (
                 <CirclePreloader position="relative" />

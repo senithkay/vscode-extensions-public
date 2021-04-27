@@ -269,7 +269,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const dayOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start date:"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start Date:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultDay}
@@ -285,12 +285,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const repeatWeeklyLabel = intl.formatMessage({
   id: "lowcode.develop.scheduleConfigWizard.repeatWeeklyLabel.text",
-  defaultMessage: "Repeat Weekly"
+  defaultMessage: "Repeat weekly"
 });
 
   const repeatMonthlyLabel = intl.formatMessage({
   id: "lowcode.develop.scheduleConfigWizard.repeatMonthlyLabel.text",
-  defaultMessage: "Repeat Monthly"
+  defaultMessage: "Repeat monthly"
 });
 
   const cronExpressionTitle = intl.formatMessage({
@@ -300,7 +300,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const cronExpressionErrorMessage = intl.formatMessage({
   id: "lowcode.develop.scheduleConfigWizard.cronExpressionErrorMessage.title",
-  defaultMessage: "Please enter valid cron expression"
+  defaultMessage: "Please enter a valid cron expression"
 });
 
   const scheduleTriggerConfigTitle = intl.formatMessage({
@@ -327,17 +327,17 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   scheduleConfig: {
   title: intl.formatMessage({
       id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.tooltip.title",
-      defaultMessage: "Set a schedule to run the integration"
+      defaultMessage: "Set a schedule to run the integration."
   })
 },
   cronExpression: {
   title: intl.formatMessage({
     id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.title",
-    defaultMessage: "A cron expression is a string containing subfields separated by white spaces. Each special character (*) represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
+    defaultMessage: "A cron expression is a string that contains subfields separated by white spaces. Each special character represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
 }),
   actionText: intl.formatMessage({
   id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionText",
-  defaultMessage: "Read More"
+  defaultMessage: "Read more"
 }),
   actionLink: intl.formatMessage({
   id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionLink",

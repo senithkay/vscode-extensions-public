@@ -133,7 +133,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const createConnectionPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.Gmail.createConnection.placeholder",
-        defaultMessage: "Enter Connection Name"
+        defaultMessage: "Enter connection name"
     });
 
     const backButtonText = intl.formatMessage({

@@ -59,7 +59,7 @@ export function GetAll(props: OperationDropdownProps) {
 
     const selectRecordTypeLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.NetSuite.GetAll.selectRecordType.label",
-        defaultMessage: "Select Record Type"
+        defaultMessage: "Select record type"
     });
 
     const selectRecordTypePlaceholder = intl.formatMessage({

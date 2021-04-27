@@ -310,7 +310,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const saveConnectionButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.HTTP.saveConnectionButton.text",
-        defaultMessage: "Save & Done"
+        defaultMessage: "Save"
     });
 
     const HTTPtooltipMessages = {
@@ -357,7 +357,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         const payloadConfig = payloadState.mapPayload === SELECT_PAYLOAD && (
             <>
                 <div className={classes.labelWrapper}>
-                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select Payload Type"/></FormHelperText>
+                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :"/></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
                 <div

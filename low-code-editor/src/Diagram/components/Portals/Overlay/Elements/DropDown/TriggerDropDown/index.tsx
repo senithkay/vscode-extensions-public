@@ -109,7 +109,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         triggerSelector: {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.title",
-            defaultMessage: "Select a suitable trigger . A trigger is an event or an action that causes a Choreo application to start executing. "
+            defaultMessage: "Select a suitable trigger. A trigger is an event or an action that causes a Choreo application to start executing."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionText",
@@ -130,7 +130,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionText",
-            defaultMessage: "Learn about schedule trigger"
+            defaultMessage: "Learn about the schedule trigger."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionTitle",
@@ -143,11 +143,11 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         manualTrigger: {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
-            defaultMessage: "To create an application that can be triggered manually by clicking the 'Run & Test' button."
+            defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
-            defaultMessage: "Learn about manual trigger"
+            defaultMessage: "Learn about the manual trigger."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
@@ -164,7 +164,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionText",
-            defaultMessage: "Learn about GitHub trigger"
+            defaultMessage: "Learn about the GitHub trigger."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionTitle",
@@ -181,7 +181,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionText",
-            defaultMessage: "Learn about calendar trigger"
+            defaultMessage: "Learn about the calendar trigger."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionTitle",
@@ -194,11 +194,11 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         salesforceTrigger: {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.title",
-            defaultMessage: "o trigger an application based on Salesforce events ."
+            defaultMessage: "To trigger an application based on Salesforce events."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionText",
-            defaultMessage: "Learn about Salesforce trigger"
+            defaultMessage: "Learn about the Salesforce trigger."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionTitle",

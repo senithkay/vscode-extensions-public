@@ -158,7 +158,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const addVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.addVariable.placeholder",
-        defaultMessage: "Enter Variable Name"
+        defaultMessage: "Enter variable name"
     });
 
     const addVariableNameLabel = intl.formatMessage({
@@ -168,7 +168,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const enterTypePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.enterType.placeholder",
-        defaultMessage: "Enter Type"
+        defaultMessage: "Enter type"
     });
 
     const otherTypeLabel = intl.formatMessage({
@@ -185,7 +185,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         customVariableType: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
-                defaultMessage: "Value of other variable type"
+                defaultMessage: "Enter the value of the variable"
             })
     },
         expressionEditor: {
@@ -195,7 +195,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-            defaultMessage: "Read More"
+            defaultMessage: "Read more"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",

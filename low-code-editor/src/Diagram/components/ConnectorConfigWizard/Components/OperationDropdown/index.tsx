@@ -42,7 +42,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
 
     const operationDropdownPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.operationDropdown.placeholder",
-        defaultMessage: "Search Operation"
+        defaultMessage: "Search operation"
     });
 
     return (
@@ -77,7 +77,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                             </Box>
                         </>
                     )}
-                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.title" defaultMessage="Operation"/></p>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.title" defaultMessage="Operation :"/></p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
                         itemList={operations}

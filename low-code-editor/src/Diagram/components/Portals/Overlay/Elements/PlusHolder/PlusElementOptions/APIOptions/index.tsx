@@ -49,7 +49,7 @@ export function APIOptions(props: APIOptionsProps) {
         httpConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.title",
-                defaultMessage: "Communicate with external Connections through the HTTP protocol"
+                defaultMessage: "Communicate with external endpoints using the HTTP protocol."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.content",
@@ -59,7 +59,7 @@ export function APIOptions(props: APIOptionsProps) {
         smtpConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.title",
-            defaultMessage: "Setup an email client to use the SMTP protocol"
+            defaultMessage: "Setup an email client to use the SMTP protocol."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
@@ -69,7 +69,7 @@ export function APIOptions(props: APIOptionsProps) {
         pop3Connector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.title",
-            defaultMessage: "Setup an email client to use the POP3 protocol"
+            defaultMessage: "Setup an email client to use the POP3 protocol."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.content",
@@ -89,7 +89,7 @@ export function APIOptions(props: APIOptionsProps) {
         gitHubConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.title",
-            defaultMessage: "Connect your application with GitHub API to perform operations creating issues"
+            defaultMessage: "Connect your application with the GitHub API to perform operations in GitHub."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
@@ -99,17 +99,17 @@ export function APIOptions(props: APIOptionsProps) {
         gmailConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.title",
-            defaultMessage: "Connect your application with Gmail API"
+            defaultMessage: "Connect your application with the Gmail API"
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.content",
-            defaultMessage: "Send, receive and modify emails"
+            defaultMessage: "Send and receive emails"
         }),
     },
         gCalendarConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.title",
-            defaultMessage: "Connect your application with Google Calendar API."
+            defaultMessage: "Connect your application with the Google Calendar API."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.content",
@@ -123,13 +123,13 @@ export function APIOptions(props: APIOptionsProps) {
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.content",
-            defaultMessage: "Create and format Google Sheets"
+            defaultMessage: "Create and edit Google Sheets"
         }),
     },
         slackConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.title",
-            defaultMessage: "Connect your application with Slack API"
+            defaultMessage: "Connect your application with the Slack API."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
@@ -139,17 +139,17 @@ export function APIOptions(props: APIOptionsProps) {
         twilioConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.title",
-            defaultMessage: "Connect your application with Twilio API, and communicate with external services"
+            defaultMessage: "Connect your application with the Twilio API, and communicate with external services."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.content",
-            defaultMessage: "Send SMS, Make voice calls"
+            defaultMessage: "Send SMS, Make voice calls, etc."
         }),
     },
         netsuite: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.title",
-            defaultMessage: "Connect your application with Netsuite"
+            defaultMessage: "Connect your application with the Netsuite API to perform Netsuite operations"
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.content",
@@ -159,11 +159,11 @@ export function APIOptions(props: APIOptionsProps) {
         salesforce: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.title",
-            defaultMessage: "Connect your application with salesforce API"
+            defaultMessage: "Connect your application with the Salesforce API to perform Salesforce operations"
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
-            defaultMessage: "Create and Update records"
+            defaultMessage: "Create and update records"
         }),
     },
         postgreSQL: {
@@ -268,7 +268,7 @@ export function APIOptions(props: APIOptionsProps) {
 
     const chooseFromListLabel = intl.formatMessage({
         id: "lowcode.develop.elements.plusHolder.APIoptions.chooseFromList.label",
-        defaultMessage: "Choose from list"
+        defaultMessage: "Select from list"
     });
 
     const searchPlaceholder = intl.formatMessage({

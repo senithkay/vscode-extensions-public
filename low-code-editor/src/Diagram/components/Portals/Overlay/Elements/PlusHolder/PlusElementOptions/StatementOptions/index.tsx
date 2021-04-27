@@ -57,42 +57,42 @@ export function StatementOptions(props: StatementOptionsProps) {
         logStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "Log can be used to log an event with an information message or an error that occurs in a service or an integration.These logs can be viewed from Run & Test console or Observability page if that particular event has occured."
+                defaultMessage: "A log statement  logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the Run and Test  console. If the event has occured, you can view ithe logs from the Observability page."
             })},
         variableStatement: {
         title: intl.formatMessage({
             id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
-            defaultMessage: "Variable can be used to hold a value belonging to a type (String, Integer, etc) which can be later used in the logical processes."
+            defaultMessage: "A variable statement holds a value of a specific data type (string, integer, etc.,) so that it can be used later in the logical process of the service/integration."
         })},
         ifStatement: {
         title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
-                defaultMessage: "IF can be used to specify two blocks of logical components where execution of each block will be decided based on the provided condition being true or false."
+                defaultMessage: "An IF statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
         })},
         foreachStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.foreach.tooltip.title",
-                defaultMessage: "Foreach is a control flow statement which can be used to iterate over a list of items.",
+                defaultMessage: "A foreach statement is a control flow statement that can be used to iterate over a list of items.",
             })},
         whileStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.while.tooltip.title",
-                defaultMessage: "While can be used to execute a block of components in a loop untill the provided condition is true. If the provided condition is false then it will not execute."
+                defaultMessage: "A while statement executes a block of statements in a loop as long as the specified condition is true."
             })},
         returnStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.return.tooltip.title",
-                defaultMessage: "Return is used to stop executing the current path or to return a value back to the caller."
+                defaultMessage: "A return statement stops executing the current path or returns a value back to the caller."
             })},
         respondStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.respond.tooltip.title",
-                defaultMessage: "Respond is used to send a response back to the client from the service."
+                defaultMessage: "A respond statement sends the response of a service back to the client."
             })},
         customStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.customStatement.tooltip.title",
-                defaultMessage: "Custom Statement can be used to write a single or multiline code snippet which is not supported by the lowcode diagram."
+                defaultMessage: "A custom statement can be used to write a single or a multiline code snippet that is not supported by the low code diagram."
             }),
     }
     }
@@ -321,7 +321,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     return (
         <>
             <div className="search-options-wrapper">
-                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Choose from list"/></label>
+                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list"/></label>
 
                 <input
                     type="search"

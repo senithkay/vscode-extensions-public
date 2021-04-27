@@ -99,11 +99,11 @@ export function PlusElements(props: PlusElementsProps) {
         statementsPlusHolder: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
-                defaultMessage: "Collection of code fragments that can be added to your application"
+                defaultMessage: "A collection of code fragments that can be added to your application"
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionText",
-                defaultMessage: "Learn more about Statements"
+                defaultMessage: "Learn more about Statements."
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionTitle",
@@ -113,11 +113,11 @@ export function PlusElements(props: PlusElementsProps) {
         APIsPlusHolder: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-            defaultMessage: "Collection of API calls that helps you integrate your application to external services"
+            defaultMessage: "A collection of API calls that helps you to integrate your application to external services"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionText",
-            defaultMessage: "Learn more about Connections"
+            defaultMessage: "Learn more about Connections."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionTitle",

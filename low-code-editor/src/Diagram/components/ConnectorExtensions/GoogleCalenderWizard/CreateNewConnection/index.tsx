@@ -137,7 +137,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const createConnectionPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GCalendar.createConnection.placeholder",
-        defaultMessage: "Enter Connection Name"
+        defaultMessage: "Enter connection name"
     });
 
     const backButtonText = intl.formatMessage({

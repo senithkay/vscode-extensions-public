@@ -160,7 +160,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const connectionNamePlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GitHub.createConnection.name.placeholder",
-        defaultMessage: "Enter Connection Name"
+        defaultMessage: "Enter connection name"
     });
 
     const backButtonText = intl.formatMessage({

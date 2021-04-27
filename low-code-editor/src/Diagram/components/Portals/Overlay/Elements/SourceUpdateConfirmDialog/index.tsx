@@ -42,8 +42,7 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
 
     const triggerUpdateWarningMessage = intl.formatMessage({
         id: "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text",
-        defaultMessage: "Updating trigger will remove your current source code"
-
+        defaultMessage: "Updating a trigger removes your current source code."
     });
 
     return (

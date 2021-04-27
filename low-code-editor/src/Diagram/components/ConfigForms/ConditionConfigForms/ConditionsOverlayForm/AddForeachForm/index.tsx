@@ -130,11 +130,11 @@ export function AddForeachForm(props: ForeachProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
-                defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+                defaultMessage: "Add the relevant expression syntax to provide inputs to different fields in a contextual manner ."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Read More"
+                defaultMessage: "Read more"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",

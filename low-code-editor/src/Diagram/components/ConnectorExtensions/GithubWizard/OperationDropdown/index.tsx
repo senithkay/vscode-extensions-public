@@ -41,7 +41,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
 
     const operationDropdownPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GitHub.operationDropdown.placeholder",
-        defaultMessage: "Search Operation"
+        defaultMessage: "Search operation"
     });
 
     return (
@@ -50,7 +50,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                 <div className={classes.fullWidth}>
                     { showConnectionName && (
                         <>
-                            <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationDropdown.connectionName.title" defaultMessage="Connection"/></p>
+                            <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationDropdown.connectionName.title" defaultMessage="Connection :"/></p>
                             <Box border={1} borderRadius={5} className={classes.box}>
                                 <Typography variant="subtitle2">
                                     {connectionDetails.name}
@@ -67,7 +67,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                             </Box>
                         </>
                     ) }
-                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationDropdown.title" defaultMessage="Operation"/></p>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationDropdown.title" defaultMessage="Operation :"/></p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
                         itemList={operations}
