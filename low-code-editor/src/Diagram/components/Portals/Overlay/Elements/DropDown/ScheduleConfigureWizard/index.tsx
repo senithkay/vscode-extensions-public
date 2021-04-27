@@ -143,7 +143,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronMonthValue(cronMonth);
   }
 
-  const minuteGenCron = cronMinuteValue === "0" ? "0" : "*/" + cronMinuteValue;
+  const minuteGenCron = cronMinuteValue === "0" ? "0" : (cronMinuteValue.substring(0, 2) === "*/" ? cronMinuteValue :  "*/" + cronMinuteValue);
   const hourGenCron = cronHourValue === "0" ? "0" : "*/" + cronHourValue;
 
   const cronForSelectedType = () => {
