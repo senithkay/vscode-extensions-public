@@ -266,7 +266,7 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion && field.value) {
+                    } else if (field.type === "union" && !field.hide && field.isUnion && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -426,7 +426,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
                         formField.value = listExpr.source;
-                        formField.fields = [];
+                        formField.fields = formField?.fields ? formField.fields : [];
                     }
                 }
             })
