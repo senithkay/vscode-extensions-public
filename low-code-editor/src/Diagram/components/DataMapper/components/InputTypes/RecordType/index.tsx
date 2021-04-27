@@ -12,27 +12,33 @@
  */
 import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STNode } from '@ballerina/syntax-tree';
 
-import { SimpleBBox } from "../../../../../view-state";
-import { TypeDescViewState } from "../../../viewstate";
+import { getDataMapperComponent } from '../../../util';
+import { InputVariableViewstate } from '../../../viewstate';
 
-interface ValueTypeProps {
+interface RecordTypeProps {
     model: STNode;
     isMain?: boolean;
-    handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
-export function ValueType(props: ValueTypeProps) {
-    const { isMain, handleSelection, model } = props;
+export function RecordType(props: RecordTypeProps) {
+    const { model, isMain } = props;
 
-    const viewState: TypeDescViewState = model.dataMapperViewState;
-
+    const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
     const name = viewState.name;
-    const type = viewState.isArray ? viewState.collectionDataType : viewState.type;
+    const typeInfo = viewState.typeInfo;
 
-    const handleSelectionEvent = () => {
-        handleSelection(name ? name : '', viewState.bBox);
+    const type = typeInfo.moduleName === '.' ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`
+
+    const fields: JSX.Element[] = []
+
+    if (model.dataMapperTypeDescNode) {
+        const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
+        typeDescNode.fields.forEach(field => {
+            const fieldVS = field.dataMapperViewState
+            fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
+        })
     }
 
     return (
@@ -44,10 +50,10 @@ export function ValueType(props: ValueTypeProps) {
                 fontSize="15"
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
-                onClick={handleSelectionEvent}
             >
-                {`${name ? `${name}:` : ''} ${type}${viewState.isArray ? '[]' : ''}`}
+                {`${name}: ${type}`}
             </text>
+            {fields}
         </g>
-    )
+    );
 }

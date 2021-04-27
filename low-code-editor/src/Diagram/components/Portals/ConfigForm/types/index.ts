@@ -99,6 +99,8 @@ export interface VariableInfoEntry {
     type: string;
     name: string;
     node?: STNode;
+    typeDescNode?: STNode;
+    sampleJsonStructure?: string;
 }
 
 export interface TypeInfoEntry {
@@ -112,6 +114,7 @@ export interface DataMapperConfig {
     elementName: string;
     inputTypes: VariableInfoEntry[]; // todo ::: finalize the interface
     outputType: TypeInfoEntry;
+    isExisting: WizardType;
 }
 
 export interface EndConfig {

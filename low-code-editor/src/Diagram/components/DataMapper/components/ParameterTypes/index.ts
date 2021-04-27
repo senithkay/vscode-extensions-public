@@ -8,4 +8,3 @@ export { ValueType as float }
 export { ValueType as xml }
 export { ValueType as json }
 export { ValueType as collection }
-

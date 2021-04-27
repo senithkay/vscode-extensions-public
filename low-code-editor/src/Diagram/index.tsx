@@ -109,7 +109,14 @@ export function Diagram(props: DiagramProps) {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
+            <DiagramErrorState
+                x={5}
+                y={-100}
+                text={numberOfErrors}
+                onClose={closeErrorDialog}
+                onOpen={openErrorDialog}
+                isErrorMsgVisible={isErrorStateDialogOpen}
+            />
         </div>
     );
 
@@ -148,7 +155,8 @@ export function Diagram(props: DiagramProps) {
 
             <div className={enableIconClassCheck}>
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
-                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
+                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly &&
+                    diagramDisabledStatus}
             </div>
 
             {diagnosticInDiagram && (

@@ -1,4 +1,3 @@
-/* tslint:disable:jsx-no-multiline-js */
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -11,25 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+/* tslint:disable:jsx-no-multiline-js */
 import React, { useContext, useState } from 'react';
 
 import {
     CaptureBindingPattern,
     ExplicitAnonymousFunctionExpression,
     LocalVarDecl,
+    RecordTypeDesc,
     STNode, traversNode
 } from '@ballerina/syntax-tree';
 
+import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
+import { VariableInfoEntry } from '../Portals/ConfigForm/types';
 
 import { DataMapperFunctionComponent } from "./components/FunctionComponent";
-import { completeMissingTypeDesc } from "./util";
-import { DataMapperInitVisitor } from './util/data-mapper-init-visitor';
-import { DataMapperMappingVisitor } from "./util/data-mapper-mapping-visitor";
+import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
+import { DataMapperInitVisitor } from './util/data-mapper-init-visitor'
+import { DataMapperInitVisitor as NewDataMapperInitVisitor } from './util/var-data-mapper-init-visitor';
+import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/var-data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
+import sampleJSON from './sample-config.json';
 
 interface DataMapperProps {
     width: number;
@@ -45,6 +49,8 @@ export function DataMapper(props: DataMapperProps) {
             syntaxTree
         }
     } = useContext(DiagramContext)
+
+    // const dataMapperConfig = sampleJSON;
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
 
@@ -52,7 +58,18 @@ export function DataMapper(props: DataMapperProps) {
         dispatchMutations(modifications);
     }
 
-    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(dataMapperConfig.outputType.type) : undefined;
+    let outputType: string = '';
+
+    if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
+        const typeInfo = dataMapperConfig.outputType.typeInfo;
+        outputType = typeInfo.moduleName !== '.' ?
+            `${typeInfo.moduleName}:${typeInfo.name}`
+            : typeInfo.name
+    } else {
+        outputType = dataMapperConfig.outputType.type;
+    }
+
+    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
     const selectedNode = outputTypeVariables ?
         outputTypeVariables
             .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
@@ -61,11 +78,66 @@ export function DataMapper(props: DataMapperProps) {
 
 
 
-    const component: JSX.Element[] = [];
+    const inputComponents: JSX.Element[] = [];
 
     if (selectedNode) {
 
-        debugger;
+        const inputVariables: VariableInfoEntry[] = dataMapperConfig.inputTypes;
+
+        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+            const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+            if (varSTNode.initializer) {
+                const varTypeSymbol = varSTNode.initializer.typeData.typeSymbol;
+
+                switch (varTypeSymbol.typeKind) {
+                    case PrimitiveBalType.String:
+                    case PrimitiveBalType.Int:
+                    case PrimitiveBalType.Boolean:
+                    case PrimitiveBalType.Float:
+                        break;
+                    case PrimitiveBalType.Json:
+                        break;
+                    default:
+                        if (varTypeSymbol.moduleID) {
+                            const moduleId = varTypeSymbol.moduleID;
+                            const qualifiedKey = `${moduleId.orgName}/${moduleId.moduleName}:${moduleId.version}:${varTypeSymbol.name}`;
+                            const recordMap: Map<string, STNode> = stSymbolInfo.recordTypeDescriptions;
+
+                            if (recordMap.has(qualifiedKey)) {
+                                variableInfo.node.dataMapperTypeDescNode = recordMap.get(qualifiedKey);
+                            } else {
+                                // todo: fetch record/object ST
+                            }
+                        }
+                }
+            }
+        });
+
+        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+            traversNode(variableInfo.node, new NewDataMapperInitVisitor());
+
+            if (variableInfo.node.dataMapperTypeDescNode) {
+                switch (variableInfo.node.dataMapperTypeDescNode.kind) {
+                    case 'RecordTypeDesc': {
+                        (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                            completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
+                        })
+                    }
+                }
+            }
+        });
+
+        const positionVisitor = new NewDataMapperPositionVisitor(15, 15);
+
+        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+            traversNode(variableInfo.node, positionVisitor);
+        });
+
+        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+            const { dataMapperViewState } = variableInfo.node;
+            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
+        });
+
         //     traversNode(selectedNode.initializer, new DataMapperInitVisitor());
         //     const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
         //     const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
@@ -101,7 +173,7 @@ export function DataMapper(props: DataMapperProps) {
 
     return (
         <>
-            {component}
+            {inputComponents}
             {/* <DiagramOverlayContainer>
                     position={{ x: 15, y: 15 }}
                 >

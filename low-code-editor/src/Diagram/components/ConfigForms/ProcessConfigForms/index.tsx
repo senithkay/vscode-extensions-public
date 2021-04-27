@@ -104,6 +104,7 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
                     const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+                    datamapperConfig.isExisting = WizardType.NEW;
                     const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
                     let signatureString = '';
 

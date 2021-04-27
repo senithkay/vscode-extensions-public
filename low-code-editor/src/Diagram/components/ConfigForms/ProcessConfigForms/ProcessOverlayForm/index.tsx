@@ -58,7 +58,8 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
         config.config = {
             elementName: '',
             inputTypes: [],
-            outputType: undefined
+            outputType: undefined,
+            isExisting: WizardType.NEW
         }
     } else if (formType === "Custom") {
         config.config = {

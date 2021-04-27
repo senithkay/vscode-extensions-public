@@ -14,25 +14,26 @@ import React from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { SimpleBBox } from "../../../../../view-state";
-import { TypeDescViewState } from "../../../viewstate";
+import { InputVariableViewstate } from "../../../viewstate";
 
 interface ValueTypeProps {
     model: STNode;
     isMain?: boolean;
-    handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { isMain, handleSelection, model } = props;
+    const { model, isMain } = props;
 
-    const viewState: TypeDescViewState = model.dataMapperViewState;
+    const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
 
-    const name = viewState.name;
-    const type = viewState.isArray ? viewState.collectionDataType : viewState.type;
+    let name: string = viewState.name;
+    const type: string = viewState.type;
 
-    const handleSelectionEvent = () => {
-        handleSelection(name ? name : '', viewState.bBox);
+    const regexPattern = /^"(\w+)\"$/g;
+
+    if (regexPattern.test(name)) {
+        const matchedVal = regexPattern.exec(name);
+        name = matchedVal[1];
     }
 
     return (
@@ -44,10 +45,9 @@ export function ValueType(props: ValueTypeProps) {
                 fontSize="15"
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
-                onClick={handleSelectionEvent}
             >
-                {`${name ? `${name}:` : ''} ${type}${viewState.isArray ? '[]' : ''}`}
+                {`${name}: ${type}`}
             </text>
         </g>
-    )
+    );
 }

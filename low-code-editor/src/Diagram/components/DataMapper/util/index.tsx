@@ -16,7 +16,7 @@ import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
 import { TypeInfo, TypeInfoEntry } from "../../Portals/ConfigForm/types";
-import * as DataMapperComponents from '../components/ParameterTypes';
+import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, TypeDescViewState } from "../viewstate";
 
 import { DataMapperInitVisitor } from "./data-mapper-init-visitor";

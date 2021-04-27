@@ -84,7 +84,12 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
             setDataMapperStep(DataMapperSteps.SELECT_INPUT);
         } else {
-            processConfig.config = { elementName, inputTypes, outputType: { ...outputType, sampleStructure } };
+            processConfig.config = {
+                elementName,
+                inputTypes,
+                outputType: { ...outputType, sampleStructure },
+                isExisting: processConfig.wizardType
+            };
             onSave();
             dataMapperStart(processConfig.config);
         }

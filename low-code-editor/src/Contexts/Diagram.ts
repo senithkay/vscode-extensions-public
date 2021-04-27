@@ -53,6 +53,11 @@ const reducer = (state: any, action: any) => {
                 isConfigOverlayFormOpen: !state.isConfigOverlayFormOpen,
                 dataMapperConfig: undefined
             }
+        case 'UPDATE_DATAMAPPER_CONFIG':
+            return {
+                ...state,
+                dataMapperConfig: action.payload
+            }
         default:
             return state;
     }
