@@ -16,7 +16,7 @@ import { LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, Specific
 import { DataMapperViewState } from "../viewstate";
 
 
-const DEFAULT_OFFSET = 15;
+const DEFAULT_OFFSET = 20;
 
 export class DataMapperPositionVisitor implements Visitor {
     private height: number;
