@@ -75,11 +75,11 @@ function processST() {
 function writeSTFile(filePath : string,formFieldObject : any ) {
     fs.exists (filePath, async function (exists) {
         if (exists) {
-            await fspromise.writeFile(filePath + "fields.json", JSON.stringify(formFieldObject, null, 2));
+            await fspromise.writeFile(filePath + "fields.json", JSON.stringify(formFieldObject));
             console.log(" File write success : " + filePath + "fields.json");
         } else {
-            fs.mkdirSync(filePath);
-            await fspromise.writeFile(filePath + "fields.json", JSON.stringify(formFieldObject, null, 2));
+            fs.mkdirSync(filePath, { recursive: true });
+            await fspromise.writeFile(filePath + "fields.json", JSON.stringify(formFieldObject));
             console.log(" File write success : " + filePath + "fields.json");
         }
     });
