@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
+import classnames from 'classnames';
 
 import { Context } from "../Contexts/Diagram";
 import { STModification } from "../Definitions";
@@ -31,7 +32,6 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
-import classnames from 'classnames';
 export interface DiagramProps {
     isReadOnly: boolean;
     syntaxTree: STNode;
@@ -139,7 +139,7 @@ export function Diagram(props: DiagramProps) {
     }
 
     let hasConfigurable = false;
-    if(originalSyntaxTree){
+    if (originalSyntaxTree){
         hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
     }
 
@@ -155,7 +155,7 @@ export function Diagram(props: DiagramProps) {
             </div>
 
             {diagnosticInDiagram && (
-                <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>                    
+                <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>
                     <OverlayBackground />
                     {diagramStatus}
                 </div>
