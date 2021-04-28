@@ -245,8 +245,8 @@ export function GoogleCalender(props: WizardProps) {
                                 oauth2Config: {
                                     clientId: ${getFormFieldValue("clientId")},
                                     clientSecret: ${getFormFieldValue("clientSecret")},
-                                    refreshToken: ${getFormFieldValue("refreshUrl")},
-                                    refreshUrl: ${getFormFieldValue("refreshToken")}
+                                    refreshToken: ${getFormFieldValue("refreshToken")},
+                                    refreshUrl: ${getFormFieldValue("refreshUrl")}
                                 }
                              });`,
                             targetPosition
@@ -282,8 +282,8 @@ export function GoogleCalender(props: WizardProps) {
                     oauth2Config: {
                         clientId: ${getFormFieldValue("clientId")},
                         clientSecret: ${getFormFieldValue("clientSecret")},
-                        refreshToken: ${getFormFieldValue("refreshUrl")},
-                        refreshUrl: ${getFormFieldValue("refreshToken")}
+                        refreshToken: ${getFormFieldValue("refreshToken")},
+                        refreshUrl: ${getFormFieldValue("refreshUrl")}
                     }
                  });`,
                 config.initPosition
