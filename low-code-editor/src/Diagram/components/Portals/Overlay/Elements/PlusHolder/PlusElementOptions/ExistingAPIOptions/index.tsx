@@ -13,24 +13,27 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 
+import { LocalVarDecl } from "@ballerina/syntax-tree";
+
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
-import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
 import { PlusViewState } from "../../../../../../../view-state/plus";
-import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
-import { getConnectorIconSVG } from "../../../../../utils";
+import { getExistingConnectorIconSVG } from "../../../../../utils";
 import "../../style.scss";
+import { APIOptions } from "../APIOptions";
 
 // import { BetaSVG } from "./BetaSVG";
 
-export interface APIOptionsProps {
+export interface ExistingAPIOptionsProps {
     onSelect: (connector: BallerinaConnectorsInfo) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo) => void;
     viewState?: PlusViewState;
 }
 
 export interface ConnctorComponent {
     connectorInfo: BallerinaConnectorsInfo;
     component: ReactNode;
+    key: string;
 }
 
 export interface Connctors {
@@ -42,37 +45,55 @@ export interface PlusStates {
     isAPICallsExisting?: boolean,
 }
 
-export function ExistingAPIOptions(props: APIOptionsProps) {
+export function ExistingAPIOptions(props: ExistingAPIOptionsProps) {
     const { state } = useContext(DiagramContext);
-    const { connectors } = state;
-    const { onSelect } = props;
+    const { connectors, stSymbolInfo } = state;
+    const { onSelect, onChange } = props;
     const [selectedContName, setSelectedContName] = useState("");
-    const [states, setStates] = useState<PlusStates>({
-        isAPICallsExisting: true
-    });
+
+    const [createFromNew, setCreateFromNew] = useState<ReactNode>(undefined);
+
+    // const [states, setStates] = useState<PlusStates>({
+    //     isAPICallsExisting: true
+    // });
+
+    const getConnector = (orgName: string, moduleName: string): BallerinaConnectorsInfo => {
+        // tslint:disable-next-line: no-unused-expression
+        let returnConnnectorType;
+        Array.from(connectors).forEach(element => {
+            // tslint:disable-next-line: no-unused-expression
+            const existingConnector = element as BallerinaConnectorsInfo;
+            if (existingConnector.org === orgName && existingConnector.module === moduleName) {
+                returnConnnectorType = existingConnector;
+            }
+        });
+        return returnConnnectorType;
+    }
+
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
-        connectors.forEach((connector: any, index: number) => {
-            const placement = index % 2 === 0 ? 'left' : 'right';
-            const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
-            const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
+        stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
+            const existingConnectorIcon = value.typedBindingPattern.typeDescriptor.source.trim().replace(":", "_");
+            const orgName = value.typedBindingPattern.typeDescriptor.typeData.symbol.moduleID.orgName;
+            const moduleName = value.typedBindingPattern.typeDescriptor.typeData.symbol.moduleID.moduleName;
+            const connector = getConnector(orgName, moduleName);
             const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
-                    <div className="existing-connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
-                        <div className="existing-connector-details product-tour-add-http">
-                            <div className="existing-connector-icon">
-                                {getConnectorIconSVG(connector)}
-                            </div>
-                            <div className="existing-connector-name">
-                                {connector.displayName}
-                            </div>
+                <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, connector)} data-testid={key.toLowerCase()}>
+                    <div className="existing-connector-details product-tour-add-http">
+                        <div className="existing-connector-icon">
+                            {getExistingConnectorIconSVG(existingConnectorIcon)}
+                        </div>
+                        <div className="existing-connector-name">
+                            {key}
                         </div>
                     </div>
-                </Tooltip>
+                </div>
             );
+
             const connectorComponent: ConnctorComponent = {
                 connectorInfo: connector,
-                component
+                component,
+                key
             }
             connectorComponents.push(connectorComponent);
         });
@@ -82,33 +103,32 @@ export function ExistingAPIOptions(props: APIOptionsProps) {
         setSelectedContName(evt.target.value);
     };
 
+    const onAPITypeSelect = (connector: BallerinaConnectorsInfo) => {
+        onChange("APIS", connector.displayName, connector);
+        // todo: handle tour step
+        // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
+    };
+
+    // tslint:disable-next-line: no-empty
     const handleApiSwitch = () => {
-        setStates({
-            isAPICallsExisting: false
-        });
+        setCreateFromNew(
+            <APIOptions onSelect={onAPITypeSelect} />
+        );
     }
 
-    const genericConnectors: ReactNode[] = [];
-    const serviceConnectors: ReactNode[] = [];
+    const exsitingConnectors: ReactNode[] = [];
     if (selectedContName !== "") {
         const allCnts: ConnctorComponent[] = connectorComponents.filter(el =>
-            el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
+            el.key.toLowerCase().includes(selectedContName.toLowerCase()));
         allCnts.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
-                serviceConnectors.push(allCnt.component);
-            }
+            exsitingConnectors.push(allCnt.component);
         });
     } else {
         connectorComponents.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
-                serviceConnectors.push(allCnt.component);
-            }
+            exsitingConnectors.push(allCnt.component);
         });
     }
+
     const preventDiagramScrolling = (e: SyntheticEvent) => {
         e.stopPropagation();
     }
@@ -131,7 +151,7 @@ export function ExistingAPIOptions(props: APIOptionsProps) {
             >
                 <div className="element-option-holder" >
                     <div className="options-wrapper">
-                        {genericConnectors}
+                        {exsitingConnectors}
                     </div>
                 </div>
             </div>

@@ -45,7 +45,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams, matchEndpointToFormField } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -75,6 +75,7 @@ export interface ConnectorConfigWizardProps {
     targetPosition: DraftInsertPosition;
     configWizardArgs?: ConfigWizardState;
     onClose: () => void;
+    selectedConnector: LocalVarDecl;
 }
 
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
@@ -91,7 +92,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
-    const { connectorInfo, targetPosition, configWizardArgs, onClose } = props;
+    const { connectorInfo, targetPosition, configWizardArgs, onClose, selectedConnector } = props;
     const { functionDefInfo, connectorConfig, wizardType, model } = configWizardArgs;
 
     let isOauthConnector = false;
@@ -119,10 +120,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, []);
 
     useEffect(() => {
-        if (config.existingConnections) {
+        if (selectedConnector) {
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            onSelectExisting(connectorNameValue);
+        } else if (config.existingConnections) {
             setFormState(FormStates.ExistingConnection);
         }
-    }, [config.existingConnections]);
+    }, [config.existingConnections, selectedConnector]);
 
     const connectorInitFormFields: FormField[] = functionDefInfo?.get("init") ?
         functionDefInfo?.get("init").parameters : functionDefInfo?.get("__init").parameters;
@@ -426,7 +433,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             connector: connectorInfo,
             isNewConnectorInitWizard,
             targetPosition,
-            model
+            model,
+            selectedConnector
         });
         if (!connectorComponent) {
             if (selectedOperation) {

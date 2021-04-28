@@ -39,7 +39,10 @@ import {
     checkErrorsReturnType,
     genVariableName,
     getConnectorIcon,
-    getParams
+    getKeyFromConnection,
+    getOauthConnectionParams,
+    getParams,
+    matchEndpointToFormField
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -55,6 +58,7 @@ interface WizardProps {
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
     model?: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum FormStates {
@@ -67,12 +71,12 @@ enum FormStates {
 
 export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
-    const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
+    const [config] = useState<ConnectorConfig>(connectorConfig ? connectorConfig : new ConnectorConfig());
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
 
@@ -82,6 +86,20 @@ export function NetSuiteWizard(props: WizardProps) {
             setIsNewConnection(false);
         }
     }, [config.existingConnections]);
+
+    useEffect(() => {
+        if (selectedConnector) {
+            config.connectorInit = connectorInitFormFields;
+
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            setConfigName(connectorNameValue);
+            setIsNewConnection(false);
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            setFormState(FormStates.OperationDropdown);
+        }
+    }, [selectedConnector]);
 
     const [connectionDetails, setConnectionDetails] = useState(null);
     const [selectedOperation, setSelectedAction] = useState(isNewConnectorInitWizard ? null : config.action.name);

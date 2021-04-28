@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
@@ -38,7 +38,7 @@ import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { checkErrorsReturnType, getConnectorIcon, getParams } from "../../Portals/utils";
+import { checkErrorsReturnType, getConnectorIcon, getParams, matchEndpointToFormField } from "../../Portals/utils";
 import "../HTTPWizard/style.scss"
 import { useStyles } from "../HTTPWizard/styles";
 
@@ -54,6 +54,7 @@ interface WizardProps {
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
     model: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum InitFormState {
@@ -79,7 +80,7 @@ const QontoConnector = withStyles({
 export function SMTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
@@ -93,6 +94,24 @@ export function SMTPWizard(props: WizardProps) {
         connectorConfig.action.returnVariableName =
             (smtpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
     }
+
+    useEffect(() => {
+        if (selectedConnector) {
+
+            const actionName = "sendEmailMessage";
+            connectorConfig.action = {
+                name: actionName,
+                fields: functionDefinitions.get(actionName)?.parameters
+            }
+            connectorConfig.connectorInit = connectorInitFormFields;
+
+            const val = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.name = val;
+            matchEndpointToFormField(selectedConnector, connectorConfig.connectorInit);
+            connectorConfig.isExistingConnection = (val !== undefined);
+            setState(InitFormState.SelectInputOutput);
+        }
+    }, [selectedConnector]);
 
     const handleCreateNew = () => {
         setIsNewConnection(true);

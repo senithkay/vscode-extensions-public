@@ -221,6 +221,7 @@ export function ConnectorClientC(props: ConnectorClientProps) {
                                                     y: connectorClientViewState.bBox.cy,
                                                 }}
                                                 targetPosition={draftVS.targetPosition}
+                                                selectedConnector={draftVS.selectedConnector}
                                                 model={model}
                                                 onClose={onWizardClose}
                                             />

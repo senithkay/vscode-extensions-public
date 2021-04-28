@@ -48,7 +48,8 @@ import {
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams
+    getParams,
+    matchEndpointToFormField
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -64,6 +65,7 @@ interface WizardProps {
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
     model?: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum FormStates {
@@ -81,7 +83,8 @@ export function GmailWizard(props: WizardProps) {
 
     const wizardClasses = wizardStyles();
     const classes = useStyles();
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
@@ -103,6 +106,19 @@ export function GmailWizard(props: WizardProps) {
     const [selectedOperation, setSelectedAction] = useState(isNewConnectorInitWizard ? null : config.action.name);
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(true);
+
+    useEffect(() => {
+        if (selectedConnector) {
+            config.connectorInit = connectorInitFormFields;
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            setConfigName(connectorNameValue);
+            setIsNewConnection(false);
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            setFormState(FormStates.OperationDropdown);
+        }
+    }, [selectedConnector]);
 
     // managing name set by the non oauth connectors
     config.name = isNewConnectorInitWizard ?

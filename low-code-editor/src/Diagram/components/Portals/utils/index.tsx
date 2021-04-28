@@ -153,7 +153,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             await getRecordFields(formField.fields, records, langClient);
                             formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
                                 if (property?.length > 0) {
-                                    formField.fields = [ ...formField.fields, ...property.fields ];
+                                    formField.fields = [...formField.fields, ...property.fields];
                                 }
                             });
                         }
@@ -214,7 +214,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                     await getRecordFields(formField.fields, records, langClient);
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property?.length > 0){
+                                        if (property?.length > 0) {
                                             formField.fields = [...formField.fields, ...property.fields]
                                         }
                                     })
@@ -507,6 +507,17 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 
 export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: number = 1): React.ReactNode {
     const iconId = getConnectorIconId(connector);
+    const Icon = (Icons as any)[iconId];
+    const DefaultIcon = (Icons as any).default;
+    const props = {
+        scale
+    }
+    return Icon ? (
+        <Icon {...props} />
+    ) : <DefaultIcon {...props} />;
+}
+
+export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
     const Icon = (Icons as any)[iconId];
     const DefaultIcon = (Icons as any).default;
     const props = {
