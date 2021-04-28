@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
 
+import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
-import { LocalVarDecl } from "tools/syntax-tree/lib";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context } from "../../../../../../../Contexts/Diagram";

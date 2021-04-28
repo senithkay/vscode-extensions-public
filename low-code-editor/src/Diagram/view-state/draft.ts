@@ -1,4 +1,4 @@
-import { LocalVarDecl } from "tools/syntax-tree/lib";
+import { LocalVarDecl } from "@ballerina/syntax-tree";
 
 import { BallerinaConnectorsInfo } from "../../Definitions/lang-client-extended";
 

@@ -105,10 +105,10 @@ export function SMTPWizard(props: WizardProps) {
             }
             connectorConfig.connectorInit = connectorInitFormFields;
 
-            const val = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-            connectorConfig.name = val;
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.name = connectorNameValue;
             matchEndpointToFormField(selectedConnector, connectorConfig.connectorInit);
-            connectorConfig.isExistingConnection = (val !== undefined);
+            connectorConfig.isExistingConnection = (connectorNameValue !== undefined);
             setState(InitFormState.SelectInputOutput);
         }
     }, [selectedConnector]);
