@@ -118,8 +118,20 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronDayValue(dayValue);
   }
 
+  const orderedDays: string[] = [];
   const handleWeekOptionChange = (weekValue: string[]) => {
-    setCronWeekValue(weekValue.toString());
+    if (weekValue.length <= 1) {
+      setCronWeekValue(weekValue.toString());
+    } else {
+      orderedDays.push(weekValue.find(value => value === "Sun"));
+      orderedDays.push(weekValue.find(value => value === "Mon"));
+      orderedDays.push(weekValue.find(value => value === "Tue"));
+      orderedDays.push(weekValue.find(value => value === "Wed"));
+      orderedDays.push(weekValue.find(value => value === "Thu"));
+      orderedDays.push(weekValue.find(value => value === "Fri"));
+      orderedDays.push(weekValue.find(value => value === "Sat"));
+      setCronWeekValue(orderedDays.filter(day => day !== undefined).toString());
+    }
   }
 
   const handleTimeChange = (time: number[]) => {
