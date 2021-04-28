@@ -109,10 +109,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     private createCodeLens(execPosition: ExecutorPosition, execType: EXEC_TYPE): CodeLens {
-        const startLine = execPosition.range.start.line;
-        const startColumn = execPosition.range.start.character;
-        const endLine = execPosition.range.end.line;
-        const endColumn = execPosition.range.end.character;
+        const startLine = execPosition.range.startLine.line;
+        const startColumn = execPosition.range.startLine.offset;
+        const endLine = execPosition.range.endLine.line;
+        const endColumn = execPosition.range.endLine.offset;
         const codeLens = new CodeLens(new Range(startLine, startColumn, endLine, endColumn));
         codeLens.command = {
             title: execType.toString(),
