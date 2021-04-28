@@ -13,6 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 import { ExpressionEditorState } from '../../../../../../Definitions';
 import { DraftInsertPosition } from '../../../../../view-state/draft';
@@ -97,6 +98,24 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     const initVal = defaultValue ? defaultValue : model.value;
     return initVal;
 }
+
+/** Check if a mandatory fields is empty or not */
+export const isFieldEmpty = (value: string, model?: FormField): boolean => {
+    if (!model.optional && (!value || !value.replace(/"/g, ''))){
+        return true;
+    }
+    return false;
+}
+
+/** Generate error markers for expression editor */
+export const generateErrorMarkers = (message: string): monaco.editor.IMarkerData[] => ([{
+    startLineNumber: 1,
+    startColumn: 1,
+    endLineNumber: 2,
+    endColumn: 1000,
+    message,
+    severity: monaco.MarkerSeverity.Error
+}])
 
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     // check for severity level == 1

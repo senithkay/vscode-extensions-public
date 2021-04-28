@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -27,7 +28,6 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 
 export interface OperationFormProps {
@@ -50,6 +50,7 @@ export function OperationForm(props: OperationFormProps) {
             onOperationChange, mutationInProgress, isNewConnectorInitWizard } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -97,13 +98,37 @@ export function OperationForm(props: OperationFormProps) {
         isSaveButtonDisabled = false;
     }
 
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const connectorOperationsTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationForm.title" defaultMessage="Connection"/></p>
                             <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                 <Typography variant="subtitle2">
                                     {connectionDetails.name}
@@ -122,7 +147,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                        <p className={wizardClasses.subTitle}>Operation</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationForm.operation.title" defaultMessage="Operation"/></p>
                         <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {selectedOperation}
@@ -148,13 +173,13 @@ export function OperationForm(props: OperationFormProps) {
                     <FormTextInput
                         customProps={{
                             validate: validateNameValue,
-                            tooltipTitle: tooltipMessages.responseVariableName,
+                            tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                             disabled: responseVariableHasReferences
                         }}
                         defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
+                        placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={"Response Variable Name"}
+                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
                 </div>
@@ -162,7 +187,7 @@ export function OperationForm(props: OperationFormProps) {
             <div className={classes.wizardBtnHolder}>
                 <PrimaryButton
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}

@@ -12,17 +12,19 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { useIntl } from "react-intl";
 
 import cn from "classnames";
 
 import { PlusViewState } from "../../../view-state";
 import { DefaultConfig } from "../../../visitors/default";
 
-// import { DottedConditionSVG, DOTTED_CONDITION_SVG_WIDTH, DOTTED_CONDITION_SVG_WIDTH_WITH_SHADOW } from "./DottedConditionSVG";
 import { DottedConnectorSVG /*, DOTTED_CONNECTOR_SVG_WIDTH, DOTTED_CONNECTOR_SVG_WIDTH_WITH_SHADOW */ } from "./DottedConnectorSVG";
 import { DottedProcessSVG, DOTTED_PROCESS_SVG_WIDTH, DOTTED_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./DottedProcessSVG";
 import { DOTTED_STOP_SVG_WIDTH, /* DottedStopSVG, DOTTED_STOP_SVG_WIDTH_WITH_SHADOW */ } from "./DottedStopSVG";
 import "./style.scss"
+
+// import { DottedConditionSVG, DOTTED_CONDITION_SVG_WIDTH, DOTTED_CONDITION_SVG_WIDTH_WITH_SHADOW } from "./DottedConditionSVG";
 
 export const PLUS_HOLDER_HEIGHT = 121;
 export const PLUS_HOLDER_WIDTH = 385;
@@ -40,6 +42,7 @@ export interface PlusHolderProps {
 export const PlusHolderC = (props: PlusHolderProps) => {
     const { x, y, initPlus, onClick, plusViewState } = props;
     const plusHolderRect = cn("plusHolderRect");
+    const intl = useIntl();
 
     const stopSVGVisible: boolean = plusViewState ? plusViewState.isLast : false;
     const plusHolderWidth: number = stopSVGVisible ? PLUS_HOLDER_WIDTH :
@@ -51,6 +54,16 @@ export const PlusHolderC = (props: PlusHolderProps) => {
 
     const statementOnClick = () => onClick("STATEMENT");
     const apisOnClick = () => onClick("APIS");
+
+    const APIText = intl.formatMessage({
+        id: "lowcode.develop.Plus.PlusHolder.API.text",
+        defaultMessage: "APIs"
+    });
+
+    const StatementsText = intl.formatMessage({
+        id: "lowcode.develop.Plus.PlusHolder.Statements.text",
+        defaultMessage: "Statements"
+    });
 
     return (
         <g className={"plusholder"}>
@@ -69,8 +82,8 @@ export const PlusHolderC = (props: PlusHolderProps) => {
                 null
             }
             <g>
-                <g onClick={statementOnClick}><DottedProcessSVG x={statementX} y={y + defaultConf.element.topGap} text="STATEMENT" /></g>
-                <g onClick={apisOnClick}><DottedConnectorSVG x={apisX} y={y} text="APIS" /></g>
+                <g onClick={statementOnClick}><DottedProcessSVG x={statementX} y={y + defaultConf.element.topGap} text={StatementsText} /></g>
+                <g onClick={apisOnClick}><DottedConnectorSVG x={apisX} y={y} text={APIText} /></g>
             </g>
         </g >
     );

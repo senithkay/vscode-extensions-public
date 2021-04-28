@@ -18,7 +18,9 @@ import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import * as formFieldDatabase from "../../utils/idb";
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
+import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
@@ -352,6 +354,25 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
     return recordDef;
 }
 
+export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+    const { org, module, version, name, cacheVersion} = connector;
+    const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+    try {
+        await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                for (const [key, fieldsInfo] of Object.entries(data)) {
+                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                }
+            }
+        });
+    } catch (error) {
+        // IGNORE
+    }
+    return functionDef.size > 0 ? functionDef : undefined;
+}
+
 export interface FormFieldCache {
     [key: string]: FormFiledCacheEntry
 }
@@ -363,30 +384,27 @@ export interface FormFiledCacheEntry {
 export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
 
 export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
-    const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
-    const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
-    const fieldsMap: { [key: string]: FunctionDefinitionInfo } = {};
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+    const formFieldJsonObject: any = {};
     fields.forEach((value, key) => {
-        fieldsMap[key] = value;
+        formFieldJsonObject[ key ] = value;
     });
-    formFieldCacheMap[cacheId] = fieldsMap;
-    localStorage.setItem(FORM_FIELD_CACHE, JSON.stringify(formFieldCacheMap));
+    formFieldDatabase.put(cacheId, formFieldJsonObject);
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}`;
-    const formFieldCache = localStorage.getItem(FORM_FIELD_CACHE);
-    const formFieldCacheMap: FormFieldCache = formFieldCache ? JSON.parse(formFieldCache) : defaultFormCache;
-    const fieldsKVMap: FormFiledCacheEntry = formFieldCacheMap[cacheId];
-    const clonedFieldsKVMap: FormFiledCacheEntry = cloneDeep(fieldsKVMap);
-    if (clonedFieldsKVMap) {
-        const fieldsMap: Map<string, FunctionDefinitionInfo> = new Map();
-        Object.entries(clonedFieldsKVMap).forEach((value) => fieldsMap.set(value[0], value[1]));
-        return fieldsMap;
+    const { org, module: mod, version, name, cacheVersion } = connector;
+    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+    const formFieldCache = await formFieldDatabase.get(cacheId);
+    if (formFieldCache) {
+        const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+        for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
+            functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+        }
+        return functionDef.size > 0 ? functionDef : undefined;
     }
+    return undefined;
 }
 
 export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement): any {

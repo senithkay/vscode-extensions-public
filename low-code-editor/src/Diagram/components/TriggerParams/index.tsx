@@ -12,11 +12,9 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
-import { connect } from "react-redux";
 
 import {FunctionDefinition, RequiredParam, STNode} from "@ballerina/syntax-tree";
 
-import {PortalState} from "../../../types";
 import {BlockViewState} from "../../view-state";
 import {DefaultConfig} from "../../visitors/default";
 import {START_SVG_HEIGHT_WITH_SHADOW} from "../Start/StartSVG";
@@ -27,16 +25,15 @@ import {TriggerParamsSVG, TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW} from "./TriggerP
 export interface TriggerParamsProps {
     model?: STNode;
     blockViewState?: BlockViewState;
-    syntaxTree: STNode;
 }
 
-export function TriggerParamsC(props: TriggerParamsProps) {
-    const { model, blockViewState, syntaxTree } = props;
+export function TriggerParams(props: TriggerParamsProps) {
+    const { model, blockViewState } = props;
 
     const viewState = model.viewState;
     const cx = viewState.triggerParams.bBox.cx;
     const cy = viewState.triggerParams.bBox.cy;
-    const modelTriggerParams: FunctionDefinition = syntaxTree as FunctionDefinition;
+    const modelTriggerParams: FunctionDefinition = model as FunctionDefinition
     let triggerParamsText = "";
     let funcParam;
 
@@ -49,7 +46,7 @@ export function TriggerParamsC(props: TriggerParamsProps) {
 
     const component: React.ReactElement = ((!model?.viewState.collapsed || blockViewState) &&
         (<TriggerParamsSVG
-            x={(cx - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2))}
+            x={(cx - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 8))}
             y={(cy + START_SVG_HEIGHT_WITH_SHADOW) - (TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap * 2}
             text={triggerParamsText.slice(1, -1)}
         />)
@@ -61,12 +58,3 @@ export function TriggerParamsC(props: TriggerParamsProps) {
         </g>
     );
 }
-
-const mapStateToProps = ({ diagramState }: PortalState) => {
-    const { syntaxTree} = diagramState;
-    return {
-        syntaxTree
-    }
-};
-
-export const TriggerParams = connect(mapStateToProps)(TriggerParamsC);

@@ -12,17 +12,25 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import {
+    CaptureBindingPattern,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    ModulePart,
+    ModuleVarDecl,
+    STKindChecker
+} from "@ballerina/syntax-tree";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { STModification } from "../../../../../../../../Definitions";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { tooltipMessages } from "../../../../../utils/constants";
-import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface SalesforceConfigureFormProps {
@@ -42,14 +50,17 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         isLoadingSuccess: isFileSaved,
         syntaxTree,
         onModify: dispatchModifyTrigger,
-        trackTriggerSelection } = state;
+        originalSyntaxTree,
+        onMutate: dispatchMutations,
+        trackTriggerSelection
+    } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
     const { onComplete } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
-    const [ showConfirmDialog, setShowConfirmDialog ] = useState(false);
     const [ triggerChanged, setTriggerChanged ] = useState(false);
     const [ topic, setTopic ] = useState("");
     const [ username, setUsername ] = useState("");
@@ -73,19 +84,34 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const handlePasswordOnChange = (value: string) => {
         setPassword(value);
     };
-    const handleDialogOnCancel = () => {
-        setShowConfirmDialog(false);
-    };
-    const handleUserConfirm = () => {
-        if (isEmptySource) {
-            handleConfigureOnSave();
-        } else {
-            // get user confirmation if code there
-            setShowConfirmDialog(true);
+
+    // handle SFDC trigger update
+    const updateSalesforceTrigger = () => {
+        const moduleVarDecls: ModuleVarDecl[] = (originalSyntaxTree as ModulePart).members.filter(members =>
+            STKindChecker.isModuleVarDecl(members)) as ModuleVarDecl[];
+        const pushTopicsVarNode = moduleVarDecls.find(moduleVarDecl => ((moduleVarDecl.
+            typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value === "pushTopic");
+        const listenerConfigNode = (originalSyntaxTree as ModulePart).members?.find(member => (((member as ModuleVarDecl)?.
+            typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
+            typeSymbol?.name === "ListenerConfiguration");
+
+        const pushTopicVarTemplate = `string pushTopic = "${topic}";`;
+        const listenerConfigTemplate = `sfdc:ListenerConfiguration listenerConfig = {\n
+                                            username: "${username}",\n
+                                            password: "${password}"\n
+                                        };\n`
+
+        const modifications: STModification[] = [];
+        if (pushTopicsVarNode && listenerConfigNode) {
+            modifications.push(updatePropertyStatement(pushTopicVarTemplate, pushTopicsVarNode.position));
+            modifications.push(updatePropertyStatement(listenerConfigTemplate, listenerConfigNode.position));
+
+            dispatchMutations(modifications);
+            setTriggerChanged(true);
         }
-    };
-    // handle trigger configure complete
-    const handleConfigureOnSave = () => {
+    }
+
+    const createSalesforceTrigger = () => {
         setTriggerChanged(true);
         // dispatch and close the wizard
         dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
@@ -95,37 +121,82 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
             PASSWORD: password,
         });
         trackTriggerSelection(Trigger);
+    }
+
+    // handle trigger configure complete
+    const handleConfigureOnSave = () => {
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            createSalesforceTrigger();
+        } else {
+            updateSalesforceTrigger();
+        }
     };
 
+    const userNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.username.placeholder",
+        defaultMessage: "Username"
+    });
+
+    const passwordPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.password.placeholder",
+        defaultMessage: "Password"
+    });
+
+    const topicPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.topic.placeholder",
+        defaultMessage: "Topic"
+    })
+
+    const saveConfigButton = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.saveConfigButton.text",
+        defaultMessage: "Save"
+    });
+
+    const salesforceConfigTooltips = {
+        salesforceTrigger: {
+        username: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.username.tooltip.title",
+            defaultMessage: "The key in your Salesforce username."
+        }),
+        password : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.password.tooltip.title",
+            defaultMessage: "Enter the Salesforce password appended with your Salesforce security token."
+        }),
+        topic : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
+            defaultMessage: "The topic of the Push type that was added to your Salesforce account to receive notifications."
+        })
+    }
+}
     return (
         <>
             <div className={classes.customWrapper}>
                 <FormTextInput
-                    label="Username"
+                    label={userNamePlaceholder}
                     defaultValue={username}
                     onChange={handleUsernameOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.username
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.username
                     } }
                 />
                 <FormTextInput
-                    label="Password"
+                    label={passwordPlaceholder}
                     defaultValue={password}
                     onChange={handlePasswordOnChange}
                     customProps={ {
                         optional: false,
                         secret: true,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.password
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.password
                     } }
                 />
                 <FormTextInput
-                    label="Topic"
+                    label={topicPlaceholder}
                     defaultValue={topic}
                     onChange={handleTopicOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.topic
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.topic
                     } }
                 />
             </div>
@@ -133,19 +204,13 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
-                            text="Save"
+                            text={saveConfigButton}
                             className={classes.saveBtn}
-                            onClick={handleUserConfirm}
+                            onClick={handleConfigureOnSave}
                             disabled={isFileSaving}
                         />
                     </div>
                 ) }
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    onConfirm={handleConfigureOnSave}
-                    onCancel={handleDialogOnCancel}
-                />
-            ) }
         </>
     );
 }

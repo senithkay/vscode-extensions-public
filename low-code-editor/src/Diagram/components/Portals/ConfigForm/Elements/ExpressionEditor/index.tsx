@@ -27,7 +27,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { useStyles as useTextInputStyles } from "../TextField/style";
-import { TooltipCodeSnippet, TooltipIcon } from "../Tooltip";
+import { TooltipIcon, TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -38,11 +38,14 @@ import {
     checkIfStringExist,
     createContentWidget,
     diagnosticCheckerExp,
+    generateErrorMarkers,
     getInitialValue,
     getTargetPosition,
+    isFieldEmpty,
     transformFormFieldTypeToString
 } from "./utils";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
+import { FormattedMessage, useIntl } from "react-intl";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -176,13 +179,30 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
+    const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
 
     const validExpEditor = () => {
-        validate(model.name, false);
-        if (monacoRef.current) {
-            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+        const currentContent = monacoRef.current ? monacoRef.current?.editor?.getModel()?.getValue() : model.value;
+        if (isFieldEmpty(currentContent, model)){
+            const message = 'Required field';
+            validate(model.name, true);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', generateErrorMarkers(message))
+            }
+            if (expressionEditorState.diagnostic[0]?.message !== message){
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: [{message}]
+                })
+            }
+
+        }else{
+            validate(model.name, false);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 
@@ -193,14 +213,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         } else {
             validate(model.name, true);
             if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
-                    startLineNumber: 1,
-                    startColumn: 1,
-                    endLineNumber: 2,
-                    endColumn: 1000,
-                    message,
-                    severity: monaco.MarkerSeverity.Error
-                }])
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', generateErrorMarkers(message))
             }
         }
     }
@@ -679,6 +692,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return errorMsg
     }
 
+    const clickHereText = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
+        defaultMessage: "Click here"
+    })
+
+    const toHandleItText = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
+        defaultMessage: "to handle it"
+    })
+
     setDefaultTooltips();
 
     return (
@@ -690,7 +713,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>
                                 </div>
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
@@ -748,7 +771,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                             <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
                         </TooltipCodeSnippet>
-                        <FormHelperText className={formClasses.invalidCode}>Error occured in the code-editor. Please fix it first to continue.</FormHelperText>
+                        <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occured in the code-editor. Please fix it first to continue."/></FormHelperText>
                     </>
                 ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                     (
@@ -770,9 +793,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                             <div className={formClasses.suggestionsWrapper} >
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/info-blue.svg" />
-                                <FormHelperText className={formClasses.suggestionsText}>
-                                    This expression could cause an error. {<a className={formClasses.suggestionsTextInfo} onClick={addCheckToExpression}>Click here</a>} to handle it
-                                </FormHelperText>
+                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.suggestionsTextInfo} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
                         ) : null
             }
