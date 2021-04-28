@@ -31,6 +31,7 @@ export default function DiagramContainer(props: Props) {
             dispatchMutations={props.onMutate}
             isReadOnly={props.isReadOnly || false}
             syntaxTree={props.syntaxTree}
+            originalSyntaxTree={props.originalSyntaxTree}
             error={props.error}
             isLoadingAST={props.isLoadingAST} // TODO: provide below props to context
             isMutationInProgress={props.isMutationProgress}
@@ -41,6 +42,7 @@ export default function DiagramContainer(props: Props) {
             dispatchFileChange={props.dispatchFileChange}
             dispatchCodeChangeCommit={props.dispatchCodeChangeCommit}
             triggerType={displayType as TriggerType}
+            hasConfigurables={props.hasConfigurables}
         />
     )
 }
