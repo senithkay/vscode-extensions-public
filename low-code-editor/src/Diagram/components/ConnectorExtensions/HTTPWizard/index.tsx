@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
@@ -581,10 +582,10 @@ export function HTTPWizard(props: WizardProps) {
     const stepper = (
         <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >CONNECTION</StepLabel>
+                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} ><FormattedMessage id="lowcode.develop.connectorForms.HTTP.stepIcon.connection.title" defaultMessage="CONNECTION"/></StepLabel>
             </Step>
             <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.SelectInputOutput}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >INPUT/OUTPUT</StepLabel>
+                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} ><FormattedMessage id="lowcode.develop.connectorForms.HTTP.stepIcon.inputOutput.title" defaultMessage="INPUT/OUTPUT"/></StepLabel>
             </Step>
         </Stepper>
     );
@@ -599,7 +600,7 @@ export function HTTPWizard(props: WizardProps) {
                 />
                 <div className={wizardClasses.titleWrapper}>
                     <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.module}_${connector.name}`)}</div>
-                    <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} Connection</Typography>
+                    <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection"/></Typography>
                 </div>
             </div>
             {state !== InitFormState.Home && stepper}

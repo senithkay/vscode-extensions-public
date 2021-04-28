@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -33,10 +34,16 @@ export interface OperationDropdownProps {
 export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
     const classes = wizardStyles();
+    const intl = useIntl();
 
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value);
     };
+
+    const operationDropdownPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.operationDropdown.placeholder",
+        defaultMessage: "Search operation"
+    });
 
     return (
         <div>
@@ -45,7 +52,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                     {showConnectionName && (
                         <>
                             <div className={classes.connectionNameWrapper}>
-                                <p className={classes.subTitle}>Connection</p>
+                                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.connectionName.title" defaultMessage="Connection"/></p>
                                 <div>
                                     <TooltipIcon
                                         title="Name of the connection"
@@ -70,9 +77,9 @@ export function OperationDropdown(props: OperationDropdownProps) {
                             </Box>
                         </>
                     )}
-                    <p className={classes.subTitle}>Operation</p>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.title" defaultMessage="Operation :"/></p>
                     <FormAutocomplete
-                        placeholder="Search Operation"
+                        placeholder={operationDropdownPlaceholder}
                         itemList={operations}
                         onChange={handleSelect}
                     />

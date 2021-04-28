@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { FormHelperText } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -47,25 +48,25 @@ export default function WeekOptions(props: WeekOptionsProps) {
 
             <ToggleButtonGroup value={selectedDay} onChange={handleSelectedDay} aria-label="Day selection">
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")} value={weekOptions[1]} aria-label="Sunday">
-                    Su
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Sunday" defaultMessage="Su"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[2]}  aria-label="Monday">
-                    Mo
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Monday" defaultMessage="Mo"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[3]}  aria-label="Tuesday">
-                    Tu
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Tuesday" defaultMessage="Tu"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[4]}  aria-label="Wednesday">
-                    We
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Wednesday" defaultMessage="We"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[5]} aria-label="Thursday">
-                    Th
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Thursday" defaultMessage="Th"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[6]}  aria-label="Friday">
-                    Fr
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Friday" defaultMessage="Fr"/>
             </ToggleButton>
                 <ToggleButton className={classNames(classes.toggleButtonWrapper, "toggle-button-wrapper")}  value={weekOptions[7]}  aria-label="Saturday">
-                    Sa
+                <FormattedMessage id="lowcode.develop.scheduleConfigWizard.weekOptions.Saturday" defaultMessage="Sa"/>
             </ToggleButton>
             </ToggleButtonGroup>
         </div>

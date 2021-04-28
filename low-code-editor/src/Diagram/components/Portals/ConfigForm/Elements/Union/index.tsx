@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
@@ -79,7 +80,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         return selectedField;
     };
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = useState(new Map<string, boolean>());
     const validate = (field: string, isInvalid: boolean) => {
         const name: string = !field ? model.name : field;
         emptyFieldChecker.set(name, isInvalid);
@@ -155,7 +156,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{textLabel}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.union.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>

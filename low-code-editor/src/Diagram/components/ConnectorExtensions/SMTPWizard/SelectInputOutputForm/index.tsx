@@ -30,7 +30,7 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -52,6 +52,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state] = useState(defaultActionName);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
@@ -110,7 +111,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setExpandBcc(true);
     }
 
-    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
+    const [emptyFieldChecker] = useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
         const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
@@ -226,6 +227,34 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         returnVariableName = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
 
+    const SMTPInputOutputTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.SMTP.SelectInputOutput.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.selectInputOutputForm.backButton.text",
+        defaultMessage: "Back"
+    });
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -233,28 +262,33 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     <div className={classes.fullWidth}>
                         <Typography variant="h4" className={classes.titleWrapper}>
                             <Box className={classes.formTitle}>
-                                <div className={classes.formTitleTag} >Create an Email</div>
+                                <div className={classes.formTitleTag} >
+                                    <FormattedMessage
+                                        id="lowcode.develop.connector.SMTP.createEmail.title"
+                                        defaultMessage="Create an Email"
+                                    />
+                                </div>
                             </Box>
                         </Typography>
                         {selectedOperationParams}
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.responseVariableName,
+                                tooltipTitle: SMTPInputOutputTooltipMessages.responseVariableName.title,
                                 disabled: returnVariableName
                             }}
                             defaultValue={defaultResponseVariableName}
-                            placeholder={"Enter Response Variable Name"}
+                            placeholder={addResponseVariablePlaceholder}
                             onChange={onNameChange}
-                            label={"Response Variable Name"}
+                            label={addResponseVariableLabel}
                             errorMessage={responseVarError}
                         />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
+                    <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick} />
                     <PrimaryButton
-                        text="Save &amp; Done"
+                        text={saveConnectionButtonText}
                         fullWidth={false}
                         disabled={isSaveDisabled}
                         onClick={handleOnSave}

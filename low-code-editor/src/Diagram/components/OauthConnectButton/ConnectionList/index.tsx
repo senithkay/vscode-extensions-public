@@ -14,6 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -39,6 +40,7 @@ export interface ConnectionListProps {
 export const ConnectionList = (props: ConnectionListProps) => {
     const { activeConnection, connectionList, onChangeConnection, onInitConnection } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const connectionListElements = connectionList.map((item) => (
         <Box border={1} borderRadius={5} className={classes.radioBox} key={item.handle}>
@@ -53,6 +55,11 @@ export const ConnectionList = (props: ConnectionListProps) => {
         </Box>
     ));
 
+    const connectAnotherAccountButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text",
+        defaultMessage: "Connect Another Account"
+    });
+
     return (
         <>
             <TooltipIcon
@@ -61,11 +68,11 @@ export const ConnectionList = (props: ConnectionListProps) => {
                 arrow={true}
             >
                 <div className={classes.titleWrap}>
-                    <Typography variant="subtitle1" className={classes.title}>
-                        Choose Account
+                    <Typography variant="subtitle1" className={classes.title}><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.title" defaultMessage="Choose Account"/>
+
                     </Typography>
-                    <Link href="/user-settings/connections">
-                        (Manage)
+                    <Link href="/user-settings/connections"><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.manage" defaultMessage="(Manage)"/>
+
                     </Link>
                 </div>
             </TooltipIcon>
@@ -78,7 +85,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                 {connectionListElements}
             </RadioGroup>
             <PrimaryButtonSquare
-                text="Connect another account"
+                text={connectAnotherAccountButtonText}
                 startIcon={<Add />}
                 onClick={onInitConnection}
                 className={classes.listConnectBtn}
