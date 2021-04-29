@@ -193,7 +193,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             <Tooltip
                                 title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -210,7 +210,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             <Tooltip
                                 title={calendarTriggerTooltipMessages.calendarTrigger.title}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -245,7 +245,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             <Tooltip
                                 title={manualTriggerTooltipMessages.manualTrigger.title}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div
@@ -262,7 +262,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             <Tooltip
                                 title={gitHubTriggerTooltipMessages.gitHubTrigger.title}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div
