@@ -141,7 +141,7 @@ export function PlusElements(props: PlusElementsProps) {
                     actionText={plusHolderUITooltipMessages.statementsPlusHolder.actionText}
                     actionLink={plusHolderUITooltipMessages.statementsPlusHolder.actionLink}
                     interactive={true}
-                    placement="left"
+                    placement="bottom"
                     arrow={true}
                 >
                     <div className="options" onClick={handleStatementClick}>
@@ -157,7 +157,7 @@ export function PlusElements(props: PlusElementsProps) {
                         actionText={plusHolderUITooltipMessages.APIsPlusHolder.actionText}
                         actionLink={plusHolderUITooltipMessages.APIsPlusHolder.actionLink}
                         interactive={true}
-                        placement="right"
+                        placement="bottom"
                         arrow={true}
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
