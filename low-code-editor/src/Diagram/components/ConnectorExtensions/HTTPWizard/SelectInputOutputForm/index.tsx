@@ -289,7 +289,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.HTTP.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -326,9 +326,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         payloadVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
-                defaultMessage: "Add a valid name for the payload"
+                defaultMessage: "Add a valid name for the payload variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
+            })
+        },
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
             }),
-        }
+    }
     };
 
     let payloadComponent: React.ReactNode = null;
@@ -418,6 +424,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 dataTestId={"response-variable-name"}
                                 customProps={{
                                     validate: validateResponseNameValue,
+                                    tooltipTitle: HTTPtooltipMessages.responseVariableName.title,
                                     disabled: responseVariableHasReferences
                                 }}
                                 defaultValue={returnNameState.value}

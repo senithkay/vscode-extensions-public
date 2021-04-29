@@ -133,7 +133,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectionName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.connectorForms.NetSuite.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name"
+                defaultMessage: "Add a valid connection name . Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
             })
     }
     };
