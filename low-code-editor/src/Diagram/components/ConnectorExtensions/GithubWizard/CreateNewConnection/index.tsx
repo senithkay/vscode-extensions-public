@@ -173,6 +173,15 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
+    const gitHubCreateConnectionTooltipMessages = {
+        connectionName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.connectorForms.GitHub.createConnection.connectionName.tooltip.title",
+                defaultMessage: "Add a valid connection name . Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
+            })
+    }
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -181,7 +190,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                disabled: hasReference
+                                disabled: hasReference,
+                                tooltipTitle: gitHubCreateConnectionTooltipMessages.connectionName.title,
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
