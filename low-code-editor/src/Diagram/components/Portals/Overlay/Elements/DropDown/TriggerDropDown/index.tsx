@@ -126,14 +126,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.title",
             defaultMessage: "To trigger an application according to a given schedule."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the schedule trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#3--schedule"
         })
     }
     };
@@ -143,14 +135,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
             defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the manual trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#2-Manual"
         })
     }
     };
@@ -160,14 +144,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.title",
             defaultMessage: "To trigger an application based on GitHub events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the GitHub trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#5-GitHub"
         })
     }
     };
@@ -177,14 +153,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.title",
             defaultMessage: "To trigger an application based on Google Calendar events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the calendar trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
         })
     }
     };
@@ -194,14 +162,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.title",
             defaultMessage: "To trigger an application based on Salesforce events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the Salesforce trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
         })
     }
     };
@@ -232,8 +192,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         <div>
                             <Tooltip
                                 title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
-                                actionText={scheduleTriggerTooltipMessages.scheduleTrigger.actionText}
-                                actionLink={scheduleTriggerTooltipMessages.scheduleTrigger.actionLink}
                                 interactive={true}
                                 placement="right"
                                 arrow={true}
@@ -251,8 +209,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             {/* INFO:webhook trigger has been removed */}
                             <Tooltip
                                 title={calendarTriggerTooltipMessages.calendarTrigger.title}
-                                actionText={calendarTriggerTooltipMessages.calendarTrigger.actionText}
-                                actionLink={calendarTriggerTooltipMessages.calendarTrigger.actionLink}
                                 interactive={true}
                                 placement="right"
                                 arrow={true}
@@ -270,8 +226,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
                             <Tooltip
                                 title={salesforceTriggerTooltipMessages.salesforceTrigger.title}
-                                actionText={salesforceTriggerTooltipMessages.salesforceTrigger.actionText}
-                                actionLink={salesforceTriggerTooltipMessages.salesforceTrigger.actionLink}
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
@@ -290,8 +244,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         <div>
                             <Tooltip
                                 title={manualTriggerTooltipMessages.manualTrigger.title}
-                                actionText={manualTriggerTooltipMessages.manualTrigger.actionText}
-                                actionLink={manualTriggerTooltipMessages.manualTrigger.actionLink}
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
@@ -309,8 +261,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
                             <Tooltip
                                 title={gitHubTriggerTooltipMessages.gitHubTrigger.title}
-                                actionText={gitHubTriggerTooltipMessages.gitHubTrigger.actionText}
-                                actionLink={gitHubTriggerTooltipMessages.gitHubTrigger.actionLink}
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
