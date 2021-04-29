@@ -25,7 +25,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
     return (
         <svg {...xyProps}>
             <defs>
-                <filter id="Rectangle_Copy" x="0" y="0" width="33" height="33" filterUnits="userSpaceOnUse">
+                <filter id="VariableName_Filter" x="0" y="0" width="33" height="33" filterUnits="userSpaceOnUse">
                     <feOffset dy="1" in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="1.5" result="blur" />
                     <feFlood floodColor="#aaacb8" floodOpacity="0.302" />
@@ -33,12 +33,12 @@ export function VariableName(props: { x: number, y: number, variableName: string
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Variable_Name" transform="translate(-107 -298)">
+            <g id="Variable_Name" transform="translate(-107 -300)">
                 <text id="getResponse" className="variable-name" transform="translate(136 316)">
                     <tspan x="0" y="0">{variableName}</tspan>
                 </text>
-                <g transform="matrix(1, 0, 0, 1, 103, 298)" filter="url(#Rectangle_Copy)">
-                    <g id="Reactangle_wrapper" transform="translate(4.5 3)" fill="#fff" stroke="#ccd1f2" stroke-miterlimit="10" stroke-width="1">
+                <g transform="matrix(1, 0, 0, 1, 103, 298)" filter="url(#VariableName_Filter)">
+                    <g id="Reactangle_wrapper" transform="translate(4.5 3)" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1">
                         <rect width="24" height="24" rx="4" stroke="none" />
                         <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" fill="none" />
                     </g>

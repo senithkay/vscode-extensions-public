@@ -16,8 +16,8 @@ import cn from "classnames";
 
 import "./style.scss";
 
-const arrowHeight = 7;
-const arrowWidth = 5;
+const arrowHeight = 5;
+const arrowWidth = 4;
 
 export interface ArrowHeadProps {
     x: number,

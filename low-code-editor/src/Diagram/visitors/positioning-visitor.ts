@@ -269,8 +269,10 @@ class PositioningVisitor implements Visitor {
                     // blockViewState.collapseView.bBox.cy += PLUS_HOLDER_DEFAULT_HEIGHT;
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
-                    } else if (plusForIndex.selectedComponent === "APIS") {
+                    } else if (plusForIndex.selectedComponent === "APIS" && !plusViewState?.isAPICallsExisting) {
                         statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                    } else if (plusViewState.selectedComponent === "APIS" && plusViewState.isAPICallsExisting) {
+                        statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                     }
 
                     if (statementViewState.collapsed) {
@@ -288,9 +290,12 @@ class PositioningVisitor implements Visitor {
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                         height += PLUS_HOLDER_STATEMENT_HEIGHT;
-                    } else if (plusForIndex.selectedComponent === "APIS") {
+                    } else if (plusForIndex.selectedComponent === "APIS" && !plusViewState?.isAPICallsExisting) {
                         statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
                         height += PLUS_HOLDER_API_HEIGHT;
+                    } else if (plusViewState.selectedComponent === "APIS" && plusViewState.isAPICallsExisting) {
+                        statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                     }
 
                 } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {

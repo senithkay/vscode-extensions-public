@@ -25,7 +25,6 @@ import { OverlayBackground } from "../../../../../OverlayBackground";
 import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
-import { ExistingAPIOptions } from "../PlusElementOptions/ExistingAPIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 
@@ -39,25 +38,60 @@ export interface PlusElementsProps {
     // todo: handle the dispatch for the tour
     // dispatchGoToNextTourStep: (nextStepId: string) => void
     viewState: PlusViewState
+    setAPIholderHeight?: (value: APIHeightStates) => void;
+}
+
+export enum APIHeightStates {
+    Create,
+    Existing,
+    CreateColapsed,
+    ExistingColapsed
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
 export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
-export let PLUS_HOLDER_API_HEIGHT = 560;
-export const EXISTING_PLUS_HOLDER_API_HEIGHT = 600;
+export const PLUS_HOLDER_API_HEIGHT = 490;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT = 680;
 export const EXISTING_PLUS_HOLDER_WIDTH = 286;
 export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 550;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 580;
 
 export function PlusElements(props: PlusElementsProps) {
-    const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
+    const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
     const { state } = useContext(Context);
     const { isCodeEditorActive, stSymbolInfo } = state;
-    const [isAPICallsExisting, setAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
+    // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
+    const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.Create);
 
-    if (isAPICallsExisting) {
-        PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
+    if (stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0) {
+        viewState.isAPICallsExisting = true;
     }
+
+    const setSelecteApiHeight = (value: APIHeightStates) => {
+        if (value === APIHeightStates.Create) {
+            // tslint:disable-next-line: no-unused-expression
+            setAPIHightState(APIHeightStates.Create);
+        } else if (value === APIHeightStates.Existing) {
+            setAPIHightState(APIHeightStates.Existing);
+        } else if (value === APIHeightStates.CreateColapsed) {
+            setAPIHightState(APIHeightStates.CreateColapsed);
+        } else if (value === APIHeightStates.ExistingColapsed) {
+            setAPIHightState(APIHeightStates.ExistingColapsed);
+        }
+    }
+
+    // if (isAPICallsExisting) {
+    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
+    // } else if (APIHeightStates.Create) {
+    //     PLUS_HOLDER_API_HEIGHT = PLUS_HOLDER_API_HEIGHT;
+    // } else if (APIHeightStates.Existing) {
+    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
+    // } else if (APIHeightStates.CreateColapsed) {
+    //     PLUS_HOLDER_API_HEIGHT = PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+    // } else if (APIHeightStates.ExistingColapsed) {
+    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+    // }
+
 
     const [selectedItem, setSelectedItem] = useState("STATEMENT");
 
@@ -90,6 +124,9 @@ export function PlusElements(props: PlusElementsProps) {
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
 
+
+
+
     let component: React.ReactNode = null;
     switch (selectedItem) {
         case "STATEMENT": {
@@ -97,12 +134,12 @@ export function PlusElements(props: PlusElementsProps) {
             break;
         }
         case "APIS": {
-            component = (<APIOptions onSelect={onAPITypeSelect} />);
+            component = (<APIOptions setAPIholderHeight={setSelecteApiHeight} onSelect={onAPITypeSelect} />);
             break;
         }
     }
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
-    const exitingApiCall = isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
+    const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
     const holderClass = selectedItem !== "APIS" ? "holder-wrapper" : exitingApiCall;
 
     const plusHolder: ReactNode = (
