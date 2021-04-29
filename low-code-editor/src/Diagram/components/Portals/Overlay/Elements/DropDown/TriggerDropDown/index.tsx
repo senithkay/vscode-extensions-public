@@ -116,7 +116,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
         })
     }
     };
