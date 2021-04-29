@@ -31,7 +31,8 @@ export interface APIOptionsProps {
     onSelect: (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => void;
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo) => void;
     viewState?: PlusViewState;
-    setAPIholderHeight?: (value: APIHeightStates) => void;
+    collapsed?: (value: APIHeightStates) => void
+    // setAPIholderHeight?: (value: APIHeightStates) => void;
 }
 
 export interface ConnctorComponent {
@@ -52,8 +53,8 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(DiagramContext);
-    const { connectors, stSymbolInfo, targetPosition, setAPIholderHeight, viewState } = state;
-    const { onSelect } = props;
+    const { connectors, stSymbolInfo, targetPosition, viewState } = state;
+    const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
     const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
@@ -62,28 +63,24 @@ export function APIOptions(props: APIOptionsProps) {
 
     const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
 
+
     const toggleExistingCon = () => {
         setToggledExistingConnector(!isToggledExistingConnector);
         if (!isToggledExistingConnector) {
-            setExistingConnectorCollapsed(true);
-            setAPIholderHeight(APIHeightStates.ExistingColapsed);
-            // tslint:disable-next-line: no-unused-expression
-            viewState.isExistingConnectorCollapsed = true;
-        } else {
-            setAPIholderHeight(APIHeightStates.Existing);
-            viewState.isExistingConnectorCollapsed = false;
+            // setExistingConnectorCollapsed(true);
+            collapsed(APIHeightStates.ExistingConnectors);
+        } else if (isToggledExistingConnector) {
+            collapsed(APIHeightStates.ExistingConnectorsColapsed);
         }
     }
 
     const toggleSelectCon = () => {
         setToggledSelectConnector(!isToggledSelectConnector);
         if (!isToggledSelectConnector) {
-            setSelectConnectorCollapsed(true);
-            setAPIholderHeight(APIHeightStates.CreateColapsed);
-            viewState.isSelectConnectorCollapsed = true;
-        } else {
-            setAPIholderHeight(APIHeightStates.Create);
-            viewState.isSelectConnectorCollapsed = false;
+            // setSelectConnectorCollapsed(true);
+            collapsed(APIHeightStates.SelectConnectors);
+        } else if (isToggledSelectConnector) {
+            collapsed(APIHeightStates.SelectConnectorsColapsed);
         }
     }
 
@@ -209,13 +206,19 @@ export function APIOptions(props: APIOptionsProps) {
                     <div className="existing-connect-wrapper">
                         <div className="title-wrapper">
                             <p className="plus-section-title">Choose Existing Connectors </p>
-                            <div onClick={toggleExistingCon} className="existing-connector-toggle">
-                                {isToggledExistingConnector && isToggledSelectConnector ?
-                                    <img src="../../../../../../images/exp-editor-expand.svg" />
-                                    :
-                                    <img src="../../../../../../images/exp-editor-collapse.svg" />
-                                }
-                            </div>
+                            {isToggledSelectConnector ?
+                                (
+                                    <div onClick={toggleExistingCon} className="existing-connector-toggle">
+                                        {isToggledExistingConnector ?
+                                            <img src="../../../../../../images/exp-editor-expand.svg" />
+                                            :
+                                            <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                        }
+                                    </div>
+                                )
+                                :
+                                null
+                            }
                         </div>
 
                         {isToggledExistingConnector &&

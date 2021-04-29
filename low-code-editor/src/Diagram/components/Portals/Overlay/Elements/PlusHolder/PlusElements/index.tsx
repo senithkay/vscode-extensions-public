@@ -42,10 +42,10 @@ export interface PlusElementsProps {
 }
 
 export enum APIHeightStates {
-    Create,
-    Existing,
-    CreateColapsed,
-    ExistingColapsed
+    SelectConnectors,
+    ExistingConnectors,
+    SelectConnectorsColapsed,
+    ExistingConnectorsColapsed
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
@@ -53,45 +53,19 @@ export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
 export const PLUS_HOLDER_API_HEIGHT = 490;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT = 680;
 export const EXISTING_PLUS_HOLDER_WIDTH = 286;
-export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 550;
-export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 580;
+export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 344;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 525;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
-    const { state } = useContext(Context);
-    const { isCodeEditorActive, stSymbolInfo } = state;
+    const { state, diagramRedraw } = useContext(Context);
+    const { isCodeEditorActive, stSymbolInfo, syntaxTree } = state;
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
-    const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.Create);
+    const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
 
     if (stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0) {
         viewState.isAPICallsExisting = true;
     }
-
-    const setSelecteApiHeight = (value: APIHeightStates) => {
-        if (value === APIHeightStates.Create) {
-            // tslint:disable-next-line: no-unused-expression
-            setAPIHightState(APIHeightStates.Create);
-        } else if (value === APIHeightStates.Existing) {
-            setAPIHightState(APIHeightStates.Existing);
-        } else if (value === APIHeightStates.CreateColapsed) {
-            setAPIHightState(APIHeightStates.CreateColapsed);
-        } else if (value === APIHeightStates.ExistingColapsed) {
-            setAPIHightState(APIHeightStates.ExistingColapsed);
-        }
-    }
-
-    // if (isAPICallsExisting) {
-    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
-    // } else if (APIHeightStates.Create) {
-    //     PLUS_HOLDER_API_HEIGHT = PLUS_HOLDER_API_HEIGHT;
-    // } else if (APIHeightStates.Existing) {
-    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
-    // } else if (APIHeightStates.CreateColapsed) {
-    //     PLUS_HOLDER_API_HEIGHT = PLUS_HOLDER_API_HEIGHT_COLLAPSED;
-    // } else if (APIHeightStates.ExistingColapsed) {
-    //     PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
-    // }
-
 
     const [selectedItem, setSelectedItem] = useState("STATEMENT");
 
@@ -124,8 +98,18 @@ export function PlusElements(props: PlusElementsProps) {
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
 
-
-
+    const setApiHeight = (value: APIHeightStates) => {
+        if (value === APIHeightStates.SelectConnectors) {
+            viewState.isAPICallsExistingCreateCollapsed = false;
+        } else if (value === APIHeightStates.ExistingConnectors) {
+            viewState.isAPICallsExistingCollapsed = false;
+        } else if (value === APIHeightStates.SelectConnectorsColapsed) {
+            viewState.isAPICallsExistingCreateCollapsed = true;
+        } else if (value === APIHeightStates.ExistingConnectorsColapsed) {
+            viewState.isAPICallsExistingCollapsed = true;
+        }
+        diagramRedraw(syntaxTree);
+    }
 
     let component: React.ReactNode = null;
     switch (selectedItem) {
@@ -134,7 +118,7 @@ export function PlusElements(props: PlusElementsProps) {
             break;
         }
         case "APIS": {
-            component = (<APIOptions setAPIholderHeight={setSelecteApiHeight} onSelect={onAPITypeSelect} />);
+            component = (<APIOptions collapsed={setApiHeight} onSelect={onAPITypeSelect} />);
             break;
         }
     }

@@ -394,6 +394,7 @@
     max-height: 130px;
     overflow: scroll;
     overflow-x: hidden;
+    min-height: 120px;
 
     &::-webkit-scrollbar {
         width: 4px;
