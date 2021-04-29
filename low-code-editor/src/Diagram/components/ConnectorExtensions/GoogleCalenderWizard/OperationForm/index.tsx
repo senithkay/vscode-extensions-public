@@ -165,12 +165,12 @@ export function OperationForm(props: OperationFormProps) {
 
     const chooseCalendarPlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GCalendar.operationForm.chooseCalendar.placeholder",
-        defaultMessage: "Choose Calendar"
+        defaultMessage: "Choose calendar"
     });
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GCalendar.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -182,6 +182,15 @@ export function OperationForm(props: OperationFormProps) {
         id: "lowcode.develop.configForms.GCalendar.saveConnectionButton.text",
         defaultMessage: "Save"
     });
+
+    const GCalendarTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.GCalendar.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
+            }),
+    }
+    };
 
     return (
         <div>
@@ -265,7 +274,8 @@ export function OperationForm(props: OperationFormProps) {
 
                     <FormTextInput
                         customProps={{
-                            validate: validateNameValue
+                            validate: validateNameValue,
+                            tooltipTitle: GCalendarTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
                         placeholder={addResponseVariablePlaceholder}
