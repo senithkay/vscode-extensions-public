@@ -213,23 +213,14 @@ export const PlusButton = (props: PlusProps) => {
                 className={classes}
                 x={x}
             >
-                <g onClick={smallPlusClick}>
+                <g>
                     <SmallPlusSVG
                         x={x - (SMALLPLUS_SVG_WIDTH_WITH_SHADOW / 2)}
                         y={y - (SMALLPLUS_SVG_HEIGHT_WITH_SHADOW / 2)}
+                        handlePlusClick={handlePlusClick}
                     />
                 </g>
             </g>
-        ) : null;
-    const plusCollapse = states.isCollapsePlusDuoShown
-        ? (
-            <PlusAndCollapseSVG
-                x={x}
-                y={y}
-                handlePlusClick={handlePlusClick}
-                handleCollapseClick={handleCollapseClick}
-                collapseDisabled={viewState.isLast}
-            />
         ) : null;
 
     return (
@@ -245,7 +236,6 @@ export const PlusButton = (props: PlusProps) => {
                     >
                         <g>
                             {smallPlus}
-                            {plusCollapse}
                         </g>
 
                     </ClickAwayListener>

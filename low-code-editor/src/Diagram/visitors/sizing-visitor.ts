@@ -695,7 +695,7 @@ class SizingVisitor implements Visitor {
                                 if (plusForIndex.selectedComponent === "STATEMENT") {
                                     height += PLUS_HOLDER_STATEMENT_HEIGHT;
                                 } else if (plusForIndex.selectedComponent === "APIS") {
-                                    if (plusViewState.isAPICallsExisting) {
+                                    if (plusForIndex.isAPICallsExisting) {
                                         height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                                     } else {
                                         height += PLUS_HOLDER_API_HEIGHT;
@@ -721,7 +721,7 @@ class SizingVisitor implements Visitor {
                             if (plusForIndex.selectedComponent === "STATEMENT") {
                                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
                             } else if (plusForIndex.selectedComponent === "APIS") {
-                                if (plusViewState.isAPICallsExisting) {
+                                if (plusForIndex.isAPICallsExisting) {
                                     height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                                 } else {
                                     height += PLUS_HOLDER_API_HEIGHT;
@@ -749,7 +749,7 @@ class SizingVisitor implements Visitor {
                         if (plusForIndex.selectedComponent === "STATEMENT") {
                             height += PLUS_HOLDER_STATEMENT_HEIGHT;
                         } else if (plusForIndex.selectedComponent === "APIS") {
-                            if (plusViewState.isAPICallsExisting) {
+                            if (plusForIndex.isAPICallsExisting) {
                                 height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                             } else {
                                 height += PLUS_HOLDER_API_HEIGHT;

@@ -1,49 +1,39 @@
 .delete-icon-show {
-    rect {
-        stroke: transparent;
-        stroke-miterlimit: 10;
-        stroke-width: 0.5;
-        fill: transparent;
-    }
-
     .delete-circle {
-        rect {
-            stroke: transparent;
-            stroke-miterlimit: 10;
-            stroke-width: 0.5;
-            fill: transparent;
-        }
-
         .delete-bin-icon {
             fill: #ea4c4d;
+        }
+
+        .delete-bin-icon-hovered {
+            display: none;
         }
     }
 
     &:hover {
-        rect {
-            cursor: pointer;
+        cursor: pointer;
+
+        .delete-bin-icon-hovered {
             fill: #ea4c4d;
-            stroke: #ea4c4d;
-            stroke-miterlimit: 10;
-            stroke-width: 1;
+            display: block;
         }
 
         &:hover .delete-bin-icon {
             fill: #fff;
+            display: none;
         }
     }
 
     &:active {
-        rect {
-            cursor: pointer;
-            stroke: #ea4c4d;
-            stroke-miterlimit: 10;
-            stroke-width: 1;
-            fill: #ea4c4d;
+        cursor: pointer;
+
+        .delete-bin-icon-hovered {
+            fill: #8c2324;
+            display: block;
         }
 
         &:active .delete-bin-icon {
-            fill: #8c2324;
+            fill: #fff;
+            display: none;
         }
     }
 }

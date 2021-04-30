@@ -26,32 +26,29 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }
     const { toolTipTitle, ...xyProps } = props;
     const deleteSVGIcon = (
         <g id="DeleteGroup" className="delete-circle" transform="translate(3.5 3.5)">
-            <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
+            {/* <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
                 <g id="Delete" transform="translate(4.5 3.5)">
                     <rect width="18" height="18" rx="10.5" stroke="none" />
                     <rect x="0.5" y="0.5" width="17" height="17" rx="10" fill="none" />
                 </g>
-            </g>
-            <path
-                id="DeleteIcon"
-                className="delete-bin-icon"
-                d="M3.745,12a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7a2,2,0,0,1-2,2Zm-1-2a1,1,
-                0,0,0,1,1h4.5a1,1,0,0,0,1-1V3h-6.5Zm4-1.5v-4a.5.5,0,1,1,1,0v4a.5.5,0,1,1-1,0Zm-2.5,0v-4a.5.5,0,1,1,1,
+            </g> */}
+                <path
+                    id="DeleteIcon"
+                    className="delete-bin-icon"
+                    d="M3.745,12a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7a2,2,0,0,1-2,2Zm-1-2a1,1,0,0,
+                0,1,1h4.5a1,1,0,0,0,1-1V3h-6.5Zm4-1.5v-4a.5.5,0,1,1,1,0v4a.5.5,0,1,1-1,0Zm-2.5,0v-4a.5.5,0,1,1,1,
                 0v4a.5.5,0,1,1-1,0Zm0-7.5a.5.5,0,1,1,0-1h3.5a.5.5,0,0,1,0,1Z"
-                fill="#fe523c"
-            />
+                    fill="#fe523c"
+                />
 
-            {/* <path
-                id="DeleteIcon"
-                className="delete-bin-icon"
-                d="M2.706,11A1.368,1.368,0,0,1,1.324,9.711L1,3.224a.2.2,0,0,1,.051-.157A.207.207,0,0,1,1.209,
-                    3H7.8a.2.2,0,0,1,.157.077A.174.174,0,0,1,8,3.224L7.674,9.711A1.369,1.369,0,0,1,6.291,11ZM5.219,
-                    4.747V9.263a.369.369,0,0,0,.738,0V4.747a.369.369,0,0,0-.738,0Zm-2.166,0V9.263a.369.369,0,0,0,.737,
-                    0V4.747a.369.369,0,0,0-.737,0ZM.457,2A.436.436,0,0,1,0,1.587V1.174A.437.437,0,0,1,
-                    .457.761H2.864V.739A.775.775,0,0,1,3.682,0H5.318a.775.775,0,0,1,.818.739V.761H8.543A.437.437,0,0,1,
-                    9,1.174v.413A.436.436,0,0,1,8.543,2Z"
-                transform="translate(8 7)"
-            /> */}
+                <path
+                    id="Combined_Shape"
+                    className="delete-bin-icon-hovered"
+                    d="M8.249,12h-4.5a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7A2,2,0,0,1,8.249,
+                12Zm-1-8a.5.5,0,0,0-.5.5V9a.5.5,0,1,0,1,0V4.5A.5.5,0,0,0,7.245,4Zm-2.5,0a.5.5,0,0,0-.5.5V9a.5.5,0,
+                1,0,1,0V4.5A.5.5,0,0,0,4.745,4Zm3-3h-3.5a.5.5,0,1,1,0-1h3.5a.5.5,0,0,1,0,1Z"
+                    fill="#fe523c"
+                />
         </g>
     );
     return (

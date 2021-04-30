@@ -202,7 +202,7 @@ export function IfElse(props: IfElseProps) {
                                     <>
                                         <rect
                                             x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 3)}
-                                            y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3)}
+                                            y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 4)}
                                             className="condition-rect"
                                         />
                                         <DeleteBtn
