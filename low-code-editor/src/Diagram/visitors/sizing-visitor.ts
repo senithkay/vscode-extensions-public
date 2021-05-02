@@ -28,14 +28,14 @@ import {
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
-import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/Collapse/CollapseSVG";
+import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/connector/ConnectorHeader/ConnectorClientSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_WIDTH, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
@@ -523,12 +523,20 @@ class SizingVisitor implements Visitor {
         const viewState: StatementViewState = node.viewState;
         if ((viewState.isAction || viewState.isEndpoint) && !viewState.isCallerAction) {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
-                viewState.bBox.h = CLIENT_SVG_HEIGHT;
-                viewState.bBox.w = CLIENT_SVG_WIDTH;
-                viewState.bBox.r = CLIENT_RADIUS;
+                viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
+                viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.bBox.h = viewState.dataProcess.h;
+                viewState.bBox.w = viewState.dataProcess.w;
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
+
+                // Update endpoint sizing values.
+                viewState.bBox.h = CLIENT_SVG_HEIGHT;
+                viewState.bBox.w = CLIENT_SVG_WIDTH;
+                viewState.bBox.r = CLIENT_RADIUS;
+
+                // Update endpoint lifeline values.
                 const endpointViewState: EndpointViewState = viewState.endpoint;
                 endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
                 endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
@@ -609,6 +617,7 @@ class SizingVisitor implements Visitor {
             draft.type = plusViewState.draftAdded;
             draft.subType = plusViewState.draftSubType;
             draft.connector = plusViewState.draftConnector;
+            draft.selectedConnector = plusViewState.draftSelectedConnector;
             draft.targetPosition = {
                 line: node.position.endLine, // todo: can't find the equivalent to position
                 column: node.position.endColumn - 1
@@ -619,11 +628,7 @@ class SizingVisitor implements Visitor {
             if (plusViewState.selectedComponent === "STATEMENT") {
                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
             } else if (plusViewState.selectedComponent === "APIS") {
-                if (plusViewState.isAPICallsExisting) {
-                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                } else {
-                    height += PLUS_HOLDER_API_HEIGHT;
-                }
+                height += PLUS_HOLDER_API_HEIGHT;
             }
             if (width < PLUS_HOLDER_WIDTH) {
                 width = PLUS_HOLDER_WIDTH;
@@ -657,14 +662,16 @@ class SizingVisitor implements Visitor {
                             width = collapsedView.bBox.w;
                         }
                         blockViewState.collapseView = collapsedView;
+
                         // to make the next plus invisible if the current statement is not the last statement
-                        if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
-                            for (const invisiblePlusIndex of blockViewState.plusButtons) {
+                        // if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
+                        for (const invisiblePlusIndex of blockViewState.plusButtons) {
                                 if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
                                     invisiblePlusIndex.visible = false;
                                 }
                             }
-                        }
+                        // }
+
                         plusForIndex.collapsedClicked = false;
                     } else {
                         height += blockViewState.collapseView.bBox.h;
@@ -679,6 +686,7 @@ class SizingVisitor implements Visitor {
                                 draft.type = plusForIndex.draftAdded;
                                 draft.subType = plusForIndex.draftSubType;
                                 draft.connector = plusForIndex.draftConnector;
+                                draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
                                     line: element.position.startLine, // todo: position?
@@ -738,6 +746,7 @@ class SizingVisitor implements Visitor {
                         draft.type = plusForIndex.draftAdded;
                         draft.subType = plusForIndex.draftSubType;
                         draft.connector = plusForIndex.draftConnector;
+                        draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
                             line: element.position.startLine, // todo:position?
@@ -763,8 +772,7 @@ class SizingVisitor implements Visitor {
                         if (width < PLUS_SVG_WIDTH) {
                             width = PLUS_SVG_WIDTH;
                         }
-                    } else if (!plusForIndex && (!stmtViewState.isEndpoint
-                        || (stmtViewState.isAction && stmtViewState.isEndpoint && !stmtViewState.hidden))) {
+                    } else if (!plusForIndex && !stmtViewState.hidden) {
                         const plusBtnViewState: PlusViewState = new PlusViewState();
                         plusBtnViewState.index = index;
                         plusBtnViewState.expanded = false;
@@ -772,7 +780,7 @@ class SizingVisitor implements Visitor {
                     }
 
                     if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
-                        (!stmtViewState.isEndpoint && !stmtViewState.collapsed)) {
+                        (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
                         if (!(blockViewState.isEndComponentInMain && (index === node.statements.length - 1))) {
                             stmtViewState.bBox.h = stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h +

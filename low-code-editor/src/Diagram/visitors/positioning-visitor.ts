@@ -270,11 +270,7 @@ class PositioningVisitor implements Visitor {
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS") {
-                        if (plusForIndex.isAPICallsExisting) {
-                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                        } else {
-                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
-                        }
+                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
                     }
 
                     if (statementViewState.collapsed) {
@@ -293,12 +289,8 @@ class PositioningVisitor implements Visitor {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                         height += PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS") {
-                        if (plusForIndex.isAPICallsExisting) {
-                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                        } else {
-                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
-                            height += PLUS_HOLDER_API_HEIGHT;
-                        }
+                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                        height += PLUS_HOLDER_API_HEIGHT;
                     }
 
                 } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
@@ -329,12 +321,11 @@ class PositioningVisitor implements Visitor {
                     if (!mainEp.isUsed) {
                         endpoint.firstAction = statementViewState;
                         mainEp.isUsed = true;
-                        mainEp.lifeLine.cy = statementViewState.bBox.cy;
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
                     } else if (mainEp.lifeLine.cy > statementViewState.bBox.cy) {
                         // To catch the endpoints define at the function block and used after a child block
                         mainEp.lifeLine.h = mainEp.lifeLine.cy - statementViewState.bBox.cy;
-                        mainEp.lifeLine.cy = statementViewState.bBox.cy;
+                        // mainEp.lifeLine.cy = statementViewState.bBox.cy;
                     } else if ((mainEp.lifeLine.h + mainEp.lifeLine.cy) < (statementViewState.action.trigger.cy)) {
                         // to skip updating EP heights which less than the current EP height
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
@@ -349,6 +340,7 @@ class PositioningVisitor implements Visitor {
                     // to identify a connector init ( http:Client ep1 = new ("/context") )
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
                         (endpointViewState.bBox.w / 2) + epGap + (epGap * epCount);
+                    endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.endpoint.epName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint;
                     const mainEp = endpointViewState;
@@ -357,7 +349,7 @@ class PositioningVisitor implements Visitor {
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
-                    || (!statementViewState.isEndpoint && !statementViewState.collapsed)) {
+                    || (!statementViewState.collapsed && !statementViewState.isCallerAction)) {
                     height += statementViewState.bBox.h;
                 }
             }

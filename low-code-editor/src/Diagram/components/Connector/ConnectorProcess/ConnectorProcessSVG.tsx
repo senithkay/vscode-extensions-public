@@ -16,6 +16,7 @@ export const CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_WIDTH = 55;
 export const CONNECTOR_PROCESS_SVG_HEIGHT = 55;
+export const CONNECTOR_PROCESS_SHADOW_OFFSET = CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW - CONNECTOR_PROCESS_SVG_WIDTH;
 
 export function ConnectorProcessSVG(props: { x: number, y: number }) {
     const { ...xyProps } = props;

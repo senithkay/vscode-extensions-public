@@ -20,7 +20,7 @@ import classNames from "classnames";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext} from "../../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins"
 import {
@@ -47,7 +47,8 @@ import {
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams
+    getParams,
+    matchEndpointToFormField
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -64,6 +65,7 @@ interface WizardProps {
     targetPosition: DraftInsertPosition;
     isMutationProgress: boolean;
     model?: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum FormStates {
@@ -78,8 +80,7 @@ enum FormStates {
 export function GoogleSheet(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const classes = useStyles();
-
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -121,6 +122,20 @@ export function GoogleSheet(props: WizardProps) {
             }
         });
     }
+
+    useEffect(() => {
+        if (selectedConnector) {
+            config.connectorInit = connectorInitFormFields;
+
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            setConfigName(connectorNameValue);
+            setIsNewConnection(false);
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            setFormState(FormStates.OperationDropdown);
+        }
+    }, [selectedConnector]);
 
     let formFields: FormField[] = [];
     if (selectedOperation) {
@@ -334,13 +349,13 @@ export function GoogleSheet(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))) {
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                                { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
                             );
                             modifications.push(addConfigurableVars);
                         }
