@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
 
+import { STNode } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
@@ -31,7 +32,7 @@ import "../style.scss";
 export interface PlusElementsProps {
     position?: DiagramOverlayPosition;
     isPlusActive?: boolean;
-    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, isExisting?: boolean, stNode?: STNode) => void;
     onClose?: () => void;
     onComponentClick?: (value: string) => void;
     initPlus: boolean,
@@ -82,6 +83,14 @@ export function PlusElements(props: PlusElementsProps) {
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
 
+    const onSelectingExistingAPICall = (connector: BallerinaConnectorsInfo, node: STNode) => {
+        onChange("APIS", "Existing", connector, true, node);
+    }
+
+    const onSelectingNewAPICall = (connector: BallerinaConnectorsInfo) => {
+        onChange("APIS", "New", connector);
+    }
+
     let component: React.ReactNode = null;
     switch (selectedItem) {
         case "STATEMENT": {
@@ -91,9 +100,9 @@ export function PlusElements(props: PlusElementsProps) {
         case "APIS": {
             component = (
                 viewState.isAPICallsExisting ?
-                    <ExistingAPIOptions onSelect={onAPITypeSelect} />
+                    <ExistingAPIOptions onSelect={onSelectingExistingAPICall} />
                     :
-                    <APIOptions onSelect={onAPITypeSelect} />);
+                    <APIOptions onSelect={onSelectingNewAPICall} />);
             break;
         }
     }

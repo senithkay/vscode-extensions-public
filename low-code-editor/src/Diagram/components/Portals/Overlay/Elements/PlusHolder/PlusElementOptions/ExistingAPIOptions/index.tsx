@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 
+import { STNode } from "@ballerina/syntax-tree";
+
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
@@ -24,7 +26,7 @@ import "../../style.scss";
 // import { BetaSVG } from "./BetaSVG";
 
 export interface APIOptionsProps {
-    onSelect: (connector: BallerinaConnectorsInfo) => void;
+    onSelect: (connector: BallerinaConnectorsInfo, stNode: STNode) => void;
     viewState?: PlusViewState;
 }
 

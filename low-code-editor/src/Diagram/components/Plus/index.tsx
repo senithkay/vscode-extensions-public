@@ -170,7 +170,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorsInfo = undefined) => {
+                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, stForExisting?: STNode) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,
@@ -182,6 +182,8 @@ export const PlusButton = (props: PlusProps) => {
         viewState.draftAdded = type;
         viewState.draftSubType = subType;
         viewState.draftConnector = connectorType;
+        viewState.draftForExistingConnector = isExisting;
+        viewState.stForExistingConnector = stForExisting;
         diagramRedraw(syntaxTree);
     };
 
