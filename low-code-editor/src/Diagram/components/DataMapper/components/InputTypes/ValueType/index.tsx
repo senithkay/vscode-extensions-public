@@ -29,7 +29,7 @@ export function ValueType(props: ValueTypeProps) {
     let name: string = viewState.name;
     const type: string = viewState.type;
 
-    const regexPattern = /^"(\w+)\"$/g;
+    const regexPattern = new RegExp(/^"(\w+)\"$/);
 
     if (regexPattern.test(name)) {
         const matchedVal = regexPattern.exec(name);

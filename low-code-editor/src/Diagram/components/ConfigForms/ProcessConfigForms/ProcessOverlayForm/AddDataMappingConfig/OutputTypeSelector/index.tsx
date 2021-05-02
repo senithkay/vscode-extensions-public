@@ -15,20 +15,23 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useState } from 'react';
 
-import { Box, Typography } from "@material-ui/core";
-import classNames from 'classnames';
-
 import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
 import { SelectDropdownWithButton } from '../../../../../../components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
 import { FormJson } from '../../../../../Portals/ConfigForm/Elements/Json/FormJson';
+import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
-import { TypeInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { DataMapperOutputTypeInfo } from "../../../../../Portals/ConfigForm/types";
+import { checkVariableName } from '../../../../../Portals/utils';
 
 interface OutputTypeSelectorProps {
-    types: TypeInfoEntry[];
-    updateReturnType: (returnType: TypeInfoEntry) => void,
+    types: DataMapperOutputTypeInfo[];
+    updateReturnType: (returnType: DataMapperOutputTypeInfo) => void,
     updateSampleStructure: (value: string) => void,
-    updateValidity: (value: boolean) => void
+    updateValidity: (value: boolean) => void,
+    updateVariableName: (value: string) => void,
+    updateVariableNameValidity: (value: boolean) => void,
+    variableName: string,
+    diagramState: any
 }
 
 enum SelectedDataType {
@@ -38,12 +41,22 @@ enum SelectedDataType {
 }
 
 export function OutputTypeSelector(props: OutputTypeSelectorProps) {
-    const { types, updateReturnType, updateSampleStructure, updateValidity } = props;
+    const {
+        types,
+        updateReturnType,
+        updateSampleStructure,
+        updateValidity,
+        diagramState,
+        variableName,
+        updateVariableName,
+        updateVariableNameValidity 
+    } = props;
     const [jsonValue, setJsonValue] = useState('');
-    const formClasses = useFormStyles();
-    const handleUpdateReturnType = (evt: any, option: TypeInfoEntry) => {
+    const handleUpdateReturnType = (evt: any, option: DataMapperOutputTypeInfo) => {
         updateReturnType(option);
     }
+
+    const [functionNameError, setFunctionNameError] = useState('');
 
     const jsonFormField = { isParam: true, type: 'json' }
 
@@ -78,51 +91,67 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
         }
     }
 
+    const validateNameValue = (value: string) => {
+        if (value) {
+            const varValidationResponse = checkVariableName("Data Mapper function name", value,
+                variableName, diagramState);
+            if (varValidationResponse?.error) {
+                setFunctionNameError(varValidationResponse.message);
+                updateVariableNameValidity(false);
+                return false;
+            }
+        }
+        updateVariableNameValidity(true);
+        return true;
+    };
+
     return (
         <>
             <div>
-                <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-                    <div className={formClasses.formTitleWrapper}>
-                        <div className={formClasses.subtitle}>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>Select Output Variable Type</Box>
-                            </Typography>
-                        </div>
-                    </div>
-                    <SelectDropdownWithButton
-                        defaultValue={'String'} // todo: get the initial default value from parent
-                        onChange={handleOnTypeChange}
-                        customProps={{
-                            disableCreateNew: true,
-                            values: returnTypes
-                        }}
-                        placeholder="Select Type"
-                        label="Select Variable Type"
+                <FormTextInput
+                    dataTestId="datamapper-variable-name"
+                    label={"Variable Name"}
+                    customProps={{
+                        validate: validateNameValue
+                    }}
+                    onChange={updateVariableName}
+                    defaultValue={variableName}
+                    errorMessage={functionNameError}
+                    placeholder={"Enter Variable Name"}
+                />
+                <SelectDropdownWithButton
+                    defaultValue={'String'} // todo: get the initial default value from parent
+                    onChange={handleOnTypeChange}
+                    customProps={{
+                        disableCreateNew: true,
+                        values: returnTypes
+                    }}
+                    placeholder="Select Type"
+                    label="Select Variable Type"
+                />
+                {selectedDataType === SelectedDataType.RECORD &&
+                    <FormAutocomplete
+                        itemList={types}
+                        onChange={handleUpdateReturnType}
+                        label={'Select output type'}
+                        getItemLabel={(option) => option.typeInfo?.name}
+                        renderItem={(option) => (
+                            <React.Fragment>
+                                <span>{option.typeInfo?.name}</span>
+                                {option.typeInfo?.moduleName}
+                            </React.Fragment>
+                        )}
                     />
-                    {selectedDataType === SelectedDataType.RECORD &&
-                        <FormAutocomplete
-                            itemList={types}
-                            onChange={handleUpdateReturnType}
-                            label={'Select output type'}
-                            getItemLabel={(option) => option.typeInfo?.name}
-                            renderItem={(option) => (
-                                <React.Fragment>
-                                    <span>{option.typeInfo?.name}</span>
-                                    {option.typeInfo?.moduleName}
-                                </React.Fragment>
-                            )}
-                        />
-                    }
-                    {selectedDataType === SelectedDataType.JSON &&
-                        <FormJson
-                            model={jsonFormField}
-                            onChange={handleOnJsonValueChange}
-                            customProps={{
-                                validate: validateExpression,
-                            }}
-                        />
-                    }
-                </div>
+                }
+                {selectedDataType === SelectedDataType.JSON &&
+                    <FormJson
+                        model={jsonFormField}
+                        onChange={handleOnJsonValueChange}
+                        customProps={{
+                            validate: validateExpression,
+                        }}
+                    />
+                }
             </div>
         </>
     );

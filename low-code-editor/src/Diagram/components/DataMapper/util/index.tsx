@@ -15,7 +15,7 @@ import React from 'react';
 import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { TypeInfo, TypeInfoEntry } from "../../Portals/ConfigForm/types";
+import { TypeInfo, DataMapperOutputTypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, TypeDescViewState } from "../viewstate";
 
@@ -26,7 +26,7 @@ export function getDataMapperComponent(type: string, args: any) {
     return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
 }
 
-export function getDefaultValueForType(type: TypeInfoEntry, recordMap: Map<string, STNode>, returnString: string) {
+export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap: Map<string, STNode>, returnString: string) {
     switch (type.type) {
         case PrimitiveBalType.String:
             return '""';

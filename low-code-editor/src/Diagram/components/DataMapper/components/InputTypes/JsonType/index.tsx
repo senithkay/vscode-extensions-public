@@ -26,7 +26,7 @@ export function JsonType(props: JsonTypeProps) {
     const { model, isMain } = props;
 
     const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
-    const name = viewState.name;
+    let name = viewState.name;
     const type = viewState.type;
 
     const fields: JSX.Element[] = []
@@ -50,6 +50,14 @@ export function JsonType(props: JsonTypeProps) {
             break;
         case 'map':
             const fieldModel: MappingConstructor = (model as SpecificField).valueExpr as MappingConstructor;
+
+            const regexPattern = new RegExp(/^"(\w+)\"$/);
+
+            if (regexPattern.test(name)) {
+                const matchedVal = regexPattern.exec(name);
+                name = matchedVal[1];
+            }
+
             fieldModel.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
                 const fieldVS = field.dataMapperViewState;
                 fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
@@ -72,7 +80,7 @@ export function JsonType(props: JsonTypeProps) {
                 fontWeight={isMain ? 'bold' : null}
                 fill="blue"
             >
-                {`${name}${type === 'map' ? '' : type}`}
+                {`${name}${type === 'map' ? '' : `: ${type}`}`}
             </text>
             {fields}
         </g>

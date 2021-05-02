@@ -19,15 +19,15 @@ import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
 import { LogIcon } from "../../../../../../assets/icons";
+import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
-import { boolean } from "../../../../Portals/ConfigForm/Elements";
 import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, ProcessConfig, TypeInfoEntry, VariableInfoEntry } from '../../../../Portals/ConfigForm/types';
+import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperJsonField, DataMapperOutputTypeInfo, ProcessConfig } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
@@ -47,9 +47,9 @@ enum DataMapperSteps {
 }
 
 
-const typeArray: TypeInfoEntry[] = [
-    { type: 'record', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
-    { type: 'record', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
+const typeArray: DataMapperOutputTypeInfo[] = [
+    { variableName: '', type: 'record', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
+    { variableName: '', type: 'record', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
 ]
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
@@ -57,18 +57,17 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { state, dataMapperStart } = useContext(DiagramContext);
     const { stSymbolInfo } = state;
     const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-    const defaultFunctionName = stSymbolInfo ?
-        genVariableName("mappedValue", getAllVariables(stSymbolInfo)) : 'mappedValue';
+    const defaultVariableName = stSymbolInfo ?
+        genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
     const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_OUTPUT);
     const [inputTypes, setParameters] = useState(dataMapperConfig.inputTypes);
     const [outputType, setReturnType] = useState(dataMapperConfig.outputType);
-    const [elementName, setFunctionName] = useState(defaultFunctionName);
+    const [variableName, setVariableName] = useState(defaultVariableName);
     const [sampleStructure, setSampleStructure] = useState<string>('');
-    const [functionNameError, setFunctionNameError] = useState('');
-    const [isFunctionNameValid, setIsFunctionNameValid] = useState(true);
+    const [isVariableNameValid, setIsVariableNameValidity] = useState(true);
     const [isJsonValid, setIsJsonValid] = useState(true);
 
-    const varData: VariableInfoEntry[] = [];
+    const varData: DataMapperInputTypeInfo[] = [];
 
     stSymbolInfo.variables.forEach((values: STNode[], key: string) => {
         values.forEach((varNode: LocalVarDecl) => {
@@ -84,18 +83,21 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
             setDataMapperStep(DataMapperSteps.SELECT_INPUT);
         } else {
+            let fields: DataMapperJsonField[] = [];
+            if (outputType.type === 'json' && sampleStructure.length > 0) {
+                fields = generateFieldStructureForJsonSample(JSON.parse(sampleStructure));
+            }
             processConfig.config = {
-                elementName,
                 inputTypes,
-                outputType: { ...outputType, sampleStructure },
-                isExisting: processConfig.wizardType
+                outputType: { ...outputType, sampleStructure, variableName, fields },
+                wizardType: processConfig.wizardType
             };
             onSave();
             dataMapperStart(processConfig.config);
         }
     }
 
-    const addNewParam = (type: VariableInfoEntry) => {
+    const addNewParam = (type: DataMapperInputTypeInfo) => {
         setParameters([...inputTypes, type])
     }
 
@@ -111,22 +113,8 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         setIsJsonValid(isValid);
     }
 
-    const validateNameValue = (value: string) => {
-        if (value) {
-            const varValidationResponse = checkVariableName("Data Mapper function name", value,
-                defaultFunctionName, state);
-            if (varValidationResponse?.error) {
-                setFunctionNameError(varValidationResponse.message);
-                setIsFunctionNameValid(false);
-                return false;
-            }
-        }
-        setIsFunctionNameValid(true);
-        return true;
-    };
-
-    const handleFunctionNameOnChange = (value: string) => {
-        setFunctionName(value);
+    const updateVariableNameOnChange = (value: string) => {
+        setVariableName(value);
     }
 
     const formClasses = useFormStyles();
@@ -146,21 +134,10 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                             <LogIcon /> {/* TODO: Need a datamapper icon */}
                         </div>
                         <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Data Mapping Function</Box>
+                            <Box paddingTop={2} paddingBottom={2}>Data Mapping Object</Box>
                         </Typography>
                     </div>
                 </div>
-                <FormTextInput
-                    dataTestId="datamapper-variable-name"
-                    label={"Variable Name"}
-                    customProps={{
-                        validate: validateNameValue
-                    }}
-                    onChange={handleFunctionNameOnChange}
-                    defaultValue={elementName}
-                    errorMessage={functionNameError}
-                    placeholder={"Enter Variable Name"}
-                />
                 {
                     dataMapperStep === DataMapperSteps.SELECT_INPUT &&
                     <ParameterSelector
@@ -176,12 +153,16 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                         updateReturnType={setReturnType}
                         updateSampleStructure={handleSampleStructureUpdate}
                         updateValidity={handleJsonValidation}
+                        updateVariableName={updateVariableNameOnChange}
+                        updateVariableNameValidity={setIsVariableNameValidity}
+                        diagramState={state}
+                        variableName={variableName}
                     />}
 
                 <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
-                        disabled={!isFunctionNameValid && isJsonValid}
+                        disabled={!isVariableNameValid && isJsonValid}
                         dataTestId={"datamapper-save-btn"}
                         text={dataMapperStep === DataMapperSteps.SELECT_INPUT ? "Save" : "Next"}
                         fullWidth={false}
@@ -191,4 +172,37 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
             </div>
         </FormControl>
     )
+}
+
+export function generateFieldStructureForJsonSample(obj: any): DataMapperJsonField[] {
+    const fields: DataMapperJsonField[] = [];
+
+    Object.keys(obj).forEach((key: string) => {
+        const currentField: DataMapperJsonField = { name: key, type: '', isChanged: false }
+        switch (typeof obj[key]) {
+            case 'string':
+                currentField.type = PrimitiveBalType.String;
+                break;
+            case 'boolean':
+                currentField.type = PrimitiveBalType.Boolean;
+                break;
+            case 'number':
+                currentField.type = PrimitiveBalType.Float;
+                break;
+            case 'object':
+                if (Array.isArray(obj[key])) {
+                    currentField.type = PrimitiveBalType.Collection;
+                } else {
+                    currentField.type = 'object'; // todo: revisit with a proper field type
+                    currentField.subfields = generateFieldStructureForJsonSample(obj[key]);
+                }
+                break;
+            default:
+                // ignored
+        }
+
+        fields.push(currentField);
+    })
+
+    return fields;
 }

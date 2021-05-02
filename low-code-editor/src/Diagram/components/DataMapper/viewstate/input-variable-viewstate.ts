@@ -10,9 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import { TypeInfo } from "../../Portals/ConfigForm/types";
 
+import { TargetPointViewState } from ".";
 import { DataMapperViewState } from "./data-mapper-viewstate";
 import { SourcePointViewState } from "./source-point-viewstate";
 
@@ -22,6 +22,6 @@ export class InputVariableViewstate extends DataMapperViewState {
     public collapsed: boolean;
     public mappedConstructorInitializer: boolean;
     public sourcePointViewState: SourcePointViewState;
-    public isInput: boolean;
+    public targetPointViewState: TargetPointViewState;
     public typeInfo: TypeInfo;
 }

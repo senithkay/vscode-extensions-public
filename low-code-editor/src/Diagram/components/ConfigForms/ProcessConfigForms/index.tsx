@@ -103,39 +103,39 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
-                    const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-                    datamapperConfig.isExisting = WizardType.NEW;
-                    const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
-                    let signatureString = '';
+                    // const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+                    // datamapperConfig.isExisting = WizardType.NEW;
+                    // const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
+                    // let signatureString = '';
 
-                    datamapperConfig.inputTypes.forEach((param, i) => {
-                        signatureString += `${param.type} ${param.name}`;
-                        if (i < datamapperConfig.inputTypes.length - 1) {
-                            signatureString += ',';
-                        }
-                    })
+                    // datamapperConfig.inputTypes.forEach((param, i) => {
+                    //     signatureString += `${param.type} ${param.name}`;
+                    //     if (i < datamapperConfig.inputTypes.length - 1) {
+                    //         signatureString += ',';
+                    //     }
+                    // })
 
-                    let outputType = '';
+                    // let outputType = '';
 
-                    switch (datamapperConfig.outputType.type) {
-                        case 'json':
-                            outputType = 'json';
-                            break;
-                        case 'record':
-                            const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
-                            outputType = outputTypeInfo.moduleName === '.' ?
-                                outputTypeInfo.name
-                                : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
-                            break;
-                        default:
-                            outputType = datamapperConfig.outputType.type;
-                    }
+                    // switch (datamapperConfig.outputType.type) {
+                    //     case 'json':
+                    //         outputType = 'json';
+                    //         break;
+                    //     case 'record':
+                    //         const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
+                    //         outputType = outputTypeInfo.moduleName === '.' ?
+                    //             outputTypeInfo.name
+                    //             : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                    //         break;
+                    //     default:
+                    //         outputType = datamapperConfig.outputType.type;
+                    // }
 
 
-                    const functionString = `${outputType} ${datamapperConfig.elementName} = ${defaultReturn};`
+                    // const functionString = `${outputType} ${datamapperConfig.elementName} = ${defaultReturn};`
 
-                    const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
-                    modifications.push(dataMapperFunction);
+                    // const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
+                    // modifications.push(dataMapperFunction);
                 } else if (processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);

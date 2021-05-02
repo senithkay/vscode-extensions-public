@@ -10,21 +10,64 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+
 import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STNode } from "@ballerina/syntax-tree";
 
-export interface JsonTypeProps {
-    model: STNode
+import { SimpleBBox } from "../../../../../view-state";
+import { getDataMapperComponent } from "../../../util";
+import { TypeDescViewState } from "../../../viewstate";
+
+interface JsonTypeProps {
+    model: STNode;
+    isMain?: boolean;
+    handleSelection: (path: string, position: SimpleBBox) => void;
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model } = props;
-    const viewstate = model.dataMapperViewState;
+    const { isMain, handleSelection, model } = props;
+    const viewState = model.dataMapperViewState as TypeDescViewState;
+
+    const handleSelectionEvent = (path: string, position: SimpleBBox) => {
+        handleSelection(`${viewState.name}${path.length ? `.${path}` : ''}`, position);
+    }
+
+    const handleOnClick = () => {
+        handleSelectionEvent('', viewState.bBox);
+    }
+
+    const childComponents: any = [];
+    let type = viewState.type;
+
+    if (model.dataMapperTypeDescNode) {
+        switch (model.dataMapperTypeDescNode.kind) {
+            case 'RecordTypeDesc':
+                (model.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                    childComponents.push(getDataMapperComponent(field.dataMapperViewState.type, {
+                        handleSelection: handleSelectionEvent,
+                        model: field
+                    }));
+                });
+                type = viewState.typeInfo.name;
+                break;
+        }
+    }
 
     return (
-        <>
-            <text x={0} y={0} >haha</text>
-        </>
+        <g>
+            <text
+                x={viewState.bBox.x}
+                y={viewState.bBox.y}
+                fontFamily="Verdana"
+                fontSize="15"
+                fontWeight={isMain ? 'bold' : null}
+                fill="blue"
+                onClick={handleOnClick}
+            >
+                {`${viewState.name ? `${viewState.name}: ` : ''}${type}`}
+            </text>
+            {childComponents}
+        </g>
     )
 }

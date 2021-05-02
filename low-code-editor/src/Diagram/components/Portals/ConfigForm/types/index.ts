@@ -95,7 +95,7 @@ export interface TypeInfo {
     version: string;
 }
 
-export interface VariableInfoEntry {
+export interface DataMapperInputTypeInfo {
     type: string;
     name: string;
     node?: STNode;
@@ -103,18 +103,27 @@ export interface VariableInfoEntry {
     sampleJsonStructure?: string;
 }
 
-export interface TypeInfoEntry {
+export interface DataMapperOutputTypeInfo {
+    variableName?: string;
     type: string;
     typeInfo?: TypeInfo;
-    fields?: any;
+    fields?: DataMapperJsonField[];
     sampleStructure?: string;
+    isVariable?: boolean;
 }
 
 export interface DataMapperConfig {
-    elementName: string;
-    inputTypes: VariableInfoEntry[]; // todo ::: finalize the interface
-    outputType: TypeInfoEntry;
-    isExisting: WizardType;
+    inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
+    outputType: DataMapperOutputTypeInfo;
+    wizardType: WizardType;
+}
+
+export interface DataMapperJsonField {
+    name: string;
+    type: string;
+    subfields?: DataMapperJsonField[];
+    value?: string;
+    isChanged: boolean;
 }
 
 export interface EndConfig {

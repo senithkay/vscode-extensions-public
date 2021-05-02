@@ -24,22 +24,22 @@ import { FormAutocomplete } from '../../../../../../components/Portals/ConfigFor
 import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
-import { VariableInfoEntry } from "../../../../../Portals/ConfigForm/types";
+import { DataMapperInputTypeInfo } from "../../../../../Portals/ConfigForm/types";
 
 interface ParameterSelectorProps {
     parameters: any[];
-    insertParameter: (type: VariableInfoEntry) => void;
+    insertParameter: (type: DataMapperInputTypeInfo) => void;
     removeParameter: (index: number) => void;
-    types: VariableInfoEntry[];
+    types: DataMapperInputTypeInfo[];
 }
 
 export function ParameterSelector(props: ParameterSelectorProps) {
     const formClasses = useFormStyles();
     const { parameters, insertParameter, removeParameter, types } = props;
 
-    const [parameterType, setParameterType] = useState<VariableInfoEntry>(undefined);
+    const [parameterType, setParameterType] = useState<DataMapperInputTypeInfo>(undefined);
 
-    const handleChangeVariableType = (evt: any, typeEntry: VariableInfoEntry) => {
+    const handleChangeVariableType = (evt: any, typeEntry: DataMapperInputTypeInfo) => {
         setParameterType(typeEntry);
     }
 
@@ -70,33 +70,31 @@ export function ParameterSelector(props: ParameterSelectorProps) {
 
     return (
         <div>
-            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-                <div className={formClasses.formTitleWrapper}>
-                    <div className={formClasses.subtitle}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Select Input Variables </Box>
-                        </Typography>
-                    </div>
+            <div className={formClasses.formTitleWrapper}>
+                <div className={formClasses.subtitle}>
+                    <Typography variant="h4">
+                        <Box paddingTop={2} paddingBottom={2}>Select Input Variables </Box>
+                    </Typography>
                 </div>
-                <FormAutocomplete
-                    itemList={types}
-                    label={'Select parameter'}
-                    onChange={handleChangeVariableType}
-                    renderItem={(option) => (
-                        <React.Fragment>
-                            <span>{option.name}</span>
-                            {option.type}
-                        </React.Fragment>
-                    )}
-                    getItemLabel={(option) => option.name}
-                />
-                <IconBtnWithText
-                    onClick={onParameterAddClick}
-                    text="Add Parameter"
-                    icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
-                    disabled={false}
-                />
             </div>
+            <FormAutocomplete
+                itemList={types}
+                label={'Select parameter'}
+                onChange={handleChangeVariableType}
+                renderItem={(option) => (
+                    <React.Fragment>
+                        <span>{option.name}</span>
+                        {option.type}
+                    </React.Fragment>
+                )}
+                getItemLabel={(option) => option.name}
+            />
+            <IconBtnWithText
+                onClick={onParameterAddClick}
+                text="Add Parameter"
+                icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
+                disabled={false}
+            />
             {
                 parameterElements.length > 0 &&
                 <>
@@ -106,7 +104,6 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                     </div>
                 </>
             }
-
         </div>
     )
 }

@@ -35,25 +35,38 @@ import {
     XmlTypeDesc
 } from '@ballerina/syntax-tree';
 
-import { DataMapperViewState, SourcePointViewState } from '../viewstate';
+import { SourcePointViewState, TargetPointViewState } from '../viewstate';
 import { InputVariableViewstate } from '../viewstate/input-variable-viewstate';
 
+export enum VisitingType {
+    INPUT,
+    OUTPUT
+}
+
 export class DataMapperInitVisitor implements Visitor {
+    private visitingType: VisitingType = VisitingType.INPUT;
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (!node.dataMapperViewState) {
             const dataMapperViewState = new InputVariableViewstate();
+
             dataMapperViewState.mappedConstructorInitializer = node.initializer.kind === 'MappingConstructor';
-            dataMapperViewState.isInput = true;
-            dataMapperViewState.sourcePointViewState = new SourcePointViewState();
+            // dataMapperViewState.isInput = true;
+
+            if (this.visitingType === VisitingType.INPUT) {
+                dataMapperViewState.sourcePointViewState = new SourcePointViewState();
+            } else {
+                dataMapperViewState.targetPointViewState = new TargetPointViewState();
+            }
+
             node.typedBindingPattern.dataMapperViewState = dataMapperViewState;
 
             if (node.dataMapperTypeDescNode) {
                 node.dataMapperTypeDescNode.dataMapperViewState = new InputVariableViewstate();
-                node.dataMapperTypeDescNode.dataMapperViewState.isInput = true;
+                // node.dataMapperTypeDescNode.dataMapperViewState.isInput = true;
             } else if (dataMapperViewState.mappedConstructorInitializer) {
                 node.initializer.dataMapperViewState = new InputVariableViewstate();
-                node.initializer.dataMapperViewState.isInput = true;
+                // node.initializer.dataMapperViewState.isInput = true;
             }
 
             node.dataMapperViewState = dataMapperViewState;
@@ -125,21 +138,21 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitJsonTypeDesc(node: JsonTypeDesc) {
         if (node.dataMapperViewState) {
-                node.dataMapperViewState.type = 'json';
+            node.dataMapperViewState.type = 'json';
         }
     }
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as InputVariableViewstate;
-            if (viewstate.isInput) {
-                node.fields.forEach(field => {
-                    const fieldVS = new InputVariableViewstate();
-                    fieldVS.sourcePointViewState = new SourcePointViewState();
-                    fieldVS.isInput = true;
-                    field.dataMapperViewState = fieldVS;
-                })
-            }
+            // if (viewstate.isInput) {
+            node.fields.forEach(field => {
+                const fieldVS = new InputVariableViewstate();
+                fieldVS.sourcePointViewState = new SourcePointViewState();
+                // fieldVS.isInput = true;
+                field.dataMapperViewState = fieldVS;
+            })
+            // }
         }
     }
 
@@ -190,7 +203,7 @@ export class DataMapperInitVisitor implements Visitor {
                         viewstate.name = (node.fieldName as StringLiteral).literalToken.value;
                         break;
                     default:
-                        // ignored
+                    // ignored
                 }
                 if (node.valueExpr) {
                     node.valueExpr.dataMapperViewState = viewstate;
@@ -215,5 +228,10 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperViewState) {
             node.dataMapperViewState.type = 'float';
         }
+    }
+
+
+    public setVisitingType(type: VisitingType) {
+        this.visitingType = type;
     }
 }

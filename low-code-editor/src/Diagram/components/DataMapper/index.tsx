@@ -24,13 +24,13 @@ import {
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
-import { VariableInfoEntry } from '../Portals/ConfigForm/types';
+import { DataMapperInputTypeInfo } from '../Portals/ConfigForm/types';
 
 import { DataMapperFunctionComponent } from "./components/FunctionComponent";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor } from './util/data-mapper-init-visitor'
-import { DataMapperInitVisitor as NewDataMapperInitVisitor } from './util/var-data-mapper-init-visitor';
-import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/var-data-mapper-position-visitor';
+import { DataMapperInitVisitor as NewDataMapperInitVisitor } from './util/data-mapper-input-init-visitor';
+import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-input-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperPositionVisitor } from "./util/datamapper-position-visitor";
 import sampleJSON from './sample-config.json';
@@ -82,9 +82,9 @@ export function DataMapper(props: DataMapperProps) {
 
     if (selectedNode) {
 
-        const inputVariables: VariableInfoEntry[] = dataMapperConfig.inputTypes;
+        const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
-        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
             if (varSTNode.initializer) {
                 const varTypeSymbol = varSTNode.initializer.typeData.typeSymbol;
@@ -113,7 +113,7 @@ export function DataMapper(props: DataMapperProps) {
             }
         });
 
-        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             traversNode(variableInfo.node, new NewDataMapperInitVisitor());
 
             if (variableInfo.node.dataMapperTypeDescNode) {
@@ -129,11 +129,11 @@ export function DataMapper(props: DataMapperProps) {
 
         const positionVisitor = new NewDataMapperPositionVisitor(15, 15);
 
-        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             traversNode(variableInfo.node, positionVisitor);
         });
 
-        inputVariables.forEach((variableInfo: VariableInfoEntry) => {
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             const { dataMapperViewState } = variableInfo.node;
             inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
         });
