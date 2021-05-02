@@ -167,6 +167,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                             y: viewState.bBox.cy,
                                         }}
                                         targetPosition={draftVS.targetPosition}
+                                        selectedConnector={draftVS.selectedConnector}
                                         model={model}
                                         onClose={onWizardClose}
                                     />
