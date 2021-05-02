@@ -394,9 +394,10 @@
     max-height: 130px;
     overflow: scroll;
     overflow-x: hidden;
+    min-height: 120px;
 
     &::-webkit-scrollbar {
-        width: 8px;
+        width: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
@@ -476,10 +477,8 @@
             .existing-connector-icon {
                 display: flex;
                 align-items: center;
-                width: 40px;
                 transform: scale(1, 1);
                 -webkit-transform: scale(1, 1);
-
                 img {
                     width: 25px;
                     height: 25px;

@@ -16,8 +16,8 @@ import cn from "classnames";
 
 import "./style.scss";
 
-export const ARROW_HEIGHT = 7;
-export const ARROW_WIDTH = 5;
+export const ARROW_HEIGHT = 5;
+export const ARROW_WIDTH = 4;
 
 export interface ArrowHeadProps {
     x: number,

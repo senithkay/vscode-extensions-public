@@ -26,7 +26,7 @@ import {
 
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
@@ -269,10 +269,18 @@ class PositioningVisitor implements Visitor {
                     // blockViewState.collapseView.bBox.cy += PLUS_HOLDER_DEFAULT_HEIGHT;
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
-                    } else if (plusForIndex.selectedComponent === "APIS") {
+                    } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
                         statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                    } else if (plusForIndex?.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
+                        statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        if (plusForIndex.isAPICallsExistingCollapsed) {
+                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                        } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
+                            statementViewState.bBox.cy  += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                        } else {
+                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        }
                     }
-
                     if (statementViewState.collapsed) {
                         blockViewState.collapseView.bBox.cy = statementViewState.bBox.cy;
                     }
@@ -288,9 +296,22 @@ class PositioningVisitor implements Visitor {
                     if (plusForIndex.selectedComponent === "STATEMENT") {
                         statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
                         height += PLUS_HOLDER_STATEMENT_HEIGHT;
-                    } else if (plusForIndex.selectedComponent === "APIS") {
+                    } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
                         statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
                         height += PLUS_HOLDER_API_HEIGHT;
+                    } else if (plusForIndex?.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
+                        // statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        // height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        if (plusForIndex.isAPICallsExistingCollapsed) {
+                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                        } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
+                            statementViewState.bBox.cy  += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                        } else {
+                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        }
                     }
 
                 } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {

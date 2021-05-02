@@ -22,6 +22,7 @@ import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
 import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
 import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
+import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
 
 // import { BetaSVG } from "./BetaSVG";
@@ -30,6 +31,8 @@ export interface APIOptionsProps {
     onSelect: (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => void;
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo) => void;
     viewState?: PlusViewState;
+    collapsed?: (value: APIHeightStates) => void
+    // setAPIholderHeight?: (value: APIHeightStates) => void;
 }
 
 export interface ConnctorComponent {
@@ -50,19 +53,35 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(DiagramContext);
-    const { connectors, stSymbolInfo, targetPosition } = state;
-    const { onSelect } = props;
+    const { connectors, stSymbolInfo, targetPosition, viewState } = state;
+    const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
     const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
+    const [isExistingConnectorCollapsed, setExistingConnectorCollapsed] = useState(false);
+    const [isSelectConnectorCollapsed, setSelectConnectorCollapsed] = useState(false);
 
     const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
 
+
     const toggleExistingCon = () => {
         setToggledExistingConnector(!isToggledExistingConnector);
+        if (!isToggledExistingConnector) {
+            // setExistingConnectorCollapsed(true);
+            collapsed(APIHeightStates.ExistingConnectors);
+        } else if (isToggledExistingConnector) {
+            collapsed(APIHeightStates.ExistingConnectorsColapsed);
+        }
     }
+
     const toggleSelectCon = () => {
         setToggledSelectConnector(!isToggledSelectConnector);
+        if (!isToggledSelectConnector) {
+            // setSelectConnectorCollapsed(true);
+            collapsed(APIHeightStates.SelectConnectors);
+        } else if (isToggledSelectConnector) {
+            collapsed(APIHeightStates.SelectConnectorsColapsed);
+        }
     }
 
     const exsitingConnectorComponents: ExisitingConnctorComponent[] = [];
@@ -187,13 +206,19 @@ export function APIOptions(props: APIOptionsProps) {
                     <div className="existing-connect-wrapper">
                         <div className="title-wrapper">
                             <p className="plus-section-title">Choose Existing Connectors </p>
-                            <div onClick={toggleExistingCon} className="existing-connector-toggle">
-                                {isToggledExistingConnector && isToggledSelectConnector ?
-                                    <img src="../../../../../../images/exp-editor-expand.svg" />
-                                    :
-                                    <img src="../../../../../../images/exp-editor-collapse.svg" />
-                                }
-                            </div>
+                            {isToggledSelectConnector ?
+                                (
+                                    <div onClick={toggleExistingCon} className="existing-connector-toggle">
+                                        {isToggledExistingConnector ?
+                                            <img src="../../../../../../images/exp-editor-expand.svg" />
+                                            :
+                                            <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                        }
+                                    </div>
+                                )
+                                :
+                                null
+                            }
                         </div>
 
                         {isToggledExistingConnector &&
@@ -206,6 +231,7 @@ export function APIOptions(props: APIOptionsProps) {
                     </div>
                 )
             }
+
             <Divider />
 
             <div className="element-option-holder" >
