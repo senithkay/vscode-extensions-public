@@ -16,13 +16,16 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, LocalVarDecl, PositionalArg, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
+import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 import { getOverlayFormConfig } from "../../../utils/diagram-util";
+import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../../view-state/draft";
 import { Assignment } from "../../Assignment";
 import { ProcessConfigForm } from "../../ConfigForms/ProcessConfigForms";
+import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
@@ -50,7 +53,8 @@ export function ActionProcessor(props: ProcessorProps) {
         maximize: maximizeCodeView,
         setCodeLocationToHighlight: setCodeToHighlight,
         currentApp,
-        isCodeEditorActive
+        isCodeEditorActive,
+        connectors
     } = state
     const { id: appId } = currentApp || {};
 
@@ -61,6 +65,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
     const isDraftStatement: boolean = blockViewState
         && blockViewState.draft[1] instanceof DraftStatementViewState;
+    let draftViewState: DraftStatementViewState = viewState as DraftStatementViewState;
     let processType = "Action";
     let processName = "Variable";
     let sourceSnippet = "Source";
@@ -96,7 +101,7 @@ export function ActionProcessor(props: ProcessorProps) {
             }
         }
     } else if (isDraftStatement) {
-        const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
+        draftViewState = blockViewState.draft[1] as DraftStatementViewState;
         processType = draftViewState.subType;
     }
 
@@ -126,36 +131,34 @@ export function ActionProcessor(props: ProcessorProps) {
         }
     };
 
-    const onCancel = () => {
+    const onWizardClose = () => {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
         }
-        setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
-    }
+        setIsConnectorEdit(false);
+    };
 
     const onSave = () => {
         setConfigWizardOpen(false);
         dispatchCloseConfigOverlayForm();
     }
 
+    const connectorsCollection: BallerinaConnectorsInfo[] = [];
+    if (connectors) {
+        connectors.forEach((connectorInfo: any) => {
+            connectorsCollection.push(connectorInfo);
+        });
+    }
+
+    const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
+    const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftViewState.connector);
+
     // let exsitingWizard: ReactNode = null;
-    const onProcessClick = () => {
-        if (processType !== "PROCESS") {
-            const position: DraftInsertPosition = {
-                column: model.position.startColumn,
-                line: model.position.startLine
-            };
-            const config = {
-                type: processType
-            }
-            const overlayFormConfig = getOverlayFormConfig(processType, model.position, WizardType.EXISTING,
-                blockViewState, undefined, stSymbolInfo, model);
-            updateConfigOverlayFormState(overlayFormConfig);
-            setConfigWizardOpen(true);
-            openNewProcessorConfig(processType, position, WizardType.EXISTING, model.viewState, config, stSymbolInfo, model);
-        }
+    const toggleSelection = () => {
+        const connectorInit: LocalVarDecl = model as LocalVarDecl;
+        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
+        setIsConnectorEdit(!isEditConnector);
     };
 
     const onClickOpenInCodeView = () => {
@@ -182,7 +185,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 model={model}
                 cx={viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
                 cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 4)}
-                onHandleEdit={onProcessClick}
+                onHandleEdit={toggleSelection}
             />
         </>
     );
@@ -211,32 +214,22 @@ export function ActionProcessor(props: ProcessorProps) {
                                 x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                                 y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             >
-
-                                {model === null && blockViewState && blockViewState.draft && isDraftStatement && configOverlayFormState &&
-                                    <ProcessConfigForm
+                                <g>
+                                {((model === null || isEditConnector)) && (
+                                    <ConnectorConfigWizard
+                                        connectorInfo={connector}
                                         position={{
-                                            x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
+                                            x: viewState.bBox.cx + 80,
                                             y: viewState.bBox.cy,
                                         }}
-                                        wizardType={WizardType.NEW}
-                                        onCancel={onCancel}
-                                        onSave={onSave}
-                                        configOverlayFormStatus={configOverlayFormState}
+                                        targetPosition={draftViewState.targetPosition}
+                                        selectedConnector={draftViewState.selectedConnector}
+                                        model={model}
+                                        onClose={onWizardClose}
+                                        isAction={true}
                                     />
-                                }
-
-                                {model && isConfigWizardOpen && configOverlayFormState &&
-                                    <ProcessConfigForm
-                                        position={{
-                                            x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
-                                            y: viewState.bBox.cy,
-                                        }}
-                                        wizardType={WizardType.EXISTING}
-                                        onCancel={onCancel}
-                                        onSave={onSave}
-                                        configOverlayFormStatus={configOverlayFormState}
-                                    />
-                                }
+                                )}
+                            </g>
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect

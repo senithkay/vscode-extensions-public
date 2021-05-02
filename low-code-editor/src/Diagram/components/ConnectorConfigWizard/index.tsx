@@ -45,6 +45,7 @@ export interface ConnectorConfigWizardProps {
     model?: STNode;
     onClose: () => void;
     selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
     // dispatchOverlayOpen: () => void;
 }
 
@@ -52,7 +53,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const { state } = useContext(DiagramContext);
     const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen, isCodeEditorActive } = state;
 
-    const { position, connectorInfo, targetPosition, model, onClose, selectedConnector } = props;
+    const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
     const initWizardState: ConfigWizardState = {
         isLoading: true, connectorDef: undefined, connectorConfig: undefined,
@@ -97,6 +98,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                                             targetPosition={targetPosition}
                                             configWizardArgs={wizardState}
                                             connectorInfo={connectorInfo}
+                                            isAction={isAction}
                                             onClose={handleClose}
                                         />
                                     )}

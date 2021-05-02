@@ -34,8 +34,10 @@ import {
     addToFormFieldCache,
     getConnectorDefFromCache,
     getFromFormFieldCache,
-    getRecordDefFromCache
+    getRecordDefFromCache,
+    isSTActionInvocation
 } from "../../../utils/st-util";
+import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
@@ -729,35 +731,44 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
             const variable: LocalVarDecl = model as LocalVarDecl;
-            let remoteCall: RemoteMethodCallAction;
-            switch (variable.initializer.kind) {
-                case 'TypeCastExpression':
-                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                    break;
-                case 'RemoteMethodCallAction':
-                    remoteCall = variable.initializer as RemoteMethodCallAction;
-                    break;
-                default:
-                    remoteCall = (variable.initializer as CheckAction).expression;
-            }
-            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                CaptureBindingPattern;
-            const returnVarName: string = bindingPattern.variableName.value;
-            if (remoteCall && returnVarName) {
-                const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-                const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
-                if (remoteCall && actionName) {
-                    const action: ActionConfig = new ActionConfig();
-                    action.name = actionName.name.value;
-                    action.returnVariableName = returnVarName;
-                    connectorConfig.action = action;
-                    connectorConfig.name = configName.name.value;
-                    connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
-                    matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+            const viewState: StatementViewState = model.viewState as StatementViewState;
+            if (isSTActionInvocation(variable)) {
+                let remoteCall: RemoteMethodCallAction;
+                switch (variable.initializer.kind) {
+                    case 'TypeCastExpression':
+                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                        remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                        break;
+                    case 'RemoteMethodCallAction':
+                        remoteCall = variable.initializer as RemoteMethodCallAction;
+                        break;
+                    default:
+                        remoteCall = (variable.initializer as CheckAction).expression;
+                }
+                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                    CaptureBindingPattern;
+                const returnVarName: string = bindingPattern.variableName.value;
+                if (remoteCall && returnVarName) {
+                    const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
+                    const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
+                    if (remoteCall && actionName) {
+                        const action: ActionConfig = new ActionConfig();
+                        action.name = actionName.name.value;
+                        action.returnVariableName = returnVarName;
+                        connectorConfig.action = action;
+                        connectorConfig.name = configName.name.value;
+                        connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
+                        matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+                    }
+                }
+            } else if (viewState.isEndpoint) {
+                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                    CaptureBindingPattern;
+                const endpointVarName: string = bindingPattern.variableName.value;
+                if (endpointVarName) {
+                    connectorConfig.name = endpointVarName;
                 }
             }
-
             connectorConfig.connectorInit = functionDefInfo.get("init") ?
                 functionDefInfo.get("init").parameters
                 : functionDefInfo.get("__init").parameters;

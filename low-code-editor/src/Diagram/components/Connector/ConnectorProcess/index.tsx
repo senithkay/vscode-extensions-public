@@ -75,8 +75,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftVS.connector);
 
     const toggleSelection = () => {
-        const actionInvo: LocalVarDecl = model as LocalVarDecl;
-        setConnector(getMatchingConnector(actionInvo, connectors, stSymbolInfo));
+        const connectorInit: LocalVarDecl = model as LocalVarDecl;
+        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
         setIsConnectorEdit(!isEditConnector);
     };
 
@@ -169,6 +169,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                         selectedConnector={draftVS.selectedConnector}
                                         model={model}
                                         onClose={onWizardClose}
+                                        isAction={false}
                                     />
                                 )}
                             </g>
