@@ -18,13 +18,14 @@ import cn from "classnames";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { SimpleBBox, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
+import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
 import { Metrics } from "../Metrics";
 import { Performance } from "../Performace";
+import { DataProcessor } from "../Processor";
+import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../Processor/ProcessSVG";
 
 import { ActionInvoLine } from "./ActionInvoLine";
-import { ConnectorClient } from "./ConnectorClient";
-import { CLIENT_RADIUS } from "./ConnectorClient/ConnectorClientSVG";
-import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcess/ConnectorProcessSVG";
+import { ActionProcessor } from "./ActionProcess";
 import "./style.scss";
 import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
 export interface ConnectorLineProps {
@@ -49,11 +50,11 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const x = viewState.bBox.cx;
     const y = viewState.bBox.cy;
 
-    const actionLineStartX = x + CLIENT_RADIUS + DefaultConfig.actionArrowPadding;
+    const actionLineStartX = x + (PROCESS_SVG_WIDTH / 2) + DefaultConfig.actionArrowPadding;
     const actionLineEndX = lifeLineCX;
     const actionLineWidth = actionLineEndX - actionLineStartX;
-    const actionRightLineY = y + CLIENT_RADIUS - DefaultConfig.actionArrowGap + (DefaultConfig.dotGap / 3);
-    const actionLeftLineY = y + CLIENT_RADIUS + DefaultConfig.actionArrowGap - (DefaultConfig.dotGap / 3);
+    const actionRightLineY = y + (PROCESS_SVG_HEIGHT / 2) - DefaultConfig.actionArrowGap;
+    const actionLeftLineY = y + (PROCESS_SVG_HEIGHT / 2) + DefaultConfig.actionArrowGap;
     const triggerSVGX = lifeLineCX;
     const triggerSVGY = viewState.bBox.cy;
 
@@ -63,8 +64,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
 
     return (
         <g>
-            <ConnectorProcessSVG x={x - (CONNECTOR_PROCESS_SVG_WIDTH / 2)} y={y} />
-            <ConnectorClient model={model} />
+            <ActionProcessor model={model} />
             <g className={classes}>
                 <ActionInvoLine
                     clientInvoX={actionLineStartX}

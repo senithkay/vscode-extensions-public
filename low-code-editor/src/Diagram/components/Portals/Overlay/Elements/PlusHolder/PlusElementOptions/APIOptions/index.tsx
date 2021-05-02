@@ -93,7 +93,7 @@ export function APIOptions(props: APIOptionsProps) {
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
                 <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
-                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
+                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">
                                 {getConnectorIconSVG(connector)}

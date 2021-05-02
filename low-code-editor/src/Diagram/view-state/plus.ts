@@ -14,6 +14,7 @@ export class PlusViewState extends ViewState {
     public draftAdded: string = undefined;
     public draftSubType: string = undefined;
     public draftConnector?: BallerinaConnectorsInfo;
+    public draftForExistingConnector?: boolean = false;
     public draftSelectedConnector?: LocalVarDecl = undefined;
     public isLast: boolean = false;
     public selectedComponent: string;

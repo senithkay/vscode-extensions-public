@@ -31,7 +31,7 @@ import "../style.scss";
 export interface PlusElementsProps {
     position?: DiagramOverlayPosition;
     isPlusActive?: boolean;
-    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, selectedConnector?: LocalVarDecl) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
     onClose?: () => void;
     onComponentClick?: (value: string) => void;
     initPlus: boolean,
@@ -93,7 +93,12 @@ export function PlusElements(props: PlusElementsProps) {
     };
 
     const onAPITypeSelect = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
-        onChange("APIS", connector.displayName, connector, selectedConnector);
+        if(selectedConnector) {
+            onChange("APIS", "Existing", connector, true, selectedConnector);
+        } else {
+            onChange("APIS", "New", connector);
+        }
+        
         // todo: handle tour step
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
