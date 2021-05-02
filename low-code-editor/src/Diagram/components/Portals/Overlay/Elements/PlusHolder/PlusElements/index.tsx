@@ -84,12 +84,12 @@ export function PlusElements(props: PlusElementsProps) {
     };
 
     const onAPITypeSelect = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
-        if(selectedConnector) {
+        if (selectedConnector) {
             onChange("APIS", "Existing", connector, true, selectedConnector);
         } else {
             onChange("APIS", "New", connector);
         }
-        
+
         // todo: handle tour step
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
