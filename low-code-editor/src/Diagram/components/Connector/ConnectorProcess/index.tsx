@@ -160,7 +160,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                             <g>
                                 {((model === null || isEditConnector)) && (
                                     <ConnectorConfigWizard
-                                        selectedConnector={selectedConnector}
                                         connectorInfo={connector}
                                         position={{
                                             x: viewState.bBox.cx + 80,
