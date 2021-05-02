@@ -34,6 +34,7 @@ import "./style.scss";
 export interface ConnectorProcessProps {
     model: STNode;
     blockViewState?: BlockViewState | any;
+    selectedConnector?: LocalVarDecl;
 }
 
 export function ConnectorProcess(props: ConnectorProcessProps) {
@@ -50,7 +51,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     } = useContext(DiagramContext);
 
     const {
-        model, blockViewState
+        model, blockViewState, selectedConnector
     } = props;
 
     const viewState: ViewState = (model === null)
@@ -159,6 +160,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                             <g>
                                 {((model === null || isEditConnector)) && (
                                     <ConnectorConfigWizard
+                                        selectedConnector={selectedConnector}
                                         connectorInfo={connector}
                                         position={{
                                             x: viewState.bBox.cx + 80,

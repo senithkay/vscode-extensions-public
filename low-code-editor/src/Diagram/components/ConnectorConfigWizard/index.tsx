@@ -44,7 +44,7 @@ export interface ConnectorConfigWizardProps {
     targetPosition: DraftInsertPosition;
     model?: STNode;
     onClose: () => void;
-    selectedConnector: LocalVarDecl;
+    selectedConnector?: LocalVarDecl;
     // dispatchOverlayOpen: () => void;
 }
 
