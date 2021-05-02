@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { CaptureBindingPattern, ForeachStatement, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ForeachStatement, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
@@ -180,14 +180,18 @@ export function ForEach(props: ForeachProps) {
     };
 
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
-    assignmentText = (model as ForeachStatement)?.actionOrExpressionNode.source;
+    const forEachModel = model as ForeachStatement
+    const variableName = ((((forEachModel.typedBindingPattern) as TypedBindingPattern).bindingPattern) as CaptureBindingPattern).variableName.value
+    const keyWord = forEachModel.inKeyword.value
+    const forEachSource = forEachModel?.actionOrExpressionNode.source;
+    assignmentText = variableName + " " + keyWord + " " + forEachSource;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper">
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
-                <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/>
+                <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 5} assignment={assignmentText} className="condition-assignment"/>
                 <>
                     {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                         className="foreach-options-wrapper"
