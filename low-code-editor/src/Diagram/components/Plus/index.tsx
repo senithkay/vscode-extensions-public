@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useState } from "react";
 
-import { BlockStatement, FunctionBodyBlock, STNode } from "@ballerina/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
@@ -170,7 +170,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, stForExisting?: STNode) => {
+                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,
@@ -181,9 +181,9 @@ export const PlusButton = (props: PlusProps) => {
         viewState.collapsedPlusDuoExpanded = false;
         viewState.draftAdded = type;
         viewState.draftSubType = subType;
+        viewState.draftSelectedConnector = selectedConnector;
         viewState.draftConnector = connectorType;
         viewState.draftForExistingConnector = isExisting;
-        viewState.stForExistingConnector = stForExisting;
         diagramRedraw(syntaxTree);
     };
 

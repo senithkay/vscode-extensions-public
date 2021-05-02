@@ -1,3 +1,5 @@
+import { LocalVarDecl } from "@ballerina/syntax-tree";
+
 import { BallerinaConnectorsInfo } from "../../Definitions/lang-client-extended";
 
 import { ViewState } from "./view-state";
@@ -13,11 +15,11 @@ export class PlusViewState extends ViewState {
     public draftSubType: string = undefined;
     public draftConnector?: BallerinaConnectorsInfo;
     public draftForExistingConnector?: boolean = false;
-    public stForExistingConnector?: any = {};
+    public draftSelectedConnector?: LocalVarDecl = undefined;
     public isLast: boolean = false;
     public selectedComponent: string;
     public isTriggerDropdown: boolean = false;
-    public isAPICallsExisting: boolean = true;
+    public isAPICallsExisting: boolean = false;
     constructor() {
         super();
     }

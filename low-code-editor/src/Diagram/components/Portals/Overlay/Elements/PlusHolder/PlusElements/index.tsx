@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
@@ -25,14 +25,13 @@ import { OverlayBackground } from "../../../../../OverlayBackground";
 import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
-import { ExistingAPIOptions } from "../PlusElementOptions/ExistingAPIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 
 export interface PlusElementsProps {
     position?: DiagramOverlayPosition;
     isPlusActive?: boolean;
-    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, isExisting?: boolean, stNode?: STNode) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
     onClose?: () => void;
     onComponentClick?: (value: string) => void;
     initPlus: boolean,
@@ -43,14 +42,21 @@ export interface PlusElementsProps {
 
 export const PLUS_HOLDER_WIDTH = 376;
 export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
-export const PLUS_HOLDER_API_HEIGHT = 608;
-export const EXISTING_PLUS_HOLDER_API_HEIGHT = 360;
+export let PLUS_HOLDER_API_HEIGHT = 560;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT = 600;
 export const EXISTING_PLUS_HOLDER_WIDTH = 286;
+export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 550;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 580;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
     const { state } = useContext(Context);
-    const { isCodeEditorActive } = state;
+    const { isCodeEditorActive, stSymbolInfo } = state;
+    const [isAPICallsExisting, setAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
+
+    if (isAPICallsExisting) {
+        PLUS_HOLDER_API_HEIGHT = EXISTING_PLUS_HOLDER_API_HEIGHT;
+    }
 
     const [selectedItem, setSelectedItem] = useState("STATEMENT");
 
@@ -77,19 +83,16 @@ export function PlusElements(props: PlusElementsProps) {
         }
     };
 
-    const onAPITypeSelect = (connector: BallerinaConnectorsInfo) => {
-        onChange("APIS", connector.displayName, connector);
+    const onAPITypeSelect = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
+        if(selectedConnector) {
+            onChange("APIS", "Existing", connector, true, selectedConnector);
+        } else {
+            onChange("APIS", "New", connector);
+        }
+        
         // todo: handle tour step
         // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
     };
-
-    const onSelectingExistingAPICall = (connector: BallerinaConnectorsInfo, node: STNode) => {
-        onChange("APIS", "Existing", connector, true, node);
-    }
-
-    const onSelectingNewAPICall = (connector: BallerinaConnectorsInfo) => {
-        onChange("APIS", "New", connector);
-    }
 
     let component: React.ReactNode = null;
     switch (selectedItem) {
@@ -98,20 +101,16 @@ export function PlusElements(props: PlusElementsProps) {
             break;
         }
         case "APIS": {
-            component = (
-                viewState.isAPICallsExisting ?
-                    <ExistingAPIOptions onSelect={onSelectingExistingAPICall} />
-                    :
-                    <APIOptions onSelect={onSelectingNewAPICall} />);
+            component = (<APIOptions onSelect={onAPITypeSelect} />);
             break;
         }
     }
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
-    const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
+    const exitingApiCall = isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
     const holderClass = selectedItem !== "APIS" ? "holder-wrapper" : exitingApiCall;
 
     const plusHolder: ReactNode = (
-        <div className={holderClass}>
+        <div className="holder-wrapper-large">
             {
                 !initPlus ?
                     (
@@ -147,7 +146,7 @@ export function PlusElements(props: PlusElementsProps) {
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
                             API Calls
-            </div>
+                        </div>
                     </Tooltip>
                 </div>
             </div>

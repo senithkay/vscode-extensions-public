@@ -19,7 +19,7 @@ export function GoogleSheetLogo(props: { cx?: number, cy?: number, scale?: numbe
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (GOOGLE_SHEET_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (GOOGLE_SHEET_LOGO_HEIGHT / 2)} width={GOOGLE_SHEET_LOGO_WIDTH} height={GOOGLE_SHEET_LOGO_HEIGHT} >
-            <g id="GoogleSheet">
+            <g id="GoogleSheet" transform="translate(3 -0.5)">
                 <path id="Path" d="M14.485,5.478V18.712A1.289,1.289,0,0,1,13.2,20H1.288A1.288,1.288,0,0,1,0,18.712H0V1.288A1.288,1.288,0,0,1,1.288,0H9.007Z" fill="#28b446" />
                 <path id="Path-2" d="M9.675,5.358,14.486,7.34V5.479l-2.728-.805Z" fill="#219b38" />
                 <path id="Path-3" d="M14.485,5.57h-4.26a1.31,1.31,0,0,1-1.31-1.31h0V0Z" fill="#6ace7c" />

@@ -39,11 +39,11 @@ import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/d
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
-import { OperationDropdown } from "../NetSuiteWizard/OperationDropdown";
+import { genVariableName, getConnectorIcon, getParams, matchEndpointToFormField } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
+import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -55,7 +55,8 @@ interface WizardProps {
     connector: Connector;
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
-    model?: STNode
+    model?: STNode,
+    selectedConnector?: LocalVarDecl;
 }
 
 enum InitFormState {
@@ -69,7 +70,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model } = props;
+            model, selectedConnector } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -94,6 +95,18 @@ export function HTTPWizard(props: WizardProps) {
         connectorConfig.action.returnVariableName = undefined;
     }
     connectorConfig.action.name = selectedOperation;
+
+    React.useEffect(() => {
+        if (selectedConnector) {
+            connectorConfig.connectorInit = connectorInitFormFields;
+
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.name = connectorNameValue;
+            matchEndpointToFormField(selectedConnector, connectorConfig.connectorInit);
+            connectorConfig.isExistingConnection = (connectorNameValue !== undefined);
+            setState(InitFormState.Create);
+        }
+    }, [selectedConnector]);
 
     React.useEffect(() => {
         if (!isNewConnectorInitWizard) {

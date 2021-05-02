@@ -617,6 +617,7 @@ class SizingVisitor implements Visitor {
             draft.type = plusViewState.draftAdded;
             draft.subType = plusViewState.draftSubType;
             draft.connector = plusViewState.draftConnector;
+            draft.selectedConnector = plusViewState.draftSelectedConnector;
             draft.targetPosition = {
                 line: node.position.endLine, // todo: can't find the equivalent to position
                 column: node.position.endColumn - 1
@@ -627,11 +628,7 @@ class SizingVisitor implements Visitor {
             if (plusViewState.selectedComponent === "STATEMENT") {
                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
             } else if (plusViewState.selectedComponent === "APIS") {
-                if (plusViewState.isAPICallsExisting) {
-                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                } else {
-                    height += PLUS_HOLDER_API_HEIGHT;
-                }
+                height += PLUS_HOLDER_API_HEIGHT;
             }
             if (width < PLUS_HOLDER_WIDTH) {
                 width = PLUS_HOLDER_WIDTH;
@@ -689,6 +686,7 @@ class SizingVisitor implements Visitor {
                                 draft.type = plusForIndex.draftAdded;
                                 draft.subType = plusForIndex.draftSubType;
                                 draft.connector = plusForIndex.draftConnector;
+                                draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
                                     line: element.position.startLine, // todo: position?
@@ -705,11 +703,7 @@ class SizingVisitor implements Visitor {
                                 if (plusForIndex.selectedComponent === "STATEMENT") {
                                     height += PLUS_HOLDER_STATEMENT_HEIGHT;
                                 } else if (plusForIndex.selectedComponent === "APIS") {
-                                    if (plusViewState.isAPICallsExisting) {
-                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                                    } else {
-                                        height += PLUS_HOLDER_API_HEIGHT;
-                                    }
+                                    height += PLUS_HOLDER_API_HEIGHT;
                                 }
                                 if (width < PLUS_HOLDER_WIDTH) {
                                     width = PLUS_HOLDER_WIDTH;
@@ -731,11 +725,7 @@ class SizingVisitor implements Visitor {
                             if (plusForIndex.selectedComponent === "STATEMENT") {
                                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
                             } else if (plusForIndex.selectedComponent === "APIS") {
-                                if (plusViewState.isAPICallsExisting) {
-                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                                } else {
-                                    height += PLUS_HOLDER_API_HEIGHT;
-                                }
+                                height += PLUS_HOLDER_API_HEIGHT;
                             }
                             if (width < PLUS_HOLDER_WIDTH) {
                                 width = PLUS_HOLDER_WIDTH;
@@ -748,6 +738,7 @@ class SizingVisitor implements Visitor {
                         draft.type = plusForIndex.draftAdded;
                         draft.subType = plusForIndex.draftSubType;
                         draft.connector = plusForIndex.draftConnector;
+                        draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
                             line: element.position.startLine, // todo:position?
@@ -759,11 +750,7 @@ class SizingVisitor implements Visitor {
                         if (plusForIndex.selectedComponent === "STATEMENT") {
                             height += PLUS_HOLDER_STATEMENT_HEIGHT;
                         } else if (plusForIndex.selectedComponent === "APIS") {
-                            if (plusViewState.isAPICallsExisting) {
-                                height += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                            } else {
-                                height += PLUS_HOLDER_API_HEIGHT;
-                            }
+                            height += PLUS_HOLDER_API_HEIGHT;
                         }
                         if (width < PLUS_HOLDER_WIDTH) {
                             width = PLUS_HOLDER_WIDTH;
