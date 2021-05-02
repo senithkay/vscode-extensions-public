@@ -38,12 +38,12 @@ export function SmallPlusSVG(props: { x: number, y: number, handlePlusClick: () 
             </defs>
             <g id="SmallPlus" transform="translate(7.5 6.5)" onClick={handlePlusClick}>
                 <g transform="matrix(1, 0, 0, 1, -7, -6)" className="product-tour-small-plus" filter="url(#Oval_Copy_15)">
-                    <g id="Oval_Copy_15-2" data-name="Oval Copy 15" transform="translate(7 6)" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" fill="url(#linear-gradient)">
+                    <g id="Oval_Copy_15-2" transform="translate(7 6)" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" fill="url(#linear-gradient)">
                         <circle cx="6" cy="6" r="6" stroke="none" />
                         <circle cx="6" cy="6" r="6.5" fill="none" />
                     </g>
                 </g>
-                <path id="Combined_Shape_Copy_5" data-name="Combined Shape Copy 5" d="M2,4.5V3H.5a.5.5,0,1,1,0-1H2V.5a.5.5,0,1,1,1,0V2H4.5a.5.5,0,1,1,0,1H3V4.5a.5.5,0,1,1-1,0Z" transform="translate(3.5 3.5)" fill="#5567d5" />
+                <path id="Combined_Shape_Copy_5" d="M2,4.5V3H.5a.5.5,0,1,1,0-1H2V.5a.5.5,0,1,1,1,0V2H4.5a.5.5,0,1,1,0,1H3V4.5a.5.5,0,1,1-1,0Z" transform="translate(3.5 3.5)" fill="#5567d5" />
             </g>
         </svg>
     )
