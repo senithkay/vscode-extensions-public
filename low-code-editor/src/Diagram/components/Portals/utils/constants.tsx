@@ -203,7 +203,7 @@ export const tooltipMessages: Record<string, any> = {
         clientID : "Client ID of the connected app",
         clientSecret : "Client secret of the connected app",
         refreshToken : "Refresh token of the connected app",
-        refreshTokenURL : "Refreh token URL of the connected app"
+        refreshTokenURL : "Refresh token URL of the connected app"
     },
     postgreSQL : {
         title : "Connect your application with PostgreSQL API",
