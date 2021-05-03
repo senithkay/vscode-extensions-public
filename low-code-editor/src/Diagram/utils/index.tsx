@@ -60,7 +60,6 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 default:
                     break;
             }
-            draftComponents.push(<ConnectorProcess model={null} blockViewState={viewState} />);
             break;
         case "STATEMENT":
             switch (draft[1].subType) {

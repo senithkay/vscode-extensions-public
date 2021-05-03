@@ -57,6 +57,7 @@ interface WizardProps {
     targetPosition: DraftInsertPosition;
     model?: STNode,
     selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
 }
 
 enum InitFormState {
@@ -70,46 +71,40 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model, selectedConnector } = props;
+            model, selectedConnector, isAction } = props;
     const { state: diagramState } = useContext(DiagramContext);
+
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
-    const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
-    const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
+    const enableConnectorInitalizePage = connectorConfig.existingConnections === undefined && isNewConnectorInitWizard && !isAction;
+
+    const initFormState = enableConnectorInitalizePage ? InitFormState.Create : InitFormState.OperationDropdown;
+
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
     const [isNewConnection, setIsNewConnection] = useState<boolean>(true);
-    const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig.action.name);
+    const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
 
     const [headerObject] = useState<HeaderObjectConfig[]>([]);
     const httpVar = model as LocalVarDecl;
     const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
-        : connectorConfig.action.name);
+        : connectorConfig?.action?.name);
 
-    if (selectedOperation) {
+    if (isAction && selectedOperation) {
         connectorConfig.action.fields = functionDefinitions.get(selectedOperation).parameters;
     }
 
-    if (selectedOperation !== connectorConfig.action.name) {
+    if (isAction && selectedOperation !== connectorConfig?.action?.name) {
         connectorConfig.action.returnVariableName = undefined;
     }
-    connectorConfig.action.name = selectedOperation;
+
+    if (isAction) {
+        connectorConfig.action.name = selectedOperation;
+    }
 
     React.useEffect(() => {
-        if (selectedConnector) {
-            connectorConfig.connectorInit = connectorInitFormFields;
-
-            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-            connectorConfig.name = connectorNameValue;
-            matchEndpointToFormField(selectedConnector, connectorConfig.connectorInit);
-            connectorConfig.isExistingConnection = (connectorNameValue !== undefined);
-            setState(InitFormState.Create);
-        }
-    }, [selectedConnector]);
-
-    React.useEffect(() => {
-        if (!isNewConnectorInitWizard) {
+        if (!isNewConnectorInitWizard && isAction) {
             let actionInitializer: CheckAction;
             connectorConfig.action.returnVariableName =
                 (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
@@ -230,23 +225,27 @@ export function HTTPWizard(props: WizardProps) {
                     }
                 }
             }
-        }
-    }, [isNewConnectorInitWizard])
-
-    const handleCreateNew = () => {
-        connectorConfig.name = undefined;
-        setIsNewConnection(true);
-        setState(InitFormState.Create);
-    };
-
-    const handleSelectExisting = () => {
-        setIsNewConnection(false);
-        if (enableHomePage) {
+            setState(InitFormState.SelectInputOutput);
+        } else if (selectedConnector) {
+            connectorConfig.isExistingConnection = true;
             setState(InitFormState.OperationDropdown);
-        } else {
-            setState(InitFormState.Create);
         }
-    };
+    }, [isNewConnectorInitWizard, selectedConnector])
+
+    // const handleCreateNew = () => {
+    //     connectorConfig.name = undefined;
+    //     setIsNewConnection(true);
+    //     setState(InitFormState.Create);
+    // };
+
+    // const handleSelectExisting = () => {
+    //     setIsNewConnection(false);
+    //     if (enableHomePage) {
+    //         setState(InitFormState.OperationDropdown);
+    //     } else {
+    //         setState(InitFormState.Create);
+    //     }
+    // };
 
     const handleCreateConnectorOnSaveNext = () => {
         setState(isNewConnectorInitWizard ? InitFormState.OperationDropdown : InitFormState.SelectInputOutput);
@@ -257,13 +256,13 @@ export function HTTPWizard(props: WizardProps) {
         setState(InitFormState.SelectInputOutput);
     };
 
-    const handleBack = () => {
-        if (state === InitFormState.SelectInputOutput) {
-            setState(InitFormState.Create);
-        } else if (state === InitFormState.Create && enableHomePage) {
-            setState(InitFormState.Home);
-        }
-    };
+    // const handleBack = () => {
+    //     if (state === InitFormState.SelectInputOutput) {
+    //         setState(InitFormState.Create);
+    //     } else if (state === InitFormState.Create && enableHomePage) {
+    //         setState(InitFormState.Home);
+    //     }
+    // };
 
     const handleConnectionChange = () => {
         if (isNewConnection) {
@@ -308,7 +307,7 @@ export function HTTPWizard(props: WizardProps) {
     const handleOnSave = () => {
         // insert initialized connector logic
         let modifications: STModification[] = [];
-        if (!isNewConnectorInitWizard) {
+        if (!isNewConnectorInitWizard && isAction) {
             let actionInitializer: CheckAction;
 
             const updatedConnectorInit = updatePropertyStatement(
@@ -634,22 +633,22 @@ export function HTTPWizard(props: WizardProps) {
                 </div>
             </div>
             <>
-                {state === InitFormState.Home && (
+                {/* {state === InitFormState.Home && (
                     <SelectConnectionForm
                         onCreateNew={handleCreateNew}
                         connectorConfig={connectorConfig}
                         connector={connector}
                         onSelectExisting={handleSelectExisting}
                     />
-                )}
+                )} */}
                 {state === InitFormState.Create && (
                     <CreateConnectorForm
-                        homePageEnabled={enableHomePage}
+                        homePageEnabled={enableConnectorInitalizePage}
                         functionDefinitions={functionDefinitions}
                         onSaveNext={handleCreateConnectorOnSaveNext}
                         onSave={handleCreateConnectorOnSave}
                         connectorConfig={connectorConfig}
-                        onBackClick={handleBack}
+                        // onBackClick={handleBack}
                         connector={connector}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}
                     />
