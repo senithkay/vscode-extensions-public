@@ -194,9 +194,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
+      return cronMinuteValue + " " + cronHourValue + " * * *"
     } else if (scheduledComp === "Monthly") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
     } else if (scheduledComp === "Weekly") {
       return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
@@ -234,7 +234,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " * *"
+      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *"
     } else if (scheduledComp === "Monthly") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
     } else if (scheduledComp === "Weekly") {
