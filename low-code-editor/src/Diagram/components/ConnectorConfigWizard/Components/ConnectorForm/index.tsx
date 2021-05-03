@@ -368,109 +368,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
+        // const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
             dispatchMutations(sourceModifications);
-            onClose();
-        } else {
-            // insert initialized connector logic
-            const modifications: STModification[] = [];
-
-            if (!isNewConnectorInitWizard) {
-                const updateConnectorInit = updatePropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                    connectorConfig.initPosition
-                );
-                modifications.push(updateConnectorInit);
-
-                if (isActionReturnError) {
-                    const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
-                        model.position
-                    );
-                    modifications.push(updateActionInvocation);
-                } else {
-                    const updateActionInvocation: STModification = updateRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
-                        model.position
-                    );
-                    modifications.push(updateActionInvocation);
-                }
-            } else {
-                if (targetPosition) {
-                    // Add an import.
-                    const addImport: STModification = createImportStatement(
-                        connectorInfo.org,
-                        connectorInfo.module,
-                        targetPosition
-                    );
-                    modifications.push(addImport);
-
-                    // Add an connector client initialization.
-                    if (isNewConnection) {
-                        let addConnectorInit: STModification
-                        if (isOauthConnector && !isManualConnection) {
-                            addConnectorInit = createObjectDeclaration(
-                                (connectorInfo.module + ":" + connectorInfo.name),
-                                config.name,
-                                getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
-                                targetPosition
-                            );
-                        } else {
-                            addConnectorInit = createPropertyStatement(
-                                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                                targetPosition
-                            );
-                        }
-                        modifications.push(addConnectorInit);
-                    }
-
-                    // Add an action invocation on the initialized client.
-                    if (isActionReturnError) {
-                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            "var",
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
-                        );
-                        modifications.push(addActionInvocation);
-                    } else {
-                        const addActionInvocation: STModification = createRemoteServiceCall(
-                            "var",
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
-                        );
-                        modifications.push(addActionInvocation);
-                    }
-
-                    if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            config.responsePayloadMap.payloadVariableName,
-                            "var",
-                            config.action.returnVariableName,
-                            config.responsePayloadMap.payloadTypes.get(
-                                config.responsePayloadMap.selectedPayloadType),
-                            targetPosition
-                        );
-                        modifications.push(addPayload);
-                    }
-
-                }
-            }
-            dispatchMutations(modifications);
             onClose();
         }
     };
