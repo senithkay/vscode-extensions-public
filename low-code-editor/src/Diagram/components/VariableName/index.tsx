@@ -14,18 +14,32 @@
 import React from "react";
 
 import { CustomStatementIcon, LogIcon, PropertyIcon } from "../../../../src/assets/icons";
+import { DefaultConfig } from "../../visitors/default";
 
 import "./style.scss";
 
-export const VARIABLE_NAME_WIDTH = 125;
+export let VARIABLE_NAME_WIDTH = 150;
 
 export function VariableName(props: { x: number, y: number, variableName: string, processType: string, }) {
-    const {processType, variableName, ...xyProps } = props;
+    const { processType, variableName, ...xyProps } = props;
+    const ICON_SVG_WRAPPER_WIDTH = 30;
+    const textWidth = variableName.length * 8;
+    let textX = 0;
+
+    // tslint:disable-next-line: prefer-conditional-expression
+    if (variableName.length >= 15) {
+        textX = 0 + ICON_SVG_WRAPPER_WIDTH;
+    } else {
+        textX = (VARIABLE_NAME_WIDTH - textWidth);
+    }
+    const variableMaxWidth = variableName.length >= 15;
+
+    const iconX = variableMaxWidth ? 1 : VARIABLE_NAME_WIDTH - (textWidth + ICON_SVG_WRAPPER_WIDTH);
 
     return (
         <svg {...xyProps}>
             <defs>
-                <filter id="VariableName_Filter" x="0" y="0" width="33" height="33" filterUnits="userSpaceOnUse">
+                <filter id="VariableName_Filter" x="0" y="0" width="150" height="33" filterUnits="userSpaceOnUse">
                     <feOffset dy="1" in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="1.5" result="blur" />
                     <feFlood floodColor="#aaacb8" floodOpacity="0.302" />
@@ -33,19 +47,19 @@ export function VariableName(props: { x: number, y: number, variableName: string
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Variable_Name" transform="translate(-107 -300)">
-                <text id="getResponse" className="variable-name" transform="translate(136 316)">
-                    <tspan x="0" y="0">{variableName}</tspan>
+            <g id="Variable_Name">
+                <text id="getResponse" className="variable-name" >
+                    <tspan id="getResponseName" width="150" textAnchor={variableMaxWidth ? "start" : ""} x={textX} y="15">{variableMaxWidth ? variableName.slice(0, 14) + "..." : variableName}</tspan>
                 </text>
-                <g transform="matrix(1, 0, 0, 1, 103, 298)" filter="url(#VariableName_Filter)">
-                    <g id="Reactangle_wrapper" transform="translate(4.5 3)" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1">
-                        <rect width="24" height="24" rx="4" stroke="none" />
-                        <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" fill="none" />
+                <g filter="url(#VariableName_Filter)">
+                    <g id="Reactangle_wrapper" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1" >
+                        <rect width="24" x={iconX} height="24" rx="4" stroke="none" />
+                        <rect x={iconX} y="0.5" width="23" height="23" rx="3.5" fill="none" />
                     </g>
                 </g>
-                <g id="Variable_icon" transform="matrix(1, 0, 0, 1, 110.5, 304)">
-                    {(processType === "Variable" || processType === "Action") && <PropertyIcon height={16} width={16} x={1} y={1} />}
-                    {processType === "Custom" && <CustomStatementIcon height={16} width={15.251} x={1} y={1} />}
+                <g id="Variable_icon">
+                    {(processType === "Variable" || processType === "Action") && <PropertyIcon height={16} width={16} x={iconX + DefaultConfig.dotGap / 2} y={4} />}
+                    {processType === "Custom" && <CustomStatementIcon height={16} width={15.251} x={iconX + DefaultConfig.dotGap / 2} y={4} />}
                 </g>
             </g>
         </svg>

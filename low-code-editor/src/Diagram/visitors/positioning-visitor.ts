@@ -274,11 +274,11 @@ class PositioningVisitor implements Visitor {
                     } else if (plusForIndex?.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
                         statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         if (plusForIndex.isAPICallsExistingCollapsed) {
-                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                            statementViewState.bBox.cy  += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else {
-                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         }
                     }
                     if (statementViewState.collapsed) {
@@ -303,13 +303,13 @@ class PositioningVisitor implements Visitor {
                         // statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         // height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         if (plusForIndex.isAPICallsExistingCollapsed) {
-                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                             height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                            statementViewState.bBox.cy  += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                             height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else {
-                            statementViewState.bBox.cy  += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                             height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         }
                     }

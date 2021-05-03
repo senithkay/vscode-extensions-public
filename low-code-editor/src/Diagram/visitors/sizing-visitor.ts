@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
+    CaptureBindingPattern,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -40,6 +41,7 @@ import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/P
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
+import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
@@ -297,7 +299,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = 0;
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
                 ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
-                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
+                + DefaultConfig.forEach.emptyHorizontalGap + (DefaultConfig.dotGap * 2)
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
                 COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
@@ -305,7 +307,8 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
 
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
+                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2) + (DefaultConfig.dotGap * 2)
+                + (viewState.variableName.length > 0 ? VARIABLE_NAME_WIDTH : 0)
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
                 viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
@@ -525,6 +528,11 @@ class SizingVisitor implements Visitor {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                let variableName: string;
+                if (STKindChecker.isLocalVarDecl) {
+                    const varDeclatarion = node as LocalVarDecl
+                    variableName = ((varDeclatarion.typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+                }
                 viewState.bBox.h = viewState.dataProcess.h;
                 viewState.bBox.w = viewState.dataProcess.w;
             }

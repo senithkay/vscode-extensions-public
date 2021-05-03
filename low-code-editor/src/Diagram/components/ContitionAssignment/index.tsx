@@ -17,12 +17,16 @@ import classNames from "classnames";
 
 import "./style.scss"
 
-export const ASSIGNMENT_NAME_WIDTH = 105;
+export let CONDITION_ASSIGNMENT_NAME_WIDTH = 125;
 
-export function Assignment(props: { x: number, y: number, assignment: string, className?: string}) {
+export function ContitionAssignment(props: { x: number, y: number, assignment: string, className?: string }) {
     const { assignment, className, ...xyProps } = props;
 
     const assignmentMaxWidth = assignment.length >= 15;
+    const assignmentWidth = assignment.length * 8
+    let assignmentX = 0;
+
+    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? CONDITION_ASSIGNMENT_NAME_WIDTH + (assignmentWidth / 4) : assignmentX = CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth;
 
     return (
         <svg {...xyProps}>
@@ -31,7 +35,7 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
                 id="Assignment_text"
                 transform="translate(0 11)"
             >
-                <tspan x="0" y="0">{assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment}</tspan>
+                <tspan x={assignmentX} y="0"> {assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment} </tspan>
             </text>
         </svg>
     );

@@ -23,9 +23,10 @@ import { getConditionConfig } from "../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
 import { BlockViewState, ElseViewState, IfViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
-import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
+import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
+import { ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -39,7 +40,6 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
 import { PlusButton } from "../Plus";
-import { PROCESS_SVG_WIDTH } from "../Processor/ProcessSVG";
 
 import { Else } from "./Else";
 import {
@@ -141,6 +141,8 @@ export function IfElse(props: IfElseProps) {
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
 
+    const assignmentTextWidth = assignmentText.length * 8 + DefaultConfig.dotGap;
+
     if (model === null) {
         viewState = blockViewState.draft[1] as DraftStatementViewState;
         conditionType = viewState.subType;
@@ -159,8 +161,8 @@ export function IfElse(props: IfElseProps) {
                     conditionType={conditionType}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
-                <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y} assignment={assignmentText} className="condition-assignment" />
-
+                {/* <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y} assignment={assignmentText} className="condition-assignment" /> */}
+                <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)} assignment={assignmentText} className="condition-assignment" />
                 <>
                     {
                         (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
@@ -202,7 +204,7 @@ export function IfElse(props: IfElseProps) {
                                     <>
                                         <rect
                                             x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 3)}
-                                            y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 4)}
+                                            y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3) - DefaultConfig.dotGap / 2}
                                             className="condition-rect"
                                         />
                                         <DeleteBtn
@@ -313,7 +315,9 @@ export function IfElse(props: IfElseProps) {
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                         />
-                        <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 2} assignment={assignmentText} className="condition-assignment" />
+                        {/* <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 2} assignment={assignmentText} className="condition-assignment" /> */}
+                        {/* <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + CONDITION_ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment" /> */}
+                        <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)} assignment={assignmentText} className="condition-assignment" />
                         <>
                             {
                                 (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
@@ -325,7 +329,7 @@ export function IfElse(props: IfElseProps) {
                                 >
                                     <rect
                                         x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 4)}
-                                        y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3)}
+                                        y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3) - DefaultConfig.dotGap / 2}
                                         className="condition-rect"
                                     />
                                     {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&

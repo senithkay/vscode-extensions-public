@@ -53,8 +53,8 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const actionLineStartX = x + (PROCESS_SVG_WIDTH / 2) + DefaultConfig.actionArrowPadding;
     const actionLineEndX = lifeLineCX;
     const actionLineWidth = actionLineEndX - actionLineStartX;
-    const actionRightLineY = y + (PROCESS_SVG_HEIGHT / 2) - DefaultConfig.actionArrowGap;
-    const actionLeftLineY = y + (PROCESS_SVG_HEIGHT / 2) + DefaultConfig.actionArrowGap;
+    const actionRightLineY = y + (PROCESS_SVG_HEIGHT / 2) - DefaultConfig.actionArrowGap / 2;
+    const actionLeftLineY = y + (PROCESS_SVG_HEIGHT / 2) + DefaultConfig.actionArrowGap / 2;
     const triggerSVGX = lifeLineCX;
     const triggerSVGY = viewState.bBox.cy;
 
