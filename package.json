@@ -1,0 +1,347 @@
+{
+    "name": "ballerina",
+    "displayName": "Ballerina",
+    "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
+    "version": "2.0.0-beta1-rc1-SNAPSHOT",
+    "publisher": "ballerina",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ballerina-platform/plugin-vscode"
+    },
+    "icon": "resources/images/ballerina.png",
+    "galleryBanner": {
+        "color": "#e7eaeb",
+        "theme": "light"
+    },
+    "engines": {
+        "vscode": "^1.30.2"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers",
+        "Formatters",
+        "Snippets"
+    ],
+    "activationEvents": [
+        "onLanguage:ballerina",
+        "onCommand:ballerina.showExamples",
+        "workspaceContains:Ballerina.toml",
+        "onView:ballerinaPackageTreeView"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "ballerina",
+                "aliases": [
+                    "Ballerina",
+                    "ballerina"
+                ],
+                "extensions": [
+                    ".bal"
+                ],
+                "configuration": "./grammar/ballerina.configuration.json"
+            },
+            {
+                "id": "toml",
+                "aliases": [
+                    "Toml",
+                    "toml"
+                ],
+                "extensions": [
+                    ".toml"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ballerina",
+                "scopeName": "source.ballerina",
+                "path": "./grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Ballerina",
+            "properties": {
+                "ballerina.plugin.dev.mod": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable plugin development mode."
+                },
+                "ballerina.home": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Specify the Ballerina home directory path."
+                },
+                "ballerina.debugLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable printing debug messages on to the Ballerina output channel."
+                },
+                "ballerina.traceLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable printing trace messages on to the Ballerina output channel."
+                },
+                "ballerina.codeLens.all.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable all code lens features."
+                },
+                "ballerina.codeLens.docs.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable documentation code lens feature."
+                },
+                "ballerina.codeLens.executor.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable executor code lens feature."
+                },
+                "ballerina.dataMapper.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable data mapper code actions."
+                },
+                "ballerina.dataMapper.url": {
+                    "type": "string",
+                    "default": "https://datamapper.choreo.dev",
+                    "description": "Specify the URL of the data mapper backend host."
+                },
+                "ballerina.enableFileWatcher": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable watching file change events of the project."
+                },
+                "ballerina.enableTelemetry": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Enable Ballerina telemetry."
+                }
+            }
+        },
+        "configurationDefaults": {
+            "[ballerina]": {
+                "editor.wordBasedSuggestions": false,
+                "editor.suggest.snippetsPreventQuickSuggestions": false
+            },
+            "[toml]": {
+                "editor.wordBasedSuggestions": false
+            }
+        },
+        "breakpoints": [
+            {
+                "language": "ballerina"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "ballerina",
+                "label": "Ballerina Debug",
+                "program": "/usr/local/Cellar/ballerina/0.991.0/libexec/lib/tools/debug-adapter/launcher/debug-adapter-launcher.sh",
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [],
+                        "properties": {
+                            "script": {
+                                "type": "string",
+                                "default": "${file}",
+                                "description": "Path of the script that need to be executed (e.g. ${workspaceRoot}/main.bal)"
+                            },
+                            "programArgs": [],
+                            "commandOptions": [],
+                            "env": {},
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in milliseconds"
+                            },
+                            "debugTests": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Indicates whether to debug the tests for the given script."
+                            },
+                            "networkLogs": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Indicates whether to capture network logs."
+                            }
+                        }
+                    },
+                    "attach": {
+                        "required": [
+                            "debuggeePort",
+                            "debuggeeHost"
+                        ],
+                        "properties": {
+                            "debuggeeHost": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
+                            "debuggeePort": {
+                                "type": "string",
+                                "description": "Remote debug server port",
+                                "default": "5005"
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "name": "Ballerina Debug",
+                        "type": "ballerina",
+                        "request": "launch",
+                        "programArgs": [],
+                        "commandOptions": [],
+                        "env": {}
+                    },
+                    {
+                        "name": "Ballerina Test",
+                        "type": "ballerina",
+                        "request": "launch",
+                        "debugTests": true,
+                        "programArgs": [],
+                        "commandOptions": [],
+                        "env": {}
+                    },
+                    {
+                        "name": "Ballerina Remote",
+                        "type": "ballerina",
+                        "request": "attach",
+                        "debuggeeHost": "127.0.0.1",
+                        "debuggeePort": "5005"
+                    }
+                ]
+            }
+        ],
+        "commands": [
+            {
+                "command": "ballerina.showExamples",
+                "title": "Show Examples",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.test",
+                "title": "Test",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.build",
+                "title": "Build",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.run",
+                "title": "Run",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.create.cloud",
+                "title": "Create Cloud.toml",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.doc",
+                "title": "Document",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.add",
+                "title": "Add Module",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.refreshPackageTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
+            }
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "ballerinaPackageTreeView",
+                    "name": "Ballerina Package Overview"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "ballerina.refreshPackageTree",
+                    "when": "view == ballerinaPackageTreeView",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "main": "./dist/extension",
+    "scripts": {
+        "vscode:prepublish": "webpack --mode production",
+        "compile": "webpack --mode none",
+        "watch": "webpack --mode none --watch --info-verbosity verbose",
+        "update-version": "node ./scripts/update-version.js",
+        "test-compile": "tsc -p ./",
+        "test": "npm run test-compile && node ./out/test/runTest.js",
+        "test-coverage": "cross-env COVER_CONFIG=html npm run test",
+        "package": "vsce package",
+        "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
+        "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
+    },
+    "dependencies": {
+        "@types/js-base64": "^2.3.1",
+        "@types/vscode": "^1.54.0",
+        "cross-env": "^5.2.0",
+        "dom-parser": "^0.1.6",
+        "file-uri-to-path": "^2.0.0",
+        "glob": "^7.1.3",
+        "js-base64": "^2.5.1",
+        "lodash": "^4.17.21",
+        "mousetrap": "^1.6.3",
+        "portfinder": "^1.0.21",
+        "promise.any": "^2.0.1",
+        "vscode-debugadapter": "^1.34.0",
+        "vscode-debugprotocol": "^1.34.0",
+        "vscode-extension-telemetry": "^0.1.2",
+        "vscode-languageclient": "5.1.1",
+        "vscode-languageserver-types": "^3.14.0",
+        "vscode-test": "^1.5.1",
+        "ws": "^6.2.1"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.1.6",
+        "@types/dom-parser": "^0.1.0",
+        "@types/glob": "^7.1.1",
+        "@types/lodash": "^4.14.123",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.45",
+        "@types/tcp-port-used": "^1.0.0",
+        "@types/ws": "^6.0.0",
+        "chai": "^4.2.0",
+        "cross-env": "^5.2.0",
+        "decache": "^4.5.1",
+        "glob": "^7.1.3",
+        "istanbul": "^0.4.5",
+        "js-yaml": "^3.13.1",
+        "kill-port-process": "2.3.0",
+        "mocha": "^5.2.0",
+        "remap-istanbul": "^0.13.0",
+        "rimraf": "^3.0.2",
+        "tcp-port-used": "^1.0.2",
+        "ts-loader": "^6.0.2",
+        "ts-node": "^8.0.3",
+        "tslint": "^5.14.0",
+        "typescript": "^3.3.4000",
+        "unzipper": "^0.10.11",
+        "vsce": "^1.59.0",
+        "vscode-debugadapter-testsupport": "^1.43.0",
+        "webpack": "^4.46.0",
+        "webpack-cli": "^3.3.3"
+    },
+    "extensionPack": [
+        "be5invis.toml"
+    ]
+}

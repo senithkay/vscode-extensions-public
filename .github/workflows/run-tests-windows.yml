@@ -1,0 +1,38 @@
+# Test build against released Ballerina distribution on Windows
+name: Run tests on Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      bal_dist_version:
+        description: Version of Ballerina distribution
+        required: true
+        default: swan-lake-preview5
+    branches: [master]
+
+jobs:
+  build:
+    name: Run plugin tests on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install java 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+      - run: mkdir extractedDistribution
+      - name: Download Ballerina distribution
+        run: Invoke-WebRequest -Uri http://dist-dev.ballerina.io/downloads/${{ github.event.inputs.bal_dist_version }}/ballerina-${{ github.event.inputs.bal_dist_version }}.zip -OutFile extractedDistribution\ballerina-${{ github.event.inputs.bal_dist_version }}.zip
+      - name: Unzip Ballerina distribution
+        run: Expand-Archive -LiteralPath extractedDistribution\ballerina-${{ github.event.inputs.bal_dist_version }}.zip -DestinationPath extractedDistribution\
+      - run: rm extractedDistribution\ballerina-${{ github.event.inputs.bal_dist_version }}.zip
+      - run: npm ci -f
+      - name: Build repository with tests
+        uses: GabrielBB/xvfb-action@v1.0
+        with:
+          run: ./gradlew clean build
