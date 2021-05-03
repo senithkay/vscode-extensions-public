@@ -190,15 +190,15 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const cronForSelectedType = () => {
     if (scheduledComp === "Minute") {
-      return "Minute: " + minuteGenCron + " * * * *"
+      return minuteGenCron + " * * * *"
     } else if (scheduledComp === "Hourly") {
-      return "Hourly: 0 " + hourGenCron + " * * *"
+      return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return "Daily: " + cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
     } else if (scheduledComp === "Monthly") {
-      return "Monthly: " + cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
     } else if (scheduledComp === "Weekly") {
-      return "Weekly: " + cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
     }
@@ -232,7 +232,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     if (scheduledComp === "Minute") {
       return minuteGenCron + " * * * *"
     } else if (scheduledComp === "Hourly") {
-      return hourGenCron + " * * *"
+      return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
       return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " * *"
     } else if (scheduledComp === "Monthly") {
@@ -267,7 +267,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
       "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
-      "SYNTAX_TREE": originalSyntaxTree
+      "SYNTAX_TREE": originalSyntaxTree,
+      "SCHEDULE_TYPE": scheduledComp
     });
     trackTriggerSelection("Schedule");
   };
