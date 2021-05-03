@@ -17,13 +17,12 @@
  */
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient } from 'src/core';
 import {
-    Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
+    Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, PROJECT_KIND } from './model';
-import { dirname, join, parse } from 'path';
-import { existsSync, readdirSync } from 'fs';
-import { homedir } from 'os';
+import { join, sep } from 'path';
 import fileUriToPath = require('file-uri-to-path');
+import { PROJECT_TYPE } from '../project/cli-cmds/cmd-runner';
 
 const BAL_TOML = "Ballerina.toml";
 const BALLERINA = "ballerina";
@@ -40,13 +39,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.ballerinaExtension = ballerinaExtension;
         this.langClient = ballerinaExtension.langClient;
         this.extensionPath = ballerinaExtension.extension.extensionPath;
-        window.onDidChangeActiveTextEditor(activatedTextEditor => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === BALLERINA) {
-                this.refresh();
-            }
-        });
         workspace.onDidOpenTextDocument(document => {
-            if (document.languageId === BALLERINA) {
+            if (document.languageId === BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 this.refresh();
             }
         });
@@ -94,19 +88,34 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
      */
     public getPackageStructure(): Promise<PackageTreeItem[]> {
         return new Promise<PackageTreeItem[]>((resolve) => {
-            this.getPackageList().then(documentIdentifiers => {
-                if (documentIdentifiers.length > 0) {
-                    this.ballerinaExtension.onReady().then(() => {
+            if (!window.activeTextEditor) {
+                resolve([]);
+            }
+            const activeDocument = window.activeTextEditor!.document;
+            this.ballerinaExtension.onReady().then(() => {
+                this.langClient!.getBallerinaProject({
+                    documentIdentifier: {
+                        uri: activeDocument.uri.toString()
+                    }
+                }).then(project => {
+                    const uri: string = activeDocument.fileName.endsWith(BAL_TOML) ? activeDocument.uri.toString(true).replace(BAL_TOML, '') :
+                        activeDocument.uri.toString(true);
+                    const documentIdentifiers: DocumentIdentifier[] = [{ uri }];
+                    if (project.kind === PROJECT_TYPE.BUILD_PROJECT || project.kind === PROJECT_TYPE.SINGLE_FILE) {
                         this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
                             if (response.packages) {
                                 const projectItems: PackageTreeItem[] = this.createPackageData(response.packages);
                                 resolve(projectItems);
+                            } else {
+                                resolve([]);
                             }
                         });
-                    });
-                } else {
-                    resolve([]);
-                }
+                    } else {
+                        resolve([]);
+                    }
+                });
+            }).catch(() => {
+                resolve([]);
             });
         });
     }
@@ -167,9 +176,11 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             return package1.name.localeCompare(package2.name!);
         });
         packages.forEach(projectPackage => {
+            projectPackage.name = projectPackage.name === '.' ? window.activeTextEditor!.document.fileName
+                .replace('.bal', '').split(sep).pop()!.toString() : projectPackage.name;
             if (projectPackage.name) {
                 packageItems.push(new PackageTreeItem(projectPackage.name, '',
-                    TreeItemCollapsibleState.Collapsed, PROJECT_KIND.PACKAGE, fileUriToPath(projectPackage.filePath),
+                    TreeItemCollapsibleState.Expanded, PROJECT_KIND.PACKAGE, fileUriToPath(projectPackage.filePath),
                     this.extensionPath, true, null, { modules: projectPackage.modules }));
             }
         });
@@ -232,68 +243,5 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
         }
         return resources;
-    }
-
-    /**
-     * List packages in the workspace.
-     * @returns A list of all the package identifiers
-     */
-    private getPackageList(): Promise<DocumentIdentifier[]> {
-        return new Promise<DocumentIdentifier[]>(async (resolve) => {
-            const openFolders = workspace.workspaceFolders;
-            let documentIdentifiers: DocumentIdentifier[] = [];
-            if (openFolders) {
-                openFolders.filter((openFolder) => {
-                    return existsSync(join(openFolder.uri.fsPath, BAL_TOML));
-                }).map((root) => {
-                    documentIdentifiers.push({
-                        uri: root.uri.toString(true)
-                    });
-                });
-            }
-
-            if (documentIdentifiers.length === 0 && openFolders && openFolders.length > 0) {
-                const rootPath = openFolders[0].uri;
-                readdirSync(rootPath.path).filter((openFolder) => {
-                    return existsSync(join(rootPath.path, openFolder, BAL_TOML));
-                }).map(file => {
-                    documentIdentifiers.push({
-                        uri: Uri.file(join(rootPath.path, file)).toString()
-                    });
-                });
-            }
-
-            if (documentIdentifiers.length === 0) {
-                const activeEditor = window.activeTextEditor;
-                if ((activeEditor && activeEditor.document && activeEditor.document.languageId === BALLERINA)) {
-                    const activePath = activeEditor.document.uri.path;
-                    const activeSourceRoot = this.getSourceRoot(activePath, parse(activePath).root);
-
-                    if (activeSourceRoot) {
-                        readdirSync(parse(activeSourceRoot).dir).filter((openFolder) => {
-                            return existsSync(join(parse(activeSourceRoot).dir, openFolder, BAL_TOML));
-                        }).map(file => {
-                            documentIdentifiers.push({
-                                uri: Uri.file(join(parse(activeSourceRoot).dir, file)).toString()
-                            });
-                        });
-                    }
-                }
-            }
-
-            resolve(documentIdentifiers);
-        });
-    }
-
-    private getSourceRoot(currentPath: string, root: string): string | undefined {
-        if (existsSync(join(currentPath, BAL_TOML))) {
-            if (currentPath !== homedir()) {
-                return currentPath;
-            }
-        }
-        if (currentPath === root) {
-            return;
-        }
-        return this.getSourceRoot(dirname(currentPath), root);
     }
 }
