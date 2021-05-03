@@ -6,7 +6,7 @@ import {
     sendTelemetryException
 } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-import { PROJECT_TYPE } from "./cmd-runner";
+import { PALETTE_COMMANDS, PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
 
 const CLOUD_CONFIG_FILE_NAME = "/Cloud.toml";
@@ -59,7 +59,7 @@ const CLOUD_TOML_DEFAULT_CONTENT = `# This file contains most used configeration
 
 export function activateCloudCommand() {
     // register create Cloud.toml command handler
-    commands.registerCommand('ballerina.create.cloud', async () => {
+    commands.registerCommand(PALETTE_COMMANDS.CLOUD, async () => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_CLOUD, CMP_PROJECT_CLOUD);
 

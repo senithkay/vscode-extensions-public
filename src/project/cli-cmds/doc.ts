@@ -4,14 +4,14 @@ import {
     TM_EVENT_PROJECT_DOC, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC, sendTelemetryEvent,
     sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 
-export enum DOC_OPTIONS { DOC_ALL = "build-all", DOC_MODULE = "build-module" }
+enum DOC_OPTIONS { DOC_ALL = "build-all", DOC_MODULE = "build-module" }
 
 function activateDocCommand() {
     // register ballerina doc handler
-    commands.registerCommand('ballerina.project.doc', async () => {
+    commands.registerCommand(PALETTE_COMMANDS.DOC, async () => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_DOC, CMP_PROJECT_DOC);
 
@@ -23,7 +23,7 @@ function activateDocCommand() {
                     window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                     return;
                 }
-                runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.DOC, currentProject.path!);
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.DOC, currentProject.path!);
 
             } else if (ballerinaExtInstance.is12x) {
                 if (currentProject.path) {
@@ -46,11 +46,11 @@ function activateDocCommand() {
                         do {
                             moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
                         } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                        runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.BUILD,
+                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
                             moduleName);
                     }
                     if (userSelection!.id === DOC_OPTIONS.DOC_ALL) {
-                        runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.BUILD,
+                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
                             COMMAND_OPTIONS.ALL);
                     }
 

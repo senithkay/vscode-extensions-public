@@ -34,7 +34,7 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { BALLERINA_HOME, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
+import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
     createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
@@ -47,6 +47,10 @@ const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 const PREV_REGEX = /1\.2\.[0-9]+/g;
 
 export const EXTENSION_ID = 'ballerina.ballerina';
+export enum LANGUAGE {
+    BALLERINA = 'ballerina',
+    TOML = 'toml'
+}
 
 export interface ConstructIdentifier {
     filePath: string;
@@ -60,7 +64,7 @@ export interface ConstructIdentifier {
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
-    public ballerinaCmd: string;
+    private ballerinaCmd: string;
     public ballerinaVersion: string;
     public isSwanLake: boolean;
     public is12x: boolean;
@@ -89,8 +93,8 @@ export class BallerinaExtension {
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
-            documentSelector: [{ scheme: 'file', language: 'ballerina' }, { scheme: 'file', language: 'toml' }],
-            synchronize: { configurationSection: 'ballerina' },
+            documentSelector: [{ scheme: 'file', language: LANGUAGE.BALLERINA }, { scheme: 'file', language: LANGUAGE.TOML }],
+            synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
@@ -399,6 +403,16 @@ export class BallerinaExtension {
     }
 
     /**
+    * Get ballerina executor command.
+    *
+    * @returns {string}
+    * @memberof BallerinaExtension
+    */
+    getBallerinaCmd(): string {
+        return this.ballerinaCmd;
+    }
+
+    /**
      * Get ballerina home path configured in preferences.
      *
      * @returns {string}
@@ -478,6 +492,14 @@ export class BallerinaExtension {
 
     public isTelemetryEnabled(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_TELEMETRY);
+    }
+
+    public isAllCodeLensEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_ALL_CODELENS);
+    }
+
+    public isExecutorCodeLensEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
     }
 
     public packageTreeElementClicked(construct: ConstructIdentifier): void {

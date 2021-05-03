@@ -22,12 +22,12 @@ import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_ADD, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 
 function activateAddCommand() {
     // register ballerina add handler
-    commands.registerCommand('ballerina.project.add', async () => {
+    commands.registerCommand(PALETTE_COMMANDS.ADD, async () => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_ADD, CMP_PROJECT_ADD);
 
@@ -45,7 +45,7 @@ function activateAddCommand() {
                 do {
                     moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
                 } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.ADD, moduleName);
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.ADD, moduleName);
             } else {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, MESSAGES.NOT_SUPPORT);
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);

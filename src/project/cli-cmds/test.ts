@@ -4,25 +4,25 @@ import {
     TM_EVENT_PROJECT_TEST, TM_EVENT_ERROR_EXECUTE_PROJECT_TEST, CMP_PROJECT_TEST, sendTelemetryEvent,
     sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 
-export enum TEST_OPTIONS { TEST_ALL = "test-all", TEST_MODULE = "test-module" }
+enum TEST_OPTIONS { TEST_ALL = "test-all", TEST_MODULE = "test-module" }
 
 export function activateTestRunner() {
     // register run project tests handler
-    commands.registerCommand('ballerina.project.test', async () => {
+    commands.registerCommand(PALETTE_COMMANDS.TEST, async (...args: any[]) => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_TEST, CMP_PROJECT_TEST);
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {
                 if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
-                    runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.TEST,
-                        currentProject.path!);
+                    runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
+                        ...args, currentProject.path!);
                 } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.TEST,
-                        getCurrentBallerinaFile());
+                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
+                        ...args, getCurrentBallerinaFile());
                 }
 
             } else if (ballerinaExtInstance.is12x) {
@@ -46,16 +46,16 @@ export function activateTestRunner() {
                         do {
                             moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
                         } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                        runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.TEST,
+                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
                             moduleName);
                     }
                     if (userSelection!.id === TEST_OPTIONS.TEST_ALL) {
-                        runCommand(currentProject, ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.TEST,
+                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
                             COMMAND_OPTIONS.ALL);
                     }
 
                 } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.ballerinaCmd, BALLERINA_COMMANDS.TEST,
+                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
                         getCurrentBallerinaFile());
                 }
 
