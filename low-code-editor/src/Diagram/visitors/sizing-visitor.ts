@@ -545,7 +545,7 @@ class SizingVisitor implements Visitor {
                 const endpoint: Endpoint = allEndpoints.get(viewState.endpoint.epName);
                 const visibleEndpoint: any = endpoint.visibleEndpoint;
                 const mainEp = endpointViewState;
-                mainEp.isUsed = false;
+                mainEp.isUsed = endpoint.firstAction !== undefined;
                 visibleEndpoint.viewState = mainEp;
             }
         } else {

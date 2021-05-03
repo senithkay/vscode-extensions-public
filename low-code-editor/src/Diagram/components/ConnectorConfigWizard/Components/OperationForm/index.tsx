@@ -17,7 +17,7 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
-import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
@@ -29,31 +29,47 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
+import { OperationDropdown } from '../OperationDropdown';
 
 export interface OperationFormProps {
+    operations: string[];
     selectedOperation: string;
     showConnectionName: boolean;
-    formFields: FormField[];
     onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
     isNewConnectorInitWizard?: boolean;
+    functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
 
 export function OperationForm(props: OperationFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress, isNewConnectorInitWizard } = props;
+    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
+            onOperationChange, mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
 
+    const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
+    const frmFields: FormField[] = connectionDetails?.action?.fields;
+    const [formFields, setFormFields] = useState(frmFields);
     const handleOnSave = () => {
+        const config = connectionDetails;
         onSave();
     };
+
+    const handleOperationChange = (operation: string) => {
+        setSelectedOperationState(operation);
+        if (operation) {
+            const derivedFormFields = functionDefInfo.get(operation).parameters;
+            connectionDetails.action.name = operation;
+            connectionDetails.action.fields = derivedFormFields;
+            setFormFields(derivedFormFields);
+        }
+    }
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
@@ -70,7 +86,7 @@ export function OperationForm(props: OperationFormProps) {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, state);
-            if (varValidationResponse?.error){
+            if (varValidationResponse?.error) {
                 setResponseVarError(varValidationResponse.message);
                 return false;
             }
@@ -93,81 +109,68 @@ export function OperationForm(props: OperationFormProps) {
 
     let isSaveButtonDisabled = showConnectionName ? (!validForm || mutationInProgress || !validName) :
         !validForm || mutationInProgress;
-    if ((formFields.length === 0) && validName && !mutationInProgress) {
+    if (formFields && (formFields.length === 0) && validName && !mutationInProgress) {
         isSaveButtonDisabled = false;
     }
 
     return (
         <div>
-            <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
-                <div className={classes.fullWidth}>
-                    {showConnectionName ? (
-                        <>
-                            <p className={wizardClasses.subTitle}>Connection</p>
-                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
-                                <Typography variant="subtitle2">
-                                    {connectionDetails.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={{
-                                        root: wizardClasses.changeConnectionBtn
-                                    }}
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                    ) : null
-                    }
-                    <>
-                        <p className={wizardClasses.subTitle}>Operation</p>
-                        <Box border={1} borderRadius={5} className={wizardClasses.box}>
-                            <Typography variant="subtitle2">
-                                {selectedOperation}
-                            </Typography>
-                            <IconButton
-                                color="primary"
-                                classes={{
-                                    root: wizardClasses.changeConnectionBtn
-                                }}
-                                onClick={onOperationChange}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        </Box>
-                    </>
-                    <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <Form fields={formFields} onValidate={validateForm} />
-                        ) : null
-                        }
-                    </div>
+            {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
+            {(selectedOperationState && (
+                <div>
+                    <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
+                        <div className={classes.fullWidth}>
+                            <>
+                                <p className={wizardClasses.subTitle}>Operation</p>
+                                <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                    <Typography variant="subtitle2">
+                                        {selectedOperationState}
+                                    </Typography>
+                                    <IconButton
+                                        color="primary"
+                                        classes={{
+                                            root: wizardClasses.changeConnectionBtn
+                                        }}
+                                        onClick={onOperationChange}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            </>
+                            <div className={wizardClasses.formWrapper}>
+                                {formFields && formFields.length > 0 ? (
+                                    <Form fields={formFields} onValidate={validateForm} />
+                                ) : null
+                                }
+                            </div>
 
-                    <FormTextInput
-                        customProps={{
-                            validate: validateNameValue,
-                            tooltipTitle: tooltipMessages.responseVariableName,
-                            disabled: responseVariableHasReferences
-                        }}
-                        defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
-                        onChange={onNameChange}
-                        label={"Response Variable Name"}
-                        errorMessage={responseVarError}
-                    />
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    tooltipTitle: tooltipMessages.responseVariableName,
+                                    disabled: responseVariableHasReferences
+                                }}
+                                defaultValue={defaultResponseVarName}
+                                placeholder={"Enter Response Variable Name"}
+                                onChange={onNameChange}
+                                label={"Response Variable Name"}
+                                errorMessage={responseVarError}
+                            />
+                        </div>
+                    </div>
+                    <div className={classes.wizardBtnHolder}>
+                        <PrimaryButton
+                            className={wizardClasses.buttonSm}
+                            text="Save"
+                            fullWidth={false}
+                            disabled={isSaveButtonDisabled}
+                            onClick={handleOnSave}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className={classes.wizardBtnHolder}>
-                <PrimaryButton
-                    className={wizardClasses.buttonSm}
-                    text="Save"
-                    fullWidth={false}
-                    disabled={isSaveButtonDisabled}
-                    onClick={handleOnSave}
-                />
-            </div>
+            )
+            )
+            }
         </div>
     );
 }

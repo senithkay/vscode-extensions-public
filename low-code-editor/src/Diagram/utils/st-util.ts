@@ -234,24 +234,18 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         mainEp.collapsed = value.firstAction?.collapsed;
 
         if (index === 0) {
-            if (mainEp.isUsed) {
-                if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                    mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                    const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                    if (diff < DefaultConfig.epGap) {
-                        mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                    }
+            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
+                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
+                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
+                if (diff < DefaultConfig.epGap) {
+                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
                 }
-                prevX = mainEp.lifeLine.cx;
-            } else {
-                prevX = containerRightMostConerCX;
             }
+            prevX = mainEp.lifeLine.cx;
         } else {
-            if (mainEp.isUsed) {
-                mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                prevX = mainEp.lifeLine.cx;
-            }
+            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            prevX = mainEp.lifeLine.cx;
         }
 
         updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
@@ -271,7 +265,7 @@ export function getMaXWidthOfConnectors(allEndpoints: Map<string, Endpoint>): nu
         const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
-        if (mainEp.isUsed && (prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
+        if ((prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
             prevCX = mainEp.lifeLine.cx + (mainEp.bBox.w / 2);
         }
     });

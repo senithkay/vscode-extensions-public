@@ -143,17 +143,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
                     <div className={classes.saveBtnHolder}>
-                        <SecondaryButton
+                        <PrimaryButton
                             text="Save"
                             fullWidth={false}
                             disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                             onClick={handleOnSave}
-                        />
-                        <PrimaryButton
-                            text="Save &amp; Next"
-                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                            fullWidth={false}
-                            onClick={handleOnSaveNext}
                         />
                     </div>
                 </div>

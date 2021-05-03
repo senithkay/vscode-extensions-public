@@ -232,21 +232,6 @@ export function HTTPWizard(props: WizardProps) {
         }
     }, [isNewConnectorInitWizard, selectedConnector])
 
-    // const handleCreateNew = () => {
-    //     connectorConfig.name = undefined;
-    //     setIsNewConnection(true);
-    //     setState(InitFormState.Create);
-    // };
-
-    // const handleSelectExisting = () => {
-    //     setIsNewConnection(false);
-    //     if (enableHomePage) {
-    //         setState(InitFormState.OperationDropdown);
-    //     } else {
-    //         setState(InitFormState.Create);
-    //     }
-    // };
-
     const handleCreateConnectorOnSaveNext = () => {
         setState(isNewConnectorInitWizard ? InitFormState.OperationDropdown : InitFormState.SelectInputOutput);
     };
@@ -255,14 +240,6 @@ export function HTTPWizard(props: WizardProps) {
         setSelectedOperation(operation);
         setState(InitFormState.SelectInputOutput);
     };
-
-    // const handleBack = () => {
-    //     if (state === InitFormState.SelectInputOutput) {
-    //         setState(InitFormState.Create);
-    //     } else if (state === InitFormState.Create && enableHomePage) {
-    //         setState(InitFormState.Home);
-    //     }
-    // };
 
     const handleConnectionChange = () => {
         if (isNewConnection) {

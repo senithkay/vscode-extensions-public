@@ -27,11 +27,10 @@ export interface OperationDropdownProps {
     showConnectionName: boolean;
     connectionDetails: ConnectorConfig;
     onOperationSelect: (operation: string) => void;
-    onConnectionChange: () => void;
 }
 
 export function OperationDropdown(props: OperationDropdownProps) {
-    const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
+    const { operations, showConnectionName, onOperationSelect, connectionDetails } = props;
     const classes = wizardStyles();
 
     const handleSelect = (event: object, value: any, reason: string) => {
@@ -42,34 +41,6 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName && (
-                        <>
-                            <div className={classes.connectionNameWrapper}>
-                                <p className={classes.subTitle}>Connection</p>
-                                <div>
-                                    <TooltipIcon
-                                        title="Name of the connection"
-                                        placement={"left"}
-                                        arrow={true}
-                                    />
-                                </div>
-                            </div>
-                            <Box border={1} borderRadius={5} className={classes.box}>
-                                <Typography variant="subtitle2">
-                                    {connectionDetails.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={{
-                                        root: classes.changeConnectionBtn
-                                    }}
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                    )}
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
                         placeholder="Search Operation"
