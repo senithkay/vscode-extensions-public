@@ -28,47 +28,15 @@ import {
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
 
-// const DEBOUNCE_WAIT = 500;
-
 let diagramViewPanel: WebviewPanel | undefined;
-// let activeEditor: TextEditor | undefined;
-// let preventDiagramUpdate = false;
-// let rpcHandler: WebViewRPCHandler;
-
-// function updateWebView(docUri: Uri): void {
-// 	if (rpcHandler) {
-// 		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => { });
-// 	}
-// }
 
 export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstance: BallerinaExtension, startLine: number,
-	startColumn: number, endLine: number, endColumn: number, kind: string, name: string, filePath: string = ''): void {
-	// const didChangeDisposable = workspace.onDidChangeTextDocument(
-	// 	_.debounce((e: TextDocumentChangeEvent) => {
-	// 		if (activeEditor && (e.document === activeEditor.document) &&
-	// 			e.document.fileName.endsWith('.bal')) {
-	// 			if (preventDiagramUpdate) {
-	// 				return;
-	// 			}
-	// 			updateWebView(e.document.uri);
-	// 		}
-	// 	}, DEBOUNCE_WAIT));
-
-	// const changeActiveEditorDisposable = window.onDidChangeActiveTextEditor(
-	// 	(activatedEditor: TextEditor | undefined) => {
-	// 		if (window.activeTextEditor && activatedEditor
-	// 			&& (activatedEditor.document === window.activeTextEditor.document)
-	// 			&& activatedEditor.document.fileName.endsWith('.bal')) {
-	// 			activeEditor = window.activeTextEditor;
-	// 			updateWebView(activatedEditor.document.uri);
-	// 		}
-	// 	});
+	startColumn: number, kind: string, name: string, filePath: string = ''): void {
 
 	if (diagramViewPanel) {
 		diagramViewPanel.dispose();
-		// diagramViewPanel.reveal(ViewColumn.Two, true);
-		// return;
 	}
+
 	// Create and show a new webview
 	diagramViewPanel = window.createWebviewPanel(
 		'ballerinaDiagram',
@@ -83,10 +51,6 @@ export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstanc
 	};
 
 	const editor = window.activeTextEditor;
-	// if (!editor) {
-	// 	return;
-	// }
-	// activeEditor = editor;
 	WebViewRPCHandler.create(diagramViewPanel, ballerinaExtInstance.langClient!);
 	let treeItemPath: Uri;
 	if (filePath === '') {
@@ -104,15 +68,13 @@ export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstanc
 		treeItemPath = Uri.file(filePath);
 	}
 
-	const html = render(treeItemPath!, startLine, startColumn, endLine, endColumn, kind, name);
+	const html = render(treeItemPath!, startLine, startColumn, kind, name);
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
 
 	diagramViewPanel.onDidDispose(() => {
 		diagramViewPanel = undefined;
-		// didChangeDisposable.dispose();
-		// changeActiveEditorDisposable.dispose();
 	});
 }
 
@@ -137,7 +99,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 					ballerinaExtInstance.showMessageServerMissingCapability();
 					return {};
 				}
-				showDiagramEditor(context, ballerinaExtInstance, 0, 0, -1, -1, '', '');
+				showDiagramEditor(context, ballerinaExtInstance, 0, 0, '', '');
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();

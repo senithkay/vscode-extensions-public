@@ -301,15 +301,16 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@wso2-enterprise/low-code-editor": "file:/Users/prabushi/Desktop/test-05-03/5/wso2-enterprise-low-code-editor-1.0.2.tgz",
         "@types/js-base64": "^2.3.1",
         "@types/vscode": "^1.54.0",
+        "@wso2-enterprise/low-code-editor": "file:/Users/prabushi/Desktop/test-05-03/5/wso2-enterprise-low-code-editor-1.0.2.tgz",
         "cross-env": "^5.2.0",
         "dom-parser": "^0.1.6",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.3",
         "js-base64": "^2.5.1",
         "lodash": "^4.17.21",
+        "monaco-languageclient": "^0.13.0",
         "mousetrap": "^1.6.3",
         "portfinder": "^1.0.21",
         "promise.any": "^2.0.1",

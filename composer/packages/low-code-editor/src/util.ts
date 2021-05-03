@@ -26,8 +26,6 @@ export function renderDiagramEditor(options: {
         filePath: string,
         startLine: number,
         startColumn: number,
-        endLine: number,
-        endColumn: number,
         kind: string,
         name: string
     }

@@ -32,7 +32,7 @@ export interface SamplesListProps {
 }
 
 /**
- * React component for rendering a list of Ballerina example.
+ * React component for rendering a list of Ballerina examples.
  *
  * @class SamplesList
  * @extends {Component}

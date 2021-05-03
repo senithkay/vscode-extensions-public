@@ -1,14 +1,11 @@
 import { Uri } from 'vscode';
-import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, log } from '../utils';
-// import fileUriToPath = require('file-uri-to-path');
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(filePath: Uri, startLine: number, startColumn: number, endLine: number, endColumn: number, kind: string, name: string)
-    : string {
-    return renderDiagram(filePath, startLine, startColumn, endLine, endColumn, kind, name);
+export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
+    return renderDiagram(filePath, startLine, startColumn, kind, name);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, endLine: number, endColumn: number,
-    kind: string, name: string): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
 
     const body = `
         <div id="warning"></div>
@@ -55,26 +52,14 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, en
             line-height: 25px;
         }
     `;
-
-    // const filePathString = fileUriToPath(filePath.toString());
-    log(filePath.fsPath);
-    log('start: ' + startLine);
-    log('startColumn: ' + startColumn);
-    log('end: ' + endLine);
-    log('endColumn: ' + endColumn);
-
-    name = name.split(' ').pop()!;
+        
     kind = kind.charAt(0).toUpperCase() + kind.slice(1);
-    log('kind: ' + kind);
-    log('name: ' + name);
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
             let filePath = ${JSON.stringify(filePath.fsPath)};
             let startLine = ${JSON.stringify(startLine.toString())};
             let startColumn = ${JSON.stringify(startColumn.toString())};
-            let endLine = ${JSON.stringify(endLine.toString())};
-            let endColumn = ${JSON.stringify(endColumn.toString())};
             let name = ${JSON.stringify(name)};
             let kind = ${JSON.stringify(kind)};
             function drawDiagram() {
@@ -89,8 +74,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, en
                             filePath,
                             startLine,
                             startColumn,
-                            endLine,
-                            endColumn,
                             name,
                             kind
                         }

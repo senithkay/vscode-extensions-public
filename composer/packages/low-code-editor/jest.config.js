@@ -18,7 +18,6 @@ module.exports = {
     "collectCoverageFrom": [
         "!**/lib/**",
         "**/src/**",
-        "!**/node_modules/**",
-        "!**/stories/**"
+        "!**/node_modules/**"
     ]
 }

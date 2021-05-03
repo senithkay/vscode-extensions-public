@@ -19,7 +19,7 @@ import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient } from 'src/
 import {
     Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
-import { Module, PackageTreeItem, Package, ChildrenData, PROJECT_KIND } from './model';
+import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND } from './model';
 import { join, sep } from 'path';
 import fileUriToPath = require('file-uri-to-path');
 import { PROJECT_TYPE } from '../project/cli-cmds/cmd-runner';
@@ -73,11 +73,11 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         }
         if (!element) {
             return this.getPackageStructure();
-        } else if (element.getKind() === PROJECT_KIND.PACKAGE) {
+        } else if (element.getKind() === CMP_KIND.PACKAGE) {
             return this.getModuleStructure(element);
-        } else if (element.getKind() === PROJECT_KIND.MODULE) {
+        } else if (element.getKind() === CMP_KIND.MODULE) {
             return this.getComponentStructure(element);
-        } else if (element.getKind() === PROJECT_KIND.SERVICE) {
+        } else if (element.getKind() === CMP_KIND.SERVICE) {
             return this.getResourceStructure(element);
         }
     }
@@ -98,13 +98,14 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                         uri: activeDocument.uri.toString()
                     }
                 }).then(project => {
-                    const uri: string = activeDocument.fileName.endsWith(BAL_TOML) ? activeDocument.uri.toString(true).replace(BAL_TOML, '') :
-                        activeDocument.uri.toString(true);
+                    const uri: string = activeDocument.fileName.endsWith(BAL_TOML) ?
+                        activeDocument.uri.toString(true).replace(BAL_TOML, '') : activeDocument.uri.toString(true);
                     const documentIdentifiers: DocumentIdentifier[] = [{ uri }];
                     if (project.kind === PROJECT_TYPE.BUILD_PROJECT || project.kind === PROJECT_TYPE.SINGLE_FILE) {
                         this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
                             if (response.packages) {
-                                const projectItems: PackageTreeItem[] = this.createPackageData(response.packages);
+                                const projectItems: PackageTreeItem[] = this.createPackageData(response.packages,
+                                    project.kind === PROJECT_TYPE.SINGLE_FILE);
                                 resolve(projectItems);
                             } else {
                                 resolve([]);
@@ -136,8 +137,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             functionNodes.forEach(fn => {
                 components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
-                    PROJECT_KIND.FUNCTION, join(parent.getFilePath(), fn.filePath), this.extensionPath, true, parent,
-                    {}, fn.startLine, fn.startColumn, fn.endLine, fn.endColumn));
+                    CMP_KIND.FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
             });
         }
 
@@ -151,9 +152,9 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             serviceNodes.forEach(service => {
                 components.push(new PackageTreeItem(service.name, `${service.filePath}`,
-                    TreeItemCollapsibleState.Collapsed, PROJECT_KIND.SERVICE, join(parent.getFilePath(),
-                        service.filePath), this.extensionPath, true, parent, { resources: service.resources },
-                    service.startLine, service.startColumn, service.endLine, service.endColumn));
+                    TreeItemCollapsibleState.Collapsed, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                    parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
+                    parent, { resources: service.resources }, service.startLine, service.startColumn));
             });
 
             const serviceNodesWithoutName = children.services.filter(service => {
@@ -161,16 +162,16 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             let count: number = 0;
             serviceNodesWithoutName.forEach(service => {
-                components.push(new PackageTreeItem(`${PROJECT_KIND.SERVICE} ${++count}`, `${service.filePath}`,
-                    TreeItemCollapsibleState.Collapsed, PROJECT_KIND.SERVICE, join(parent.getFilePath(),
-                        service.filePath), this.extensionPath, true, parent, { resources: service.resources },
-                    service.startLine, service.startColumn, service.endLine, service.endColumn));
+                components.push(new PackageTreeItem(`${CMP_KIND.SERVICE} ${++count}`, `${service.filePath}`,
+                    TreeItemCollapsibleState.Collapsed, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                    parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
+                    parent, { resources: service.resources }, service.startLine, service.startColumn));
             });
         }
         return components;
     }
 
-    private createPackageData(packages: Package[]): PackageTreeItem[] {
+    private createPackageData(packages: Package[], isSingleFile: boolean): PackageTreeItem[] {
         let packageItems: PackageTreeItem[] = [];
         packages.sort((package1, package2) => {
             return package1.name.localeCompare(package2.name!);
@@ -180,8 +181,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                 .replace('.bal', '').split(sep).pop()!.toString() : projectPackage.name;
             if (projectPackage.name) {
                 packageItems.push(new PackageTreeItem(projectPackage.name, '',
-                    TreeItemCollapsibleState.Expanded, PROJECT_KIND.PACKAGE, fileUriToPath(projectPackage.filePath),
-                    this.extensionPath, true, null, { modules: projectPackage.modules }));
+                    TreeItemCollapsibleState.Expanded, CMP_KIND.PACKAGE, fileUriToPath(projectPackage.filePath),
+                    this.extensionPath, true, null, { modules: projectPackage.modules }, -1, -1, isSingleFile));
             }
         });
         return packageItems;
@@ -213,7 +214,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             nonDefaultModules.forEach(module => {
                 moduleItems.push(new PackageTreeItem(module.name!, '',
-                    TreeItemCollapsibleState.Collapsed, PROJECT_KIND.MODULE, join(parent.getFilePath(), 'modules',
+                    TreeItemCollapsibleState.Collapsed, CMP_KIND.MODULE, join(parent.getFilePath(), 'modules',
                         module.name!), this.extensionPath, false, parent,
                     {
                         functions: module.functions,
@@ -238,8 +239,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             resourceNodes.forEach(resource => {
                 resources.push(new PackageTreeItem(resource.name, '',
-                    TreeItemCollapsibleState.None, PROJECT_KIND.RESOURCE, parent.getFilePath(), this.extensionPath, true,
-                    parent, {}, resource.startLine, resource.startColumn, resource.endLine, resource.endColumn));
+                    TreeItemCollapsibleState.None, CMP_KIND.RESOURCE, parent.getFilePath(), this.extensionPath, true,
+                    parent, {}, resource.startLine, resource.startColumn));
             });
         }
         return resources;

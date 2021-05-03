@@ -137,11 +137,10 @@ export interface ExecutorPosition {
     name: string;
 }
 
-export interface LowCodeLangClientTemp extends Omit<DiagramEditorLangClientInterface, 'init'> {
-    // Diagnostics: (params: BallerinaProjectParams) => Thenable<PublishDiagnosticsParams[]>;
+export interface LowCodeLangClient extends Omit<DiagramEditorLangClientInterface, 'init'> {
 }
 
-export class ExtendedLangClient extends LanguageClient implements LowCodeLangClientTemp {
+export class ExtendedLangClient extends LanguageClient implements LowCodeLangClient {
     isInitialized: boolean = true;
 
     didOpen(params: DidOpenParams): void {
@@ -149,10 +148,6 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
     }
     registerPublishDiagnostics(): void {
         this.onNotification("textDocument/publishDiagnostics", (notification: any) => {
-            // const { diagnostics, uri } = notification;
-            // if (uri && uri === ("file://" + store.getState().appInfo?.currentApp?.workingFile)) {
-            // store.dispatch(diagramSetDiagnostic(diagnostics));
-            // }
         });
     }
     didClose(params: DidCloseParams): void {
@@ -183,21 +178,14 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
         return this.sendRequest<BallerinaSTModifyResponse>("ballerinaDocument/triggerModify", params);
     }
 
-    // getCompletion(params: CompletionParams): Thenable<CompletionResponse[]> {
-    //     return this.sendRequest("textDocument/completion", params);
-    // }
-
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
         return this.sendRequest("textDocument/documentSymbol", params);
     }
 
     public close(): void {
-        // this.shutdown();
     }
+    
     getDidOpenParams(): DidOpenParams {
-        // const uri = store.getState().appInfo?.currentApp?.workingFile;
-        // const content = store.getState()?.appInfo?.currentFile?.content;
-        // const decContent = content ? atob(content) : "";
         return {
             textDocument: {
                 uri: "file://",
@@ -211,8 +199,6 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
     getSyntaxTreeFileRange(params: GetSyntaxTreeFileRangeParams): Thenable<GetSyntaxTreeFileRangeResponse> {
         return this.sendRequest("ballerinaDocument/syntaxTreeByRange", params);
     }
-
-    // getSyntaxTreeFileRange: (params: GetSyntaxTreeFileRangeParams) => Thenable<GetSyntaxTreeFileRangeResponse>;
 
     getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {
         const req: GetSynRequest = {

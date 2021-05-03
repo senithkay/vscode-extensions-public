@@ -57,8 +57,6 @@ export interface ConstructIdentifier {
     kind: string;
     startLine: number;
     startColumn: number;
-    endLine: number;
-    endColumn: number;
     name: string;
 }
 

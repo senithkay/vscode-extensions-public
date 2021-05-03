@@ -19,7 +19,7 @@ import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, window } from 'vscode';
-import { PROJECT_KIND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
+import { CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
 import { PackageOverviewDataProvider } from "./tree-data-provider";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -46,38 +46,20 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
-        startColumn: number, endLine: number, endColumn: number, name: string) => {
+        startColumn: number, name: string) => {
         ballerinaExtInstance.packageTreeElementClicked({
             filePath,
             kind,
             startLine,
             startColumn,
-            endLine,
-            endColumn,
             name
         });
     });
 
     ballerinaExtInstance.onPackageTreeElementClicked((construct: ConstructIdentifier) => {
-        // openBallerinaFile(construct);
-        if (construct.kind === PROJECT_KIND.FUNCTION || construct.kind === PROJECT_KIND.RESOURCE) {
+        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
             showDiagramEditor(ballerinaExtInstance.context!, ballerinaExtInstance, construct.startLine,
-                construct.startColumn, construct.endLine, construct.endColumn, construct.kind, construct.name, construct.filePath);
+                construct.startColumn, construct.kind, construct.name, construct.filePath);
         }
     });
 }
-
-// function openBallerinaFile(construct: ConstructIdentifier) {
-//     if (construct.filePath && (construct.kind === PROJECT_KIND.FUNCTION || construct.kind === PROJECT_KIND.RESOURCE)) {
-//         const showOptions: TextDocumentShowOptions = {
-//             preserveFocus: false,
-//             preview: false,
-//             viewColumn: ViewColumn.Active,
-//             selection: new Range(construct.startLine!, construct.startColumn!, construct.startLine!, construct.startColumn!)
-//         };
-//         const status = commands.executeCommand('vscode.open', Uri.file(construct.filePath), showOptions);
-//         if (!status) {
-//             throw new Error(`Unable to open ${construct.filePath}`);
-//         }
-//     }
-// }

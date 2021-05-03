@@ -29,8 +29,6 @@ export interface DiagramProps {
         filePath: string,
         startLine: number,
         startColumn: number,
-        endLine: number,
-        endColumn: number,
         kind: string,
         name: string
     };
@@ -45,8 +43,6 @@ export class Diagram extends React.Component<DiagramProps> {
     private filePath: string;
     private startLine: number;
     private startColumn: number;
-    // private endLine: number;
-    // private endColumn: number;
     private name: string;
     private kind: string;
 
@@ -55,8 +51,6 @@ export class Diagram extends React.Component<DiagramProps> {
         this.filePath = props.editorProps.filePath;
         this.startLine = props.editorProps.startLine;
         this.startColumn = props.editorProps.startColumn;
-        // this.endLine = props.editorProps.endLine;
-        // this.endColumn = props.editorProps.endColumn;
         this.languageClient = props.editorProps.langClient;
         this.name = props.editorProps.name;
         this.kind = props.editorProps.kind;
