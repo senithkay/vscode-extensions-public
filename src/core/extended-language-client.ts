@@ -73,7 +73,7 @@ export interface GetBallerinaProjectParams {
 
 export interface SyntaxTreeNodeRequestParams {
     documentIdentifier: DocumentIdentifier;
-    range: RangeObject;
+    range: Range;
 }
 
 export interface SyntaxTreeNodeResponse {
@@ -88,22 +88,22 @@ export interface DocumentIdentifier {
     uri: string;
 }
 
-export interface Range {
-    startLine: Position;
-    endLine: Position;
+export interface LineRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
 }
 
-export interface Position {
+export interface LinePosition {
     line: number;
     offset: number;
 }
 
-export interface RangeObject {
-    start: PositionObject;
-    end: PositionObject;
+export interface Range {
+    start: Position;
+    end: Position;
 }
 
-export interface PositionObject {
+export interface Position {
     line: number;
     character: number;
 }
@@ -130,7 +130,7 @@ export interface ExecutorPositionsResponse {
 
 export interface ExecutorPosition {
     kind: string;
-    range: Range;
+    range: LineRange;
     name: string;
 }
 
