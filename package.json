@@ -6,7 +6,7 @@
     "publisher": "ballerina",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ballerina-platform/plugin-vscode"
+        "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode"
     },
     "icon": "resources/images/ballerina.png",
     "galleryBanner": {

@@ -43,17 +43,17 @@ ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
 
-# Clone plugin-vscode
-RUN git clone https://github.com/ballerina-platform/plugin-vscode.git
+# Clone ballerina-plugin-vscode
+RUN git clone https://github.com/wso2-enterprise/ballerina-plugin-vscode.git
 
 # Copy latest ballerina distribution to extractedDistribution directory
 ENV BALLERINA_DISTRIBUTION_NAME=ballerina-swan-lake-preview5
-RUN cd plugin-vscode && mkdir extractedDistribution && \
-    cp -r /ballerina/runtime /root/plugin-vscode/extractedDistribution && \
-    mv /root/plugin-vscode/extractedDistribution/runtime/ /root/plugin-vscode/extractedDistribution/${BALLERINA_DISTRIBUTION_NAME}/
+RUN cd ballerina-plugin-vscode && mkdir extractedDistribution && \
+    cp -r /ballerina/runtime /root/ballerina-plugin-vscode/extractedDistribution && \
+    mv /root/ballerina-plugin-vscode/extractedDistribution/runtime/ /root/ballerina-plugin-vscode/extractedDistribution/${BALLERINA_DISTRIBUTION_NAME}/
 
 # TODO Fix https://github.com/microsoft/vscode-extension-vscode/issues/143
-RUN cd plugin-vscode/ && npm i && export npm_package_engines_vscode=1.34.0 && node ./node_modules/vscode/bin/install
+RUN cd ballerina-plugin-vscode/ && npm i && export npm_package_engines_vscode=1.34.0 && node ./node_modules/vscode/bin/install
 
 # Execute gradle build
-RUN cd plugin-vscode && apt-get install xvfb -y && xvfb-run --auto-servernum ./gradlew clean build
+RUN cd ballerina-plugin-vscode && apt-get install xvfb -y && xvfb-run --auto-servernum ./gradlew clean build
