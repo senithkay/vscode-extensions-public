@@ -496,6 +496,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -512,7 +513,8 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.split("\n")[0].substring(13)
+                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
+                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
             }
         default:
             return undefined;
