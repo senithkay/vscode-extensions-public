@@ -83,15 +83,14 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         });
     }
 
-    provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<CodeLens[]> {
-        let codeLenses: CodeLens[] = [];
+    provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
         if (this.ballerinaExtension.langClient && window.activeTextEditor) {
             return this.getCodeLensList();
         }
-        return codeLenses;
+        return [];
     }
 
-    private async getCodeLensList() {
+    private async getCodeLensList(): Promise<CodeLens[]> {
         let codeLenses: CodeLens[] = [];
         await this.ballerinaExtension.langClient!.getExecutorPositions({
             documentIdentifier: {

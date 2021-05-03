@@ -20,9 +20,7 @@ import {
     Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, PROJECT_KIND } from './model';
-import { dirname, join, sep, parse } from 'path';
-import { existsSync, readdirSync } from 'fs';
-import { homedir } from 'os';
+import { join, sep } from 'path';
 import fileUriToPath = require('file-uri-to-path');
 import { PROJECT_TYPE } from '../project/cli-cmds/cmd-runner';
 
