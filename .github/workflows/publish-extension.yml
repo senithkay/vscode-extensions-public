@@ -17,6 +17,10 @@ jobs:
         with:
           node-version: 12
       - run: npm ci
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
       - run: npm install -g vsce
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
       - run: vsce package
       - run: vsce publish -p ${{ secrets.EXTENSION_PUBLISH_TOKEN }}
