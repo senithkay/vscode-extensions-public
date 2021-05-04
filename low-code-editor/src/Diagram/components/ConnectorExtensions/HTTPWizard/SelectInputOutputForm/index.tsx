@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
@@ -25,7 +26,8 @@ import {
     httpRequest,
     PrimitiveBalType
 } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext} from "../../../../../Contexts/Diagram";
+import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { STSymbolInfo } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -33,23 +35,24 @@ import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/D
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import Tooltip  from "../../../Portals/ConfigForm/Elements/Tooltip";
+import Tooltip from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
+import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     onConnectionChange?: () => void;
-    onOperationChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
     headerObject?: HeaderObjectConfig[];
+    model?: STNode,
 }
 
 interface ReturnNameState {
@@ -67,16 +70,18 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onConnectionChange, onSave, functionDefinitions: actions, connectorConfig, isNewConnectorInitWizard,
-            headerObject, onOperationChange } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard,
+            headerObject, model } = props;
+    const actions = functionDefinitions;
     const { state: diagramState } = useContext(DiagramContext);
-    const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
+    const { isMutationProgress } = diagramState;
+    const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
 
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
-    const [state] = useState(defaultActionName);
+    const [state, setDefaultActionName] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
     const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
@@ -84,12 +89,22 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
     const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
-
+    const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
+    const httpVar = model as LocalVarDecl;
     const initialReturnNameState: ReturnNameState = {
-        value: connectorConfig.action.returnVariableName || genVariableName(connectorConfig.action.name + "Response", getAllVariables(symbolInfo)),
-        isNameProvided: true,
+        value: "", // connectorConfig?.action?.returnVariableName || genVariableName(connectorConfig.action.name + "Response", getAllVariables(symbolInfo)),
+        isNameProvided: false,
         isValidName: true
     };
+
+    if (selectedOperation) {
+        connectorConfig.action.fields = functionDefinitions.get(selectedOperation).parameters;
+    }
+
+    if (selectedOperation !== connectorConfig?.action?.name) {
+        connectorConfig.action.returnVariableName = undefined;
+    }
+
     const initialPayloadState: PayloadState = {
         isPayloadSelected: payloadSelected,
         selectedPayload: payloadType,
@@ -99,7 +114,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
 
     let newField: FormField;
-    if (connectorConfig.action.name === "forward") {
+    if (connectorConfig?.action?.name === "forward") {
         actions.forEach((fields, name) => {
             if (name === "forward") {
                 fields.parameters.forEach((field, key) => {
@@ -140,13 +155,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         onChange: onForwardReqChange,
     };
 
-    const forwardReq: ReactNode = (connectorConfig.action.name === "forward") ?
+    const forwardReq: ReactNode = (connectorConfig?.action?.name === "forward") ?
         (<ExpressionEditor {...expElementProps} />) : null;
 
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
     const [payloadState, setPayloadState] = useState<PayloadState>(initialPayloadState);
-    const [defaultResponseVarName] = useState<string>(returnNameState.value);
-
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(returnNameState.value);
+    const frmFields: FormField[] = connectorConfig?.action?.fields;
+    const [formFields, setFormFields] = useState(frmFields);
+    const [onOperationChange, setOnOperationChange] = useState(false);
     let action: ActionConfig = new ActionConfig();
     if (connectorConfig.action) {
         action = connectorConfig.action;
@@ -241,7 +258,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "forward" &&
-        (<Form fields={connectorConfig.action.fields} onValidate={onValidate} />);
+        (<Form fields={formFields} onValidate={onValidate} />);
 
     const onPayloadNameChange = (value: string) => {
         if (connectorConfig.responsePayloadMap) {
@@ -340,100 +357,249 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         }
     };
 
+    React.useEffect(() => {
+        if (!isNewConnectorInitWizard) {
+            let actionInitializer: CheckAction;
+            connectorConfig.action.returnVariableName =
+                (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.responsePayloadMap.selectedPayloadType = '';
+            setReturnNameState({
+                isNameProvided: true,
+                value: connectorConfig.action.returnVariableName,
+                isValidName: true
+            });
+            setDefaultResponseVarName(connectorConfig.action.returnVariableName);
+            switch (httpVar.initializer.kind) {
+                case 'TypeCastExpression':
+                    actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
+                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
+
+                    // payload population logic stuff
+                    const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+                    symbolInfo.variables.forEach((value, key) => {
+                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
+                            const usedVariables = value.filter(variable => variable.source.includes(`${varName}.`));
+
+                            const variableStatement: LocalVarDecl = usedVariables[0] as LocalVarDecl;
+
+                            if (variableStatement) {
+                                connectorConfig
+                                    .responsePayloadMap
+                                    .payloadVariableName = (variableStatement.typedBindingPattern
+                                        .bindingPattern as CaptureBindingPattern).variableName.value
+
+
+                                if (variableStatement.source.includes('getTextPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'Text';
+                                } else if (variableStatement.source.includes('getXmlPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'XML';
+                                } else if (variableStatement.source.includes('getJsonPayload')) {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
+                                } else {
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                }
+                            }
+                        }
+                    });
+                    break;
+                default:
+                    actionInitializer = httpVar.initializer as CheckAction;
+                // ignored
+            }
+
+            if (actionInitializer) {
+                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
+                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
+
+                if (message) {
+                    if (message.kind === 'SimpleNameReference') {
+                        const refName = (message as SimpleNameReference).name.value;
+                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
+
+                        if (connectorConfig.action.name === 'forward') {
+                            connectorConfig.action.fields[3].value = refName;
+                        }
+
+                        if (refCallStatements) {
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
+                                .forEach(callStatement => {
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    headerObject.push({
+                                        requestName: refName,
+                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
+                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
+                                    })
+                                });
+
+                            refCallStatements
+                                .filter(callStatement =>
+                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
+                                .forEach(callStatement => {
+                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
+                                    const callStatementExp: any = (callStatement as CallStatement).expression;
+                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                        field.requestName = refName;
+
+                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
+                                            case 'XmlTemplateExpression':
+                                                field.selectedDataType = 'xml';
+                                                break;
+                                            case 'MappingConstructor':
+                                                field.selectedDataType = 'json';
+                                                break;
+                                            default:
+                                                field.selectedDataType = 'string';
+                                        }
+
+                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                            .forEach(unionField => {
+                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
+                                            })
+                                    })
+                                });
+                        }
+                    } else {
+                        if (connectorConfig.action.name !== 'get') {
+                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
+                                switch (message.kind) {
+                                    case 'XmlTemplateExpression':
+                                        field.selectedDataType = 'xml';
+                                        break;
+                                    case 'MappingConstructor':
+                                        field.selectedDataType = 'json';
+                                        break;
+                                    default:
+                                        field.selectedDataType = 'string';
+                                }
+
+                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
+                                    .forEach(unionField => {
+                                        unionField.value = message.source
+                                    })
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }, [isNewConnectorInitWizard]);
+
+    const handleOnOperationSelect = (operation: string) => {
+        connectorConfig.action.name = operation;
+        setSelectedOperation(operation);
+        if (isNewConnectorInitWizard) {
+            setReturnNameState({
+                value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
+                isValidName: true,
+                isNameProvided: true
+            });
+        }
+        if (operation) {
+            const derivedFormFields = functionDefinitions.get(operation).parameters;
+            connectorConfig.action.name = operation;
+            connectorConfig.action.fields = derivedFormFields;
+            setDefaultActionName(connectorConfig.action.name);
+            setFormFields(derivedFormFields);
+            setOnOperationChange(false);
+        }
+    };
+
+    const handleOperationChange = () => {
+        setOnOperationChange(true);
+    }
+
     return (
         <div>
-            <FormControl className={wizardClasses.mainWrapper}>
-                <div className={wizardClasses.configWizardAPIContainer}>
-                    <div className={classes.fullWidth}>
-                        <>
-                            <p className={wizardClasses.subTitle}>Connection</p>
-                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
-                                <Typography variant="subtitle2">
-                                    {connectorConfig.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={{
-                                        root: wizardClasses.changeConnectionBtn
-                                    }}
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon/>
-                                </IconButton>
-                            </Box>
-                        </>
-                        <>
-                            <p className={wizardClasses.subTitle}>Operation</p>
-                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
-                                <Typography variant="subtitle2">
-                                    {connectorConfig.action.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={ {
-                                        root: wizardClasses.changeConnectionBtn
-                                    } }
-                                    onClick={onOperationChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                        <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
-                        <div className={classNames(classes.groupedForm, classes.marginTB)}>
-                            {selectedOperationParams}
-                            {forwardReq}
+            {((!selectedOperation || onOperationChange) && (
+                <OperationDropdown
+                    operations={["get", "post", "put", "delete", "patch", "forward"]}
+                    onOperationSelect={handleOnOperationSelect}
+                    selectedValue={selectedOperation}
+                />
+            )
+            )}
+            {(selectedOperation && !onOperationChange &&
+                (
+                    <FormControl className={wizardClasses.mainWrapper}>
+                        <div className={wizardClasses.configWizardAPIContainer}>
+                            <div className={classes.fullWidth}>
+                                <>
+                                    <p className={wizardClasses.subTitle}>Operation</p>
+                                    <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                        <Typography variant="subtitle2">
+                                            {connectorConfig.action.name}
+                                        </Typography>
+                                        <IconButton
+                                            color="primary"
+                                            classes={{
+                                                root: wizardClasses.changeConnectionBtn
+                                            }}
+                                            onClick={handleOperationChange}
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </Box>
+                                </>
+                                <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
+                                <div className={classNames(classes.groupedForm, classes.marginTB)}>
+                                    {selectedOperationParams}
+                                    {forwardReq}
+                                </div>
+                                <div className={classes.marginTB}>
+                                    <FormTextInput
+                                        dataTestId={"response-variable-name"}
+                                        customProps={{
+                                            validate: validateResponseNameValue,
+                                            disabled: responseVariableHasReferences
+                                        }}
+                                        defaultValue={returnNameState.value}
+                                        placeholder={"Enter Response Variable Name"}
+                                        onChange={onNameChange}
+                                        label={"Response Variable Name"}
+                                        errorMessage={responseVarError}
+                                    />
+                                </div>
+
+                                {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                                    <Tooltip
+                                        title={tooltipMessages.HTTPPayload.title}
+                                        content={tooltipMessages.HTTPPayload.content}
+                                        interactive={true}
+                                        placement="left"
+                                        arrow={true}
+                                    >
+                                        <SwitchToggle
+                                            text="Do you want to extract a payload?"
+                                            onChange={handleSwitchToggleChange}
+                                            initSwitch={payloadSelected}
+                                        />
+                                    </Tooltip>
+                                ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
+
+                                {payloadState.isPayloadSelected && (
+                                    <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                        {payloadComponent}
+                                    </div>
+                                )}
+                                <HTTPHeaders headerObject={headerObject} />
+                            </div>
                         </div>
-                        <div className={classes.marginTB}>
-                            <FormTextInput
-                                dataTestId={"response-variable-name"}
-                                customProps={{
-                                    validate: validateResponseNameValue,
-                                    disabled: responseVariableHasReferences
-                                }}
-                                defaultValue={returnNameState.value}
-                                placeholder={"Enter Response Variable Name"}
-                                onChange={onNameChange}
-                                label={"Response Variable Name"}
-                                errorMessage={responseVarError}
+                        <div className={classes.wizardBtnHolder}>
+                            <PrimaryButton
+                                dataTestId={"http-save-done"}
+                                className="product-tour-save-done"
+                                text="Save &amp; Done"
+                                fullWidth={false}
+                                disabled={isSaveDisabled}
+                                onClick={handleOnSave}
                             />
                         </div>
-
-                        {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
-                            <Tooltip
-                                title={tooltipMessages.HTTPPayload.title}
-                                content={tooltipMessages.HTTPPayload.content}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
-                            >
-                                <SwitchToggle
-                                    text="Do you want to extract a payload?"
-                                    onChange={handleSwitchToggleChange}
-                                    initSwitch={payloadSelected}
-                                />
-                            </Tooltip>
-                        ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
-
-                        {payloadState.isPayloadSelected && (
-                            <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                                {payloadComponent}
-                            </div>
-                        )}
-                        <HTTPHeaders headerObject={headerObject} />
-                    </div>
-                </div>
-                <div className={classes.wizardBtnHolder}>
-                    <PrimaryButton
-                        dataTestId={"http-save-done"}
-                        className="product-tour-save-done"
-                        text="Save &amp; Done"
-                        fullWidth={false}
-                        disabled={isSaveDisabled}
-                        onClick={handleOnSave}
-                    />
-                </div>
-            </FormControl>
+                    </FormControl>
+                )
+            )}
             {/* <ProductTourStep
                 startCondition={true}
 

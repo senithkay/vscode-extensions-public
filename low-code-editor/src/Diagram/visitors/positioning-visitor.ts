@@ -339,7 +339,7 @@ class PositioningVisitor implements Visitor {
                     statementViewState.action.trigger.cy = statementViewState.bBox.cy;
 
                     // to check whether the action is invoked for the first time
-                    if (!mainEp.isUsed) {
+                    if (!endpoint.firstAction) {
                         endpoint.firstAction = statementViewState;
                         mainEp.isUsed = true;
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;

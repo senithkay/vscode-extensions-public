@@ -151,35 +151,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
-                    {isNewConnectorInitWizard && homePageEnabled && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
-                    )}
                     <div className={classes.saveBtnHolder}>
                         <Tooltip
                             title={tooltipMessages.connectorButtons.savaButton}
-                            placement="top"
-                            arrow={true}
-                        >
-                            <SecondaryButton
-                                text="Save"
-                                fullWidth={false}
-                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                                onClick={handleOnSave}
-                            />
-                        </Tooltip>
-                        <Tooltip
-                            title={tooltipMessages.connectorButtons.savaNextButton}
                             interactive={true}
                             placement="top"
                             arrow={true}
                         >
                             <PrimaryButton
                                 dataTestId={"http-save-next"}
-                                text="Save &amp; Next"
+                                text="Save"
                                 className="product-tour-next"
                                 disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 fullWidth={false}
-                                onClick={handleOnSaveNext}
+                                onClick={handleOnSave}
                             />
                         </Tooltip>
                     </div>

@@ -23,14 +23,12 @@ import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocompl
 
 export interface OperationDropdownProps {
     operations: string[];
-    showConnectionName: boolean;
-    connectionDetails: ConnectorConfig;
     onOperationSelect: (operation: string) => void;
-    onConnectionChange: () => void;
+    selectedValue?: string;
 }
 
 export function OperationDropdown(props: OperationDropdownProps) {
-    const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
+    const { operations, selectedValue, onOperationSelect } = props;
     const classes = wizardStyles();
 
     const handleSelect = (event: object, value: any, reason: string) => {
@@ -41,29 +39,11 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    { showConnectionName && (
-                        <>
-                            <p className={classes.subTitle}>Connection</p>
-                            <Box border={1} borderRadius={5} className={classes.box}>
-                                <Typography variant="subtitle2">
-                                    {connectionDetails.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={ {
-                                        root: classes.changeConnectionBtn
-                                    } }
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                    ) }
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
                         placeholder="Search Operation"
                         itemList={operations}
+                        value={selectedValue}
                         onChange={handleSelect}
                     />
                 </div>
