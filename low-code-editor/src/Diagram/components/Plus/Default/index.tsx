@@ -38,7 +38,7 @@ export function SmallPlusSVG(props: { x: number, y: number, handlePlusClick: () 
             </defs>
             <g id="SmallPlus" transform="translate(7.5 6.5)" onClick={handlePlusClick}>
                 <g transform="matrix(1, 0, 0, 1, -7, -6)" className="product-tour-small-plus" filter="url(#Oval_Copy_15)">
-                    <g id="Oval_Copy_15-2" transform="translate(7 6)" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" fill="url(#linear-gradient)">
+                    <g id="Oval_Copy_15-2" transform="translate(7 6)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#linear-gradient)">
                         <circle cx="6" cy="6" r="6" stroke="none" />
                         <circle cx="6" cy="6" r="6.5" fill="none" />
                     </g>
