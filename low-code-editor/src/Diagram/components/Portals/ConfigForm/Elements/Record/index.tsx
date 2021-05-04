@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { FormAccordion } from "../../../../../components/FormAccordion";
+import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";

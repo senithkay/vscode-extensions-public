@@ -19,7 +19,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { useStyles } from "./style";
+import {useStyles} from './style';
 
 interface FormAccordionProps {
     title?: string;
@@ -27,7 +27,7 @@ interface FormAccordionProps {
     optionalFields?: React.ReactNode[];
 }
 
-export function FormAccordion(props: FormAccordionProps) {
+export default function FormAccordion(props: FormAccordionProps) {
     const { title, mandatoryFields, optionalFields } = props;
     const classes = useStyles();
     const [ expanded, setExpanded ] = React.useState<string | false>('mandatory');

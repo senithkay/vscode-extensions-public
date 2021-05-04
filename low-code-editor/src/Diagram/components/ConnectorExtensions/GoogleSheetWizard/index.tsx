@@ -46,7 +46,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -229,7 +229,7 @@ export function GoogleSheet(props: WizardProps) {
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     }
@@ -362,7 +362,7 @@ export function GoogleSheet(props: WizardProps) {
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     } else {

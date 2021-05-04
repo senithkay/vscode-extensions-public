@@ -13,7 +13,7 @@
 import React, { ReactNode } from "react";
 
 import {
-    BooleanLiteral, CaptureBindingPattern, CheckAction,
+    CaptureBindingPattern, CheckAction,
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
     ParenthesizedArgList,
@@ -24,7 +24,6 @@ import {
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
@@ -802,7 +801,7 @@ export const getKeyFromConnection = (connection: ConnectionDetails, key: string)
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
-export function getOauthConnectionParams(connectorName: string, connectionDetail: ConnectionDetails): any {
+export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails): any {
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
@@ -851,6 +850,88 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
                     refreshUrl: ${gmailRefreshUrl}
                 }
              }`];
+        }
+    }
+}
+
+function getFormFieldValue(formFields: FormField[], connectorName: string, key: string) {
+    switch (connectorName) {
+        case "github": {
+            return formFields[ 0 ].fields[ 1 ].value;
+        }
+        case "google sheets":
+            return formFields.find(field => field.name === "spreadsheetConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        case "gmail": {
+            return formFields.find(field => field.name === "gmailConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        }
+        case "google calendar":
+            return formFields.find(field => field.name === "calendarConfig").fields
+                .find(field => field.name === "oauth2Config").fields
+                .find(field => field.name === key).value || "";
+    }
+}
+
+export function getOauthParamsFromFormFields(connectorName: string, formFields: FormField[]): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getFormFieldValue(formFields, connectorName, 'accessToken');
+            return (`{
+                accessToken: ${githubAccessToken}
+            }`);
+        }
+        case "gmail":
+        case "google sheets": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauthClientConfig: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+        case "google calendar": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauth2Config: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+    }
+}
+
+export function getOauthConnectionImports(connectorName: string, connectionDetail: ConnectionDetails): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
+            return `configurable string ${githubAccessToken} = ?;`;
+        }
+        case "google sheets":
+        case "google calendar":
+        case "gmail": {
+            const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
+            const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
+            const refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+            const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
+            return (`configurable string ${clientId} = ?;
+            configurable string ${clientSecret} = ?;
+            configurable string ${refreshUrl} = ?;
+            configurable string ${refreshToken} = ?;`);
         }
     }
 }

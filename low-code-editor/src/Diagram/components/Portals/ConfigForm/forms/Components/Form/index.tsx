@@ -14,7 +14,7 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { useStyles } from "../../../../../ConfigPanel/styles";
-import { FormAccordion } from "../../../../../FormAccordion";
+import FormAccordion from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
 
