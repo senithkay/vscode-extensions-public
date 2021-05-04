@@ -56,7 +56,7 @@ export function Connector(props: ConnectorProps) {
         <g>
             <ConnectorProcess model={model} />
             <g className={classes} onClick={toggleSelection}>
-                {viewState.endpoint.isUsed && <line x1={x} y1={viewState.bBox.cy + CLIENT_RADIUS} x2={x} y2={viewState.bBox.cy + h} />}
+                <line x1={x} y1={viewState.bBox.cy + CLIENT_RADIUS} x2={x} y2={viewState.bBox.cy + h} />
                 <text
                     x={x}
                     y={viewState.bBox.cy - DefaultConfig.textLine.height - (DefaultConfig.dotGap * 2)}

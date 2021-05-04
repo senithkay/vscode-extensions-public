@@ -380,20 +380,20 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        connectorComponent = getConnectorComponent(
-            connectorInfo.module + connectorInfo.name, {
-            functionDefinitions: functionDefInfo,
-            connectorConfig: config,
-            onSave,
-            onClose,
-            connector: connectorInfo,
-            isNewConnectorInitWizard,
-            targetPosition,
-            model,
-            selectedConnector,
-            isAction
-        });
-        if (!connectorComponent) {
+        // connectorComponent = getConnectorComponent(
+        //     connectorInfo.module + connectorInfo.name, {
+        //     functionDefinitions: functionDefInfo,
+        //     connectorConfig: config,
+        //     onSave,
+        //     onClose,
+        //     connector: connectorInfo,
+        //     isNewConnectorInitWizard,
+        //     targetPosition,
+        //     model,
+        //     selectedConnector,
+        //     isAction
+        // });
+        // if (!connectorComponent) {
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
@@ -467,7 +467,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     )}
                 </div>
             )
-        }
+        // }
     }
 
     return (
