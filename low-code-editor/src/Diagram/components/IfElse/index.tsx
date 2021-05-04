@@ -19,14 +19,14 @@ import cn from "classnames";
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig } from "../../utils/diagram-util";
+import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
 import { BlockViewState, ElseViewState, IfViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
-import { ContitionAssignment } from "../ContitionAssignment";
+import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -141,7 +141,7 @@ export function IfElse(props: IfElseProps) {
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
 
-    const assignmentTextWidth = assignmentText.length * 8 + DefaultConfig.dotGap;
+    const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
     if (model === null) {
         viewState = blockViewState.draft[1] as DraftStatementViewState;
@@ -161,8 +161,13 @@ export function IfElse(props: IfElseProps) {
                     conditionType={conditionType}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
-                {/* <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y} assignment={assignmentText} className="condition-assignment" /> */}
-                <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)} assignment={assignmentText} className="condition-assignment" />
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
                 <>
                     {
                         (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
@@ -200,10 +205,10 @@ export function IfElse(props: IfElseProps) {
                                         configOverlayFormStatus={ifElseConfigOverlayFormState}
                                     />
                                 }
-                                {!isConfigWizardOpen &&
+                                {!isConfigWizardOpen && !isDraftStatement &&
                                     <>
                                         <rect
-                                            x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 3)}
+                                            x={viewState.bBox.cx - (IFELSE_SVG_WIDTH / 4)}
                                             y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3) - DefaultConfig.dotGap / 2}
                                             className="condition-rect"
                                         />
@@ -283,6 +288,7 @@ export function IfElse(props: IfElseProps) {
             conditionExpr && conditionExpr.expression && viewState && !viewState.collapsed &&
             (
                 <g className="if-else">
+                    <text className="then-text" x={x - IFELSE_SVG_WIDTH_WITH_SHADOW / 2} y={y + IFELSE_SVG_HEIGHT_WITH_SHADOW / 2}>then</text>
                     {/* Render top horizontal line in else if scenario */}
                     <line
                         x1={viewState.elseIfTopHorizontalLine.x}
@@ -315,9 +321,13 @@ export function IfElse(props: IfElseProps) {
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                         />
-                        {/* <Assignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 2} assignment={assignmentText} className="condition-assignment" /> */}
-                        {/* <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW / 2 + CONDITION_ASSIGNMENT_NAME_WIDTH)} y={y - IFELSE_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment" /> */}
-                        <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)} assignment={assignmentText} className="condition-assignment" />
+                        <ContitionAssignment
+                            x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                            y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
+                            assignment={assignmentText}
+                            className="condition-assignment"
+                            key_id={getRandomInt(1000)}
+                        />
                         <>
                             {
                                 (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
@@ -358,16 +368,20 @@ export function IfElse(props: IfElseProps) {
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}
                                         />
                                     }
-                                    <DeleteBtn
-                                        {...deleteTriggerPosition}
-                                        model={model}
-                                        onDraftDelete={onDraftDelete}
-                                    />
-                                    <EditBtn
-                                        model={model}
-                                        {...editTriggerPosition}
-                                        onHandleEdit={onIfHeadClick}
-                                    />
+                                    {!isDraftStatement &&
+                                        <>
+                                            <DeleteBtn
+                                                {...deleteTriggerPosition}
+                                                model={model}
+                                                onDraftDelete={onDraftDelete}
+                                            />
+                                            <EditBtn
+                                                model={model}
+                                                {...editTriggerPosition}
+                                                onHandleEdit={onIfHeadClick}
+                                            />
+                                        </>
+                                    }
                                 </g>)
                             }
                         </>
