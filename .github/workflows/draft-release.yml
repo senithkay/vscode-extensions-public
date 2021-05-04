@@ -49,13 +49,13 @@ jobs:
       - run: rm ballerina-${{ github.event.inputs.bal_dist_version }}.zip
       - run: npm ci
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Build repository with tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
           run: ./gradlew clean build
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Publish codecov report
         uses: codecov/codecov-action@v1
         with:
@@ -64,7 +64,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_PAT }}
         with:
           tag_name: ${{ github.event.inputs.tag }}
           release_name: Release ${{ github.event.inputs.vsix_version }}
@@ -74,7 +74,7 @@ jobs:
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.CHOREO_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_PAT }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ballerina-${{ github.event.inputs.plugin_version }}.vsix
