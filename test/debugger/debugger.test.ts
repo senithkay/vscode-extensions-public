@@ -98,7 +98,7 @@ suite('Ballerina Debug Adapter', () => {
             const response = await dc.initializeRequest();
             response.body = response.body || {};
             assert.equal(response.body.supportsConfigurationDoneRequest, true, 'Invalid config done rquest.');
-        }).timeout(20000);
+        });
 
         test('launch request', async () => {
             const program = path.join(DATA_ROOT, 'hello_world.bal');
@@ -114,7 +114,7 @@ suite('Ballerina Debug Adapter', () => {
 
             assert.equal(response.success, true, 'Invalid response state.');
             assert.equal(response.command, 'launch', 'Invalid response command.');
-        }).timeout(20000);
+        });
 
         test('should stop on a breakpoint, main function', async () => {
             const program = path.join(DATA_ROOT, 'hello_world.bal');
@@ -128,7 +128,7 @@ suite('Ballerina Debug Adapter', () => {
                 "debuggeePort": debuggeePort
             };
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 5 });
-        }).timeout(20000);
+        });
 
         test('should stop on a breakpoint, hello world service', async () => {
             const program = path.join(DATA_ROOT, 'hello_world_service.bal');
@@ -148,7 +148,7 @@ suite('Ballerina Debug Adapter', () => {
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
-        }).timeout(20000);
+        });
 
         test('should stop on a breakpoint, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloServicePackage', 'hello_service.bal');
@@ -168,7 +168,7 @@ suite('Ballerina Debug Adapter', () => {
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
-        }).timeout(20000);
+        });
 
         test('step In, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
@@ -222,7 +222,7 @@ suite('Ballerina Debug Adapter', () => {
                     });
                 })
             ]);
-        }).timeout(100000);
+        });
     });
 });
 

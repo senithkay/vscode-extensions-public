@@ -19,17 +19,20 @@
  */
 
 import { LanguageClient } from "vscode-languageclient";
-import { Uri } from "vscode";
+import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
+import {
+    DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
+    DiagramEditorLangClientInterface, BallerinaSyntaxTreeModifyRequest, BallerinaSyntaxTreeResponse,
+    BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
+    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
+    GetSyntaxTreeFileRangeParams, GetSyntaxTreeFileRangeResponse
+} from "@wso2-enterprise/low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
 
 export interface BallerinaSyntaxTree {
     kind: string;
     topLevelNodes: any[];
-}
-
-export interface BallerinaSyntaxTreeResponse {
-    syntaxTree?: BallerinaSyntaxTree;
 }
 
 export interface GetSyntaxTreeRequest {
@@ -134,8 +137,77 @@ export interface ExecutorPosition {
     name: string;
 }
 
-export class ExtendedLangClient extends LanguageClient {
-    getSyntaxTree(uri: Uri): Thenable<BallerinaSyntaxTreeResponse> {
+export interface LowCodeLangClient extends Omit<DiagramEditorLangClientInterface, 'init'> {
+}
+
+export class ExtendedLangClient extends LanguageClient implements LowCodeLangClient {
+    isInitialized: boolean = true;
+
+    didOpen(params: DidOpenParams): void {
+        this.sendRequest("textDocument/didOpen", params);
+    }
+    registerPublishDiagnostics(): void {
+        this.onNotification("textDocument/publishDiagnostics", (notification: any) => {
+        });
+    }
+    didClose(params: DidCloseParams): void {
+        this.sendRequest("textDocument/didClose", params);
+    }
+    didChange(params: DidChangeParams): void {
+        this.sendRequest("textDocument/didChange", params);
+    }
+    syntaxTreeModify(params: BallerinaSyntaxTreeModifyRequest): Thenable<BallerinaSyntaxTreeResponse> {
+        return this.sendRequest<BallerinaSyntaxTreeResponse>("ballerinaDocument/syntaxTreeModify", params);
+    }
+    getConnectors(): Thenable<BallerinaConnectorsResponse> {
+        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
+    }
+    getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
+        return this.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);
+    }
+    getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
+        return this.sendRequest<BallerinaRecordResponse>("ballerinaConnector/record", params);
+    }
+    astModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        return this.sendRequest<BallerinaSTModifyResponse>("ballerinaDocument/astModify", params);
+    }
+    stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        return this.sendRequest<BallerinaSTModifyResponse>("ballerinaDocument/syntaxTreeModify", params);
+    }
+    triggerModify(params: TriggerModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        return this.sendRequest<BallerinaSTModifyResponse>("ballerinaDocument/triggerModify", params);
+    }
+
+    public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
+        return this.sendRequest("textDocument/documentSymbol", params);
+    }
+
+    public close(): void {
+    }
+    
+    getDidOpenParams(): DidOpenParams {
+        return {
+            textDocument: {
+                uri: "file://",
+                languageId: "ballerina",
+                text: '',
+                version: 1
+            }
+        };
+    }
+
+    getSyntaxTreeFileRange(params: GetSyntaxTreeFileRangeParams): Thenable<GetSyntaxTreeFileRangeResponse> {
+        return this.sendRequest("ballerinaDocument/syntaxTreeByRange", params);
+    }
+
+    getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {
+        const req: GetSynRequest = {
+            Params: params
+        };
+        return this.sendRequest("ballerinaSyntaxHighlighter/list", req);
+    }
+
+    getSyntaxTree(uri: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
         const req: GetSyntaxTreeRequest = {
             documentIdentifier: {
                 uri: uri.toString()

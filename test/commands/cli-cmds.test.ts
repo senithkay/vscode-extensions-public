@@ -62,7 +62,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
             }
         });
         runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.DOC, projectPath);
-    }).timeout(15000);
+    });
 
     test("Test Build - Ballerina project", done => {
         const projectPath = path.join(PROJECT_ROOT, 'helloServicePackage');
@@ -82,7 +82,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
             }
         });
         runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.BUILD, projectPath);
-    }).timeout(15000);
+    });
 
     test("Test Build - Single file", done => {
         const filePath = path.join(PROJECT_ROOT, 'hello_world.bal');
@@ -95,7 +95,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
             }
         });
         runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.BUILD, filePath);
-    }).timeout(15000);
+    });
 
     test("Test Run - Ballerina project", done => {
         const projectPath = path.join(PROJECT_ROOT, 'helloService9093Package');
@@ -112,7 +112,7 @@ suite("Ballerina Extension CLI Command Tests", () => {
             done();
         }
         killPort(9093);
-    }).timeout(15000);
+    });
 
     test("Test Run - Single file", done => {
         const filePath = path.join(PROJECT_ROOT, 'hello_world_service_9092.bal');
@@ -122,5 +122,5 @@ suite("Ballerina Extension CLI Command Tests", () => {
             done();
         }
         killPort(9092);
-    }).timeout(15000);
+    });
 });

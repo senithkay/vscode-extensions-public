@@ -18,7 +18,7 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { join } from 'path';
 
-export enum PROJECT_KIND {
+export enum CMP_KIND {
     PACKAGE = "package",
     MODULE = "module",
     FUNCTION = "function",
@@ -37,12 +37,12 @@ export class PackageTreeItem extends TreeItem {
     private childrenData: ChildrenData;
     private startLine: number;
     private startColumn: number;
-    private endLine: number;
-    private endColumn: number;
+    private isSingleFile: boolean;
+
     constructor(public readonly label: string, private version: string, public readonly collapsibleState:
         TreeItemCollapsibleState, kind: string, filePath: string, extensionPath: string, hasIcon: boolean,
         parent: PackageTreeItem | null, childrenData: ChildrenData, startLine: number = -1, startColumn: number = -1,
-        endLine: number = -1, endColumn: number = -1
+        isSingleFile: boolean = false
     ) {
         super(label, collapsibleState);
         this.tooltip = `${this.label} ${kind}`;
@@ -54,8 +54,8 @@ export class PackageTreeItem extends TreeItem {
         this.parent = parent;
         this.startLine = startLine;
         this.startColumn = startColumn;
-        this.endLine = endLine;
-        this.endColumn = endColumn;
+        this.isSingleFile = isSingleFile;
+
         if (hasIcon) {
             this.iconPath = {
                 light: join(this.extensionPath, 'resources', 'images', 'icons', `${kind.toLowerCase()}.svg`),
@@ -71,8 +71,7 @@ export class PackageTreeItem extends TreeItem {
                 this.kind,
                 this.startLine,
                 this.startColumn,
-                this.endLine,
-                this.endColumn
+                this.label
             ]
         };
     }
@@ -101,16 +100,12 @@ export class PackageTreeItem extends TreeItem {
         return this.startColumn;
     }
 
-    getEndLine() {
-        return this.endLine;
-    }
-
-    getEndColumn() {
-        return this.endColumn;
-    }
-
     getKind() {
         return this.kind;
+    }
+
+    getIsSingleFile() {
+        return this.isSingleFile;
     }
 }
 

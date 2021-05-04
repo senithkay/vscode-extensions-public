@@ -25,7 +25,7 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT
 } from "./messages";
 import * as path from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -57,8 +57,7 @@ export interface ConstructIdentifier {
     kind: string;
     startLine: number;
     startColumn: number;
-    endLine: number;
-    endColumn: number;
+    name: string;
 }
 
 export class BallerinaExtension {
@@ -360,15 +359,6 @@ export class BallerinaExtension {
     showMessageOldBallerina(): any {
         const download: string = 'Download';
         window.showWarningMessage(OLD_BALLERINA_VERSION, download).then((selection) => {
-            if (download === selection) {
-                commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
-            }
-        });
-    }
-
-    showMessageOldPlugin(): any {
-        const download: string = 'Download';
-        window.showWarningMessage(OLD_PLUGIN_VERSION, download).then((selection) => {
             if (download === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
             }

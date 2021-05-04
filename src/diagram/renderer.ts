@@ -1,12 +1,11 @@
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render (docUri: Uri)
-        : string {       
-   return renderDiagram(docUri);
+export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
+    return renderDiagram(filePath, startLine, startColumn, kind, name);
 }
 
-function renderDiagram(docUri: Uri): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
 
     const body = `
         <div id="warning"></div>
@@ -53,11 +52,16 @@ function renderDiagram(docUri: Uri): string {
             line-height: 25px;
         }
     `;
-
+        
+    kind = kind.charAt(0).toUpperCase() + kind.slice(1);
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
-            let docUri = ${JSON.stringify(docUri.toString())};
+            let filePath = ${JSON.stringify(filePath.fsPath)};
+            let startLine = ${JSON.stringify(startLine.toString())};
+            let startColumn = ${JSON.stringify(startColumn.toString())};
+            let name = ${JSON.stringify(name)};
+            let kind = ${JSON.stringify(kind)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -66,11 +70,12 @@ function renderDiagram(docUri: Uri): string {
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri,
-                            width,
-                            height,
-                            zoom,
-                            langClient: getLangClient()
+                            langClient: getLangClient(),
+                            filePath,
+                            startLine,
+                            startColumn,
+                            name,
+                            kind
                         }
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
@@ -90,21 +95,16 @@ function renderDiagram(docUri: Uri): string {
                 </div>
                 \`;
             }
-            function showWarning(message) {
-                document.getElementById("warning").innerHTML = \`
-                    <p><span class="fw fw-warning"></span> \$\{message\}</p>
-                \`;
-            }
             drawDiagram();
             enableUndoRedo();
         }
     `;
-    
+
     const webViewOptions: WebViewOptions = {
         ...getComposerWebViewOptions(),
         body, scripts, styles, bodyCss
     };
-    
+
     return getLibraryWebViewContent(webViewOptions);
 }
 
