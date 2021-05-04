@@ -30,6 +30,34 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: '8px',
             width: '100%',
         },
+        activeAccordionRoot: {
+            margin: '0 !important',
+            padding: 0,
+            border: "2px solid #DEE0E7",
+            boxShadow: 'none',
+            borderRight: 0,
+            borderTop: 0,
+            borderBottom: 0,
+            '&:not(:last-child)': {
+                marginTop: 0,
+            },
+            '&:first-child': {
+                marginBottom: 0,
+            },
+            '&:before': {
+                display: 'none',
+            },
+            '& .Mui-expanded': {
+                margin: 0,
+            },
+            '& .MuiIconButton-edgeEnd': {
+                margin: 'unset',
+            },
+            '& .MuiExpansionPanelSummary-expandIcon': {
+                display: 'none'
+            },
+            expanded: { },
+        },
         accordionRoot: {
             margin: '0 !important',
             padding: 0,
@@ -53,7 +81,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             '& .MuiIconButton-edgeEnd': {
                 margin: 'unset',
             },
-            expanded: {},
+            expanded: { },
         },
         accordionSummary: {
             padding: '0 0 0 16px',

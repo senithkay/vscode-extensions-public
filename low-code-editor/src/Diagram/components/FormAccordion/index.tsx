@@ -47,7 +47,7 @@ export function FormAccordion(props: FormAccordionProps) {
                 </div >
             ) }
             { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
-                <ExpansionPanel className={classes.accordionRoot} expanded={expanded === 'mandatory'} onChange={handleChange('mandatory')}>
+                <ExpansionPanel className={classes.activeAccordionRoot} expanded={true}>
                     {title && (
                         <ExpansionPanelSummary
                             className={classes.accordionSummary}
