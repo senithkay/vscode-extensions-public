@@ -14,8 +14,9 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import {Box, FormControl, IconButton, Typography} from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
+import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
 import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
@@ -31,11 +32,12 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { FormattedMessage, useIntl } from "react-intl";
+import { tooltipMessages } from "../../../Portals/utils/constants";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
-    onBackClick?: () => void;
+    onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
 }
@@ -46,7 +48,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -260,6 +262,23 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                        <div>
+                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: wizardClasses.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon/>
+                                </IconButton>
+                            </Box>
+                        </div>
                         <Typography variant="h4" className={classes.titleWrapper}>
                             <Box className={classes.formTitle}>
                                 <div className={classes.formTitleTag} >
@@ -286,7 +305,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick} />
                     <PrimaryButton
                         text={saveConnectionButtonText}
                         fullWidth={false}

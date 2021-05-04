@@ -254,5 +254,9 @@ export const tooltipMessages: Record<string, any> = {
         title: "We are using Ballerina Swan Lake Alpha2",
         actionText: "Learn more at ballerina.io",
         actionLink: "https://ballerina.io/"
+    },
+    connectorButtons: {
+        savaButton: "Save connector initialization",
+        savaNextButton: "Configure connector invocation"
     }
 }

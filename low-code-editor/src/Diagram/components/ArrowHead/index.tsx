@@ -16,8 +16,8 @@ import cn from "classnames";
 
 import "./style.scss";
 
-const arrowHeight = 7;
-const arrowWidth = 5;
+export const ARROW_HEIGHT = 5;
+export const ARROW_WIDTH = 4;
 
 export interface ArrowHeadProps {
     x: number,
@@ -58,24 +58,24 @@ export function ArrowHead(props: ArrowHeadProps) {
 
 function getDownArrowCoordinates(x: number, y: number): ArrowCoordinates {
     return {
-        bx: x, by: y, tLx: x - arrowWidth, tLy: y - arrowHeight, tRx: x + arrowWidth, tRy: y - arrowHeight
+        bx: x, by: y, tLx: x - ARROW_WIDTH, tLy: y - ARROW_HEIGHT, tRx: x + ARROW_WIDTH, tRy: y - ARROW_HEIGHT
     }
 }
 
 function getUpArrowCoordinates(x: number, y: number): ArrowCoordinates {
     return {
-        bx: x, by: y, tLx: x + arrowWidth, tLy: y + arrowHeight, tRx: x - arrowWidth, tRy: y + arrowHeight
+        bx: x, by: y, tLx: x + ARROW_WIDTH, tLy: y + ARROW_HEIGHT, tRx: x - ARROW_WIDTH, tRy: y + ARROW_HEIGHT
     }
 }
 
 function getRightArrowCoordinates(x: number, y: number): ArrowCoordinates {
     return {
-        bx: x, by: y, tLx: x - arrowHeight, tLy: y - arrowWidth, tRx: x - arrowHeight, tRy: y + arrowWidth
+        bx: x, by: y, tLx: x - ARROW_HEIGHT, tLy: y - ARROW_WIDTH, tRx: x - ARROW_HEIGHT, tRy: y + ARROW_WIDTH
     }
 }
 
 function getLeftArrowCoordinates(x: number, y: number): ArrowCoordinates {
     return {
-        bx: x, by: y, tLx: x + arrowHeight, tLy: y + arrowWidth, tRx: x + arrowHeight, tRy: y - arrowWidth
+        bx: x, by: y, tLx: x + ARROW_HEIGHT, tLy: y + ARROW_WIDTH, tRx: x + ARROW_HEIGHT, tRy: y - ARROW_WIDTH
     }
 }

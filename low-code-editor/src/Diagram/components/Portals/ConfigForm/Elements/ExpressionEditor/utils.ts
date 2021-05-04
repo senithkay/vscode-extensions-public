@@ -96,11 +96,20 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
 
 export function getInitialValue(defaultValue: string, model: FormField): string {
     const initVal = defaultValue ? defaultValue : model.value;
-    if (model.type === PrimitiveBalType.String && !model.optional) {
-        return initVal ? initVal : "\"\"";
-    } else {
-        return initVal;
-    }
+    // if (model.type === PrimitiveBalType.String && !model.optional) {
+    //     // if (initVal) {
+    //     //     return initVal;
+    //     // } else if (model.defaultValue) {
+    //     //     return model.defaultValue;
+    //     // } else {
+    //     //     model.defaultValue = "\"\"";
+    //     //     return model.defaultValue;
+    //     // }
+
+    //     return initVal ? initVal : "\"\"";
+    // } else {
+    return initVal;
+    // }
 }
 
 /** Check if a mandatory fields is empty or not */
