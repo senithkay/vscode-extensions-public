@@ -26,27 +26,18 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }
     const { toolTipTitle, ...xyProps } = props;
     const deleteSVGIcon = (
         <g id="DeleteGroup" className="delete-circle" transform="translate(3.5 3.5)">
-            {/* <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
+            <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
                 <g id="Delete" transform="translate(4.5 3.5)">
                     <rect width="18" height="18" rx="10.5" stroke="none" />
                     <rect x="0.5" y="0.5" width="17" height="17" rx="10" fill="none" />
                 </g>
-            </g> */}
+            </g>
                 <path
                     id="DeleteIcon"
                     className="delete-bin-icon"
                     d="M3.745,12a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7a2,2,0,0,1-2,2Zm-1-2a1,1,0,0,
                 0,1,1h4.5a1,1,0,0,0,1-1V3h-6.5Zm4-1.5v-4a.5.5,0,1,1,1,0v4a.5.5,0,1,1-1,0Zm-2.5,0v-4a.5.5,0,1,1,1,
                 0v4a.5.5,0,1,1-1,0Zm0-7.5a.5.5,0,1,1,0-1h3.5a.5.5,0,0,1,0,1Z"
-                    fill="#fe523c"
-                />
-
-                <path
-                    id="Combined_Shape"
-                    className="delete-bin-icon-hovered"
-                    d="M8.249,12h-4.5a2,2,0,0,1-2-2V3H.5a.5.5,0,1,1,0-1h11a.5.5,0,0,1,0,1H10.249v7A2,2,0,0,1,8.249,
-                12Zm-1-8a.5.5,0,0,0-.5.5V9a.5.5,0,1,0,1,0V4.5A.5.5,0,0,0,7.245,4Zm-2.5,0a.5.5,0,0,0-.5.5V9a.5.5,0,
-                1,0,1,0V4.5A.5.5,0,0,0,4.745,4Zm3-3h-3.5a.5.5,0,1,1,0-1h3.5a.5.5,0,0,1,0,1Z"
                     fill="#fe523c"
                 />
         </g>
