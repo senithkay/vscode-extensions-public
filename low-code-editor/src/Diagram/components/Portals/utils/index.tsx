@@ -248,6 +248,7 @@ export function getParams(formFields: FormField[]): string[] {
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
+
                 formField.fields.forEach(field => {
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
@@ -278,20 +279,25 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "record" && !field.hide) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-
-                        const fieldArray: FormField[] = [
-                            {
-                                isParam: true,
-                                type: PrimitiveBalType.Record,
-                                fields: field.fields
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (name) {
+                            const fieldArray: FormField[] = [
+                                {
+                                    isParam: true,
+                                    type: PrimitiveBalType.Record,
+                                    fields: field.fields
+                                }
+                            ]
+                            const params = getParams(fieldArray);
+                            if (params && params.length > 0) {
+                                if (firstRecordField) {
+                                    recordFieldsString += ", ";
+                                } else {
+                                    firstRecordField = true;
+                                }
+                                recordFieldsString += name + ": " + params;
                             }
-                        ]
-                        recordFieldsString += getFieldName(field.name) + ": " + getParams(fieldArray);
+                        }
                     }
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {

@@ -76,7 +76,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
+        const matchedConnector = getMatchingConnector(connectorInit, connectors, stSymbolInfo);
+        setConnector(matchedConnector);
         setIsConnectorEdit(!isEditConnector);
     };
 
