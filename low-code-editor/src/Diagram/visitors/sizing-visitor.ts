@@ -29,6 +29,7 @@ import {
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/Collapse/CollapseSVG";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/connector/ConnectorHeader/ConnectorClientSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
@@ -307,8 +308,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
 
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2) + (DefaultConfig.dotGap * 2)
-                + (viewState.variableName.length > 0 ? VARIABLE_NAME_WIDTH : 0)
+                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2) + (DefaultConfig.dotGap * 2) + DefaultConfig.forEach.emptyHorizontalGap
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
                 viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
@@ -440,6 +440,7 @@ class SizingVisitor implements Visitor {
                 }
                 elseWidth = elseViewState.bBox.w;
 
+
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
@@ -528,13 +529,10 @@ class SizingVisitor implements Visitor {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
-                let variableName: string;
-                if (STKindChecker.isLocalVarDecl) {
-                    const varDeclatarion = node as LocalVarDecl
-                    variableName = ((varDeclatarion.typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
-                }
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
-                viewState.bBox.w = viewState.dataProcess.w;
+                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
@@ -563,8 +561,15 @@ class SizingVisitor implements Visitor {
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
-                viewState.bBox.w = viewState.dataProcess.w;
+                if (STKindChecker.isLocalVarDecl) {
+                    const varDeclatarion = node as LocalVarDecl
+                    viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+                } else {
+                    viewState.bBox.w = viewState.dataProcess.w;
+                }
             }
         }
     }
@@ -682,10 +687,10 @@ class SizingVisitor implements Visitor {
                         // to make the next plus invisible if the current statement is not the last statement
                         // if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
                         for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                                if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
-                                    invisiblePlusIndex.visible = false;
-                                }
+                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
+                                invisiblePlusIndex.visible = false;
                             }
+                        }
                         // }
 
                         plusForIndex.collapsedClicked = false;

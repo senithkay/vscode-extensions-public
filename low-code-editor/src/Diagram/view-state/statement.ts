@@ -22,7 +22,8 @@ export class StatementViewState extends ViewState {
     public endpoint: EndpointViewState = new EndpointViewState();
     public dataProcess: SimpleBBox = new SimpleBBox();
     public variableName: SimpleBBox = new SimpleBBox();
-    public hasConditionAssignment: SimpleBBox = new SimpleBBox();
+    public variableAssignment: SimpleBBox = new SimpleBBox();
+    public conditionAssignment: SimpleBBox = new SimpleBBox();
     public action: ActionViewState = new ActionViewState();
 
     constructor() {
