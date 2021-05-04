@@ -36,7 +36,7 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
             <TooltipCodeSnippet content={text} placement="right" arrow={true}>
                 <g id="Group" transform="translate(3.5 2.5)">
                     <g transform="matrix(1, 0, 0, 1, -3.5, -2.5)" filter="url(#Rectangle_Copy_10)">
-                        <rect id="Rectangle_Copy_10-2" data-name="Rectangle Copy 10" width="97" height="24" rx="12" transform="translate(3.5 2.5)" fill="#f0f1fb" stroke="#fff" stroke-miterlimit="10" stroke-width="1"/>
+                        <rect id="Rectangle_Copy_10-2" width="97" height="24" rx="12" transform="translate(3.5 2.5)" fill="#f0f1fb" stroke="#fff" strokeMiterlimit="10" strokeWidth="1"/>
                     </g>
                     <text className="trigger-params-text" transform="translate(48.5 12)">
                         <tspan

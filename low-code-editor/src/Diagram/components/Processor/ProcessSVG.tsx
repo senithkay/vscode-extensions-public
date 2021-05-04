@@ -15,6 +15,7 @@ import * as React from "react";
 
 import { ModelCodePosition } from "../../../api/models";
 import { TooltipCodeSnippet } from "../Portals/ConfigForm/Elements/Tooltip"
+import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import "./style.scss";
 
@@ -64,8 +65,8 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                         </g>
                         {processType === "Log" ?
                             (
-                                <text id="new" transform="translate(242 538)" fill="#5567d5" font-size="12" font-family="GilmerMedium, Gilmer Medium">
-                                    <tspan x="0" y="0">Log</tspan>
+                                <text id="new" transform="translate(242 538)" className="process-icon-text">
+                                    <tspan x="1" y="1">log</tspan>
                                 </text>
                             )
                             :

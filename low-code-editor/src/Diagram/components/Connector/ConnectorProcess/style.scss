@@ -121,7 +121,7 @@
         .connector-process-rect {
             fill: #fafafc;
             height: 15px;
-            width: 22px;
+            width: 25px;
         }
     }
 
@@ -171,5 +171,16 @@
         fill: #ff9d52;
         font-family: "Droid Sans Mono";
     }
+
     /* stylelint-enable */
+    .connector-text {
+        height: 12px;
+        width: 24px;
+        fill: #5567d5;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 0;
+        line-height: 12px;
+        font-weight: 100;
+    }
 }

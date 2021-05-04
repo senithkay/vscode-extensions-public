@@ -13,23 +13,24 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { CallStatement, FunctionCall, LocalVarDecl, PositionalArg, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { AssignmentStatement, CallStatement, FunctionCall, LocalVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
-import { getOverlayFormConfig } from "../../utils/diagram-util";
+import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
+import { DefaultConfig } from "../../visitors/default";
 import { Assignment } from "../Assignment";
 import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
-import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
+import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
-import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
+import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
-import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW, PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ProcessSVG";
+import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
 
 export interface ProcessorProps {
@@ -223,6 +224,8 @@ export function DataProcessor(props: ProcessorProps) {
     let assignmentText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
         assignmentText = ((model as CallStatement).expression as FunctionCall).arguments[0].source;
+    } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
+        assignmentText = (model as AssignmentStatement).expression.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
         assignmentText = (model as LocalVarDecl).initializer.source;
     }
@@ -233,8 +236,14 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
                     <React.Fragment>
-                        {processType !== "Log" &&
-                            <VariableName processType={processType} variableName={processName} x={cx - VARIABLE_NAME_WIDTH} y={cy + PROCESS_SVG_HEIGHT / 4} />
+                        {processType !== "Log" && !isDraftStatement &&
+                            <VariableName
+                                processType={processType}
+                                variableName={processName}
+                                x={cx - (VARIABLE_NAME_WIDTH + 40)}
+                                y={cy + PROCESS_SVG_HEIGHT / 4}
+                                key_id={getRandomInt(1000)}
+                            />
                         }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
@@ -245,7 +254,13 @@ export function DataProcessor(props: ProcessorProps) {
                             position={model?.position}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                         />
-                        <Assignment x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} y={cy + PROCESS_SVG_HEIGHT / 3} assignment={assignmentText} className="assignment-text" />
+                        <Assignment
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                            y={cy + PROCESS_SVG_HEIGHT / 3}
+                            assignment={assignmentText}
+                            className="assignment-text"
+                            key_id={getRandomInt(1000)}
+                        />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"

@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
+    CaptureBindingPattern,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -28,6 +29,7 @@ import {
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/Collapse/CollapseSVG";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/Connector/ConnectorHeader/ConnectorClientSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
@@ -40,6 +42,7 @@ import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/P
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
+import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
@@ -297,7 +300,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = 0;
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
                 ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
-                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
+                + DefaultConfig.forEach.emptyHorizontalGap + (DefaultConfig.dotGap * 2)
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
                 COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
@@ -305,7 +308,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
 
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
+                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2) + (DefaultConfig.dotGap * 2) + DefaultConfig.forEach.emptyHorizontalGap
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
                 viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
@@ -437,6 +440,7 @@ class SizingVisitor implements Visitor {
                 }
                 elseWidth = elseViewState.bBox.w;
 
+
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
@@ -525,8 +529,10 @@ class SizingVisitor implements Visitor {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
-                viewState.bBox.w = viewState.dataProcess.w;
+                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
@@ -555,8 +561,15 @@ class SizingVisitor implements Visitor {
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
-                viewState.bBox.w = viewState.dataProcess.w;
+                if (STKindChecker.isLocalVarDecl) {
+                    const varDeclatarion = node as LocalVarDecl
+                    viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+                } else {
+                    viewState.bBox.w = viewState.dataProcess.w;
+                }
             }
         }
     }
@@ -674,10 +687,10 @@ class SizingVisitor implements Visitor {
                         // to make the next plus invisible if the current statement is not the last statement
                         // if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
                         for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                                if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
-                                    invisiblePlusIndex.visible = false;
-                                }
+                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
+                                invisiblePlusIndex.visible = false;
                             }
+                        }
                         // }
 
                         plusForIndex.collapsedClicked = false;

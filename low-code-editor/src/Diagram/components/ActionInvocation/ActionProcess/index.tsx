@@ -13,26 +13,24 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { CallStatement, FunctionCall, LocalVarDecl, PositionalArg, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
-import { getOverlayFormConfig } from "../../../utils/diagram-util";
+import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
-import { DraftInsertPosition, DraftStatementViewState } from "../../../view-state/draft";
-import { Assignment } from "../../Assignment";
-import { ProcessConfigForm } from "../../ConfigForms/ProcessConfigForms";
+import { DraftStatementViewState } from "../../../view-state/draft";
 import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
-import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
+import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
-import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
+import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../../VariableName";
 
-import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW, PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ProcessSVG";
+import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
 
 export interface ProcessorProps {
@@ -196,7 +194,17 @@ export function ActionProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
                     <React.Fragment>
-                        <VariableName processType={processType} variableName={processName} x={cx - VARIABLE_NAME_WIDTH} y={cy + PROCESS_SVG_HEIGHT / 4} />
+                        {!isDraftStatement &&
+                            (
+                                <VariableName
+                                    processType={processType}
+                                    variableName={processName}
+                                    x={cx - (VARIABLE_NAME_WIDTH + 40)}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    key_id={getRandomInt(1000)}
+                                />
+                            )
+                        }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
@@ -215,21 +223,21 @@ export function ActionProcessor(props: ProcessorProps) {
                                 y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             >
                                 <g>
-                                {((model === null || isEditConnector)) && (
-                                    <ConnectorConfigWizard
-                                        connectorInfo={connector}
-                                        position={{
-                                            x: viewState.bBox.cx + 80,
-                                            y: viewState.bBox.cy,
-                                        }}
-                                        targetPosition={draftViewState.targetPosition}
-                                        selectedConnector={draftViewState.selectedConnector}
-                                        model={model}
-                                        onClose={onWizardClose}
-                                        isAction={true}
-                                    />
-                                )}
-                            </g>
+                                    {((model === null || isEditConnector)) && (
+                                        <ConnectorConfigWizard
+                                            connectorInfo={connector}
+                                            position={{
+                                                x: viewState.bBox.cx + 80,
+                                                y: viewState.bBox.cy,
+                                            }}
+                                            targetPosition={draftViewState.targetPosition}
+                                            selectedConnector={draftViewState.selectedConnector}
+                                            model={model}
+                                            onClose={onWizardClose}
+                                            isAction={true}
+                                        />
+                                    )}
+                                </g>
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect

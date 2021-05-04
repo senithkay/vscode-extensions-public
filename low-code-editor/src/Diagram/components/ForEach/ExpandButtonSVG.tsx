@@ -26,7 +26,7 @@ export function ExpandButtonSVG(props: { x: number, y: number, onClick: () => vo
         <g id="Expand_default" transform="translate(1 1)">
             <g id="Rectangle_Copy_8">
                 <rect id="Rectangle_Copy_8-2" width="14" height="14" rx="2" fill="#fff" />
-                <g id="Rectangle_Copy_8-3" fill="none" stroke="#bdbec4" stroke-miterlimit="10" stroke-width="1">
+                <g id="Rectangle_Copy_8-3" fill="none" stroke="#bdbec4" strokeMiterlimit="10" strokeWidth="1">
                     <rect width="14" height="14" rx="2" stroke="none" />
                     <rect x="-0.5" y="-0.5" width="15" height="15" rx="2.5" fill="none" />
                 </g>

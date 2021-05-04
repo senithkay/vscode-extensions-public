@@ -37,12 +37,12 @@ export function ConnectorProcessSVG(props: { x: number, y: number }) {
             </defs>
             <g id="Group_2_Copy_2" transform="translate(5 1)">
                 <g transform="matrix(1, 0, 0, 1, -3, -5.5)" filter="url(#default-filter)">
-                    <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" fill="url(#linear-gradient)">
+                    <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#linear-gradient)">
                         <rect width="48" height="48" rx="4" stroke="none" />
                         <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" fill="none" />
                     </g>
                 </g>
-                <text id="new" transform="translate(12 27.5)" fill="#5567d5" font-size="12" font-family="GilmerMedium, Gilmer Medium">
+                <text id="new" transform="translate(12 27.5)" className="connector-text">
                     <tspan x="0" y="0">new</tspan>
                 </text>
             </g>

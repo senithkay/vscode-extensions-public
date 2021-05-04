@@ -19,26 +19,29 @@ import { DefaultConfig } from "../../visitors/default";
 
 import "./style.scss"
 
-export let ASSIGNMENT_NAME_WIDTH = 125;
+export let CONDITION_ASSIGNMENT_NAME_WIDTH = 125;
 
-export function Assignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number}) {
+export function ContitionAssignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number }) {
     const { assignment, className, key_id, ...xyProps } = props;
-    const [textWidth, setTextWidth] = useState(ASSIGNMENT_NAME_WIDTH);
+    const [textWidth, setTextWidth] = useState(CONDITION_ASSIGNMENT_NAME_WIDTH);
     useEffect(() => {
         setTextWidth(document.getElementById("textLegnth_" + key_id).getBoundingClientRect().width);
     }, []);
 
     const assignmentMaxWidth = assignment?.length >= 15;
     const assignmentWidth = textWidth
+    let assignmentX = 0;
+
+    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? (CONDITION_ASSIGNMENT_NAME_WIDTH + (assignmentWidth / 4) - (DefaultConfig.dotGap * 2)) : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
 
     return (
         <svg {...xyProps}>
             <text
                 className={classNames("assignment-text", className)}
                 id="Assignment_text"
-                transform="translate(0 11)"
+                transform="translate(15 11)"
             >
-                <tspan x="0" y="0" id={"textLegnth_" + key_id}>{assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment}</tspan>
+                <tspan x={assignmentX} y="0" id={"textLegnth_" + key_id}>  {assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment} </tspan>
             </text>
         </svg>
     );

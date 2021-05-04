@@ -23,13 +23,14 @@ import {
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig } from "../../utils/diagram-util";
+import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState } from "../../view-state";
 import { WhileViewState } from "../../view-state/while";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
+import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -44,6 +45,7 @@ import {
 } from "../DiagramActions/EditBtn/EditSVG";
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
+import { FOREACH_SVG_HEIGHT } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 import { PlusButton } from "../Plus";
 
@@ -184,7 +186,13 @@ export function While(props: WhileProps) {
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
-                <Assignment x={x - (WHILE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + WHILE_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment" />
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + WHILE_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
 
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
@@ -246,8 +254,13 @@ export function While(props: WhileProps) {
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
-                <Assignment x={x - (WHILE_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + WHILE_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment" />
-
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + WHILE_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
                     <g
                         className="while-options-wrapper"

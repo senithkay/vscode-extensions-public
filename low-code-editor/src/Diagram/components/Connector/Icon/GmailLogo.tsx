@@ -31,10 +31,10 @@ export function GmailLogo(props: { cx?: number, cy?: number, scale?: number }) {
             </defs>
             <g id="GmailWrapper" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <path id="Path" d="M1.364,11.136H4.545V3.409L0,0V9.773a1.363,1.363,0,0,0,1.364,1.364" transform="translate(0 3.868)" fill="#4285f4" />
-                <path id="Path-2" data-name="Path" d="M0,11.136H3.182A1.363,1.363,0,0,0,4.545,9.773V0L0,3.409" transform="translate(15.455 3.868)" fill="#34a853" />
-                <path id="Path-3" data-name="Path" d="M0,1.368V7.277L4.545,3.868V2.049A2.045,2.045,0,0,0,1.273.413" transform="translate(15.455 0)" fill="#fbbc04" />
-                <path id="Path-4" data-name="Path" d="M0,5.909V0L5.455,4.091,10.909,0V5.909L5.455,10" transform="translate(4.545 1.368)" fill="#ea4335" />
-                <path id="Path-5" data-name="Path" d="M0,2.049V3.868L4.545,7.277V1.368L3.273.413A2.045,2.045,0,0,0,0,2.049" transform="translate(0 0)" fill="#c5221f" />
+                <path id="Path-2" d="M0,11.136H3.182A1.363,1.363,0,0,0,4.545,9.773V0L0,3.409" transform="translate(15.455 3.868)" fill="#34a853" />
+                <path id="Path-3" d="M0,1.368V7.277L4.545,3.868V2.049A2.045,2.045,0,0,0,1.273.413" transform="translate(15.455 0)" fill="#fbbc04" />
+                <path id="Path-4" d="M0,5.909V0L5.455,4.091,10.909,0V5.909L5.455,10" transform="translate(4.545 1.368)" fill="#ea4335" />
+                <path id="Path-5" d="M0,2.049V3.868L4.545,7.277V1.368L3.273.413A2.045,2.045,0,0,0,0,2.049" transform="translate(0 0)" fill="#c5221f" />
             </g>
         </svg>
     )
