@@ -18,13 +18,13 @@ import { CaptureBindingPattern, ForeachStatement, STKindChecker, STNode, TypedBi
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig } from "../../utils/diagram-util";
+import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
-import { ContitionAssignment } from "../ContitionAssignment";
+import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -186,18 +186,19 @@ export function ForEach(props: ForeachProps) {
     const forEachSource = forEachModel?.actionOrExpressionNode.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
 
-    const assignmentTextWidth = assignmentText.length * 8 + DefaultConfig.dotGap;
-
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper">
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
-                {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 5} assignment={assignmentText} className="condition-assignment"/> */}
-                {/* <ContitionAssignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + CONDITION_ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 5} assignment={assignmentText} className="condition-assignment"/> */}
-                {/* <ContitionAssignment x={x - (IFELSE_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)} assignment={assignmentText} className="condition-assignment" /> */}
 
-                <ContitionAssignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + assignmentTextWidth)} y={y + FOREACH_SVG_HEIGHT / 5} assignment={assignmentText} className="condition-assignment"/>
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + FOREACH_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
                 <>
                     {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                         className="foreach-options-wrapper"
@@ -255,8 +256,13 @@ export function ForEach(props: ForeachProps) {
             <g className="foreach-polygon-wrapper" onClick={onForeachHeadClick}>
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
                 {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/> */}
-                <ContitionAssignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW + assignmentTextWidth)} y={y + FOREACH_SVG_HEIGHT / 5} assignment={assignmentText} className="condition-assignment"/>
-                <>
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + FOREACH_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />                <>
                     {
                         (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                             className="foreach-options-wrapper"
