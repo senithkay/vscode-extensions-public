@@ -21,7 +21,7 @@ import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
-import { clearTerminal, PALETTE_COMMANDS } from '../project';
+import { BAL_TOML, clearTerminal, PALETTE_COMMANDS } from '../project';
 import fileUriToPath = require('file-uri-to-path');
 import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
@@ -56,14 +56,17 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
 
-        workspace.onDidChangeConfiguration(() => {
-            this._onDidChangeCodeLenses.fire();
+        workspace.onDidOpenTextDocument((document) => {
+            if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
+                this._onDidChangeCodeLenses.fire();
+            }
         });
-        workspace.onDidOpenTextDocument(() => {
-            this._onDidChangeCodeLenses.fire();
-        });
-        workspace.onDidChangeTextDocument(() => {
-            this._onDidChangeCodeLenses.fire();
+
+        workspace.onDidChangeTextDocument((activatedTextEditor) => {
+            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
+                activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
+                this._onDidChangeCodeLenses.fire();
+            }
         });
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async (...args: any[]) => {

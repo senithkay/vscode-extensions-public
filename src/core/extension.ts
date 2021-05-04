@@ -220,8 +220,9 @@ export class BallerinaExtension {
     registerPreInitHandlers(): any {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-            if (params.affectsConfiguration(BALLERINA_HOME) ||
-                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
+            if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
+                || params.affectsConfiguration(ENABLE_ALL_CODELENS)
+                || params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });

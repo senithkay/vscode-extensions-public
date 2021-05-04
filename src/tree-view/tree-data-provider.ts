@@ -15,17 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient } from 'src/core';
+import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND } from './model';
 import { join, sep } from 'path';
 import fileUriToPath = require('file-uri-to-path');
-import { PROJECT_TYPE } from '../project/cli-cmds/cmd-runner';
-
-const BAL_TOML = "Ballerina.toml";
-const BALLERINA = "ballerina";
+import { BAL_TOML, PROJECT_TYPE } from '../project';
 
 /**
  * Data provider class for package tree.
@@ -40,12 +37,12 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.langClient = ballerinaExtension.langClient;
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         workspace.onDidOpenTextDocument(document => {
-            if (document.languageId === BALLERINA || document.fileName.endsWith(BAL_TOML)) {
+            if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === BALLERINA ||
+            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
                 this.refresh();
             }
