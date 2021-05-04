@@ -7,6 +7,7 @@ import { GoogleCalanderLogo } from "./GoogleCalanderLogo"
 import { GoogleSheetLogo } from "./GoogleSheetLogo"
 import { HttpLogo } from "./HttpLogo";
 import { ImapLogo } from "./ImapLogo"
+import { NetsuiteLogo } from "./NetsuiteLogo";
 import { Pop3Logo } from "./Pop3Logo";
 import { PostgreSQLogo } from "./PostgreSQLogo";
 import { QueryClientLogo } from "./QueryClientLogo";
@@ -20,7 +21,7 @@ import { TwitterLogo } from "./TwitterLogo";
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
-export { SalesforceLogo as sfdc_BaseClient };
+export { SalesforceLogo as sfdc_Client };
 export { SObjectClientLogo as sfdc_SObjectClient };
 export { SlackLogo as slack_Client };
 export { TwilioLogo as twilio_Client };
@@ -36,3 +37,4 @@ export { GoogleCalanderLogo as googleapis_calendar_Client} ;
 export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
 export { PostgreSQLogo as postgresql_Client };
+export { NetsuiteLogo as netsuite_Client };

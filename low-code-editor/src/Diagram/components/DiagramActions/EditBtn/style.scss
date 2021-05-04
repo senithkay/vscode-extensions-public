@@ -1,17 +1,21 @@
 .edit-icon-wrapper {
-    rect {
-        stroke: #05a26b;
-        stroke-miterlimit: 10;
-        stroke-width: 0.5;
-        fill: url(#EditLinearGradient);
-    }
+    // rect {
+    //     stroke: transparent;
+    //     stroke-miterlimit: 10;
+    //     // stroke-width: 0.5;
+    //     fill: transparent;
+    // }
 
     .edit-circle {
-        rect {
-            stroke: #05a26b;
-            stroke-miterlimit: 10;
-            stroke-width: 0.5;
-            fill: url(#EditLinearGradient);
+
+        // rect {
+        //     stroke: transparent;
+        //     stroke-miterlimit: 10;
+        //     // stroke-width: 0.5;
+        //     fill: transparent;
+        // }
+        .edit-icon-hover {
+            display: none;
         }
 
         .edit-icon {
@@ -20,31 +24,46 @@
     }
 
     &:hover {
-        rect {
-            cursor: pointer;
+        cursor: pointer;
+
+        // rect {
+        //     cursor: pointer;
+        //     fill: #36b475;
+        //     stroke: #36b475;
+        //     stroke-miterlimit: 10;
+        //     stroke-width: 0.5;
+        // }
+        .edit-icon-hover {
+            display: block;
             fill: #36b475;
-            stroke: #2fa86c;
-            stroke-miterlimit: 10;
-            stroke-width: 0.5;
         }
 
         &:hover .edit-icon {
             fill: #fff;
+            cursor: pointer;
+            display: none;
         }
     }
 
     &:active,
     &.edit-click {
-        rect {
-            cursor: pointer;
-            stroke: #2fa86c;
-            stroke-miterlimit: 10;
-            stroke-width: 0.5;
-            fill: #2fa86c;
+        .edit-icon-hover {
+            display: block;
+            fill: #006b46;
         }
 
+        // rect {
+        //     cursor: pointer;
+        //     stroke: #2fa86c;
+        //     stroke-miterlimit: 10;
+        //     stroke-width: 0.5;
+        //     fill: #2fa86c;
+        // }
+
         &:active .edit-icon {
-            fill: #006b46;
+            fill: #fff;
+            cursor: pointer;
+            display: none;
         }
     }
 }

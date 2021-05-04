@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
-import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
+import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../ConfigForm/Elements/Tooltip';
 import { tooltipMessages } from '../../../../utils/constants';
@@ -29,7 +29,7 @@ import { ScheduleConfigureWizard } from '../ScheduleConfigureWizard';
 import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
-import { ApiIcon, ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon } from "../../../../../../../assets/icons";
+import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -46,8 +46,9 @@ interface TriggerDropDownProps {
 
 export enum ConnectorType {
     GITHUB = "GitHub",
-    G_CALENDAR = "Google Calender",
+    G_CALENDAR = "Google Calendar",
     G_SHEET = "Google Sheet",
+    SALESFORCE = "Salesforce"
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
@@ -102,12 +103,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         setActiveConnector(undefined);
     };
 
-    return (
-        <DiagramOverlayContainer forceRender={true}>
-            <DiagramOverlay
-                className={"trigger-container"}
-                position={position}
-            >
+    const integrationMenu = (
+        <div>
+            <DiagramOverlay className={"trigger-container"} position={position}>
                 <div>
                     <div className="trigger-title-wrap">
                         <p>{title}</p>
@@ -121,7 +119,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             />
                         </div>
                     </div>
-                    {triggerType !== undefined && (
+                    {(triggerType !== undefined && triggerType !== TRIGGER_TYPE_INTEGRATION_DRAFT && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT) && (
                         <button className="close-btn" onClick={onClose}>
                             <CloseIcon />
                         </button>
@@ -130,25 +128,63 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     <div className={"trigger-list"}>
                         <div>
                             <Tooltip
-                                title={tooltipMessages.apiTrigger.title}
-                                actionText={tooltipMessages.apiTrigger.actionText}
-                                actionLink={tooltipMessages.apiTrigger.actionLink}
+                                title={tooltipMessages.scheduleTrigger.title}
+                                actionText={tooltipMessages.scheduleTrigger.actionText}
+                                actionLink={tooltipMessages.scheduleTrigger.actionLink}
+                                interactive={true}
+                                placement="right"
+                                arrow={true}
+                            >
+                                <div
+                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_SCHEDULE })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_SCHEDULE)}
+                                >
+                                    <div className="icon-wrapper">
+                                        <ScheduleIcon className="trigger-selector-icon" />
+                                    </div>
+                                    <div className="trigger-label ">  Schedule </div>
+                                </div>
+                            </Tooltip>
+                            {/* INFO:webhook trigger has been removed */}
+                            <Tooltip
+                                title={tooltipMessages.calenderTrigger.title}
+                                actionText={tooltipMessages.calenderTrigger.actionText}
+                                actionLink={tooltipMessages.calenderTrigger.actionLink}
+                                interactive={true}
+                                placement="right"
+                                arrow={true}
+                            >
+                                <div
+                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.G_CALENDAR) })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.G_CALENDAR)}
+                                >
+                                    <div className="icon-wrapper">
+                                        <CalendarIcon className="trigger-selector-icon" />
+                                    </div>
+                                    <div className="trigger-label "> Calendar </div>
+                                </div>
+                            </Tooltip>
+
+                            <Tooltip
+                                title={tooltipMessages.salesforceTrigger.title}
+                                actionText={tooltipMessages.salesforceTrigger.actionText}
+                                actionLink={tooltipMessages.salesforceTrigger.actionLink}
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
                             >
                                 <div
-                                    className={cn("trigger-wrapper", "product-tour-new-api", { "active": selectedTrigger === TRIGGER_TYPE_API })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_API)}
-                                    data-testid="api-trigger"
+                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.SALESFORCE) })}
+                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.SALESFORCE)}
                                 >
                                     <div className="icon-wrapper">
-                                        <ApiIcon className="trigger-selector-icon" />
+                                        <SalesforceIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label">API</div>
+                                    <div className="trigger-label ">Salesforce</div>
                                 </div>
                             </Tooltip>
-
+                        </div>
+                        <div>
                             <Tooltip
                                 title={tooltipMessages.manualTrigger.title}
                                 actionText={tooltipMessages.manualTrigger.actionText}
@@ -187,60 +223,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 </div>
                             </Tooltip>
                         </div>
-
-                        <div>
-                            <Tooltip
-                                title={tooltipMessages.scheduleTrigger.title}
-                                actionText={tooltipMessages.scheduleTrigger.actionText}
-                                actionLink={tooltipMessages.scheduleTrigger.actionLink}
-                                interactive={true}
-                                placement="right"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_SCHEDULE })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_SCHEDULE)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <ScheduleIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label ">  Schedule </div>
-                                </div>
-                            </Tooltip>
-                            {/* INFO:webhook trigger has been removed */}
-                            <Tooltip
-                                title={tooltipMessages.calenderTrigger.title}
-                                actionText={tooltipMessages.calenderTrigger.actionText}
-                                actionLink={tooltipMessages.calenderTrigger.actionLink}
-                                interactive={true}
-                                placement="right"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.G_CALENDAR) })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.G_CALENDAR)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <CalendarIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "> Calender </div>
-                                </div>
-                            </Tooltip>
-                        </div>
                     </div>
                 </div>
-
             </DiagramOverlay>
-
-            {selectedTrigger === TRIGGER_TYPE_API && (
-                <ApiConfigureWizard
-                    position={{ x: position.x, y: position.y + 10 }}
-                    onWizardComplete={handleTriggerComplete}
-                    onClose={handleSubMenuClose}
-                    path={configData?.path}
-                    method={configData?.method}
-                />
-            )}
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
@@ -263,14 +248,27 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     onCancel={handleDialogOnCancel}
                 />
             )}
-            {triggerType !== undefined && <OverlayBackground />}
+        </div>
+    );
 
+    return (
+        <DiagramOverlayContainer forceRender={true}>
+            {(selectedTrigger === TRIGGER_TYPE_MANUAL || selectedTrigger === TRIGGER_TYPE_SCHEDULE || selectedTrigger === TRIGGER_TYPE_WEBHOOK || selectedTrigger === TRIGGER_TYPE_INTEGRATION_DRAFT) &&
+                integrationMenu
+            }
+
+            {(selectedTrigger === TRIGGER_TYPE_API || selectedTrigger === TRIGGER_TYPE_SERVICE_DRAFT) && (
+                <ApiConfigureWizard
+                    position={{ x: position.x, y: position.y }}
+                    onWizardComplete={handleTriggerComplete}
+                    onClose={onClose}
+                    path={configData?.path}
+                    method={configData?.method}
+                    triggerType={selectedTrigger}
+                />
+            )}
+
+            {triggerType !== undefined && <OverlayBackground />}
         </DiagramOverlayContainer>
     );
 }
-
-// const mapDispatchToProps = {
-//     createTrigger: dispatchModifyTriggerWizard,
-// }; // todo: handle dispatch function
-
-// export const TriggerDropDown = connect(null, mapDispatchToProps)(TriggerDropDownC);

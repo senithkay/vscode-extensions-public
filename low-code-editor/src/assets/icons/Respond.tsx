@@ -2,11 +2,11 @@ import React from 'react';
 
 export default function RespondIcon(props: any) {
     return (
-        <svg width="23px" height="22px" viewBox="0 0 23 22" version="1.1" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <path d="M11,1.55 C13.4576671,1.55 15.6826671,2.54616643 17.2932504,4.15674965 C18.9038336,5.76733286 19.9,7.99233286 19.9,10.45 L19.9,10.45 L19.9,19.35 L11,19.35 C8.54233286,19.35 6.31733286,18.3538336 4.70674965,16.7432504 C3.09616643,15.1326671 2.1,12.9076671 2.1,10.45 C2.1,7.99233286 3.09616643,5.76733286 4.70674965,4.15674965 C6.31733286,2.54616643 8.54233286,1.55 11,1.55 L11,1.55 Z" id="Oval" stroke="#CCD1F2" stroke-width="2" />
-                <circle id="Oval" fill="#5567D5" cx="8.25" cy="10.45" r="1.65" />
-                <circle id="Oval-Copy" fill="#5567D5" cx="13.75" cy="10.45" r="1.65" />
+        <svg width="16" height="16" {...props}>
+            <g id="respond-icon" transform="translate(-1.35 -0.8)">
+                <path id="Oval" d="M9.1,1.55a7,7,0,0,1,7,7h0v7h-7a7,7,0,0,1,0-14Z" fill="none" stroke="#ccd1f2" stroke-width="1.5" />
+                <circle id="Oval-2" data-name="Oval" cx="1.298" cy="1.298" r="1.298" transform="translate(5.639 7.252)" fill="#5567d5" />
+                <circle id="Oval-Copy" cx="1.298" cy="1.298" r="1.298" transform="translate(9.965 7.252)" fill="#5567d5" />
             </g>
         </svg>
     )

@@ -26,7 +26,7 @@ export interface OperationDropdownProps {
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
 }
 
-export function SendMessageForm(props: OperationDropdownProps) {
+export default function SendMessageForm(props: OperationDropdownProps) {
     const { formFields, onValidate } = props;
     const classes = useStyles();
     const [ expandCc, setExpandCc ] = useState(false);
@@ -109,6 +109,7 @@ export function SendMessageForm(props: OperationDropdownProps) {
             );
         } else if (field.name === "messageBody") {
             elementProps.model = field;
+            elementProps.customProps = { ...elementProps.customProps, expandDefault: true }
             const onBodyChange = (body: string) => {
                 elementProps.model.value = body;
             };

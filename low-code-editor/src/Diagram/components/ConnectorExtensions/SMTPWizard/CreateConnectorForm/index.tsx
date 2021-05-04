@@ -35,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
+    onSaveNext?: () => void;
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
 }
@@ -46,7 +47,8 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard,
+            homePageEnabled, onSaveNext } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
@@ -56,7 +58,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: connectorConfig.name,
+        value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };
@@ -64,7 +66,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [connectorNameError, setConnectorNameError] = useState('');
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
@@ -86,9 +88,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const defaultText: string = (connectorConfig.name === "" || connectorConfig.name === undefined) ?
         genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)) : connectorConfig.name;
 
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
 
     // Set init function of the connector.
     // connectorConfig.connectorInit = connectorInitFormFields;
@@ -122,14 +121,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const handleOnSave = () => {
-        const actionName = "sendEmailMessage";
-
         // if connector name available skip setting new value
         connectorConfig.name = nameState.value;
-        connectorConfig.action = {
-            name: actionName,
-            fields: functionDefinitions.get(actionName)?.parameters
-        }
         connectorConfig.connectorInit = connectorInitFormFields;
         onSave();
     };
@@ -146,7 +139,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}
@@ -158,16 +151,24 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     </div>
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text="Save &amp; Next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <SecondaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                        <PrimaryButton
+                            text="Save &amp; Next"
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            fullWidth={false}
+                            onClick={onSaveNext}
+                        />
+                    </div>
                     {/* </div> */}
                 </div>
             </FormControl>

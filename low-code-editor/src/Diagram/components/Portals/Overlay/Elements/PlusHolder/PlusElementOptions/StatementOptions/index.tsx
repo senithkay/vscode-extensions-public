@@ -17,7 +17,7 @@ import { STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon } from "../../../../../../../../assets/icons";
+import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon } from "../../../../../../../../assets/icons";
 
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -25,6 +25,7 @@ import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../ConfigForm/Elements/Tooltip";
 import { tooltipMessages } from "../../../../../utils/constants";
 import "../../style.scss";
+import While from "../../../../../../../../assets/icons/While";
 
 export const PROCESS_TYPES = [""];
 
@@ -138,6 +139,29 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const whileStmt: StatementComponent = {
+        name: "foreach",
+        category: 'condition',
+        component: (
+            <Tooltip
+                title={tooltipMessages.whileStatement.title}
+                placement="right"
+                arrow={true}
+                example={true}
+                codeSnippet={true}
+                interactive={true}
+                content={tooltipMessages.whileStatement.content}
+            >
+                <div className="sub-option enabled" data-testid="addWhile" onClick={onSelect.bind(undefined, "While")} >
+                    <div className="icon-wrapper">
+                        <While />
+                    </div>
+                    <div className="text-label">While</div>
+                </ div>
+            </Tooltip>
+        )
+    }
+
     const returnStm: StatementComponent = {
         name: "return",
         category: 'stop',
@@ -211,7 +235,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelect.bind(undefined, "Custom")}
                 >
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Logo_Circle.svg" />
+                        <CustomStatementIcon />
                     </div>
                     <div className="text-label">Custom Statement</div>
                 </div>
@@ -224,6 +248,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(propertyStm);
     statements.push(ifStm);
     statements.push(foreachStm);
+    statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
     statements.push(customStatement);
@@ -280,7 +305,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {(processComp.length > 0 ? <Divider /> : null)}
+                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

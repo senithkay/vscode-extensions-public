@@ -40,6 +40,10 @@
                         user-select: none;
                     }
                 }
+
+                .process-icon {
+                    fill: #5566d5;
+                }
             }
         }
     }
@@ -68,6 +72,10 @@
                         text-align: center;
                         user-select: none;
                     }
+                }
+
+                .process-icon {
+                    fill: #5566d5;
                 }
             }
 
@@ -112,8 +120,8 @@
 
         .process-rect {
             fill: #fafafc;
-            height: 20px;
-            width: 60px;
+            height: 15px;
+            width: 35px;
         }
     }
 
@@ -150,7 +158,18 @@
                         user-select: none;
                     }
                 }
+
+                .process-icon {
+                    fill: #5566d5;
+                }
             }
         }
     }
+
+    /* stylelint-disable */
+    .assignment-text {
+        fill: #ff9d52;
+        font-family: "Droid Sans Mono";
+    }
+    /* stylelint-enable */
 }

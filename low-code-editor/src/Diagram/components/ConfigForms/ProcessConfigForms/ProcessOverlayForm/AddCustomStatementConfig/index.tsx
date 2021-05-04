@@ -37,7 +37,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const overlayClasses = wizardStyles();
 
     const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress } = state;
+    const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;
 
@@ -61,54 +61,61 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid);
+        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
+        setIsFormValid(isValidExpression);
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
-                <div className={formClasses.formWrapper}>
-                    <ButtonWithIcon
-                        className={formClasses.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
-                    <div className={formClasses.formTitleWrapper}>
-                        <div className={formClasses.mainTitleWrapper}>
-                            <img src="../../../../../../images/Logo_Circle.svg" />
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>Custom Statement</Box>
-                            </Typography>
+            {!isCodeEditorActive ?
+                (
+                    <div className={overlayClasses.configWizardContainer}>
+                        <div className={formClasses.formWrapper}>
+                            <ButtonWithIcon
+                                className={formClasses.overlayDeleteBtn}
+                                onClick={onCancel}
+                                icon={<CloseRounded fontSize="small" />}
+                            />
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <img src="../../../../../../images/Logo_Circle.svg" />
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>Custom Statement</Box>
+                                    </Typography>
+                                </div>
+                            </div>
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    model={{ name: "statement", value: expression }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: tooltipMessages.expressionEditor.title,
+                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
+                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        interactive: true,
+                                        customTemplate: {
+                                            defaultCodeSnippet: '',
+                                            targetColumn: 1,
+                                        },
+                                    }}
+                                    onChange={onExpressionChange}
+                                />
+                            </div>
+                        </div>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                dataTestId={"custom-expression-save-btn"}
+                                text="Save"
+                                disabled={isMutationInProgress || !isFormValid}
+                                fullWidth={false}
+                                onClick={onSaveBtnClick}
+                            />
                         </div>
                     </div>
-                    <div className="exp-wrapper">
-                    <ExpressionEditor
-                        model={{ name: "expression", value: expression }}
-                        customProps={{
-                            validate: validateExpression,
-                            tooltipTitle: tooltipMessages.expressionEditor.title,
-                            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
-                            interactive: true,
-                            customTemplate: {
-                                defaultCodeSnippet: '',
-                                targetColumn: 1,
-                            },
-                        }}
-                        onChange={onExpressionChange}
-                    />
-                    </div>
-                </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        dataTestId={"custom-expression-save-btn"}
-                        text="Save"
-                        disabled={isMutationInProgress || !isFormValid}
-                        fullWidth={false}
-                        onClick={onSaveBtnClick}
-                    />
-                </div>
-            </div>
+                )
+                :
+                null
+            }
         </FormControl>
     );
 }

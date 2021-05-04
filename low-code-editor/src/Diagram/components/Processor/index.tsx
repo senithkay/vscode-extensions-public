@@ -11,23 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
-import { CallStatement, FunctionCall, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { CallStatement, FunctionCall, LocalVarDecl, PositionalArg, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
-
 import { WizardType } from "../../../ConfigurationSpec/types";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
+import { Assignment } from "../Assignment";
 import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
+import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW, PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ProcessSVG";
 import "./style.scss";
@@ -36,8 +36,6 @@ export interface ProcessorProps {
     model: STNode;
     blockViewState?: BlockViewState;
 }
-
-const supportedVarTypes = ['var', 'string', 'int', 'float', 'boolean', 'xml', 'json'];
 
 export function DataProcessor(props: ProcessorProps) {
     const { state, diagramCleanDraw } = useContext(DiagramContext);
@@ -71,7 +69,6 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    let isSupportedVariable = true;
 
     if (model) {
         processType = "Variable";
@@ -116,10 +113,6 @@ export function DataProcessor(props: ProcessorProps) {
                 // TODO: handle this type binding pattern.
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
-            }
-
-            if (supportedVarTypes.indexOf(typedBindingPattern.typeDescriptor.source.trim()) === -1) {
-                isSupportedVariable = false;
             }
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
@@ -211,8 +204,8 @@ export function DataProcessor(props: ProcessorProps) {
             <g className={isReferencedVariable ? "disable" : ""}>
                 <DeleteBtn
                     model={model}
-                    cx={viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET}
-                    cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)}
+                    cx={viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + PROCESS_SVG_WIDTH / 4}
+                    cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)}
                     toolTipTitle={toolTip}
                     isButtonDisabled={isReferencedVariable}
                     onDraftDelete={onDraftDelete}
@@ -221,11 +214,18 @@ export function DataProcessor(props: ProcessorProps) {
             <EditBtn
                 model={model}
                 cx={viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
-                cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)}
+                cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 4)}
                 onHandleEdit={onProcessClick}
             />
         </>
     );
+
+    let assignmentText = null;
+    if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
+        assignmentText = ((model as CallStatement).expression as FunctionCall).arguments[0].source;
+    } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
+        assignmentText = (model as LocalVarDecl).initializer.source;
+    }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const component: React.ReactNode = (!viewState.collapsed &&
@@ -233,15 +233,19 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
                     <React.Fragment>
+                        {processType !== "Log" &&
+                            <VariableName processType={processType} variableName={processName} x={cx - VARIABLE_NAME_WIDTH} y={cy + PROCESS_SVG_HEIGHT / 4} />
+                        }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            processType={processType}
                             varName={variableName}
+                            processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                         />
+                        <Assignment x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} y={cy + PROCESS_SVG_HEIGHT / 3} assignment={assignmentText} className="assignment-text" />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"
@@ -279,8 +283,9 @@ export function DataProcessor(props: ProcessorProps) {
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect
-                                            x={cx + (PROCESS_SVG_WIDTH / 7)}
+                                            x={cx + (PROCESS_SVG_WIDTH / 6.5)}
                                             y={cy + (PROCESS_SVG_HEIGHT / 3)}
+                                            rx="7"
                                             className="process-rect"
                                         />
 

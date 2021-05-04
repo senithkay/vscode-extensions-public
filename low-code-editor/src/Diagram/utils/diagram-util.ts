@@ -119,6 +119,8 @@ export function getConditionConfig(
             ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("http:Response")),
             ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var"))
             ];
+        } else if (type === "While") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean"))];
         }
         if (config && scopeSymbols) {
             config.scopeSymbols = scopeSymbols

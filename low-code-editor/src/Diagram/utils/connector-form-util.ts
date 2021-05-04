@@ -56,9 +56,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
+                            param.noCodeGen = true;
                             param.displayName = "Message";
                         }
                     });
@@ -68,7 +68,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.displayName = "Message";
                         }
@@ -80,7 +79,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"\"";
-                            param.hide = true;
                         } else if (param.name === "request") {
                             param.hide = true;
                         } else if (param.name === "forwardReq") {
@@ -116,9 +114,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "replyTo") {
                             param.hide = true;
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "cc" || param.name === "bcc") {
-                            param.value = [];
+                            param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
@@ -148,7 +146,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 else if (key === "init") {
                     if (value.parameters[3].name === "clientConfig") {
                         value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
+                            if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
                             }
                         })
@@ -178,19 +176,26 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "assigneeList").optional = true;
                     value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
                     filteredFunctions.set(key, value);
+                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+                    // todo: add these operations when bal connector class fetch support is there
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
             });
             break;
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.IMAP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.IMAP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.IMAP.password
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -199,12 +204,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_PopClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
-                        value.parameters[3].fields.forEach((param) => {
-                            if (param.name === "properties") {
-                                param.hide = true;
-                            }
-                        })
+                    value.parameters.find(field => field.name === "clientConfig").hide = true;
+                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.POP3.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.POP3.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.POP3.password
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -212,31 +221,36 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerinax_googleapis_gmail_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "listMessages" || key === "sendMessage" || key === "readMessage" || key === "init") {
-                    if (key === "init"){
-                        // replace single record inside "oauthClientConfig" record with inner field list
-                        const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
-                        .fields.find(fields => fields.name === "oauthClientConfig").fields[0].fields;
+                if (key === "init") {
+                    // replace single record inside "oauthClientConfig" record with inner field list
+                    const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
+                        .fields.find(fields => fields.name === "oauthClientConfig").fields[ 0 ].fields;
 
-                        value.parameters.find(fields => fields.name === "gmailConfig")
+                    value.parameters.find(fields => fields.name === "gmailConfig")
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
-                    }
-                    if (key === "sendMessage"){
-                        // set content type in sendMessage form
-                        value.parameters.find(fields => fields.name === "message")
-                        .fields.find(fields => fields.name === "contentType").value = `"text/plain"`;
-                    }
-                    // hide optional fields from gmail forms
-                    if (key === "readMessage"){
-                        value.parameters.find(fields => fields.name === "format").hide = true;
-                        value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
-                    }
-                    if (key === "listMessages"){
-                        value.parameters.find(fields => fields.name === "filter").hide = true;
-                    }
-
-                    filteredFunctions.set(key, value);
                 }
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
+                    value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                        if (field.name === "contentType") {
+                            // set content type in sendMessage form
+                            field.value = `"text/plain"`;
+                        }
+                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
+                            field.hide = true;
+                            field.noCodeGen = true;
+                        }
+                    });
+                }
+                // hide optional fields from gmail forms
+                if (key === "readMessage") {
+                    value.parameters.find(fields => fields.name === "format").hide = true;
+                    value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
+                }
+                if (key === "listMessages") {
+                    value.parameters.find(fields => fields.name === "filter").hide = true;
+                }
+
+                filteredFunctions.set(key, value);
 
                 // add default value to userId field
                 let formField: FormField[] = [];
@@ -256,14 +270,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
 
                     filteredFunctions.set(key, value);
-                }else if (key === "createEvent") {
-                    value.parameters[1].fields.forEach((field) => {
+                } else if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
                             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
                             field.hide = true;
                         } else if (field.name === "attendees") {
-                            field.displayName = "email";
-                            field.collectionDataType = PrimitiveBalType.String;
+                            field.displayName = "Attendee Emails";
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -274,7 +287,14 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                     filteredFunctions.set(key, value);
-                } else if (!((key === "watchEvents") || (key === "updateEvent") || (key === "getEventResponse") || (key === "getCalendars"))) {
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
                     filteredFunctions.set(key, value);
                 }
             });
@@ -289,6 +309,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "spreadsheetConfig")
                     .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                     filteredFunctions.set(key, value);
+                } else if (key === "getIdFromUrl") {
+                    // hide this isolated function
                 } else {
                     filteredFunctions.set(key, value);
                 }
@@ -306,20 +328,24 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_sfdc_BaseClient':
+        case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
-                            subFields.fields =  subFields.fields[0].fields;
+                            // HACK: a quick fix to show salesforce connector init form input fields. Need to fix form generation with inner level records
+                            subFields.fields =  subFields.fields[0].fields[0].fields;
+                            subFields.type = PrimitiveBalType.Record;
+                            subFields.isUnion = undefined;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
+                            subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
+                            subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
                             subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
                             subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
                             subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
                             subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                            // field.fields[0].tooltip = tooltipMessages.salesforce.accessToken
                         }
                         if (subFields.name === "secureSocketConfig"){
                             subFields.hide = true;
@@ -328,6 +354,32 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             subFields.tooltip = tooltipMessages.salesforce.baseURL
                         }
                     });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_slack_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "init") {
+                    value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
+                        if (field.name === "secureSocketConfig"){
+                            field.hide = true;
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_netsuite_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                if (key === "getAll") {
+                    value.parameters[0] = {
+                        type: PrimitiveBalType.String,
+                        name: "RecordType",
+                        optional: false,
+                        isParam: true
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
@@ -392,25 +444,15 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'createIssue':
-                    case 'getOrganization':
-                        break;
-                    case 'getRepository':
-                        value.parameters.forEach(field => {
-                            if (field.name === 'repoIdentifier') {
-                                field.isUnion = false;
-                                field.type = PrimitiveBalType.String;
-                                field.value = field.fields[0].value;
-                                field.fields = [];
-                            }
-                        })
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
+                if (key === 'getRepository') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'repoIdentifier') {
+                            field.isUnion = false;
+                            field.type = PrimitiveBalType.String;
+                            field.value = field.fields[0].value;
+                            field.fields = [];
+                        }
+                    })
                 }
             });
             break;
@@ -435,21 +477,6 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                     })
                 }
             });
-            break;
-        case "ballerinax_googleapis_gmail_Client":
-            functionDefInfoMap.forEach((value, key) => {
-                switch (key) {
-                    case 'init':
-                    case 'readMessage':
-                    case 'sendMessage':
-                    case 'listMessages':
-                        break;
-                    default:
-                        value.parameters.forEach(fields => {
-                            fields.noCodeGen = true;
-                        });
-                }
-            })
             break;
         case 'ballerinax_googleapis_sheets_Client':
             functionDefInfoMap.forEach((value, key) => {

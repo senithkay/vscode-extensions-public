@@ -28,9 +28,10 @@ export const tooltipTitles: Record<any, string> = {
     "GOOGLE SHEETS": tooltipMessages.gSheetConnector.title,
     "SALESFORCE BASECLIENT": tooltipMessages.salesforceBase,
     "SALESFORCE BULKJOB": tooltipMessages.salesforceBulk,
-    SLACK: tooltipMessages.slackConnector,
+    SLACK: tooltipMessages.slackConnector.title,
     SALESFORCE : tooltipMessages.salesforce.title,
     POSTGRESQL : tooltipMessages.postgreSQL.title,
+    NETSUITE : tooltipMessages.netsuite.title,
 };
 
 export const tooltipExamples: Record<any, string> = {
@@ -45,8 +46,9 @@ export const tooltipExamples: Record<any, string> = {
     "GOOGLE SHEETS": tooltipMessages.gSheetConnector.content,
     "SALESFORCE BASECLIENT": tooltipMessages.salesforceBase,
     "SALESFORCE BULKJOB": tooltipMessages.salesforceBulk,
-    SLACK: tooltipMessages.slackConnector,
+    SLACK: tooltipMessages.slackConnector.content,
     SALESFORCE : tooltipMessages.salesforce.content,
     POSTGRESQL : tooltipMessages.postgreSQL.content,
+    NETSUITE : tooltipMessages.netsuite.content,
 };
 

@@ -14,7 +14,7 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import {Box, FormControl, IconButton, Typography} from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
 import classNames from "classnames";
 
@@ -26,18 +26,18 @@ import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/Ico
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { FormChipTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormChipTextInput";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from "../../../Portals/utils/constants";
+import EditIcon from "@material-ui/icons/Edit";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
-    onBackClick?: () => void;
+    onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
 }
@@ -48,7 +48,7 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -157,26 +157,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "to") {
-            if (field) {
-                field.fields = undefined;
-            }
             return (
-                <div className={classNames(classes.emailFormTo, classes.toFieldTooltipWrapper)}>
-                    <FormChipTextInput {...elementProps} />
-                    <div className={classes.toFieldTooltipIconWrapper}>
-                        <TooltipIcon
-                            title={tooltipMessages.SMTP.to}
-                        />
-                    </div>
-                </div>
+                <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            if (field) {
-                field.fields = undefined;
-            }
-            // setExpandCc(field.value[0])
             return expandCc ? (
-                <FormChipTextInput {...elementProps} />
+                <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
                         text={"Add " + field.name}
@@ -185,12 +171,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     />
                 );
         } else if (field.name === "bcc") {
-            if (field) {
-                field.fields = undefined;
-            }
-            // setExpandBcc(field.value[0])
             return expandBcc ? (
-                <FormChipTextInput {...elementProps} />
+                <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
                         text={"Add " + field.name}
@@ -206,6 +188,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             );
         } else if (field.name === "body") {
             elementProps.model = field;
+            elementProps.customProps = { ...elementProps.customProps, expandDefault: true }
             const onBodyChange = (body: string) => {
                 elementProps.model.value = body
             }
@@ -262,6 +245,23 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                        <div>
+                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: wizardClasses.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon/>
+                                </IconButton>
+                            </Box>
+                        </div>
                         <Typography variant="h4" className={classes.titleWrapper}>
                             <Box className={classes.formTitle}>
                                 <div className={classes.formTitleTag} >Create an Email</div>
@@ -283,7 +283,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
                     <PrimaryButton
                         text="Save &amp; Done"
                         fullWidth={false}

@@ -18,19 +18,17 @@ import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
-import { ConnectionDetails, OauthProviderConfig } from "../../../../api/models";
+import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
-import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
+import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
-    createObjectDeclaration,
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
     updatePropertyStatement,
     updateRemoteServiceCall
 } from "../../../utils/modification-util";
@@ -40,15 +38,17 @@ import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ConnectionType, OauthConnectButton } from "../../OauthConnectButton";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import { PrimaryButton } from "../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { useStyles } from "../../Portals/ConfigForm/forms/style";
 import {
     checkErrorsReturnType,
     genVariableName,
-    // getConnectorConfig,
     getConnectorIcon,
     getKeyFromConnection,
     getOauthConnectionParams,
-    getParams
+    getParams,
+    matchEndpointToFormField
 } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateNewConnection";
@@ -64,6 +64,7 @@ interface WizardProps {
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
     model?: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum FormStates {
@@ -76,7 +77,8 @@ enum FormStates {
 
 export function GithubWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const classes = useStyles();
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -95,6 +97,19 @@ export function GithubWizard(props: WizardProps) {
             setIsNewConnection(false);
         }
     }, [config.existingConnections]);
+
+    useEffect(() => {
+        if (selectedConnector) {
+            config.connectorInit = connectorInitFormFields;
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            setConfigName(connectorNameValue);
+            setIsNewConnection(false);
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            setFormState(FormStates.OperationDropdown);
+        }
+    }, [selectedConnector]);
 
     const [connectionDetails, setConnectionDetails] = useState(null);
     const [selectedOperation, setSelectedAction] = useState(isNewConnectorInitWizard ? null : config.action.name);
@@ -130,10 +145,10 @@ export function GithubWizard(props: WizardProps) {
 
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
         setConnectionDetails(connection);
-        setFormState(FormStates.OperationDropdown);
     };
 
     const handleConnectionUpdate = () => {
+        setConnectionDetails(null);
         setIsManualConnection(false);
         setFormState(FormStates.OauthConnect);
     };
@@ -158,6 +173,7 @@ export function GithubWizard(props: WizardProps) {
     };
 
     const onCreateNew = () => {
+        config.name = undefined;
         setConfigName(genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)));
         setIsManualConnection(false);
         setFormState(FormStates.OauthConnect);
@@ -177,8 +193,100 @@ export function GithubWizard(props: WizardProps) {
         setFormState(FormStates.OperationDropdown);
     };
 
-    const onCreateConnectorSave = () => {
+    const handleManualConnectorSaveNext = () => {
         setFormState(isNewConnectorInitWizard ? FormStates.OperationDropdown : FormStates.OperationForm);
+    };
+
+    const handleManualConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const accessTokenKey = connectorInitFormFields[0].fields[1].value;
+        const modifications: STModification[] = [];
+        if (isNewConnectorInitWizard) {
+            if (targetPosition) {
+                // Add an import.
+                const addImport: STModification = createImportStatement(
+                    connector.org,
+                    connector.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+                // Add an connector client initialization.
+                if (isNewConnection) {
+                    let addConnectorInit: STModification
+                    if (isManualConnection) {
+                        addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                                accessToken: ${accessTokenKey}
+                            });`,
+                            targetPosition
+                        );
+                    }
+                    modifications.push(addConnectorInit);
+                }
+            }
+        } else {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                    accessToken: ${accessTokenKey}
+                 });`,
+                config.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        }
+        if (modifications.length > 0) {
+            onSave(modifications);
+        }
+    };
+
+    const handleOauthConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const modifications: STModification[] = [];
+        if (isNewConnectorInitWizard && targetPosition) {
+            // Add an import.
+            const addImport: STModification = createImportStatement(
+                connector.org,
+                connector.module,
+                targetPosition
+            );
+            modifications.push(addImport);
+            // Add an connector client initialization.
+            if (isNewConnection) {
+                let addConfigurableVars: STModification;
+                let addConnectorInit: STModification
+                if (!isManualConnection) {
+                    if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))) {
+                        addConfigurableVars = createPropertyStatement(
+                            `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
+                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                        );
+                        modifications.push(addConfigurableVars);
+                    }
+
+                    addConnectorInit = createPropertyStatement(
+                        `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+            }
+        } else if (!isNewConnectorInitWizard) {
+            const accessTokenKey = connectorInitFormFields[0].fields[1].value;
+            const updateConnectorInit = updatePropertyStatement(
+                `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new ({
+                    accessToken: ${accessTokenKey}
+                 });`,
+                config.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        }
+        if (modifications.length > 0) {
+            onSave(modifications);
+        }
+    }
+
+    const handleOauthConnectorSaveNext = () => {
+        setFormState(FormStates.OperationDropdown);
     };
 
     const onConnectionNameChange = () => {
@@ -219,11 +327,13 @@ export function GithubWizard(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification
                     if (!isManualConnection) {
-                        addConfigurableVars = createPropertyStatement(
-                            `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
-                            {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
-                        );
-                        modifications.push(addConfigurableVars);
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'accessTokenKey'))){
+                            addConfigurableVars = createPropertyStatement(
+                                `configurable string ${getKeyFromConnection(connectionDetails, 'accessTokenKey')} = ?;`,
+                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
@@ -341,23 +451,43 @@ export function GithubWizard(props: WizardProps) {
                 {(formState === FormStates.OauthConnect) &&
                     (
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                            <LinePrimaryButton
-                                testId={"git-manual-btn"}
-                                className={wizardClasses.fullWidth}
-                                text="Manual Connection"
-                                fullWidth={false}
-                                onClick={onManualConnection}
-                            />
-                            {(config.existingConnections && isNewConnection) && (
-                                <div className={wizardClasses.connectBackBtn}>
-                                    <SecondaryButton
-                                        text="Back"
+                            {(connectionDetails === null) && (
+                                <>
+                                    <p className={wizardClasses.subTitle}>Or use manual configurations</p>
+                                    <LinePrimaryButton
+                                        testId={"git-manual-btn"}
+                                        className={wizardClasses.fullWidth}
+                                        text="Manual Connection"
                                         fullWidth={false}
-                                        onClick={onOauthConnectorBack}
+                                        onClick={onManualConnection}
                                     />
-                                </div>
+                                </>
                             )}
+                            <>
+                                {(connectionDetails && isNewConnection) && (
+                                    <div className={classes.wizardBtnHolder}>
+                                        <SecondaryButton
+                                            text="Save"
+                                            fullWidth={false}
+                                            onClick={handleOauthConnectorOnSave}
+                                        />
+                                        <PrimaryButton
+                                            text="Save &amp; Next"
+                                            fullWidth={false}
+                                            onClick={handleOauthConnectorSaveNext}
+                                        />
+                                    </div>
+                                )}
+                                {(config.existingConnections && isNewConnection && !connectionDetails) && (
+                                    <div className={wizardClasses.connectBackBtn}>
+                                        <SecondaryButton
+                                            text="Back"
+                                            fullWidth={false}
+                                            onClick={onOauthConnectorBack}
+                                        />
+                                    </div>
+                                )}
+                            </>
                         </div>
                     )
                 }
@@ -394,7 +524,8 @@ export function GithubWizard(props: WizardProps) {
             {(formState === FormStates.ExistingConnection && !isNewConnectorInitWizard) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleManualConnectorOnSave}
+                    onSaveNext={handleManualConnectorSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}
@@ -405,7 +536,8 @@ export function GithubWizard(props: WizardProps) {
             {(formState === FormStates.CreateNewConnection) && (
                 <CreateConnectorForm
                     initFields={connectorInitFormFields}
-                    onSave={onCreateConnectorSave}
+                    onSave={handleManualConnectorOnSave}
+                    onSaveNext={handleManualConnectorSaveNext}
                     connectorConfig={config}
                     onConfigNameChange={handleConfigNameChange}
                     onBackClick={onCreateConnectorBack}

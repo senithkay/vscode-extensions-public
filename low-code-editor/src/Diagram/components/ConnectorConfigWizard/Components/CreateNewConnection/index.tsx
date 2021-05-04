@@ -34,6 +34,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
@@ -48,20 +49,20 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: '',
-        isValidName: true,
-        isNameProvided: true
+        value: connectorConfig.name,
+        isValidName:  !!connectorConfig.name,
+        isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
-    const [defaultConnectorName, setDefaultConnectorName] = useState<string>(undefined);
+    const [defaultConnectorName] = useState<string>(connectorConfig.name);
     const [connectorNameError, setConnectorNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
@@ -79,21 +80,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         } else {
             setHasReference(symbolRefArray.length > 1);
         }
-    }
-
-    // generate variable name and set to default text
-    const defaultText: string = connectorConfig.name;
-    if (defaultConnectorName === undefined){
-        setDefaultConnectorName(connectorConfig.name);
-    }
-
-    if ((connectorConfig.name === "" || connectorConfig.name === undefined) && nameState.isValidName) {
-        connectorConfig.name = defaultText;
-        setNameState({
-            value: defaultText,
-            isNameProvided: defaultText !== '',
-            isValidName: nameRegex.test(defaultText)
-        });
     }
 
     const validateNameValue = (value: string) => {
@@ -123,6 +109,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = configForm;
+        onSaveNext();
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -134,7 +127,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
-                            defaultValue={defaultText}
+                            defaultValue={nameState.value}
                             onChange={onNameChange}
                             label={"Connection Name"}
                             errorMessage={connectorNameError}
@@ -145,16 +138,18 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector) ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text="Save &amp; Next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <PrimaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                    </div>
                 </div>
             </FormControl>
         </div>

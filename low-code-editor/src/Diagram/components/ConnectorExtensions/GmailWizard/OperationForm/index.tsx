@@ -27,7 +27,8 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import {SendMessageForm} from "../SendMessageForm";
+import CreateDraftForm from '../CreateDraftForm';
+import SendMessageForm from "../SendMessageForm";
 
 export interface OperationFormProps {
     selectedOperation: string;
@@ -54,12 +55,13 @@ export function OperationForm(props: OperationFormProps) {
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
+    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName || genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo)));
     const [responseVarError, setResponseVarError] = useState("");
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
         setValidName((text !== '') && nameRegex.test(text));
+        setDefaultResponseVarName(text);
         connectionDetails.action.returnVariableName = text;
     };
     const validateNameValue = (value: string) => {
@@ -73,15 +75,7 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
-    const defaultResponseVariableName: string = (connectionDetails.action.returnVariableName === "" ||
-        connectionDetails.action.returnVariableName === undefined) ? genVariableName(
-            connectionDetails.action.name + "Response", getAllVariables(symbolInfo)) :
-        connectionDetails.action.returnVariableName;
-    connectionDetails.action.returnVariableName = defaultResponseVariableName;
-
-    if (defaultResponseVarName === undefined){
-        setDefaultResponseVarName(defaultResponseVariableName);
-    }
+    connectionDetails.action.returnVariableName = defaultResponseVarName;
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -91,6 +85,20 @@ export function OperationForm(props: OperationFormProps) {
         !validForm || mutationInProgress;
     if ((formFields.length === 0) && validName && !mutationInProgress) {
         isSaveButtonDisabled = false;
+    }
+
+    const renderForm = () => {
+        switch (selectedOperation) {
+            case "sendMessage":
+                return (<SendMessageForm formFields={formFields} onValidate={validateForm}/>);
+
+            case "createDraft":
+            case "updateDraft":
+                return (<CreateDraftForm formFields={formFields} onValidate={validateForm}/>);
+
+            default:
+                return (<Form fields={formFields} onValidate={validateForm} />);
+        }
     }
 
     return (
@@ -135,23 +143,16 @@ export function OperationForm(props: OperationFormProps) {
                     </Box>
                     </>
                     <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <div>
-                                {(selectedOperation === "sendMessage") ? (
-                                    <SendMessageForm formFields={formFields} onValidate={validateForm}/>
-                                ) : (
-                                    <Form fields={formFields} onValidate={validateForm} />
-                                )}
-                            </div>
-                            ) : null
-                        }
+                        {formFields.length > 0 && (
+                            <div>{renderForm()}</div>
+                        )}
                     </div>
 
                     <FormTextInput
                         customProps={{
                             validate: validateNameValue
                         }}
-                        defaultValue={defaultResponseVariableName}
+                        defaultValue={defaultResponseVarName}
                         placeholder={"Enter Response Variable Name"}
                         onChange={onNameChange}
                         label={"Response Variable Name"}

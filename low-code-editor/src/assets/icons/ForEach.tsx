@@ -2,16 +2,9 @@ import React from 'react';
 
 export default function ForEachIcon(props: any) {
     return (
-        <svg width="23px" height="22px" viewBox="0 0 23 22" version="1.1" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <circle id="Oval" fill="#5567D5" cx="4.95" cy="4.95" r="1.65" />
-            <circle id="Oval-Copy-4" fill="#CCD1F2" cx="4.95" cy="11" r="1.65" />
-            <circle id="Oval-Copy-7" fill="#CCD1F2" cx="4.95" cy="17.05" r="1.65" />
-            <circle id="Oval-Copy-5" fill="#CCD1F2" cx="11" cy="11" r="1.65" />
-            <circle id="Oval-Copy-8" fill="#5567D5" cx="11" cy="17.05" r="1.65" />
-            <circle id="Oval-Copy" fill="#5567D5" cx="11" cy="4.95" r="1.65" />
-            <circle id="Oval-Copy-3" fill="#5567D5" cx="17.05" cy="4.95" r="1.65" />
-            <circle id="Oval-Copy-6" fill="#CCD1F2" cx="17.05" cy="11" r="1.65" />
-            <circle id="Oval-Copy-9" fill="#5567D5" cx="17.05" cy="17.05" r="1.65" />
+        <svg width="16" height="16" {...props}>
+            <path id="Combined_Shape" d="M5.032,11.768a.8.8,0,0,1-.066-1.056l.066-.076L6.068,9.6H4.8A4.8,4.8,0,0,1,4.62,0L4.8,0a.8.8,0,0,1,.093,1.595L4.8,1.6A3.2,3.2,0,0,0,4.64,8L4.8,8H6.069L5.032,6.964a.8.8,0,0,1-.066-1.056l.066-.075a.8.8,0,0,1,1.056-.067l.076.067,2.4,2.4.008.008.562.562-.554.554-.024.024-2.39,2.39a.8.8,0,0,1-1.132,0Z" transform="translate(0 3.2)" fill="#5567d5" />
+            <path id="Combined_Shape-2" d="M5.032,11.768a.8.8,0,0,1-.066-1.056l.066-.076L6.068,9.6H4.8A4.8,4.8,0,0,1,4.62,0L4.8,0a.8.8,0,0,1,.093,1.595L4.8,1.6A3.2,3.2,0,0,0,4.64,8L4.8,8H6.069L5.032,6.964a.8.8,0,0,1-.066-1.056l.066-.075a.8.8,0,0,1,1.056-.067l.076.067,2.4,2.4.008.008.562.562-.554.554-.024.024-2.39,2.39a.8.8,0,0,1-1.132,0Z" transform="translate(15.931 12.802) rotate(-180)" fill="#ccd1f2" />
         </svg>
     )
 }

@@ -13,18 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormHelperText } from "@material-ui/core";
 import { addHours, format } from 'date-fns';
 
-import { FormField, PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import { FormField } from "../../../../../ConfigurationSpec/types";
 import { Gcalendar } from "../../../../../Definitions";
 import { CirclePreloader } from "../../../../../PreLoader/CirclePreloader";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from "../../../Portals/ConfigForm/Elements/Autocomplete";
 import { DateLabelPicker } from "../../../Portals/ConfigForm/Elements/DateLabelPicker";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { transformFormFieldTypeToString } from '../../../Portals/ConfigForm/Elements/ExpressionEditor/utils';
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { getFormElement } from "../../../Portals/utils";
 
@@ -38,39 +35,48 @@ export interface OperationDropdownProps {
 }
 
 export function CreateEvent(props: OperationDropdownProps) {
-    const { formFields, validateFields, isFetching, gcalenderList,
-            isManualConnection, isNewConnectorInitWizard } = props;
-
-    const classes = useStyles();
+    const { formFields, validateFields, isFetching, gcalenderList, isManualConnection } = props;
     const wizardClasses = wizardStyles();
-
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
+    enum EventDateTypes {
+        START = "'start",
+        END = "end"
+    };
 
     const validateForm = (fieldName: string, isInvalid: boolean) => {
         validateFields(fieldName, isInvalid);
     };
 
+    const calendarIdModel = formFields.find((field: any) => field.name === "calendarId");
     const calIdProps: FormElementProps = {
-        model: formFields[0],
+        model: calendarIdModel,
         customProps: {
             validate: validateForm,
-            statemenType: formFields[0].type
+            statementType: calendarIdModel.type
         }
     };
 
-    const titleModel = formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "summary");
+    const eventIdModel = formFields.find((field: any) => field.name === "eventId");
+    const eventIdProps: FormElementProps = {
+        model: eventIdModel,
+        customProps: {
+            validate: validateForm,
+            statementType: eventIdModel?.type
+        }
+    };
 
+    const titleModel = formFields.find((field: any) => field.name === "event")
+            .fields.find((field: any) => field.name === "summary");
     const titleProps: FormElementProps = {
         model: titleModel,
         customProps: {
             validate: validateForm,
-            statemenType: titleModel.type
+            statementType: titleModel.type
         }
     };
 
-    const descModel = formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "description");
+    const descModel = formFields.find((field: any) => field.name === "event")
+            .fields.find((field: any) => field.name === "description");
     const descProps: FormElementProps = {
         model: descModel,
         customProps: {
@@ -79,52 +85,59 @@ export function CreateEvent(props: OperationDropdownProps) {
         }
     };
 
-    const locationModel = formFields.find((item: any) => item.name === "event")
-            .fields.find((item: any) => item.name === "location");
+    const locationModel = formFields.find((field: any) => field.name === "event")
+            .fields.find((field: any) => field.name === "location");
     const locationProps: FormElementProps = {
         model: locationModel,
         customProps: {
             validate: validateForm,
-            statementType: locationModel
+            statementType: locationModel.type
         }
     };
 
-    const startTimeModel: FormField = {
-        type: PrimitiveBalType.String,
-        name: "Start Time"
-    };
+    const validateAttendee = (fieldName: string, isInvalidFromField: boolean) => {
+        validateFields(fieldName, isInvalidFromField);
+    }
+
+    const attendeeModel = formFields.find((field: any) => field.name === "event")
+            .fields.find((field: any) => field.name === "attendees");
+    const attendeeComponnet = getFormElement({
+        model: attendeeModel,
+        customProps: {
+            validate: validateAttendee,
+        }
+    }, attendeeModel.type);
 
     const startTimeOnChange = (time: Date) => {
-        formFields[1].fields[5].fields[1].value = convertDateToString(time);
+        setEventDateTime(EventDateTypes.START, time);
     };
 
-    const endTimeModel: FormField = {
-        type: PrimitiveBalType.String,
-        name: "End Time"
-    }
     const endTimeOnChange = (time: Date) => {
-        formFields[1].fields[6].fields[1].value = convertDateToString(time);
-    };
-
-    const onChangeAttendee = () => {
-        let record = "";
-        formFields[1].fields[12].fields.forEach((field: any, index: number) => {
-            if (index === (formFields[1].fields[12].fields.length - 1)) {
-                record += "{email: " + field.value + ", responseStatus: no}";
-            } else {
-                record += "{email: " + field.value + ", responseStatus: no},";
-            }
-        });
-        formFields[1].fields[12].value = record;
+        setEventDateTime(EventDateTypes.END, time);
     };
 
     const setDefaultValues = () => {
-        if (formFields[1].fields[5].fields[1]?.value === undefined){
-            formFields[1].fields[5].fields[1].value = convertDateToString(new Date());
+        if (!getEventDateTime(EventDateTypes.START)?.value){
+            setEventDateTime(EventDateTypes.START, new Date());
         }
-        if (formFields[1].fields[6].fields[1]?.value === undefined){
-            formFields[1].fields[6].fields[1].value = convertDateToString(addHours(new Date(), 1));
+        if (!getEventDateTime(EventDateTypes.END)?.value){
+            setEventDateTime(EventDateTypes.END, addHours(new Date(), 1));
         }
+    }
+
+    const setEventDateTime = (type: EventDateTypes, date: Date) => {
+        const isFieldExist = getEventDateTime(type);
+        if (isFieldExist){
+            formFields.find((field: any) => field.name === "event")
+            .fields.find((field: any) => field.name === type)
+            .fields.find((field: any) => field.name === "dateTime").value = convertDateToString(date);
+        }
+    }
+
+    const getEventDateTime = (type: EventDateTypes) => {
+        return formFields.find((field: any) => field.name === "event")
+            .fields?.find((field: any) => field.name === type)
+            .fields?.find((field: any) => field.name === "dateTime");
     }
 
     const convertDateToString = (date: Date) => {
@@ -132,52 +145,35 @@ export function CreateEvent(props: OperationDropdownProps) {
         return `"${formattedTime}"`;
     }
 
-    const attendeeComponnet = getFormElement({
-        model: formFields[1].fields[12],
-        onChange: onChangeAttendee
-    }, transformFormFieldTypeToString(formFields[1].fields[12]));
-
     // for oauth authenticated connections
     const handleGcalendarChange = (event: object, value: any) => {
         if (value?.id) {
-            formFields[0].value = "\"" + value?.id + "\"";
+            formFields.find((field: any) => field.name === "calendarId").value = `"${value.id}"`;
+            setActiveGcalendar(value);
         }
-        setActiveGcalendar(value);
     };
+
     function getActiveGcalendar() {
         if (gcalenderList && activeGcalendar === null) {
             // select primary calender from list
             const calender = gcalenderList.find(calendar => calendar.primary === true);
             setActiveGcalendar(calender);
-            formFields[0].value = "\"" + calender?.id + "\"";
+            formFields.find((field: any) => field.name === "calendarId").value = `"${calender.id}"`;
         }
         return activeGcalendar;
     }
+
     function handleItemLabel(gcalendar: Gcalendar) {
         return gcalendar.summary;
     }
 
     const showCalenderSelector = (!isManualConnection && (isFetching || gcalenderList?.length > 0)) ? true : false;
-
     // set default value before render
     setDefaultValues();
 
-    useEffect(() => {
-        if (!isNewConnectorInitWizard) {
-            const attendeeField = formFields.find((item: FormField) => item.name === "event")
-                .fields.find((item: FormField) => item.name === "attendees");
-            const emails: FormField[] = [];
-            attendeeField.fields.forEach((field: FormField) => {
-                const email = field.fields.find((item: FormField) => item.name === "email");
-                emails.push(email);
-            })
-            attendeeField.fields = emails;
-        }
-    }, [isNewConnectorInitWizard]);
-
     return (
         <>
-            {!showCalenderSelector && isManualConnection && (
+            {!showCalenderSelector && (
                 <ExpressionEditor {...calIdProps} />
             )}
             {showCalenderSelector && (
@@ -195,30 +191,21 @@ export function CreateEvent(props: OperationDropdownProps) {
                     onChange={handleGcalendarChange}
                 />
             )}
+            {eventIdModel && (<ExpressionEditor {...eventIdProps} />)}
             <ExpressionEditor {...titleProps} />
             <ExpressionEditor {...descProps} />
             <ExpressionEditor {...locationProps} />
             <DateLabelPicker
-                model={formFields[1]?.fields[5]?.fields[1]}
+                model={getEventDateTime(EventDateTypes.START)}
                 onChange={startTimeOnChange}
                 label={"Select Start Date"}
             />
             <DateLabelPicker
-                model={formFields[1]?.fields[6]?.fields[1]}
+                model={getEventDateTime(EventDateTypes.END)}
                 onChange={endTimeOnChange}
                 label={"Select End Date"}
             />
-
-                <>
-                    <div className={classes.labelWrapper}>
-                        <FormHelperText className={classes.inputLabelForRequired}>Attendees</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
-                    </div>
-                    <div>
-                        {attendeeComponnet}
-                    </div>
-                </>
-
+            <div>{attendeeComponnet}</div>
         </>
     );
 }

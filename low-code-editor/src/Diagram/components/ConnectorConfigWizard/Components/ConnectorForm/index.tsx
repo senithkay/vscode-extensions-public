@@ -38,7 +38,6 @@ import {
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updateObjectDeclaration,
     updatePropertyStatement,
     updateRemoteServiceCall,
 } from "../../../../utils/modification-util";
@@ -46,7 +45,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams } from '../../../Portals/utils';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getMapTo, getOauthConnectionParams, getParams, matchEndpointToFormField } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -76,6 +75,8 @@ export interface ConnectorConfigWizardProps {
     targetPosition: DraftInsertPosition;
     configWizardArgs?: ConfigWizardState;
     onClose: () => void;
+    selectedConnector: LocalVarDecl;
+    isAction?: boolean;
 }
 
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
@@ -92,7 +93,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
-    const { connectorInfo, targetPosition, configWizardArgs, onClose } = props;
+    const { connectorInfo, targetPosition, configWizardArgs, onClose, selectedConnector, isAction } = props;
     const { functionDefInfo, connectorConfig, wizardType, model } = configWizardArgs;
 
     let isOauthConnector = false;
@@ -102,62 +103,63 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     });
 
-    const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();
+    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig())
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
+
     const [connectionDetails, setConnectionDetails] = useState(null);
-    const [selectedOperation, setSelectedAction] = useState(connectorConfig?.action?.name);
+    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
 
     useEffect(() => {
         if (isOauthConnector) {
             setFormState(FormStates.OauthConnect);
-        } else {
+        } else if (!isAction) {
             setFormState(FormStates.CreateNewConnection);
+        } else {
+            setFormState(FormStates.OperationForm);
         }
     }, []);
 
     useEffect(() => {
-        if (config.existingConnections) {
-            setFormState(FormStates.ExistingConnection);
+        if (selectedConnector) {
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            config.name = connectorNameValue;
+            matchEndpointToFormField(selectedConnector, config.connectorInit);
+            config.isExistingConnection = (connectorNameValue !== undefined);
+            onSelectExisting(connectorNameValue);
         }
-    }, [config.existingConnections]);
+    }, [selectedConnector]);
 
     const connectorInitFormFields: FormField[] = functionDefInfo?.get("init") ?
         functionDefInfo?.get("init").parameters : functionDefInfo?.get("__init").parameters;
 
     // managing name set by the non oauth connectors
-    config.name = isNewConnectorInitWizard ?
+    config.name = (isNewConnectorInitWizard && !config.name) ?
         genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo))
         : config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
     }
-    config.name = configName;
 
     const operations: string[] = [];
-    if (functionDefInfo) {
+    if (functionDefInfo && isAction) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push(key);
             }
         });
     }
-
-    let formFields: FormField[] = null;
-    if (selectedOperation) {
-        formFields = functionDefInfo.get(selectedOperation).parameters;
+    if (!config.action && isAction) {
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
-        config.action.fields = formFields;
     }
 
     const handleOnConnection = (type: ConnectionType, connection: ConnectionDetails) => {
         setConnectionDetails(connection);
-        setFormState(FormStates.OperationDropdown);
+        setFormState(FormStates.OperationForm);
     };
 
     const handleConnectionUpdate = () => {
@@ -167,11 +169,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleOnFailure = () => {
         //    todo handle error
-    };
-
-    const onOperationSelect = (operation: string) => {
-        setSelectedAction(operation);
-        setFormState(FormStates.OperationForm);
     };
 
     const onOperationChange = () => {
@@ -185,6 +182,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onCreateNew = () => {
+        config.name = undefined;
         setConfigName(genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo)));
         if (isOauthConnector) {
             setIsManualConnection(false);
@@ -196,26 +194,130 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         setIsNewConnection(true);
     };
 
-    const onOauthConnectorBack = () => {
-        if (config.existingConnections) {
-            setIsNewConnection(false);
-            setFormState(FormStates.ExistingConnection);
-        }
-    };
-
     const onSelectExisting = (value: any) => {
         setConfigName(value);
         setIsNewConnection(false);
-        setFormState(FormStates.OperationDropdown);
+        setFormState(FormStates.OperationForm);
     };
 
-    const onCreateConnectorSave = () => {
+    const handleCreateConnectorSaveNext = () => {
         if (isNewConnection) {
             setFormState(FormStates.OperationDropdown);
         } else {
             setFormState(FormStates.OperationForm);
         }
     };
+
+    const handleCreateConnectorOnSave = () => {
+        const modifications: STModification[] = [];
+        const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+        trackAddConnector(connectorInfo.displayName);
+        if (!isNewConnectorInitWizard) {
+            const updateConnectorInit = updatePropertyStatement(
+                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                connectorConfig.initPosition
+            );
+            modifications.push(updateConnectorInit);
+        } else if (targetPosition) {
+            // Add an import.
+            const addImport: STModification = createImportStatement(
+                connectorInfo.org,
+                connectorInfo.module,
+                targetPosition
+            );
+            modifications.push(addImport);
+
+            // Add an connector client initialization.
+            if (isNewConnection) {
+                let addConnectorInit: STModification
+                if (isOauthConnector && !isManualConnection) {
+                    addConnectorInit = createObjectDeclaration(
+                        (connectorInfo.module + ":" + connectorInfo.name),
+                        config.name,
+                        getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
+                        targetPosition
+                    );
+                } else {
+                    addConnectorInit = createPropertyStatement(
+                        `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                }
+                modifications.push(addConnectorInit);
+            }
+        }
+        if (modifications.length > 0) {
+            dispatchMutations(modifications);
+            onClose();
+        }
+    }
+
+    const handleActionOnSave = () => {
+        const modifications: STModification[] = [];
+        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
+        trackAddConnector(connectorInfo.displayName);
+        if (!isNewConnectorInitWizard) {
+            if (isActionReturnError) {
+                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                    "var",
+                    config.action.returnVariableName,
+                    config.name,
+                    config.action.name,
+                    getParams(config.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            } else {
+                const updateActionInvocation: STModification = updateRemoteServiceCall(
+                    "var",
+                    config.action.returnVariableName,
+                    config.name,
+                    config.action.name,
+                    getParams(config.action.fields),
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            }
+        } else {
+            if (targetPosition) {
+                // Add an action invocation on the initialized client.
+                if (isActionReturnError) {
+                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation: STModification = createRemoteServiceCall(
+                        "var",
+                        config.action.returnVariableName,
+                        config.name,
+                        config.action.name,
+                        getParams(config.action.fields), targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
+
+                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
+                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                        config.responsePayloadMap.payloadVariableName,
+                        "var",
+                        config.action.returnVariableName,
+                        config.responsePayloadMap.payloadTypes.get(
+                            config.responsePayloadMap.selectedPayloadType),
+                        targetPosition
+                    );
+                    modifications.push(addPayload);
+                }
+            }
+
+        }
+        dispatchMutations(modifications);
+        onClose();
+    }
 
     const onConnectionNameChange = () => {
         if ((isNewConnection && !isOauthConnector) || (isNewConnection && isOauthConnector && isManualConnection)) {
@@ -232,12 +334,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setIsManualConnection(false);
             setIsNewConnection(true);
             setFormState(FormStates.OauthConnect);
-        } else {
-            setFormState(FormStates.ExistingConnection);
         }
     };
 
-    if (!isNewConnectorInitWizard) {
+    if (!isNewConnectorInitWizard && isAction) {
         connectorConfig.action.returnVariableName =
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
     }
@@ -268,109 +368,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
+        // const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
             dispatchMutations(sourceModifications);
-            onClose();
-        } else {
-            // insert initialized connector logic
-            const modifications: STModification[] = [];
-
-            if (!isNewConnectorInitWizard) {
-                const updateConnectorInit = updatePropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                    connectorConfig.initPosition
-                );
-                modifications.push(updateConnectorInit);
-
-                if (isActionReturnError) {
-                    const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
-                        model.position
-                    );
-                    modifications.push(updateActionInvocation);
-                } else {
-                    const updateActionInvocation: STModification = updateRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields),
-                        model.position
-                    );
-                    modifications.push(updateActionInvocation);
-                }
-            } else {
-                if (targetPosition) {
-                    // Add an import.
-                    const addImport: STModification = createImportStatement(
-                        connectorInfo.org,
-                        connectorInfo.module,
-                        targetPosition
-                    );
-                    modifications.push(addImport);
-
-                    // Add an connector client initialization.
-                    if (isNewConnection) {
-                        let addConnectorInit: STModification
-                        if (isOauthConnector && !isManualConnection) {
-                            addConnectorInit = createObjectDeclaration(
-                                (connectorInfo.module + ":" + connectorInfo.name),
-                                config.name,
-                                getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
-                                targetPosition
-                            );
-                        } else {
-                            addConnectorInit = createPropertyStatement(
-                                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                                targetPosition
-                            );
-                        }
-                        modifications.push(addConnectorInit);
-                    }
-
-                    // Add an action invocation on the initialized client.
-                    if (isActionReturnError){
-                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            "var",
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
-                        );
-                        modifications.push(addActionInvocation);
-                    }else{
-                        const addActionInvocation: STModification = createRemoteServiceCall(
-                            "var",
-                            config.action.returnVariableName,
-                            config.name,
-                            config.action.name,
-                            getParams(config.action.fields), targetPosition
-                        );
-                        modifications.push(addActionInvocation);
-                    }
-
-                    if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            config.responsePayloadMap.payloadVariableName,
-                            "var",
-                            config.action.returnVariableName,
-                            config.responsePayloadMap.payloadTypes.get(
-                                config.responsePayloadMap.selectedPayloadType),
-                            targetPosition
-                        );
-                        modifications.push(addPayload);
-                    }
-
-                }
-            }
-            dispatchMutations(modifications);
             onClose();
         }
     };
@@ -387,7 +389,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             connector: connectorInfo,
             isNewConnectorInitWizard,
             targetPosition,
-            model
+            model,
+            selectedConnector,
+            isAction
         });
         if (!connectorComponent) {
             connectorComponent = (
@@ -404,7 +408,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         </div>
                     </div>
                     <div>
-                        {isNewConnection && isOauthConnector && !isManualConnection && (
+                        {isNewConnection && isOauthConnector && !isManualConnection && !isAction && (
                             <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
                                 <div className={wizardClasses.fullWidth}>
                                     <div className={wizardClasses.mainOauthBtnWrapper}>
@@ -420,7 +424,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 </div>
                             </div>
                         )}
-                        {(formState === FormStates.OauthConnect) &&
+                        {(formState === FormStates.OauthConnect) && !isAction &&
                             (
                                 <div className={classNames(wizardClasses.manualBtnWrapper)}>
                                     <p className={wizardClasses.subTitle}>Or use manual configurations</p>
@@ -430,65 +434,29 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                         fullWidth={false}
                                         onClick={onManualConnection}
                                     />
-                                    {(config.existingConnections && isNewConnection) && (
-                                        <div className={wizardClasses.connectBackBtn}>
-                                            <SecondaryButton
-                                                text="Back"
-                                                fullWidth={false}
-                                                onClick={onOauthConnectorBack}
-                                            />
-                                        </div>
-                                    )}
                                 </div>
                             )
                         }
                     </div>
-                    {(formState === FormStates.OperationDropdown) && (
-                        <OperationDropdown
-                            operations={operations}
-                            onOperationSelect={onOperationSelect}
-                            connectionDetails={config}
-                            onConnectionChange={onConnectionNameChange}
-                            showConnectionName={showConnectionName}
-                        />
-                    )}
                     {(formState === FormStates.OperationForm) && (
                         <OperationForm
+                            functionDefInfo={functionDefInfo}
                             connectionDetails={config}
                             showConnectionName={showConnectionName}
-                            formFields={formFields}
                             selectedOperation={config.action.name}
-                            onSave={onSave}
+                            onSave={handleActionOnSave}
                             onConnectionChange={onConnectionNameChange}
                             onOperationChange={onOperationChange}
                             mutationInProgress={isMutationProgress}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
-                        />
-                    )}
-                    {(formState === FormStates.ExistingConnection) && isNewConnectorInitWizard && (
-                        <SelectConnectionForm
-                            onCreateNew={onCreateNew}
-                            connectorConfig={config}
-                            connector={connectorInfo}
-                            onSelectExisting={onSelectExisting}
-                        />
-                    )}
-                    {(formState === FormStates.ExistingConnection) && !isNewConnectorInitWizard && (
-                        <CreateConnectorForm
-                            initFields={connectorInitFormFields}
-                            onSave={onCreateConnectorSave}
-                            connectorConfig={config}
-                            onConfigNameChange={handleConfigNameChange}
-                            onBackClick={onCreateConnectorBack}
-                            connector={connectorInfo}
-                            isNewConnectorInitWizard={isNewConnectorInitWizard}
-                            isOauthConnector={isOauthConnector}
+                            operations={operations}
                         />
                     )}
                     {(formState === FormStates.CreateNewConnection) && (
                         <CreateConnectorForm
                             initFields={connectorInitFormFields}
-                            onSave={onCreateConnectorSave}
+                            onSave={handleCreateConnectorOnSave}
+                            onSaveNext={handleCreateConnectorSaveNext}
                             connectorConfig={config}
                             onConfigNameChange={handleConfigNameChange}
                             onBackClick={onCreateConnectorBack}

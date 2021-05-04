@@ -34,8 +34,10 @@ import {
     addToFormFieldCache,
     getConnectorDefFromCache,
     getFromFormFieldCache,
-    getRecordDefFromCache
+    getRecordDefFromCache,
+    isSTActionInvocation
 } from "../../../utils/st-util";
+import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
@@ -74,7 +76,6 @@ const ignoreList = [
     'ballerinax/github.webhook:0.99.12:Milestone',
     'ballerinax/github.webhook:0.99.12:Branch',
     'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:CardList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:BranchList',
     'ballerinax/github:0.99.12:IssueList',
@@ -82,6 +83,8 @@ const ignoreList = [
     'ballerinax/github:0.99.12:RepositoryList',
     'ballerinax/github:0.99.12:ColumnList',
     'ballerinax/github:0.99.12:PullRequestList',
+    'ballerinax/netsuite:0.9.3:GetAllRecordType',
+    'ballerinax/netsuite:0.9.3:GetSaveSearchType'
 ]
 
 export function getOverlayElement(
@@ -147,6 +150,16 @@ export async function getRecordFields(formFields: any, records: object, langClie
                     case 'collection':
                         // fine as it is
                         break;
+                    case 'union':
+                        if (formField.fields) {
+                            await getRecordFields(formField.fields, records, langClient);
+                            formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
+                                if (property?.length > 0) {
+                                    formField.fields = [...formField.fields, ...property.fields];
+                                }
+                            });
+                        }
+                        break;
                     default:
                         // every other type can be a record or union
                         if (formField.typeInfo) {
@@ -203,7 +216,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                     await getRecordFields(formField.fields, records, langClient);
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property?.length > 0){
+                                        if (property?.length > 0) {
                                             formField.fields = [...formField.fields, ...property.fields]
                                         }
                                     })
@@ -228,22 +241,8 @@ export function getParams(formFields: FormField[]): string[] {
         if (formField.isParam && !formField.noCodeGen) {
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "collection" && !formField.hide) {
-                if (formField.fields.length > 0) {
-                    let firstRecordField = false;
-                    paramString += "[";
-                    formField.fields.forEach(field => {
-                        if (firstRecordField) {
-                            paramString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        paramString += field.value;
-                    });
-                    paramString += "]";
-                } else if (formField.value !== undefined) {
-                    paramString += formField.value.toString();
-                }
+            } else if (formField.type === "collection" && !formField.hide && formField.value) {
+                paramString += formField.value.toString();
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
@@ -264,58 +263,20 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "collection" && !field.hide) {
+                    } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
                             firstRecordField = true;
                         }
-                        let collectionFieldString: string = "[";
-                        let firstCollectionField = false;
-                        if (field.fields) {
-                            // To check incoming fields from property from
-                            field.fields.forEach((subField: FormField) => {
-                                if (firstCollectionField) {
-                                    collectionFieldString += ", ";
-                                } else {
-                                    firstCollectionField = true;
-                                }
-                                if (field.collectionDataType === "string" && subField.value) {
-                                    collectionFieldString += subField.value;
-                                } else if ((field.type === "int" || field.type === "boolean" ||
-                                    field.type === "float") && subField.value) {
-                                    collectionFieldString += subField.value;
-                                }
-                            });
-                        } else if (field.value) {
-                            // To check incoming values from Array component
-                            field.value.forEach((value: any) => {
-                                if (firstCollectionField) {
-                                    collectionFieldString += ", ";
-                                } else {
-                                    firstCollectionField = true;
-                                }
-                                if (field.collectionDataType === "string" && field.value) {
-                                    collectionFieldString += value;
-                                } else if ((field.type === "int" || field.type === "boolean" ||
-                                    field.type === "float") && field.value) {
-                                    collectionFieldString += value;
-                                }
-                            });
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
                         }
-                        collectionFieldString += "]";
-                        recordFieldsString += getFieldName(field.name) + ": " + collectionFieldString;
-                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion) {
-                        const selectedUnionField: FormField[] = [];
-                        for (const unionField of field.fields) {
-                            if (unionField.type === field.selectedDataType
-                                || unionField.collectionDataType === field.selectedDataType
-                                || unionField.typeName === field.selectedDataType) {
-                                selectedUnionField.push(unionField);
-                                break;
-                            }
-                        }
-                        recordFieldsString += ", " + getFieldName(field.name) + ": " + getParams(selectedUnionField);
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "record" && !field.hide) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -336,17 +297,8 @@ export function getParams(formFields: FormField[]): string[] {
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
                 }
-            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion) {
-                const selectedUnionField: FormField[] = [];
-                for (const unionField of formField.fields) {
-                    if (unionField.type === formField.selectedDataType
-                        || unionField.collectionDataType === formField.selectedDataType
-                        || unionField.typeName === formField.selectedDataType) {
-                        selectedUnionField.push(unionField);
-                        break;
-                    }
-                }
-                paramString += getParams(selectedUnionField);
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
+                paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
             } else if (formField.type === PrimitiveBalType.Xml && formField.value) {
@@ -449,54 +401,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                     nextValueIndex++;
                 }
             } else if (formField.type === "union" && formField.isUnion) {
-                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-
-                let type = "";
-                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                    type = "string";
-                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    if (STKindChecker.isDecimalIntegerLiteralToken(numericLiteral.literalToken)) {
-                        type = "int";
-                    } else if (STKindChecker.isDecimalFloatingPointLiteralToken(numericLiteral.literalToken)) {
-                        type = "float";
-                    }
-                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                    type = "boolean"
-                } else if (mappingConstructor) {
-                    type = "record";
-                }
-                // if (type === "null") {
-                //     type = "nil";
-                // }
-
-                for (const unionMember of formField.fields) {
-                    if (unionMember.type === type) {
-                        if (unionMember.type === "string" || unionMember.type === "int" || unionMember.type === "boolean"
-                            || unionMember.type === "float" || unionMember.type === "nil") {
-                            let literal: StringLiteral | NumericLiteral | BooleanLiteral;
-                            if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                                literal = positionalArg.expression as StringLiteral;
-                            } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                                literal = positionalArg.expression as StringLiteral;
-                            } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                                literal = positionalArg.expression as StringLiteral;
-                            }
-                            formField.selectedDataType = unionMember.type;
-                            unionMember.value = literal;
-                            nextValueIndex++;
-                            break;
-                        } else if (unionMember.type === "record" && unionMember.fields && unionMember.fields.length > 0) {
-                            if (mappingConstructor) {
-                                // mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[],
-                                // unionMember.fields);
-                                formField.selectedDataType = unionMember.type;
-                                nextValueIndex++;
-                                break;
-                            }
-                        }
-                    }
-                }
+                formField.value = positionalArg.expression?.source;
             }
         }
     }
@@ -508,23 +413,12 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
             formFields.forEach(formField => {
                 if (formField.name === specificField.fieldName.value) {
                     // if the assigned value is one of inbuilt type
-                    if (STKindChecker.isStringLiteral(specificField.valueExpr) ||
+                    formField.value = (STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
-                        STKindChecker.isBooleanLiteral(specificField.valueExpr)) {
+                        STKindChecker.isBooleanLiteral(specificField.valueExpr)) ?
 
-                        const fieldValue = specificField.valueExpr.literalToken.value;
-                        if (formField.type === "union") {
-                            formField.fields.forEach((field: FormField) => {
-                                if (field.type === formField.selectedDataType) {
-                                    formField.value = fieldValue;
-                                }
-                            });
-                        } else {
-                            formField.value = fieldValue;
-                        }
-                    } else {
+                        formField.value = specificField.valueExpr.literalToken.value :
                         formField.value = specificField.valueExpr.source;
-                    }
 
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
@@ -535,60 +429,8 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is an array
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
-                        formField.value = [];
+                        formField.value = listExpr.source;
                         formField.fields = [];
-                        listExpr.expressions.forEach(element => {
-                            if (STKindChecker.isStringLiteral(element) ||
-                                STKindChecker.isNumericLiteral(element) ||
-                                STKindChecker.isBooleanLiteral(element)) {
-
-                                const fieldValue = element.literalToken.value;
-                                if (formField.type === "union") {
-                                    formField.fields.forEach((field: FormField) => {
-                                        if (field.type === formField.selectedDataType) {
-                                            formField.value.push(fieldValue);
-                                        }
-                                    });
-                                } else {
-                                    formField.value.push(fieldValue);
-                                }
-                            } else {
-                                if (STKindChecker.isMappingConstructor(element)) {
-                                    const mappingField: FormField = {
-                                        type: PrimitiveBalType.String,
-                                        name: "",
-                                        fields: []
-                                    }
-                                    element.fields.forEach((field) => {
-                                        if (field.kind !== "CommaToken") {
-                                            const mappingSpecificField = field as SpecificField;
-                                            if (STKindChecker.isNumericLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.Float,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.String,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            } else if (STKindChecker.isStringLiteral(mappingSpecificField.valueExpr)) {
-                                                mappingField.fields.push({
-                                                    type: PrimitiveBalType.Boolean,
-                                                    name: mappingSpecificField.fieldName.value,
-                                                    value: mappingSpecificField.valueExpr.source
-                                                });
-                                            }
-                                        }
-                                    });
-                                    formField.fields.push(mappingField);
-                                } else if (element.kind !== "CommaToken") {
-                                    formField.fields.push({type: PrimitiveBalType.String, name: "", value: element.source});
-                                }
-                            }
-                        })
                     }
                 }
             })
@@ -632,9 +474,7 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             }
             nextValueIndex++;
         } else if (formField.type === 'collection') {
-            formField.fields = (positionalArg.expression as ListConstructor).expressions
-                .filter(exp => exp.kind !== 'CommaToken')
-                .map(exp => ({ type: formField.collectionDataType, value: exp.source }));
+            formField.value = positionalArg.expression?.source;
             nextValueIndex++;
         } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
             const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
@@ -643,53 +483,11 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
                 nextValueIndex++;
             }
         } else if (formField.type === "union" && formField.isUnion) {
-            const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-            let type = "";
-            if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                type = "string";
-            } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                if (STKindChecker.isDecimalIntegerLiteralToken(numericLiteral.literalToken)) {
-                    type = "int";
-                } else if (STKindChecker.isDecimalFloatingPointLiteralToken(numericLiteral.literalToken)) {
-                    type = "float";
-                }
-            } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                type = "boolean"
-            } else if (mappingConstructor) {
-                type = "record";
-            }
-
-            // if (type === "null") {
-            //     type = "nil";
-            // }
-
-            for (const unionMember of formField.fields) {
-                if (unionMember.type === type) {
-                    if (unionMember.type === "string" || unionMember.type === "int" || unionMember.type === "boolean" || unionMember.type === "float" || unionMember.type === "nil") {
-                        let literal: StringLiteral | NumericLiteral | BooleanLiteral;
-                        if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                            literal = positionalArg.expression as StringLiteral;
-                        } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                            literal = positionalArg.expression as StringLiteral;
-                        } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                            literal = positionalArg.expression as StringLiteral;
-                        }
-                        formField.selectedDataType = unionMember.type;
-                        unionMember.value = literal;
-                        nextValueIndex++;
-                        break;
-                    } else if (unionMember.type === "record" && unionMember.fields && unionMember.fields.length > 0) {
-                        if (mappingConstructor) {
-                            mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[],
-                                unionMember.fields);
-                            formField.selectedDataType = unionMember.type;
-                            nextValueIndex++;
-                            break;
-                        }
-                    }
-                }
-            }
+            formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
+        } else if (formField.type === "json") {
+            formField.value = positionalArg.expression?.source;
+            nextValueIndex++;
         }
     }
 }
@@ -711,6 +509,17 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 
 export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: number = 1): React.ReactNode {
     const iconId = getConnectorIconId(connector);
+    const Icon = (Icons as any)[iconId];
+    const DefaultIcon = (Icons as any).default;
+    const props = {
+        scale
+    }
+    return Icon ? (
+        <Icon {...props} />
+    ) : <DefaultIcon {...props} />;
+}
+
+export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
     const Icon = (Icons as any)[iconId];
     const DefaultIcon = (Icons as any).default;
     const props = {
@@ -771,7 +580,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
                     "position": 0,
                     "isUsed": 0
                 }
-            } else {
+            } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
                 const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
                     CaptureBindingPattern;
@@ -918,59 +727,48 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             addToFormFieldCache(connector, functionDefInfo);
         }
 
-        // // check whether the init method has an error type return
-        // const initFunction: ObjectMethodDefinition[] = connectorDef.members.filter((member: any) => member.functionName && member.functionName.value === 'init');
-        // if (initFunction.length > 0 && initFunction[0].functionSignature.returnTypeDesc) {
-        //     const returnType = initFunction[0].functionSignature.returnTypeDesc.type;
-        //     const typeVS = returnType.kind === 'OptionalTypeDesc' ?
-        //         (returnType as OptionalTypeDesc).typeDescriptor.viewState
-        //         : returnType.viewState;
-        //     await getRecordFields([typeVS], connectorDef.typeData.records, langClient);
-
-        //     if (typeVS.isUnion) {
-        //         typeVS.fields.forEach((field: any) => {
-        //             if (field.isErrorType) {
-        //                 connectorConfig.isReturnError = true;
-        //             }
-        //         })
-        //     } else {
-        //         connectorConfig.isReturnError = typeVS.isErrorType;
-        //     }
-        // }
-
         // Filter connector functions to have better usability.
         functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
         if (model) {
             const variable: LocalVarDecl = model as LocalVarDecl;
-            let remoteCall: RemoteMethodCallAction;
-            switch (variable.initializer.kind) {
-                case 'TypeCastExpression':
-                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                    break;
-                case 'RemoteMethodCallAction':
-                    remoteCall = variable.initializer as RemoteMethodCallAction;
-                    break;
-                default:
-                    remoteCall = (variable.initializer as CheckAction).expression;
-            }
-            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                CaptureBindingPattern;
-            const returnVarName: string = bindingPattern.variableName.value;
-            if (remoteCall && returnVarName) {
-                const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-                const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
-                if (remoteCall && actionName) {
-                    const action: ActionConfig = new ActionConfig();
-                    action.name = actionName.name.value;
-                    action.returnVariableName = returnVarName;
-                    connectorConfig.action = action;
-                    connectorConfig.name = configName.name.value;
-                    connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
-                    matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+            const viewState: StatementViewState = model.viewState as StatementViewState;
+            if (isSTActionInvocation(variable)) {
+                let remoteCall: RemoteMethodCallAction;
+                switch (variable.initializer.kind) {
+                    case 'TypeCastExpression':
+                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                        remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                        break;
+                    case 'RemoteMethodCallAction':
+                        remoteCall = variable.initializer as RemoteMethodCallAction;
+                        break;
+                    default:
+                        remoteCall = (variable.initializer as CheckAction).expression;
+                }
+                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                    CaptureBindingPattern;
+                const returnVarName: string = bindingPattern.variableName.value;
+                if (remoteCall && returnVarName) {
+                    const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
+                    const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
+                    if (remoteCall && actionName) {
+                        const action: ActionConfig = new ActionConfig();
+                        action.name = actionName.name.value;
+                        action.returnVariableName = returnVarName;
+                        connectorConfig.action = action;
+                        connectorConfig.name = configName.name.value;
+                        connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
+                        matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+                    }
+                }
+            } else if (viewState.isEndpoint) {
+                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                    CaptureBindingPattern;
+                const endpointVarName: string = bindingPattern.variableName.value;
+                if (endpointVarName) {
+                    connectorConfig.name = endpointVarName;
                 }
             }
-
             connectorConfig.connectorInit = functionDefInfo.get("init") ?
                 functionDefInfo.get("init").parameters
                 : functionDefInfo.get("__init").parameters;
