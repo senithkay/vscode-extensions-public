@@ -39,7 +39,6 @@ export interface OperationFormProps {
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
-    onOperationChange: () => void;
     isNewConnectorInitWizard?: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
@@ -49,7 +48,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
 
@@ -70,6 +69,10 @@ export function OperationForm(props: OperationFormProps) {
             setFormFields(derivedFormFields);
         }
     }
+
+    const onOperationChange = () => {
+        setSelectedOperationState(undefined);
+    };
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);

@@ -23,10 +23,9 @@ import { BlockViewState, StatementViewState, ViewState } from "../../../view-sta
 import { DraftStatementViewState } from "../../../view-state/draft";
 import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
-import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
+import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
-import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW } from "../ConnectorHeader/ConnectorClientSVG";
+import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";

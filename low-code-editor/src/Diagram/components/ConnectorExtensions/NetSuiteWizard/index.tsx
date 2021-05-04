@@ -40,7 +40,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";

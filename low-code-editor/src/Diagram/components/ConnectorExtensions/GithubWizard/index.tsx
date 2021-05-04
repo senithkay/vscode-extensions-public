@@ -46,7 +46,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -264,7 +264,7 @@ export function GithubWizard(props: WizardProps) {
 
                     addConnectorInit = createPropertyStatement(
                         `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
@@ -337,7 +337,7 @@ export function GithubWizard(props: WizardProps) {
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     } else {
