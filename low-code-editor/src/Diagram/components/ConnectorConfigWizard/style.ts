@@ -94,7 +94,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             width: 32,
             height: 28,
             "& svg": {
-                transform: "scale(0.5, 0.5)",
+                transform: "scale(1, 1)",
                 transformOrigin: "top left"
             }
         },
