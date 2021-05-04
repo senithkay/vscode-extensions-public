@@ -97,15 +97,15 @@ export function AddLogConfig(props: LogConfigProps) {
     const logTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+            defaultMessage: "Enter a Ballerina expression."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Read more"
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            defaultMessage: "https://ballerina.io/learn/by-example/"
         })
     }
     return (

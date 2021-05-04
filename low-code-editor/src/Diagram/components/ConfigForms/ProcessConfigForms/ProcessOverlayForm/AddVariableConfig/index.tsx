@@ -184,21 +184,21 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         customVariableType: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
-                defaultMessage: "Enter the value of the variable"
+                defaultMessage: "Enter the type of the variable"
             })
     },
         expressionEditor: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
-            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+            defaultMessage: "Enter a Ballerina expression."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-            defaultMessage: "Read more"
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            defaultMessage: "https://ballerina.io/learn/by-example/"
         })
     }
     };

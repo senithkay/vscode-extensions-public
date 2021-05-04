@@ -724,7 +724,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
                                     <TooltipIcon
-                                        title={model?.tooltip}
+                                        title={customProps?.tooltipTitle || model?.tooltip}
                                         interactive={customProps?.interactive || true}
                                         actionText={customProps?.tooltipActionText}
                                         actionLink={customProps?.tooltipActionLink}
