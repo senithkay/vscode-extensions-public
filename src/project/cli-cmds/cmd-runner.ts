@@ -29,6 +29,8 @@ export enum MESSAGES {
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project."
 }
 
+export const BAL_TOML = "Ballerina.toml";
+
 let terminal: Terminal;
 export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
     if (terminal) {
