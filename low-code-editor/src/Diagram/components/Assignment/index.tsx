@@ -11,18 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import classNames from "classnames";
 
+import { DefaultConfig } from "../../visitors/default";
+
 import "./style.scss"
 
-export const ASSIGNMENT_NAME_WIDTH = 105;
+export let ASSIGNMENT_NAME_WIDTH = 125;
 
-export function Assignment(props: { x: number, y: number, assignment: string, className?: string}) {
-    const { assignment, className, ...xyProps } = props;
+export function Assignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number}) {
+    const { assignment, className, key_id, ...xyProps } = props;
+    const [textWidth, setTextWidth] = useState(ASSIGNMENT_NAME_WIDTH);
+    useEffect(() => {
+        setTextWidth(document.getElementById("textLegnth_" + key_id).getBoundingClientRect().width);
+    }, []);
 
-    const assignmentMaxWidth = assignment.length >= 15;
+    const assignmentMaxWidth = assignment?.length >= 15;
+    const assignmentWidth = textWidth
 
     return (
         <svg {...xyProps}>
@@ -31,7 +38,7 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
                 id="Assignment_text"
                 transform="translate(0 11)"
             >
-                <tspan x="0" y="0">{assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment}</tspan>
+                <tspan x="0" y="0" id={"textLegnth_" + key_id}>{assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment}</tspan>
             </text>
         </svg>
     );
