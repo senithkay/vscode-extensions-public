@@ -204,7 +204,12 @@ export function ForEach(props: ForeachProps) {
         <g className="foreach-block" data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper">
-                <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
+                <ForeachSVG
+                    x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2}
+                    y={y}
+                    text="FOR EACH"
+                    codeSnippet={codeSnippet}
+                />
 
                 <ContitionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
