@@ -191,6 +191,7 @@ export function APIOptions(props: APIOptionsProps) {
         }),
     },
     }
+    // tslint:disable-next-line: no-shadowed-variable
     const tooltipTitles: Record<any, string> = {
         HTTP: connectionsTooltipMessages.httpConnector.title,
         SMTP: connectionsTooltipMessages.smtpConnector.title,
@@ -207,6 +208,7 @@ export function APIOptions(props: APIOptionsProps) {
         NETSUITE : connectionsTooltipMessages.netsuite.title,
     };
 
+    // tslint:disable-next-line: no-shadowed-variable
     const tooltipExamples: Record<any, string> = {
         HTTP: connectionsTooltipMessages.httpConnector.content,
         SMTP: connectionsTooltipMessages.smtpConnector.content,

@@ -24,6 +24,7 @@ export let CONDITION_ASSIGNMENT_NAME_WIDTH = 125;
 export function ContitionAssignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number }) {
     const { assignment, className, key_id, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(CONDITION_ASSIGNMENT_NAME_WIDTH);
+
     useEffect(() => {
         setTextWidth(document.getElementById("textLegnth_" + key_id).getBoundingClientRect().width);
     }, []);
@@ -32,7 +33,8 @@ export function ContitionAssignment(props: { x: number, y: number, assignment: s
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? (CONDITION_ASSIGNMENT_NAME_WIDTH + (assignmentWidth / 4) - (DefaultConfig.dotGap * 2)) : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    // assignmentX = (assignmentWidth > 125) ? (CONDITION_ASSIGNMENT_NAME_WIDTH + (assignmentWidth / 4) - (DefaultConfig.dotGap * 2)) : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
 
     return (
         <svg {...xyProps}>
