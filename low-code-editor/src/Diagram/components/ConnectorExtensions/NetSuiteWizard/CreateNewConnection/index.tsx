@@ -179,7 +179,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
-                        </Section>
+                    </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>

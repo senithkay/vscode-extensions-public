@@ -249,7 +249,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
-                        </Section>
+                    </Section>
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
                         </div>

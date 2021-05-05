@@ -198,7 +198,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
-                        </Section>
+                    </Section>
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>

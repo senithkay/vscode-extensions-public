@@ -223,7 +223,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
-                        </Section>
+                    </Section>
                         <ExpressionEditor {...expElementProps} />
                     </div>
                 </div>

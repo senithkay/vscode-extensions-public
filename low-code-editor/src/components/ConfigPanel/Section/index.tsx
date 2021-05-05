@@ -34,15 +34,15 @@ export default function ConfigPanelSection(props: any) {
 
             ) : (!!tooltipWithExample) ? (
                 <TooltipIcon
-                title={tooltipWithExample.title}
-                placement="left"
-                arrow={true}
-                codeSnippet={true}
-                example={true}
-                content={tooltipWithExample.content}
-            >
-                <p className={classes.sectionTitle}>{title}</p>
-            </TooltipIcon>
+                    title={tooltipWithExample.title}
+                    placement="left"
+                    arrow={true}
+                    codeSnippet={true}
+                    example={true}
+                    content={tooltipWithExample.content}
+                >
+                    <p className={classes.sectionTitle}>{title}</p>
+                </TooltipIcon>
 
             ) :
                 (<p className={classes.sectionTitle}>{title}</p>)
