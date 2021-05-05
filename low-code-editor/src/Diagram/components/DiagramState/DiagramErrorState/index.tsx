@@ -26,7 +26,7 @@ export function DiagramErrorState(props: {
    return (
       <svg viewBox="0 0 500 45">
          <defs>
-            <clipPath id="clip-path">
+            <clipPath id="clipPath">
                <rect id="Mask" width="40" height="40" rx="20" fill="#d8d8d8" />
             </clipPath>
             <filter id="Oval" x="23" y="0" width="20" height="20" filterUnits="userSpaceOnUse">
@@ -36,19 +36,19 @@ export function DiagramErrorState(props: {
                <feComposite operator="in" in2="blur" />
                <feComposite in="SourceGraphic" />
             </filter>
-            <clipPath id="clip-path-2">
+            <clipPath id="clipPath-2">
                <path id="Combined_Shape" d="M8.718,9.781,5,6.063,1.282,9.781a.751.751,0,0,1-1.061,0l0,0a.751.751,0,0,1,0-1.061L3.937,5,.219,1.282a.751.751,0,0,1,0-1.061l0,0a.751.751,0,0,1,1.061,0L5,3.937,8.718.219a.751.751,0,0,1,1.061,0l0,0a.751.751,0,0,1,0,1.061L6.063,5,9.781,8.718a.751.751,0,0,1,0,1.061l0,0a.751.751,0,0,1-1.061,0Z" transform="translate(4 4)" fill="#5567d5" />
             </clipPath>
          </defs>
-         <g id="Group_202" data-name="Group 202" transform="translate(-146 -742)">
+         <g id="Group_202" transform="translate(-146 -742)">
             {isErrorMsgVisible && (<g id="TextWrapper">
                <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill="#fceded" />
-               <text id="Code_has_errors_fix" data-name="Code has errors, fix" transform="translate(202 768)" fill="#40404b" font-size="12"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
+               <text id="Code_has_errors_fix" data-name="Code has errors, fix" transform="translate(202 768)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
             </g>)}
             <g id="ErrorBtnandIcon" transform="translate(146 744)" onClick={onOpen} style={{ cursor: 'pointer' }}>
-               <g id="Button_Pill_40_Default_Copy" data-name="Button/Pill/40/Default Copy" clip-path="url(#clip-path)">
+               <g id="Button_Pill_40_Default_Copy" clipPath="url(#clipPath)">
                   <g id="Purpose">
-                     <rect id="Purpose-2" data-name="Purpose" width="40" height="40" fill="#fe523c" />
+                     <rect id="Purpose-2" width="40" height="40" fill="#fe523c" />
                   </g>
                </g>
                <g id="Icon_Analytics_Alerts" transform="translate(12 12)">
@@ -57,13 +57,13 @@ export function DiagramErrorState(props: {
             </g>
             <g id="Counter">
                <g transform="matrix(1, 0, 0, 1, 146, 742)" filter="url(#Oval)">
-                  <circle id="Oval-2" data-name="Oval" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke="#fe523c" stroke-miterlimit="10" stroke-width="1" />
+                  <circle id="Oval-2" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke="#fe523c" strokeMiterlimit="10" strokeWidth="1" />
                </g>
-               <text id="_4" data-name="4" transform="translate(175 755)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular">
+               <text id="_4" transform="translate(175 755)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular">
                   <tspan x="1" y="0">{text}</tspan></text>
             </g>
             {isErrorMsgVisible && (<g id="CloseBtn" transform="translate(539 755)" onClick={onClose} style={{ cursor: 'pointer' }}>
-               <g id="Group_28" data-name="Group 28">
+               <g id="Group_28" >
                   <path id="Combined_Shape-3" d="M8.718,9.781,5,6.063,1.282,9.781a.751.751,0,0,1-1.061,0l0,0a.751.751,0,0,1,0-1.061L3.937,5,.219,1.282a.751.751,0,0,1,0-1.061l0,0a.751.751,0,0,1,1.061,0L5,3.937,8.718.219a.751.751,0,0,1,1.061,0l0,0a.751.751,0,0,1,0,1.061L6.063,5,9.781,8.718a.751.751,0,0,1,0,1.061l0,0a.751.751,0,0,1-1.061,0Z" transform="translate(4 4)" fill="#cbcedb" />
                </g>
             </g>)}

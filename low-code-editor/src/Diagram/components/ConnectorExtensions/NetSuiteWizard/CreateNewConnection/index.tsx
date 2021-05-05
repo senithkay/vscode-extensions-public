@@ -34,6 +34,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
@@ -48,7 +49,7 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -135,8 +136,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 id: "lowcode.develop.connectorForms.NetSuite.createConnection.connectionName.tooltip.title",
                 defaultMessage: "Add a valid connection name"
             })
+        }
     }
-    };
 
     return (
         <div>
@@ -160,7 +161,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
