@@ -250,6 +250,38 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     "PullRequestReviewCommentEvent"
                 ]
             }
+        },
+        release: {
+            action: {
+                published: [
+                    "onReleasePublished",
+                    "ReleasePublishedEvent"
+                ],
+                unpublished: [
+                    "onReleaseUnpublished",
+                    "ReleaseUnpublishedEvent"
+                ],
+                created: [
+                    "onReleaseCreated",
+                    "ReleaseCreatedEvent"
+                ],
+                edited: [
+                    "onReleaseEdited",
+                    "ReleaseEditedEvent"
+                ],
+                deleted: [
+                    "onReleaseDeleted",
+                    "ReleaseDeletedEvent"
+                ],
+                pre_released: [
+                    "onPreReleased",
+                    "PreReleasedEvent"
+                ],
+                released: [
+                    "onReleased",
+                    "ReleasedEvent"
+                ]
+            }
         }
     };
 
