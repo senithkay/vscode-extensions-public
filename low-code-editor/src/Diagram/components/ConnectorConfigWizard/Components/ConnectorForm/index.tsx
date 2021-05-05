@@ -117,7 +117,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     useEffect(() => {
 
-        if (isNewConnection){
+        if (isNewConnection && isOauthConnector){
             setFormState(FormStates.OauthConnect);
             setIsLoading(false);
             return;
