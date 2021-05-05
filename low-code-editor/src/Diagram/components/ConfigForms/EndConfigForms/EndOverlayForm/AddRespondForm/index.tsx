@@ -46,13 +46,13 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
-    const isFormValid = (): boolean => {
-        return (respondFormConfig.caller !== '') && (respondFormConfig.respondExpression !== '');
+    const isFormValid = (respondExp: string): boolean => {
+        return (respondFormConfig.caller !== '') && (respondExp !== '');
     };
 
-    const [validForm, setValidForm] = useState(isFormValid());
+    const [validForm, setValidForm] = useState(isFormValid(respondFormConfig.respondExpression));
     const [validStatusCode, setValidStatusCode] = useState(validForm);
-    const [isStatusCode, setStatusCode] = useState(undefined);
+    const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
 
@@ -67,13 +67,13 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const onSaveWithTour = () => {
         dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
-        respondFormConfig.responseCode = isStatusCode;
+        respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();
     }
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        if (isFormValid()) {
+        if (isFormValid(resExp)) {
             setValidForm(!isInvalid);
         } else {
             setValidForm(false);
@@ -81,7 +81,7 @@ export function AddRespondForm(props: RespondFormProps) {
     };
 
     const statusCodeValidateExpression = (fieldName: string, isInvalid: boolean) => {
-        const responseCodeNumber = Math.floor(Number(respondFormConfig.responseCode));
+        const responseCodeNumber = Math.floor(statusCodeState);
 
         if ((responseCodeNumber < 99) || (responseCodeNumber > 600)) {
             setValidStatusCode(false);
