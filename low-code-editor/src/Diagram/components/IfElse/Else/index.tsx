@@ -121,10 +121,10 @@ export function Else(props: ElseProps) {
 
     return (
         <g className={classes}>
-            {...components}
-            {...children}
-            {...pluses}
-            {...drafts}
+            {components}
+            {children}
+            {pluses}
+            {drafts}
         </g>
     )
 }

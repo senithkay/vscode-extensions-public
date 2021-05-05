@@ -87,7 +87,7 @@ export function StatementC(props: StatementProps) {
 
     return (
         <g className={classes}>
-            {...statements}
+            {statements}
         </g>
     );
 }
