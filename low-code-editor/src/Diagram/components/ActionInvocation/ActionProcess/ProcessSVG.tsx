@@ -13,9 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "components/Tooltip";
-
 import { ModelCodePosition } from "../../../../api/models";
+import { TooltipCodeSnippet } from "../../../../components/Tooltip"
 
 import "./style.scss";
 
