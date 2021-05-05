@@ -28,7 +28,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         margin: '0 0 8px',
         fontFamily: 'Gilmer',
         lineHeight: '1rem',
-        paddingBottom:'0.6rem'
+        paddingBottom: '0.6rem'
     }
 }),
 );

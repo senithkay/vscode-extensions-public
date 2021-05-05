@@ -19,7 +19,7 @@ import { useStyles } from "./styles";
 
 export default function ConfigPanelSection(props: any) {
     const classes = useStyles();
-    const { title, tooltip, children } = props;
+    const { title, tooltip, children, tooltipWithExample } = props;
 
     return (
         <div className={classes.sectionWrapper}>
@@ -28,12 +28,21 @@ export default function ConfigPanelSection(props: any) {
                     title={tooltip.title}
                     placement="left"
                     arrow={true}
-                    codeSnippet={true}
-                    example={true}
-                    content={tooltip.content}
                 >
                     <p className={classes.sectionTitle}>{title}</p>
                 </TooltipIcon>
+
+            ) : (!!tooltipWithExample) ? (
+                <TooltipIcon
+                title={tooltipWithExample.title}
+                placement="left"
+                arrow={true}
+                codeSnippet={true}
+                example={true}
+                content={tooltipWithExample.content}
+            >
+                <p className={classes.sectionTitle}>{title}</p>
+            </TooltipIcon>
 
             ) :
                 (<p className={classes.sectionTitle}>{title}</p>)
