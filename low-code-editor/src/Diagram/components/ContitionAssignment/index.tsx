@@ -33,7 +33,6 @@ export function ContitionAssignment(props: { x: number, y: number, assignment: s
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    // assignmentX = (assignmentWidth > 125) ? (CONDITION_ASSIGNMENT_NAME_WIDTH + (assignmentWidth / 4) - (DefaultConfig.dotGap * 2)) : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
     assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
 
     return (
