@@ -17,7 +17,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
-import { Section } from "../../../../../components/ConfigPanel";
 import { TooltipIcon } from "../../../../../components/Tooltip";
 import {
     ActionConfig,
@@ -327,41 +326,16 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         payloadVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
-                defaultMessage: "Add a valid name for the payload variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object, etc."
+                defaultMessage: "Add a valid name for the payload variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
             })
         },
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
+            }),
+    }
     };
-
-    const responseVariableInstructionsBullet1 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.responseVariableNametooltip.instructions.bulletPoint1",
-        defaultMessage: "include spaces and special characters"
-      });
-
-    const responseVariableInstructionsBullet2 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.responseVariableNametooltip.instructions.bulletPoint2",
-        defaultMessage: "start with a numerical character"
-      });
-
-    const responseVariableInstructionsBullet3 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.responseVariableNametooltip.instructions.bulletPoint3",
-        defaultMessage: "include keywords such as Return , Foreach , Resource, Object, etc."
-      });
-
-    const responseVariableInstructions = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.responseVariableNametooltip.instructions.title",
-        defaultMessage: "A valid response variable name should not :"
-      });
-
-    const title = (
-        <div>
-          <p>{responseVariableInstructions}</p>
-          <ul>
-            <li>{responseVariableInstructionsBullet1}</li>
-            <li>{responseVariableInstructionsBullet2}</li>
-            <li>{responseVariableInstructionsBullet3}</li>
-          </ul>
-        </div>
-      );
 
     let payloadComponent: React.ReactNode = null;
     if (connectorConfig.responsePayloadMap) {
@@ -446,22 +420,19 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         <div className={classNames(classes.groupedForm, classes.marginTB)}>
                             {selectedOperationParams}
                             {forwardReq}
-                            <Section
-                                title={addResponseVariableLabel}
-                                tooltip={{title}}
-                            >
                             <FormTextInput
                                 dataTestId={"response-variable-name"}
                                 customProps={{
                                     validate: validateResponseNameValue,
+                                    tooltipTitle: HTTPtooltipMessages.responseVariableName.title,
                                     disabled: responseVariableHasReferences
                                 }}
                                 defaultValue={returnNameState.value}
                                 placeholder={addResponseVariablePlaceholder}
                                 onChange={onNameChange}
+                                label={addResponseVariableLabel}
                                 errorMessage={responseVarError}
                             />
-                            </Section>
                         </div>
                         <TooltipIcon
                             title={HTTPtooltipMessages.HTTPPayload.title}
