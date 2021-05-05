@@ -330,7 +330,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 defaultMessage: "Add a valid name for the payload variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object, etc."
             })
         },
-
     };
 
     const responseVariableInstructionsBullet1 = intl.formatMessage({

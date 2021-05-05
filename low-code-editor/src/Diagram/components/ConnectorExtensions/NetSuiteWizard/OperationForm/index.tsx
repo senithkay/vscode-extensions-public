@@ -19,6 +19,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
 import { ConnectionDetails } from "../../../../../api/models";
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
 import { STModification } from "../../../../../Definitions/lang-client-extended";
@@ -114,14 +115,35 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Save"
     });
 
-    const NetSuiteTooltipMessages = {
-        responseVariableName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.NetSuite.responseVariableNametooltip.title",
-                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object, etc."
-            }),
-    }
-    };
+    const responseVariableInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.responseVariableNametooltip.instructions.bulletPoint1",
+        defaultMessage: "include spaces and special characters"
+      });
+
+    const responseVariableInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.responseVariableNametooltip.instructions.bulletPoint2",
+        defaultMessage: "start with a numerical character"
+      });
+
+    const responseVariableInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.responseVariableNametooltip.instructions.bulletPoint3",
+        defaultMessage: "include keywords such as Return , Foreach , Resource, Object, etc."
+      });
+
+    const responseVariableInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.NetSuite.responseVariableNametooltip.instructions.title",
+        defaultMessage: "A valid response variable name should not :"
+      });
+    const title = (
+        <div>
+          <p>{responseVariableInstructions}</p>
+          <ul>
+            <li>{responseVariableInstructionsBullet1}</li>
+            <li>{responseVariableInstructionsBullet2}</li>
+            <li>{responseVariableInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
@@ -179,18 +201,20 @@ export function OperationForm(props: OperationFormProps) {
                             </>
                         )}
                     </div>
-
+                    <Section
+                                title={addResponseVariableLabel}
+                                tooltip={{title}}
+                    >
                     <FormTextInput
                         customProps={{
                             validate: validateNameValue,
-                            tooltipTitle: NetSuiteTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
                         placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
+                    </Section>
                 </div>
             </div>
             <div className={classes.wizardBtnHolder}>
