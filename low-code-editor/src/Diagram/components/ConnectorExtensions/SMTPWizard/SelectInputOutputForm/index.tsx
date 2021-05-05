@@ -231,7 +231,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         responseVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.SMTP.SelectInputOutput.tooltip.title",
-                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object, etc."
             }),
     }
     };
