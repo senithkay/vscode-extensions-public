@@ -63,7 +63,7 @@ export function APIOptions(props: APIOptionsProps) {
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
-            defaultMessage: "Send email messgaes"
+            defaultMessage: "Send email messages"
         }),
     },
         pop3Connector: {

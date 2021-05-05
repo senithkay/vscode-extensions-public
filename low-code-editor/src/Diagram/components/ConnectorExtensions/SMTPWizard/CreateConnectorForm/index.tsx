@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
@@ -132,7 +133,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
-    const connectionNameLabel = intl.formatMessage({
+    const createConnectionNameLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.name.label",
         defaultMessage: "Connection Name"
     });
@@ -152,32 +153,56 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const SMTPCreateConnectionTooltipMessages = {
-        connectionName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.connectorForms.SMTP.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name . Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
-            })
-    }
-    };
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "include keywords such as Return , Foreach , Resource, Object ,etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not :"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: SMTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
+                    </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={connectorInitFormFields} onValidate={onValidate} />
                         </div>

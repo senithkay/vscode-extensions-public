@@ -298,7 +298,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
             <Section
               title={pathTitle}
-              tooltip={{ title, content: pathExample}}
+              tooltipWithExample={{ title, content: pathExample}}
             >
               <FormTextInput
                 dataTestId="api-path"

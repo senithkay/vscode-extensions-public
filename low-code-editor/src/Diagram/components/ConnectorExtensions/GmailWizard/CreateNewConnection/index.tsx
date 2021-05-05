@@ -17,6 +17,7 @@ import { useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram"
 import { Connector } from "../../../../../Definitions/lang-client-extended";
@@ -146,31 +147,58 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const gmailCreateConnectionTooltipMessages = {
-        connectionName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.connectorForms.Gmail.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name . Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object etc."
-            })
-    }
-    };
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "include keywords such as Return , Foreach , Resource, Object ,etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not :"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
+                        <div>
+                        <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                        >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
                                 disabled: hasReference,
-                                tooltipTitle: gmailCreateConnectionTooltipMessages.connectionName.title,
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={createConnectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={createConnectionPlaceholder}
                         />
+                        </Section>
+                        </div>
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
