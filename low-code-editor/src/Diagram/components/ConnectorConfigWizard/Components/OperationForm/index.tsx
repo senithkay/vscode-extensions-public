@@ -176,7 +176,7 @@ export function OperationForm(props: OperationFormProps) {
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: tooltipMessages.responseVariableName,
+                                    tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                     disabled: responseVariableHasReferences
                                 }}
                                 defaultValue={defaultResponseVarName}
