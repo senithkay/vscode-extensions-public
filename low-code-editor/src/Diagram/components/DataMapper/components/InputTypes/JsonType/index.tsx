@@ -15,7 +15,7 @@ import React from 'react';
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode } from '@ballerina/syntax-tree';
 
 import { getDataMapperComponent } from '../../../util';
-import { InputVariableViewstate } from '../../../viewstate';
+import { InputFieldViewState, InputVariableViewstate } from '../../../viewstate';
 
 interface JsonTypeProps {
     model: STNode;
@@ -25,7 +25,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { model, isMain } = props;
 
-    const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
+    const viewState: InputFieldViewState = model.dataMapperViewState as InputFieldViewState;
     let name = viewState.name;
     const type = viewState.type;
 
@@ -34,7 +34,7 @@ export function JsonType(props: JsonTypeProps) {
     switch (type) {
         case 'json':
 
-            if (viewState.mappedConstructorInitializer) {
+            if (viewState.hasMappedConstructorInitializer) {
                 const initializer: MappingConstructor = (model as LocalVarDecl).initializer as MappingConstructor;
 
                 if (initializer) {
@@ -48,7 +48,7 @@ export function JsonType(props: JsonTypeProps) {
                 // todo: handle from typedesc node when json sample is given for input
             }
             break;
-        case 'map':
+        case 'mapconstructor':
             const fieldModel: MappingConstructor = (model as SpecificField).valueExpr as MappingConstructor;
 
             const regexPattern = new RegExp(/^"(\w+)\"$/);

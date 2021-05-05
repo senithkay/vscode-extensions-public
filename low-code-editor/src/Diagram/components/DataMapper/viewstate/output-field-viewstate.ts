@@ -10,16 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { JsonType } from './JsonType';
-import { RecordType } from './RecordType';
-import { ValueType } from './ValueType';
+import { STNode } from "@ballerina/syntax-tree";
 
-export {
-    RecordType as record,
-    ValueType as string,
-    ValueType as int,
-    ValueType as boolean,
-    ValueType as float,
-    JsonType as json,
-    JsonType as mapconstructor
+import { TypeInfo } from "../../Portals/ConfigForm/types";
+
+import { DataMapperViewState } from "./data-mapper-viewstate";
+import { TargetPointViewState } from "./target-point-viewstate";
+
+
+export class OutputFieldViewState extends DataMapperViewState {
+    public name: string;
+    public type: string;
+    public typeInfo: TypeInfo;
+    public value: string;
+    public valueST: STNode;
+    public targetPointViewState: TargetPointViewState;
+
+    constructor() {
+        super();
+        this.value = '';
+    }
 }

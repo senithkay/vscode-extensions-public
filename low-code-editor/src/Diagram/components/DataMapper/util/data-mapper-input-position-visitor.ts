@@ -23,12 +23,14 @@ export class DataMapperPositionVisitor implements Visitor {
     private offset: number;
     private startOffset: number;
     private maxOffset: number;
+    private hasDataMapperTypeDesc: boolean;
 
     constructor(height: number, startOffset: number) {
         this.height = height;
         this.offset = startOffset;
         this.startOffset = startOffset;
         this.maxOffset = 0;
+        this.hasDataMapperTypeDesc = false;
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -36,6 +38,7 @@ export class DataMapperPositionVisitor implements Visitor {
             const viewState = node.dataMapperViewState as DataMapperViewState;
             viewState.bBox.x = this.offset;
             viewState.bBox.y = this.height;
+            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
         }
     }
 
@@ -43,53 +46,42 @@ export class DataMapperPositionVisitor implements Visitor {
         if (node.dataMapperViewState) {
             this.height += DEFAULT_OFFSET * 2;
             this.offset = this.startOffset;
+            this.hasDataMapperTypeDesc = false;
         }
     }
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
-        if (node.dataMapperViewState) {
-            this.height += DEFAULT_OFFSET;
-            this.offset += DEFAULT_OFFSET;
+        this.offset += DEFAULT_OFFSET;
 
-            if (this.maxOffset < this.offset) {
-                this.maxOffset = this.offset;
-            }
+        if (this.maxOffset < this.offset) {
+            this.maxOffset = this.offset;
         }
     }
 
     endVisitRecordTypeDesc(node: RecordTypeDesc) {
-        if (node.dataMapperViewState) {
-            this.offset -= DEFAULT_OFFSET;
-        }
+        this.offset -= DEFAULT_OFFSET;
     }
 
     beginVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState) {
+            this.height += DEFAULT_OFFSET;
             const viewState = node.dataMapperViewState as DataMapperViewState;
             viewState.bBox.y = this.height;
             viewState.bBox.x = this.offset;
         }
     }
 
-    endVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
-            this.height += DEFAULT_OFFSET;
-        }
-    }
-
     beginVisitMappingConstructor(node: MappingConstructor) {
-        if (node.dataMapperViewState) {
-            this.height += DEFAULT_OFFSET;
-            this.offset += DEFAULT_OFFSET;
+        this.offset += DEFAULT_OFFSET;
 
-            if (this.maxOffset < this.offset) {
-                this.maxOffset = this.offset;
-            }
+        if (this.maxOffset < this.offset) {
+            this.maxOffset = this.offset;
         }
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState) {
+        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+            this.height += DEFAULT_OFFSET;
             const viewstate = node.dataMapperViewState as DataMapperViewState;
 
             viewstate.bBox.x = this.offset;
@@ -97,16 +89,7 @@ export class DataMapperPositionVisitor implements Visitor {
         }
     }
 
-    endVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState) {
-            this.height += DEFAULT_OFFSET;
-        }
-    }
-
     endVisitMappingConstructor(node: MappingConstructor) {
-        if (node.dataMapperViewState) {
-            this.offset -= DEFAULT_OFFSET;
-            this.height -= DEFAULT_OFFSET;
-        }
+        this.offset -= DEFAULT_OFFSET;
     }
 }

@@ -10,16 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { JsonType } from './JsonType';
-import { RecordType } from './RecordType';
-import { ValueType } from './ValueType';
+import { TypeInfo } from "../../Portals/ConfigForm/types";
 
-export {
-    RecordType as record,
-    ValueType as string,
-    ValueType as int,
-    ValueType as boolean,
-    ValueType as float,
-    JsonType as json,
-    JsonType as mapconstructor
+import { DataMapperViewState, SourcePointViewState } from ".";
+
+export class InputFieldViewState extends DataMapperViewState {
+    public type: string;
+    public name: string;
+    public typeInfo: TypeInfo;
+    public hasMappedConstructorInitializer: boolean;
+    public sourcePointViewState: SourcePointViewState;
 }

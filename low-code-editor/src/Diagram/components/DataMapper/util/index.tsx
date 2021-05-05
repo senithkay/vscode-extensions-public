@@ -19,7 +19,7 @@ import { TypeInfo, DataMapperOutputTypeInfo } from "../../Portals/ConfigForm/typ
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, TypeDescViewState } from "../viewstate";
 
-import { DataMapperInitVisitor } from "./data-mapper-init-visitor";
+import { DataMapperInitVisitor } from "./data-mapper-input-init-visitor";
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];

@@ -45,8 +45,6 @@ export function DataMapper(props: DataMapperProps) {
             stSymbolInfo,
             onMutate: dispatchMutations,
             dataMapperConfig,
-            originalSyntaxTree,
-            syntaxTree
         }
     } = useContext(DiagramContext)
 
@@ -58,118 +56,111 @@ export function DataMapper(props: DataMapperProps) {
         dispatchMutations(modifications);
     }
 
-    let outputType: string = '';
+    // let outputType: string = '';
 
-    if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
-        const typeInfo = dataMapperConfig.outputType.typeInfo;
-        outputType = typeInfo.moduleName !== '.' ?
-            `${typeInfo.moduleName}:${typeInfo.name}`
-            : typeInfo.name
-    } else {
-        outputType = dataMapperConfig.outputType.type;
-    }
+    // if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
+    //     const typeInfo = dataMapperConfig.outputType.typeInfo;
+    //     outputType = typeInfo.moduleName !== '.' ?
+    //         `${typeInfo.moduleName}:${typeInfo.name}`
+    //         : typeInfo.name
+    // } else {
+    //     outputType = dataMapperConfig.outputType.type;
+    // }
 
-    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
-    const selectedNode = outputTypeVariables ?
-        outputTypeVariables
-            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
-                .variableName.value === dataMapperConfig.elementName)
-        : undefined;
+    // const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
+    // const selectedNode = outputTypeVariables ?
+    //     outputTypeVariables
+    //         .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+    //             .variableName.value === dataMapperConfig.elementName)
+    //     : undefined;
 
 
 
     const inputComponents: JSX.Element[] = [];
 
-    if (selectedNode) {
 
-        const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
+    const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
-            if (varSTNode.initializer) {
-                const varTypeSymbol = varSTNode.initializer.typeData.typeSymbol;
+    inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+        const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+        if (varSTNode.initializer) {
+            const varTypeSymbol = varSTNode.initializer.typeData.typeSymbol;
 
-                switch (varTypeSymbol.typeKind) {
-                    case PrimitiveBalType.String:
-                    case PrimitiveBalType.Int:
-                    case PrimitiveBalType.Boolean:
-                    case PrimitiveBalType.Float:
-                        break;
-                    case PrimitiveBalType.Json:
-                        break;
-                    default:
-                        if (varTypeSymbol.moduleID) {
-                            const moduleId = varTypeSymbol.moduleID;
-                            const qualifiedKey = `${moduleId.orgName}/${moduleId.moduleName}:${moduleId.version}:${varTypeSymbol.name}`;
-                            const recordMap: Map<string, STNode> = stSymbolInfo.recordTypeDescriptions;
+            switch (varTypeSymbol.typeKind) {
+                case PrimitiveBalType.String:
+                case PrimitiveBalType.Int:
+                case PrimitiveBalType.Boolean:
+                case PrimitiveBalType.Float:
+                    break;
+                case PrimitiveBalType.Json:
+                    break;
+                default:
+                    if (varTypeSymbol.moduleID) {
+                        const moduleId = varTypeSymbol.moduleID;
+                        const qualifiedKey = `${moduleId.orgName}/${moduleId.moduleName}:${moduleId.version}:${varTypeSymbol.name}`;
+                        const recordMap: Map<string, STNode> = stSymbolInfo.recordTypeDescriptions;
 
-                            if (recordMap.has(qualifiedKey)) {
-                                variableInfo.node.dataMapperTypeDescNode = recordMap.get(qualifiedKey);
-                            } else {
-                                // todo: fetch record/object ST
-                            }
+                        if (recordMap.has(qualifiedKey)) {
+                            variableInfo.node.dataMapperTypeDescNode = recordMap.get(qualifiedKey);
+                        } else {
+                            // todo: fetch record/object ST
                         }
-                }
-            }
-        });
-
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            traversNode(variableInfo.node, new NewDataMapperInitVisitor());
-
-            if (variableInfo.node.dataMapperTypeDescNode) {
-                switch (variableInfo.node.dataMapperTypeDescNode.kind) {
-                    case 'RecordTypeDesc': {
-                        (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
-                            completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
-                        })
                     }
+            }
+        }
+    });
+
+    const positionVisitor = new NewDataMapperPositionVisitor(15, 15);
+
+    inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+        traversNode(variableInfo.node, new NewDataMapperInitVisitor());
+
+        if (variableInfo.node.dataMapperTypeDescNode) {
+            switch (variableInfo.node.dataMapperTypeDescNode.kind) {
+                case 'RecordTypeDesc': {
+                    (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
+                    })
                 }
             }
-        });
+        }
 
-        const positionVisitor = new NewDataMapperPositionVisitor(15, 15);
+        traversNode(variableInfo.node, positionVisitor);
+        const { dataMapperViewState } = variableInfo.node;
+        inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
+    });
 
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            traversNode(variableInfo.node, positionVisitor);
-        });
+    //     traversNode(selectedNode.initializer, new DataMapperInitVisitor());
+    //     const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
+    //     const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
 
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            const { dataMapperViewState } = variableInfo.node;
-            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
-        });
+    //     // start : fetch missing type desc node traverse with init visitor
+    //     functionSignature.parameters.forEach((field: any) => {
+    //         if (field.kind !== 'CommaToken') {
+    //             completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
+    //         }
+    //     });
+    //     completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
+    //     // end : fetch missing type desc node traverse with init visitor
 
-        //     traversNode(selectedNode.initializer, new DataMapperInitVisitor());
-        //     const explicitAnonymousFunctionExpression = selectedNode.initializer as ExplicitAnonymousFunctionExpression;
-        //     const functionSignature = explicitAnonymousFunctionExpression.functionSignature;
+    //     const parameterPositionVisitor = new DataMapperPositionVisitor(15, 15);
 
-        //     // start : fetch missing type desc node traverse with init visitor
-        //     functionSignature.parameters.forEach((field: any) => {
-        //         if (field.kind !== 'CommaToken') {
-        //             completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions);
-        //         }
-        //     });
-        //     completeMissingTypeDesc(functionSignature.returnTypeDesc, stSymbolInfo.recordTypeDescriptions);
-        //     // end : fetch missing type desc node traverse with init visitor
+    //     // start positioning visitor
+    //     functionSignature.parameters.forEach((field: STNode) => {
+    //         if (field.kind !== 'CommaToken') {
+    //             traversNode(field, parameterPositionVisitor);
+    //         }
+    //     });
+    //     traversNode(functionSignature.returnTypeDesc, parameterPositionVisitor);
+    //     // end positioning visitor
+    //     const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
+    //     traversNode(selectedNode, dataPointVisitor);
 
-        //     const parameterPositionVisitor = new DataMapperPositionVisitor(15, 15);
+    //     traversNode(explicitAnonymousFunctionExpression, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap))
 
-        //     // start positioning visitor
-        //     functionSignature.parameters.forEach((field: STNode) => {
-        //         if (field.kind !== 'CommaToken') {
-        //             traversNode(field, parameterPositionVisitor);
-        //         }
-        //     });
-        //     traversNode(functionSignature.returnTypeDesc, parameterPositionVisitor);
-        //     // end positioning visitor
-        //     const dataPointVisitor = new DataPointVisitor(parameterPositionVisitor.maxOffset);
-        //     traversNode(selectedNode, dataPointVisitor);
-
-        //     traversNode(explicitAnonymousFunctionExpression, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap))
-
-        //     selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
-        //     selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
-        //     component.push(<DataMapperFunctionComponent model={selectedNode} onSave={onSave} />);
-    }
+    //     selectedNode.initializer.dataMapperViewState.sourcePoints = dataPointVisitor.sourcePointMap;
+    //     selectedNode.initializer.dataMapperViewState.targetPointMap = dataPointVisitor.targetPointMap;
+    //     component.push(<DataMapperFunctionComponent model={selectedNode} onSave={onSave} />);
 
     return (
         <>

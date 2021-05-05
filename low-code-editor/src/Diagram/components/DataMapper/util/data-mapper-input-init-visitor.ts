@@ -27,6 +27,7 @@ import {
     RecordTypeDesc,
     SimpleNameReference,
     SpecificField,
+    STKindChecker,
     STNode,
     StringLiteral,
     StringTypeDesc,
@@ -35,7 +36,8 @@ import {
     XmlTypeDesc
 } from '@ballerina/syntax-tree';
 
-import { SourcePointViewState, TargetPointViewState } from '../viewstate';
+import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
+import { DataMapperViewState, InputFieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 import { InputVariableViewstate } from '../viewstate/input-variable-viewstate';
 
 export enum VisitingType {
@@ -44,194 +46,121 @@ export enum VisitingType {
 }
 
 export class DataMapperInitVisitor implements Visitor {
-    private visitingType: VisitingType = VisitingType.INPUT;
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (!node.dataMapperViewState) {
-            const dataMapperViewState = new InputVariableViewstate();
-
-            dataMapperViewState.mappedConstructorInitializer = node.initializer.kind === 'MappingConstructor';
-            // dataMapperViewState.isInput = true;
-
-            if (this.visitingType === VisitingType.INPUT) {
-                dataMapperViewState.sourcePointViewState = new SourcePointViewState();
-            } else {
-                dataMapperViewState.targetPointViewState = new TargetPointViewState();
-            }
-
-            node.typedBindingPattern.dataMapperViewState = dataMapperViewState;
-
-            if (node.dataMapperTypeDescNode) {
-                node.dataMapperTypeDescNode.dataMapperViewState = new InputVariableViewstate();
-                // node.dataMapperTypeDescNode.dataMapperViewState.isInput = true;
-            } else if (dataMapperViewState.mappedConstructorInitializer) {
-                node.initializer.dataMapperViewState = new InputVariableViewstate();
-                // node.initializer.dataMapperViewState.isInput = true;
-            }
-
-            node.dataMapperViewState = dataMapperViewState;
+            node.dataMapperViewState = new InputFieldViewState();
         }
-    }
 
-    beginVisitTypedBindingPattern(node: TypedBindingPattern) {
-        if (node.dataMapperViewState) {
-            node.bindingPattern.dataMapperViewState = node.dataMapperViewState;
-            node.typeDescriptor.dataMapperViewState = node.dataMapperViewState;
-        }
-    }
+        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        viewState.hasMappedConstructorInitializer = node.initializer.kind === 'MappingConstructor';
+        viewState.sourcePointViewState = new SourcePointViewState();
 
-    beginVisitCaptureBindingPattern(node: CaptureBindingPattern) {
-        if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputVariableViewstate;
-            viewstate.name = node.variableName.value;
-        }
-    }
+        const typedBindingPattern = node.typedBindingPattern as TypedBindingPattern;
+        const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
+        const typeDescriptor = typedBindingPattern.typeDescriptor;
 
-    beginVisitSimpleNameReference(node: SimpleNameReference) {
-        if (node.dataMapperViewState) {
-            if (node.dataMapperViewState.isInput) {
-                const viewstate = node.dataMapperViewState as InputVariableViewstate;
-                const typeSymbol = node.typeData.typeSymbol;
-                const moduleID = typeSymbol.moduleID;
+        if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.String;
+        } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Int;
+        } else if (STKindChecker.isFloatTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Float;
+        } else if (STKindChecker.isBooleanTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Boolean;
+        } else if (STKindChecker.isJsonTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Json;
+        } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Xml;
+        } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
+            const typeSymbol = node.typeData.typeSymbol;
+            const moduleID = typeSymbol.moduleID;
 
-                if (moduleID) {
-                    viewstate.typeInfo = {
-                        name: node.name.value,
-                        orgName: moduleID.orgName,
-                        moduleName: moduleID.moduleName,
-                        version: moduleID.version
-                    }
+            if (moduleID) {
+                viewState.typeInfo = {
+                    name: (typeDescriptor as SimpleNameReference).name.value,
+                    orgName: moduleID.orgName,
+                    moduleName: moduleID.moduleName,
+                    version: moduleID.version
                 }
             }
         }
-    }
 
-    beginVisitStringTypeDesc(node: StringTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'string';
-        }
-    }
+        viewState.name = bindingPattern.variableName.value;
 
-    beginVisitIntTypeDesc(node: IntTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'int';
-        }
-    }
-
-    beginVisitFloatTypeDesc(node: FloatTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'float';
-        }
-    }
-
-    beginVisitBooleanTypeDesc(node: BooleanTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'boolean';
-        }
-    }
-
-    beginVisitXmlTypeDesc(node: XmlTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'xml'
-        }
-    }
-
-    beginVisitJsonTypeDesc(node: JsonTypeDesc) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'json';
-        }
-    }
-
-    beginVisitRecordTypeDesc(node: RecordTypeDesc) {
-        if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputVariableViewstate;
-            // if (viewstate.isInput) {
-            node.fields.forEach(field => {
-                const fieldVS = new InputVariableViewstate();
-                fieldVS.sourcePointViewState = new SourcePointViewState();
-                // fieldVS.isInput = true;
-                field.dataMapperViewState = fieldVS;
-            })
-            // }
+        if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+            viewState.type = PrimitiveBalType.Record;
         }
     }
 
     beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
-            if (node.dataMapperViewState.isInput) {
-                const viewstate = node.dataMapperViewState as InputVariableViewstate;
-                viewstate.name = node.fieldName.value;
-                node.typeName.dataMapperViewState = viewstate;
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new InputFieldViewState();
+        }
+
+        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        const typeName = node.typeName;
+        viewState.name = node.fieldName.value;
+
+        if (STKindChecker.isStringTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.String;
+        } else if (STKindChecker.isIntTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Int;
+        } else if (STKindChecker.isFloatTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Float;
+        } else if (STKindChecker.isBooleanTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Boolean;
+        } else if (STKindChecker.isJsonTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Json;
+        } else if (STKindChecker.isXmlTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Xml;
+        } else if (STKindChecker.isSimpleNameReference(typeName)) {
+            const typeSymbol = node.typeData.typeSymbol;
+            const moduleID = typeSymbol.moduleID;
+
+            if (moduleID) {
+                viewState.typeInfo = {
+                    name: (typeName as SimpleNameReference).name.value,
+                    orgName: moduleID.orgName,
+                    moduleName: moduleID.moduleName,
+                    version: moduleID.version
+                }
             }
         }
-    }
 
-    beginVisitQualifiedNameReference(node: QualifiedNameReference) {
-        // todo: handle
-    }
-
-    endVisitLocalVarDecl(node: LocalVarDecl) {
-        if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputVariableViewstate;
-            if (!viewstate.type) {
-                viewstate.type = 'record';
-            }
-        }
-    }
-
-    beginVisitMappingConstructor(node: MappingConstructor) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'map';
-            if (node.dataMapperViewState.isInput) {
-                node.fields.filter(field => field.kind !== "CommaToken").forEach(field => {
-                    field.dataMapperViewState = new InputVariableViewstate();
-                    field.dataMapperViewState.isInput = true;
-                })
-            }
+        if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+            viewState.type = PrimitiveBalType.Record;
         }
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState) {
-            if (node.dataMapperViewState.isInput) {
-                const viewstate = node.dataMapperViewState as InputVariableViewstate;
-                switch (node.fieldName.kind) {
-                    case 'IdentifierToken':
-                        viewstate.name = (node.fieldName as IdentifierToken).value;
-                        break;
-                    case 'StringLiteral':
-                        viewstate.name = (node.fieldName as StringLiteral).literalToken.value;
-                        break;
-                    default:
-                    // ignored
-                }
-                if (node.valueExpr) {
-                    node.valueExpr.dataMapperViewState = viewstate;
-                }
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new InputFieldViewState();
+        }
+        const viewstate = node.dataMapperViewState as InputFieldViewState;
+
+        switch (node.fieldName.kind) {
+            case 'IdentifierToken':
+                viewstate.name = (node.fieldName as IdentifierToken).value;
+                break;
+            case 'StringLiteral':
+                viewstate.name = (node.fieldName as StringLiteral).literalToken.value;
+                break;
+            default:
+                // ignored
+        }
+
+        if (node.valueExpr) {
+            if (STKindChecker.isStringLiteral(node.valueExpr)) {
+                viewstate.type = 'string';
+            } else if (STKindChecker.isBooleanLiteral(node.valueExpr)) {
+                viewstate.type = 'boolean';
+            } else if (STKindChecker.isNumericLiteral(node.valueExpr)) {
+                viewstate.type = 'float';
+            } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
+                viewstate.type = 'mapconstructor'; // TODO: check for the correct term
             }
         }
     }
 
-    beginVisitStringLiteral(node: StringLiteral) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'string';
-        }
-    }
-
-    beginVisitBooleanLiteral(node: BooleanLiteral) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'boolean';
-        }
-    }
-
-    beginVisitNumericLiteral(node: NumericLiteral) {
-        if (node.dataMapperViewState) {
-            node.dataMapperViewState.type = 'float';
-        }
-    }
-
-
-    public setVisitingType(type: VisitingType) {
-        this.visitingType = type;
-    }
 }

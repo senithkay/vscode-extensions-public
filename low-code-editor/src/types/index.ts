@@ -14,13 +14,12 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
 import { AppInfo, ApplicationFile } from "../api/models";
 import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
-import { DataMapperOutputTypeInfo } from "../Diagram/components/Portals/ConfigForm/types";
 
 import {
     APIViewState, AppViewState, ConnectionData, Feedback, HomeViewState, LinkerState, Notification, OauthProviderConfigState,
