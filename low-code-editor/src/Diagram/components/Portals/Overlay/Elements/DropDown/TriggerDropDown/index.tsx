@@ -235,7 +235,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 actionText={scheduleTriggerTooltipMessages.scheduleTrigger.actionText}
                                 actionLink={scheduleTriggerTooltipMessages.scheduleTrigger.actionLink}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -254,7 +254,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 actionText={calendarTriggerTooltipMessages.calendarTrigger.actionText}
                                 actionLink={calendarTriggerTooltipMessages.calendarTrigger.actionLink}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -293,7 +293,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 actionText={manualTriggerTooltipMessages.manualTrigger.actionText}
                                 actionLink={manualTriggerTooltipMessages.manualTrigger.actionLink}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div
@@ -312,7 +312,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                 actionText={gitHubTriggerTooltipMessages.gitHubTrigger.actionText}
                                 actionLink={gitHubTriggerTooltipMessages.gitHubTrigger.actionLink}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div

@@ -2,8 +2,8 @@ import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
-import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
-    BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse, GetBallerinaProjectParams,
+import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaExampleListParams,
+    BallerinaExampleListResponse, BallerinaProject, BallerinaRecordRequest, BallerinaRecordResponse, GetASTParams, GetASTResponse, GetBallerinaProjectParams,
     GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams, GetSyntaxTreeResponse,
     GoToSourceParams,
     IBallerinaLangClient,
@@ -51,6 +51,19 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     }
 
     public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        return Promise.reject();
+    }
+
+    public getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
+        return Promise.reject();
+    }
+
+
+    public getConnectors(): Thenable<BallerinaConnectorsResponse> {
+        return Promise.reject();
+    }
+
+    public getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return Promise.reject();
     }
 

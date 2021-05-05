@@ -290,7 +290,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // completion of expression Editor
             disposableTriggers.push(monaco.languages.registerCompletionItemProvider(BALLERINA_EXPR, {
                 provideCompletionItems(): monaco.Thenable<monaco.languages.CompletionList> {
-                    if (expressionEditorState?.name === model.name) {
+                    if (monacoRef.current.editor.hasTextFocus()) {
                         const completionParams: CompletionParams = {
                             textDocument: {
                                 uri: expressionEditorState?.uri
