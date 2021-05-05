@@ -60,7 +60,8 @@ export interface ForeachProps {
 
 export function ForEach(props: ForeachProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace } = state;
+    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace, maximize: maximizeCodeView,
+            currentApp, setCodeLocationToHighlight: setCodeToHighlight, isCodeEditorActive } = state;
 
     const { model } = props;
 
@@ -78,6 +79,8 @@ export function ForEach(props: ForeachProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
+
+    const { id: appId } = currentApp || {};
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -178,6 +181,17 @@ export function ForEach(props: ForeachProps) {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
         cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2)) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)
     };
+    let codeSnippet = "IF ELSE CODE SNIPPET"
+
+    if (model) {
+        codeSnippet = model.source.trim().split(')')[0]
+        codeSnippet = codeSnippet + ')'
+    }
+
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model?.position)
+    }
 
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
     const forEachModel = model as ForeachStatement

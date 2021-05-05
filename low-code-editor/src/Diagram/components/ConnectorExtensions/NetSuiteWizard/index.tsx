@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
@@ -40,7 +41,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -321,7 +322,7 @@ export function NetSuiteWizard(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.NetSuite.connectionName.title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>

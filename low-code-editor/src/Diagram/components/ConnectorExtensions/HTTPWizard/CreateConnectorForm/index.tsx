@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -24,11 +25,10 @@ import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import Tooltip from "../../../Portals/ConfigForm/Elements/Tooltip";
+
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import '../style.scss';
 
 interface CreateConnectorFormProps {
@@ -56,6 +56,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [connectorInitFormFields] = useState(connectorConfigFormFields);
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
@@ -127,6 +129,65 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.name.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
+    const GETOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.GET.label",
+        defaultMessage: "GET"
+    });
+
+    const POSTOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.POST.label",
+        defaultMessage: "POST"
+    });
+
+    const PUTOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PUT.label",
+        defaultMessage: "PUT"
+    });
+
+    const PATCHOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PATCH.label",
+        defaultMessage: "PATCH"
+    });
+
+    const FORWARDOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.FORWARD.label",
+        defaultMessage: "FORWARD"
+    });
+
+    const DELETEOperationLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.DELETE.label",
+        defaultMessage: "DELETE"
+    });
+
+    const HTTPCreateConnectionTooltipMessages = {
+        connectionName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.connectorForms.HTTP.createConnection.connectionName.tooltip.title",
+                defaultMessage: "Add a valid connection name"
+            })
+    }
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -135,14 +196,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.connectionName,
+                                tooltipTitle: HTTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
@@ -152,12 +213,12 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     <div className={classes.saveBtnHolder}>
-                        <Tooltip
+                        {/* <Tooltip
                             title={tooltipMessages.connectorButtons.savaButton}
                             interactive={true}
                             placement="top"
                             arrow={true}
-                        >
+                        > */}
                             <PrimaryButton
                                 dataTestId={"http-save-next"}
                                 text="Save"
@@ -166,7 +227,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />
-                        </Tooltip>
+                        {/* </Tooltip> */}
                     </div>
                 </div>
                 {/* <ProductTourStep

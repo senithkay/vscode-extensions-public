@@ -12,14 +12,15 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
+import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
-import { TooltipIcon } from '../../../Portals/ConfigForm/Elements/Tooltip';
 import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {
@@ -32,10 +33,16 @@ export interface OperationDropdownProps {
 export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails } = props;
     const classes = wizardStyles();
+    const intl = useIntl();
 
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value);
     };
+
+    const operationDropdownPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.operationDropdown.placeholder",
+        defaultMessage: "Search operation"
+    });
 
     return (
         <div>
@@ -43,7 +50,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                 <div className={classes.fullWidth}>
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
-                        placeholder="Search Operation"
+                        placeholder={operationDropdownPlaceholder}
                         itemList={operations}
                         onChange={handleSelect}
                     />

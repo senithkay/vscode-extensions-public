@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -51,6 +52,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: '',
@@ -131,7 +133,27 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         return connectorInitFields.find(config => config.name === "gmailConfig").fields
         .find(field => field.name === "oauthClientConfig").fields
         .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId");
-    }
+    };
+
+    const createConnectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const createConnectionPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.Gmail.createConnection.saveButton.label",
+        defaultMessage: "Save & Next"
+    });
 
     return (
         <div>
@@ -145,32 +167,24 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={createConnectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={createConnectionPlaceholder}
                         />
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
                 <div className={isNewConnectorInitWizard ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick} />
                     )}
-                    <div className={classes.saveBtnHolder}>
-                        <SecondaryButton
-                            text="Save"
-                            fullWidth={false}
-                            disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
-                            onClick={handleOnSave}
-                        />
-                        <PrimaryButton
-                            dataTestId={"gmail-save-next-btn"}
-                            text="Save &amp; Next"
-                            disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
-                            fullWidth={false}
-                            onClick={handleOnSaveNext}
-                        />
-                    </div>
+                    <PrimaryButton
+                        dataTestId={"gmail-save-next-btn"}
+                        text={saveConnectionButtonText}
+                        disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
+                        fullWidth={false}
+                        onClick={handleOnSave}
+                    />
                 </div>
             </FormControl>
         </div>

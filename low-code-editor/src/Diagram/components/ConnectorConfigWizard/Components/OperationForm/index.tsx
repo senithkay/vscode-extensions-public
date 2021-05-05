@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -27,9 +28,9 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 import { OperationDropdown } from '../OperationDropdown';
+import { tooltipMessages } from '../../../Portals/utils/constants';
 
 export interface OperationFormProps {
     operations: string[];
@@ -39,7 +40,6 @@ export interface OperationFormProps {
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
-    onOperationChange: () => void;
     isNewConnectorInitWizard?: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
@@ -49,9 +49,10 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const frmFields: FormField[] = connectionDetails?.action?.fields;
@@ -70,6 +71,10 @@ export function OperationForm(props: OperationFormProps) {
             setFormFields(derivedFormFields);
         }
     }
+
+    const onOperationChange = () => {
+        setSelectedOperationState(undefined);
+    };
 
     const [validForm, setValidForm] = useState(false);
     const [validName, setValidName] = useState(true);
@@ -112,6 +117,30 @@ export function OperationForm(props: OperationFormProps) {
     if (formFields && (formFields.length === 0) && validName && !mutationInProgress) {
         isSaveButtonDisabled = false;
     }
+
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const connectorOperationsTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
 
     return (
         <div>

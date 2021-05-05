@@ -30,7 +30,6 @@ import { wizardStyles } from "./style";
 
 export interface ConfigWizardState {
     isLoading: boolean;
-    connectorDef: any;
     connector: Connector;
     wizardType: WizardType;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
@@ -56,7 +55,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
     const initWizardState: ConfigWizardState = {
-        isLoading: true, connectorDef: undefined, connectorConfig: undefined,
+        isLoading: true, connectorConfig: undefined,
         functionDefInfo: undefined, wizardType: undefined, connector: undefined
     }
 

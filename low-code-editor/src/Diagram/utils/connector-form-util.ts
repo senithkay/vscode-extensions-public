@@ -115,8 +115,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         } else if (param.name === "replyTo") {
                             param.hide = true;
                             param.value = "[]";
-                        } else if (param.name === "cc" || param.name === "bcc") {
-                            param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
@@ -316,18 +314,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
-        case 'ballerinax_twilio_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters[0].fields.forEach((field) => {
-                        if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
-                            field.hide = true;
-                        }
-                    });
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
+        // case 'ballerinax_twilio_Client':
+        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+        //         if (key === "init") {
+        //             value.parameters[0].fields.forEach((field) => {
+        //                 if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
+        //                     field.hide = true;
+        //                 }
+        //             });
+        //         }
+        //         filteredFunctions.set(key, value);
+        //     });
+        //     break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
@@ -358,18 +356,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_slack_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
-                        if (field.name === "secureSocketConfig"){
-                            field.hide = true;
-                        }
-                    });
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
+        // case 'ballerinax_slack_Client':
+        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+        //         if (key === "init") {
+        //             value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
+        //                 if (field.name === "secureSocketConfig"){
+        //                     field.hide = true;
+        //                 }
+        //             });
+        //         }
+        //         filteredFunctions.set(key, value);
+        //     });
+        //     break;
         case 'ballerinax_netsuite_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // HACK: use hardcoded FormFields until ENUM fix from lang-server

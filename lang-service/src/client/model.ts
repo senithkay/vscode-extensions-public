@@ -113,6 +113,76 @@ export interface DidOpenParams {
     };
 }
 
+export interface BallerinaRecordResponse {
+    org: string;
+    module: string;
+    version: string;
+    name: string;
+    ast?: STNode;
+    error?: any;
+}
+
+export interface VisibleEndpoint {
+    kind?: string;
+    isCaller: boolean;
+    moduleName: string;
+    name: string;
+    orgName: string;
+    typeName: string;
+    viewState?: any;
+}
+export interface NodePosition {
+    startLine?: number;
+    startColumn?: number;
+    endLine?: number;
+    endColumn?: number;
+}
+
+export interface STNode {
+    kind: string;
+    value?: any;
+    parent?: STNode;
+    viewState?: any;
+    position?: any;
+    typeData?: any;
+    VisibleEndpoints?: VisibleEndpoint[];
+    source: string;
+    configurablePosition?: NodePosition;
+}
+
+export interface BallerinaRecordRequest {
+    org: string;
+    module: string;
+    version: string;
+    name: string;
+}
+
+export interface BallerinaConnectorsResponse {
+    connectors: any;
+}
+
+export interface BallerinaConnectorResponse {
+    org: string;
+    module: string;
+    version: string;
+    name: string;
+    ast?: STNode;
+}
+
+// tslint:disable-next-line: no-empty-interface
+export interface BallerinaConnectorRequest extends Connector {
+}
+
+export interface Connector {
+    org: string;
+    module: string;
+    version: string;
+    name: string;
+    displayName: string;
+    beta: boolean;
+    category: string;
+    cacheVersion: string;
+}
 export interface IBallerinaLangClient {
 
     isInitialized: boolean;
@@ -136,6 +206,12 @@ export interface IBallerinaLangClient {
     getBallerinaProject: (params: GetBallerinaProjectParams) => Thenable<BallerinaProject>;
 
     getDefinitionPosition: (params: TextDocumentPositionParams) => Thenable<Location>;
+
+    getRecord: (params: BallerinaRecordRequest) => Thenable<BallerinaRecordResponse>;
+
+    getConnector: (params: BallerinaConnectorRequest) => Thenable<BallerinaConnectorResponse>;
+
+    getConnectors: () => Thenable<BallerinaConnectorsResponse>;
 
     goToSource: (params: GoToSourceParams) => void;
 

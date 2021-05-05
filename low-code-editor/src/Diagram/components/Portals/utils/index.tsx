@@ -13,7 +13,7 @@
 import React, { ReactNode } from "react";
 
 import {
-    BooleanLiteral, CaptureBindingPattern, CheckAction,
+    CaptureBindingPattern, CheckAction,
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
     ParenthesizedArgList,
@@ -24,7 +24,6 @@ import {
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
@@ -33,6 +32,7 @@ import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addToFormFieldCache,
     getConnectorDefFromCache,
+    getFormFieldFromFileCache,
     getFromFormFieldCache,
     getRecordDefFromCache,
     isSTActionInvocation
@@ -167,26 +167,24 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey)
-                            if (ignoreList.indexOf(recordKey) === -1) {
+                            if (ignoreList.indexOf(recordKey) === -1 && recordRes === undefined) {
+                                recordRes = await getRecordDefFromCache({
+                                    module: typeInfo.modName,
+                                    org: typeInfo.orgName,
+                                    version: typeInfo.version,
+                                    name: typeInfo.name
+                                });
+
                                 if (recordRes === undefined) {
-                                    recordRes = await getRecordDefFromCache({
+                                    const record = await langClient.getRecord({
                                         module: typeInfo.modName,
                                         org: typeInfo.orgName,
                                         version: typeInfo.version,
                                         name: typeInfo.name
                                     });
 
-                                    if (recordRes === undefined) {
-                                        const record = await langClient.getRecord({
-                                            module: typeInfo.modName,
-                                            org: typeInfo.orgName,
-                                            version: typeInfo.version,
-                                            name: typeInfo.name
-                                        });
-
-                                        if (record && record.ast) {
-                                            recordRes = record.ast;
-                                        }
+                                    if (record && record.ast) {
+                                        recordRes = record.ast;
                                     }
                                 }
                             }
@@ -248,6 +246,7 @@ export function getParams(formFields: FormField[]): string[] {
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
+
                 formField.fields.forEach(field => {
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
@@ -270,7 +269,7 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.optional && !field.hide && field.isUnion && field.value) {
+                    } else if (field.type === "union" && !field.hide && field.isUnion && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -278,20 +277,25 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "record" && !field.hide) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-
-                        const fieldArray: FormField[] = [
-                            {
-                                isParam: true,
-                                type: PrimitiveBalType.Record,
-                                fields: field.fields
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (name) {
+                            const fieldArray: FormField[] = [
+                                {
+                                    isParam: true,
+                                    type: PrimitiveBalType.Record,
+                                    fields: field.fields
+                                }
+                            ]
+                            const params = getParams(fieldArray);
+                            if (params && params.length > 0) {
+                                if (firstRecordField) {
+                                    recordFieldsString += ", ";
+                                } else {
+                                    firstRecordField = true;
+                                }
+                                recordFieldsString += name + ": " + params;
                             }
-                        ]
-                        recordFieldsString += getFieldName(field.name) + ": " + getParams(fieldArray);
+                        }
                     }
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
@@ -430,7 +434,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'ListConstructor') {
                         const listExpr = specificField.valueExpr as ListConstructor;
                         formField.value = listExpr.source;
-                        formField.fields = [];
+                        formField.fields = formField?.fields ? formField.fields : [];
                     }
                 }
             })
@@ -619,38 +623,6 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
     return variableCollection;
 }
 
-// documentSymbol request is no longer supported by the LS
-// export async function getAllVariables(): Promise<{ [key: string]: any }> {
-//     const langClient: BallerinaLangClient = await getLangClientForCurrentApp();
-//     // const { state: { langClient }} = useContext(DiagramContext);
-//     const symbolInfo = await langClient.getDocumentSymbol({
-//         textDocument: {
-//             uri: monaco.Uri.file(store.getState()?.appInfo?.currentApp?.workingFile).toString()
-//         }
-//     });
-//     if (symbolInfo) {
-//         const varList: { [key: string]: any } = {};
-//         if (isDocumentSymbol(symbolInfo[0])) {
-//             (symbolInfo as DocumentSymbol[]).forEach((symbol: DocumentSymbol) => {
-//                 varList[symbol.name] = {
-//                     "type": getSymbolKind(symbol.kind),
-//                     "position": 0,
-//                     "isUsed": 0
-//                 }
-//             })
-//         } else {
-//             (symbolInfo as SymbolInformation[]).forEach((symbol: SymbolInformation) => {
-//                 varList[symbol.name] = {
-//                     "type": getSymbolKind(symbol.kind),
-//                     "position": symbol.location.range.start.line,
-//                     "isUsed": 0
-//                 }
-//             })
-//         }
-//         return varList
-//     }
-// }
-
 function isDocumentSymbol(symbol: DocumentSymbol | SymbolInformation): symbol is DocumentSymbol {
     return symbol && (symbol as DocumentSymbol).range !== undefined;
 }
@@ -682,127 +654,130 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
     return mapTo;
 }
 
-// export function getConnectorConfig(connectorName: string): OauthConnectorConfig {
-//     const configs: OauthConnectorConfig[] = store.getState().oauthProviderConfigs.configList;
-//     let oauthConfig: OauthConnectorConfig = null;
-//     configs.forEach((config) => {
-//         if (config.connectorName.toLocaleLowerCase() === connectorName.toLocaleLowerCase()) {
-//             oauthConfig = config;
-//         }
-//     });
-//     return oauthConfig;
-// }
-
 export async function fetchConnectorInfo(connector: Connector, model?: STNode, state?: any): Promise<ConfigWizardState> {
-    // check existing in same code file
-    // generate select existing connector form
-    // if create new clicked.
     const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
+    // get form fields from browser cache
+    let functionDefInfo = await getFromFormFieldCache(connector);
+    const connectorConfig = new ConnectorConfig();
 
-    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-    let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
-
-    if (!connectorDef && connector) {
-        const connectorResp = await langClient.getConnector(connector);
-        connectorDef = connectorResp.ast;
+    if (!functionDefInfo) {
+        // get form fields from file cache
+        functionDefInfo = await getFormFieldFromFileCache(connector);
+        // save form fields in browser cache
+        await addToFormFieldCache(connector, functionDefInfo);
     }
-    if (connectorDef) {
-        const connectorConfig = new ConnectorConfig();
+
+    if (!functionDefInfo) {
+        // generate form fields form connector syntax tree
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
+        let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
+        if (!connectorDef && connector) {
+            const connectorResp = await langClient.getConnector(connector);
+            connectorDef = connectorResp.ast;
+        }
         connectorDef.viewState = {};
+
         cleanFields();
-        let functionDefInfo = await getFromFormFieldCache(connector);
-        if (!functionDefInfo) {
-            traversNode(connectorDef, FormFieldVisitor);
-            functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
-            for (const value of Array.from(functionDefInfo.values())) {
-                await getRecordFields(value.parameters, connectorDef.typeData.records, langClient);
-                if (value.returnType) {
-                    if (value.returnType.type === 'union') {
-                        await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient);
-                    } else {
-                        await getRecordFields([value.returnType], connectorDef.typeData.records, langClient);
-                    }
+        traversNode(connectorDef, FormFieldVisitor);
+
+        functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
+
+        for (const value of Array.from(functionDefInfo.values())) {
+            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient);
+            if (value.returnType) {
+                if (value.returnType.type === 'union') {
+                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient);
+                } else {
+                    await getRecordFields([value.returnType], connectorDef.typeData.records, langClient);
                 }
             }
-            addToFormFieldCache(connector, functionDefInfo);
         }
+        // save form fields in browser cache
+        await addToFormFieldCache(connector, functionDefInfo);
 
-        // Filter connector functions to have better usability.
-        functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
-        if (model) {
-            const variable: LocalVarDecl = model as LocalVarDecl;
-            const viewState: StatementViewState = model.viewState as StatementViewState;
-            if (isSTActionInvocation(variable)) {
-                let remoteCall: RemoteMethodCallAction;
-                switch (variable.initializer.kind) {
-                    case 'TypeCastExpression':
-                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                        remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                        break;
-                    case 'RemoteMethodCallAction':
-                        remoteCall = variable.initializer as RemoteMethodCallAction;
-                        break;
-                    default:
-                        remoteCall = (variable.initializer as CheckAction).expression;
-                }
-                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                    CaptureBindingPattern;
-                const returnVarName: string = bindingPattern.variableName.value;
-                if (remoteCall && returnVarName) {
-                    const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-                    const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
-                    if (remoteCall && actionName) {
-                        const action: ActionConfig = new ActionConfig();
-                        action.name = actionName.name.value;
-                        action.returnVariableName = returnVarName;
-                        connectorConfig.action = action;
-                        connectorConfig.name = configName.name.value;
-                        connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
-                        matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
-                    }
-                }
-            } else if (viewState.isEndpoint) {
-                const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                    CaptureBindingPattern;
-                const endpointVarName: string = bindingPattern.variableName.value;
-                if (endpointVarName) {
-                    connectorConfig.name = endpointVarName;
-                }
-            }
-            connectorConfig.connectorInit = functionDefInfo.get("init") ?
-                functionDefInfo.get("init").parameters
-                : functionDefInfo.get("__init").parameters;
-            const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
-            connectorConfig.initPosition = matchingEndPoint.position;
-            matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
-        }
-        connectorConfig.existingConnections = symbolInfo.variables.get(connector.module + ":" + connector.name);
-
-        return {
-            isLoading: false,
-            connector,
-            wizardType: model ? WizardType.EXISTING : WizardType.NEW,
-            functionDefInfo,
-            connectorConfig,
-            connectorDef,
-            model
-        };
+        // INFO: uncomment below code to get connector form field json object
+        // const formFieldJsonObject: any = {};
+        // functionDefInfo.forEach((value, key) => {
+        //     formFieldJsonObject[key] = value;
+        // });
+        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
+        // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
+
+    // Filter connector functions to have better usability.
+    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
+    if (model) {
+        const variable: LocalVarDecl = model as LocalVarDecl;
+        const viewState: StatementViewState = model.viewState as StatementViewState;
+        if (isSTActionInvocation(variable)) {
+            let remoteCall: RemoteMethodCallAction;
+            switch (variable.initializer.kind) {
+                case 'TypeCastExpression':
+                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                    break;
+                case 'RemoteMethodCallAction':
+                    remoteCall = variable.initializer as RemoteMethodCallAction;
+                    break;
+                default:
+                    remoteCall = (variable.initializer as CheckAction).expression;
+            }
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                CaptureBindingPattern;
+            const returnVarName: string = bindingPattern.variableName.value;
+            if (remoteCall && returnVarName) {
+                const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
+                const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
+                if (remoteCall && actionName) {
+                    const action: ActionConfig = new ActionConfig();
+                    action.name = actionName.name.value;
+                    action.returnVariableName = returnVarName;
+                    connectorConfig.action = action;
+                    connectorConfig.name = configName.name.value;
+                    connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
+                    matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+                }
+            }
+        } else if (viewState.isEndpoint) {
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                CaptureBindingPattern;
+            const endpointVarName: string = bindingPattern.variableName.value;
+            if (endpointVarName) {
+                connectorConfig.name = endpointVarName;
+            }
+        }
+        connectorConfig.connectorInit = functionDefInfo.get("init") ?
+            functionDefInfo.get("init").parameters
+            : functionDefInfo.get("__init").parameters;
+        const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        connectorConfig.initPosition = matchingEndPoint.position;
+        matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
+        // }
+
+        // connectorConfig.connectorInit = filteredFunctionDefInfo.get("init") ?
+        // filteredFunctionDefInfo.get("init").parameters
+        //     : filteredFunctionDefInfo.get("__init").parameters;
+        // const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        // connectorConfig.initPosition = matchingEndPoint.position;
+        // matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
+    }
+    connectorConfig.existingConnections = symbolInfo.variables.get(connector.module + ":" + connector.name);
+
     return {
         isLoading: false,
-        connector: undefined,
-        wizardType: undefined,
-        functionDefInfo: undefined,
-        connectorConfig: undefined,
-        connectorDef: undefined
-    }
+        connector,
+        wizardType: model ? WizardType.EXISTING : WizardType.NEW,
+        functionDefInfo: functionDefInfo,
+        connectorConfig,
+        model
+    };
 }
 
 export const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
-export function getOauthConnectionParams(connectorName: string, connectionDetail: ConnectionDetails): any {
+export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails): any {
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
@@ -851,6 +826,88 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
                     refreshUrl: ${gmailRefreshUrl}
                 }
              }`];
+        }
+    }
+}
+
+function getFormFieldValue(formFields: FormField[], connectorName: string, key: string) {
+    switch (connectorName) {
+        case "github": {
+            return formFields[0].fields[1].value;
+        }
+        case "google sheets":
+            return formFields.find(field => field.name === "spreadsheetConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        case "gmail": {
+            return formFields.find(field => field.name === "gmailConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        }
+        case "google calendar":
+            return formFields.find(field => field.name === "calendarConfig").fields
+                .find(field => field.name === "oauth2Config").fields
+                .find(field => field.name === key).value || "";
+    }
+}
+
+export function getOauthParamsFromFormFields(connectorName: string, formFields: FormField[]): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getFormFieldValue(formFields, connectorName, 'accessToken');
+            return (`{
+                accessToken: ${githubAccessToken}
+            }`);
+        }
+        case "gmail":
+        case "google sheets": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauthClientConfig: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+        case "google calendar": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauth2Config: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+    }
+}
+
+export function getOauthConnectionImports(connectorName: string, connectionDetail: ConnectionDetails): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
+            return `configurable string ${githubAccessToken} = ?;`;
+        }
+        case "google sheets":
+        case "google calendar":
+        case "gmail": {
+            const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
+            const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
+            const refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+            const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
+            return (`configurable string ${clientId} = ?;
+            configurable string ${clientSecret} = ?;
+            configurable string ${refreshUrl} = ?;
+            configurable string ${refreshToken} = ?;`);
         }
     }
 }

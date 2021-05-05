@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
@@ -46,7 +47,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -78,6 +79,7 @@ enum FormStates {
 export function GithubWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
@@ -264,7 +266,7 @@ export function GithubWizard(props: WizardProps) {
 
                     addConnectorInit = createPropertyStatement(
                         `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
@@ -337,7 +339,7 @@ export function GithubWizard(props: WizardProps) {
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     } else {
@@ -414,6 +416,16 @@ export function GithubWizard(props: WizardProps) {
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
     }
 
+    const manualConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.manualConnection.button.text",
+        defaultMessage: "Manual Connection"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.backButton.text",
+        defaultMessage: "Back"
+    });
+
     return (
         <div className={wizardClasses.fullWidth}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -427,7 +439,7 @@ export function GithubWizard(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.GitHub.title" defaultMessage="Connection"/>
                     </Typography>
                 </div>
             </div>
@@ -451,17 +463,22 @@ export function GithubWizard(props: WizardProps) {
                 {(formState === FormStates.OauthConnect) &&
                     (
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            {(connectionDetails === null) && (
-                                <>
-                                    <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                                    <LinePrimaryButton
-                                        testId={"git-manual-btn"}
-                                        className={wizardClasses.fullWidth}
-                                        text="Manual Connection"
+                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.manualConnection" defaultMessage="Or use manual configurations"/></p>
+                            <LinePrimaryButton
+                                testId={"git-manual-btn"}
+                                className={wizardClasses.fullWidth}
+                                text={manualConnectionButtonText}
+                                fullWidth={false}
+                                onClick={onManualConnection}
+                            />
+                            {(config.existingConnections && isNewConnection) && (
+                                <div className={wizardClasses.connectBackBtn}>
+                                    <SecondaryButton
+                                        text={backButtonText}
                                         fullWidth={false}
                                         onClick={onManualConnection}
                                     />
-                                </>
+                                </div>
                             )}
                             <>
                                 {(connectionDetails && isNewConnection) && (

@@ -19,8 +19,8 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void }) {
+    const { text, openInCodeView, ...xyProps } = props;
     return (
         <svg {...xyProps} width={FOREACH_SVG_WIDTH_WITH_SHADOW} height={FOREACH_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -43,18 +43,24 @@ export function ForeachSVG(props: { x: number, y: number, text: string }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Foreach" className="foreach-group" transform="translate(56.912 6.414) rotate(45)">
-                <g transform="matrix(0.71, -0.71, 0.71, 0.71, -44.78, 35.71)" >
-                    <g id="ForeachPolygon" transform="translate(33.5, 3) rotate(45)">
-                        <rect width="40.903" className="for-each-rect" height="40.903" rx="6" stroke="none" />
-                        <rect x="0.5" y="0.5" className="for-each-rect click-effect" width="39.903" height="39.903" rx="5.5" fill="none" />
+            {/*<TooltipCodeSnippet openInCodeView={openInCodeView} content={codeSnippet} placement="right" arrow={true}>*/}
+                <g id="Foreach" className="foreach-group" transform="translate(56.912 6.414) rotate(45)">
+                    <g transform="matrix(0.71, -0.71, 0.71, 0.71, -44.78, 35.71)" >
+                        <g id="ForeachPolygon" transform="translate(33.5, 3) rotate(45)">
+                            <rect width="40.903" className="for-each-rect" height="40.903" rx="6" stroke="none" />
+                            <rect x="0.5" y="0.5" className="for-each-rect click-effect" width="39.903" height="39.903" rx="5.5" fill="none" />
+                        </g>
+                        <text className="foreach-text" id="ForeachText" transform="translate(3.889 49.851) rotate(-45)">
+                            <tspan x="32.75" y="10" >For</tspan>
+                            <tspan x="31.80" y="22">Each</tspan>
+                        </text>
+                    </g>
+                    <g id="Foreach_icon" transform="translate(-6.5, 24)">
+                        <path id="Combined_Shape" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(0 4)" fill="#5567d5" />
+                        <path id="Combined_Shape-2" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(19.914 16.002) rotate(-180)" fill="#ccd1f2" />
                     </g>
                 </g>
-                <g id="Foreach_icon" transform="translate(-6.5, 24)">
-                    <path id="Combined_Shape" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(0 4)" fill="#5567d5" />
-                    <path id="Combined_Shape-2" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(19.914 16.002) rotate(-180)" fill="#ccd1f2" />
-                </g>
-            </g>
+            {/*</TooltipCodeSnippet>*/}
         </svg>
     )
 }

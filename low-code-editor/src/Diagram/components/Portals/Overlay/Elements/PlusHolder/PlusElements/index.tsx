@@ -12,18 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
+import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
-import Tooltip from "../../../../ConfigForm/Elements/Tooltip";
-import { tooltipMessages } from "../../../../utils/constants";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
@@ -60,6 +60,7 @@ export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
     const { state, diagramRedraw } = useContext(Context);
     const { isCodeEditorActive, stSymbolInfo, syntaxTree } = state;
+    const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
     const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
 
@@ -131,6 +132,37 @@ export function PlusElements(props: PlusElementsProps) {
     const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
     const holderClass = selectedItem !== "APIS" ? "holder-wrapper" : exitingApiCall;
 
+    const plusHolderUITooltipMessages = {
+        statementsPlusHolder: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
+                defaultMessage: "A collection of code fragments that can be added to your application"
+            }),
+            actionText: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionText",
+                defaultMessage: "Learn more about Statements."
+            }),
+            actionLink: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionTitle",
+                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/statements.md"
+            })
+        },
+        APIsPlusHolder: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
+                defaultMessage: "A collection of API calls that helps you to integrate your application to external services"
+            }),
+            actionText: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionText",
+                defaultMessage: "Learn more about Connections."
+            }),
+            actionLink: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionTitle",
+                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/connector.md"
+            })
+        },
+    }
+
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
             {
@@ -143,31 +175,31 @@ export function PlusElements(props: PlusElementsProps) {
             }
             <div className="holder-options">
                 <Tooltip
-                    title={tooltipMessages.statementsPlusHolder.title}
-                    actionText={tooltipMessages.statementsPlusHolder.actionText}
-                    actionLink={tooltipMessages.statementsPlusHolder.actionLink}
+                    title={plusHolderUITooltipMessages.statementsPlusHolder.title}
+                    actionText={plusHolderUITooltipMessages.statementsPlusHolder.actionText}
+                    actionLink={plusHolderUITooltipMessages.statementsPlusHolder.actionLink}
                     interactive={true}
                     placement="left"
                     arrow={true}
                 >
                     <div className="options" onClick={handleStatementClick}>
                         <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                            Statements
-            </div>
+                            <FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.title" defaultMessage="Statements" />
+                        </div>
                     </div>
                 </Tooltip>
                 <div className="options">
 
                     <Tooltip
-                        title={tooltipMessages.APIsPlusHolder.title}
-                        actionText={tooltipMessages.APIsPlusHolder.actionText}
-                        actionLink={tooltipMessages.APIsPlusHolder.actionLink}
+                        title={plusHolderUITooltipMessages.APIsPlusHolder.title}
+                        actionText={plusHolderUITooltipMessages.APIsPlusHolder.actionText}
+                        actionLink={plusHolderUITooltipMessages.APIsPlusHolder.actionLink}
                         interactive={true}
                         placement="right"
                         arrow={true}
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                            API Calls
+                            <FormattedMessage id="lowcode.develop.plusHolder.plusElements.connections.title" defaultMessage="API Calls" />
                         </div>
                     </Tooltip>
                 </div>

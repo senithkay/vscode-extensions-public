@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
@@ -46,7 +47,7 @@ import {
     genVariableName,
     getConnectorIcon,
     getKeyFromConnection,
-    getOauthConnectionParams,
+    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -80,6 +81,7 @@ export function GoogleCalender(props: WizardProps) {
 
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
@@ -217,20 +219,20 @@ export function GoogleCalender(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))) {
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                                { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
                             );
                             modifications.push(addConfigurableVars);
                         }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${configName} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     }
@@ -353,20 +355,20 @@ export function GoogleCalender(props: WizardProps) {
                     let addConfigurableVars: STModification;
                     let addConnectorInit: STModification;
                     if (!isManualConnection) {
-                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))){
+                        if (!symbolInfo.configurables.get(getKeyFromConnection(connectionDetails, 'clientIdKey'))) {
                             addConfigurableVars = createPropertyStatement(
                                 `configurable string ${getKeyFromConnection(connectionDetails, 'clientIdKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'clientSecretKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'tokenEpKey')} = ?;
                                 configurable string ${getKeyFromConnection(connectionDetails, 'refreshTokenKey')} = ?;`,
-                                {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                                { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
                             );
                             modifications.push(addConfigurableVars);
                         }
 
                         addConnectorInit = createPropertyStatement(
                             `${connector.module}:${connector.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthConnectionParams(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                                ${getOauthParamsFromConnection(connector.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
                             targetPosition
                         );
                     } else {
@@ -386,7 +388,7 @@ export function GoogleCalender(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                if (isActionReturnError){
+                if (isActionReturnError) {
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -395,7 +397,7 @@ export function GoogleCalender(props: WizardProps) {
                         getParams(config.action.fields), targetPosition
                     );
                     modifications.push(addActionInvocation);
-                }else{
+                } else {
                     const addActionInvocation: STModification = createRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -420,7 +422,7 @@ export function GoogleCalender(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError){
+            if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
@@ -453,6 +455,16 @@ export function GoogleCalender(props: WizardProps) {
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
     }
 
+    const manualConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.manualConnection.button.text",
+        defaultMessage: "Manual Connection"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.backButton.text",
+        defaultMessage: "Back"
+    });
+
     return (
         <div className={wizardClasses.fullWidth}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -466,7 +478,7 @@ export function GoogleCalender(props: WizardProps) {
                         {getConnectorIcon(`${connector.module}_${connector.name}`)}
                     </div>
                     <Typography className={wizardClasses.configTitle} variant="h4">
-                        {connector.displayName} Connection
+                        {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.GCalendar.title" defaultMessage="Connection" />
                     </Typography>
                 </div>
             </div>
@@ -490,17 +502,22 @@ export function GoogleCalender(props: WizardProps) {
                 {(formState === FormStates.OauthConnect) &&
                     (
                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                            {(connectionDetails === null) && (
-                                <>
-                                    <p className={wizardClasses.subTitle}>Or use manual configurations</p>
-                                    <LinePrimaryButton
-                                        testId={"calender-manual-btn"}
-                                        className={wizardClasses.fullWidth}
-                                        text="Manual Connection"
+                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                            <LinePrimaryButton
+                                testId={"calender-manual-btn"}
+                                className={wizardClasses.fullWidth}
+                                text={manualConnectionButtonText}
+                                fullWidth={false}
+                                onClick={onManualConnection}
+                            />
+                            {(config.existingConnections && isNewConnection) && (
+                                <div className={wizardClasses.connectBackBtn}>
+                                    <SecondaryButton
+                                        text={backButtonText}
                                         fullWidth={false}
                                         onClick={onManualConnection}
                                     />
-                                </>
+                                </div>
                             )}
                             <>
                                 {(connectionDetails && isNewConnection) && (
