@@ -25,7 +25,6 @@ import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";

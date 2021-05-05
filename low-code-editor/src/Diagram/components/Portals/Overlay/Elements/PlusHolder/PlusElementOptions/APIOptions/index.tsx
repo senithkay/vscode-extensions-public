@@ -21,7 +21,6 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
-import { tooltipExamples, tooltipTitles } from "../../../../../../../utils/connectors";
 import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";

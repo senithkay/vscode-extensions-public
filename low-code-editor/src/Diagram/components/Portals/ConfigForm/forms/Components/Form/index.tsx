@@ -12,6 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
+import { validateFormFields } from "../../../../../../../../src/utils/validator";
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
@@ -38,29 +39,9 @@ export function Form(props: FormProps) {
         let allFieldsValid = true;
 
         for (const formValue of fields) {
-            if (formValue.type === "record") {
-                for (const recordField of formValue.fields) {
-                    const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                    // breaks the loop if one field is empty
-                    if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                        allFieldsValid = !isFieldValueInValid;
-                        break;
-                    }
-                }
-            } else if (formValue.type === "union") {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
-            } else {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
+            allFieldsValid = validateFormFields(formValue, emptyFieldChecker);
+            if (!allFieldsValid) {
+                break;
             }
         }
         onValidate(allFieldsValid);

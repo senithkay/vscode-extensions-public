@@ -767,7 +767,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         isLoading: false,
         connector,
         wizardType: model ? WizardType.EXISTING : WizardType.NEW,
-        functionDefInfo: functionDefInfo,
+        functionDefInfo,
         connectorConfig,
         model
     };
