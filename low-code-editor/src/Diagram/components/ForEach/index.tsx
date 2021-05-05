@@ -247,9 +247,9 @@ export function ForEach(props: ForeachProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 
