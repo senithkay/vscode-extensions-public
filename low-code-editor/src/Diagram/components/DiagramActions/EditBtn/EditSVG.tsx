@@ -53,14 +53,14 @@ export function EditSVG(props: { x: number, y: number }) {
                    0,0,0-1.118.135Z"
                     fill="#36b475"
                 />
-                <path
+                {/* <path
                     id="edit"
                     className="edit-icon-hover"
                     d="M5.5,12a.5.5,0,0,1,0-1h6a.5.5,0,0,1,0,1ZM0,11V8.291L7.708.56a1.913,1.913,0,0,1,
                   2.56-.131l.145.131.118.13a1.916,1.916,0,0,1-.118,2.58L2.707,11Z"
                     transform="translate(0 0)"
                     fill="#36b475"
-                />
+                /> */}
 
             </g>
         </svg>
