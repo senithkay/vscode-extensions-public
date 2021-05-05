@@ -31,6 +31,7 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { FormattedMessage, useIntl } from "react-intl";
+import { ExpressionEditorArray } from "../../../Portals/ConfigForm/Elements/ExpressionEditorArray";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -145,7 +146,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             );
         } else if (field.name === "to") {
             return (
-                <ExpressionEditor {...elementProps} />
+                <ExpressionEditorArray elementProps={elementProps} />
             );
         } else if (field.name === "cc") {
             return (expandCc || (field.value)) ? (
