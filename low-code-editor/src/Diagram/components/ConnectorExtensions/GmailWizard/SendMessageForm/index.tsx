@@ -31,7 +31,8 @@ export default function SendMessageForm(props: OperationDropdownProps) {
     const classes = useStyles();
     const [ expandCc, setExpandCc ] = useState(false);
     const [ expandBcc, setExpandBcc ] = useState(false);
-    const [emptyFieldChecker] = useState(new Map<string, boolean>());
+
+    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
         let allFieldsValid = true;

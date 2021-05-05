@@ -22,7 +22,7 @@ export function PlusCircleSVG(props: { x: number, y: number }) {
     const { ...xyProps } = props;
     return (
         <svg {...xyProps} width={PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW} height={PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW}>
-            <g id="PlusCircle" transform="translate(1 1)" fill="#f7f8fb" stroke="#5b6bd2" strokeMiterlimit="10" strokeWidth="1">
+            <g id="PlusCircle" transform="translate(1 1)" fill="#fff" stroke="#a6b3ff" strokeMiterlimit="10" strokeWidth="1">
                 <circle cx="5.5" cy="5.5" r="5.5" stroke="none" />
                 <circle cx="5.5" cy="5.5" r="6" fill="none" />
             </g>

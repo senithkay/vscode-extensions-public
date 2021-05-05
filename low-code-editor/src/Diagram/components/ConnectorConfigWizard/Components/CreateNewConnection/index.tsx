@@ -35,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
@@ -49,7 +50,7 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -159,6 +160,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
           </ul>
         </div>
       );
+
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = configForm;
+        onSaveNext();
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -184,16 +193,18 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector) ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text={saveConnectionButtonLabel}
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <PrimaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                    </div>
                 </div>
             </FormControl>
         </div>

@@ -35,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
 }
@@ -48,7 +49,8 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, onConfigNameChange,
+            isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -119,6 +121,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = connectorInitFields;
         onSave();
+    };
+
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = connectorInitFields;
+        onSaveNext();
     };
 
     const filteredFormFields = () => {
@@ -202,7 +211,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
                         <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick} />
                     )}
