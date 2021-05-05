@@ -17,8 +17,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
-import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Section } from "../../../../../components/ConfigPanel";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
