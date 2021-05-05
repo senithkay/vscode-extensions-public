@@ -1,3 +1,4 @@
+import { FormField } from "../ConfigurationSpec/types";
 import { keywords } from "../Diagram/components/Portals/utils/constants";
 
 export function validatePath(text: string) {
@@ -21,4 +22,29 @@ export function validatePath(text: string) {
         } else if (text === "[]") return false
         else return ((/^[a-zA-Z0-9_\/\[\].]+$/g.test(text)) && (!/^\d/.test(text)))
     } else return true
+}
+
+export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
+    let allFieldsValid = true;
+    if (field.type === "record" && !field.optional) {
+        for (const recordField of field.fields) {
+            allFieldsValid = validateFormFields(recordField, emptyFieldChecker);
+            if (!allFieldsValid) {
+                break;
+            }
+        }
+    } else if (field.type === "union" && !field.optional) {
+        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
+        // breaks the loop if one field is empty
+        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
+            allFieldsValid = !isFieldValueInValid;
+        }
+    } else if (!field.optional) {
+        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
+        // breaks the loop if one field is empty
+        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
+            allFieldsValid = !isFieldValueInValid;
+        }
+    }
+    return allFieldsValid;
 }

@@ -2,17 +2,10 @@ import React from 'react';
 
 export default function CustomIcon(props: any) {
     return (
-        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" {...props}>
-            <title>3F9BC1E1-3537-466C-BBFD-ED53EC598C69</title>
-            <g id="Apps" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="apps-select-item" transform="translate(-236.000000, -276.000000)">
-                    <g id="Table/Row/Default" transform="translate(216.000000, 256.000000)">
-                        <g id="Icon/Apps/Webhook" transform="translate(20.000000, 20.000000)">
-                            <path d="M7,2 L6.94089693,2.07982774 C6.34880863,2.90139724 6,3.90996431 6,5 C6,7.76142375 8.23857625,10 11,10 C12.1261445,10 13.1653335,9.62769913 14.0011995,8.99946494 C14,12.8659932 10.8659932,16 7,16 C3.13400675,16 -8.8817842e-15,12.8659932 -8.8817842e-15,9 C-8.8817842e-15,5.13400675 3.13400675,2 7,2 L7,2 Z" id="Combined-Shape" fill="#8D91A3" />
-                            <circle id="Oval" fill="#CBCEDB" cx="11.5" cy="4.5" r="4.5" />
-                        </g>
-                    </g>
-                </g>
+        <svg width="20" height="20" {...props}>
+            <g id="Custom-icon" transform="translate(0 0)">
+                <path id="Combined-Shape" d="M7.767.465a.863.863,0,0,1,.1,1.721l-.1,0H2.589a.864.864,0,0,0-.857.763l-.006.1V13.411a.863.863,0,0,0,.762.857l.1.006H10l3.811-3.81V8.233a.864.864,0,0,1,.762-.858l.1-.005a.863.863,0,0,1,.857.762l.006.1v2.946L10.714,16H2.589A2.59,2.59,0,0,1,0,13.563l0-.152V3.054A2.589,2.589,0,0,1,2.437.47l.152,0Z" fill="#ccd1f2" />
+                <path id="Path-24" d="M12.472.605,7.32,5.757V8.68h2.923L15.4,3.528A2.067,2.067,0,1,0,12.472.605Zm1.821,1.2a.249.249,0,0,1-.04.3l-4.9,4.894H9.006V6.641L13.9,1.747a.25.25,0,0,1,.353,0Z" fill="#5567d5" />
             </g>
         </svg>
     )
