@@ -74,13 +74,13 @@ export interface DiagramState {
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     selectedCompId?: number;
     error?: any;
-    isMutationProgress: boolean;
-    isCodeEditorActive: boolean;
+    isMutationProgress?: boolean;
+    isCodeEditorActive?: boolean;
     connectors?: BallerinaConnectorsInfo[];
     isConfigFetchInProgress?: boolean;
     diagnostics?: Diagnostic[];
     stSymbolInfo?: STSymbolInfo;
-    isLoadingSuccess: boolean;
+    isLoadingSuccess?: boolean;
     exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
     resourceMembers?: any;

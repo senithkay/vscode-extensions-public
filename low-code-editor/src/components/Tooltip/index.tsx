@@ -95,7 +95,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         if (example) {
             CodeSnippet = () => (
                 <div className={styles.exampleCodeWrap}>
-                    <div>eg</div> <Code />
+                    <div>E.g.</div> <Code />
                 </div>
             );
         }

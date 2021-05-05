@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -50,6 +51,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { stSymbolInfo: symbolInfo } = state;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: '',
@@ -151,6 +153,26 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.name.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -163,20 +185,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <ExpressionEditor {...expElementProps} />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
                         dataTestId={"git-save-next-btn"}
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(isAccessTokenValid && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}

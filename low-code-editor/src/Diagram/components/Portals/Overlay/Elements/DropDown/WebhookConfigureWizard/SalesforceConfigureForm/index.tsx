@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
 import {
     CaptureBindingPattern,
@@ -30,7 +31,6 @@ import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { tooltipMessages } from "../../../../../utils/constants";
 import { useStyles } from "../../styles";
 
 interface SalesforceConfigureFormProps {
@@ -59,6 +59,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
     const { onComplete } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const [ triggerChanged, setTriggerChanged ] = useState(false);
     const [ topic, setTopic ] = useState("");
@@ -131,35 +132,71 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         }
     };
 
+    const userNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.username.placeholder",
+        defaultMessage: "Username"
+    });
+
+    const passwordPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.password.placeholder",
+        defaultMessage: "Password"
+    });
+
+    const topicPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.topic.placeholder",
+        defaultMessage: "Topic"
+    })
+
+    const saveConfigButton = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.saveConfigButton.text",
+        defaultMessage: "Save"
+    });
+
+    const salesforceConfigTooltips = {
+        salesforceTrigger: {
+        username: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.username.tooltip.title",
+            defaultMessage: "The key in your Salesforce username."
+        }),
+        password : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.password.tooltip.title",
+            defaultMessage: "Enter the Salesforce password appended with your Salesforce security token."
+        }),
+        topic : intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
+            defaultMessage: "The topic of the Push type that was added to your Salesforce account to receive notifications."
+        })
+    }
+}
     return (
         <>
             <div className={classes.customWrapper}>
                 <FormTextInput
-                    label="Username"
+                    label={userNamePlaceholder}
                     defaultValue={username}
                     onChange={handleUsernameOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.username
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.username
                     } }
                 />
                 <FormTextInput
-                    label="Password"
+                    label={passwordPlaceholder}
                     defaultValue={password}
                     onChange={handlePasswordOnChange}
                     customProps={ {
                         optional: false,
                         secret: true,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.password
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.password
                     } }
                 />
                 <FormTextInput
-                    label="Topic"
+                    label={topicPlaceholder}
                     defaultValue={topic}
                     onChange={handleTopicOnChange}
                     customProps={ {
                         optional: false,
-                        tooltipTitle: tooltipMessages.salesforceTrigger.topic
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.topic
                     } }
                 />
             </div>
@@ -167,7 +204,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
-                            text="Save"
+                            text={saveConfigButton}
                             className={classes.saveBtn}
                             onClick={handleConfigureOnSave}
                             disabled={isFileSaving}

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
@@ -38,7 +39,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import '../style.scss'
 
@@ -76,6 +76,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
 
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state] = useState(defaultActionName);
@@ -281,6 +282,55 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     };
 
+    const payloadTypePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.seletPayloadType",
+        defaultMessage: "Select Type"
+    });
+
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const addPayloadVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.addPayloadVariable.placeholder",
+        defaultMessage: "Enter Payload Variable Name"
+    });
+
+    const addPayloadVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.addPayloadVariable.label",
+        defaultMessage: "Payload Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const HTTPtooltipMessages = {
+        HTTPPayload: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.title",
+                defaultMessage: "Add a valid payload variable"
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
+                defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
+            }),
+    },
+        payloadVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
+                defaultMessage: "Add a valid name for the payload"
+            }),
+        }
+    };
+
     let payloadComponent: React.ReactNode = null;
     if (connectorConfig.responsePayloadMap) {
         const payloadTypes: string[] = [];
@@ -292,13 +342,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormTextInput
                 customProps={{
                     validate: validatePayloadNameValue,
-                    tooltipTitle: tooltipMessages.payloadVariableName,
+                    tooltipTitle: HTTPtooltipMessages.payloadVariableName.title,
                     disabled: payloadVariableHasReferences
                 }}
                 defaultValue={payloadState.variableName}
-                placeholder={"Enter Payload Variable Name"}
+                placeholder={addPayloadVariablePlaceholder}
                 onChange={onPayloadNameChange}
-                label={"Payload Variable Name"}
+                label={addPayloadVariableLabel}
                 errorMessage={payloadVarError}
             />
         );
@@ -306,7 +356,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         const payloadConfig = payloadState.mapPayload === SELECT_PAYLOAD && (
             <>
                 <div className={classes.labelWrapper}>
-                    <FormHelperText className={classes.inputLabelForRequired}>Select Payload Type</FormHelperText>
+                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :"/></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
                 <div
@@ -315,7 +365,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     <SelectDropdownWithButton
                         defaultValue={payloadState.selectedPayload}
                         onChange={onPayloadTypeSelect}
-                        placeholder="Select Type"
+                        placeholder={payloadTypePlaceholder}
                         customProps={{
                             values: payloadTypes,
                             disableCreateNew: true,
@@ -360,7 +410,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
-                        <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
+                        <FormHelperText className={classes.subtitle}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.operationInputs.title" defaultMessage="Operation Inputs"/></FormHelperText>
                         <div className={classNames(classes.groupedForm, classes.marginTB)}>
                             {selectedOperationParams}
                             {forwardReq}
@@ -371,22 +421,22 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     disabled: responseVariableHasReferences
                                 }}
                                 defaultValue={returnNameState.value}
-                                placeholder={"Enter Response Variable Name"}
+                                placeholder={addResponseVariablePlaceholder}
                                 onChange={onNameChange}
-                                label={"Response Variable Name"}
+                                label={addResponseVariableLabel}
                                 errorMessage={responseVarError}
                             />
                         </div>
                         <TooltipIcon
-                            title={tooltipMessages.HTTPPayload.title}
-                            content={tooltipMessages.HTTPPayload.content}
+                            title={HTTPtooltipMessages.HTTPPayload.title}
+                            content={HTTPtooltipMessages.HTTPPayload.content}
                             placement="left"
                             arrow={true}
                             codeSnippet={true}
                             example={true}
                             interactive={true}
                         >
-                            <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                            <FormHelperText className={classes.subtitle}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.outputPayload.title" defaultMessage="Output Payload"/></FormHelperText>
                         </TooltipIcon>
                         <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
                             {payloadComponent}
@@ -399,7 +449,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     <PrimaryButton
                         dataTestId={"http-save-done"}
                         className="product-tour-save-done"
-                        text="Save &amp; Done"
+                        text={saveConnectionButtonText}
                         fullWidth={false}
                         disabled={isSaveDisabled}
                         onClick={handleOnSave}
