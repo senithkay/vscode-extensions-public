@@ -28,6 +28,7 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
+import { Section } from "../../../../../components/ConfigPanel";
 
 export interface OperationFormProps {
     selectedOperation: string;
@@ -95,14 +96,35 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Save"
     });
 
-    const gitHubTooltipMessages = {
-        responseVariableName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.GitHub.responseVariableNametooltip.title",
-                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character and including keywords such as Return , Foreach , Resource, Object, etc."
-            }),
-    }
-    };
+    const responseVariableInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.responseVariableNametooltip.instructions.bulletPoint1",
+        defaultMessage: "include spaces and special characters"
+      });
+
+    const responseVariableInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.responseVariableNametooltip.instructions.bulletPoint2",
+        defaultMessage: "start with a numerical character"
+      });
+
+    const responseVariableInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.responseVariableNametooltip.instructions.bulletPoint3",
+        defaultMessage: "include keywords such as Return , Foreach , Resource, Object ,etc."
+      });
+
+    const responseVariableInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.responseVariableNametooltip.instructions.title",
+        defaultMessage: "A valid response variable name should not :"
+      });
+    const title = (
+        <div>
+          <p>{responseVariableInstructions}</p>
+          <ul>
+            <li>{responseVariableInstructionsBullet1}</li>
+            <li>{responseVariableInstructionsBullet2}</li>
+            <li>{responseVariableInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
@@ -151,18 +173,20 @@ export function OperationForm(props: OperationFormProps) {
                         ) : null
                         }
                     </div>
-
+                    <Section
+                                title={addResponseVariableLabel}
+                                tooltip={{title}}
+                    >
                     <FormTextInput
                         customProps={{
                             validate: validateNameValue,
-                            tooltipTitle: gitHubTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
                         placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
+                    </Section>
                 </div>
             </div>
             <div className={classes.wizardBtnHolder}>
