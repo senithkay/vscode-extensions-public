@@ -108,7 +108,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const responseVariableInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GitHub.responseVariableNametooltip.instructions.bulletPoint3",
-        defaultMessage: "include keywords such as Return , Foreach , Resource, Object ,etc."
+        defaultMessage: "include keywords such as Return , Foreach , Resource, Object, etc."
       });
 
     const responseVariableInstructions = intl.formatMessage({
