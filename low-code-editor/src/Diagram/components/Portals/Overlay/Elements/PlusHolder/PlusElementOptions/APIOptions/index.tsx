@@ -79,7 +79,7 @@ export function APIOptions(props: APIOptionsProps) {
         imapConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-            defaultMessage: "Setup an email client to use the IMAP protocol"
+            defaultMessage: "Setup an email client to use the IMAP protocol."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
@@ -129,7 +129,7 @@ export function APIOptions(props: APIOptionsProps) {
         slackConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.title",
-            defaultMessage: "Connect with the Slack API to perform operations in Slack"
+            defaultMessage: "Connect with the Slack API to perform operations in Slack."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
