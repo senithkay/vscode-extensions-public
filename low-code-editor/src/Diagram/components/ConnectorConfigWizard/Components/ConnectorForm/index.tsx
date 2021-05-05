@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
@@ -29,6 +30,7 @@ import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../.
 import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { BallerinaConnectorsInfo, STModification } from "../../../../../Definitions/lang-client-extended";
+import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
@@ -44,7 +46,8 @@ import {
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorIcon, getMapTo, getOauthConnectionImports, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField } from '../../../Portals/utils';
+import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorIcon, getKeyFromConnection, getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -88,7 +91,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onMutate: dispatchMutations,
         getAiSuggestions,
         trackAddConnector,
-        syntaxTree
+        syntaxTree,
+        getAllConnections
     } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
@@ -106,28 +110,40 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
-
     const [connection, setConnection] = useState<ConnectionDetails>();
-    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (isAction) {
+
+        if (isNewConnection){
+            setFormState(FormStates.OauthConnect);
+            setIsLoading(false);
+            return;
+        }else if (isAction) {
             setFormState(FormStates.OperationForm);
+            setIsLoading(false);
             return;
         } else if (isOauthConnector) {
-            // update oauth flow client with manual form
-            // TODO: update oauth flow with oauth connect button
             if (connectorConfig?.connectorInit?.length > 0) {
-                setIsManualConnection(true);
-                setIsNewConnection(false);
-                setFormState(FormStates.CreateNewConnection);
-                return;
+                (async () => {
+                    const allConnections = await getAllConnections(userInfo?.selectedOrgHandle) as ConnectionDetails[];
+                    const activeConnection = getOauthConnectionFromFormField(connectorConfig.connectorInit[ 0 ], allConnections);
+                    if (activeConnection) {
+                        setConnection(activeConnection);
+                        setIsManualConnection(false);
+                        setFormState(FormStates.OauthConnect);
+                    } else {
+                        setIsManualConnection(true);
+                        setFormState(FormStates.CreateNewConnection);
+                    }
+                    setIsLoading(false);
+                })();
             }
-            setFormState(FormStates.OauthConnect);
         } else {
             setFormState(FormStates.CreateNewConnection);
+            setIsLoading(false);
         }
     }, []);
 
@@ -167,7 +183,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleOnConnection = (type: ConnectionType, connectionDetails: ConnectionDetails) => {
         setConnection(connectionDetails);
-        handleClientOnSave(connectionDetails);
     };
 
     const handleConnectionUpdate = () => {
@@ -185,18 +200,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         setFormState(FormStates.CreateNewConnection);
     };
 
-    const onCreateNew = () => {
-        config.name = undefined;
-        setConfigName(genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo)));
-        if (isOauthConnector) {
-            setIsManualConnection(false);
-            setFormState(FormStates.OauthConnect);
-        } else {
-            setConfigName(genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo)));
-            setFormState(FormStates.CreateNewConnection);
-        }
-        setIsNewConnection(true);
-    };
 
     const onSelectExisting = (value: any) => {
         setConfigName(value);
@@ -212,13 +215,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
-    const handleClientOnSave = (connectionDetails?: ConnectionDetails) => {
+    const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
 
         // check oauth flow and manual flow
-        if (isOauthConnector && !isManualConnection && connectionDetails) {
+        if (isOauthConnector && !isManualConnection && connection) {
+            const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
             // oauth flow
             if (isNewConnectorInitWizard && targetPosition) {
                 // new connector client initialization
@@ -229,23 +233,32 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(addImport);
 
-                const addConfigurableVars = createPropertyStatement(
-                    getOauthConnectionImports(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails),
-                    { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
-                );
-                modifications.push(addConfigurableVars);
+                if (connectorConfigurables){
+                    const addConfigurableVars = createPropertyStatement(
+                        connectorConfigurables,
+                        { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                    );
+                    modifications.push(addConfigurableVars);
+                }
 
                 const addConnectorInit: STModification = createPropertyStatement(
                     `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connectionDetails)}\n);`,
+                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
                     targetPosition
                 );
                 modifications.push(addConnectorInit);
             } else {
+                if (connectorConfigurables){
+                    const addConfigurableVars = createPropertyStatement(
+                        connectorConfigurables,
+                        { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                    );
+                    modifications.push(addConfigurableVars);
+                }
                 // update connector client initialization
                 const updateConnectorInit = updatePropertyStatement(
                     `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                        ${getOauthParamsFromFormFields(connectorInfo.displayName.toLocaleLowerCase(), config.connectorInit)}\n);`,
+                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
                     config.initPosition
                 );
                 modifications.push(updateConnectorInit);
@@ -445,37 +458,47 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection"/></Typography>
                         </div>
                     </div>
-                    <div>
-                        {isNewConnection && isOauthConnector && !isManualConnection && !isAction && (
-                            <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
-                                <div className={wizardClasses.fullWidth}>
-                                    <div className={wizardClasses.mainOauthBtnWrapper}>
-                                        <OauthConnectButton
-                                            className={classNames(wizardClasses.fullWidth, wizardClasses.oauthBtnWrapper)}
-                                            currentConnection={connection}
-                                            connectorName={connectorInfo.displayName}
-                                            onSelectConnection={handleOnConnection}
-                                            onFailure={handleOnFailure}
-                                            onDeselectConnection={handleConnectionUpdate}
-                                        />
+                    {(formState === FormStates.OauthConnect) && (
+                        <div>
+                            { isOauthConnector && !isManualConnection && !isAction && (
+                                <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
+                                    <div className={wizardClasses.fullWidth}>
+                                        <div className={wizardClasses.mainOauthBtnWrapper}>
+                                            <OauthConnectButton
+                                                className={classNames(wizardClasses.fullWidth, wizardClasses.oauthBtnWrapper)}
+                                                currentConnection={connection}
+                                                connectorName={connectorInfo.displayName}
+                                                onSelectConnection={handleOnConnection}
+                                                onFailure={handleOnFailure}
+                                                onDeselectConnection={handleConnectionUpdate}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
+                            ) }
+                            {!isAction &&
+                                (
+                                    <div className={classNames(wizardClasses.manualBtnWrapper)}>
+                                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                                        <LinePrimaryButton
+                                            className={wizardClasses.fullWidth}
+                                            text={manualConnectionButtonLabel}
+                                            fullWidth={false}
+                                            onClick={onManualConnection}
+                                        />
+                                    </div>
+                                )
+                            }
+                            <div className={wizardClasses.saveBtnWrapper}>
+                                <PrimaryButton
+                                    text="Save"
+                                    fullWidth={true}
+                                    disabled={connection === undefined}
+                                    onClick={handleClientOnSave}
+                                />
                             </div>
-                        )}
-                        {(formState === FormStates.OauthConnect) && !isAction &&
-                            (
-                                <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations"/></p>
-                                    <LinePrimaryButton
-                                        className={wizardClasses.fullWidth}
-                                        text={manualConnectionButtonLabel}
-                                        fullWidth={false}
-                                        onClick={onManualConnection}
-                                    />
-                                </div>
-                            )
-                        }
-                    </div>
+                        </div>
+                    ) }
                     {(formState === FormStates.OperationForm) && (
                         <OperationForm
                             functionDefInfo={functionDefInfo}
@@ -508,8 +531,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
 
     return (
-        <div className={wizardClasses.mainApiWrapper}>
-            {connectorComponent}
-        </div>
+        <>
+            {isLoading && (<div className={wizardClasses.loaderWrapper}>
+                <TextPreloaderVertical position='relative' />
+            </div>) }
+            {!isLoading && (<div className={wizardClasses.mainApiWrapper}>
+                {connectorComponent}
+            </div>) }
+        </>
     );
 }

@@ -231,6 +231,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%"
+        },
+        saveBtnWrapper: {
+            display: "flex",
+            justifyContent: "flex-end",
+            height: "auto",
+            marginTop: "2.5rem",
         }
     }),
 );
