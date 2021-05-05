@@ -332,7 +332,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {(processComp.length > 0 ? <Divider /> : null)}
+                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

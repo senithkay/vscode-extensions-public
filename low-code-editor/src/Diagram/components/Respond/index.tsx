@@ -84,13 +84,13 @@ export function Respond(props: RespondProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: isEditable ? cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET : cx - DELETE_SVG_OFFSET,
-        cy: cy + (RESPOND_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: isEditable ? cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) + DELETE_SVG_OFFSET : cx + DELETE_SVG_OFFSET,
+        cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: cy + (RESPOND_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2),
+        cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
     const onClickOpenInCodeView = () => {

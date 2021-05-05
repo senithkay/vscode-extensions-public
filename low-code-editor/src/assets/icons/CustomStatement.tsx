@@ -13,19 +13,12 @@
 import React from 'react';
 
 export default function CustomStatementIcon(props: any) {
-  return (
-    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" {...props}>
-        <title>EE817E01-7E38-4379-BC59-962720BD70A5</title>
-        <g id="Adding" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-            <g id="develop-new-adding-API" transform="translate(-338.000000, -466.000000)" stroke-width="2">
-                <g id="Dropdown/Select/Default-Copy-4" transform="translate(164.000000, 456.000000)">
-                    <g id="CustomStatement" transform="translate(174.000000, 10.000000)">
-                        <path d="M18,10 L18,13 C18,13 13,18 13,18 L4,18 C2.8954305,18 2,17.1045695 2,16 L2,4 C2,2.8954305 2.8954305,2 4,2 L10,2" id="Path" stroke="#CCD1F2" stroke-linecap="round"/>
-                        <path d="M16,2 L10,8 L10,8 L10,10 L12,10 L18,4 C18.5522847,3.44771525 18.5522847,2.55228475 18,2 C17.4477153,1.44771525 16.5522847,1.44771525 16,2 Z" id="Path-24" stroke="#5567D5"/>
-                    </g>
-                </g>
+    return (
+        <svg width="15.251" height="16" {...props}>
+            <g id="icon" transform="translate(0 1)">
+                <path id="Combined_Shape" d="M7.291,0a.807.807,0,0,1,.094,1.61l-.094.005H2.43a.809.809,0,0,0-.8.713l-.005.094v9.69a.809.809,0,0,0,.716.8l.094.005H9.385l3.577-3.565V7.267a.809.809,0,0,1,.716-.8l.094-.005a.809.809,0,0,1,.8.713l.005.094v2.757l-4.525,4.51H2.43A2.427,2.427,0,0,1,0,12.255l0-.142V2.422A2.426,2.426,0,0,1,2.287,0L2.43,0Z" transform="translate(0 0.465)" fill="#ccd1f2" />
+                <path id="Path_24" d="M5.463.642,0,6.1V9.2H3.1L8.562,3.741a2.191,2.191,0,0,0-3.1-3.1ZM7.23,2.068a.251.251,0,0,1-.041.3L2.294,7.262H1.942V6.908L6.836,2.015a.249.249,0,0,1,.353,0Z" transform="translate(6.047 -1)" fill="#5567d5" />
             </g>
-        </g>
-    </svg>
-  )
+        </svg>
+    )
 }
