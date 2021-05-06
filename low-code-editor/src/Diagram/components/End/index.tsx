@@ -63,7 +63,7 @@ export function End(props: EndProps) {
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [endConfigFormOverlayState, setEndConfigFormOverlayState] = useState(undefined);
 
-    const compType = "END";
+    const compType = "end";
     let cx: number;
     let cy: number;
     if (viewState) {
