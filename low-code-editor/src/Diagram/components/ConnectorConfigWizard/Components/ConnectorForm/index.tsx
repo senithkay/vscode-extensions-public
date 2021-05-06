@@ -408,6 +408,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         });
     }, [functionDefInfo]);
 
+    const onSave = (sourceModifications: STModification[]) => {
+        trackAddConnector(connectorInfo.displayName);
+        if (sourceModifications) {
+            // Modifications for special Connectors
+            dispatchMutations(sourceModifications);
+            onClose();
+        }
+    };
+
     const manualConnectionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.button.label",
         defaultMessage: "Manual Connection"
