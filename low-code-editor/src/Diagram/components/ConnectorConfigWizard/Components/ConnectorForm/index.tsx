@@ -47,7 +47,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorIcon, getKeyFromConnection, getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField } from '../../../Portals/utils';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorIcon, getKeyFromConnection, getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField, getConnectorComponent } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -117,11 +117,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     useEffect(() => {
 
-        if (isNewConnection && isOauthConnector){
+        if (isNewConnection && isOauthConnector) {
             setFormState(FormStates.OauthConnect);
             setIsLoading(false);
             return;
-        }else if (isAction) {
+        } else if (isAction) {
             setFormState(FormStates.OperationForm);
             setIsLoading(false);
             return;
@@ -129,7 +129,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (connectorConfig?.connectorInit?.length > 0) {
                 (async () => {
                     const allConnections = await getAllConnections(userInfo?.selectedOrgHandle) as ConnectionDetails[];
-                    const activeConnection = getOauthConnectionFromFormField(connectorConfig.connectorInit[ 0 ], allConnections);
+                    const activeConnection = getOauthConnectionFromFormField(connectorConfig.connectorInit[0], allConnections);
                     if (activeConnection) {
                         setConnection(activeConnection);
                         setIsManualConnection(false);
@@ -233,7 +233,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(addImport);
 
-                if (connectorConfigurables){
+                if (connectorConfigurables) {
                     const addConfigurableVars = createPropertyStatement(
                         connectorConfigurables,
                         { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
@@ -248,7 +248,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(addConnectorInit);
             } else {
-                if (connectorConfigurables){
+                if (connectorConfigurables) {
                     const addConfigurableVars = createPropertyStatement(
                         connectorConfigurables,
                         { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
@@ -431,20 +431,21 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        // connectorComponent = getConnectorComponent(
-        //     connectorInfo.module + connectorInfo.name, {
-        //     functionDefinitions: functionDefInfo,
-        //     connectorConfig: config,
-        //     onSave,
-        //     onClose,
-        //     connector: connectorInfo,
-        //     isNewConnectorInitWizard,
-        //     targetPosition,
-        //     model,
-        //     selectedConnector,
-        //     isAction
-        // });
-        // if (!connectorComponent) {
+        if (connectorInfo.module === "http") {
+            connectorComponent = getConnectorComponent(
+                connectorInfo.module + connectorInfo.name, {
+                functionDefinitions: functionDefInfo,
+                connectorConfig: config,
+                onSave,
+                onClose,
+                connector: connectorInfo,
+                isNewConnectorInitWizard,
+                targetPosition,
+                model,
+                selectedConnector,
+                isAction
+            });
+        } else {
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
@@ -455,7 +456,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         />
                         <div className={wizardClasses.titleWrapper}>
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
-                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection"/></Typography>
+                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection" /></Typography>
                         </div>
                     </div>
                     {(formState === FormStates.OauthConnect) && (
@@ -475,7 +476,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                         </div>
                                     </div>
                                 </div>
-                            ) }
+                            )}
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
@@ -498,7 +499,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 />
                             </div>
                         </div>
-                    ) }
+                    )}
                     {(formState === FormStates.OperationForm) && (
                         <OperationForm
                             functionDefInfo={functionDefInfo}
@@ -527,17 +528,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     )}
                 </div>
             )
-        // }
+        }
     }
 
     return (
         <>
             {isLoading && (<div className={wizardClasses.loaderWrapper}>
                 <TextPreloaderVertical position='relative' />
-            </div>) }
+            </div>)}
             {!isLoading && (<div className={wizardClasses.mainApiWrapper}>
                 {connectorComponent}
-            </div>) }
+            </div>)}
         </>
     );
 }
