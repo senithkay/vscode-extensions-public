@@ -12,18 +12,17 @@
  */
 import * as React from "react";
 
-export const HTTP_LOGO_WIDTH = 48;
-export const HTTP_LOGO_HEIGHT = 48;
+export const HTTP_LOGO_WIDTH = 22;
+export const HTTP_LOGO_HEIGHT = 22;
 
 export function HttpLogo(props: { cx?: number, cy?: number, scale?: number }) {
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (HTTP_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (HTTP_LOGO_HEIGHT / 2)} width={HTTP_LOGO_WIDTH} height={HTTP_LOGO_HEIGHT} >
-            <g id="HttpWrapper" transform="translate(-10 -10)">
-                <g id="HttpLogo" transform="translate(10 11)">
-                    <path id="httpIcon" d="M11,11H54.335m0,43.2H11" transform="translate(-8.667 -11)" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeWidth="2" />
-                    <path id="lines" d="M46.336,17.5v2.578H42.21V29.5h-3.07V20.078H35.025V17.5Zm7.032,0a4.516,4.516,0,0,1,3.341,1.33,4.12,4.12,0,0,1-.01,6,4.629,4.629,0,0,1-3.456,1.315h-3.07V29.5H47.14v-12Zm-19.145,0v2.578H30.1V29.5h-3.07V20.078H22.912V17.5Zm-21.154,0,0,4.8h6.017V17.5h3.07v12h-3.07V24.873H13.067l0,4.627H10v-12Zm40.21,2.585H50.154v3.523h3a1.845,1.845,0,0,0,1.346-.535,1.682,1.682,0,0,0,.523-1.229,1.729,1.729,0,0,0-.5-1.231,1.652,1.652,0,0,0-1.246-.528Z" transform="translate(-10 -1.732)" fill="#5567d5" />
-                </g>
+            <g id="HttpWrapper" transform="translate(1 1)">
+                <path id="Combined_Shape" d="M15.344,5H14.186V0h2.379l-.007,0A1.647,1.647,0,0,1,17.84.554a1.826,1.826,0,0,1,0,2.5,1.7,1.7,0,0,1-1.321.547H15.344V5h0Zm-.006-2.454h1.144l0,0a.664.664,0,0,0,.51-.22.736.736,0,0,0,.2-.512.758.758,0,0,0-.19-.513.607.607,0,0,0-.476-.22H15.337ZM12.3,5H11.13V1.074H9.558V0h4.32V1.074H12.3V5h0ZM6.5,5V1.074H4.931V0h4.32V1.074H7.676V5ZM3.47,5V3.072h-2.3V5H0V0H1.172V2h2.3V0H4.642V5Z" transform="translate(0.833 7.5)" fill="#5567d5" />
+                <path id="Path" d="M0,.5H18.333" transform="translate(0.833 0.542)" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3.175" />
+                <path id="Path-2" d="M18.333.5H0" transform="translate(0.833 18.458)" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3.175" />
             </g>
         </svg>
     )

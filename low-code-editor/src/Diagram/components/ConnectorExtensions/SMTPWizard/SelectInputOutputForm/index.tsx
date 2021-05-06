@@ -14,8 +14,9 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import {Box, FormControl, IconButton, Typography} from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
+import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
 import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
@@ -27,16 +28,16 @@ import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/Prima
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../Portals/ConfigForm/Elements/Tooltip";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
+import { FormattedMessage, useIntl } from "react-intl";
 import { tooltipMessages } from "../../../Portals/utils/constants";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
-    onBackClick?: () => void;
+    onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
 }
@@ -47,12 +48,13 @@ interface ReturnNameState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
     const { state: diagramState } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state] = useState(defaultActionName);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(undefined);
@@ -111,29 +113,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setExpandBcc(true);
     }
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
+    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
-        // let allFieldsValid = true;
-        // for (const formValue of connectorConfig.action.fields) {
-        //     for (const recordField of formValue.fields) {
-        //         const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-        //         // breaks the loop if one field is empty
-        //         if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-        //             allFieldsValid = !isFieldValueInValid;
-        //             break;
-        //         }
-        //     }
-        // }
-        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") : false;
-        const CcChecker = expandCc ? emptyFieldChecker.get("cc") : false;
+        const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;
+        const CcChecker = expandCc ? emptyFieldChecker.get("cc") || false : false;
         if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
             && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
             onValidate(true);
         } else {
             onValidate(false);
         }
-        // onValidate(allFieldsValid);
     }
 
     const getFormFieldComponent = (component: string): any => {
@@ -160,7 +150,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 <ExpressionEditor {...elementProps} />
             );
         } else if (field.name === "cc") {
-            return expandCc ? (
+            return (expandCc || (field.value)) ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
@@ -170,7 +160,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     />
                 );
         } else if (field.name === "bcc") {
-            return expandBcc ? (
+                return (expandBcc || (field.value)) ? (
                 <ExpressionEditor {...elementProps} />
             ) : (
                     <IconBtnWithText
@@ -239,35 +229,84 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         returnVariableName = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
 
+    const SMTPInputOutputTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.SMTP.SelectInputOutput.tooltip.title",
+                defaultMessage: "Enter a valid name for the response variable"
+            }),
+    }
+    };
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.selectInputOutputForm.backButton.text",
+        defaultMessage: "Back"
+    });
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                        <div>
+                            <p className={wizardClasses.subTitle}>Connection</p>
+                            <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                <Typography variant="subtitle2">
+                                    {connectorConfig.name}
+                                </Typography>
+                                <IconButton
+                                    color="primary"
+                                    classes={{
+                                        root: wizardClasses.changeConnectionBtn
+                                    }}
+                                    onClick={onConnectionChange}
+                                >
+                                    <EditIcon/>
+                                </IconButton>
+                            </Box>
+                        </div>
                         <Typography variant="h4" className={classes.titleWrapper}>
                             <Box className={classes.formTitle}>
-                                <div className={classes.formTitleTag} >Create an Email</div>
+                                <div className={classes.formTitleTag} >
+                                    <FormattedMessage
+                                        id="lowcode.develop.connector.SMTP.createEmail.title"
+                                        defaultMessage="Create an Email"
+                                    />
+                                </div>
                             </Box>
                         </Typography>
                         {selectedOperationParams}
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.responseVariableName,
+                                tooltipTitle: SMTPInputOutputTooltipMessages.responseVariableName.title,
                                 disabled: returnVariableName
                             }}
                             defaultValue={defaultResponseVariableName}
-                            placeholder={"Enter Response Variable Name"}
+                            placeholder={addResponseVariablePlaceholder}
                             onChange={onNameChange}
-                            label={"Response Variable Name"}
+                            label={addResponseVariableLabel}
                             errorMessage={responseVarError}
                         />
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
                     <PrimaryButton
-                        text="Save &amp; Done"
+                        text={saveConnectionButtonText}
                         fullWidth={false}
                         disabled={isSaveDisabled}
                         onClick={handleOnSave}

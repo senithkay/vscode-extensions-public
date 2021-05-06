@@ -68,7 +68,7 @@ export function StartSVG(props: {
                 <g transform="matrix(1, 0, 0, 1, 0, -1)" className="start-button-rect">
                     <rect id="StartRectangle" width="105" height="49" rx="24.5" transform="translate(10 7)" />
                 </g>
-                <text id="StartText" transform="translate(10 7)" x="55" y="27" >
+                <text id="StartText" transform="translate(10 7)" x="52" y="27" >
                     <tspan className="start-text">
                         {text}
                     </tspan>

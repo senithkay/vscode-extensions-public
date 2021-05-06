@@ -23,7 +23,7 @@
 
             .click-effect {
                 stroke-width: 1px !important;
-                stroke: #5566d5 !important;
+                stroke: #32324d !important;
             }
         }
     }
@@ -31,7 +31,7 @@
     &.connector-client {
         .connector-group {
             circle {
-                stroke: #5567d5;
+                stroke: #32324d;
                 stroke-miterlimit: 10;
                 stroke-width: 1;
                 fill: url(#ConnectorLinearGradient) #fafafc;
@@ -51,7 +51,7 @@
         :hover {
             circle {
                 cursor: pointer;
-                stroke: #5567d5;
+                stroke: #32324d;
                 stroke-miterlimit: 10;
                 stroke-width: 1;
                 fill: url(#ConnectorLinearGradient) #fafafc;
@@ -82,7 +82,7 @@
 
             .click-effect {
                 stroke-width: 1px !important;
-                stroke: #5566d5 !important;
+                stroke: #32324d !important;
             }
         }
     }
@@ -106,8 +106,8 @@
 
         .connector-rect {
             fill: #fafafc;
-            height: 50px;
-            width: 60px;
+            height: 26px;
+            width: 24px;
         }
 
         .connector-group-active {

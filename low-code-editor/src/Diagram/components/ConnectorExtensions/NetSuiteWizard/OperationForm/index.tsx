@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -52,6 +53,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo: symbolInfo } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -97,13 +99,28 @@ export function OperationForm(props: OperationFormProps) {
     const showCalenderSelector = (!isManualConnection && connectionInfo) ? true : false;
     formFields[0].hide = showCalenderSelector;
 
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.NetSuite.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.NetSuite.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.NetSuite.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={wizardClasses.subTitle}>Connection</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.NetSuite.operationForm.connectionName.title" defaultMessage="Connection"/></p>
                          <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {connectionDetails.name}
@@ -122,7 +139,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}>Operation</p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.NetSuite.operationForm.operation.title" defaultMessage="Operation"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}
@@ -159,9 +176,9 @@ export function OperationForm(props: OperationFormProps) {
                             validate: validateNameValue
                         }}
                         defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
+                        placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={"Response Variable Name"}
+                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
                 </div>
@@ -170,7 +187,7 @@ export function OperationForm(props: OperationFormProps) {
                 <PrimaryButton
                     dataTestId={"calender-save-btn"}
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}

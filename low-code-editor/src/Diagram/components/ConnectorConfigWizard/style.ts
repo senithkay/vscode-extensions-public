@@ -95,7 +95,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             width: 32,
             height: 28,
             "& svg": {
-                transform: "scale(0.5, 0.5)",
+                transform: "scale(1, 1)",
                 transformOrigin: "top left"
             }
         },
@@ -232,6 +232,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%"
+        },
+        saveBtnWrapper: {
+            display: "flex",
+            justifyContent: "flex-end",
+            height: "auto",
+            marginTop: "2.5rem",
         }
     }),
 );

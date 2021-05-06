@@ -20,7 +20,7 @@ export interface ModulePartProps {
     model: ModulePart
 }
 
-export function ModulePart(props: ModulePartProps) {
+export function ModulePartComponent(props: ModulePartProps) {
     const {model} = props;
 
     return (

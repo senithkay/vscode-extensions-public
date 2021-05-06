@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {TooltipCodeSnippet} from "../Portals/ConfigForm/Elements/Tooltip";
+import { TooltipCodeSnippet } from "../../../components/Tooltip";
 
-export const STOP_SVG_HEIGHT_WITH_SHADOW = 59;
-export const STOP_SVG_WIDTH_WITH_SHADOW = 83;
+export const STOP_SVG_HEIGHT_WITH_SHADOW = 50;
+export const STOP_SVG_WIDTH_WITH_SHADOW = 66;
 export const STOP_STROKE_HEIGHT = 1;
-export const STOP_SVG_HEIGHT = 41 + STOP_STROKE_HEIGHT;
-export const STOP_SVG_WIDTH = 65;
+export const STOP_SVG_HEIGHT = 31 + STOP_STROKE_HEIGHT;
+export const STOP_SVG_WIDTH = 48;
 export const STOP_SVG_SHADOW_OFFSET = STOP_SVG_HEIGHT_WITH_SHADOW - STOP_SVG_HEIGHT;
 
 export function StopSVG(props: { x: number, y: number, text: string, codeSnippet?: string, openInCodeView?: () => void }) {
@@ -27,7 +27,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
     return (
         <svg {...xyProps} height={STOP_SVG_HEIGHT_WITH_SHADOW} width={STOP_SVG_WIDTH_WITH_SHADOW} >
             <defs>
-                <filter id="StopFilter" x="0" y="0" width="83" height="59" filterUnits="userSpaceOnUse">
+                <filter id="StopFilter" x="0" y="0" width="66" height="50" filterUnits="userSpaceOnUse">
                     <feOffset dy="2" in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="3" result="blur" />
                     <feFlood floodColor="#a9acb6" floodOpacity="0.722" />
@@ -38,19 +38,14 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
             <TooltipCodeSnippet openInCodeView={openInCodeView} content={codeSnippet} placement="right" arrow={true}>
                 <g id="Stop" transform="translate(9 7)">
                     <g transform="matrix(1, 0, 0, 1, -9, -7)" filter="url(#StopFilter)">
-                        <rect id="StopRectangle" width="65" height="41" rx="20.5" transform="translate(9 7)" />
+                        <rect id="Rectangle_Copy_16-2" width="48" height="32" rx="16" transform="translate(9 7)" fill="#5567d5" />
                     </g>
                     <text
                         id="Stop_text"
-                        transform="translate(32.5 24)"
+                        transform="translate(24 19.5)"
                         className="end-text"
                     >
-                        <tspan
-                            x="0"
-                            y="0"
-                            textAnchor="middle"
-                            data-testid="end-text-block"
-                        >
+                        <tspan x="0" y="0" textAnchor="middle" data-testid="end-text-block"  >
                             {text}
                         </tspan>
                     </text>

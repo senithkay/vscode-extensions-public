@@ -12,8 +12,10 @@
  */
 import React, { ReactNode } from "react";
 
+import { validateFormFields } from "../../../../../../../../src/utils/validator";
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { useStyles } from "../../../../../ConfigPanel/styles";
+import FormAccordion from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
 
@@ -28,6 +30,7 @@ export function Form(props: FormProps) {
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
+    const optionalElements: ReactNode[] = [];
 
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
 
@@ -36,29 +39,9 @@ export function Form(props: FormProps) {
         let allFieldsValid = true;
 
         for (const formValue of fields) {
-            if (formValue.type === "record") {
-                for (const recordField of formValue.fields) {
-                    const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                    // breaks the loop if one field is empty
-                    if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                        allFieldsValid = !isFieldValueInValid;
-                        break;
-                    }
-                }
-            } else if (formValue.type === "union") {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
-            } else {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
+            allFieldsValid = validateFormFields(formValue, emptyFieldChecker);
+            if (!allFieldsValid) {
+                break;
             }
         }
         onValidate(allFieldsValid);
@@ -73,20 +56,23 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip,
-                    statementType: field.type
+                    tooltipTitle: field.tooltip
                 },
             };
             const element = getFormElement(elementProps, field.type);
             if (element) {
-                elements.push(element);
+                // elements.push(element);
+                field?.optional ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
 
     return (
         <form className={classes.inputUrl} noValidate={true} autoComplete="off">
-            {elements}
+            <FormAccordion
+                mandatoryFields={elements}
+                optionalFields={optionalElements}
+            />
         </form>
     );
 }

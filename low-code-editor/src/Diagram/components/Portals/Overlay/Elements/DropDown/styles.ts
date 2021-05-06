@@ -46,6 +46,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: 24,
             marginRight: 24,
             marginBottom: 11,
+            marginTop: theme.spacing(2),
             display: "flex",
             justifyContent: "space-between"
         },

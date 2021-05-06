@@ -63,7 +63,7 @@ export function End(props: EndProps) {
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [endConfigFormOverlayState, setEndConfigFormOverlayState] = useState(undefined);
 
-    const compType = "END";
+    const compType = "end";
     let cx: number;
     let cy: number;
     if (viewState) {
@@ -75,13 +75,13 @@ export function End(props: EndProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
-        cy: cy + (STOP_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) + DELETE_SVG_OFFSET,
+        cy: cy + (STOP_SVG_HEIGHT / 4)
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: cy + (STOP_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2),
+        cy: cy + (STOP_SVG_HEIGHT / 4)
     };
 
     const onDraftDelete = () => {
