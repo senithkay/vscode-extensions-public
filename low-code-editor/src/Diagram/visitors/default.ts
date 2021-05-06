@@ -92,7 +92,8 @@ export class DiagramConfig {
     };
 
     public connectorLine = {
-        height: 109
+        height: 70,
+        gap: 10,
     };
 
     public actionExecution = {
