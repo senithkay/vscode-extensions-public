@@ -113,7 +113,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setExpandBcc(true);
     }
 
-    const [emptyFieldChecker] = useState(new Map<string, boolean>());
+    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
         const BccChecker = expandBcc ? emptyFieldChecker.get("bcc") || false : false;

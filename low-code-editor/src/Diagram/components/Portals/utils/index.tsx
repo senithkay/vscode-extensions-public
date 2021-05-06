@@ -891,11 +891,14 @@ export function getOauthParamsFromFormFields(connectorName: string, formFields: 
     }
 }
 
-export function getOauthConnectionImports(connectorName: string, connectionDetail: ConnectionDetails): any {
+export function getOauthConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>): any {
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            return `configurable string ${githubAccessToken} = ?;`;
+            if (!configurables?.get(githubAccessToken)){
+                return `configurable string ${githubAccessToken} = ?;`;
+            }
+            break;
         }
         case "google sheets":
         case "google calendar":
@@ -904,12 +907,59 @@ export function getOauthConnectionImports(connectorName: string, connectionDetai
             const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             const refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            return (`configurable string ${clientId} = ?;
-            configurable string ${clientSecret} = ?;
-            configurable string ${refreshUrl} = ?;
-            configurable string ${refreshToken} = ?;`);
+            let statement = '';
+
+            if (!configurables?.get(clientId)){
+                statement += `configurable string ${clientId} = ?;\n`;
+            }
+            if (!configurables?.get(clientSecret)){
+                statement += `configurable string ${clientSecret} = ?;\n`;
+            }
+            if (!configurables?.get(refreshUrl)){
+                statement += `configurable string ${refreshUrl} = ?;\n`;
+            }
+            if (!configurables?.get(refreshToken)){
+                statement += `configurable string ${refreshToken} = ?;\n`;
+            }
+
+            return statement !== '' ? statement : null;
         }
     }
+    return null;
+}
+
+export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
+    const connectorModuleName = formField?.typeInfo.modName;
+    let variableKey: string;
+    let activeConnection: ConnectionDetails;
+
+    switch (connectorModuleName) {
+        case "github": {
+            variableKey = formField.fields?.find(field => field.name === "accessToken")?.value;
+            }
+                       break;
+        case "googleapis_gmail":
+        case "googleapis_sheets": {
+            variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
+                fields?.find(field => field.name === "clientId")?.value;
+            }
+                                  break;
+        case "googleapis_calendar": {
+            variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
+                fields?.find(field => field.name === "clientId")?.value;
+            break;
+        }
+        default:
+            return null;
+    }
+
+    allConnections.forEach(connection => {
+        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)){
+            activeConnection = connection;
+        }
+    });
+
+    return activeConnection;
 }
 
 export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {

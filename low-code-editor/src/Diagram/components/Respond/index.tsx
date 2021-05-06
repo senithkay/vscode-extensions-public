@@ -93,24 +93,6 @@ export function Respond(props: RespondProps) {
         cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
-
-    //     <g className={isReferencedVariable ? "disable" : ""}>
-    //     <DeleteBtn
-    //         model={model}
-    //         cx={viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + PROCESS_SVG_WIDTH / 4}
-    //         cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)}
-    //         toolTipTitle={toolTip}
-    //         isButtonDisabled={isReferencedVariable}
-    //         onDraftDelete={onDraftDelete}
-    //     />
-    // </g>
-    // <EditBtn
-    //     model={model}
-    //     cx={viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
-    //     cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 4)}
-    //     onHandleEdit={onProcessClick}
-    // />
-
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
         setCodeToHighlight(model.position)
