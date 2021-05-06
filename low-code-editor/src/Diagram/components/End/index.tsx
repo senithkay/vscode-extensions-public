@@ -75,13 +75,13 @@ export function End(props: EndProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) + DELETE_SVG_OFFSET,
-        cy: cy + (STOP_SVG_HEIGHT / 4)
+        cx: cx - ((DELETE_SVG_WIDTH_WITH_SHADOW / 2) + (DELETE_SVG_OFFSET / 2) - (DefaultConfig.dotGap / 1.6)),
+        cy: cy + ((STOP_SVG_HEIGHT / 3) - (DefaultConfig.dotGap / 1.6))
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2),
-        cy: cy + (STOP_SVG_HEIGHT / 4)
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap * 2.2,
+        cy: cy + ((STOP_SVG_HEIGHT / 3) - (DefaultConfig.dotGap / 1.6))
     };
 
     const onDraftDelete = () => {
