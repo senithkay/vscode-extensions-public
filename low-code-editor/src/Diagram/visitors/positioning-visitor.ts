@@ -370,7 +370,7 @@ class PositioningVisitor implements Visitor {
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
-                    || (!statementViewState.collapsed && !statementViewState.isCallerAction)) {
+                    || (!statementViewState.collapsed)) {
                     height += statementViewState.bBox.h;
                 }
             }
