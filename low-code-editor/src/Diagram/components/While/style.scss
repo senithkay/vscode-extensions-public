@@ -24,7 +24,7 @@
             rect {
                 stroke: #5567d5;
                 stroke-miterlimit: 10;
-                stroke-width: 1;
+                stroke-width: 0.5;
                 fill: url(#WhileLinearGradient) #fafafc;
                 filter: url(#WhileFilterDefault) #fafafc;
             }
@@ -34,7 +34,7 @@
                     cursor: pointer;
                     stroke: #5259d2;
                     stroke-miterlimit: 10;
-                    stroke-width: 1;
+                    stroke-width: 0.5;
                     fill: url(#WhileLinearGradient) #fafafc;
                     filter: url(#WhileFilterHover) #fafafc;
                 }
@@ -98,8 +98,8 @@
 
                 .while-text-hover-rect {
                     fill: #fafafc;
-                    height: 30px;
-                    width: 55px;
+                    height: 21px;
+                    width: 25px;
                 }
             }
         }
@@ -120,5 +120,10 @@
                 user-select: none;
             }
         }
+    }
+
+    .condition-assignment {
+        fill: #5567d5;
+        font-family: "Gilmer", sans-serif;
     }
 }

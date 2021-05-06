@@ -23,7 +23,7 @@
         rect {
             stroke: #5567d5;
             stroke-miterlimit: 10;
-            stroke-width: 1;
+            stroke-width: 0.5;
             fill: url(#ForeachLinearGradient) #fafafc;
             filter: url(#ForeachFilterDefault) #fafafc;
         }
@@ -33,7 +33,7 @@
                 cursor: pointer;
                 stroke: #5259d2;
                 stroke-miterlimit: 10;
-                stroke-width: 1;
+                stroke-width: 0.5;
                 fill: url(#ForeachLinearGradient) #fafafc;
                 filter: url(#ForeachFilterHover) #fafafc;
             }
@@ -97,8 +97,8 @@
 
             .forech-rect {
                 fill: #fafafc;
-                height: 30px;
-                width: 55px;
+                height: 21px;
+                width: 25px;
             }
         }
     }
@@ -118,5 +118,10 @@
             text-anchor: middle;
             user-select: none;
         }
+    }
+
+    .condition-assignment {
+        fill: #5567d5;
+        font-family: "Gilmer", sans-serif;
     }
 }
