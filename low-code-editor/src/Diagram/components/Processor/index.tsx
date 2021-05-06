@@ -83,8 +83,8 @@ export function DataProcessor(props: ProcessorProps) {
                 processName = processType;
                 isLogStmt = true;
             } else {
-                processName = "Call";
-                processType = "Custom";
+                processType = "Call";
+                processName = processType;
             }
             // todo : uncomment
             // const expressionStmt = ASTUtil.genSource(model).replace(";", "");
@@ -236,7 +236,7 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" >
                     <React.Fragment>
-                        {processType !== "Log" && !isDraftStatement &&
+                        {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <VariableName
                                 processType={processType}
                                 variableName={processName}
@@ -310,7 +310,6 @@ export function DataProcessor(props: ProcessorProps) {
                             </g>
                         }
                     </React.Fragment>
-
                 </g>
             </g>
         )
