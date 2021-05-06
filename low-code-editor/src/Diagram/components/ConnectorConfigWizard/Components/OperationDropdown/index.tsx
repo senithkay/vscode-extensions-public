@@ -28,11 +28,10 @@ export interface OperationDropdownProps {
     showConnectionName: boolean;
     connectionDetails: ConnectorConfig;
     onOperationSelect: (operation: string) => void;
-    onConnectionChange: () => void;
 }
 
 export function OperationDropdown(props: OperationDropdownProps) {
-    const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
+    const { operations, showConnectionName, onOperationSelect, connectionDetails } = props;
     const classes = wizardStyles();
     const intl = useIntl();
 
@@ -49,35 +48,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName && (
-                        <>
-                            <div className={classes.connectionNameWrapper}>
-                                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.connectionName.title" defaultMessage="Connection"/></p>
-                                <div>
-                                    <TooltipIcon
-                                        title="Name of the connection"
-                                        placement={"left"}
-                                        arrow={true}
-                                    />
-                                </div>
-                            </div>
-                            <Box border={1} borderRadius={5} className={classes.box}>
-                                <Typography variant="subtitle2">
-                                    {connectionDetails.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={{
-                                        root: classes.changeConnectionBtn
-                                    }}
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                    )}
-                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.operationDropdown.title" defaultMessage="Operation :"/></p>
+                    <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
                         itemList={operations}

@@ -37,23 +37,31 @@ export function EditSVG(props: { x: number, y: number }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Edit-Button" className="edit-circle edit-click" transform="translate(4.5 3.5)">
-                <g transform="matrix(1, 0, 0, 1, -4.5, -3.5)">
+            <g id="Edit-Button" className="edit-circle edit-click" transform="translate(3.5 3.5)">
+                <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
                     <g id="EditGroup" transform="translate(4.5 3.5)" >
-                        <rect width="25" height="25" rx="12.5" stroke="none" />
-                        <rect x="0.5" y="0.5" width="24" height="24" rx="12" fill="none" />
+                        <rect width="18" height="18" rx="12.5" stroke="none" />
+                        <rect x="0.5" y="0.5" width="17" height="17" rx="12" fill="none" />
                     </g>
                 </g>
-                <g id="EditIcon" >
-                    <path
-                        id="Icon-Path"
-                        className="edit-icon"
-                        d="M.2,12a.2.2,0,0,1-.2-.2v-1.54A1.176,1.176,0,0,1,.281,9.5L2.5,11.719A1.179,1.179,0,0,1,
-                        1.736,12ZM3.034,10.93l0,0-.242.234ZM.833,8.8,9.455.331a1.194,1.194,0,0,1,1.651,
-                        0l.551.534a1.106,1.106,0,0,1,0,1.6L3.034,10.93Z"
-                        transform="translate(7 7)"
-                    />
-                </g>
+                <path
+                    id="Icon-Path"
+                    className="edit-icon"
+                    d="M5.5,10.916a.5.5,0,0,1,0-1h6a.5.5,0,0,1,0,1Zm-5.5,0V8.209L7.649.56a1.913,1.913,0,0,1,
+                   2.56-.131l.145.131.118.13a1.907,1.907,0,0,1-.118,2.58L2.707,10.916ZM8.357,1.267,1,
+                   8.622V9.916H2.292L9.646,2.563a.92.92,0,0,0,.083-1.2l-.078-.089L9.57,1.2l-.1-.067a.911.911,
+                   0,0,0-1.118.135Z"
+                    fill="#36b475"
+                />
+                {/* <path
+                    id="edit"
+                    className="edit-icon-hover"
+                    d="M5.5,12a.5.5,0,0,1,0-1h6a.5.5,0,0,1,0,1ZM0,11V8.291L7.708.56a1.913,1.913,0,0,1,
+                  2.56-.131l.145.131.118.13a1.916,1.916,0,0,1-.118,2.58L2.707,11Z"
+                    transform="translate(0 0)"
+                    fill="#36b475"
+                /> */}
+
             </g>
         </svg>
     )

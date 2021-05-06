@@ -316,7 +316,10 @@ class InitVisitor implements Visitor {
             if (node.typeData && node.typeData.isEndpoint) {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
+                const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
+                const vEp = endpoint.visibleEndpoint;
                 stmtViewState.isEndpoint = true;
+                stmtViewState.endpoint.iconId = vEp.moduleName + "_" + vEp.typeName;
             }
 
             // todo: need to fix these with invocation data

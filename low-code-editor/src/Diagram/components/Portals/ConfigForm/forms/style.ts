@@ -116,6 +116,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             marginTop: "2.5rem",
         },
+        wizardCreateBtnHolder: {
+            display: "flex",
+            justifyContent: "space-between",
+            height: "auto",
+            marginTop: "2.5rem",
+        },
+        saveBtnHolder: {
+            display: "flex",
+        },
         formCreate: {
             width: 191.2,
             height: 191.2,
@@ -164,11 +173,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         formTitleTag: {
-            justifyContent: 'space-between',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            padding: '0 0.5rem',
+            padding: '0',
             width: 164
         },
         inputHelpTips: {

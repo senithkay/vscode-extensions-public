@@ -40,6 +40,10 @@
                         user-select: none;
                     }
                 }
+
+                .process-icon {
+                    fill: #5566d5;
+                }
             }
         }
     }
@@ -68,6 +72,10 @@
                         text-align: center;
                         user-select: none;
                     }
+                }
+
+                .process-icon {
+                    fill: #5566d5;
                 }
             }
 
@@ -113,7 +121,7 @@
         .process-rect {
             fill: #fafafc;
             height: 15px;
-            width: 72px;
+            width: 25px;
         }
     }
 
@@ -150,7 +158,29 @@
                         user-select: none;
                     }
                 }
+
+                .process-icon {
+                    fill: #5566d5;
+                }
             }
         }
+    }
+
+    /* stylelint-disable */
+    .assignment-text {
+        fill: #ff9d52;
+        font-family: "Droid Sans Mono";
+    }
+
+    /* stylelint-enable */
+    .process-icon-text {
+        height: 12px;
+        width: 24px;
+        fill: #5567d5;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 0;
+        line-height: 12px;
+        font-weight: 100;
     }
 }
