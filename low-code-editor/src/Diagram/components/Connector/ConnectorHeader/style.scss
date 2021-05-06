@@ -48,43 +48,43 @@
             }
         }
 
-        :hover {
-            circle {
-                cursor: pointer;
-                stroke: #32324d;
-                stroke-miterlimit: 10;
-                stroke-width: 1;
-                fill: url(#ConnectorLinearGradient) #fafafc;
-                filter: url(#ConnectorFilterHover) #fafafc;
-            }
+        // :hover {
+        //     circle {
+        //         cursor: pointer;
+        //         stroke: #32324d;
+        //         stroke-miterlimit: 10;
+        //         stroke-width: 1;
+        //         fill: url(#ConnectorLinearGradient) #fafafc;
+        //         filter: url(#ConnectorFilterHover) #fafafc;
+        //     }
 
-            &:hover #DefaultIcon {
-                stroke-width: 0;
-                filter: none;
-                fill: #e6e7ec;
-            }
-        }
+        //     &:hover #DefaultIcon {
+        //         stroke-width: 0;
+        //         filter: none;
+        //         fill: #e6e7ec;
+        //     }
+        // }
 
-        :active {
-            circle {
-                cursor: pointer;
-                stroke: #c0ceff8a;
-                stroke-miterlimit: 10;
-                stroke-width: 9px;
-                fill: url(#ConnectorLinearGradient) #fafafc;
-            }
+        // :active {
+        //     circle {
+        //         cursor: pointer;
+        //         stroke: #c0ceff8a;
+        //         stroke-miterlimit: 10;
+        //         stroke-width: 9px;
+        //         fill: url(#ConnectorLinearGradient) #fafafc;
+        //     }
 
-            &:active #DefaultIcon {
-                stroke-width: 0;
-                filter: none;
-                fill: #e6e7ec;
-            }
+        //     &:active #DefaultIcon {
+        //         stroke-width: 0;
+        //         filter: none;
+        //         fill: #e6e7ec;
+        //     }
 
-            .click-effect {
-                stroke-width: 1px !important;
-                stroke: #32324d !important;
-            }
-        }
+        //     .click-effect {
+        //         stroke-width: 1px !important;
+        //         stroke: #32324d !important;
+        //     }
+        // }
     }
 
     .connector-options-wrapper {
@@ -98,31 +98,31 @@
         }
     }
 
-    &:hover {
-        .connector-options-wrapper {
-            fill: #fff !important;
-            display: inline !important;
-        }
+    // &:hover {
+    //     .connector-options-wrapper {
+    //         fill: #fff !important;
+    //         display: inline !important;
+    //     }
 
-        .connector-rect {
-            fill: #fafafc;
-            height: 26px;
-            width: 24px;
-        }
+    //     .connector-rect {
+    //         fill: #fafafc;
+    //         height: 26px;
+    //         width: 24px;
+    //     }
 
-        .connector-group-active {
-            circle {
-                cursor: pointer;
-                stroke: #c0ceff8a;
-                stroke-miterlimit: 10;
-                stroke-width: 9px;
-                fill: url(#ConnectorLinearGradient) #fafafc;
-            }
+    //     .connector-group-active {
+    //         circle {
+    //             cursor: pointer;
+    //             stroke: #c0ceff8a;
+    //             stroke-miterlimit: 10;
+    //             stroke-width: 9px;
+    //             fill: url(#ConnectorLinearGradient) #fafafc;
+    //         }
 
-            .click-effect {
-                stroke-width: 1px !important;
-                stroke: #5566d5 !important;
-            }
-        }
-    }
+    //         .click-effect {
+    //             stroke-width: 1px !important;
+    //             stroke: #5566d5 !important;
+    //         }
+    //     }
+    // }
 }

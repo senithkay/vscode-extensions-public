@@ -33,7 +33,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         activeAccordionRoot: {
             margin: '0 !important',
             padding: 0,
-            border: "2px solid #DEE0E7",
+            // border: "2px solid #DEE0E7",
             boxShadow: 'none',
             borderRight: 0,
             borderTop: 0,
@@ -99,7 +99,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
         },
         accordionDetails: {
-            padding: '0 0 0 16px',
+            padding: '0',
             root: {
                 display: 'flex',
             },
