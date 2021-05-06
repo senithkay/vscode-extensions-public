@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 
@@ -79,7 +80,7 @@ export function FormFieldRadioControl(props: FormElementProps<FormFieldRadioProp
                 (
                     <div className={formClasses.labelWrapper}>
                         <FormHelperText className={formClasses.inputLabelForRequired}>{modelName}</FormHelperText>
-                        <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.formFieldRadioControl.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={formClasses.labelWrapper}>

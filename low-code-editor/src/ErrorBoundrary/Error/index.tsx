@@ -1,4 +1,5 @@
 import * as React from "react";
+import { FormattedMessage } from "react-intl";
 
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -23,12 +24,12 @@ export default function Default() {
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="h1" className={classes.errorTitle} component="div">
-                        Oops! this is embarrassing
+                    <FormattedMessage id="lowcode.develop.errorBoundary.errorMessage.text" defaultMessage="Oops! This is embarrassing."/>
                     </Typography>
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle1" component="div" className={classes.errorMsg}>
-                        Something went terribly wrong. Will you please refresh and try again
+                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong. Can you please refresh and try again"/>
                     </Typography>
                 </Grid>
             </Grid>

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -33,6 +34,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
 }
@@ -44,11 +46,12 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSave, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: '',
@@ -121,11 +124,38 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = connectorInitFields;
+        onSaveNext();
+    };
+
     const filteredFormFields = () => {
         return connectorInitFields.find(config => config.name === "spreadsheetConfig").fields
             .find(field => field.name === "oauthClientConfig").fields
             .filter(field => field.name === "refreshUrl" || field.name === "refreshToken" || field.name === "clientSecret" || field.name === "clientId");
-    }
+    };
+
+    const connectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.createConnection.name.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GSheet.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
 
     return (
         <div>
@@ -139,20 +169,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={"Connection Name"}
+                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
                         dataTestId={"sheet-save-next-btn"}
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(nameState.isNameProvided && nameState.isValidName && isValidForm)}
                         fullWidth={false}
                         onClick={handleOnSave}

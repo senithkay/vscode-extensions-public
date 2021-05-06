@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import {
     FunctionBodyBlock,
@@ -66,6 +67,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
@@ -219,11 +221,19 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             setTriggerChanged(true);
         }
     };
+    const chooseCalendarPlaceholder = intl.formatMessage({
+            id: "lowcode.develop.GCalendarConfigWizard.chooseCalendar.placeholder",
+            defaultMessage: "Choose calendar"
+        });
 
+    const saveConfigButton = intl.formatMessage({
+            id: "lowcode.develop.GCalendarConfigWizard.saveConfigButton.text",
+            defaultMessage: "Save"
+        });
     return (
         <>
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}>Google Connection</p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     currentConnection={activeConnection}
@@ -236,16 +246,16 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     <div className={classes.loader}>
                         <CirclePreloader position="relative" />
                         <Typography variant="subtitle2" className={classes.loaderTitle}>
-                            Fetching Calendars&nbsp;...
+                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..."/>
                         </Typography>
                     </div>
 
                 )}
                 {activeConnection && !isCalenderFetching && gcalenderList && (
                     <>
-                        <p className={classes.subTitle}>Google Calendar</p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar"/></p>
                         <FormAutocomplete
-                            placeholder="Choose Calendar"
+                            placeholder={chooseCalendarPlaceholder}
                             itemList={gcalenderList}
                             value={getActiveGcalendar()}
                             getItemLabel={handleItemLabel}
@@ -259,7 +269,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
-                            text="Save"
+                            text={saveConfigButton}
                             onClick={handleUserConfirm}
                             disabled={isFileSaving}
                         />

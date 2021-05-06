@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -57,6 +58,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo: symbolInfo, currentApp, getGsheetList } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -125,13 +127,33 @@ export function OperationForm(props: OperationFormProps) {
         isSaveButtonDisabled = false;
     }
 
+    const chooseGSheetPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GSheet.operationForm.chooseCalendar.placeholder",
+        defaultMessage: "Choose a spreadsheet"
+    });
+
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GSheet.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.GSheet.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.GSheet.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={wizardClasses.subTitle}>Connection</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GSheet.operationForm.title" defaultMessage="Connection"/></p>
                          <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {connectionDetails.name}
@@ -150,7 +172,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}>Operation</p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GSheet.operationForm.operation.title" defaultMessage="Operation"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}
@@ -170,14 +192,14 @@ export function OperationForm(props: OperationFormProps) {
                         {formFields.length > 0 ? (
                             <div>
                                 {showSheetSelector && (
-                                    <p className={wizardClasses.subTitle}>Select Sheet</p>
+                                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GSheet.operationForm.showCalendar.title" defaultMessage="Select Sheet"/></p>
                                 )}
                                 {showSheetSelector && isGSpreadsheetFetching && (
                                     <CirclePreloader position="relative" />
                                 )}
                                 {showSheetSelector && !isGSpreadsheetFetching && gSpreadsheetList && (
                                     <FormAutocomplete
-                                        placeholder="Choose Sheet"
+                                        placeholder={chooseGSheetPlaceholder}
                                         itemList={gSpreadsheetList}
                                         value={activeGsheet}
                                         getItemLabel={handleItemLabel}
@@ -195,9 +217,9 @@ export function OperationForm(props: OperationFormProps) {
                             validate: validateNameValue
                         }}
                         defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
+                        placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={"Response Variable Name"}
+                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
                 </div>
@@ -206,7 +228,7 @@ export function OperationForm(props: OperationFormProps) {
                 <PrimaryButton
                     dataTestId={"sheet-save-btn"}
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}

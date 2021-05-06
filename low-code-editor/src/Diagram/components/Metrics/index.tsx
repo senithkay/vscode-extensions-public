@@ -8,6 +8,7 @@ import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "
 import { DoubleArrowHeadLine } from "./DoubleArrowHeadLine";
 import { ResponseTimer } from "./ResponseTImer";
 import { COUNTERLEFT_SVG_HEIGHT } from "./ResponseTImer/CounterLeftSVG";
+import { StatusCode } from "./StatusCode";
 import "./style.scss";
 import { SuccesFailure } from "./SuccessFailureRate";
 import { SUCCESS_LABEL_SVG_WIDTH } from "./SuccessFailureRate/SuccessSVG";
@@ -43,10 +44,11 @@ export function Metrics(props: MetricsProps) {
 
     const getElement = () => {
         if (trace?.duration){
-            const { duration } = trace;
+            const { duration, httpStatusCode, errorStatus } = trace;
             return (
                 <g className={"metrics"}>
                     <DoubleArrowHeadLine className={"arrow-line"} direction={"vertical"} {...doubleArrlowLine} />
+                    <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} {...successText} />
                     <ResponseTimer responseTime={duration} {...responseTime} />
                 </g>
             );

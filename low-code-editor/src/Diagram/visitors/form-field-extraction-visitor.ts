@@ -392,7 +392,7 @@ class FieldVisitor implements Visitor {
         if (!(functionQualifierList.indexOf('PrivateKeyword') > -1)) {
             const parameterDescriptions: Map<string, string> = new Map<string, string>();
 
-            if (node.metadata) {
+            if (node.metadata?.documentationString) {
                 node.metadata.documentationString.documentationLines
                     .filter(docLine => docLine.kind === 'MarkdownParameterDocumentationLine')
                     .forEach((paramDesc: MarkdownParameterDocumentationLine) => {

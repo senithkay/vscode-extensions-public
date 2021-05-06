@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useState } from "react";
 
-import { BlockStatement, FunctionBodyBlock, STNode } from "@ballerina/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
@@ -170,7 +170,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorsInfo = undefined) => {
+                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,
@@ -181,7 +181,9 @@ export const PlusButton = (props: PlusProps) => {
         viewState.collapsedPlusDuoExpanded = false;
         viewState.draftAdded = type;
         viewState.draftSubType = subType;
+        viewState.draftSelectedConnector = selectedConnector;
         viewState.draftConnector = connectorType;
+        viewState.draftForExistingConnector = isExisting;
         diagramRedraw(syntaxTree);
     };
 
@@ -213,23 +215,14 @@ export const PlusButton = (props: PlusProps) => {
                 className={classes}
                 x={x}
             >
-                <g onClick={smallPlusClick}>
+                <g>
                     <SmallPlusSVG
                         x={x - (SMALLPLUS_SVG_WIDTH_WITH_SHADOW / 2)}
                         y={y - (SMALLPLUS_SVG_HEIGHT_WITH_SHADOW / 2)}
+                        handlePlusClick={handlePlusClick}
                     />
                 </g>
             </g>
-        ) : null;
-    const plusCollapse = states.isCollapsePlusDuoShown
-        ? (
-            <PlusAndCollapseSVG
-                x={x}
-                y={y}
-                handlePlusClick={handlePlusClick}
-                handleCollapseClick={handleCollapseClick}
-                collapseDisabled={viewState.isLast}
-            />
         ) : null;
 
     return (
@@ -245,7 +238,6 @@ export const PlusButton = (props: PlusProps) => {
                     >
                         <g>
                             {smallPlus}
-                            {plusCollapse}
                         </g>
 
                     </ClickAwayListener>

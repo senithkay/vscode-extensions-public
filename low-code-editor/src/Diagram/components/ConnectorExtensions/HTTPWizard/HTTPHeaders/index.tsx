@@ -14,6 +14,7 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: no-unused-expression
 import React, { ReactNode, SyntheticEvent, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormHelperText, TextField } from "@material-ui/core";
 import { AddRounded, CloseRounded } from "@material-ui/icons";
@@ -41,6 +42,7 @@ export function HTTPHeaders(props: HeaderConfig) {
     const { headerObject } = props;
     const classes = useStyles();
     const headerClasses = headerStyles();
+    const intl = useIntl();
 
     const [headerLength, setHeaderLength] = useState(headerObject.length);
     const [isHeaderChecked, setHeaderChecked] = useState(headerObject.length > 0);
@@ -185,11 +187,26 @@ export function HTTPHeaders(props: HeaderConfig) {
 
     const preventDiagramScrolling = (e: SyntheticEvent) => {
         e.stopPropagation();
-    }
+    };
+
+    const headerNameExamplePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.headers.name.example.placeholder",
+        defaultMessage: "eg: Content-Type"
+    });
+
+    const headerValueExamplePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.headers.value.example.placeholder",
+        defaultMessage: "eg: application/json"
+    });
+
+    const addHeaderText = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.headers.addHeader.text",
+        defaultMessage: "Add Header"
+    });
 
     const headerComponent = (
         <div className={classNames(classes.groupedForm, classes.marginTB)}>
-            <FormHelperText className={classes.inputLabelForRequired}>Header Name</FormHelperText>
+            <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.headers.name" defaultMessage="Header Name"/></FormHelperText>
             <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
             <div
                 onWheel={preventDiagramScrolling}
@@ -210,14 +227,14 @@ export function HTTPHeaders(props: HeaderConfig) {
                             {...params}
                             className={headerClasses.outline}
                             defaultValue={objectKey}
-                            placeholder="eg: Content-Type"
+                            placeholder={headerNameExamplePlaceholder}
                             onChange={handleKeyOnChange}
                         />
                     )}
                 />
             </div>
 
-            <FormHelperText className={classes.inputLabelForRequired}>Header Value</FormHelperText>
+            <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.headers.value" defaultMessage="Header Value"/></FormHelperText>
             <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
             <div
                 onWheel={preventDiagramScrolling}
@@ -238,7 +255,7 @@ export function HTTPHeaders(props: HeaderConfig) {
                             {...params}
                             className={headerClasses.outline}
                             defaultValue={objectValue}
-                            placeholder="eg: application/json"
+                            placeholder={headerValueExamplePlaceholder}
                             onChange={handleValueOnChange}
                         />
                     )}
@@ -247,7 +264,7 @@ export function HTTPHeaders(props: HeaderConfig) {
             <div className={classes.addWrapperBtn} data-testid="add-btn">
                 <IconBtnWithText
                     onClick={addValue}
-                    text="Add Header"
+                    text={addHeaderText}
                     icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     disabled={isInvalid}
                 />

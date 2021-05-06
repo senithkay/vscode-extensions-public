@@ -92,6 +92,7 @@ export class ResponsePayloadMap {
     payloadTypes: Map<string, string> = new Map();
     isPayloadSelected: boolean = false;
     selectedPayloadType?: string;
+    payloadVariableName?: string;
 }
 
 

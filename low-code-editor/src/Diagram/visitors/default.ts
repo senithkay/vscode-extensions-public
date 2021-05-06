@@ -22,7 +22,7 @@ export class DiagramConfig {
 
     public epGap: number = 120;
 
-    public horizontalGapBetweenComponents: number = 40;
+    public horizontalGapBetweenComponents: number = 25;
 
     public actionArrowPadding: number = 5;
 
@@ -105,7 +105,7 @@ export class DiagramConfig {
     };
 
     public if = {
-        width: 100,
+        width: 96,
         height: 100,
         scale: 50
     };
@@ -147,7 +147,7 @@ export class DiagramConfig {
     public forEach = {
         radius: 7,
         paddingUnfold: 8,
-        emptyHorizontalGap: 80,
+        emptyHorizontalGap: 48,
         offSet: 13,
     };
 
