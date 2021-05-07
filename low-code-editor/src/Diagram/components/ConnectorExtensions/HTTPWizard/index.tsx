@@ -615,7 +615,6 @@ export function HTTPWizard(props: WizardProps) {
                     <SelectInputOutputForm
                         functionDefinitions={functionDefinitions}
                         onSave={handleActionOnSave}
-                        headerObject={headerObject}
                         onConnectionChange={handleConnectionChange}
                         connectorConfig={connectorConfig}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}

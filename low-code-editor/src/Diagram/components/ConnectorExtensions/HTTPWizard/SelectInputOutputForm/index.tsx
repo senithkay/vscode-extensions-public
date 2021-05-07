@@ -41,7 +41,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 
@@ -51,7 +50,6 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
-    headerObject?: HeaderObjectConfig[];
     model?: STNode,
 }
 
@@ -70,8 +68,7 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard,
-            headerObject, model } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
     const { state: diagramState } = useContext(DiagramContext);
     const { isMutationProgress } = diagramState;
@@ -566,7 +563,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         {payloadComponent}
                                     </div>
                                 )}
-                                <HTTPHeaders headerObject={headerObject} />
                             </div>
                         </div>
                         <div className={classes.wizardBtnHolder}>
