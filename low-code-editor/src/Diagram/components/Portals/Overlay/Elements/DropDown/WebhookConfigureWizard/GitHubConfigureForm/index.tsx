@@ -12,23 +12,26 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import {
+    ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
+    ServiceDeclaration, STKindChecker, STNode
+} from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { GithubConnectionInfo, GithubRepo } from "../../../../../../../../Definitions";
+import { GithubRepo, STModification } from "../../../../../../../../Definitions";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
-import { DefaultConfig } from "../../../../../../../visitors/default";
+import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
-import { TooltipIcon } from "../../../../../ConfigForm/Elements/Tooltip";
-import { tooltipMessages } from "../../../../../utils/constants";
-import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
+import { getKeyFromConnection } from "../../../../../utils";
 import { useStyles } from "../../styles";
 
 interface GitHubConfigureFormProps {
@@ -52,13 +55,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
-        getGithubRepoList
+        getGithubRepoList,
+        stSymbolInfo,
+        originalSyntaxTree,
+        onMutate: dispatchMutations
     } = state;
-    const model: FunctionDefinition = syntaxTree as FunctionDefinition;
-    const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
-    const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-    const { position, onComplete, currentEvent, currentAction, currentConnection } = props;
+    const { onComplete, currentEvent, currentAction, currentConnection } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     const [activeEvent, setActiveEvent] = useState<string>(currentEvent);
     const [activeAction, setActiveAction] = useState<string>(currentAction);
@@ -278,11 +282,11 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     function handleEventOnChange(event: object, value: any, reason: string) {
         setActiveEvent(value);
         setActiveAction(undefined);
-    };
+    }
     // handle action drop down callbacks
     function handleActionOnChange(event: object, value: any, reason: string) {
         setActiveAction(value);
-    };
+    }
     function handleOnDeselectConnection() {
         setActiveConnection(undefined);
     }
@@ -300,15 +304,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     };
 
     const handleUserConfirm = () => {
-        if (isEmptySource) {
-            handleConfigureOnSave();
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            createGithubTrigger();
         } else {
-            // get user confirmation if code there
-            setShowConfirmDialog(true);
+            updateGithubTrigger();
         }
     };
-    // handle trigger configure complete
-    const handleConfigureOnSave = () => {
+    // handle github trigger creation
+    const createGithubTrigger = () => {
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
         const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
 
@@ -327,10 +330,100 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         trackTriggerSelection("Github");
     };
 
+    const updateGithubTrigger = () => {
+        // get nodes to be updated
+        const serviceDeclNode = (originalSyntaxTree as ModulePart).members.find(
+            member => STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration;
+        const webSubNode: STNode = serviceDeclNode?.metadata?.annotations.find(annotation =>
+            (annotation.annotReference as QualifiedNameReference).identifier.value === "SubscriberServiceConfig");
+        let resourceFunctionNameNode: STNode;
+        let recordNameNode: STNode;
+
+        serviceDeclNode.members.forEach(member => {
+            if (STKindChecker.isFunctionDefinition(member)) {
+                resourceFunctionNameNode = member.functionName;
+                (member.functionSignature.parameters as RequiredParam[]).forEach(param => {
+                    if ((param.typeName as QualifiedNameReference).modulePrefix.value === "webhook") {
+                        recordNameNode = (param.typeName as QualifiedNameReference).identifier;
+                    }
+                })
+                return;
+            }
+        });
+
+        const accessTokenNode = stSymbolInfo.configurables.get(getKeyFromConnection(activeConnection, 'accessTokenKey'));
+
+        const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
+
+        // update nodes
+        const webSubUpdateTemplate = `@websub:SubscriberServiceConfig {\n
+                                          target: [webhook:HUB, "${activeGithubRepo.url}/events/*.json"],\n
+                                          secret: ${clientSecretKey},\n
+                                          callback: CHOREO_APP_INVOCATION_URL,\n
+                                          httpConfig: {\n
+                                              auth: {\n
+                                                  token: ${accessTokenKey}\n
+                                              }\n
+                                          }\n
+                                      }\n`
+
+        const modifications: STModification[] = [];
+        if (resourceFunctionNameNode && recordNameNode) {
+            if (!accessTokenNode) {
+                const initialConfigurable = (originalSyntaxTree as ModulePart).members.find(member =>
+                    (member as ModuleVarDecl)?.qualifiers.find(qualifier =>
+                        STKindChecker.isConfigurableKeyword(qualifier)));
+
+                modifications.push(createPropertyStatement(`\nconfigurable string ${getKeyFromConnection(activeConnection, 'accessTokenKey')} = ?;
+                configurable string ${getKeyFromConnection(activeConnection, 'clientSecretKey')} = ?;`,
+                    {column: 0, line: initialConfigurable?.position?.startLine - 1 || 1}));
+            }
+            modifications.push(updatePropertyStatement(webSubUpdateTemplate, webSubNode.position));
+            modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][0], resourceFunctionNameNode.position));
+            modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][1], recordNameNode.position));
+            dispatchMutations(modifications);
+        }
+        setTriggerChanged(true);
+    }
+
+    const chooseRepoPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseRepository.placeholder",
+        defaultMessage: "Choose a GitHub repository"
+    });
+
+    const chooseActionPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseAction.placeholder",
+        defaultMessage: "Choose an action"
+    });
+
+    const chooseEventPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.chooseEvent.placeholder",
+        defaultMessage: "Choose an event"
+    })
+
+    const saveConfigButton = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.saveConfigButton.text",
+        defaultMessage: "Save"
+    });
+
+    const gitHubTriggerTooltipMessages = {
+        gitHubEvent: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.gitHubTriggerTooltipMessages.gitHubEvent.tooltip.title",
+            defaultMessage: "Select a GitHub event to setup the trigger"
+        })},
+        gitHubAction: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.gitHubTriggerTooltipMessages.gitHubAction.tooltip.title",
+                defaultMessage: "Select a GitHub action to setup the trigger"
+            }),
+    }
+    }
     return (
         <>
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}>GitHub Connection</p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubConnection.title" defaultMessage="GitHub Connection"/></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     onSelectConnection={handleOnSelectConnection}
@@ -342,16 +435,16 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
                     <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        Fetching Repositories&nbsp;...
+                    <FormattedMessage id="lowcode.develop.GitHubConfigWizard.fetchingReposMessage.text" defaultMessage="Fetching repositories ..."/>
                                         </Typography>
                 </div>
 
             )}
             { activeConnection && !isRepoListFetching && githubRepoList && (
                 <div className={classes.customWrapper}>
-                    <p className={classes.subTitle}>GitHub Repository</p>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubrepository.title.text" defaultMessage="GitHub Repository"/></p>
                     <FormAutocomplete
-                        placeholder="Choose GitHub Repository"
+                        placeholder={chooseRepoPlaceholder}
                         itemList={githubRepoList}
                         value={activeGithubRepo}
                         getItemLabel={handleItemLabel}
@@ -363,14 +456,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeGithubRepo && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
-                        title={tooltipMessages.gitHubEvent}
+                        title={gitHubTriggerTooltipMessages.gitHubEvent.title}
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}>SELECT EVENT</p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectEvent.title.text" defaultMessage="Select Event"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
-                        placeholder="Choose an event"
+                        placeholder={chooseEventPlaceholder}
                         itemList={Object.keys(githubEvents)}
                         value={activeEvent}
                         onChange={handleEventOnChange}
@@ -381,14 +474,14 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeGithubRepo && activeEvent && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
-                        title={tooltipMessages.gitHubAction}
+                        title={gitHubTriggerTooltipMessages.gitHubAction.title}
                         placement="left"
                         arrow={true}
                     >
-                        <p className={classes.subTitle}>SELECT ACTION</p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.selectAction.title.text" defaultMessage="Select Action"/></p>
                     </TooltipIcon>
                     <FormAutocomplete
-                        placeholder="Choose an action"
+                        placeholder={chooseActionPlaceholder}
                         itemList={Object.keys(githubEvents[activeEvent]?.action)}
                         value={activeAction}
                         onChange={handleActionOnChange}
@@ -399,18 +492,12 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             { activeConnection && activeGithubRepo && activeEvent && activeAction && (
                 <div className={classes.customFooterWrapper}>
                     <PrimaryButton
-                        text="Save"
+                        text={saveConfigButton}
                         className={classes.saveBtn}
                         onClick={handleUserConfirm}
                         disabled={isFileSaving}
                     />
                 </div>
-            )}
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    onConfirm={handleConfigureOnSave}
-                    onCancel={handleDialogOnCancel}
-                />
             )}
         </>
     );

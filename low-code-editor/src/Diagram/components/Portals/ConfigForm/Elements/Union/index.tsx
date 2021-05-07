@@ -11,6 +11,7 @@
  * associated services.
  */
 import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
@@ -155,7 +156,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{textLabel}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}>Optional</FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.union.optional.label" defaultMessage="Optional"/></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>

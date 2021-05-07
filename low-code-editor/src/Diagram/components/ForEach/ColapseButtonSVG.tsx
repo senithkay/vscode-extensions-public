@@ -13,30 +13,26 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-export const COLLAPSE_SVG_WIDTH_WITH_SHADOW = 40;
-export const COLLAPSE_SVG_HEIGHT_WITH_SHADOW = 40;
-export const COLLAPSE_SVG_WIDTH = 25;
-export const COLLAPSE_SVG_HEIGHT = 25;
+export const COLLAPSE_SVG_WIDTH_WITH_SHADOW = 20;
+export const COLLAPSE_SVG_HEIGHT_WITH_SHADOW = 20;
+export const COLLAPSE_SVG_WIDTH = 16;
+export const COLLAPSE_SVG_HEIGHT = 16;
 export const COLLAPSE_SHADOW_OFFSET = COLLAPSE_SVG_WIDTH_WITH_SHADOW - COLLAPSE_SVG_HEIGHT;
 
 export function ColapseButtonSVG(props: { x: number, y: number, onClick: () => void }) {
     const { onClick, ...xyProps } = props;
     return (
         <svg {...xyProps} id="UnfoldDefault" width={COLLAPSE_SVG_WIDTH} height={COLLAPSE_SVG_HEIGHT} onClick={onClick}>
-            <g id="UnfoldRectangle" fill="#f7f8fb" stroke="#05a26b" strokeMiterlimit="10" strokeWidth="1">
-                <rect width={COLLAPSE_SVG_WIDTH} height={COLLAPSE_SVG_HEIGHT} rx="4" stroke="none" />
-                <rect x="0.5" y="0.5" width="24" height="24" rx="3.5" fill="none" />
+            <g id="Collapse_Default" transform="translate(1 1)">
+                <g id="Rectangle_Copy_8">
+                    <rect id="Rectangle_Copy_8-2" width="14" height="14" rx="2" fill="#fff" />
+                    <g id="Rectangle_Copy_8-3" fill="none" stroke="#bdbec4" strokeMiterlimit="10" strokeWidth="1">
+                        <rect width="14" height="14" rx="2" stroke="none" />
+                        <rect x="-0.5" y="-0.5" width="15" height="15" rx="2.5" fill="none" />
+                    </g>
+                </g>
+                <path id="Combined_Shape" d="M5.216,9.494l-.069-.059L3.5,7.792,1.854,9.436a.5.5,0,0,1-.638.059l-.069-.059A.5.5,0,0,1,1.089,8.8l.058-.069L3.5,6.379,5.854,8.73a.5.5,0,0,1-.638.764ZM.5,5.29A.5.5,0,0,1,.41,4.3L.5,4.29h6a.5.5,0,0,1,.09.992L6.5,5.29ZM1.147.852A.5.5,0,0,1,1.785.088l.069.059L3.5,1.79,5.146.147A.5.5,0,0,1,5.784.088l.069.058a.5.5,0,0,1,.058.637L5.854.852,3.5,3.2Z" transform="translate(3.5 2.211)" fill="#40404b" />
             </g>
-            <path
-                id="UnfoldCombinedShape"
-                d="M4,13V9.737l-1.15,1.15a.5.5,0,1,1-.707-.707l1.748-1.75a.5.5,0,0,1,.609-.5.5.5,0,0,1,
-                    .463.135.5.5,0,0,1,.147.364l1.748,1.75a.5.5,0,1,1-.707.707L5,9.737V13ZM.5,7a.5.5,0,1,1,0-1h8a.5.5,
-                    0,1,1,0,1ZM4.037,4.933a.5.5,0,0,1-.147-.364L2.143,2.82a.5.5,0,0,1,.707-.707L4,
-                    3.263V0H5V3.263l1.15-1.15a.5.5,0,0,1,.707.707L5.109,4.569a.5.5,0,0,1-.5.51A.492.492,0,0,1,4.5,
-                    5.068a.5.5,0,0,1-.463-.135Z"
-                transform="translate(8 6.003)"
-                fill="#039864"
-            />
         </svg>
     )
 }

@@ -13,17 +13,18 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { CaptureBindingPattern, ForeachStatement, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ForeachStatement, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig } from "../../utils/diagram-util";
+import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
+import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -38,6 +39,7 @@ import {
 } from "../DiagramActions/EditBtn/EditSVG";
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
+import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "./ColapseButtonSVG";
 import { ExpandButtonSVG } from "./ExpandButtonSVG";
@@ -58,7 +60,8 @@ export interface ForeachProps {
 
 export function ForEach(props: ForeachProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace } = state;
+    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace, maximize: maximizeCodeView,
+            currentApp, setCodeLocationToHighlight: setCodeToHighlight, isCodeEditorActive } = state;
 
     const { model } = props;
 
@@ -76,6 +79,8 @@ export function ForEach(props: ForeachProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
+
+    const { id: appId } = currentApp || {};
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -169,19 +174,50 @@ export function ForEach(props: ForeachProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2))
+        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + FOREACH_SVG_WIDTH / 4,
+        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2)) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)
     };
     const editTriggerPosition = {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2))
+        cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2)) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)
     };
+    let codeSnippet = "IF ELSE CODE SNIPPET"
+
+    if (model) {
+        codeSnippet = model.source.trim().split(')')[0]
+        codeSnippet = codeSnippet + ')'
+    }
+
+    const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        setCodeToHighlight(model?.position)
+    }
+
+    let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
+    const forEachModel = model as ForeachStatement
+    const variableName = ((((forEachModel.typedBindingPattern) as TypedBindingPattern).bindingPattern) as CaptureBindingPattern).variableName.value
+    const keyWord = forEachModel.inKeyword.value
+    const forEachSource = forEachModel?.actionOrExpressionNode.source;
+    assignmentText = variableName + " " + keyWord + " " + forEachSource;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper">
-                <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
+                <ForeachSVG
+                    x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2}
+                    y={y}
+                    text="FOR EACH"
+                    codeSnippet={codeSnippet}
+                />
+
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + FOREACH_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
                 <>
                     {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                         className="foreach-options-wrapper"
@@ -227,9 +263,9 @@ export function ForEach(props: ForeachProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 
@@ -238,7 +274,14 @@ export function ForEach(props: ForeachProps) {
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper" onClick={onForeachHeadClick}>
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
-                <>
+                {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/> */}
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + FOREACH_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />                <>
                     {
                         (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                             className="foreach-options-wrapper"

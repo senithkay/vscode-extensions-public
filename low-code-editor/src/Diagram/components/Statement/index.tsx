@@ -52,7 +52,7 @@ export function StatementC(props: StatementProps) {
                 );
             }
 
-            if (viewState.isEndpoint && viewState.endpoint.epName && viewState.endpoint.isUsed) {
+            if (viewState.isEndpoint && viewState.endpoint.epName) {
                 statements.push(
                     <Connector
                         model={model}
@@ -87,7 +87,7 @@ export function StatementC(props: StatementProps) {
 
     return (
         <g className={classes}>
-            {...statements}
+            {statements}
         </g>
     );
 }
