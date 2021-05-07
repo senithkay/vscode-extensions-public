@@ -541,8 +541,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     />
                                 </div>
 
-                                {(isNewConnectorInitWizard || !(isNewConnectorInitWizard ||
-                                    connectorConfig.responsePayloadMap.selectedPayloadType)) ? (
+                                {(isNewConnectorInitWizard || !(connectorConfig.responsePayloadMap.selectedPayloadType)) ? (
                                     // <Tooltip
                                     //     title={tooltipMessages.HTTPPayload.title}
                                     //     content={tooltipMessages.HTTPPayload.content}
