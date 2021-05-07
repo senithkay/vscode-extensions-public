@@ -50,7 +50,7 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
             // todo: look into default xml type
             break;
         case 'record':
-            if (type.fields) {
+            if (type.fields && type.fields.length > 0) {
                 returnString += '{';
                 type.fields.forEach((field: any, index: number) => {
                     returnString += `${field.name}: `;

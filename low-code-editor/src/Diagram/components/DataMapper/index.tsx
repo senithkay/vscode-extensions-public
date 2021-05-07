@@ -56,29 +56,29 @@ export function DataMapper(props: DataMapperProps) {
         dispatchMutations(modifications);
     }
 
-    // let outputType: string = '';
+    let outputType: string = '';
 
-    // if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
-    //     const typeInfo = dataMapperConfig.outputType.typeInfo;
-    //     outputType = typeInfo.moduleName !== '.' ?
-    //         `${typeInfo.moduleName}:${typeInfo.name}`
-    //         : typeInfo.name
-    // } else {
-    //     outputType = dataMapperConfig.outputType.type;
-    // }
+    if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
+        const typeInfo = dataMapperConfig.outputType.typeInfo;
+        outputType = typeInfo.moduleName !== '.' ?
+            `${typeInfo.moduleName}:${typeInfo.name}`
+            : typeInfo.name
+    } else {
+        outputType = dataMapperConfig.outputType.type;
+    }
 
-    // const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
-    // const selectedNode = outputTypeVariables ?
-    //     outputTypeVariables
-    //         .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
-    //             .variableName.value === dataMapperConfig.elementName)
-    //     : undefined;
-
-
-
-    const inputComponents: JSX.Element[] = [];
+    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
+    const selectedNode = outputTypeVariables ?
+        outputTypeVariables
+            .find((node: LocalVarDecl) => (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                .variableName.value === dataMapperConfig.elementName)
+        : undefined;
 
 
+
+    const components: JSX.Element[] = [];
+
+    debugger;
     const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
     inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
@@ -127,7 +127,7 @@ export function DataMapper(props: DataMapperProps) {
 
         traversNode(variableInfo.node, positionVisitor);
         const { dataMapperViewState } = variableInfo.node;
-        inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
+        components.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
     });
 
     //     traversNode(selectedNode.initializer, new DataMapperInitVisitor());
@@ -164,7 +164,7 @@ export function DataMapper(props: DataMapperProps) {
 
     return (
         <>
-            {inputComponents}
+            {components}
             {/* <DiagramOverlayContainer>
                     position={{ x: 15, y: 15 }}
                 >

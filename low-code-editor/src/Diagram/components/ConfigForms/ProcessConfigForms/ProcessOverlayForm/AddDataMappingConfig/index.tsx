@@ -25,9 +25,8 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
-import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperJsonField, DataMapperOutputTypeInfo, ProcessConfig } from '../../../../Portals/ConfigForm/types';
+import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputField, DataMapperOutputTypeInfo, ProcessConfig } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
@@ -83,7 +82,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
             setDataMapperStep(DataMapperSteps.SELECT_INPUT);
         } else {
-            let fields: DataMapperJsonField[] = [];
+            let fields: DataMapperOutputField[] = [];
             if (outputType.type === 'json' && sampleStructure.length > 0) {
                 fields = generateFieldStructureForJsonSample(JSON.parse(sampleStructure));
             }
@@ -150,6 +149,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
                     <OutputTypeSelector
                         types={typeArray}
+                        variables={varData}
                         updateReturnType={setReturnType}
                         updateSampleStructure={handleSampleStructureUpdate}
                         updateValidity={handleJsonValidation}
@@ -174,11 +174,11 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     )
 }
 
-export function generateFieldStructureForJsonSample(obj: any): DataMapperJsonField[] {
-    const fields: DataMapperJsonField[] = [];
+export function generateFieldStructureForJsonSample(obj: any): DataMapperOutputField[] {
+    const fields: DataMapperOutputField[] = [];
 
     Object.keys(obj).forEach((key: string) => {
-        const currentField: DataMapperJsonField = { name: key, type: '', isChanged: false }
+        const currentField: DataMapperOutputField = { name: key, type: '', isChanged: false }
         switch (typeof obj[key]) {
             case 'string':
                 currentField.type = PrimitiveBalType.String;
@@ -194,7 +194,7 @@ export function generateFieldStructureForJsonSample(obj: any): DataMapperJsonFie
                     currentField.type = PrimitiveBalType.Collection;
                 } else {
                     currentField.type = 'object'; // todo: revisit with a proper field type
-                    currentField.subfields = generateFieldStructureForJsonSample(obj[key]);
+                    currentField.fields = generateFieldStructureForJsonSample(obj[key]);
                 }
                 break;
             default:
