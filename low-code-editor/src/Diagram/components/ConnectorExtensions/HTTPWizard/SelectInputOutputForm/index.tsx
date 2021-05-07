@@ -420,7 +420,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             });
             setDefaultResponseVarName(connectorConfig.action.returnVariableName);
             switch (httpVar.initializer.kind) {
-                case 'TypeCastExpression':
+                case 'CheckAction':
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
                     connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
@@ -464,84 +464,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 default:
                     actionInitializer = httpVar.initializer as CheckAction;
                 // ignored
-            }
-
-            if (actionInitializer) {
-                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
-
-                if (message) {
-                    if (message.kind === 'SimpleNameReference') {
-                        const refName = (message as SimpleNameReference).name.value;
-                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
-
-                        if (connectorConfig.action.name === 'forward') {
-                            connectorConfig.action.fields[3].value = refName;
-                        }
-
-                        if (refCallStatements) {
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
-                                .forEach(callStatement => {
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    headerObject.push({
-                                        requestName: refName,
-                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
-                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
-                                    })
-                                });
-
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
-                                .forEach(callStatement => {
-                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                        field.requestName = refName;
-
-                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
-                                            case 'XmlTemplateExpression':
-                                                field.selectedDataType = 'xml';
-                                                break;
-                                            case 'MappingConstructor':
-                                                field.selectedDataType = 'json';
-                                                break;
-                                            default:
-                                                field.selectedDataType = 'string';
-                                        }
-
-                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                            .forEach(unionField => {
-                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                            })
-                                    })
-                                });
-                        }
-                    } else {
-                        if (connectorConfig.action.name !== 'get') {
-                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                switch (message.kind) {
-                                    case 'XmlTemplateExpression':
-                                        field.selectedDataType = 'xml';
-                                        break;
-                                    case 'MappingConstructor':
-                                        field.selectedDataType = 'json';
-                                        break;
-                                    default:
-                                        field.selectedDataType = 'string';
-                                }
-
-                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                    .forEach(unionField => {
-                                        unionField.value = message.source
-                                    })
-                            });
-                        }
-                    }
-                }
             }
         }
     }, [isNewConnectorInitWizard]);
@@ -622,7 +544,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     />
                                 </div>
 
-                                {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                                {(isNewConnectorInitWizard || !(isNewConnectorInitWizard ||
+                                    connectorConfig.responsePayloadMap.selectedPayloadType)) ? (
                                     // <Tooltip
                                     //     title={tooltipMessages.HTTPPayload.title}
                                     //     content={tooltipMessages.HTTPPayload.content}
