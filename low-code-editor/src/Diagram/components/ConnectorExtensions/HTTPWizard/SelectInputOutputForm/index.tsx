@@ -84,11 +84,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state, setDefaultActionName] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
-    const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
+    const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
+    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === undefined);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
     const httpVar = model as LocalVarDecl;
@@ -446,8 +446,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 } else if (variableStatement.source.includes('getJsonPayload')) {
                                     connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
                                 } else {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = undefined;
                                 }
+                                setPayloadState({
+                                    isPayloadSelected: (connectorConfig.responsePayloadMap.selectedPayloadType !==
+                                        undefined || (connectorConfig.responsePayloadMap.selectedPayloadType !== "")),
+                                    selectedPayload: connectorConfig.responsePayloadMap.selectedPayloadType,
+                                    isNameProvided: true,
+                                    validPayloadName: true,
+                                    variableName: connectorConfig.responsePayloadMap.payloadVariableName
+                                });
+                                setDefaultPayloadVarName(connectorConfig.responsePayloadMap.payloadVariableName);
                             }
                         }
                     });
