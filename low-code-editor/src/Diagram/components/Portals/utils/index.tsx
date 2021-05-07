@@ -21,6 +21,7 @@ import {
     STKindChecker,
     STNode, StringLiteral, traversNode, TypeCastExpression, XmlTypeDesc
 } from "@ballerina/syntax-tree";
+import { isRef } from "joi";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
@@ -53,38 +54,9 @@ import { keywords, symbolKind } from "./constants";
 const receivedRecords: Map<string, STNode> = new Map();
 // in order to ignore classes, object and enum type references
 const ignoreList = [
-    // sl alpha2
-    'ballerina/http:1.1.0-alpha4:Request',
-    'ballerina/http:1.1.0-alpha4:Response',
-    'ballerina/http:1.1.0-alpha4:HttpFuture',
-    'ballerina/http:1.1.0-alpha4:PushPromise',
-    'ballerina/http:1.1.0-alpha4:CookieStore',
-    'ballerina/email:1.1.0-alpha4:Security',
-    'ballerinax/twilio:0.99.6:Account',
-    'ballerinax/twilio:0.99.6:MessageResourceResponse',
-    'ballerinax/twilio:0.99.6:WhatsAppResponse',
-    'ballerina/oauth2:1.1.0-alpha4:CredentialBearer',
-    'ballerina/oauth2:1.1.0-alpha4:HttpVersion',
-    'ballerinax/googleapis_gmail:0.99.4:MessageRequest',
-    'ballerinax/googleapis_gmail:0.99.4:Message',
-    'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
-    'ballerinax/googleapis_calendar:0.1.3:Shared',
-    'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
-    'ballerinax/sfdc:2.1.5:BulkJob',
-    'ballerina/http:1.1.0-alpha4:PersistentCookieHandler',
-    'ballerinax/github.webhook:0.99.12:User',
-    'ballerinax/github.webhook:0.99.12:Milestone',
-    'ballerinax/github.webhook:0.99.12:Branch',
-    'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:ColumnList',
-    'ballerinax/github:0.99.12:BranchList',
-    'ballerinax/github:0.99.12:IssueList',
-    'ballerinax/github:0.99.12:ProjectList',
-    'ballerinax/github:0.99.12:RepositoryList',
-    'ballerinax/github:0.99.12:ColumnList',
-    'ballerinax/github:0.99.12:PullRequestList',
-    'ballerinax/netsuite:0.9.3:GetAllRecordType',
-    'ballerinax/netsuite:0.9.3:GetSaveSearchType'
+    // sl alpha5
+    'ballerina/oauth2:1.1.0-alpha8:HttpVersion',
+    'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
 ]
 
 export function getOverlayElement(
@@ -135,8 +107,9 @@ export function getConnectorComponent(type: string, args: any) {
     ) : undefined;
 }
 
-export async function getRecordFields(formFields: any, records: object, langClient: any) {
+export async function getRecordFields(formFields: any, records: object, langClient: any, loadedRecords: Map<string, STNode>, depth = 1) {
     return new Promise(async (resolve) => {
+        const maxDepth = 10;
         for (const formField of formFields) {
             // check primitive types if it's not a primitive go and fetch record
             if (!formField.noCodeGen) {
@@ -152,7 +125,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                         break;
                     case 'union':
                         if (formField.fields) {
-                            await getRecordFields(formField.fields, records, langClient);
+                            await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
                             formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
                                 if (property?.length > 0) {
                                     formField.fields = [...formField.fields, ...property.fields];
@@ -166,14 +139,21 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             let recordRes: STNode;
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
-                            recordRes = receivedRecords.get(recordKey)
-                            if (ignoreList.indexOf(recordKey) === -1 && recordRes === undefined) {
-                                recordRes = await getRecordDefFromCache({
-                                    module: typeInfo.modName,
-                                    org: typeInfo.orgName,
-                                    version: typeInfo.version,
-                                    name: typeInfo.name
-                                });
+                            recordRes = receivedRecords.get(recordKey);
+                            const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
+                            if (depth > maxDepth){
+                                return;
+                            }
+                            if (!recordRes){
+                                recordRes = loadedRecords.get(recordKey);
+                            }
+                            if (!ignoredRecord && recordRes === undefined) {
+                                // recordRes = await getRecordDefFromCache({
+                                //     module: typeInfo.modName,
+                                //     org: typeInfo.orgName,
+                                //     version: typeInfo.version,
+                                //     name: typeInfo.name
+                                // });
 
                                 if (recordRes === undefined) {
                                     const record = await langClient.getRecord({
@@ -185,6 +165,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                     if (record && record.ast) {
                                         recordRes = record.ast;
+                                        loadedRecords.set(recordKey, recordRes);
                                     }
                                 }
                             }
@@ -211,7 +192,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 recordRes.viewState = formField;
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
-                                    await getRecordFields(formField.fields, records, langClient);
+                                    await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
                                         if (property?.length > 0) {
@@ -552,7 +533,7 @@ export function getConnectorIconId(connector: BallerinaConnectorsInfo) {
 
 export function genVariableName(defaultName: string, variables: string[]): string {
     const baseName: string = convertToCamelCase(defaultName);
-    let varName: string = baseName;
+    let varName: string = baseName.replace('.', '');
     let index = 0;
     while (variables.includes(varName)) {
         index++;
@@ -669,7 +650,7 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
 export async function fetchConnectorInfo(connector: Connector, model?: STNode, state?: any): Promise<ConfigWizardState> {
     const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
     // get form fields from browser cache
-    let functionDefInfo = await getFromFormFieldCache(connector);
+    let functionDefInfo; // await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
 
     if (!functionDefInfo) {
@@ -689,6 +670,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             const connectorResp = await langClient.getConnector(connector);
             connectorDef = connectorResp.ast;
         }
+        if (!connectorDef){
+            // handle error when connector loading form
+            return null;
+        }
         connectorDef.viewState = {};
 
         cleanFields();
@@ -697,12 +682,13 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
 
         for (const value of Array.from(functionDefInfo.values())) {
-            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient);
+            const loadedRecords: Map<string, STNode> = new Map();
+            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient, loadedRecords);
             if (value.returnType) {
                 if (value.returnType.type === 'union') {
-                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient);
+                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient, loadedRecords);
                 } else {
-                    await getRecordFields([value.returnType], connectorDef.typeData.records, langClient);
+                    await getRecordFields([value.returnType], connectorDef.typeData.records, langClient, loadedRecords);
                 }
             }
         }
