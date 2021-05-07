@@ -52,7 +52,7 @@ export interface StartButtonProps {
 export function StartButton(props: StartButtonProps) {
     const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
     const isMutationProgress = state.isMutationProgress || false;
-    const { syntaxTree, appInfo, originalSyntaxTree } = state;
+    const { syntaxTree, appInfo, originalSyntaxTree, currentAppType, isReadOnly } = state;
 
     const { currentApp } = appInfo || {};
     let displayType = currentApp ? currentApp.displayType : "";
@@ -200,6 +200,10 @@ export function StartButton(props: StartButtonProps) {
             />
         );
     }, []);
+
+    React.useEffect(() => {
+        if (isReadOnly && isReadOnly === true) setActiveTriggerType(currentAppType)
+    })
 
     let block: FunctionBodyBlock;
     if (model as FunctionDefinition) {
