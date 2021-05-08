@@ -15,6 +15,7 @@ import React, { ReactNode, useContext, useState } from "react"
 
 import {
     BracedExpression,
+    STKindChecker,
     STNode,
     WhileStatement
 } from "@ballerina/syntax-tree";
@@ -22,12 +23,14 @@ import {
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig } from "../../utils/diagram-util";
+import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState } from "../../view-state";
 import { WhileViewState } from "../../view-state/while";
 import { DefaultConfig } from "../../visitors/default";
+import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
+import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -42,6 +45,7 @@ import {
 } from "../DiagramActions/EditBtn/EditSVG";
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
+import { FOREACH_SVG_HEIGHT } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 import { PlusButton } from "../Plus";
 
@@ -160,13 +164,16 @@ export function While(props: WhileProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2))
+        cx: viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + WHILE_SVG_WIDTH / 4,
+        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2)) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)
     };
     const editTriggerPosition = {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2))
+        cy: viewState.bBox.cy + ((WHILE_SVG_HEIGHT / 2)) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)
     };
+
+    let assignmentText: any = (!drafts && STKindChecker?.isWhileStatement(model));
+    assignmentText = (model as WhileStatement)?.condition.source;
 
     const unFoldedComponent = (
         <g className="while-block" data-testid="while-block">
@@ -179,6 +186,14 @@ export function While(props: WhileProps) {
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + WHILE_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
+
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
                     height={WHILE_SVG_HEIGHT_WITH_SHADOW}
@@ -187,36 +202,36 @@ export function While(props: WhileProps) {
                     y={viewState.bBox.cy - (WHILE_SHADOW_OFFSET / 2)}
                 >
                     {model && isConfigWizardOpen &&
-                    <ConditionConfigForm
-                        type={"While"}
-                        position={{
-                            x: viewState.bBox.cx + WHILE_SVG_WIDTH,
-                            y: viewState.bBox.cy
-                        }}
-                        wizardType={WizardType.EXISTING}
-                        onCancel={onCancel}
-                        onSave={onSave}
-                        configOverlayFormStatus={whileConfigOverlayState}
-                    />
+                        <ConditionConfigForm
+                            type={"While"}
+                            position={{
+                                x: viewState.bBox.cx + WHILE_SVG_WIDTH,
+                                y: viewState.bBox.cy
+                            }}
+                            wizardType={WizardType.EXISTING}
+                            onCancel={onCancel}
+                            onSave={onSave}
+                            configOverlayFormStatus={whileConfigOverlayState}
+                        />
                     }
                     {!isConfigWizardOpen &&
-                    <>
-                        <rect
-                            x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
-                            y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
-                            className="while-text-hover-rect"
-                        />
-                        <DeleteBtn
-                            {...deleteTriggerPosition}
-                            model={model}
-                            onDraftDelete={onDraftDelete}
-                        />
-                        <EditBtn
-                            onHandleEdit={onWhileHeadClick}
-                            model={model}
-                            {...editTriggerPosition}
-                        />
-                    </>
+                        <>
+                            <rect
+                                x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
+                                y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
+                                className="while-text-hover-rect"
+                            />
+                            <DeleteBtn
+                                {...deleteTriggerPosition}
+                                model={model}
+                                onDraftDelete={onDraftDelete}
+                            />
+                            <EditBtn
+                                onHandleEdit={onWhileHeadClick}
+                                model={model}
+                                {...editTriggerPosition}
+                            />
+                        </>
                     }
                 </g>)}
             </g>
@@ -239,6 +254,13 @@ export function While(props: WhileProps) {
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
+                <ContitionAssignment
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    y={y + WHILE_SVG_HEIGHT / 5}
+                    assignment={assignmentText}
+                    className="condition-assignment"
+                    key_id={getRandomInt(1000)}
+                />
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
                     <g
                         className="while-options-wrapper"
@@ -253,44 +275,44 @@ export function While(props: WhileProps) {
                             className="while-rect"
                         />
                         {model && isConfigWizardOpen &&
-                        <ConditionConfigForm
-                            type={"While"}
-                            position={{
-                                x: viewState.bBox.cx + WHILE_SVG_WIDTH,
-                                y: viewState.bBox.cy
-                            }}
-                            wizardType={WizardType.EXISTING}
-                            onCancel={onCancel}
-                            onSave={onSave}
-                            configOverlayFormStatus={whileConfigOverlayState}
-                        />
+                            <ConditionConfigForm
+                                type={"While"}
+                                position={{
+                                    x: viewState.bBox.cx + WHILE_SVG_WIDTH,
+                                    y: viewState.bBox.cy
+                                }}
+                                wizardType={WizardType.EXISTING}
+                                onCancel={onCancel}
+                                onSave={onSave}
+                                configOverlayFormStatus={whileConfigOverlayState}
+                            />
                         }
 
                         {!isConfigWizardOpen &&
-                        <>
-                            <rect
-                                x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
-                                y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
-                                className="while-text-hover-rect"
-                            />
-                            <DeleteBtn
-                                {...deleteTriggerPosition}
-                                model={model}
-                                onDraftDelete={onDraftDelete}
-                            />
-                            <g className="disable">
-                                <EditBtn
-                                    model={model}
-                                    {...editTriggerPosition}
+                            <>
+                                <rect
+                                    x={viewState.bBox.cx - (WHILE_SVG_WIDTH / 4)}
+                                    y={viewState.bBox.cy + (WHILE_SVG_HEIGHT / 3)}
+                                    className="while-text-hover-rect"
                                 />
-                            </g>
-                        </>
+                                <DeleteBtn
+                                    {...deleteTriggerPosition}
+                                    model={model}
+                                    onDraftDelete={onDraftDelete}
+                                />
+                                <g className="disable">
+                                    <EditBtn
+                                        model={model}
+                                        {...editTriggerPosition}
+                                    />
+                                </g>
+                            </>
                         }
                     </g>)
                 }
             </g>
-            <ExpandButtonSVG {...foldProps} onClick={handleExpandClick}/>
-            <ThreeDotsSVG x={x - (COLLAPSE_DOTS_SVG_WIDTH / 2)} y={y + WHILE_SVG_HEIGHT_WITH_SHADOW}/>
+            <ExpandButtonSVG {...foldProps} onClick={handleExpandClick} />
+            <ThreeDotsSVG x={x - (COLLAPSE_DOTS_SVG_WIDTH / 2)} y={y + WHILE_SVG_HEIGHT_WITH_SHADOW} />
         </g>
     );
 

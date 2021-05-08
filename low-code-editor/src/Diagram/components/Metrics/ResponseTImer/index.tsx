@@ -12,6 +12,7 @@
  */
 import * as React from "react";
 
+import { TRIGGER_RECT_SVG_HEIGHT } from "../../ActionInvocation/TriggerSVG";
 import "../style.scss"
 
 import { CounterLeftSVG } from "./CounterLeftSVG";
@@ -27,7 +28,7 @@ export function ResponseTimerC(props: ResponseTimerProps) {
 
     return (
         <g>
-            <CounterLeftSVG x={x} y={y} text={responseTime + " ms"}/>
+            <CounterLeftSVG x={x} y={y - TRIGGER_RECT_SVG_HEIGHT / 2.5} text={responseTime + " ms"}/>
         </g>
     );
 }

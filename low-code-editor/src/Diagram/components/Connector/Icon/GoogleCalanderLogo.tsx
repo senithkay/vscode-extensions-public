@@ -12,22 +12,20 @@
  */
 import * as React from "react";
 
-export const GOOGLE_CALANDER_LOGO_WIDTH = 48;
-export const GOOGLE_CALANDER_LOGO_HEIGHT = 45.965;
+export const GOOGLE_CALANDER_LOGO_WIDTH = 20;
+export const GOOGLE_CALANDER_LOGO_HEIGHT = 20;
 
 export function GoogleCalanderLogo(props: { cx?: number, cy?: number, scale?: number }) {
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (GOOGLE_CALANDER_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (GOOGLE_CALANDER_LOGO_HEIGHT / 2)} width={GOOGLE_CALANDER_LOGO_WIDTH} height={GOOGLE_CALANDER_LOGO_HEIGHT} >
-            <g id="GoogleCalander" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                <g id="_015-calendar" transform="translate(0 -0.033)">
-                    <path id="Shape" d="M1.322,9.272v-7.1A2.122,2.122,0,0,1,3.428.033H40.8a2.122,2.122,0,0,1,2.108,2.136v7.1Z" transform="translate(1.887)" fill="#e6e6e6" />
-                    <path id="Path" d="M47.954,5.8,44.76,22.427l1.306,17.29a2.188,2.188,0,0,1-2.018,2.345c-.058,0-.113.007-.168.007H4.121A2.192,2.192,0,0,1,1.927,39.88c0-.055,0-.11.007-.163L3.24,22.427.046,5.8a2.54,2.54,0,0,1,2.016-2.97,2.487,2.487,0,0,1,.48-.046H45.456A2.539,2.539,0,0,1,48,5.319,2.5,2.5,0,0,1,47.954,5.8Z" transform="translate(0 3.929)" fill="#3a5bbc" />
-                    <path id="Path-2" d="M42.716,30.891H3A2.207,2.207,0,0,1,.8,28.679c0-.058,0-.117.007-.172L2.12,10.985H43.6l1.3,17.522a2.207,2.207,0,0,1-2.016,2.377C42.828,30.888,42.773,30.891,42.716,30.891Z" transform="translate(1.144 15.107)" fill="#518ef8" />
-                    <g id="Group" transform="translate(10.941 15.136)">
-                        <path id="Path-3" d="M16.879,12.682a6.069,6.069,0,0,0-6.137-5.964,6.07,6.07,0,0,0-6.134,5.964H6.652a4.012,4.012,0,0,1,4.09-3.92,4.014,4.014,0,0,1,4.093,3.92,4.014,4.014,0,0,1-4.093,3.92H8.834v2.046h1.908a3.923,3.923,0,1,1,0,7.839,4.012,4.012,0,0,1-4.09-3.92H4.608a6.069,6.069,0,0,0,6.134,5.967,6.069,6.069,0,0,0,6.137-5.967,5.922,5.922,0,0,0-2.7-4.942A5.922,5.922,0,0,0,16.879,12.682Z" transform="translate(-4.608 -5.936)" fill="#fff" />
-                        <path id="Path-4" d="M11.3,10.66l1.049,1.755,4.042-2.428V27.952h2.046V6.395Z" transform="translate(4.945 -6.395)" fill="#fff" />
-                    </g>
+            <g id="_GoogleCalander" transform="translate(-14 -13.406)">
+                <path id="Shape" d="M15.337,17.256V14.3a.885.885,0,0,1,.877-.892H31.787a.885.885,0,0,1,.878.89h0v2.959Z" fill="#e6e6e6" />
+                <path id="Path" d="M33.981,17.446,32.65,24.374l.544,7.2a.911.911,0,0,1-.84.977c-.025,0-.047,0-.07,0H15.717a.914.914,0,0,1-.914-.912.508.508,0,0,1,0-.068l.544-7.2-1.331-6.928a1.059,1.059,0,0,1,.84-1.237,1.034,1.034,0,0,1,.2-.019H32.94A1.057,1.057,0,0,1,34,17.246h0A1.034,1.034,0,0,1,33.981,17.446Z" fill="#3a5bbc" />
+                <path id="Path-2" d="M32.275,32.559H15.727a.92.92,0,0,1-.917-.922.57.57,0,0,1,0-.072l.547-7.3H32.644l.541,7.3a.919.919,0,0,1-.84.991C32.322,32.557,32.3,32.559,32.275,32.559Z" fill="#518ef8" />
+                <g id="Group">
+                    <path id="Path-3" d="M23.672,22.51a2.558,2.558,0,0,0-5.113,0h.852a1.706,1.706,0,1,1,1.7,1.634h-.8V25h.8a1.634,1.634,0,0,1,.138,3.266q-.069,0-.138,0a1.67,1.67,0,0,1-1.7-1.633h-.852a2.558,2.558,0,0,0,5.113,0,2.469,2.469,0,0,0-1.125-2.059A2.469,2.469,0,0,0,23.672,22.51Z" fill="#fff" />
+                    <path id="Path-4" d="M25.328,21.476l.437.732L27.449,21.2v7.486H28.3V19.7Z" fill="#fff" />
                 </g>
             </g>
         </svg>

@@ -259,7 +259,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <CustomStatementIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Custom Statement"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Other"/></div>
                 </div>
             </Tooltip>
         )
@@ -332,7 +332,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {(processComp.length > 0 ? <Divider /> : null)}
+                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

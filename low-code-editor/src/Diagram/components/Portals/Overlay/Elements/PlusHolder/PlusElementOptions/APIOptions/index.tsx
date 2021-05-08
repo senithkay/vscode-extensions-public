@@ -14,18 +14,25 @@
 import React, { ReactNode, useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
-import Divider from "@material-ui/core/Divider/Divider";
+import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
+import { Divider } from "@material-ui/core";
 
 import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
-import { getConnectorIconSVG } from "../../../../../utils";
+import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
+import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
+import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
 
 // import { BetaSVG } from "./BetaSVG";
 
 export interface APIOptionsProps {
-    onSelect: (connector: BallerinaConnectorsInfo) => void;
+    onSelect: (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo) => void;
+    viewState?: PlusViewState;
+    collapsed?: (value: APIHeightStates) => void
+    // setAPIholderHeight?: (value: APIHeightStates) => void;
 }
 
 export interface ConnctorComponent {
@@ -38,10 +45,16 @@ export interface Connctors {
     selectedCompoent: string;
 }
 
+export interface ExisitingConnctorComponent {
+    connectorInfo: BallerinaConnectorsInfo;
+    component: ReactNode;
+    key: string;
+}
+
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(DiagramContext);
-    const { connectors } = state;
-    const { onSelect } = props;
+    const { connectors, stSymbolInfo, targetPosition, viewState } = state;
+    const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const intl = useIntl();
 
@@ -177,6 +190,7 @@ export function APIOptions(props: APIOptionsProps) {
         }),
     },
     }
+    // tslint:disable-next-line: no-shadowed-variable
     const tooltipTitles: Record<any, string> = {
         HTTP: connectionsTooltipMessages.httpConnector.title,
         SMTP: connectionsTooltipMessages.smtpConnector.title,
@@ -193,6 +207,7 @@ export function APIOptions(props: APIOptionsProps) {
         NETSUITE : connectionsTooltipMessages.netsuite.title,
     };
 
+    // tslint:disable-next-line: no-shadowed-variable
     const tooltipExamples: Record<any, string> = {
         HTTP: connectionsTooltipMessages.httpConnector.content,
         SMTP: connectionsTooltipMessages.smtpConnector.content,
@@ -208,7 +223,35 @@ export function APIOptions(props: APIOptionsProps) {
         POSTGRESQL : connectionsTooltipMessages.postgreSQL.content,
         NETSUITE : connectionsTooltipMessages.netsuite.content,
     };
+    const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
+    const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
+    const [isExistingConnectorCollapsed, setExistingConnectorCollapsed] = useState(false);
+    const [isSelectConnectorCollapsed, setSelectConnectorCollapsed] = useState(false);
 
+    const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
+
+
+    const toggleExistingCon = () => {
+        setToggledExistingConnector(!isToggledExistingConnector);
+        if (!isToggledExistingConnector) {
+            // setExistingConnectorCollapsed(true);
+            collapsed(APIHeightStates.ExistingConnectors);
+        } else if (isToggledExistingConnector) {
+            collapsed(APIHeightStates.ExistingConnectorsColapsed);
+        }
+    }
+
+    const toggleSelectCon = () => {
+        setToggledSelectConnector(!isToggledSelectConnector);
+        if (!isToggledSelectConnector) {
+            // setSelectConnectorCollapsed(true);
+            collapsed(APIHeightStates.SelectConnectors);
+        } else if (isToggledSelectConnector) {
+            collapsed(APIHeightStates.SelectConnectorsColapsed);
+        }
+    }
+
+    const exsitingConnectorComponents: ExisitingConnctorComponent[] = [];
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
@@ -217,7 +260,7 @@ export function APIOptions(props: APIOptionsProps) {
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
                 <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
-                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
+                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">
                                 {getConnectorIconSVG(connector)}
@@ -225,9 +268,6 @@ export function APIOptions(props: APIOptionsProps) {
                             <div className="connector-name">
                                 {connector.displayName}
                             </div>
-                            {/* <div className="beta-btn-wrapper">
-                                {(connector.beta) && <BetaSVG />}
-                            </div> */}
                         </div>
                     </div>
                 </Tooltip>
@@ -237,6 +277,54 @@ export function APIOptions(props: APIOptionsProps) {
                 component
             }
             connectorComponents.push(connectorComponent);
+        });
+
+        const getConnector = (moduleName: string, name: string): BallerinaConnectorsInfo => {
+            // tslint:disable-next-line: no-unused-expression
+            let returnConnnectorType;
+            Array.from(connectors).forEach(element => {
+                // tslint:disable-next-line: no-unused-expression
+                const existingConnector = element as BallerinaConnectorsInfo;
+                if (existingConnector.module === moduleName && existingConnector.name === name) {
+                    returnConnnectorType = existingConnector;
+                }
+            });
+            return returnConnnectorType;
+        }
+
+        stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
+            const existingConnectorIcon = value.typedBindingPattern.typeDescriptor.source.trim().replace(":", "_");
+            const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).modulePrefix.value;
+            const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
+            const existConnector = getConnector(moduleName, name);
+            const component: ReactNode = (
+                <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                    <div className="existing-connector-details product-tour-add-http">
+                        <div className="existing-connector-icon">
+                            {getExistingConnectorIconSVG(existingConnectorIcon)}
+                        </div>
+                        <div className="existing-connector-name">
+                            {key}
+                        </div>
+                    </div>
+                </div>
+            );
+            const exsitingConnectorComponent: ExisitingConnctorComponent = {
+                connectorInfo: existConnector,
+                component,
+                key
+            }
+            // todo Connector filtering here
+            // const connectorPosition = value.position;
+            // const connectorClientViewState: ViewState = (model === null)
+            //      ? blockViewState.draft[1]
+            //      : model.viewState as StatementViewState;
+            // const draftVS: any = connectorClientViewState as DraftStatementViewState;
+            // const connectorTargetPosition = targetPosition as DraftInsertPosition;
+            // if (connectorPosition.startLine > connectorTargetPosition.line) {
+            //     exsitingConnectorComponents.push(exsitingConnectorComponent);
+            // }
+            exsitingConnectorComponents.push(exsitingConnectorComponent);
         });
     }
 
@@ -265,6 +353,18 @@ export function APIOptions(props: APIOptionsProps) {
             }
         });
     }
+    const exsitingConnectors: ReactNode[] = [];
+    if (selectedContName !== "") {
+        const allCnts: ExisitingConnctorComponent[] = exsitingConnectorComponents.filter(el =>
+            el.key.toLowerCase().includes(selectedContName.toLowerCase()));
+        allCnts.forEach((allCnt) => {
+            exsitingConnectors.push(allCnt.component);
+        });
+    } else {
+        exsitingConnectorComponents.forEach((allCnt) => {
+            exsitingConnectors.push(allCnt.component);
+        });
+    }
 
     const chooseFromListLabel = intl.formatMessage({
         id: "lowcode.develop.elements.plusHolder.APIoptions.chooseFromList.label",
@@ -278,25 +378,77 @@ export function APIOptions(props: APIOptionsProps) {
 
     return (
         <div className="connector-option-holder" >
-            <div className="search-options-wrapper">
-                <label>{chooseFromListLabel}</label>
-            </div>
-            <div className="top-connector-wrapper">
-                <input
-                    type="search"
-                    placeholder={searchPlaceholder}
-                    value={selectedContName}
-                    onChange={handleSearchChange}
-                    className='search-wrapper'
-                />
-            </div>
+            {isExistingConnectors &&
+                (
+                    <div className="existing-connect-wrapper">
+                        <div className="title-wrapper">
+                            <p className="plus-section-title">Choose existing connection </p>
+                            {isToggledSelectConnector ?
+                                (
+                                    <div onClick={toggleExistingCon} className="existing-connector-toggle">
+                                        {isToggledExistingConnector ?
+                                            <img src="../../../../../../images/exp-editor-expand.svg" />
+                                            :
+                                            <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                        }
+                                    </div>
+                                )
+                                :
+                                null
+                            }
+                        </div>
+
+                        {isToggledExistingConnector &&
+                            (
+                                <div className="existing-connector-wrapper">
+                                    {exsitingConnectors}
+                                </div>
+                            )
+                        }
+                    </div>
+                )
+            }
+
+            <Divider />
+
             <div className="element-option-holder" >
-                <div className="options-wrapper">
-                    {(genericConnectors.length > 0 ? <Divider /> : null)}
-                    {genericConnectors}
-                    {(serviceConnectors.length > 0 ? <Divider /> : null)}
-                    {serviceConnectors}
+                <div className="title-wrapper">
+                    <p className="plus-section-title">Create new connection</p>
+                    {isExistingConnectors && isToggledExistingConnector ?
+                        (
+                            <div onClick={toggleSelectCon}>
+                                {isToggledSelectConnector ?
+                                    <img src="../../../../../../images/exp-editor-expand.svg" />
+                                    :
+                                    <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                }
+                            </div>
+                        )
+                        :
+                        null
+                    }
                 </div>
+                {isToggledSelectConnector &&
+                    (
+                        <>
+                            <div className="top-connector-wrapper">
+                                <input
+                                    type="search"
+                                    placeholder="Search"
+                                    value={selectedContName}
+                                    onChange={handleSearchChange}
+                                    className='search-wrapper'
+                                />
+                            </div>
+                            <div className="options-wrapper">
+                                {/* {(genericConnectors.length > 0 ? <Divider /> : null)} */}
+                                {genericConnectors}
+                                {(serviceConnectors.length > 0 ? <Divider /> : null)}
+                                {serviceConnectors}
+                            </div>
+                        </>
+                    )
+                }
             </div>
         </div>
     );

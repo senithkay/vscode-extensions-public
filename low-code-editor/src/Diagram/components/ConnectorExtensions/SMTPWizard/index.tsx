@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
@@ -38,7 +38,7 @@ import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { checkErrorsReturnType, getConnectorIcon, getParams } from "../../Portals/utils";
+import { checkErrorsReturnType, getConnectorIcon, getParams, matchEndpointToFormField } from "../../Portals/utils";
 import "../HTTPWizard/style.scss"
 import { useStyles } from "../HTTPWizard/styles";
 
@@ -54,6 +54,7 @@ interface WizardProps {
     isNewConnectorInitWizard: boolean;
     targetPosition: DraftInsertPosition;
     model: STNode;
+    selectedConnector?: LocalVarDecl;
 }
 
 enum InitFormState {
@@ -76,29 +77,17 @@ const QontoConnector = withStyles({
     },
 })(StepConnector);
 
-function QontoStepIcon(props: { active: boolean; completed: boolean; }) {
-    const { active, completed } = props;
-    const classes = useStyles();
-
-    return (
-        <div
-            className={clsx(classNames(classes.stepWrapper, "stepWrapper"), { [classNames(classes.stepActive, "stepActive")]: active })}
-        >
-            {completed ? <div className={classNames(classes.completedStep, "completedStep")} /> : <div className={classNames(classes.currentStep, "currentStep")} />}
-        </div>
-    );
-}
-
 export function SMTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
-    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model } = props;
+    const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const enableHomePage = connectorConfig.existingConnections !== undefined && isNewConnectorInitWizard;
     const initFormState = enableHomePage ? InitFormState.Home : InitFormState.Create;
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
+    const [isNewConnection, setIsNewConnection] = useState<boolean>(true);
 
     if (!isNewConnectorInitWizard) {
         const smtpVar = model as LocalVarDecl;
@@ -106,16 +95,91 @@ export function SMTPWizard(props: WizardProps) {
             (smtpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
     }
 
+    useEffect(() => {
+        if (selectedConnector) {
+
+            const actionName = "sendEmailMessage";
+            connectorConfig.action = {
+                name: actionName,
+                fields: functionDefinitions.get(actionName)?.parameters
+            }
+            connectorConfig.connectorInit = connectorInitFormFields;
+
+            const connectorNameValue = (selectedConnector.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            connectorConfig.name = connectorNameValue;
+            matchEndpointToFormField(selectedConnector, connectorConfig.connectorInit);
+            connectorConfig.isExistingConnection = (connectorNameValue !== undefined);
+            setState(InitFormState.SelectInputOutput);
+        }
+    }, [selectedConnector]);
+
     const handleCreateNew = () => {
+        setIsNewConnection(true);
+        connectorConfig.name = undefined;
         setState(InitFormState.Create);
     };
 
     const handleSelectExisting = () => {
-        setState(InitFormState.Create);
+        setIsNewConnection(false);
+        if (enableHomePage) {
+            const actionName = "sendEmailMessage";
+            connectorConfig.action = {
+                name: actionName,
+                fields: functionDefinitions.get(actionName)?.parameters
+            }
+            setState(InitFormState.SelectInputOutput);
+        } else {
+            setState(InitFormState.Create);
+        }
     };
 
-    const handleInputOutputForm = () => {
+    const handleConnectionChange = () => {
+        if (isNewConnection) {
+            setState(InitFormState.Create);
+        } else {
+            setState(InitFormState.Home);
+        }
+    };
+
+    const handleOnSaveNext = () => {
+        const actionName = "sendEmailMessage";
+        connectorConfig.action = {
+            name: actionName,
+            fields: functionDefinitions.get(actionName)?.parameters
+        }
         setState(InitFormState.SelectInputOutput);
+    };
+
+    const handleCreateConnectorOnSave = () => {
+        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const modifications: STModification[] = [];
+        if (!isNewConnectorInitWizard && !connectorConfig.isExistingConnection) {
+            if (!connectorConfig.isExistingConnection) {
+                const updateConnectorInit = updatePropertyStatement(
+                    `${connector.module}:${connector.name} ${connectorConfig.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(connectorConfig.connectorInit).join()});`,
+                    connectorConfig.initPosition
+                );
+                modifications.push(updateConnectorInit);
+            }
+        } else if (targetPosition) {
+            // Add an import.
+            const addImport: STModification = createImportStatement(
+                connector.org,
+                connector.module,
+                targetPosition
+            );
+            modifications.push(addImport);
+
+            // Add an connector client initialization.
+            if (isNewConnection) {
+                const addConnectorInit = createPropertyStatement(
+                    `${connector.module}:${connector.name} ${connectorConfig.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(connectorConfig.connectorInit).join()});`,
+                    targetPosition
+                );
+                modifications.push(addConnectorInit);
+            }
+        }
+        onSave(modifications);
     };
 
     const handleBack = () => {
@@ -217,18 +281,8 @@ export function SMTPWizard(props: WizardProps) {
     };
 
     const homeForm = <SelectConnectionForm onCreateNew={handleCreateNew} connectorConfig={connectorConfig} connector={connector} onSelectExisting={handleSelectExisting} />;
-    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleInputOutputForm} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const inputOutptForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onBackClick={handleBack} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
-    const stepper = (
-        <Stepper className={classNames(classes.stepperWrapper, "stepperWrapper")} alternativeLabel={true} activeStep={state} connector={<QontoConnector />}>
-            <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.Create}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >CONNECTION</StepLabel>
-            </Step>
-            <Step className={classNames(classes.stepContainer, "stepContainer")} key={InitFormState.SelectInputOutput}>
-                <StepLabel className={classNames(classes.stepLabel, "stepLabel")} StepIconComponent={QontoStepIcon} >EMAIL</StepLabel>
-            </Step>
-        </Stepper>
-    );
+    const createConnectorForm = <CreateConnectorForm homePageEnabled={enableHomePage} functionDefinitions={functionDefinitions} onSave={handleCreateConnectorOnSave} onSaveNext={handleOnSaveNext} connectorConfig={connectorConfig} onBackClick={handleBack} connector={connector} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
+    const inputOutputForm = <SelectInputOutputForm functionDefinitions={functionDefinitions} onSave={handleOnSave} connectorConfig={connectorConfig} onConnectionChange={handleConnectionChange} isNewConnectorInitWizard={isNewConnectorInitWizard} />;
 
     return (
         <div className={classes.root}>
@@ -243,11 +297,10 @@ export function SMTPWizard(props: WizardProps) {
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} Connection</Typography>
                 </div>
             </div>
-            {state !== InitFormState.Home && stepper}
             <div className={classes.stepper}>
                 {state === InitFormState.Home && homeForm}
                 {state === InitFormState.Create && createConnectorForm}
-                {state === InitFormState.SelectInputOutput && inputOutptForm}
+                {state === InitFormState.SelectInputOutput && inputOutputForm}
             </div>
         </div>
     );
