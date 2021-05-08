@@ -56,7 +56,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
     }
 
     const subEditorType: string = transformFormFieldTypeToString(model).replace("[]", "");
-    const elementPropsTiny: FormElementProps = {
+    const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
             type: subEditorType,
@@ -76,7 +76,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
             <ExpressionEditorLabel {...props} />
             <span className="array-editor-container">
                 <div className="array-editor-wrapper">
-                    <ExpressionEditor {...elementPropsTiny} />
+                    <ExpressionEditor {...elementPropsSubEditor} />
                 </div>
                 <PrimaryButton
                     text={"Add"}
