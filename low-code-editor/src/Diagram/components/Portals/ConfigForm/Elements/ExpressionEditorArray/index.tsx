@@ -10,27 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
 
 import { FormElementProps } from "../../types";
 import { PrimaryButton } from "../Button/PrimaryButton";
-import ExpressionEditor from "../ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
+import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import { appendToArray } from "./utils";
 
-interface ExpressionEditorArrayProps {
-    elementProps: FormElementProps;
-}
-
-export function ExpressionEditorArray(props: ExpressionEditorArrayProps) {
-    const { elementProps } = props;
+export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorProps>) {
+    const { customProps, model, defaultValue } = props;
 
     const [changed, setChanged] = useState(true);
     const [tinyClearInput, setTinyClearInput] = useState(false);
-    const [tinyValue, setTinyValue] = useState("");
-    const [mainValue, setMainValue] = useState(elementProps.model?.value);
     const [tinyDisabled, setTinyDisabled] = useState(false);
+    const [tinyValue, setTinyValue] = useState("");
+    const [mainValue, setMainValue] = useState(getInitialValue(defaultValue, model));
+
+    const tinyType: string = transformFormFieldTypeToString(model).replace("[]", "");
 
     const handleTinyValidation = (_field: string, isInvalid: boolean) => {
         setTinyDisabled(isInvalid)
@@ -48,20 +48,10 @@ export function ExpressionEditorArray(props: ExpressionEditorArrayProps) {
         setTinyClearInput(false);
     }
 
-    const expEditorProps: FormElementProps = {
-        model: {...elementProps.model, value: mainValue},
-        customProps: {
-            ...elementProps.customProps,
-            hideTextLabel: true,
-            changed
-        },
-        onChange: handleMainValueChange
-    }
-
     const elementPropsTiny: FormElementProps = {
         model: {
-            name: "tiny_" + elementProps.model.name,
-            type: elementProps.model.collectionDataType,
+            name: "tiny_" + model.name,
+            type: tinyType,
             value: tinyValue
         },
         customProps: {
@@ -74,8 +64,9 @@ export function ExpressionEditorArray(props: ExpressionEditorArrayProps) {
     };
 
     const handleOnClick = () => {
-        elementProps.model.value = appendToArray(tinyValue, mainValue);
-        setMainValue(appendToArray(tinyValue, mainValue))
+        const newArray = appendToArray(tinyValue, mainValue || "");
+        model.value = newArray;
+        setMainValue(newArray)
         setTinyClearInput(true)
         setChanged(!changed)
     }
@@ -83,7 +74,7 @@ export function ExpressionEditorArray(props: ExpressionEditorArrayProps) {
 
     return (
         <>
-            <ExpressionEditorLabel {...elementProps} />
+            <ExpressionEditorLabel {...props} />
             <span style={{marginBottom: 10, display: 'flex'}}>
                 <div style={{width: 208, paddingRight: 8}}>
                     <ExpressionEditor {...elementPropsTiny} />
@@ -96,7 +87,13 @@ export function ExpressionEditorArray(props: ExpressionEditorArrayProps) {
                 />
             </span>
             <ExpressionEditor
-                {...expEditorProps}
+                model={model}
+                customProps={{
+                    ...customProps,
+                    hideTextLabel: true,
+                    changed
+                }}
+                onChange={handleMainValueChange}
             />
         </>
     )
