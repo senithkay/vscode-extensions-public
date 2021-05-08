@@ -19,71 +19,70 @@ import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
+import "./style.scss";
 import { appendToArray } from "./utils";
 
 export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorProps>) {
     const { customProps, model, defaultValue } = props;
 
     const [changed, setChanged] = useState(true);
-    const [tinyClearInput, setTinyClearInput] = useState(false);
-    const [tinyDisabled, setTinyDisabled] = useState(false);
-    const [tinyValue, setTinyValue] = useState("");
-    const [mainValue, setMainValue] = useState(getInitialValue(defaultValue, model));
+    const [clearInput, setClearInput] = useState(false);
+    const [addButtonDisabled, setAddButtonDisabled] = useState(false);
+    const [subEditorValue, setSubEditorValue] = useState("");
+    const [mainEditorValue, setMainEditorValue] = useState(getInitialValue(defaultValue, model));
 
-    const tinyType: string = transformFormFieldTypeToString(model).replace("[]", "");
-
-    const handleTinyValidation = (_field: string, isInvalid: boolean) => {
-        setTinyDisabled(isInvalid)
+    const handleSubEditorValidation = (_field: string, isInvalid: boolean) => {
+        setAddButtonDisabled(isInvalid)
     }
 
-    const handleTinyChange = (value: string) => {
-        setTinyValue(value)
+    const handleSubEditorChange = (value: string) => {
+        setSubEditorValue(value)
     }
 
-    const handleMainValueChange = (value: string) => {
-        setMainValue(value)
+    const handleMainEditorChange = (value: string) => {
+        setMainEditorValue(value)
     }
 
     const revertClearInput = () => {
-        setTinyClearInput(false);
+        setClearInput(false);
     }
 
-    const elementPropsTiny: FormElementProps = {
-        model: {
-            name: "tiny_" + model.name,
-            type: tinyType,
-            value: tinyValue
-        },
-        customProps: {
-            validate: handleTinyValidation,
-            hideTextLabel: true,
-            clearInput: tinyClearInput,
-            revertClearInput
-        },
-        onChange: handleTinyChange
-    };
-
-    const handleOnClick = () => {
-        const newArray = appendToArray(tinyValue, mainValue || "");
+    const handleAddButtonClick = () => {
+        const newArray = appendToArray(subEditorValue, mainEditorValue || "");
         model.value = newArray;
-        setMainValue(newArray)
-        setTinyClearInput(true)
+        setMainEditorValue(newArray)
+        setClearInput(true)
         setChanged(!changed)
     }
 
+    const subEditorType: string = transformFormFieldTypeToString(model).replace("[]", "");
+    const elementPropsTiny: FormElementProps = {
+        model: {
+            name: "sub_editor_" + model.name,
+            type: subEditorType,
+            value: subEditorValue
+        },
+        customProps: {
+            validate: handleSubEditorValidation,
+            hideTextLabel: true,
+            clearInput,
+            revertClearInput
+        },
+        onChange: handleSubEditorChange
+    };
 
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <span style={{marginBottom: 10, display: 'flex'}}>
-                <div style={{width: 208, paddingRight: 8}}>
+            <span className="array-editor-container">
+                <div className="array-editor-wrapper">
                     <ExpressionEditor {...elementPropsTiny} />
                 </div>
                 <PrimaryButton
                     text={"Add"}
                     fullWidth={false}
-                    onClick={handleOnClick}
-                    disabled={tinyDisabled}
+                    onClick={handleAddButtonClick}
+                    disabled={addButtonDisabled}
                 />
             </span>
             <ExpressionEditor
@@ -93,7 +92,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
                     hideTextLabel: true,
                     changed
                 }}
-                onChange={handleMainValueChange}
+                onChange={handleMainEditorChange}
             />
         </>
     )
