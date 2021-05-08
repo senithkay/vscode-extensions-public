@@ -492,7 +492,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        if (expressionEditorState?.name === model.name) {
+        if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
