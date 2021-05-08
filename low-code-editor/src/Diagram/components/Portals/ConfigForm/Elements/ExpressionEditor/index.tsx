@@ -418,7 +418,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel && model.value) {
                 editorModel.setValue(model.value);
-                handleOnFocus(model.value, monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor)
+                validExpEditor();
             }
         }
     }, [changed])
