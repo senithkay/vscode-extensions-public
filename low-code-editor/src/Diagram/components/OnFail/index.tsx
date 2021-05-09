@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { OnFailClause as BallerinaOnFailClause } from "@ballerina/syntax-tree";
@@ -31,6 +32,7 @@ export interface OnFailClauseProps {
 
 const ERRORTITLEWIDTH = 33;
 const TITLEWIDTH = 56;
+const TITLEHEIGHT = 5;
 const GLOBALERRORPATH = 127;
 
 export function OnFailClause(props: OnFailClauseProps) {
@@ -44,16 +46,16 @@ export function OnFailClause(props: OnFailClauseProps) {
     const blockViewState: BlockViewState = model.blockStatement.viewState as BlockViewState;
     const children = getSTComponents(model.blockStatement.statements);
     const pluses: React.ReactNode[] = [];
-    const drafts: React.ReactNode[] = [];
+    let drafts: React.ReactNode[] = [];
 
     // TODO: Figureout how to provide plus UI in to on error diagram.
-    // for (const plusView of blockViewState.plusButtons) {
-    //     pluses.push(<PlusButton viewState={plusView} model={model.blockStatement} initPlus={false} />)
-    // }
+    for (const plusView of blockViewState.plusButtons) {
+        pluses.push(<PlusButton viewState={plusView} model={model.blockStatement} initPlus={false} />)
+    }
 
-    // if (blockViewState?.draft) {
-    //     drafts = getDraftComponent(blockViewState, state, insertComponentStart);
-    // }
+    if (blockViewState?.draft) {
+        drafts = getDraftComponent(blockViewState, state, insertComponentStart);
+    }
 
     let lifeLine: React.ReactNode = null;
     if (viewState) {
@@ -61,21 +63,24 @@ export function OnFailClause(props: OnFailClauseProps) {
     }
 
     return (
-        <svg x={viewState.bBox.cx} y={viewState.bBox.cy} width={viewState.bBox.w} height={viewState.bBox.h} className={onFailClauseSVGClass}>
-            <g>
+        // <svg x={viewState.bBox.cx} y={viewState.bBox.cy} width={viewState.bBox.w} height={viewState.bBox.h} className={onFailClauseSVGClass}>
+            <g x={viewState.bBox.cx} y={viewState.bBox.cy}>
                 <g className={classes}>
                     {lifeLine}
                 </g>
                 <g className={onFailSeparator}>
-                    <line x1={-(viewState.bBox.w / 2)} y1={0} x2={-(viewState.bBox.w / 2)} y2={viewState.lifeLine.h + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2)} />
+                    <line x1={viewState.bBox.cx - (viewState.bBox.w / 2)} y1={viewState.bBox.cy} x2={viewState.bBox.cx - (viewState.bBox.w / 2)} y2={viewState.bBox.cy + viewState.lifeLine.h + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2)} />
                 </g>
                 <rect id="Rectangle" width={ERRORTITLEWIDTH} height="1" x={viewState.lifeLine.x - ERRORTITLEWIDTH / 2} y={viewState.lifeLine.y} fill="#5567d5" />
-                <text x={viewState.header.cx - (GLOBALERRORPATH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom - (DefaultConfig.startingOnErrorY * 2)} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
-                <text x={viewState.header.cx - (TITLEWIDTH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
+                <text x={viewState.header.cx - (GLOBALERRORPATH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom - (DefaultConfig.startingOnErrorY)} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
+                <text x={viewState.header.cx - (TITLEWIDTH / 2)} y={viewState.header.cy - TITLEHEIGHT} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
+                {/* <text x={viewState.header.cx} y={viewState.header.cy} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
+                <text x={viewState.header.cx} y={viewState.header.cy} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
+               */}
                 {...pluses}
                 {...drafts}
                 {...children}
             </g>
-        </svg>
+        // </svg>
     );
 }

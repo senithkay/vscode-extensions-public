@@ -148,12 +148,8 @@ class PositioningVisitor implements Visitor {
                         widthOfOnFailClause = onFailBlockViewState.bBox.w;
                         const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
                         onFailViewState.bBox.cx = viewState.end.bBox.cx + (DefaultConfig.startingOnErrorX * 2);
-                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2);
-
-                        onFailViewState.header.cx = onFailBlockViewState.bBox.cx;
-                        onFailViewState.header.cy = onFailBlockViewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom * 2);
-                        onFailViewState.lifeLine.x = onFailBlockViewState.bBox.cx;
-                        onFailViewState.lifeLine.y = onFailBlockViewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom * 2);
+                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2) + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2);
+                        viewState.onFail = statement.onFailClause;
                     }
                 }
             }
@@ -324,9 +320,25 @@ class PositioningVisitor implements Visitor {
     public beginVisitOnFailClause(node: OnFailClause) {
         const viewState = node.viewState as OnErrorViewState;
         if (viewState.isFirstInFunctionBody) {
+            const onFailViewState = node.viewState as OnErrorViewState;
             const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
+            blockViewState.bBox.cx = onFailViewState.bBox.cx;
+            blockViewState.bBox.cy = onFailViewState.bBox.cy;
+            // blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
         }
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const onFailBlockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.header.cx = viewState.bBox.cx;
+            viewState.header.cy = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.x = viewState.bBox.cx;
+            viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
+        }
+
     }
 
     private visitBlockStatement(node: BlockStatement) {
