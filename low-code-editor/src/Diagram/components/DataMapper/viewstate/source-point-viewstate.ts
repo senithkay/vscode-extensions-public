@@ -17,9 +17,11 @@ import { DataMapperViewState } from "./data-mapper-viewstate";
 export class SourcePointViewState extends DataMapperViewState {
     public text: string;
     public connections: ConnectionViewState[] = [];
+    public isJsonField: boolean;
 
     constructor() {
         super();
         this.text = '';
+        this.isJsonField = false;
     }
 }

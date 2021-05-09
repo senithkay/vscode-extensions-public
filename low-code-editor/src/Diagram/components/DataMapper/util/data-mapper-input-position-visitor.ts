@@ -13,10 +13,11 @@
 
 import { LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, SpecificField, Visitor } from "@ballerina/syntax-tree";
 
-import { DataMapperViewState } from "../viewstate";
+import { DataMapperViewState, InputFieldViewState } from "../viewstate";
 
 
 const DEFAULT_OFFSET = 20;
+const FIRST_FIELD = 'MAP_START_FIELD';
 
 export class DataMapperPositionVisitor implements Visitor {
     private height: number;
@@ -33,9 +34,22 @@ export class DataMapperPositionVisitor implements Visitor {
         this.hasDataMapperTypeDesc = false;
     }
 
+    getMaxOffset(): number {
+        return this.maxOffset;
+    }
+
+    setOffset(offset: number) {
+        this.offset = offset;
+        this.startOffset = offset;
+    }
+
+    setHeight(height: number) {
+        this.height = height;
+    }
+
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            const viewState = node.dataMapperViewState as DataMapperViewState;
+            const viewState = node.dataMapperViewState as InputFieldViewState;
             viewState.bBox.x = this.offset;
             viewState.bBox.y = this.height;
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
@@ -53,8 +67,8 @@ export class DataMapperPositionVisitor implements Visitor {
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         this.offset += DEFAULT_OFFSET;
 
-        if (this.maxOffset < this.offset) {
-            this.maxOffset = this.offset;
+        if (this.maxOffset < (this.offset - this.startOffset)) {
+            this.maxOffset = this.offset - this.startOffset;
         }
     }
 
@@ -74,8 +88,8 @@ export class DataMapperPositionVisitor implements Visitor {
     beginVisitMappingConstructor(node: MappingConstructor) {
         this.offset += DEFAULT_OFFSET;
 
-        if (this.maxOffset < this.offset) {
-            this.maxOffset = this.offset;
+        if (this.maxOffset < (this.offset - this.startOffset)) {
+            this.maxOffset = this.offset - this.startOffset;
         }
     }
 

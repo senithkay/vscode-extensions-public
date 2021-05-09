@@ -23,7 +23,7 @@ import {
 
 import { StatementViewState } from "../../../view-state";
 import { DraftUpdatePosition } from "../../../view-state/draft";
-import { ConnectionViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
+import { ConnectionViewState, InputFieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 import { DataMapperStatementViewState } from "../viewstate/data-mapper-statement-viewstate";
 
 import { MAIN_TARGET_NAME } from "./data-point-visitor";
@@ -33,95 +33,71 @@ export class DataMapperMappingVisitor implements Visitor {
     private nameParts: string[] = [];
     private sourcePoints: Map<string, SourcePointViewState>;
     private targetPoints: Map<string, TargetPointViewState>;
+    private references: string[] = [];
 
     constructor(sourcePoints: Map<string, SourcePointViewState>, targetPoints: Map<string, TargetPointViewState>) {
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
     }
 
-    beginVisitReturnStatement(node: ReturnStatement) {
+    beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            this.isVisitingReturnStatement = true;
-            this.targetPoints.get(MAIN_TARGET_NAME).position = node.expression.position;
-            node.expression.dataMapperViewState = node.dataMapperViewState;
-            this.nameParts.push(MAIN_TARGET_NAME);
+            const viewState = node.dataMapperViewState as InputFieldViewState;
+            this.nameParts.push(viewState.name);
         }
     }
 
-    endVisitReturnStatement(node: ReturnStatement) {
+    endVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            this.isVisitingReturnStatement = false;
-            const statementViewState: DataMapperStatementViewState = node.dataMapperViewState as DataMapperStatementViewState;
-            statementViewState.references.forEach(ref => {
+            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            this.nameParts.splice(this.nameParts.length - 1, 1);
+            this.references.forEach(ref => {
                 const connectionVS = this._generateConnection(
                     ref,
                     this.generateDataPointName(this.nameParts),
-                    node.expression.position
+                    node.initializer.position
                 );
-
-                if (connectionVS) {
-                    this.sourcePoints.get(ref).connections.push(connectionVS);
-                }
+                // viewstate.sourcePointViewState.connections.push(connectionVS);
+                this.sourcePoints.get(ref).connections.push(connectionVS);
             });
-            statementViewState.references = [];
-            this.nameParts.splice(this.nameParts.length - 1, 1);
-        }
-    }
 
-    beginVisitMappingConstructor(node: MappingConstructor) {
-        if (node.dataMapperViewState) {
-            if (this.isVisitingReturnStatement) {
-                node.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
-                    field.dataMapperViewState = new DataMapperStatementViewState();
-                })
-            }
+            this.references = [];
         }
     }
 
     beginVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState) {
-            if (this.isVisitingReturnStatement) {
-                this.nameParts.push(node.fieldName.value);
-                const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
-                if (targetPoint) {
-                    targetPoint.position = node.valueExpr.position;
-                }
-            }
-            node.valueExpr.dataMapperViewState = node.dataMapperViewState;
+            this.nameParts.push(node.fieldName.value);
         }
     }
 
     endVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState) {
-            if (this.isVisitingReturnStatement) {
-                const statementViewState: DataMapperStatementViewState = node.dataMapperViewState as DataMapperStatementViewState;
-                statementViewState.references.forEach(ref => {
-                    const connectionVS = this._generateConnection(
-                        ref,
-                        this.generateDataPointName(this.nameParts),
-                        node.valueExpr.position
-                    );
+            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            this.references.forEach(ref => {
+                const connectionVS = this._generateConnection(
+                    ref,
+                    this.generateDataPointName(this.nameParts),
+                    node.valueExpr.position
+                );
+                this.sourcePoints.get(ref).connections.push(connectionVS);
+            });
 
-                    if (connectionVS) {
-                        this.sourcePoints.get(ref).connections.push(connectionVS);
-                    }
-                });
-                this.nameParts.splice(this.nameParts.length - 1, 1);
+            this.references = [];
+            this.nameParts.splice(this.nameParts.length - 1, 1);
 
-                statementViewState.references = [];
-            }
         }
     }
 
     beginVisitSimpleNameReference(node: SimpleNameReference) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataMapperStatementViewState).references?.push(node.source);
+            this.references.push(node.source);
         }
     }
 
     beginVisitFieldAccess(node: FieldAccess) {
         if (node.dataMapperViewState) {
-            (node.dataMapperViewState as DataMapperStatementViewState).references?.push(node.source);
+            this.references.push(node.source);
         }
     }
 

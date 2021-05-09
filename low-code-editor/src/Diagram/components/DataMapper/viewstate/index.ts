@@ -20,13 +20,11 @@ import { InputVariableViewstate } from './input-variable-viewstate';
 import { OutputFieldViewState } from './output-field-viewstate';
 import { SourcePointViewState } from './source-point-viewstate';
 import { TargetPointViewState } from './target-point-viewstate';
-import { TypeDescViewState } from './type-desc-viewstate';
 
 export {
     DataMapperViewState,
     SourcePointViewState,
     TargetPointViewState,
-    TypeDescViewState,
     ConnectionViewState,
     DataMapperFunctionViewState,
     DataMapperStatementViewState,

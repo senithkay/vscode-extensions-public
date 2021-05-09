@@ -11,9 +11,9 @@
  * associated services.
  */
 
-import { RecordField, RequiredParam, ReturnTypeDescriptor, Visitor } from "@ballerina/syntax-tree";
+import { LocalVarDecl, RecordField, SpecificField, Visitor } from "@ballerina/syntax-tree";
 
-import { SourcePointViewState, TargetPointViewState, TypeDescViewState } from "../viewstate";
+import { InputFieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
 export const MAIN_TARGET_NAME = 'MAIN_TARGET';
 
@@ -23,67 +23,10 @@ export class DataPointVisitor implements Visitor {
     private nameComponents: string[] = [];
     private returnTypeX: number = 0;
     private readonly sourceTypeX: number = 0;
+    private hasDataMapperTypeDesc: boolean;
 
     constructor(maxOffset: number) {
-        this.sourceTypeX = 120 + maxOffset;
-    }
-
-    beginVisitRequiredParam(node: RequiredParam) {
-        if (node.dataMapperViewState) {
-            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
-            viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
-            viewState.sourcePointViewState.bBox.y = viewState.bBox.y - 5;
-            this.sourcePointMap.set(viewState.name, viewState.sourcePointViewState);
-            this.nameComponents.push(viewState.name);
-        }
-    }
-
-    endVisitRequiredParam(node: RequiredParam) {
-        if (node.dataMapperViewState) {
-            this.nameComponents.splice(this.nameComponents.length - 1, 1);
-        }
-    }
-
-    beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
-        if (node.dataMapperViewState) {
-            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
-            this.returnTypeX = viewState.bBox.x - 20; // todo: move this to a constant file
-            viewState.targetPointViewState.bBox.x = this.returnTypeX;
-            viewState.targetPointViewState.bBox.y = viewState.bBox.y - 5;
-            viewState.targetPointViewState.position = node.position;
-            this.targetPointMap.set(MAIN_TARGET_NAME, viewState.targetPointViewState);
-            this.nameComponents.push(MAIN_TARGET_NAME);
-        }
-    }
-
-    endVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
-        if (node.dataMapperViewState) {
-            this.nameComponents.splice(this.nameComponents.length - 1, 1);
-        }
-    }
-
-    beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
-            const viewState: TypeDescViewState = node.dataMapperViewState as TypeDescViewState;
-            this.nameComponents.push(viewState.name);
-            if (viewState.isSource) {
-                viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
-                viewState.sourcePointViewState.bBox.y = viewState.bBox.y - 5;
-                this.sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewState.sourcePointViewState);
-            }
-
-            if (viewState.isTarget) {
-                viewState.targetPointViewState.bBox.x = this.returnTypeX;
-                viewState.targetPointViewState.bBox.y = viewState.bBox.y - 5;
-                this.targetPointMap.set(this.generateDataPointName(this.nameComponents), viewState.targetPointViewState);
-            }
-        }
-    }
-
-    endVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
-            this.nameComponents.splice(this.nameComponents.length - 1, 1);
-        }
+        this.sourceTypeX = 150 + maxOffset;
     }
 
     get sourcePointMap(): Map<string, SourcePointViewState> {
@@ -102,5 +45,82 @@ export class DataPointVisitor implements Visitor {
         });
 
         return name;
+    }
+
+    beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            this.nameComponents.push(viewstate.name);
+            this.hasDataMapperTypeDesc = viewstate.hasMappedConstructorInitializer;
+
+            if (viewstate.sourcePointViewState) {
+                viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
+            }
+
+            if (viewstate.targetPointViewState) {
+                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
+            }
+        }
+    }
+
+    endVisitLocalVarDecl(node: LocalVarDecl) {
+        if (node.dataMapperViewState) {
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+            this.hasDataMapperTypeDesc = false;
+        }
+    }
+
+    beginVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            this.nameComponents.push(viewstate.name);
+
+            if (viewstate.sourcePointViewState) {
+                viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
+            }
+
+            if (viewstate.targetPointViewState) {
+                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
+            }
+        }
+    }
+
+    endVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState) {
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+        }
+    }
+
+    beginVisitSpecificField(node: SpecificField) {
+        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            this.nameComponents.push(viewstate.name);
+
+            if (viewstate.sourcePointViewState) {
+                viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
+            }
+
+            if (viewstate.targetPointViewState) {
+                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
+            }
+        }
+    }
+
+    endVisitSpecificField(node: SpecificField) {
+        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+        }
     }
 }

@@ -15,11 +15,11 @@ import React from 'react';
 import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { TypeInfo, DataMapperOutputTypeInfo } from "../../Portals/ConfigForm/types";
+import { DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
-import { DataMapperViewState, TypeDescViewState } from "../viewstate";
+import { DataMapperViewState, InputFieldViewState  } from "../viewstate";
 
-import { DataMapperInitVisitor } from "./data-mapper-input-init-visitor";
+import { DataMapperInitVisitor, VisitingType } from "./data-mapper-input-init-visitor";
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -70,10 +70,10 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
                 const recordNode: any = recordMap.get(recordIdentifier);
                 if (recordNode) {
                     recordNode.dataMapperViewState = new DataMapperViewState();
-                    traversNode(recordNode, new DataMapperInitVisitor());
+                    traversNode(recordNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
                     returnString += '{'
                     recordNode.fields?.forEach((field: any, index: number) => {
-                        const fieldVS = field.dataMapperViewState as TypeDescViewState;
+                        const fieldVS = field.dataMapperViewState as InputFieldViewState;
                         returnString += `${fieldVS.name}: `;
                         returnString += getDefaultValueForType(
                             fieldVS,
@@ -98,10 +98,10 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
                 const recordNode: any = recordMap.get(recordIdentifier);
                 if (recordNode) {
                     recordNode.dataMapperViewState = new DataMapperViewState();
-                    traversNode(recordNode, new DataMapperInitVisitor());
+                    traversNode(recordNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
                     returnString += '{'
                     recordNode.fields?.forEach((field: any, index: number) => {
-                        const fieldVS = field.dataMapperViewState as TypeDescViewState;
+                        const fieldVS = field.dataMapperViewState as InputFieldViewState;
                         returnString += `${fieldVS.name}: `;
                         returnString += getDefaultValueForType(
                             fieldVS,
@@ -126,8 +126,8 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
     }
 }
 
-export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, STNode>) {
-    const paramViewState: TypeDescViewState = paramNode.dataMapperViewState;
+export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, STNode>, visitType: VisitingType) {
+    const paramViewState: InputFieldViewState = paramNode.dataMapperViewState;
     switch (paramViewState.type) {
         case 'string':
         case 'int':
@@ -147,12 +147,12 @@ export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, 
 
                 if (typeDescST) {
                     typeDescST.dataMapperViewState = paramNode.dataMapperViewState;
-                    traversNode(typeDescST, new DataMapperInitVisitor());
+                    traversNode(typeDescST, new DataMapperInitVisitor(visitType));
 
                     switch (typeDescST.kind) {
                         case 'RecordTypeDesc':
                             (typeDescST as RecordTypeDesc).fields.forEach((field: any) => {
-                                completeMissingTypeDesc(field, records);
+                                completeMissingTypeDesc(field, records, visitType);
                             });
                             break;
                     }

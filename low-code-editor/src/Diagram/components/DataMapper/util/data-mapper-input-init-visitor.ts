@@ -46,6 +46,11 @@ export enum VisitingType {
 }
 
 export class DataMapperInitVisitor implements Visitor {
+    private visitType: VisitingType;
+
+    constructor(visitType: VisitingType) {
+        this.visitType = visitType;
+    }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (!node.dataMapperViewState) {
@@ -54,7 +59,6 @@ export class DataMapperInitVisitor implements Visitor {
 
         const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
         viewState.hasMappedConstructorInitializer = node.initializer.kind === 'MappingConstructor';
-        viewState.sourcePointViewState = new SourcePointViewState();
 
         const typedBindingPattern = node.typedBindingPattern as TypedBindingPattern;
         const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -87,6 +91,18 @@ export class DataMapperInitVisitor implements Visitor {
         }
 
         viewState.name = bindingPattern.variableName.value;
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            if (node.initializer) {
+                viewState.targetPointViewState = new TargetPointViewState();
+                viewState.targetPointViewState.position = node.initializer.position;
+                viewState.targetPointViewState.value = node.initializer.source;
+                node.initializer.dataMapperViewState = new DataMapperViewState();
+            }
+        }
+
 
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
@@ -131,6 +147,12 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
         }
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            viewState.targetPointViewState = new TargetPointViewState();
+        }
     }
 
     beginVisitSpecificField(node: SpecificField) {
@@ -147,7 +169,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.name = (node.fieldName as StringLiteral).literalToken.value;
                 break;
             default:
-                // ignored
+            // ignored
         }
 
         if (node.valueExpr) {
@@ -160,7 +182,18 @@ export class DataMapperInitVisitor implements Visitor {
             } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 viewstate.type = 'mapconstructor'; // TODO: check for the correct term
             }
+
+            if (this.visitType === VisitingType.OUTPUT && !viewstate.targetPointViewState) {
+                viewstate.targetPointViewState = new TargetPointViewState();
+                viewstate.targetPointViewState.value = node.valueExpr.source;
+                viewstate.targetPointViewState.position = node.valueExpr.position;
+            }
+
+            node.valueExpr.dataMapperViewState = new DataMapperViewState();
+        }
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewstate.sourcePointViewState = new SourcePointViewState();
         }
     }
-
 }

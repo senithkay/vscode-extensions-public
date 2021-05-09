@@ -12,7 +12,7 @@
  */
 import { TypeInfo } from "../../Portals/ConfigForm/types";
 
-import { DataMapperViewState, SourcePointViewState } from ".";
+import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from ".";
 
 export class InputFieldViewState extends DataMapperViewState {
     public type: string;
@@ -20,4 +20,5 @@ export class InputFieldViewState extends DataMapperViewState {
     public typeInfo: TypeInfo;
     public hasMappedConstructorInitializer: boolean;
     public sourcePointViewState: SourcePointViewState;
+    public targetPointViewState: TargetPointViewState;
 }

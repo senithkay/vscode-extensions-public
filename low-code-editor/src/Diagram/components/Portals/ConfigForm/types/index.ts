@@ -110,6 +110,7 @@ export interface DataMapperOutputTypeInfo {
     node?: STNode;
     generationType?: GenerationType;
     typeInfo?: TypeInfo;
+    startLine?: number;
     fields?: DataMapperOutputField[];
     sampleStructure?: string;
     fieldsGenerated?: boolean;
