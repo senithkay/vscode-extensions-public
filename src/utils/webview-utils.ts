@@ -84,7 +84,21 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot?#iefix") format("embedded-opentype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff2") format("woff2"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff") format("woff"), url("${fontDirWithSeparatorReplaced}/font-ballerina.ttf") format("truetype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.svg#font-ballerina") format("svg");
                         font-weight:normal;
                         font-style:normal;
-                   }
+                    }
+                    .loader {
+                        border: 16px solid #f3f3f3;
+                        border-top: 16px solid #dadada;
+                        border-radius: 50%;
+                        width: 150px;
+                        height: 150px;
+                        animation: spin 2s linear infinite;
+                        margin: auto;
+                        margin-top: 20%;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
                     ${styles}
                 </style>
             </head>

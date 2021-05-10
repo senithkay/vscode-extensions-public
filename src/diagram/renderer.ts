@@ -90,6 +90,10 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                         return Promise.resolve({});
                     });
                 } catch(e) {
+                    if (e.message === 'ballerinaComposer is not defined') {
+                        drawLoading();
+                        return;
+                    }
                     console.log(e.stack);
                     drawError('Oops. Something went wrong. ' + e.message);
                 }
@@ -101,8 +105,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                 </div>
                 \`;
             }
+            function drawLoading() {
+                document.getElementById("diagram").innerHTML = \`
+                <div class="loader"></div>
+                \`;
+            }
             drawDiagram();
-            enableUndoRedo();
         }
     `;
 
