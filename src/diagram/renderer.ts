@@ -1,5 +1,6 @@
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+import { sep } from "path";
 
 export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
     return renderDiagram(filePath, startLine, startColumn, kind, name);
@@ -52,12 +53,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             line-height: 25px;
         }
     `;
-        
+
     kind = kind.charAt(0).toUpperCase() + kind.slice(1);
+
+    let ballerinaFilePath = filePath.fsPath;
+    if (process.platform === 'win32') {
+        ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
+    }
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
-            let filePath = ${JSON.stringify(filePath.fsPath)};
+            let filePath = ${JSON.stringify(ballerinaFilePath)};
             let startLine = ${JSON.stringify(startLine.toString())};
             let startColumn = ${JSON.stringify(startColumn.toString())};
             let name = ${JSON.stringify(name)};
