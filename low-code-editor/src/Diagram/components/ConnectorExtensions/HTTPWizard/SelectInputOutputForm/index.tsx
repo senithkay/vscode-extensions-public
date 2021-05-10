@@ -41,7 +41,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 
@@ -51,7 +50,6 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
-    headerObject?: HeaderObjectConfig[];
     model?: STNode,
 }
 
@@ -70,8 +68,7 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard,
-            headerObject, model } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
     const { state: diagramState } = useContext(DiagramContext);
     const { isMutationProgress } = diagramState;
@@ -84,11 +81,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state, setDefaultActionName] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
-    const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
+    const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
+    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === undefined);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
     const httpVar = model as LocalVarDecl;
@@ -420,7 +417,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             });
             setDefaultResponseVarName(connectorConfig.action.returnVariableName);
             switch (httpVar.initializer.kind) {
-                case 'TypeCastExpression':
+                case 'CheckAction':
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
                     connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
@@ -446,8 +443,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 } else if (variableStatement.source.includes('getJsonPayload')) {
                                     connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
                                 } else {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = undefined;
                                 }
+                                setPayloadState({
+                                    isPayloadSelected: (connectorConfig.responsePayloadMap.selectedPayloadType !==
+                                        undefined || (connectorConfig.responsePayloadMap.selectedPayloadType !== "")),
+                                    selectedPayload: connectorConfig.responsePayloadMap.selectedPayloadType,
+                                    isNameProvided: true,
+                                    validPayloadName: true,
+                                    variableName: connectorConfig.responsePayloadMap.payloadVariableName
+                                });
+                                setDefaultPayloadVarName(connectorConfig.responsePayloadMap.payloadVariableName);
                             }
                         }
                     });
@@ -455,84 +461,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 default:
                     actionInitializer = httpVar.initializer as CheckAction;
                 // ignored
-            }
-
-            if (actionInitializer) {
-                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
-
-                if (message) {
-                    if (message.kind === 'SimpleNameReference') {
-                        const refName = (message as SimpleNameReference).name.value;
-                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
-
-                        if (connectorConfig.action.name === 'forward') {
-                            connectorConfig.action.fields[3].value = refName;
-                        }
-
-                        if (refCallStatements) {
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
-                                .forEach(callStatement => {
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    headerObject.push({
-                                        requestName: refName,
-                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
-                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
-                                    })
-                                });
-
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
-                                .forEach(callStatement => {
-                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                        field.requestName = refName;
-
-                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
-                                            case 'XmlTemplateExpression':
-                                                field.selectedDataType = 'xml';
-                                                break;
-                                            case 'MappingConstructor':
-                                                field.selectedDataType = 'json';
-                                                break;
-                                            default:
-                                                field.selectedDataType = 'string';
-                                        }
-
-                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                            .forEach(unionField => {
-                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                            })
-                                    })
-                                });
-                        }
-                    } else {
-                        if (connectorConfig.action.name !== 'get') {
-                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                switch (message.kind) {
-                                    case 'XmlTemplateExpression':
-                                        field.selectedDataType = 'xml';
-                                        break;
-                                    case 'MappingConstructor':
-                                        field.selectedDataType = 'json';
-                                        break;
-                                    default:
-                                        field.selectedDataType = 'string';
-                                }
-
-                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                    .forEach(unionField => {
-                                        unionField.value = message.source
-                                    })
-                            });
-                        }
-                    }
-                }
             }
         }
     }, [isNewConnectorInitWizard]);
@@ -613,7 +541,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     />
                                 </div>
 
-                                {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                                {(isNewConnectorInitWizard || !(connectorConfig.responsePayloadMap.selectedPayloadType)) ? (
                                     // <Tooltip
                                     //     title={tooltipMessages.HTTPPayload.title}
                                     //     content={tooltipMessages.HTTPPayload.content}
@@ -634,7 +562,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         {payloadComponent}
                                     </div>
                                 )}
-                                <HTTPHeaders headerObject={headerObject} />
                             </div>
                         </div>
                         <div className={classes.wizardBtnHolder}>
