@@ -46,7 +46,7 @@ const any = require('promise.any');
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 const PREV_REGEX = /1\.2\.[0-9]+/g;
 
-export const EXTENSION_ID = 'ballerina.ballerina';
+export const EXTENSION_ID = 'wso2.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
     TOML = 'toml'
