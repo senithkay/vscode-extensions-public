@@ -48,6 +48,7 @@ export function DataMapper(props: DataMapperProps) {
         stSymbolInfo,
         onMutate: dispatchMutations,
         dataMapperConfig,
+        currentApp
     } = state
 
     // const dataMapperConfig = sampleJSON;
@@ -62,7 +63,7 @@ export function DataMapper(props: DataMapperProps) {
 
     if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
         const typeInfo = dataMapperConfig.outputType.typeInfo;
-        outputType = typeInfo.moduleName !== '.' ?
+        outputType = typeInfo.moduleName !== currentApp.name ?
             `${typeInfo.moduleName}:${typeInfo.name}`
             : typeInfo.name
     } else {

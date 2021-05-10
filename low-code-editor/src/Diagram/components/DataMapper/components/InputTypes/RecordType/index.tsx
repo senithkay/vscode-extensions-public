@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { RecordTypeDesc, STNode } from '@ballerina/syntax-tree';
 
+import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getDataMapperComponent } from '../../../util';
 import { FieldViewState } from '../../../viewstate';
 
@@ -23,13 +24,14 @@ interface RecordTypeProps {
 }
 
 export function RecordType(props: RecordTypeProps) {
+    const { state: { currentApp } } = useContext(DiagramContext);
     const { model, isMain } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
     const typeInfo = viewState.typeInfo;
 
-    const type = typeInfo.moduleName === '.' ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`
+    const type = typeInfo.moduleName === currentApp.name ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`;
 
     const fields: JSX.Element[] = []
 

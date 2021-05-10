@@ -45,12 +45,6 @@ enum DataMapperSteps {
     SELECT_INPUT,
 }
 
-
-const typeArray: DataMapperOutputTypeInfo[] = [
-    { variableName: '', type: 'record', typeInfo: { name: 'Person', orgName: '$anon', moduleName: '.', version: '0.0.0' } },
-    { variableName: '', type: 'record', typeInfo: { name: 'Employee', orgName: '$anon', moduleName: '.', version: '0.0.0' } }
-]
-
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { processConfig, onCancel, onSave } = props;
     const { state, dataMapperStart } = useContext(DiagramContext);
@@ -67,6 +61,24 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const [isJsonValid, setIsJsonValid] = useState(true);
 
     const varData: DataMapperInputTypeInfo[] = [];
+    const typeArray: DataMapperOutputTypeInfo[] = [];
+
+    stSymbolInfo.recordTypeDescriptions.forEach((node: STNode) => {
+        const typeData = node.typeData;
+        const typeSymbol = typeData.typeSymbol;
+        const moduleID = typeSymbol.moduleID;
+
+        if (moduleID) {
+            typeArray.push({
+                variableName: '',
+                type: 'record',
+                typeInfo: {
+                    name: typeSymbol.name,
+                    ...moduleID
+                }
+            })
+        }
+    });
 
     stSymbolInfo.variables.forEach((values: STNode[], key: string) => {
         values.forEach((varNode: LocalVarDecl) => {
@@ -198,7 +210,7 @@ export function generateFieldStructureForJsonSample(obj: any): DataMapperOutputF
                 }
                 break;
             default:
-                // ignored
+            // ignored
         }
 
         fields.push(currentField);

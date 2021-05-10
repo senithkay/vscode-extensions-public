@@ -48,7 +48,8 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo } } = useContext(DiagramContext);
+    const { state } = useContext(DiagramContext);
+    const { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo, currentApp } = state;
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
@@ -78,7 +79,7 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(updateLogStmt);
                     break;
                 case 'DataMapper':
-                    console.log('test :::', processConfig);
+                    // TODO: handle datamapper edit scenario
                     break;
                 case 'Call':
                 case 'Custom':
@@ -125,7 +126,7 @@ export function ProcessConfigForm(props: any) {
                             break;
                         case 'record':
                             const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
-                            outputType = outputTypeInfo.moduleName === '.' ?
+                            outputType = outputTypeInfo.moduleName === currentApp.name ?
                                 outputTypeInfo.name
                                 : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                             break;
