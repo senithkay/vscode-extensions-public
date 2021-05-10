@@ -13,41 +13,28 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {TooltipCodeSnippet} from "../Portals/ConfigForm/Elements/Tooltip";
+import { TooltipCodeSnippet } from "../../../components/Tooltip";
 
-export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 104;
-export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 31;
-export const TRIGGER_PARAMS_SVG_WIDTH = 97;
-export const TRIGGER_PARAMS_SVG_HEIGHT = 30;
+export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 110;
+export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 30;
+export const TRIGGER_PARAMS_SVG_WIDTH = 99;
+export const TRIGGER_PARAMS_SVG_HEIGHT = 24;
 
 export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
     const { text, ...xyProps } = props;
     return (
         <svg {...xyProps} width={TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW} height={TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW} >
-            <defs>
-                <filter id="Rectangle_Copy_10" x="0" y="0" width="104" height="31" filterUnits="userSpaceOnUse">
-                    <feOffset dy="1" in="SourceAlpha"/>
-                    <feGaussianBlur stdDeviation="1" result="blur"/>
-                    <feFlood flood-color="#a9acb6" flood-opacity="0.302"/>
-                    <feComposite operator="in" in2="blur"/>
-                    <feComposite in="SourceGraphic"/>
-                </filter>
-            </defs>
             <TooltipCodeSnippet content={text} placement="right" arrow={true}>
-                <g id="Group" transform="translate(3.5 2.5)">
-                    <g transform="matrix(1, 0, 0, 1, -3.5, -2.5)" filter="url(#Rectangle_Copy_10)">
-                        <rect id="Rectangle_Copy_10-2" data-name="Rectangle Copy 10" width="97" height="24" rx="12" transform="translate(3.5 2.5)" fill="#f0f1fb" stroke="#fff" stroke-miterlimit="10" stroke-width="1"/>
+                <g id="Trigger-Params" transform="translate(3.5 2.5)">
+                    <g id="Trigger-Params-wrapper" transform="translate(-1038.5 -145.5)">
+                        <g id="Rectangle" transform="translate(1038.5 145.5)" fill="#fff" stroke="#ccd1f2" stroke-miterlimit="10" stroke-width="1">
+                            <rect width="99" height="24" rx="4" stroke="none" />
+                            <rect x="0.5" y="0.5" width="98" height="23" rx="3.5" fill="none" />
+                        </g>
+                        <text id="Trigger-Params-text" className="trigger-params-text" transform="translate(1087.5 160.5)" >
+                            <tspan x="0" y="0" textAnchor="middle" data-testid="trigger-params-text-block"> {text.length >= 18 ? text.slice(0, 15) + "..." : text} </tspan>
+                        </text>
                     </g>
-                    <text className="trigger-params-text" transform="translate(48.5 12)">
-                        <tspan
-                            x="0"
-                            y="2"
-                            textAnchor="middle"
-                            data-testid="trigger-params-text-block"
-                        >
-                            {text.length >= 18 ? text.slice(0, 15) + "..." : text}
-                        </tspan>
-                    </text>
                 </g>
             </TooltipCodeSnippet>
         </svg>

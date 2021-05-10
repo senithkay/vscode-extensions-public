@@ -80,6 +80,7 @@ export function ProcessConfigForm(props: any) {
                 case 'DataMapper':
                     console.log('test :::', processConfig);
                     break;
+                case 'Call':
                 case 'Custom':
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
@@ -137,7 +138,7 @@ export function ProcessConfigForm(props: any) {
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
                     modifications.push(dataMapperFunction);
-                } else if (processConfig.type === "Custom") {
+                } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
                     modifications.push(addCustomStatement);

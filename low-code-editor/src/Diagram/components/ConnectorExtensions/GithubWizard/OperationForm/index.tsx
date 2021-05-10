@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -46,6 +47,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo: symbolInfo } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -78,13 +80,37 @@ export function OperationForm(props: OperationFormProps) {
         setValidForm(isRequiredFilled);
     };
 
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GitHub.addResponseVariable.placeholder",
+        defaultMessage: "Enter response variable name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.GitHub.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.GitHub.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const gitHubTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.GitHub.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
+            }),
+    }
+    };
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={wizardClasses.subTitle}>Connection</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationForm.title" defaultMessage="Connection"/></p>
                          <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {connectionDetails.name}
@@ -103,7 +129,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}>Operation</p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GitHub.operationForm.operation.title" defaultMessage="Operation"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}
@@ -128,12 +154,13 @@ export function OperationForm(props: OperationFormProps) {
 
                     <FormTextInput
                         customProps={{
-                            validate: validateNameValue
+                            validate: validateNameValue,
+                            tooltipTitle: gitHubTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
+                        placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={"Response Variable Name"}
+                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
                 </div>
@@ -142,7 +169,7 @@ export function OperationForm(props: OperationFormProps) {
                 <PrimaryButton
                     dataTestId={"git-save-btn"}
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={!validForm || mutationInProgress || !validName}
                     onClick={handleOnSave}
