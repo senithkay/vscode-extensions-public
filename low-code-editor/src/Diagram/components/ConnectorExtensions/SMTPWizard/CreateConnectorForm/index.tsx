@@ -151,17 +151,17 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const pathInstructionsBullet1 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint1",
-        defaultMessage: "include spaces and special characters"
+        defaultMessage: "Include spaces and special characters"
       });
 
     const pathInstructionsBullet2 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint2",
-        defaultMessage: "start with a numerical character"
+        defaultMessage: "Start with a numerical character"
       });
 
     const pathInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint3",
-        defaultMessage: "include keywords such as Return, Foreach, Resource, Object, etc."
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
       });
 
     const pathInstructions = intl.formatMessage({
