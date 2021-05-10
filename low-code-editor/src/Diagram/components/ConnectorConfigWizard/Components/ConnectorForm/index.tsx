@@ -218,6 +218,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
+        const moduleName = connectorInfo.module.includes('.') ? connectorInfo.module.split('.').pop() : connectorInfo.module;
         trackAddConnector(connectorInfo.displayName);
 
         // check oauth flow and manual flow
@@ -242,7 +243,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
 
                 const addConnectorInit: STModification = createPropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                         ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
                     targetPosition
                 );
@@ -257,7 +258,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
                 // update connector client initialization
                 const updateConnectorInit = updatePropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                         ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
                     config.initPosition
                 );
@@ -275,14 +276,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 modifications.push(addImport);
 
                 const addConnectorInit: STModification = createPropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                     targetPosition
                 );
                 modifications.push(addConnectorInit);
             } else {
                 // update connector client initialization
                 const updateConnectorInit = updatePropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                     connectorConfig.initPosition
                 );
                 modifications.push(updateConnectorInit);

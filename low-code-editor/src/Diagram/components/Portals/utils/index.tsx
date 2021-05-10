@@ -533,7 +533,7 @@ export function getConnectorIconId(connector: BallerinaConnectorsInfo) {
 
 export function genVariableName(defaultName: string, variables: string[]): string {
     const baseName: string = convertToCamelCase(defaultName);
-    let varName: string = baseName.replace('.', '');
+    let varName: string = baseName.includes('.') ? baseName.split('.').pop() : baseName;
     let index = 0;
     while (variables.includes(varName)) {
         index++;
