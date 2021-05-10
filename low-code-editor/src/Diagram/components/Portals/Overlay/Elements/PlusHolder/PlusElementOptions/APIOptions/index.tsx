@@ -102,7 +102,7 @@ export function APIOptions(props: APIOptionsProps) {
         gitHubConnector: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.title",
-            defaultMessage: "Connect with the GitHub API to perform operations in GitHub."
+            defaultMessage: "Connect with GitHub API to perform operations in GitHub."
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
