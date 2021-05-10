@@ -32,7 +32,9 @@ import {
     RecordTypeDesc,
     RequiredParam,
     SimpleNameReference,
+    SpecificField,
     STNode,
+    StringLiteral,
     StringTypeDesc,
     traversNode,
     TypeDefinition,
@@ -67,6 +69,15 @@ class FieldVisitor implements Visitor {
         const viewState: FormField = node.viewState as FormField;
         if (node.viewState && node.typeName) {
             viewState.name = node.paramName.value;
+            if (node.annotations.length > 0){
+                const annotateField = node.annotations.find(field => (field.annotReference as SimpleNameReference).name.value === "display")?.
+                    annotValue?.fields.find(field => field.kind === "SpecificField") as SpecificField;
+                if (annotateField.fieldName.value === "label"){
+                    const labelField = annotateField.valueExpr as StringLiteral;
+                    viewState.label = labelField.literalToken.value.replace('\"', '');
+                }
+            }
+
             node.typeName.viewState = viewState;
         }
 
@@ -419,6 +430,15 @@ class FieldVisitor implements Visitor {
             if (node.functionSignature.returnTypeDesc) {
                 functionDefinitionMap.get(node.functionName.value).returnType
                     = node.functionSignature.returnTypeDesc.type.viewState;
+            }
+
+            if (node.metadata?.annotations.length > 0){
+                const annotateField = node.metadata.annotations.find(field => (field.annotReference as SimpleNameReference).name.value === "display")?.
+                    annotValue?.fields.find(field => field.kind === "SpecificField") as SpecificField;
+                if (annotateField.fieldName.value === "label"){
+                    const labelField = annotateField.valueExpr as StringLiteral;
+                    functionDefinitionMap.get(node.functionName.value).label = labelField.literalToken.value.replace('\"', '');
+                }
             }
         }
     }

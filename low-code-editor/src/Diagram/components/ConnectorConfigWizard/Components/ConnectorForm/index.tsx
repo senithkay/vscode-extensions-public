@@ -59,6 +59,10 @@ export interface OauthProviderConfigState {
     configList: OauthProviderConfig[];
     configListError?: Error;
 }
+export interface ConnectorOperation {
+    name: string,
+    label?: string
+}
 
 enum FormStates {
     ExistingConnection,
@@ -169,11 +173,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         setConfigName(name);
     }
 
-    const operations: string[] = [];
+    const operations: ConnectorOperation[] = [];
     if (functionDefInfo && isAction) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
-                operations.push(key);
+                operations.push({name: key, label: value.label});
             }
         });
     }

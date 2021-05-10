@@ -22,9 +22,10 @@ import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { wizardStyles } from "../../style";
+import { ConnectorOperation } from '../ConnectorForm';
 
 export interface OperationDropdownProps {
-    operations: string[];
+    operations: ConnectorOperation[];
     showConnectionName: boolean;
     connectionDetails: ConnectorConfig;
     onOperationSelect: (operation: string) => void;
@@ -36,13 +37,22 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const intl = useIntl();
 
     const handleSelect = (event: object, value: any, reason: string) => {
-        onOperationSelect(value);
+        onOperationSelect(value.name);
     };
 
     const operationDropdownPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.operationDropdown.placeholder",
         defaultMessage: "Search operation"
     });
+
+    const sortedOperations = () => {
+        const sortedList = operations.sort((a, b) => (a.label > b.label) ? 1 : -1);
+        return sortedList;
+    }
+
+    const renderOperation = (operation: ConnectorOperation) => {
+        return operation.label;
+    }
 
     return (
         <div>
@@ -51,7 +61,8 @@ export function OperationDropdown(props: OperationDropdownProps) {
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
-                        itemList={operations}
+                        itemList={sortedOperations()}
+                        getItemLabel={renderOperation}
                         onChange={handleSelect}
                     />
                 </div>

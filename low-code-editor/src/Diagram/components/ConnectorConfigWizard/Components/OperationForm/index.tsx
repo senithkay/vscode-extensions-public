@@ -30,10 +30,11 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from '../../../Portals/utils/constants';
 import { wizardStyles } from "../../style";
+import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
 
 export interface OperationFormProps {
-    operations: string[];
+    operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
     onSave: (sourceModifications?: STModification[]) => void;
@@ -153,7 +154,7 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {selectedOperationState}
+                                        {operations.find(operation => operation.name === selectedOperationState)?.label}
                                     </Typography>
                                     <IconButton
                                         color="primary"
