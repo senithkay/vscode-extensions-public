@@ -57,6 +57,8 @@ const ignoreList = [
     // sl alpha5
     'ballerina/oauth2:1.1.0-alpha8:HttpVersion',
     'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
+    'ballerina/oauth2:1.1.0-alpha8:ClientConfiguration',
+    'ballerina/oauth2:1.1.0-alpha8:ClientCredentialsGrantConfig',
 ]
 
 export function getOverlayElement(
@@ -141,9 +143,11 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey);
                             const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
-                            if (depth > maxDepth){
-                                return;
-                            }
+                            // console.log(">>> ------------------------\n")
+                            // console.warn(`recordKey, ignoredRecord, depth, skip by depth >>> `, recordKey, ignoredRecord, depth)
+                            // if (depth > maxDepth){
+                            //     return;
+                            // }
                             if (!recordRes){
                                 recordRes = loadedRecords.get(recordKey);
                             }
@@ -166,6 +170,9 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                     if (record && record.ast) {
                                         recordRes = record.ast;
                                         loadedRecords.set(recordKey, recordRes);
+                                        // console.info(`found record ast >>> `, recordKey)
+                                    } else {
+                                        // console.error(`cannot found record ast >>> `, recordKey)
                                     }
                                 }
                             }
@@ -192,7 +199,9 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 recordRes.viewState = formField;
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
-                                    await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
+                                    if (depth < maxDepth){
+                                        await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
+                                    }
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
                                         if (property?.length > 0) {
@@ -497,7 +506,7 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
 }
 
 export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
-    const Icon = (Icons as any)[iconId];
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
     return Icon ? (
         <Icon {...props} />
@@ -506,7 +515,7 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 
 export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: number = 1): React.ReactNode {
     const iconId = getConnectorIconId(connector);
-    const Icon = (Icons as any)[iconId];
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
     const props = {
         scale
@@ -517,7 +526,7 @@ export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: n
 }
 
 export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
-    const Icon = (Icons as any)[iconId];
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
     const props = {
         scale
@@ -650,7 +659,7 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
 export async function fetchConnectorInfo(connector: Connector, model?: STNode, state?: any): Promise<ConfigWizardState> {
     const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
     // get form fields from browser cache
-    let functionDefInfo; // await getFromFormFieldCache(connector);
+    let functionDefInfo = await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
 
     if (!functionDefInfo) {
@@ -696,10 +705,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         await addToFormFieldCache(connector, functionDefInfo);
 
         // INFO: uncomment below code to get connector form field json object
-        // const formFieldJsonObject: any = {};
-        // functionDefInfo.forEach((value, key) => {
-        //     formFieldJsonObject[key] = value;
-        // });
+        const formFieldJsonObject: any = {};
+        functionDefInfo.forEach((value, key) => {
+            formFieldJsonObject[key] = value;
+        });
         // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
         // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
     }

@@ -166,22 +166,22 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
-        case "ballerinax_github_Client":
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "createIssue") {
-                    // make label list and assignee list optional and set default values
-                    value.parameters.find(fields => fields.name === "labelList").optional = true;
-                    value.parameters.find(fields => fields.name === "labelList").value = `[]`;
-                    value.parameters.find(fields => fields.name === "assigneeList").optional = true;
-                    value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
-                    filteredFunctions.set(key, value);
-                } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
-                    && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
-                    // todo: add these operations when bal connector class fetch support is there
-                    filteredFunctions.set(key, value);
-                }
-            });
-            break;
+        // case "ballerinax_github_Client":
+        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+        //         if (key === "createIssue") {
+        //             // make label list and assignee list optional and set default values
+        //             value.parameters.find(fields => fields.name === "labelList").optional = true;
+        //             value.parameters.find(fields => fields.name === "labelList").value = `[]`;
+        //             value.parameters.find(fields => fields.name === "assigneeList").optional = true;
+        //             value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
+        //             filteredFunctions.set(key, value);
+        //         } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
+        //             && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
+        //             // todo: add these operations when bal connector class fetch support is there
+        //             filteredFunctions.set(key, value);
+        //         }
+        //     });
+        //     break;
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
@@ -339,8 +339,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             subFields.isUnion = undefined;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
-                            subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
-                            subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
+                            // subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
+                            // subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
                             subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
                             subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
                             subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
