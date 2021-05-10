@@ -136,32 +136,16 @@ export function PlusElements(props: PlusElementsProps) {
         statementsPlusHolder: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
-                defaultMessage: "A collection of code fragments that can be added to your application"
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionText",
-                defaultMessage: "Learn more about Statements."
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionTitle",
-                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/statements.md"
+                defaultMessage: "A collection of code fragments that can be added to your application."
             })
         },
         APIsPlusHolder: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-                defaultMessage: "A collection of API calls that helps you to integrate your application to external services"
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionText",
-                defaultMessage: "Learn more about Connections."
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionTitle",
-                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/connector.md"
-            })
-        },
-    }
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
+            defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
+        })
+},
+}
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -176,8 +160,6 @@ export function PlusElements(props: PlusElementsProps) {
             <div className="holder-options">
                 <Tooltip
                     title={plusHolderUITooltipMessages.statementsPlusHolder.title}
-                    actionText={plusHolderUITooltipMessages.statementsPlusHolder.actionText}
-                    actionLink={plusHolderUITooltipMessages.statementsPlusHolder.actionLink}
                     interactive={true}
                     placement="bottom"
                     arrow={true}
@@ -192,8 +174,6 @@ export function PlusElements(props: PlusElementsProps) {
 
                     <Tooltip
                         title={plusHolderUITooltipMessages.APIsPlusHolder.title}
-                        actionText={plusHolderUITooltipMessages.APIsPlusHolder.actionText}
-                        actionLink={plusHolderUITooltipMessages.APIsPlusHolder.actionLink}
                         interactive={true}
                         placement="bottom"
                         arrow={true}
