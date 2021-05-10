@@ -212,17 +212,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathInstructionsBullet1 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1",
-    defaultMessage: "include spaces outside the square brackets"
+    defaultMessage: "Include spaces outside the square brackets"
   });
 
   const pathInstructionsBullet2 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint2",
-    defaultMessage: "start with a numerical character"
+    defaultMessage: "Start with a numerical character"
   });
 
   const pathInstructionsBullet3 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
-    defaultMessage: "include keywords such as Return, Foreach, Resource, Object, etc."
+    defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
   });
 
   const resourceConfigTitle = intl.formatMessage({
