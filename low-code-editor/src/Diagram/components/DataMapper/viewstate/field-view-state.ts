@@ -14,7 +14,7 @@ import { TypeInfo } from "../../Portals/ConfigForm/types";
 
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from ".";
 
-export class InputFieldViewState extends DataMapperViewState {
+export class FieldViewState extends DataMapperViewState {
     public type: string;
     public name: string;
     public typeInfo: TypeInfo;

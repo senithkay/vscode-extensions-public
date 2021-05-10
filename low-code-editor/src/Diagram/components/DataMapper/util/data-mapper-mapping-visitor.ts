@@ -12,21 +12,16 @@
  */
 
 import {
-    ArrayTypeDesc, FieldAccess,
+    FieldAccess,
     LocalVarDecl,
-    MappingConstructor,
-    ReturnStatement,
     SimpleNameReference,
     SpecificField,
     Visitor
 } from "@ballerina/syntax-tree";
 
-import { StatementViewState } from "../../../view-state";
 import { DraftUpdatePosition } from "../../../view-state/draft";
-import { ConnectionViewState, InputFieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
-import { DataMapperStatementViewState } from "../viewstate/data-mapper-statement-viewstate";
+import { ConnectionViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
-import { MAIN_TARGET_NAME } from "./data-point-visitor";
 
 export class DataMapperMappingVisitor implements Visitor {
     private isVisitingReturnStatement: boolean = false;
@@ -42,14 +37,14 @@ export class DataMapperMappingVisitor implements Visitor {
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            const viewState = node.dataMapperViewState as InputFieldViewState;
+            const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
         }
     }
 
     endVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references.forEach(ref => {
                 const connectionVS = this._generateConnection(
@@ -73,7 +68,7 @@ export class DataMapperMappingVisitor implements Visitor {
 
     endVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            const viewstate = node.dataMapperViewState as FieldViewState;
             this.references.forEach(ref => {
                 const connectionVS = this._generateConnection(
                     ref,

@@ -38,7 +38,7 @@ import {
 } from '@ballerina/syntax-tree';
 
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
-import { DataMapperViewState, InputFieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
+import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 import { InputVariableViewstate } from '../viewstate/input-variable-viewstate';
 
 export enum VisitingType {
@@ -55,10 +55,10 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new InputFieldViewState();
+            node.dataMapperViewState = new FieldViewState();
         }
 
-        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
         viewState.hasMappedConstructorInitializer = node.expression.kind === 'MappingConstructor';
 
         // const typedBindingPattern = node.typedBindingPattern as TypedBindingPattern;
@@ -112,10 +112,10 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new InputFieldViewState();
+            node.dataMapperViewState = new FieldViewState();
         }
 
-        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
         viewState.hasMappedConstructorInitializer = node.initializer.kind === 'MappingConstructor';
 
         const typedBindingPattern = node.typedBindingPattern as TypedBindingPattern;
@@ -169,7 +169,7 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new InputFieldViewState();
+            node.dataMapperViewState = new FieldViewState();
         }
 
         node.dataMapperViewState.type = PrimitiveBalType.Record;
@@ -177,10 +177,10 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitRecordField(node: RecordField) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new InputFieldViewState();
+            node.dataMapperViewState = new FieldViewState();
         }
 
-        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
         const typeName = node.typeName;
         viewState.name = node.fieldName.value;
 
@@ -223,9 +223,9 @@ export class DataMapperInitVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField) {
         if (!node.dataMapperViewState) {
-            node.dataMapperViewState = new InputFieldViewState();
+            node.dataMapperViewState = new FieldViewState();
         }
-        const viewstate = node.dataMapperViewState as InputFieldViewState;
+        const viewstate = node.dataMapperViewState as FieldViewState;
 
         switch (node.fieldName.kind) {
             case 'IdentifierToken':

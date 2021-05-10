@@ -28,8 +28,8 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 
 import { DataMapperFunctionComponent } from "./components/FunctionComponent";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
-import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-input-init-visitor';
-import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-input-position-visitor';
+import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
+import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import sampleJSON from './sample-config.json';
 import { DataPoint } from './components/DataPoint';

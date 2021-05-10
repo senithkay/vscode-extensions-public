@@ -13,7 +13,7 @@
 
 import { LocalVarDecl, RecordField, SpecificField, Visitor } from "@ballerina/syntax-tree";
 
-import { InputFieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
+import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
 export const MAIN_TARGET_NAME = 'MAIN_TARGET';
 
@@ -49,7 +49,7 @@ export class DataPointVisitor implements Visitor {
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
             this.hasDataMapperTypeDesc = viewstate.hasMappedConstructorInitializer;
 
@@ -76,7 +76,7 @@ export class DataPointVisitor implements Visitor {
 
     beginVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState) {
-            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
             if (viewstate.sourcePointViewState) {
@@ -101,7 +101,7 @@ export class DataPointVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
-            const viewstate = node.dataMapperViewState as InputFieldViewState;
+            const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
             if (viewstate.sourcePointViewState) {

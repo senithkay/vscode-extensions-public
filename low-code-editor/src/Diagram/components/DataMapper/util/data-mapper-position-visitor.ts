@@ -13,7 +13,7 @@
 
 import { LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, SpecificField, Visitor } from "@ballerina/syntax-tree";
 
-import { DataMapperViewState, InputFieldViewState } from "../viewstate";
+import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 
 const DEFAULT_OFFSET = 20;
@@ -49,7 +49,7 @@ export class DataMapperPositionVisitor implements Visitor {
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
-            const viewState = node.dataMapperViewState as InputFieldViewState;
+            const viewState = node.dataMapperViewState as FieldViewState;
             viewState.bBox.x = this.offset;
             viewState.bBox.y = this.height;
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;

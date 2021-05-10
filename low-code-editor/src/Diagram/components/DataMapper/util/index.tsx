@@ -17,9 +17,9 @@ import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
 import { DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
-import { DataMapperViewState, InputFieldViewState  } from "../viewstate";
+import { DataMapperViewState, FieldViewState  } from "../viewstate";
 
-import { DataMapperInitVisitor, VisitingType } from "./data-mapper-input-init-visitor";
+import { DataMapperInitVisitor, VisitingType } from "./data-mapper-init-visitor";
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -73,7 +73,7 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
                     traversNode(recordNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
                     returnString += '{'
                     recordNode.fields?.forEach((field: any, index: number) => {
-                        const fieldVS = field.dataMapperViewState as InputFieldViewState;
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
                         returnString += `${fieldVS.name}: `;
                         returnString += getDefaultValueForType(
                             fieldVS,
@@ -101,7 +101,7 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
                     traversNode(recordNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
                     returnString += '{'
                     recordNode.fields?.forEach((field: any, index: number) => {
-                        const fieldVS = field.dataMapperViewState as InputFieldViewState;
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
                         returnString += `${fieldVS.name}: `;
                         returnString += getDefaultValueForType(
                             fieldVS,
@@ -127,7 +127,7 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
 }
 
 export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, STNode>, visitType: VisitingType) {
-    const paramViewState: InputFieldViewState = paramNode.dataMapperViewState;
+    const paramViewState: FieldViewState = paramNode.dataMapperViewState;
     switch (paramViewState.type) {
         case 'string':
         case 'int':
