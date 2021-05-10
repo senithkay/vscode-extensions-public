@@ -234,13 +234,13 @@ export function DataProcessor(props: ProcessorProps) {
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
-                <g className={processWrapper} data-testid="data-processor-block" >
+                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <VariableName
                                 processType={processType}
                                 variableName={processName}
-                                x={cx - (VARIABLE_NAME_WIDTH + 40)}
+                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                 y={cy + PROCESS_SVG_HEIGHT / 4}
                                 key_id={getRandomInt(1000)}
                             />
@@ -254,6 +254,7 @@ export function DataProcessor(props: ProcessorProps) {
                             position={model?.position}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                         />
+                        {/* <Tooltip arrow={true} placement="top-start" content="jgkgjhgj"> */}
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={cy + PROCESS_SVG_HEIGHT / 3}
@@ -261,6 +262,7 @@ export function DataProcessor(props: ProcessorProps) {
                             className="assignment-text"
                             key_id={getRandomInt(1000)}
                         />
+                        {/* </Tooltip> */}
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"
