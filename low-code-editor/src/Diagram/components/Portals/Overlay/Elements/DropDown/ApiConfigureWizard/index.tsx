@@ -222,7 +222,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathInstructionsBullet3 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
-    defaultMessage: "include keywords such as Return , Foreach , Resource, Object etc."
+    defaultMessage: "include keywords such as Return, Foreach, Resource, Object, etc."
   });
 
   const resourceConfigTitle = intl.formatMessage({

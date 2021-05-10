@@ -188,7 +188,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const pathInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GitHub.createConnection.tooltip.instructions.bulletPoint3",
-        defaultMessage: "include keywords such as Return , Foreach , Resource, Object ,etc."
+        defaultMessage: "include keywords such as Return, Foreach, Resource, Object, etc."
       });
 
     const pathInstructions = intl.formatMessage({
