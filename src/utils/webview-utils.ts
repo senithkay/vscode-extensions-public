@@ -25,7 +25,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 export function getVSCodeResourceURI(filePath: string): string {
-    return 'vscode-resource:' + filePath;
+    return process.platform === 'win32' ? 'vscode-resource:/' + filePath : 'vscode-resource:' + filePath;
 }
 
 export interface WebViewOptions {
