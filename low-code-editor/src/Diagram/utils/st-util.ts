@@ -468,8 +468,8 @@ export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: Balle
                 const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 const endpointName: string = captureBindingPattern.variableName.value;
                 const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
-                if (typeData?.typeSymbol?.moduleID) {
-                    const moduleId: any = typeData?.typeSymbol?.moduleID;
+                if (typeData?.symbol?.moduleID) {
+                    const moduleId: any = typeData?.symbol?.moduleID;
                     for (const connectorInfo of connectors) {
                         if (connectorInfo.module === moduleId.moduleName) {
                             matchModule = true;

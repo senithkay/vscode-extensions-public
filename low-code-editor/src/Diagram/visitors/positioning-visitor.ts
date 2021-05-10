@@ -342,14 +342,14 @@ class PositioningVisitor implements Visitor {
                     if (!endpoint.firstAction) {
                         endpoint.firstAction = statementViewState;
                         mainEp.isUsed = true;
-                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
+                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     } else if (mainEp.lifeLine.cy > statementViewState.bBox.cy) {
                         // To catch the endpoints define at the function block and used after a child block
-                        mainEp.lifeLine.h = mainEp.lifeLine.cy - statementViewState.bBox.cy;
+                        mainEp.lifeLine.h = mainEp.lifeLine.cy - statementViewState.bBox.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                         // mainEp.lifeLine.cy = statementViewState.bBox.cy;
                     } else if ((mainEp.lifeLine.h + mainEp.lifeLine.cy) < (statementViewState.action.trigger.cy)) {
                         // to skip updating EP heights which less than the current EP height
-                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
+                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     }
 
                     // Add actions to the corresponding map item.
@@ -370,7 +370,7 @@ class PositioningVisitor implements Visitor {
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
-                    || (!statementViewState.collapsed && !statementViewState.isCallerAction)) {
+                    || (!statementViewState.collapsed)) {
                     height += statementViewState.bBox.h;
                 }
             }

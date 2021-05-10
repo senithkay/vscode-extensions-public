@@ -29,6 +29,7 @@ import {
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/Collapse/CollapseSVG";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/Connector/ConnectorHeader/ConnectorClientSVG";
@@ -533,6 +534,8 @@ class SizingVisitor implements Visitor {
                 viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
                 viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+                viewState.action.trigger.w = TRIGGER_RECT_SVG_WIDTH;
+                viewState.action.trigger.h = TRIGGER_RECT_SVG_HEIGHT;
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {

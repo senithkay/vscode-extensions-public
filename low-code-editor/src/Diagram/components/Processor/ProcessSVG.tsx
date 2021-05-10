@@ -63,10 +63,10 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                                 <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
                             </g>
                         </g>
-                        {processType === "Log" ?
+                        {(processType === "Log" || processType === "Call") ?
                             (
                                 <text id="new" transform="translate(242 538)" className="process-icon-text">
-                                    <tspan x="1" y="1">log</tspan>
+                                    <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
                                 </text>
                             )
                             :

@@ -37,7 +37,7 @@ export function EditSVG(props: { x: number, y: number }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Edit-Button" className="edit-circle edit-click" transform="translate(3.5 3.5)">
+            <g id="Edit-Button" className="edit-circle edit-click" transform="translate(3.5 4.5)">
                 <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
                     <g id="EditGroup" transform="translate(4.5 3.5)" >
                         <rect width="18" height="18" rx="12.5" stroke="none" />

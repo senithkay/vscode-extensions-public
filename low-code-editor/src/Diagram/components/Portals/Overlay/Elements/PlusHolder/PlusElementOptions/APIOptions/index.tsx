@@ -382,7 +382,7 @@ export function APIOptions(props: APIOptionsProps) {
                 (
                     <div className="existing-connect-wrapper">
                         <div className="title-wrapper">
-                            <p className="plus-section-title">Choose Existing Connectors </p>
+                            <p className="plus-section-title">Choose existing connection </p>
                             {isToggledSelectConnector ?
                                 (
                                     <div onClick={toggleExistingCon} className="existing-connector-toggle">
@@ -413,7 +413,7 @@ export function APIOptions(props: APIOptionsProps) {
 
             <div className="element-option-holder" >
                 <div className="title-wrapper">
-                    <p className="plus-section-title">Choose new connection</p>
+                    <p className="plus-section-title">Create new connection</p>
                     {isExistingConnectors && isToggledExistingConnector ?
                         (
                             <div onClick={toggleSelectCon}>

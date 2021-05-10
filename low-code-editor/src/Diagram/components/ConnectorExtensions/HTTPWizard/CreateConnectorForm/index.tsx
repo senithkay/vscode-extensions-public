@@ -235,7 +235,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     </div>
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
-                <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
+                <div className={classes.wizardBtnHolder}>
                     <div className={classes.saveBtnHolder}>
                         {/* <Tooltip
                             title={tooltipMessages.connectorButtons.savaButton}
