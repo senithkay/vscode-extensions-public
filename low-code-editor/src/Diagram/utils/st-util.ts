@@ -24,7 +24,7 @@ import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElse
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
-import { EndpointViewState, PlusViewState, StatementViewState } from "../view-state";
+import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
@@ -545,6 +545,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
@@ -552,6 +557,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
 export function recalculateSizingAndPositioningST(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
