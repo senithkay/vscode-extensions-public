@@ -51,7 +51,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
     }
 
     const renderOperation = (operation: ConnectorOperation) => {
-        return operation.label;
+        return operation.label || operation.name ;
     }
 
     return (

@@ -70,6 +70,7 @@ export function Form(props: FormProps) {
     return (
         <form className={classes.inputUrl} noValidate={true} autoComplete="off">
             <FormAccordion
+                depth={1}
                 mandatoryFields={elements}
                 optionalFields={optionalElements}
             />

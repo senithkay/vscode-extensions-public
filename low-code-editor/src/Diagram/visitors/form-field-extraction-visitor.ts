@@ -72,15 +72,14 @@ class FieldVisitor implements Visitor {
             if (node.annotations.length > 0){
                 const annotateField = node.annotations.find(field => (field.annotReference as SimpleNameReference).name.value === "display")?.
                     annotValue?.fields.find(field => field.kind === "SpecificField") as SpecificField;
-                if (annotateField.fieldName.value === "label"){
+                if (annotateField?.fieldName.value === "label"){
                     const labelField = annotateField.valueExpr as StringLiteral;
-                    viewState.label = labelField.literalToken.value.replace('\"', '');
+                    viewState.label = labelField?.literalToken.value.replace(/\"/gi, '');
                 }
             }
 
             node.typeName.viewState = viewState;
         }
-
     }
 
     /**
@@ -435,9 +434,9 @@ class FieldVisitor implements Visitor {
             if (node.metadata?.annotations.length > 0){
                 const annotateField = node.metadata.annotations.find(field => (field.annotReference as SimpleNameReference).name.value === "display")?.
                     annotValue?.fields.find(field => field.kind === "SpecificField") as SpecificField;
-                if (annotateField.fieldName.value === "label"){
+                if (annotateField?.fieldName.value === "label"){
                     const labelField = annotateField.valueExpr as StringLiteral;
-                    functionDefinitionMap.get(node.functionName.value).label = labelField.literalToken.value.replace('\"', '');
+                    functionDefinitionMap.get(node.functionName.value).label = labelField?.literalToken.value.replace(/\"/gi, '');
                 }
             }
         }

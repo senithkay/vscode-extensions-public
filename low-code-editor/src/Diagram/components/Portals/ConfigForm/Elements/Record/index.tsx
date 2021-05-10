@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { FormattedMessage } from "react-intl";
 
 import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
@@ -38,7 +37,6 @@ export function Record(props: FormElementProps<RecordProps>) {
                 if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
                     || field.type === "float" || field.type === "collection" || (field.type === 'record' && !field.isReference) ||
                     (field.type === "union" && !field.optional))) {
-                    // field.optional = model.optional ? model.optional : field.optional;
                     const elementProps: FormElementProps = {
                         model: field,
                         index,
@@ -55,29 +53,11 @@ export function Record(props: FormElementProps<RecordProps>) {
         }
     }
 
-    const modelName = model && model.displayName ? model.displayName : model.name;
-
     return (
         <div className={classes.marginTB}>
-            {/* model && model.optional ?
-                 (
-                     <div className={classes.labelWrapper}>
-                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                         <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.record.optional.label" defaultMessage="Optional"/></FormHelperText>
-                     </div>
-                 ) : (
-                     <div className={classes.labelWrapper}>
-                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                         <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-                     </div>
-                 )
-     */}
-            {/* <div className={classes.groupedForm}>
-                    {recordFields}
-             </div >
-    */}
             <FormAccordion
-                title={modelName}
+                title={model.label || model.name}
+                depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
             />

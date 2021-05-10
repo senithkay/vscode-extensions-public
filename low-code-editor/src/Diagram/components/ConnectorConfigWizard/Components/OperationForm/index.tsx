@@ -154,7 +154,7 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {operations.find(operation => operation.name === selectedOperationState)?.label}
+                                        {operations.find(operation => operation.name === selectedOperationState)?.label || selectedOperationState}
                                     </Typography>
                                     <IconButton
                                         color="primary"
