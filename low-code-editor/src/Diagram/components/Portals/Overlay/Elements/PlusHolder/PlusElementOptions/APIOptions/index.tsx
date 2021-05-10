@@ -21,7 +21,7 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
-import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
+import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
 
@@ -285,7 +285,8 @@ export function APIOptions(props: APIOptionsProps) {
             Array.from(connectors).forEach(element => {
                 // tslint:disable-next-line: no-unused-expression
                 const existingConnector = element as BallerinaConnectorsInfo;
-                if (existingConnector.module === moduleName && existingConnector.name === name) {
+                const formattedModuleName = getFormattedModuleName(existingConnector.module);
+                if (formattedModuleName === moduleName && existingConnector.name === name) {
                     returnConnnectorType = existingConnector;
                 }
             });
@@ -293,7 +294,6 @@ export function APIOptions(props: APIOptionsProps) {
         }
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
-            const existingConnectorIcon = value.typedBindingPattern.typeDescriptor.source.trim().replace(":", "_");
             const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).modulePrefix.value;
             const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
             const existConnector = getConnector(moduleName, name);
@@ -301,7 +301,7 @@ export function APIOptions(props: APIOptionsProps) {
                 <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
                     <div className="existing-connector-details product-tour-add-http">
                         <div className="existing-connector-icon">
-                            {getExistingConnectorIconSVG(existingConnectorIcon)}
+                            {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}
                         </div>
                         <div className="existing-connector-name">
                             {key}
