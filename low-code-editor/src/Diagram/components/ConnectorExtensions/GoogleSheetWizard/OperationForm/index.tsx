@@ -134,7 +134,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GSheet.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -146,6 +146,15 @@ export function OperationForm(props: OperationFormProps) {
         id: "lowcode.develop.configForms.GSheet.saveConnectionButton.text",
         defaultMessage: "Save"
     });
+
+    const GSheetTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.GSheet.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
+            }),
+    }
+    };
 
     return (
         <div>
@@ -214,7 +223,8 @@ export function OperationForm(props: OperationFormProps) {
 
                     <FormTextInput
                         customProps={{
-                            validate: validateNameValue
+                            validate: validateNameValue,
+                            tooltipTitle: GSheetTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
                         placeholder={addResponseVariablePlaceholder}

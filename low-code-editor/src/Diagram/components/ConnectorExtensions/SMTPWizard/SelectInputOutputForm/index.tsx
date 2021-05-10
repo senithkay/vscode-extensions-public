@@ -233,13 +233,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         responseVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.SMTP.SelectInputOutput.tooltip.title",
-                defaultMessage: "Enter a valid name for the response variable"
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
     }
     };
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.SMTP.selectInputOutputForm.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
