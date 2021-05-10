@@ -12,15 +12,16 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react'
+import { FormattedMessage } from 'react-intl';
 
 import {FormHelperText} from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
 import { format, parse } from 'date-fns';
 
+import { TooltipIcon } from "../../../../../../components/Tooltip";
 import {useStyles as useFormStyles} from "../../forms/style";
 import { FormElementProps } from '../../types';
 import {useStyles as useTextInputStyles} from "../TextField/style";
-import {TooltipIcon} from "../Tooltip";
 
 import { useStyles } from "./styles";
 
@@ -55,7 +56,7 @@ export function DateLabelPicker(props: FormElementProps<DateLabelPickerProps>) {
                                 <div className={textFieldClasses.inputWrapper}>
                                     <div className={textFieldClasses.labelWrapper}>
                                         <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                        <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                        <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dateLabelPicker.optional" defaultMessage="Optional"/></FormHelperText>
                                     </div>
 
                                 </div>

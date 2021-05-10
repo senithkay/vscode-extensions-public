@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -27,7 +28,8 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import {SendMessageForm} from "../SendMessageForm";
+import CreateDraftForm from '../CreateDraftForm';
+import SendMessageForm from "../SendMessageForm";
 
 export interface OperationFormProps {
     selectedOperation: string;
@@ -47,6 +49,7 @@ export function OperationForm(props: OperationFormProps) {
             onOperationChange, mutationInProgress } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -86,13 +89,42 @@ export function OperationForm(props: OperationFormProps) {
         isSaveButtonDisabled = false;
     }
 
+    const renderForm = () => {
+        switch (selectedOperation) {
+            case "sendMessage":
+                return (<SendMessageForm formFields={formFields} onValidate={validateForm}/>);
+
+            case "createDraft":
+            case "updateDraft":
+                return (<CreateDraftForm formFields={formFields} onValidate={validateForm}/>);
+
+            default:
+                return (<Form fields={formFields} onValidate={validateForm} />);
+        }
+    }
+
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.Gmail.addResponseVariable.placeholder",
+        defaultMessage: "Enter Response Variable Name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.Gmail.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.Gmail.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={wizardClasses.subTitle}>Connection</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.Gmail.operationForm.title" defaultMessage="Connection"/></p>
                          <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {connectionDetails.name}
@@ -111,7 +143,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}>Operation</p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.Gmail.operationForm.operation.title" defaultMessage="Operation :"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}
@@ -128,16 +160,9 @@ export function OperationForm(props: OperationFormProps) {
                     </Box>
                     </>
                     <div className={wizardClasses.formWrapper}>
-                        {formFields.length > 0 ? (
-                            <div>
-                                {(selectedOperation === "sendMessage") ? (
-                                    <SendMessageForm formFields={formFields} onValidate={validateForm}/>
-                                ) : (
-                                    <Form fields={formFields} onValidate={validateForm} />
-                                )}
-                            </div>
-                            ) : null
-                        }
+                        {formFields.length > 0 && (
+                            <div>{renderForm()}</div>
+                        )}
                     </div>
 
                     <FormTextInput
@@ -145,9 +170,9 @@ export function OperationForm(props: OperationFormProps) {
                             validate: validateNameValue
                         }}
                         defaultValue={defaultResponseVarName}
-                        placeholder={"Enter Response Variable Name"}
+                        placeholder={addResponseVariablePlaceholder}
                         onChange={onNameChange}
-                        label={"Response Variable Name"}
+                        label={addResponseVariableLabel}
                         errorMessage={responseVarError}
                     />
                 </div>
@@ -156,7 +181,7 @@ export function OperationForm(props: OperationFormProps) {
                 <PrimaryButton
                     dataTestId={"gmail-save-btn"}
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}

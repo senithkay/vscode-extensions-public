@@ -12,12 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
-import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 interface FormTextInputProps {
@@ -30,6 +31,7 @@ interface FormTextInputProps {
     tooltipTitle?: string;
     focused?: boolean;
     disabled?: boolean;
+    secret?: boolean;
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
@@ -81,7 +83,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.textField.formTextInput.optional.label" defaultMessage="Optional"/></FormHelperText>
                                 </div>
 
                             </div>
@@ -129,6 +131,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 helperText={isInvalid ? errorMessage : ""}
                 autoFocus={customProps?.focused}
                 disabled={customProps?.disabled}
+                type={customProps?.secret ? "password" : "text"}
             />
 
         </>

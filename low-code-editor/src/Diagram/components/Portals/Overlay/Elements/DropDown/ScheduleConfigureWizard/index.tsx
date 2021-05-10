@@ -12,9 +12,10 @@
 */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
-import React, { ReactNode, SyntheticEvent, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import CloseIcon from "@material-ui/icons/Close";
@@ -22,14 +23,12 @@ import { isValidCron } from "cron-validator";
 import { addMinutes, format } from "date-fns";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
 import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { TooltipIcon } from "../../../../ConfigForm/Elements/Tooltip";
-import { tooltipMessages } from "../../../../utils/constants";
-import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
 import { repeatRange, weekOptions } from "./ScheduleConstants";
@@ -55,7 +54,9 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     onModify: dispatchModifyTrigger,
-    trackTriggerSelection
+    trackTriggerSelection,
+    onMutate,
+    originalSyntaxTree
   } = state;
 
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -64,10 +65,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const { position, onWizardComplete, onClose, cron } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const toggleClasses = toggleStyles();
 
   const [currentCron, setCurrentCron] = useState<string>(cron || "");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const cronSplit = currentCron?.split(" ", 5);
@@ -94,10 +95,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   }, [isFileSaving, isFileSaved]);
 
-  const handleDialogOnCancel = () => {
-    setShowConfirmDialog(false);
-  };
-
   useEffect(() => {
     const genCron = cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue;
     setCurrentCron(genCron);
@@ -117,21 +114,24 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setValidCron(false);
   }
 
-  const handleUserConfirm = () => {
-    if (isEmptySource) {
-      handleOnSave();
-    } else {
-      // get user confirmation if code there
-      setShowConfirmDialog(true);
-    }
-  };
-
   const handleDayChange = (dayValue: string) => {
     setCronDayValue(dayValue);
   }
 
+  const orderedDays: string[] = [];
   const handleWeekOptionChange = (weekValue: string[]) => {
-    setCronWeekValue(weekValue.toString());
+    if (weekValue.length <= 1) {
+      setCronWeekValue(weekValue.toString());
+    } else {
+      orderedDays.push(weekValue.find(value => value === "Sun"));
+      orderedDays.push(weekValue.find(value => value === "Mon"));
+      orderedDays.push(weekValue.find(value => value === "Tue"));
+      orderedDays.push(weekValue.find(value => value === "Wed"));
+      orderedDays.push(weekValue.find(value => value === "Thu"));
+      orderedDays.push(weekValue.find(value => value === "Fri"));
+      orderedDays.push(weekValue.find(value => value === "Sat"));
+      setCronWeekValue(orderedDays.filter(day => day !== undefined).toString());
+    }
   }
 
   const handleTimeChange = (time: number[]) => {
@@ -226,7 +226,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   }
 
   const handleOnSave = () => {
-    setShowConfirmDialog(false);
     const utcCron = UTCCronForSelectedType();
     // dispatch and close the wizard
     setTriggerChanged(true);
@@ -234,6 +233,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
+      "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
+      "SYNTAX_TREE": originalSyntaxTree
     });
     trackTriggerSelection("Schedule");
   };
@@ -244,7 +245,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteAndHourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Start Time: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startTime.title" defaultMessage="Start Time:"/></FormHelperText>
       <div className={toggleClasses.timeWrapper}>
         <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
       </div>
@@ -253,33 +254,33 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyMinute.title" defaultMessage="Every:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultMinute}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}>Minute(s)</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.minutes.title" defaultMessage="Minute(s):"/></FormHelperText>
     </div>
   );
 
   const hourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Every: </FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyHour.title" defaultMessage="Every:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultHour}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}>Hour(s)</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.hours.title" defaultMessage="Hour(s)"/></FormHelperText>
     </div>
   );
 
   const dayOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}>Start date:</FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start Date:"/></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultDay}
@@ -288,12 +289,78 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       </div>
     </div>
   );
+  const repeatLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatLabel.text",
+  defaultMessage: "Repeat on the:"
+});
 
+  const repeatWeeklyLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatWeeklyLabel.text",
+  defaultMessage: "Repeat weekly"
+});
+
+  const repeatMonthlyLabel = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.repeatMonthlyLabel.text",
+  defaultMessage: "Repeat monthly"
+});
+
+  const cronExpressionTitle = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.cronExpression.title",
+  defaultMessage: "Cron Expression :"
+});
+
+  const cronExpressionErrorMessage = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizard.cronExpressionErrorMessage.title",
+  defaultMessage: "Please enter a valid cron expression"
+});
+
+  const scheduleTriggerConfigTitle = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.Config.Title",
+  defaultMessage: "Configure Schedule Trigger"
+});
+
+  const repeatScheduleDropDown = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
+  defaultMessage: "Schedule:"
+});
+
+  const invalidValueErrorMessage = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.invalidValueErrorMessage.text",
+  defaultMessage: "Invalid value"
+});
+
+  const saveScheduleButton = intl.formatMessage({
+  id: "lowcode.develop.scheduleConfigWizar.saveButton.text",
+  defaultMessage: "Save"
+});
+
+  const scheduleTriggerTooltipMessages = {
+  scheduleConfig: {
+  title: intl.formatMessage({
+      id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.tooltip.title",
+      defaultMessage: "Set a schedule to run the integration."
+  })
+},
+  cronExpression: {
+  title: intl.formatMessage({
+    id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.title",
+    defaultMessage: "A cron expression is a string that contains subfields separated by white spaces. Each special character represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
+}),
+  actionText: intl.formatMessage({
+  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionText",
+  defaultMessage: "Read more"
+}),
+  actionLink: intl.formatMessage({
+  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionLink",
+  defaultMessage: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
+})
+}
+}
   const weekOptionComp: ReactNode = (
     <div>
       <WeekOptions
         onWeekOptionChange={handleWeekOptionChange}
-        textLabel="Repeat on the:"
+        textLabel={repeatLabel}
         defaultValue={cronWeekValue.replace("\n", "").split(",")}
       />
     </div>
@@ -328,7 +395,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             onChange={handleEveryWeekChange}
           />
         )}
-        label={"Repeat Weekly"}
+        label={repeatWeeklyLabel}
       />
     </div>
   );
@@ -345,14 +412,29 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             onChange={handleEveryMonthChange}
           />
         )}
-        label={"Repeat Monthly"}
+        label={repeatMonthlyLabel}
       />
     </div>
   );
 
   const customCron: ReactNode = (
+
     <div className={toggleClasses.cronGenWrapper}>
-      <p className={toggleClasses.cronExpressionTitle}>Generated Cron Expression :</p>
+
+      <div>
+        <TooltipIcon
+          title={scheduleTriggerTooltipMessages.cronExpression.title}
+          actionText={scheduleTriggerTooltipMessages.cronExpression.actionText}
+          actionLink={scheduleTriggerTooltipMessages.cronExpression.actionLink}
+          placement="left"
+          arrow={true}
+          interactive={true}
+        >
+          <p className={toggleClasses.cronExpressionTitle}>{cronExpressionTitle}</p>
+        </TooltipIcon>
+      </div>
+
+
       <FormTextInput
         placeholder="* * * * *"
         defaultValue={currentCron}
@@ -360,9 +442,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         customProps={{
           validate: validateCron
         }}
-        errorMessage="Please enter valid cron expression"
+        errorMessage={cronExpressionErrorMessage}
       />
+
     </div>
+
   );
 
   const handleSchedule = (selectedRepeatRange: string) => {
@@ -404,15 +488,15 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     >
       <>
         <div className={classes.titleWrapper}>
-          <p className={classes.title}>Configure Schedule Trigger</p>
-          <TooltipIcon
-            title={tooltipMessages.cronExpression.title}
-            actionText={tooltipMessages.cronExpression.actionText}
-            actionLink={tooltipMessages.cronExpression.actionLink}
-            placement="left"
-            arrow={true}
-            interactive={true}
-          />
+          <p className={classes.title}>{scheduleTriggerConfigTitle}</p>
+          <div>
+            <TooltipIcon
+              title={scheduleTriggerTooltipMessages.scheduleConfig.title}
+              placement="left"
+              arrow={true}
+              interactive={true}
+            />
+          </div>
         </div>
 
         <button className={classes.closeBtnWrapper} onClick={onClose}>
@@ -428,7 +512,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
                 optional: false,
                 className: toggleClasses.repeatRangeDropdown
               }}
-              label="Repeat every :"
+              label={repeatScheduleDropDown}
               defaultValue={scheduledComp}
               onChange={handleSchedule}
             />
@@ -441,25 +525,17 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           {scheduledComp === "Monthly" && monthComp}
           {scheduledComp === "Custom" && customCron}
 
-          {!validCron ? <p className={toggleClasses.invalidCron}> Invalid value</p> : null}
+          {!validCron ? <p className={toggleClasses.invalidCron}> {invalidValueErrorMessage}</p> : null}
 
         </div>
         <div className={classes.customFooterWrapper}>
           <PrimaryButton
-            text="Save"
+            text={saveScheduleButton}
             className={classes.saveBtn}
-            onClick={handleUserConfirm}
+            onClick={handleOnSave}
             disabled={!validCron}
           />
         </div>
-        {
-          showConfirmDialog && (
-            <SourceUpdateConfirmDialog
-              onConfirm={handleOnSave}
-              onCancel={handleDialogOnCancel}
-            />
-          )
-        }
       </>
     </DiagramOverlay>
   );

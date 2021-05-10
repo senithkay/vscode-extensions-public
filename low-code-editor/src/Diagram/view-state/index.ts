@@ -24,5 +24,6 @@ export * from "./end";
 export * from "./else";
 export * from "./plus";
 export * from "./collapse";
-export * from "./do";
+export * from "./while";
 export * from "./onError";
+export * from "./do";

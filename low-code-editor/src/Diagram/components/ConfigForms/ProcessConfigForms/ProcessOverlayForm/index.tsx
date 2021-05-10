@@ -53,7 +53,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             type: "",
             expression: ""
         };
-    } else if (formType === "Custom") {
+    } else if (formType === "Call" || formType === "Custom") {
         config.config = {
             expression: ""
         };
@@ -99,7 +99,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Custom" && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

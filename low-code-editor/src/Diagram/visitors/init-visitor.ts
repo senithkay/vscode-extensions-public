@@ -22,7 +22,8 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor,
+    WhileStatement
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
@@ -31,18 +32,19 @@ import {
     BlockViewState,
     CollapseViewState,
     CompilationUnitViewState,
+    DoViewState,
     ElseViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    OnErrorViewState,
     PlusViewState,
     SimpleBBox,
     StatementViewState,
     ViewState
 } from "../view-state";
-import { DoViewState } from "../view-state/do";
 import { DraftStatementViewState } from "../view-state/draft";
-import { OnErrorViewState } from "../view-state/onError";
+import { WhileViewState } from "../view-state/while";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock;
@@ -161,6 +163,10 @@ class InitVisitor implements Visitor {
 
     public endVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        node.viewState = new WhileViewState();
     }
 
     public endVisitActionStatement(node: ActionStatement, parent?: STNode) {
@@ -353,7 +359,10 @@ class InitVisitor implements Visitor {
             if (node.typeData && node.typeData.isEndpoint) {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
+                const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
+                const vEp = endpoint.visibleEndpoint;
                 stmtViewState.isEndpoint = true;
+                stmtViewState.endpoint.iconId = vEp.moduleName + "_" + vEp.typeName;
             }
 
             // todo: need to fix these with invocation data
@@ -442,7 +451,6 @@ class InitVisitor implements Visitor {
         node.viewState.collapsedFrom = collapseFrom;
         node.viewState.collapsed = collapsed;
         node.viewState.plusButtons = plusButtons;
-
         node.viewState.isDoBlock = isDoBlock;
         node.viewState.isOnErrorBlock = isOnErrorBlock;
 
@@ -491,6 +499,7 @@ class InitVisitor implements Visitor {
             };
         }
     }
+
 }
 
 export const visitor = new InitVisitor();

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -30,7 +31,6 @@ import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
@@ -42,6 +42,7 @@ interface AddVariableConfigProps {
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
     const { config, onCancel, onSave } = props;
 
     const { state } = useContext(DiagramContext);
@@ -142,7 +143,65 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const revertEditorFocus = () => {
         setEditorFocus(false);
+    };
+
+    const saveVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.saveButton.text",
+        defaultMessage: "Save"
+    });
+
+    const cancelVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.cancelButton.text",
+        defaultMessage: "Cancel"
+    });
+
+    const addVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.addVariable.placeholder",
+        defaultMessage: "Enter variable name"
+    });
+
+    const addVariableNameLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.addVariable.name.label",
+        defaultMessage: "Name"
+    });
+
+    const enterTypePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.enterType.placeholder",
+        defaultMessage: "Enter type"
+    });
+
+    const otherTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.otherType.label",
+        defaultMessage: "Other Type"
+    });
+
+    const variableTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.type.label",
+        defaultMessage: "Type"
+    });
+
+    const variableTooltipMessages = {
+        customVariableType: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
+                defaultMessage: "Enter the value of the variable"
+            })
+    },
+        expressionEditor: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
     }
+    };
 
     modelType = (selectedType === "other") ? otherType : selectedType;
 
@@ -168,7 +227,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         <PropertyIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Variable</Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -181,17 +240,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         disableCreateNew: true,
                                         values: variableTypes,
                                     }}
-                                    label={"Type"}
+                                    label={variableTypeLabel}
                                     onChange={handleTypeChange}
                                 />
                                 {(selectedType === "other") && (
                                     <FormTextInput
                                         defaultValue={otherType}
                                         onChange={handleOtherTypeOnChange}
-                                        label={"Other Type"}
-                                        placeholder={"Enter Type"}
+                                        label={otherTypeLabel}
+                                        placeholder={enterTypePlaceholder}
                                         customProps={{
-                                            tooltipTitle: tooltipMessages.customVariableType,
+                                            tooltipTitle: variableTooltipMessages.customVariableType.title,
                                         }}
                                     />
                                 )}
@@ -199,23 +258,23 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     dataTestId="variable-name"
                                     customProps={{
                                         validate: validateNameValue,
-                                        tooltipTitle: tooltipMessages.name.replace("{0}", selectedType),
+                                        tooltipTitle: "Name of the {0}".replace("{0}", selectedType),
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}
                                     onChange={handleNameOnChange}
-                                    label={"Name"}
+                                    label={addVariableNameLabel}
                                     errorMessage={varNameError}
-                                    placeholder={"Enter Variable Name"}
+                                    placeholder={addVariablePlaceholder}
                                 />
                                 <div className="exp-wrapper">
                                     <ExpressionEditor
                                         model={{ name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType }}
                                         customProps={{
                                             validate: validateExpression,
-                                            tooltipTitle: tooltipMessages.expressionEditor.title,
-                                            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+                                            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+                                            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
                                             interactive: true,
                                             focus: editorFocus,
                                             statementType: (modelType ? modelType : "other") as PrimitiveBalType,
@@ -228,14 +287,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text="Save"
-                                disabled={isMutationInProgress || !validForm}
-                                fullWidth={false}
-                                onClick={handleSave}
-                            />
+                            <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={saveVariableButtonText}
+                                    disabled={isMutationInProgress || !validForm}
+                                    fullWidth={false}
+                                    onClick={handleSave}
+                                />
                         </div>
                     </div>
                 )

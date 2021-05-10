@@ -130,6 +130,8 @@ export function getConditionConfig(
             ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("http:Response")),
             ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var"))
             ];
+        } else if (type === "While") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean"))];
         }
         if (config && scopeSymbols) {
             config.scopeSymbols = scopeSymbols
@@ -159,4 +161,8 @@ export function getConditionConfig(
     }
 
     return configPanelStatus;
+}
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
 }

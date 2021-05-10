@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import cn from "classnames";
@@ -27,7 +28,6 @@ import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { tooltipMessages } from "../../../../utils/constants";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
@@ -65,6 +65,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // dispatchGoToNextTourStep
   } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   const [resources, setResources] = useState([]);
   const [isNewService, setIsNewService] = useState(true);
@@ -194,6 +195,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resource = `${selectedResource.method.toLocaleLowerCase()} ${selectedResource.path}`;
       mutations.push(updatePropertyStatement(resource, updatePosition));
 
+      setTriggerChanged(true);
       onMutate(mutations);
     }
   };
@@ -203,13 +205,68 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources([...resources, defaultConfig])
   }
 
+  const pathInstructions = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip",
+    defaultMessage: "A valid path should not :"
+  });
+
+  const pathInstructionsBullet1 = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1",
+    defaultMessage: "include spaces outside the square brackets"
+  });
+
+  const pathInstructionsBullet2 = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint2",
+    defaultMessage: "start with a numerical character"
+  });
+
+  const pathInstructionsBullet3 = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
+    defaultMessage: "include keywords such as Return , Foreach , Resource, Object etc."
+  });
+
+  const resourceConfigTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
+    defaultMessage: "Configure Resource"
+  });
+
+  const httpMethodTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.httpMethod.title",
+    defaultMessage: "HTTP Method"
+  });
+
+  const pathTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.title",
+    defaultMessage: "Path"
+  });
+
+  const pathErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.errorMessage",
+    defaultMessage: "Please enter a valid path"
+  });
+
+  const pathPlaceholder = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.placeholder",
+    defaultMessage: "Relative path from host"
+  });
+
+  const saveAPIButton = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.saveAPIButton.text",
+    defaultMessage: "Save API"
+  });
+
+  const pathExample = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
+    defaultMessage: "/users/[string name]"
+  });
+
   const title = (
     <div>
-      <p>Enter a valid path following these instructions, Please avoid using:</p>
+      <p>{pathInstructions}</p>
       <ul>
-        <li>Spaces outside square brackets</li>
-        <li>Starting the path with a number</li>
-        <li>Keywords for param names</li>
+        <li>{pathInstructionsBullet1}</li>
+        <li>{pathInstructionsBullet2}</li>
+        <li>{pathInstructionsBullet3}</li>
       </ul>
     </div>
   );
@@ -220,7 +277,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       position={position}
     >
       <ConfigPanel
-        title="Resource Configuration"
+        title={resourceConfigTitle}
         onClose={onClose}
         showClose={(triggerType !== undefined && triggerType !== TRIGGER_TYPE_SERVICE_DRAFT)}
       >
@@ -230,7 +287,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             className={classes.resourceWrapper}
           >
             <Section
-              title="HTTP Method"
+              title={httpMethodTitle}
             >
               <RadioControl
                 options={SERVICE_METHODS}
@@ -240,8 +297,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             </Section>
 
             <Section
-              title="PATH"
-              tooltip={{ title, content: tooltipMessages.path.content }}
+              title={pathTitle}
+              tooltip={{ title, content: pathExample}}
             >
               <FormTextInput
                 dataTestId="api-path"
@@ -251,8 +308,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   startAdornment: "/",
                   validate: validatePath
                 }}
-                errorMessage="Please enter a valid path"
-                placeholder="Relative path from host"
+                errorMessage={pathErrorMessage}
+                placeholder={pathPlaceholder}
               />
             </Section>
           </div>
@@ -265,7 +322,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           >
             <div className={classes.addResourceBtnWrap}>
               <AddIcon />
-              <p>Add resource</p>
+              <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addResource.title" defaultMessage="Add Resource"/></p>
             </div>
           </button>
         )}
@@ -273,11 +330,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         <div>
           {validateResources() &&
             (
-              <div className={classes.customFooterWrapper}>
+              <div className={classes.serviceFooterWrapper}>
                 <div id="product-tour-save" >
                   <PrimaryButton
                     dataTestId="save-btn"
-                    text="Save API"
+                    text={saveAPIButton}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
                     disabled={isFileSaving}

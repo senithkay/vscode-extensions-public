@@ -12,14 +12,15 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
+import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
-import { TooltipIcon } from '../../../Portals/ConfigForm/Elements/Tooltip';
 import { wizardStyles } from "../../style";
 
 export interface OperationDropdownProps {
@@ -27,52 +28,29 @@ export interface OperationDropdownProps {
     showConnectionName: boolean;
     connectionDetails: ConnectorConfig;
     onOperationSelect: (operation: string) => void;
-    onConnectionChange: () => void;
 }
 
 export function OperationDropdown(props: OperationDropdownProps) {
-    const { operations, showConnectionName, onOperationSelect, connectionDetails, onConnectionChange } = props;
+    const { operations, showConnectionName, onOperationSelect, connectionDetails } = props;
     const classes = wizardStyles();
+    const intl = useIntl();
 
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value);
     };
 
+    const operationDropdownPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.operationDropdown.placeholder",
+        defaultMessage: "Search operation"
+    });
+
     return (
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    {showConnectionName && (
-                        <>
-                            <div className={classes.connectionNameWrapper}>
-                                <p className={classes.subTitle}>Connection</p>
-                                <div>
-                                    <TooltipIcon
-                                        title="Name of the connection"
-                                        placement={"left"}
-                                        arrow={true}
-                                    />
-                                </div>
-                            </div>
-                            <Box border={1} borderRadius={5} className={classes.box}>
-                                <Typography variant="subtitle2">
-                                    {connectionDetails.name}
-                                </Typography>
-                                <IconButton
-                                    color="primary"
-                                    classes={{
-                                        root: classes.changeConnectionBtn
-                                    }}
-                                    onClick={onConnectionChange}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
-                        </>
-                    )}
                     <p className={classes.subTitle}>Operation</p>
                     <FormAutocomplete
-                        placeholder="Search Operation"
+                        placeholder={operationDropdownPlaceholder}
                         itemList={operations}
                         onChange={handleSelect}
                     />

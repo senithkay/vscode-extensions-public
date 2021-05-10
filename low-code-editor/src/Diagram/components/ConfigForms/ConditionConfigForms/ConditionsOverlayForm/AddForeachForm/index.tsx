@@ -31,8 +31,8 @@ import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { genVariableName } from "../../../../Portals/utils";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Iterations {
     start?: string;
@@ -82,6 +82,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -102,7 +103,7 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [isInvalid, setIsInvalid] = useState(true);
+    const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
@@ -114,22 +115,64 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsInvalid(isInvalidFromField)
+        const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
+        setIsInvalid(!isValidExpression)
     }
 
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
         type: "var"
-    }
+    };
 
+    const forEachTooltipMessages = {
+        expressionEditor: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
+                defaultMessage: "Add the relevant expression syntax to provide inputs to different fields in a contextual manner ."
+            }),
+            actionText: intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
+                defaultMessage: "Read more"
+            }),
+            actionLink: intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
+                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            })
+    },
+        currentValueVariable: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
+                defaultMessage: "Current Value Variable"
+            }),
+        }
+    };
+    const saveForEachButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.saveButton.label",
+        defaultMessage: "Save"
+    });
+
+    const currentValueVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
+        defaultMessage: "Current Value Variable"
+    });
+
+    const invalidConnectionErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
+        defaultMessage: "Invalid Collection Name"
+    });
+
+    const cancelForEachButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.forEach.cancelButton.label",
+        defaultMessage: "Cancel"
+    });
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            tooltipTitle: forEachTooltipMessages.expressionEditor.title,
+            tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
             interactive: true,
             statementType: formField.type,
             customTemplate: {
@@ -140,6 +183,7 @@ export function AddForeachForm(props: ForeachProps) {
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,
     };
+
 
     return (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
@@ -158,29 +202,34 @@ export function AddForeachForm(props: ForeachProps) {
                                         <ForEachIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Foreach</Box>
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.foreach.title"
+                                                defaultMessage="Foreach"
+                                            />
+                                    </Box>
                                     </Typography>
                                 </div>
                             </div>
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: tooltipMessages.currentValue
+                                    tooltipTitle: forEachTooltipMessages.currentValueVariable.title
                                 }}
                                 onChange={onVariableNameChange}
                                 defaultValue={conditionExpression.variable}
-                                label={"Current Value Variable"}
+                                label={currentValueVariableLabel}
                                 placeholder={""}
-                                errorMessage={"Invalid Collection Name"}
+                                errorMessage={invalidConnectionErrorMessage}
                             />
                             <div className="exp-wrapper">
                                 <ExpressionEditor {...expElementProps} />
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
-                                text="Save"
+                                text={saveForEachButtonLabel}
                                 disabled={isMutationInProgress || isInvalid}
                                 fullWidth={false}
                                 onClick={handleSave}

@@ -18,6 +18,8 @@ export const COUNTERLEFT_SVG_HEIGHT = 31;
 
 export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
     const { text, ...xyProps } = props;
+
+    const maxTextWidth = text.length >= 10;
     return (
         <svg {...xyProps} width={COUNTERLEFT_SVG_WIDTH} height={COUNTERLEFT_SVG_HEIGHT}>
             <defs>
@@ -60,15 +62,6 @@ export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
             </g>
 
             <g id="CounterLeft" transform="translate(3 2)">
-                <g transform="matrix(1, 0, 0, 1, -3, -2)" filter="url(#CounterLeftFilter)">
-                    <path
-                        id="CounterLeftPath"
-                        d="M0,4A4,4,0,0,0-4,0H-61.949a4,4,0,0,0-4,4V8.7c0,2.252-4.051,3.8-4.051,3.8s4.051,1.611,
-                        4.051,4.891V21a4,4,0,0,0,4,4H-4a4,4,0,0,0,4-4Z"
-                        transform="translate(73 2)"
-                        fill="url(#linear-gradient)"
-                    />
-                </g>
                 <text
                     className="metrics-text"
                     id="CounterLeftText"
@@ -79,7 +72,7 @@ export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
                         y="0"
                         textAnchor="middle"
                     >
-                        {text}
+                        {maxTextWidth ? text.slice(0, 5) + "... ms" : text}
                     </tspan>
                 </text>
             </g>

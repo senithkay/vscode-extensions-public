@@ -14,7 +14,7 @@
 import React, { useContext, useState } from 'react';
 // import { connect } from "react-redux";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 
 import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
@@ -30,7 +30,6 @@ import { wizardStyles } from "./style";
 
 export interface ConfigWizardState {
     isLoading: boolean;
-    connectorDef: any;
     connector: Connector;
     wizardType: WizardType;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
@@ -44,6 +43,8 @@ export interface ConnectorConfigWizardProps {
     targetPosition: DraftInsertPosition;
     model?: STNode;
     onClose: () => void;
+    selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
     // dispatchOverlayOpen: () => void;
 }
 
@@ -51,10 +52,10 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const { state } = useContext(DiagramContext);
     const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen, isCodeEditorActive } = state;
 
-    const { position, connectorInfo, targetPosition, model, onClose } = props;
+    const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
     const initWizardState: ConfigWizardState = {
-        isLoading: true, connectorDef: undefined, connectorConfig: undefined,
+        isLoading: true, connectorConfig: undefined,
         functionDefInfo: undefined, wizardType: undefined, connector: undefined
     }
 
@@ -92,9 +93,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                                     </div>
                                 ) : (
                                         <ConnectorForm
+                                            selectedConnector={selectedConnector}
                                             targetPosition={targetPosition}
                                             configWizardArgs={wizardState}
                                             connectorInfo={connectorInfo}
+                                            isAction={isAction}
                                             onClose={handleClose}
                                         />
                                     )}

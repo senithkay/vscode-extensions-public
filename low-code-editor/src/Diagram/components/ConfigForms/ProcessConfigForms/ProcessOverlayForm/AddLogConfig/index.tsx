@@ -29,8 +29,8 @@ import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Element
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -44,6 +44,7 @@ export const SELECT_PROPERTY: string = "Select Existing Property";
 export function AddLogConfig(props: LogConfigProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
@@ -82,10 +83,30 @@ export function AddLogConfig(props: LogConfigProps) {
         logFormConfig.expression = expression;
         logFormConfig.type = logType === "Info" ? "" : logType;
         onSave();
-    }
+    };
 
     const validateExpression = (field: string, isInvalid: boolean) => {
         setIsFormValid(!isInvalid && logType);
+    };
+
+    const saveLogButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.log.saveButton.label",
+        defaultMessage: "Save"
+    });
+
+    const logTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Read more"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+        })
     }
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
@@ -104,7 +125,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                         <LogIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Log</Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -123,9 +144,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                     model={{ name: "expression", type: 'string' }}
                                     customProps={{
                                         validate: validateExpression,
-                                        tooltipTitle: tooltipMessages.expressionEditor.title,
-                                        tooltipActionText: tooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+                                        tooltipTitle: logTooltipMessages.title,
+                                        tooltipActionText: logTooltipMessages.actionText,
+                                        tooltipActionLink: logTooltipMessages.actionLink,
                                         interactive: true,
                                         statementType: 'string'
                                     }}
@@ -138,7 +159,7 @@ export function AddLogConfig(props: LogConfigProps) {
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                             <PrimaryButton
                                 dataTestId={"log-save-btn"}
-                                text="Save"
+                                text={saveLogButtonLabel}
                                 disabled={isMutationInProgress || !isFormValid}
                                 fullWidth={false}
                                 onClick={onSaveBtnClick}

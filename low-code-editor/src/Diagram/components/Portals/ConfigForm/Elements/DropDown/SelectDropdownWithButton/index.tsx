@@ -12,15 +12,16 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { SyntheticEvent } from "react";
+import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import classNames from "classnames";
 
+import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
 import { LinkButton } from "../../Button/LinkButton";
-import { TooltipIcon } from "../../Tooltip";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {
@@ -93,7 +94,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                             <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
-                                <FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>
+                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label" defaultMessage="Optional"/></FormHelperText>
                             </div>
                             {customProps?.tooltipTitle  &&
                                 (
@@ -161,7 +162,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         </MenuItem>
                     ) : (
                         <MenuItem value="" disabled={true}>
-                            <span className="TextSpan">No Items to Select</span>
+                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No Items to Select"/></span>
                         </MenuItem>
                     )
                 }

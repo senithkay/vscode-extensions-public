@@ -42,9 +42,27 @@ export interface PublishDiagnosticsParams {
 	diagnostics: Diagnostic[];
 }
 
+export interface LinePosition {
+	line: number;
+	offset: number;
+}
+
+export interface ExpressionTypeRequest {
+ 	documentIdentifier: { uri: string; };
+	// tslint:disable-next-line: align
+	position: LinePosition;
+}
+
+export interface ExpressionTypeResponse {
+	documentIdentifier: { uri: string; };
+   	// tslint:disable-next-line: align
+   	types: string[];
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
 	diagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
 	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
+	getType: (param: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
 }

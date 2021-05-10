@@ -56,7 +56,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.hide = true;
                             param.noCodeGen = true;
@@ -69,7 +68,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"/\"";
-                            param.hide = true;
                         } else if (param.name === "message") {
                             param.displayName = "Message";
                         }
@@ -81,7 +79,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
                             param.value = "\"\"";
-                            param.hide = true;
                         } else if (param.name === "request") {
                             param.hide = true;
                         } else if (param.name === "forwardReq") {
@@ -117,8 +114,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                         } else if (param.name === "replyTo") {
                             param.hide = true;
-                            param.value = "[]";
-                        } else if (param.name === "cc" || param.name === "bcc") {
                             param.value = "[]";
                         } else if (param.name === "'from") {
                             // const state = store.getState();
@@ -232,7 +227,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.find(fields => fields.name === "gmailConfig")
                         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
                 }
-                if (key === "sendMessage") {
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
                     value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
                         if (field.name === "contentType") {
                             // set content type in sendMessage form
@@ -319,25 +314,28 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
-        case 'ballerinax_twilio_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters[0].fields.forEach((field) => {
-                        if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
-                            field.hide = true;
-                        }
-                    });
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
-        case 'ballerinax_sfdc_BaseClient':
+        // case 'ballerinax_twilio_Client':
+        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+        //         if (key === "init") {
+        //             value.parameters[0].fields.forEach((field) => {
+        //                 if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
+        //                     field.hide = true;
+        //                 }
+        //             });
+        //         }
+        //         filteredFunctions.set(key, value);
+        //     });
+        //     break;
+        case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
                         // replace single record inside "clientConfig" record with inner field list
                         if (subFields.name === "clientConfig"){
-                            subFields.fields =  subFields.fields[0].fields;
+                            // HACK: a quick fix to show salesforce connector init form input fields. Need to fix form generation with inner level records
+                            subFields.fields =  subFields.fields[0].fields[0].fields;
+                            subFields.type = PrimitiveBalType.Record;
+                            subFields.isUnion = undefined;
                             subFields.fields.find(field => field.name === "clientConfig").hide = true;
                             subFields.fields.find(field => field.name === "scopes").hide = true;
                             subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
@@ -358,18 +356,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_slack_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
-                        if (field.name === "secureSocketConfig"){
-                            field.hide = true;
-                        }
-                    });
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
+        // case 'ballerinax_slack_Client':
+        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+        //         if (key === "init") {
+        //             value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
+        //                 if (field.name === "secureSocketConfig"){
+        //                     field.hide = true;
+        //                 }
+        //             });
+        //         }
+        //         filteredFunctions.set(key, value);
+        //     });
+        //     break;
         case 'ballerinax_netsuite_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // HACK: use hardcoded FormFields until ENUM fix from lang-server
