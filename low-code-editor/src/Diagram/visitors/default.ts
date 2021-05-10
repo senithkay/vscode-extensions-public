@@ -32,6 +32,8 @@ export class DiagramConfig {
 
     public canvasBottomOffset: number = 100;
 
+    public textAlignmentOffset: number = 40; // This id 5 doted gaps
+
     public overlayBackground = {
         height: '1000vh',
         width: '1000vw'
