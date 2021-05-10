@@ -201,9 +201,9 @@ export function StartButton(props: StartButtonProps) {
         );
     }, []);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isReadOnly && isReadOnly === true) setActiveTriggerType(currentAppType)
-    })
+    }, [])
 
     let block: FunctionBodyBlock;
     if (model as FunctionDefinition) {
