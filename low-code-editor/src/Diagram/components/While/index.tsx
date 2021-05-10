@@ -237,9 +237,9 @@ export function While(props: WhileProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 

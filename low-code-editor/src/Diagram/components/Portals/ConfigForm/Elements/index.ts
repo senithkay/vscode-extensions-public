@@ -11,6 +11,7 @@
  * associated services.
  */
 import ExpressionEditor from "./ExpressionEditor";
+import { ExpressionEditorArray } from "./ExpressionEditorArray";
 import { FormJson } from "./Json/FormJson"
 import { Record } from "./Record";
 import { XML } from "./XML";
@@ -19,7 +20,7 @@ export { ExpressionEditor as string };
 export { ExpressionEditor as int };
 export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
-export { ExpressionEditor as collection };
+export { ExpressionEditorArray as collection };
 export { ExpressionEditor as union };
 export { ExpressionEditor as map };
 export { Record as record };
