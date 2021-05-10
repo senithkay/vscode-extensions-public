@@ -118,7 +118,7 @@ export function OperationForm(props: OperationFormProps) {
         responseVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.NetSuite.responseVariableNametooltip.title",
-                defaultMessage: "Add a valid name for the response variable. Avoid using special characters ,having spaces in the middle ,starting with a numerical character, and including keywords such as Return , Foreach , Resource, Object etc."
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
     }
     };
