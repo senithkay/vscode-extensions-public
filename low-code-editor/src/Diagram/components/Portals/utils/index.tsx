@@ -662,14 +662,14 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     let functionDefInfo = await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
 
-    if (!functionDefInfo) {
-        // get form fields from file cache
-        functionDefInfo = await getFormFieldFromFileCache(connector);
-        // save form fields in browser cache
-        if (functionDefInfo){
-            await addToFormFieldCache(connector, functionDefInfo);
-        }
-    }
+    // if (!functionDefInfo) {
+    //     // get form fields from file cache
+    //     functionDefInfo = await getFormFieldFromFileCache(connector);
+    //     // save form fields in browser cache
+    //     if (functionDefInfo){
+    //         await addToFormFieldCache(connector, functionDefInfo);
+    //     }
+    // }
 
     if (!functionDefInfo) {
         // generate form fields form connector syntax tree
