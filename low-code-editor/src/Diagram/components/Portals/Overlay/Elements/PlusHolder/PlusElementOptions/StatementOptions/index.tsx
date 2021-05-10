@@ -246,13 +246,12 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'process',
         component: (
             <Tooltip
-                title={tooltipMessages.variableStatement.title}
+                title={plusHolderStatementTooltipMessages.respondStatement.title}
                 placement="right"
                 arrow={true}
                 example={true}
                 codeSnippet={true}
                 interactive={true}
-                content={tooltipMessages.variableStatement.content}
             >
                 <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
                     <div className="icon-wrapper">

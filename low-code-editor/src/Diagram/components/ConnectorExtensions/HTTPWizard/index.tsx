@@ -217,7 +217,7 @@ export function HTTPWizard(props: WizardProps) {
                         }
 
                         if (headerObject.length > 0) {
-                            const updatePosition: DraftUpdateStatement = {
+                            const updatePosition: DraftUpdatePosition = {
                                 startLine,
                                 startColumn,
                                 endColumn,

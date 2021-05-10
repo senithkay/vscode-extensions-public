@@ -106,12 +106,8 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-<<<<<<< HEAD
                             {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Custom" && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
-=======
                             {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
->>>>>>> a5538a754e200513b9eed2638338cd596182a841
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
