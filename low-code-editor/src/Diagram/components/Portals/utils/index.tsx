@@ -989,6 +989,14 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
     return false;
 }
 
+export function getFormattedModuleName(moduleName: string): string {
+    let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
+    if (keywords.includes(formattedModuleName)){
+        formattedModuleName = `${formattedModuleName}0`;
+    }
+    return formattedModuleName;
+}
+
 export interface VariableNameValidationResponse {
     error: boolean;
     message?: string;

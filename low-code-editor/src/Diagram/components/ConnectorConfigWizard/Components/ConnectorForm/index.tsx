@@ -47,7 +47,7 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getKeyFromConnection, getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField } from '../../../Portals/utils';
+import { addAiSuggestion, checkErrorsReturnType, genVariableName, getAllVariablesForAi, getConnectorComponent, getConnectorIcon, getFormattedModuleName, getKeyFromConnection, getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getOauthParamsFromFormFields, getParams, matchEndpointToFormField } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -222,7 +222,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
-        const moduleName = connectorInfo.module.includes('.') ? connectorInfo.module.split('.').pop() : connectorInfo.module;
+        const moduleName = getFormattedModuleName(connectorInfo.module);
         trackAddConnector(connectorInfo.displayName);
 
         // check oauth flow and manual flow
