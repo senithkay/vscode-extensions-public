@@ -55,7 +55,8 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         setChanged(!changed)
     }
 
-    const subEditorType: string = transformFormFieldTypeToString(model).replace("[]", "");
+    const mainEditorType: string = transformFormFieldTypeToString(model);
+    const subEditorType: string = mainEditorType.substring(0, mainEditorType.length - 2);
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
