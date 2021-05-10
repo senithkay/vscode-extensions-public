@@ -158,7 +158,6 @@ export function DataMapper(props: DataMapperProps) {
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
         components.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
 
-        debugger;
     }
 
     return (
