@@ -176,7 +176,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const pathInstructions = intl.formatMessage({
         id: "lowcode.develop.connectorForms.GCalendar.createConnection.tooltip.instructions.tooltip",
-        defaultMessage: "A valid connection name should not :"
+        defaultMessage: "A valid connection name should not:"
       });
     const title = (
         <div>
