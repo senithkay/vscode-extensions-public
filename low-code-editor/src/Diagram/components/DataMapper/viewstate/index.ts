@@ -12,11 +12,8 @@
  */
 
 import { ConnectionViewState } from './connection-viewstate';
-import { DataMapperFunctionViewState } from './data-mapper-function-viewstate';
 import { DataMapperViewState } from "./data-mapper-viewstate";
 import { FieldViewState } from './field-view-state';
-import { InputVariableViewstate } from './input-variable-viewstate';
-import { OutputFieldViewState } from './output-field-viewstate';
 import { SourcePointViewState } from './source-point-viewstate';
 import { TargetPointViewState } from './target-point-viewstate';
 
@@ -25,8 +22,5 @@ export {
     SourcePointViewState,
     TargetPointViewState,
     ConnectionViewState,
-    DataMapperFunctionViewState,
-    InputVariableViewstate,
     FieldViewState,
-    OutputFieldViewState
 };

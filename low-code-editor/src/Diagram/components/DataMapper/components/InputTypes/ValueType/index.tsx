@@ -14,7 +14,7 @@ import React from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { InputVariableViewstate } from "../../../viewstate";
+import { FieldViewState } from "../../../viewstate";
 
 interface ValueTypeProps {
     model: STNode;
@@ -24,7 +24,7 @@ interface ValueTypeProps {
 export function ValueType(props: ValueTypeProps) {
     const { model, isMain } = props;
 
-    const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
+    const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
     let name: string = viewState.name;
     const type: string = viewState.type;

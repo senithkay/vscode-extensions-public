@@ -14,28 +14,25 @@
 import React, { useContext, useState } from 'react';
 
 import {
-    CaptureBindingPattern,
-    ExplicitAnonymousFunctionExpression,
     LocalVarDecl,
     RecordTypeDesc,
-    STNode, traversNode
+    STNode,
+    traversNode
 } from '@ballerina/syntax-tree';
 
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
+import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 
-import { DataMapperFunctionComponent } from "./components/FunctionComponent";
+import { DataPoint } from './components/DataPoint';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
+import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
-import sampleJSON from './sample-config.json';
-import { DataPoint } from './components/DataPoint';
 import { SourcePointViewState, TargetPointViewState } from './viewstate';
-import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
-import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 
 interface DataMapperProps {
     width: number;

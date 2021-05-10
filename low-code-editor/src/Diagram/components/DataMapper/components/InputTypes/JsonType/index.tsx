@@ -15,7 +15,7 @@ import React from 'react';
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode } from '@ballerina/syntax-tree';
 
 import { getDataMapperComponent } from '../../../util';
-import { FieldViewState, InputVariableViewstate } from '../../../viewstate';
+import { FieldViewState } from '../../../viewstate';
 
 interface JsonTypeProps {
     model: STNode;

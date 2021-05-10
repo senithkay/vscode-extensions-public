@@ -15,7 +15,7 @@ import React from 'react';
 import { RecordTypeDesc, STNode } from '@ballerina/syntax-tree';
 
 import { getDataMapperComponent } from '../../../util';
-import { InputVariableViewstate } from '../../../viewstate';
+import { FieldViewState } from '../../../viewstate';
 
 interface RecordTypeProps {
     model: STNode;
@@ -25,7 +25,7 @@ interface RecordTypeProps {
 export function RecordType(props: RecordTypeProps) {
     const { model, isMain } = props;
 
-    const viewState: InputVariableViewstate = model.dataMapperViewState as InputVariableViewstate;
+    const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
     const typeInfo = viewState.typeInfo;
 

@@ -13,33 +13,22 @@
 
 import {
     AssignmentStatement,
-    BooleanLiteral,
-    BooleanTypeDesc,
     CaptureBindingPattern,
-    FloatTypeDesc,
     IdentifierToken,
-    IntTypeDesc,
-    JsonTypeDesc,
     LocalVarDecl,
     MappingConstructor,
-    NumericLiteral,
-    QualifiedNameReference,
     RecordField,
     RecordTypeDesc,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
-    STNode,
     StringLiteral,
-    StringTypeDesc,
     TypedBindingPattern,
     Visitor,
-    XmlTypeDesc
 } from '@ballerina/syntax-tree';
 
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
-import { InputVariableViewstate } from '../viewstate/input-variable-viewstate';
 
 export enum VisitingType {
     INPUT,
