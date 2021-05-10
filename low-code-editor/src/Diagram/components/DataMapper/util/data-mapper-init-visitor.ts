@@ -221,7 +221,16 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.name = (node.fieldName as IdentifierToken).value;
                 break;
             case 'StringLiteral':
-                viewstate.name = (node.fieldName as StringLiteral).literalToken.value;
+                const tokenValue = (node.fieldName as StringLiteral).literalToken.value;
+                const regexForValWithQuotes = new RegExp("\"(.*?)\"$");
+                if (regexForValWithQuotes.test(tokenValue)) {
+                    const matchedVal = tokenValue.match(regexForValWithQuotes);
+                    if (matchedVal.length > 1) {
+                        viewstate.name = matchedVal[1];
+                    }
+                } else {
+                    viewstate.name = tokenValue;
+                }
                 break;
             default:
             // ignored

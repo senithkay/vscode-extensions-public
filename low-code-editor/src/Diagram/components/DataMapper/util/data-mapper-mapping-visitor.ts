@@ -62,7 +62,8 @@ export class DataMapperMappingVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState) {
-            this.nameParts.push(node.fieldName.value);
+            const viewState = node.dataMapperViewState as FieldViewState;
+            this.nameParts.push(viewState.name);
         }
     }
 

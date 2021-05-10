@@ -25,6 +25,7 @@ import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
 import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
+import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import { DataPoint } from './components/DataPoint';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
@@ -144,6 +145,8 @@ export function DataMapper(props: DataMapperProps) {
         });
 
         traversNode(selectedNode, dataPointVisitor);
+        traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
+
         dataPointVisitor.sourcePointMap.forEach((dataPoint: SourcePointViewState) => {
             dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={() => { }} />);
         });
@@ -152,16 +155,17 @@ export function DataMapper(props: DataMapperProps) {
             dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={() => { }} />);
         });
 
-        traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
-        components.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
+        debugger;
 
+        components.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
     }
 
     return (
         <>
             {components}
             {dataPoints}
-            {/* <DiagramOverlayContainer>
+            <DiagramOverlayContainer>
+                <DiagramOverlay
                     position={{ x: 15, y: 15 }}
                 >
                     <div>
@@ -182,7 +186,7 @@ export function DataMapper(props: DataMapperProps) {
                         hahaha
                     </div>
                 </DiagramOverlay>
-            </DiagramOverlayContainer> */}
+            </DiagramOverlayContainer >
         </>
     )
 

@@ -51,7 +51,7 @@ export class DataPointVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
-            this.hasDataMapperTypeDesc = viewstate.hasMappedConstructorInitializer;
+            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
 
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;

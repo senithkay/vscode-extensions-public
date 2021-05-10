@@ -83,11 +83,11 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
                 setSelectedDataType(SelectedDataType.RECORD);
                 break;
             case 'json':
-                updateReturnType({ type: value.toLocaleLowerCase() })
+                updateReturnType({ type: value.toLocaleLowerCase(), generationType })
                 setSelectedDataType(SelectedDataType.JSON);
                 break;
             default:
-                updateReturnType({ type: value.toLowerCase() })
+                updateReturnType({ type: value.toLowerCase(), generationType })
         }
     }
 
