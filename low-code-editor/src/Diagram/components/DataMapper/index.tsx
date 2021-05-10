@@ -24,7 +24,7 @@ import {
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
-import { DataMapperInputTypeInfo } from '../Portals/ConfigForm/types';
+import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 
 import { DataMapperFunctionComponent } from "./components/FunctionComponent";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
@@ -35,6 +35,7 @@ import sampleJSON from './sample-config.json';
 import { DataPoint } from './components/DataPoint';
 import { SourcePointViewState, TargetPointViewState } from './viewstate';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
+import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 
 interface DataMapperProps {
     width: number;
@@ -42,12 +43,14 @@ interface DataMapperProps {
 
 export function DataMapper(props: DataMapperProps) {
     const {
-        state: {
-            stSymbolInfo,
-            onMutate: dispatchMutations,
-            dataMapperConfig,
-        }
-    } = useContext(DiagramContext)
+        state
+    } = useContext(DiagramContext);
+
+    const {
+        stSymbolInfo,
+        onMutate: dispatchMutations,
+        dataMapperConfig,
+    } = state
 
     // const dataMapperConfig = sampleJSON;
     const { width } = props;
@@ -68,18 +71,30 @@ export function DataMapper(props: DataMapperProps) {
         outputType = dataMapperConfig.outputType.type;
     }
 
-    const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
-    const selectedNode = outputTypeVariables ?
-        outputTypeVariables
-            .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
-        : undefined;
+    const outputTypeConfig = dataMapperConfig.outputType as DataMapperOutputTypeInfo;
 
+    let selectedNode;
+
+    if (outputTypeConfig.generationType === GenerationType.NEW) {
+        const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
+        selectedNode = outputTypeVariables ?
+            outputTypeVariables
+                .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+            : undefined;
+    } else {
+        const outputTypeVariables = stSymbolInfo.variables.size > 0 ?
+            stSymbolInfo.assignmentStatement.get(outputTypeConfig.variableName)
+            : undefined;
+        selectedNode = outputTypeVariables ?
+            outputTypeVariables
+                .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+            : undefined;
+    }
 
     const components: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
 
     if (selectedNode) {
-
         const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
@@ -195,7 +210,7 @@ export function addTypeDescInfo(node: LocalVarDecl, recordMap: Map<string, STNod
                     // const recordMap: Map<string, STNode> = stSymbolInfo.recordTypeDescriptions;
 
                     if (recordMap.has(qualifiedKey)) {
-                        node.dataMapperTypeDescNode = recordMap.get(qualifiedKey);
+                        node.dataMapperTypeDescNode = JSON.parse(JSON.stringify(recordMap.get(qualifiedKey)));
                     } else {
                         // todo: fetch record/object ST
                     }

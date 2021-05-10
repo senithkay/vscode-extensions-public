@@ -139,7 +139,7 @@ export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, 
             if (paramViewState.typeInfo) {
                 const typeInfo: TypeInfo = paramViewState.typeInfo;
                 const qualifiedKey: string = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
-                const typeDescST = records.get(qualifiedKey);
+                const typeDescST = JSON.parse(JSON.stringify(records.get(qualifiedKey)));
 
                 if (!typeDescST) {
                     // todo: fetch typedesc using records api

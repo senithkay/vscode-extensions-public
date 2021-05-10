@@ -81,9 +81,15 @@ class SymbolFindingVisitor implements Visitor {
             node.varRef?.typeData?.symbol?.kind
             : node.typeData?.symbol?.kind;
 
-        const varName = STKindChecker.isNumericLiteral(node.expression) ?
-            (node.expression as NumericLiteral).literalToken.value
-            : node.typeData?.symbol?.name;
+        // TODO : Remove if not necessary
+        // const varName = STKindChecker.isNumericLiteral(node.expression) ?
+        //     (node.expression as NumericLiteral).literalToken.value
+        //     : node.typeData?.symbol?.name;
+        let varName;
+
+        if (STKindChecker.isSimpleNameReference(node.varRef)) {
+            varName = (node.varRef as SimpleNameReference).name.value;
+        }
 
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;

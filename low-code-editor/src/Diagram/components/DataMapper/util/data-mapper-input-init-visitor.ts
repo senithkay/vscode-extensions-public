@@ -12,6 +12,7 @@
  */
 
 import {
+    AssignmentStatement,
     BooleanLiteral,
     BooleanTypeDesc,
     CaptureBindingPattern,
@@ -50,6 +51,63 @@ export class DataMapperInitVisitor implements Visitor {
 
     constructor(visitType: VisitingType) {
         this.visitType = visitType;
+    }
+
+    beginVisitAssignmentStatement(node: AssignmentStatement) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new InputFieldViewState();
+        }
+
+        const viewState: InputFieldViewState = node.dataMapperViewState as InputFieldViewState;
+        viewState.hasMappedConstructorInitializer = node.expression.kind === 'MappingConstructor';
+
+        // const typedBindingPattern = node.typedBindingPattern as TypedBindingPattern;
+        // const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
+        // const typeDescriptor = typedBindingPattern.typeDescriptor;
+
+        // if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.String;
+        // } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.Int;
+        // } else if (STKindChecker.isFloatTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.Float;
+        // } else if (STKindChecker.isBooleanTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.Boolean;
+        // } else if (STKindChecker.isJsonTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.Json;
+        // } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
+        //     viewState.type = PrimitiveBalType.Xml;
+        // } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
+        //     const typeSymbol = node.typeData.typeSymbol;
+        //     const moduleID = typeSymbol.moduleID;
+
+        //     if (moduleID) {
+        //         viewState.typeInfo = {
+        //             name: (typeDescriptor as SimpleNameReference).name.value,
+        //             orgName: moduleID.orgName,
+        //             moduleName: moduleID.moduleName,
+        //             version: moduleID.version
+        //         }
+        //     }
+        // }
+
+        // viewState.name = bindingPattern.variableName.value;
+
+        // if (this.visitType === VisitingType.INPUT) {
+        //     viewState.sourcePointViewState = new SourcePointViewState();
+        // } else {
+        //     if (node.initializer) {
+        //         viewState.targetPointViewState = new TargetPointViewState();
+        //         viewState.targetPointViewState.position = node.initializer.position;
+        //         viewState.targetPointViewState.value = node.initializer.source;
+        //         node.initializer.dataMapperViewState = new DataMapperViewState();
+        //     }
+        // }
+
+
+        // if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+        //     viewState.type = PrimitiveBalType.Record;
+        // }
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -107,6 +165,14 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
         }
+    }
+
+    beginVisitRecordTypeDesc(node: RecordTypeDesc) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new InputFieldViewState();
+        }
+
+        node.dataMapperViewState.type = PrimitiveBalType.Record;
     }
 
     beginVisitRecordField(node: RecordField) {
