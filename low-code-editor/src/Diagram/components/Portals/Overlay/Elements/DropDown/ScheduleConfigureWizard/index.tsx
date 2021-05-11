@@ -41,6 +41,7 @@ interface ScheduleConfigureWizardProps {
   onWizardComplete: () => void;
   onClose: () => void;
   cron?: string,
+  schType?: string
 }
 
 export interface ConnectorEvents {
@@ -63,7 +64,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
 
-  const { position, onWizardComplete, onClose, cron } = props;
+  const { position, onWizardComplete, onClose, cron, schType } = props;
   const classes = useStyles();
   const intl = useIntl();
   const toggleClasses = toggleStyles();
@@ -79,6 +80,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
   const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
   const [checked, setChecked] = useState(true);
+  const [isDropdownChanged, setIsDropdownChanged] = useState(false)
 
   const modifyCronStartTime = new Date();
   modifyCronStartTime.setHours(Number(cronHourValue));
@@ -101,6 +103,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     validateCron(genCron);
 
   }, [cronMinuteValue, cronHourValue, cronDayValue, cronMonthValue, cronWeekValue, cron]);
+
+  useEffect(() => {
+    if (!isDropdownChanged) {
+      setScheduledComp(schType)
+    }
+  })
 
   function handleOnChangeCron(text: string) {
     setCurrentCron(text);
@@ -156,8 +164,29 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronMonthValue(cronMonth);
   }
 
-  const minuteGenCron = cronMinuteValue === "0" ? "0" : "*/" + cronMinuteValue;
-  const hourGenCron = cronHourValue === "0" ? "0" : "*/" + cronHourValue;
+  let minuteGenCron = ""
+  let hourGenCron = ""
+
+  if (cronMinuteValue === "0")
+    minuteGenCron = "0"
+  else if (cronMinuteValue === "*")
+    minuteGenCron = "*"
+  else if (cronMinuteValue.substring(0, 2) === "*/")
+    minuteGenCron = cronMinuteValue
+  else
+    minuteGenCron = "*/" + cronMinuteValue
+
+  if (cronHourValue === "0")
+    hourGenCron = "0"
+  else if (cronHourValue === "*")
+    hourGenCron = "*"
+  else if (cronHourValue.substring(0, 2) === "*/")
+    hourGenCron = cronHourValue
+  else
+    hourGenCron = "*/" + cronHourValue
+
+  // let minuteGenCron = cronMinuteValue === "0" ? "0" : (cronMinuteValue.substring(0, 2) === "*/" ? cronMinuteValue :  "*/" + cronMinuteValue);
+  // const hourGenCron = cronHourValue === "0" ? "0" : (cronHourValue.substring(0, 2) === "*/" ? cronHourValue : "*/" + cronHourValue);
 
   const cronForSelectedType = () => {
     if (scheduledComp === "Minute") {
@@ -165,9 +194,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
+      return cronMinuteValue + " " + cronHourValue + " * * *"
     } else if (scheduledComp === "Monthly") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
+    } else if (scheduledComp === "Weekly") {
+      return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
     }
@@ -203,9 +234,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " * *"
+      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *"
     } else if (scheduledComp === "Monthly") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " " + cronMonthUTCValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
+    } else if (scheduledComp === "Weekly") {
+      return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
     }
@@ -234,7 +267,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
       "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
-      "SYNTAX_TREE": originalSyntaxTree
+      "SYNTAX_TREE": originalSyntaxTree,
+      "SCHEDULE_TYPE": scheduledComp
     });
     trackTriggerSelection("Schedule");
   };
@@ -451,6 +485,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const handleSchedule = (selectedRepeatRange: string) => {
     setScheduledComp(selectedRepeatRange);
+    setIsDropdownChanged(true)
     if (selectedRepeatRange === "") {
       setScheduledComp("Minute");
     }
@@ -467,7 +502,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const weekComp: ReactNode = (
     <>
       {minuteAndHourOptionComp}
-      {repeatEveryWeek}
+      {/*{repeatEveryWeek}*/}
       {weekOptionComp}
     </>
   );
@@ -476,7 +511,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     <>
       {minuteAndHourOptionComp}
       {dayOptionComp}
-      {repeatEveryMonth}
+      {/*{repeatEveryMonth}*/}
       {weekOptionComp}
     </>
   );

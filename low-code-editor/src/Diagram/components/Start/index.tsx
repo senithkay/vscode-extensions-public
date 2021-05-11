@@ -155,6 +155,7 @@ export function StartButton(props: StartButtonProps) {
                         onWizardComplete={handleOnScheduleComplete}
                         onClose={handleSubMenuClose}
                         cron={(getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)).cron}
+                        schType={(getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)).schType}
                     />
                 </DiagramOverlayContainer>
             );
