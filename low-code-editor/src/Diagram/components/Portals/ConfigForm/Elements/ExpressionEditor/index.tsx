@@ -36,6 +36,7 @@ import {
     addToTargetLine,
     addToTargetPosition,
     createContentWidget,
+    createSortText,
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
@@ -294,8 +295,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                             return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
+                                    completionResponse.label !== varName &&
+                                    completionResponse.label !== model.aiSuggestion &&
+                                    completionResponse.label !== "main()"
+                                ));
+                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
                                     return {
                                         range: null,
                                         label: completionResponse.label,
@@ -303,7 +309,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         insertText: completionResponse.insertText,
                                         insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'c'
+                                        sortText: createSortText(order)
                                     }
                                 });
                                 if (varType === "string") {
@@ -314,7 +320,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         // tslint:disable-next-line: no-invalid-template-strings
                                         insertText: '"${1:}"',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
                                 }
@@ -325,7 +331,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         kind: monaco.languages.CompletionItemKind.Keyword,
                                         insertText: 'true',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     const completionItemTemplate1: monaco.languages.CompletionItem = {
                                         range: null,
@@ -333,7 +339,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         kind: monaco.languages.CompletionItemKind.Keyword,
                                         insertText: 'false',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
                                     completionItems.push(completionItemTemplate1);
@@ -344,7 +350,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         label: model.aiSuggestion,
                                         kind: 1 as CompletionItemKind,
                                         insertText: model.aiSuggestion,
-                                        sortText: 'a'
+                                        sortText: '1'
                                     }
                                     completionItems.push(completionItemAI);
                                 }
