@@ -57,5 +57,10 @@ export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
 
     const overlayDiv = document.getElementById('canvas-overlay');
 
-    return ReactDOM.createPortal(children, overlayDiv);
+    if (overlayDiv) {
+        return ReactDOM.createPortal(children, overlayDiv);
+    } else {
+        return null;
+    }
+
 }
