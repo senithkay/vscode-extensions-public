@@ -16,9 +16,8 @@ import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
-import { LogIcon } from "../../../../../../assets/icons";
+import { CloseRounded, LogIcon } from "../../../../../../assets/icons";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";

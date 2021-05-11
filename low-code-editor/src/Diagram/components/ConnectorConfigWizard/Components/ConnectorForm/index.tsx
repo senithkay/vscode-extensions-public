@@ -17,7 +17,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl } from '@ballerina/syntax-tree';
 import { Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
 import {
@@ -26,6 +25,7 @@ import {
     ConnectionDetails,
     OauthProviderConfig
 } from "../../../../../api/models";
+import { CloseRounded } from "../../../../../assets/icons";
 import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
