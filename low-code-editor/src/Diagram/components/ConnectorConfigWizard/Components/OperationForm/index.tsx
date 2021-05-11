@@ -181,11 +181,11 @@ export function OperationForm(props: OperationFormProps) {
                                         tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                         disabled: responseVariableHasReferences
                                     } }
-                                    defaultValue={ defaultResponseVarName }
-                                    placeholder={ "Enter Response Variable Name" }
-                                    onChange={ onNameChange }
-                                    label={ "Response Variable Name" }
-                                    errorMessage={ responseVarError }
+                                    defaultValue={defaultResponseVarName}
+                                    placeholder={"Enter Response Variable Name"}
+                                    onChange={onNameChange}
+                                    label={"Response Variable Name"}
+                                    errorMessage={responseVarError}
                                 />
                             ) }
                         </div>

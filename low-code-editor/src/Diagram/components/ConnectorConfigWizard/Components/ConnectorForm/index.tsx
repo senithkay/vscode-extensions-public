@@ -439,7 +439,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
@@ -456,15 +455,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(updateConnectorInit);
 
-                if (currentActionReturnType.hasReturn){
+                if (actionReturnType.hasReturn){
                     const updateActionInvocation = updatePropertyStatement(
-                        `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
                     );
                     modifications.push(updateActionInvocation);
                 } else {
                     const updateActionInvocation = updatePropertyStatement(
-                        `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
                     );
                     modifications.push(updateActionInvocation);
@@ -499,15 +498,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
 
                     // Add an action invocation on the initialized client.
-                    if (currentActionReturnType.hasReturn){
+                    if (actionReturnType.hasReturn){
                         const addActionInvocation = createPropertyStatement(
-                            `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                            `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
                         );
                         modifications.push(addActionInvocation);
                     } else {
                         const addActionInvocation = createPropertyStatement(
-                            `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                            `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
                         );
                         modifications.push(addActionInvocation);

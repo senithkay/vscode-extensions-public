@@ -955,6 +955,28 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                     response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
                 }
                 break;
+
+            default:
+                if (formField.isParam) {
+                    let type = "";
+                    if (formField.type === "error" || formField.isErrorType) {
+                        response.hasError = true;
+                    }
+                    if (type === "" && formField.typeInfo && !formField.isErrorType) {
+                        // set class/record types
+                        type = `${formField.typeInfo.modName}:${formField.typeInfo.name}`;
+                        response.hasReturn = true;
+                    }
+                    if (type === "" && formField.type && primitives.includes(formField.type)) {
+                        // set primitive types
+                        type = formField.type;
+                        response.hasReturn = true;
+                    }
+
+                    if (type) {
+                        response.returnType = type;
+                    }
+                }
         }
     }
 

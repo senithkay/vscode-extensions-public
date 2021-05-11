@@ -343,7 +343,7 @@ export function HTTPWizard(props: WizardProps) {
                     } else {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             { line: model.position.startLine + 1, column: 0 }
@@ -409,7 +409,7 @@ export function HTTPWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
-                        "var",
+                        getPayloadReturnType(),
                         connectorConfig.action.returnVariableName,
                         connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                         targetPosition
