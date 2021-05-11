@@ -15,6 +15,7 @@ import React from 'react';
 import { STNode } from "@ballerina/syntax-tree";
 
 import { FieldViewState } from "../../../viewstate";
+import { DataPoint } from '../../DataPoint';
 
 interface ValueTypeProps {
     model: STNode;
@@ -23,17 +24,25 @@ interface ValueTypeProps {
 
 export function ValueType(props: ValueTypeProps) {
     const { model, isMain } = props;
-
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
     let name: string = viewState.name;
     const type: string = viewState.type;
 
+    const dataPoints: JSX.Element[] = [];
     const regexPattern = new RegExp(/^"(\w+)\"$/);
 
     if (regexPattern.test(name)) {
         const matchedVal = regexPattern.exec(name);
         name = matchedVal[1];
+    }
+
+    if (viewState.sourcePointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+    }
+
+    if (viewState.targetPointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
     }
 
     return (
@@ -48,6 +57,7 @@ export function ValueType(props: ValueTypeProps) {
             >
                 {`${name}: ${type}`}
             </text>
+            {dataPoints}
         </g>
     );
 }

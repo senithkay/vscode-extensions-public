@@ -17,6 +17,7 @@ import { RecordTypeDesc, STNode } from '@ballerina/syntax-tree';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getDataMapperComponent } from '../../../util';
 import { FieldViewState } from '../../../viewstate';
+import { DataPoint } from '../../DataPoint';
 
 interface RecordTypeProps {
     model: STNode;
@@ -33,7 +34,8 @@ export function RecordType(props: RecordTypeProps) {
 
     const type = typeInfo.moduleName === currentApp.name ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`;
 
-    const fields: JSX.Element[] = []
+    const fields: JSX.Element[] = [];
+    const dataPoints: JSX.Element[] = [];
 
     if (model.dataMapperTypeDescNode) {
         const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
@@ -41,6 +43,14 @@ export function RecordType(props: RecordTypeProps) {
             const fieldVS = field.dataMapperViewState
             fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
         })
+    }
+
+    if (viewState.sourcePointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+    }
+
+    if (viewState.targetPointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
     }
 
     return (
@@ -56,6 +66,7 @@ export function RecordType(props: RecordTypeProps) {
                 {`${name}: ${type}`}
             </text>
             {fields}
+            {dataPoints}
         </g>
     );
 }

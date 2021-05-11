@@ -34,6 +34,9 @@ import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { SourcePointViewState, TargetPointViewState } from './viewstate';
+// import sampleConfig from './sample-config.json';
+// import sampleConfigJsonOutput from './sample-config-json.json';
+// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 
 interface DataMapperProps {
     width: number;
@@ -47,11 +50,13 @@ export function DataMapper(props: DataMapperProps) {
     const {
         stSymbolInfo,
         onMutate: dispatchMutations,
-        dataMapperConfig,
+        dataMapperConfig, // todo: revert
         currentApp
     } = state
 
-    // const dataMapperConfig = sampleJSON;
+    // const dataMapperConfig: any = sampleConfig; // todo: remove
+    // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
+    // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
 
@@ -90,8 +95,8 @@ export function DataMapper(props: DataMapperProps) {
             : undefined;
     }
 
-    const components: JSX.Element[] = [];
-    const dataPoints: JSX.Element[] = [];
+    const inputComponents: JSX.Element[] = [];
+    const outputComponent: JSX.Element[] = [];
 
     if (selectedNode) {
         const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
@@ -131,7 +136,7 @@ export function DataMapper(props: DataMapperProps) {
 
             traversNode(variableInfo.node, positionVisitor);
             const { dataMapperViewState } = variableInfo.node;
-            components.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
+            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
         });
 
         // selected node visit
@@ -148,23 +153,18 @@ export function DataMapper(props: DataMapperProps) {
         traversNode(selectedNode, dataPointVisitor);
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
 
-        dataPointVisitor.sourcePointMap.forEach((dataPoint: SourcePointViewState) => {
-            dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={() => { }} />);
-        });
-
-        dataPointVisitor.targetPointMap.forEach((dataPoint: TargetPointViewState) => {
-            dataPoints.push(<DataPoint dataPointViewState={dataPoint} onClick={() => { }} />);
-        });
-
-        debugger;
-
-        components.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
+        outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
     }
 
     return (
         <>
-            {components}
-            {dataPoints}
+            <g>
+                {inputComponents}
+            </g>
+            <g>
+                {outputComponent}
+            </g>
+            {/* {dataPoints} */}
             <DiagramOverlayContainer>
                 <DiagramOverlay
                     position={{ x: 15, y: 15 }}

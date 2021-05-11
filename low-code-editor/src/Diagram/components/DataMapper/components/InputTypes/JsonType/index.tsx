@@ -16,6 +16,7 @@ import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode
 
 import { getDataMapperComponent } from '../../../util';
 import { FieldViewState } from '../../../viewstate';
+import { DataPoint } from '../../DataPoint';
 
 interface JsonTypeProps {
     model: STNode;
@@ -29,7 +30,8 @@ export function JsonType(props: JsonTypeProps) {
     let name = viewState.name;
     const type = viewState.type;
 
-    const fields: JSX.Element[] = []
+    const fields: JSX.Element[] = [];
+    const dataPoints: JSX.Element[] = [];
 
     switch (type) {
         case 'json':
@@ -67,8 +69,13 @@ export function JsonType(props: JsonTypeProps) {
         // ignored
     }
 
+    if (viewState.sourcePointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+    }
 
-
+    if (viewState.targetPointViewState) {
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
+    }
 
     return (
         <g>
