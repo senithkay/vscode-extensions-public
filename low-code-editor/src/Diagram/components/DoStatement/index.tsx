@@ -17,6 +17,7 @@ import { DoStatement as BallerinaDoStatement } from "@ballerina/syntax-tree";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from '../../utils';
 import { DoViewState } from '../../view-state';
+import { DefaultConfig } from '../../visitors/default';
 import { OnFailClause } from '../OnFail';
 import { PlusButton } from '../Plus';
 
@@ -61,7 +62,13 @@ export function DoStatement(props: DoStatementProps) {
                 rx="6.5"
                 className="error-handdling"
             />
-            <text x={doViewState.container.x} y={doViewState.container.y + DOTEXTWIDTH} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">DO</text>
+            <text
+                x={doViewState.container.x + DefaultConfig.dotGap}
+                y={doViewState.container.y + DOTEXTWIDTH + DefaultConfig.dotGap}
+                className="error-handling-title"
+            >
+                DO
+            </text>
             {...pluses}
             {...drafts}
             {...children}

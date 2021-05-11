@@ -18,7 +18,7 @@ import cn from "classnames";
 
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
-import { BlockViewState, FunctionViewState, OnErrorViewState } from "../../view-state";
+import { BlockViewState, DoViewState, FunctionViewState, OnErrorViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { End } from "../End";
 import { PlusButton } from "../Plus";
@@ -34,16 +34,16 @@ const ERRORTITLEWIDTH = 33;
 const TITLEWIDTH = 56;
 const TITLEHEIGHT = 5;
 const GLOBALERRORPATH = 127;
+const GLOBALERRORPATH_TEXT_WIDTH = 147;
 
 export function OnFailClause(props: OnFailClauseProps) {
     const { state, insertComponentStart } = useContext(DiagramContext);
 
     const { model } = props;
-    const classes = cn("on-error-line");
-    const onFailSeparator = cn("on-error-separator");
-    const onFailClauseSVGClass = cn("on-fail-container");
+
     const viewState: OnErrorViewState = model.viewState as OnErrorViewState;
     const blockViewState: BlockViewState = model.blockStatement.viewState as BlockViewState;
+    const doViewState = model.viewState as DoViewState;
     const children = getSTComponents(model.blockStatement.statements);
     const pluses: React.ReactNode[] = [];
     let drafts: React.ReactNode[] = [];
@@ -63,24 +63,38 @@ export function OnFailClause(props: OnFailClauseProps) {
     }
 
     return (
-        // <svg x={viewState.bBox.cx} y={viewState.bBox.cy} width={viewState.bBox.w} height={viewState.bBox.h} className={onFailClauseSVGClass}>
-            <g x={viewState.bBox.cx} y={viewState.bBox.cy}>
-                <g className={classes}>
-                    {lifeLine}
-                </g>
-                <g className={onFailSeparator}>
-                    <line x1={viewState.bBox.cx - (viewState.bBox.w / 2)} y1={viewState.bBox.cy} x2={viewState.bBox.cx - (viewState.bBox.w / 2)} y2={viewState.bBox.cy + viewState.lifeLine.h + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2)} />
-                </g>
-                <rect id="Rectangle" width={ERRORTITLEWIDTH} height="1" x={viewState.lifeLine.x - ERRORTITLEWIDTH / 2} y={viewState.lifeLine.y} fill="#5567d5" />
-                <text x={viewState.header.cx - (GLOBALERRORPATH / 2)} y={viewState.header.cy - viewState.bBox.offsetFromBottom - (DefaultConfig.startingOnErrorY)} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
-                <text x={viewState.header.cx - (TITLEWIDTH / 2)} y={viewState.header.cy - TITLEHEIGHT} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
-                {/* <text x={viewState.header.cx} y={viewState.header.cy} fill="#32324d" font-size="16" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">Global Error Path</text>
-                <text x={viewState.header.cx} y={viewState.header.cy} fill="#32324d" font-size="12" font-family="GilmerBold, Gilmer Bold" letter-spacing="0.05em">ON FAIL</text>
-               */}
-                {...pluses}
-                {...drafts}
-                {...children}
+        <g className="on-error-wrapper">
+            <g className="on-error-line">
+                {lifeLine}
             </g>
-        // </svg>
+            <g className="on-error-separator">
+                <line
+                    x1={viewState.bBox.cx - (viewState.bBox.w / 2) + DefaultConfig.dotGap}
+                    y1={viewState.bBox.cy - (DefaultConfig.startingOnErrorY * 2)}
+                    x2={viewState.bBox.cx - (viewState.bBox.w / 2) + DefaultConfig.dotGap}
+                    y2={viewState.bBox.cy + viewState.lifeLine.h + viewState.bBox.offsetFromBottom + DefaultConfig.startingOnErrorY}
+                />
+            </g>
+            <rect id="Rectangle" width={ERRORTITLEWIDTH} height="1" x={viewState.lifeLine.x - ERRORTITLEWIDTH / 2} y={viewState.lifeLine.y} fill="#5567d5" />
+            <text
+                id="ErrorHeader"
+                x={viewState.header.cx - (GLOBALERRORPATH_TEXT_WIDTH / 2)}
+                y={viewState.header.cy - viewState.bBox.offsetFromBottom - (DefaultConfig.startingOnErrorY)}
+                className="main-title"
+            >
+                Global Error Path
+            </text>
+            <text
+                id="ErrorSubHeader"
+                x={viewState.header.cx - (TITLEWIDTH / 2)}
+                y={viewState.header.cy - TITLEHEIGHT}
+                className="sub-title"
+            >
+                ON FAIL
+            </text>
+            {...pluses}
+            {...drafts}
+            {...children}
+        </g>
     );
 }
