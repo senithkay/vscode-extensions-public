@@ -75,8 +75,6 @@ export { InsertorDelete } from "./Diagram/utils/modification-util";
 export default function LowCodeEditor(props: Props) {
 
     const {
-        langServerURL,
-        workingFile,
         currentApp,
         exprEditorState,
         ...restProps
