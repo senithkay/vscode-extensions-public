@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BlockViewState } from "../../view-state";
 
 import { CollapseSVG, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "./CollapseSVG";
@@ -23,7 +23,7 @@ export interface CollapsEProps {
 }
 
 export function Collapse(props: CollapsEProps) {
-    const { state: { syntaxTree }, diagramCleanDraw } = useContext(DiagramContext);
+    const { state: { syntaxTree }, diagramCleanDraw } = useContext(Context);
 
     const { blockViewState } = props;
     const viewState = blockViewState.collapseView;

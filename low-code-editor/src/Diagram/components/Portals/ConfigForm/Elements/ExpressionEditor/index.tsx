@@ -23,7 +23,7 @@ import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
@@ -134,7 +134,7 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
 
     const {
         diagnostics: mainDiagnostics,

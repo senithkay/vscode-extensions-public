@@ -20,7 +20,7 @@ import { CloseRounded } from "@material-ui/icons";
 
 import { PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -45,7 +45,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const intl = useIntl();
     const { config, onCancel, onSave } = props;
 
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
 
     let initialModelType: string = 'var';

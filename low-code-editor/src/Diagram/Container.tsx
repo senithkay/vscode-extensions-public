@@ -1,13 +1,15 @@
 import React, { useContext, useEffect } from "react";
 
-import { Context as DiagramContext } from "../Contexts/Diagram";
+import { Context } from "../Contexts/Diagram";
+// import { DiagramContext } from "../providers/contexts";
 import { LowCodeEditorProps as Props } from "../types";
 
 import { Diagram } from "./";
 import { TriggerType } from "./models";
 
 export default function DiagramContainer(props: Props) {
-    const { updateState } = useContext(DiagramContext);
+    // const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { updateState } = useContext(Context);
 
     const {
         workingFile,
@@ -27,8 +29,8 @@ export default function DiagramContainer(props: Props) {
 
     return (
         <Diagram
-            dispatchModifyTrigger={props.onModify}
-            dispatchMutations={props.onMutate}
+            // onModify={onModify}
+            // onMutate={onMutate}
             isReadOnly={props.isReadOnly || false}
             syntaxTree={props.syntaxTree}
             error={props.error}
