@@ -13,8 +13,11 @@
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
 
+import { AddRounded } from "@material-ui/icons";
+
 import { useStyles } from "../../forms/style"
 import { FormElementProps } from "../../types";
+import { IconBtnWithText } from "../Button/IconBtnWithText";
 import { PrimaryButton } from "../Button/PrimaryButton";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
@@ -65,7 +68,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
-            displayName: "Array Item",
+            displayName: "Item",
             type: subEditorType,
             value: subEditorValue,
             tooltip: "Add elements to Array",
@@ -87,11 +90,11 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
             <div className={classes.groupedForm}>
                 <ExpressionEditor {...elementPropsSubEditor} />
                 <div className="add-element-button">
-                    <PrimaryButton
-                        text={"Add"}
-                        fullWidth={false}
-                        onClick={handleAddButtonClick}
+                    <IconBtnWithText
                         disabled={addButtonDisabled}
+                        text={"Add Item"}
+                        onClick={handleAddButtonClick}
+                        icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
                 <ExpressionEditor
