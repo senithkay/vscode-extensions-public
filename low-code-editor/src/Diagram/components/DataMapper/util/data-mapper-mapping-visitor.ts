@@ -12,6 +12,7 @@
  */
 
 import {
+    AssignmentStatement,
     FieldAccess,
     LocalVarDecl,
     SimpleNameReference,
@@ -33,6 +34,31 @@ export class DataMapperMappingVisitor implements Visitor {
     constructor(sourcePoints: Map<string, SourcePointViewState>, targetPoints: Map<string, TargetPointViewState>) {
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
+    }
+
+    beginVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            this.nameParts.push(viewState.name);
+        }
+    }
+
+    endVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.nameParts.splice(this.nameParts.length - 1, 1);
+            this.references.forEach(ref => {
+                const connectionVS = this._generateConnection(
+                    ref,
+                    this.generateDataPointName(this.nameParts),
+                    node.expression.position
+                );
+                // viewstate.sourcePointViewState.connections.push(connectionVS);
+                this.sourcePoints.get(ref).connections.push(connectionVS);
+            });
+
+            this.references = [];
+        }
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {

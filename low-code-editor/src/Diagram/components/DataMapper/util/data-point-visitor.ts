@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { LocalVarDecl, RecordField, SpecificField, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, LocalVarDecl, RecordField, SpecificField, Visitor } from "@ballerina/syntax-tree";
 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
@@ -45,6 +45,33 @@ export class DataPointVisitor implements Visitor {
         });
 
         return name;
+    }
+
+    beginVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            this.nameComponents.push(viewState.name);
+            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+
+            if (viewState.sourcePointViewState) {
+                viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewState.sourcePointViewState.bBox.y = viewState.bBox.y;
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewState.sourcePointViewState);
+            }
+
+            if (viewState.targetPointViewState) {
+                viewState.targetPointViewState.bBox.x = 450;
+                viewState.targetPointViewState.bBox.y = viewState.bBox.y;
+                this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewState.targetPointViewState);
+            }
+        }
+    }
+
+    endVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+            this.hasDataMapperTypeDesc = false;
+        }
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
