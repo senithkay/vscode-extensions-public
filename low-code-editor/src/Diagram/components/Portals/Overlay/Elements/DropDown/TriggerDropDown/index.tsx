@@ -39,6 +39,7 @@ interface TriggerDropDownProps {
     // dispatchGoToNextTourStep: (nextStepId: string) => void;
     isEmptySource?: boolean;
     triggerType?: TriggerType;
+    activeConnectorType?: ConnectorType;
     configData?: any;
     isDropdownActive?: boolean;
     // createTrigger: (triggerType: TriggerType, model?: any, configObject?: any) => void; // todo: handle dispatch
@@ -54,11 +55,12 @@ export enum ConnectorType {
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const { onClose, onComplete, title = "Select Trigger",
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger,
+            originalSyntaxTree } = state;
+    const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
-    const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
+    const [activeConnector, setActiveConnector] = useState<ConnectorType>(activeConnectorType);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
@@ -79,10 +81,14 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         //     dispatchGoToNextTourStep("SELECT_TRIGGER");
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
-            if (isEmptySource) {
-                // todo: handle dispatch
+            if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
                 onModifyTrigger(newTrigger);
-            } else {
+            } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
+                onModifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
+                    "SYNTAX_TREE": originalSyntaxTree,
+                    "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
+                });
+            } else if (triggerType !== TRIGGER_TYPE_MANUAL) {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
             }
@@ -282,6 +288,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
+                    initialTriggerType={triggerType}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
                     cron={configData?.cron}
@@ -293,6 +300,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
+                    isWebhookTypeChanged={activeConnectorType !== activeConnector}
                 />
             )}
             {showConfirmDialog && (

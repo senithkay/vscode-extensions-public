@@ -32,11 +32,13 @@ import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConne
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
+import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface GitHubConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;
+    isTriggerTypeChanged: boolean;
     currentEvent?: string;
     currentAction?: string;
     currentConnection?: ConnectionDetails;
@@ -60,7 +62,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         originalSyntaxTree,
         onMutate: dispatchMutations
     } = state;
-    const { onComplete, currentEvent, currentAction, currentConnection } = props;
+    const { onComplete, currentEvent, currentAction, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -306,8 +308,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createGithubTrigger();
-        } else {
+        } else if (!isTriggerTypeChanged) {
             updateGithubTrigger();
+        } else {
+            setShowConfirmDialog(true);
         }
     };
     // handle github trigger creation
@@ -498,6 +502,13 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         disabled={isFileSaving}
                     />
                 </div>
+            )}
+
+            { showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createGithubTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
             )}
         </>
     );
