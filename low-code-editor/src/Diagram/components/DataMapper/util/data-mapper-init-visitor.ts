@@ -70,6 +70,21 @@ export class DataMapperInitVisitor implements Visitor {
             }
         }
 
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            if (node.expression) {
+                viewState.targetPointViewState = new TargetPointViewState();
+                viewState.targetPointViewState.position = node.expression.position;
+                viewState.targetPointViewState.value = node.expression.source;
+                node.expression.dataMapperViewState = new DataMapperViewState();
+            }
+        }
+
+        if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+            viewState.type = PrimitiveBalType.Record;
+        }
+
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {

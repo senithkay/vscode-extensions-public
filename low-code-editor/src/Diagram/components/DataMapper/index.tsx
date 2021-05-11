@@ -16,6 +16,7 @@ import React, { useContext, useState } from 'react';
 import {
     LocalVarDecl,
     RecordTypeDesc,
+    STKindChecker,
     STNode,
     traversNode
 } from '@ballerina/syntax-tree';
@@ -193,10 +194,18 @@ export function DataMapper(props: DataMapperProps) {
 
 }
 
-export function addTypeDescInfo(node: LocalVarDecl, recordMap: Map<string, STNode>) {
-    if (node.initializer) {
-        const varTypeSymbol = node.initializer.typeData.typeSymbol;
+export function addTypeDescInfo(node: STNode, recordMap: Map<string, STNode>) {
+    let varTypeSymbol;
 
+    if (STKindChecker.isLocalVarDecl(node) && node.initializer) {
+        varTypeSymbol = node.initializer.typeData.typeSymbol;
+    } else if (STKindChecker.isAssignmentStatement(node)) {
+        if (STKindChecker.isSimpleNameReference(node.varRef)) {
+            varTypeSymbol = node.varRef.typeData.typeSymbol;
+        }
+    }
+
+    if (varTypeSymbol) {
         switch (varTypeSymbol.typeKind) {
             case PrimitiveBalType.String:
             case PrimitiveBalType.Int:
