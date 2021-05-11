@@ -59,12 +59,15 @@ export function Else(props: ElseProps) {
     const classes = cn("else-line");
 
     const topHorizontalLine: ReactNode = (
-        <line
-            x1={viewState.elseTopHorizontalLine.x - yOffsetForCurve}
-            y1={viewState.elseTopHorizontalLine.y}
-            x2={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length  - TOP_CURVE_SVG_WIDTH}
-            y2={viewState.elseTopHorizontalLine.y}
-        />
+        <>
+            <text className="then-text" x={viewState.elseTopHorizontalLine.x + DefaultConfig.dotGap / 2} y={viewState.elseTopHorizontalLine.y - DefaultConfig.dotGap / 2}>else</text>
+            <line
+                x1={viewState.elseTopHorizontalLine.x - yOffsetForCurve}
+                y1={viewState.elseTopHorizontalLine.y}
+                x2={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length - TOP_CURVE_SVG_WIDTH}
+                y2={viewState.elseTopHorizontalLine.y}
+            />
+        </>
     );
 
     const topCurve: ReactNode = (
@@ -95,7 +98,7 @@ export function Else(props: ElseProps) {
             x1={viewState.elseBottomHorizontalLine.x}
             y1={viewState.elseBottomHorizontalLine.y - yOffsetForCurve}
             x2={viewState.elseBottomHorizontalLine.x + viewState.elseBottomHorizontalLine.length -
-            BOTTOM_CURVE_SVG_WIDTH + yOffsetForCurve}
+                BOTTOM_CURVE_SVG_WIDTH + yOffsetForCurve}
             y2={viewState.elseBottomHorizontalLine.y - yOffsetForCurve}
         />
     );
@@ -107,7 +110,7 @@ export function Else(props: ElseProps) {
     }
 
     if (viewState.collapseView) {
-        children.push(<Collapse blockViewState={viewState}/>)
+        children.push(<Collapse blockViewState={viewState} />)
     }
 
     components.push(topHorizontalLine);
@@ -121,10 +124,10 @@ export function Else(props: ElseProps) {
 
     return (
         <g className={classes}>
-            {...components}
-            {...children}
-            {...pluses}
-            {...drafts}
+            {components}
+            {children}
+            {pluses}
+            {drafts}
         </g>
     )
 }

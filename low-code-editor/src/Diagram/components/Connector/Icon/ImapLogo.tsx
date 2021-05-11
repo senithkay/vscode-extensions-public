@@ -12,17 +12,17 @@
  */
 import * as React from "react";
 
-export const IMAP_LOGO_WIDTH = 48;
-export const IMAP_LOGO_HEIGHT = 48;
+export const IMAP_LOGO_WIDTH = 22;
+export const IMAP_LOGO_HEIGHT = 22;
 
 export function ImapLogo(props: { cx?: number, cy?: number, scale?: number }) {
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (IMAP_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (IMAP_LOGO_HEIGHT / 2)} width={IMAP_LOGO_WIDTH} height={IMAP_LOGO_HEIGHT} >
-            <g id="ImapWrapper" transform="translate(-23.35 9.009)">
-                <path id="Shape" d="M68.938,35.491h-44" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3.175" />
-                <path id="Combined_Shape" d="M46.938,10.636a2.473,2.473,0,0,1-1.48-.485L25.511-4.494a2.5,2.5,0,0,1-.535-3.494A2.5,2.5,0,0,1,26.99-9.009h39.9a2.5,2.5,0,0,1,2.5,2.5,2.5,2.5,0,0,1-1.02,2.015L48.417,10.15A2.477,2.477,0,0,1,46.938,10.636ZM28.515-6.009,46.938,7.515,65.36-6.009Z" fill="#ccd1f2" />
-                <path id="Path_2" d="M53.08,17.19H49.5l-4.25,11.5h2.81l.81-2.2h4.86l.8,2.2h2.81Zm-3.33,6.94,1.56-4.31,1.56,4.31Zm-8.412,4.561V21.955l-3.38,4.619L34.59,21.955v6.736H31.863v-11.5h2.59L37.974,22.3l3.5-5.108h2.6v11.5Zm-14.4,0v-11.5H29.7v11.5Zm40.1-10.417A3.8,3.8,0,0,0,64.076,17l.01-.01h-5.48v11.53h2.67V25.3h2.7a3.908,3.908,0,0,0,3.05-1.27A4.218,4.218,0,0,0,67.036,18.274Zm-1.95,3.936a1.489,1.489,0,0,1-1.17.5l-.01.01h-2.64V19.34h2.75a1.411,1.411,0,0,1,1.1.5,1.73,1.73,0,0,1,.43,1.19A1.645,1.645,0,0,1,65.086,22.21Z" fill="#5567d5" />
+            <g id="Logo_IMAP" transform="translate(-88.089 -354.061)">
+                <path id="Path" d="M89.676,355.648h18.333" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3.175" />
+                <path id="Path-2" d="M108.009,373.564H89.676" fill="none" stroke="#ccd1f2" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3.175" />
+                <path id="Path_2" d="M101.437,362.24h-1.5l-1.779,4.814h1.176l.339-.921h2.035l.335.921h1.176Zm-1.394,2.9.653-1.8.653,1.8Zm-3.522,1.91v-2.82l-1.414,1.933-1.41-1.933v2.82H92.555v-4.814h1.084l1.474,2.138,1.465-2.138h1.089v4.814Zm-6.028,0v-4.814H91.65v4.814Zm16.787-4.361a1.591,1.591,0,0,0-1.24-.533l0,0H103.75v4.826h1.118v-1.348H106a1.638,1.638,0,0,0,1.277-.531,1.767,1.767,0,0,0,0-2.41Zm-.817,1.648a.623.623,0,0,1-.489.209l0,0h-1.105V363.14h1.151a.588.588,0,0,1,.461.21.722.722,0,0,1,.18.5.693.693,0,0,1-.193.494Z" fill="#5567d5" />
             </g>
         </svg>
     )

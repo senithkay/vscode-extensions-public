@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
@@ -33,6 +34,7 @@ export interface ArrayProps {
 export function Array(props: FormElementProps<ArrayProps>) {
     const { model, customProps, onChange } = props;
     const classes = useStyles();
+    const intl = useIntl();
 
     let arrayValues: React.ReactNode[];
     if (!model.fields) {
@@ -69,6 +71,11 @@ export function Array(props: FormElementProps<ArrayProps>) {
     const onCollectionChange = (collection: string) => {
         setArrayValue(collection);
     };
+
+    const addValueIconText = intl.formatMessage({
+        id: "lowcode.develop.elements.array.addValue.iconText",
+        defaultMessage: "Add Value"
+    });
 
     const deleteItem = (index: number) => {
         if (model.fields && model.fields.length > 0) {
@@ -270,7 +277,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                 <div className={classes.addWrapperBtn} data-testid="add-btn">
                     <IconBtnWithText
                         onClick={addValue}
-                        text="Add Value"
+                        text={addValueIconText}
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
@@ -280,7 +287,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     {arrayValues.length > 0 ? (
                         <div>
                             <div className={classes.divider} />
-                            <FormHelperText className={classes.inputLabelWrapper}> Added Elements </FormHelperText>
+                            <FormHelperText className={classes.inputLabelWrapper}><FormattedMessage id="lowcode.develop.elements.array.addedElements" defaultMessage="Added Elements"/> </FormHelperText>
                         </div>
                     )
                         : null

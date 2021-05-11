@@ -69,10 +69,10 @@ export function SelectOperationForm(props: SelectOperationFormProps) {
         <div className={classes.configPanel}>
             <FormControl className={classes.wizardFormControl}>
             <Typography variant="h4">
-                <Box paddingTop={2} paddingBottom={2}>Select an Operation</Box>
+                <Box paddingTop={2} paddingBottom={2}>Select an operation</Box>
             </Typography>
             <div className={classes.labelWrapper}>
-                <FormHelperText className={classes.inputLabelForRequired}>Select an Operation</FormHelperText>
+                <FormHelperText className={classes.inputLabelForRequired}>Select an operation</FormHelperText>
                 <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
             </div>
             <SelectDropdownWithButton

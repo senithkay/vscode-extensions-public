@@ -26,8 +26,8 @@ import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
-import { tooltipMessages } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../../style";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface WhileProps {
     condition: ConditionConfig;
@@ -41,6 +41,7 @@ export function AddWhileForm(props: WhileProps) {
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
@@ -59,13 +60,28 @@ export function AddWhileForm(props: WhileProps) {
         type: "boolean"
     }
 
+    const whileStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.title",
+            defaultMessage: "Enter a Ballerina expression."
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionText",
+            defaultMessage: "Learn Ballerina expressions"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "https://ballerina.io/learn/by-example/"
+        })
+    };
+
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateField,
-            tooltipTitle: tooltipMessages.expressionEditor.title,
-            tooltipActionText: tooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: tooltipMessages.expressionEditor.actionLink,
+            tooltipTitle: whileStatementTooltipMessages.title,
+            tooltipActionText: whileStatementTooltipMessages.actionText,
+            tooltipActionLink: whileStatementTooltipMessages.actionLink,
             interactive: true,
             statementType: formField.type
         },
@@ -77,6 +93,16 @@ export function AddWhileForm(props: WhileProps) {
         condition.conditionExpression = conditionState.conditionExpression;
         onSave();
     }
+
+    const saveWhileButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.saveButton.label",
+        defaultMessage: "Save"
+    });
+
+    const cancelWhileButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.cancelButton.label",
+        defaultMessage: "Cancel"
+    });
 
     return (
 
@@ -95,7 +121,12 @@ export function AddWhileForm(props: WhileProps) {
                                 <IfIcon />
                             </div>
                             <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>While</Box>
+                                <Box paddingTop={2} paddingBottom={2}>
+                                    <FormattedMessage
+                                        id="lowcode.develop.configForms.while.title"
+                                        defaultMessage="While"
+                                    />
+                                </Box>
                             </Typography>
                         </div>
                     </div>
@@ -104,10 +135,10 @@ export function AddWhileForm(props: WhileProps) {
                     </div>
                 </div>
                 <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                    <SecondaryButton text={cancelWhileButtonLabel} fullWidth={false} onClick={onCancel} />
                     <PrimaryButton
                         dataTestId={"while-save-btn"}
-                        text="Save"
+                        text={saveWhileButtonLabel}
                         disabled={isMutationInProgress || isInvalid}
                         fullWidth={false}
                         onClick={handleOnSaveClick}

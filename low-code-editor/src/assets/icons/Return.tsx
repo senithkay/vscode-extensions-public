@@ -2,11 +2,11 @@ import React from 'react';
 
 export default function ReturnIcon(props: any) {
     return (
-        <svg width="23px" height="22px" viewBox="0 0 23 22" version="1.1" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <polygon id="Triangle" fill="#5567D5" transform="translate(7.621429, 10.450000) rotate(-90.000000) translate(-7.621429, -10.450000) " points="7.62142857 7.7 11.9428571 13.2 3.3 13.2" />
-                <polygon id="Triangle-Copy" fill="#CCD1F2" transform="translate(13.435714, 10.450000) rotate(-90.000000) translate(-13.435714, -10.450000) " points="13.4357143 7.7 17.7571429 13.2 9.11428571 13.2" />
-                <circle id="Oval" stroke="#CCD1F2" stroke-width="2" cx="11" cy="11" r="10" />
+        <svg width="16" height="16" {...props}>
+            <g id="Develop" transform="translate(-0.25 -0.25)">
+                <path id="Triangle" d="M4.871,9.154l3.85-3.025v6.05Z" transform="translate(-1.161 -1.539)" fill="#5567d5" fillRule="evenodd" />
+                <path id="Triangle-Copy" d="M10.686,9.154l3.85-3.025v6.05Z" transform="translate(-2.906 -1.539)" fill="#ccd1f2" fillRule="evenodd" />
+                <circle id="Oval" cx="7" cy="7" r="7" transform="translate(1 1)" fill="none" stroke="#ccd1f2" strokeWidth="1.5" />
             </g>
         </svg>
     )

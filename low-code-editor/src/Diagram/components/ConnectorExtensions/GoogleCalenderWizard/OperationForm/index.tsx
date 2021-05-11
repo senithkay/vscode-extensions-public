@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
@@ -56,6 +57,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo: symbolInfo, currentApp, getGcalendarList } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
 
     const handleOnSave = () => {
         onSave();
@@ -162,13 +164,42 @@ export function OperationForm(props: OperationFormProps) {
         }
     }, [ connectionInfo ]);
 
+    const chooseCalendarPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.operationForm.chooseCalendar.placeholder",
+        defaultMessage: "Choose calendar"
+    });
+
+    const addResponseVariablePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.addResponseVariable.placeholder",
+        defaultMessage: "Enter response variable name"
+    });
+
+    const addResponseVariableLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.addResponseVariable.label",
+        defaultMessage: "Response Variable Name"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.GCalendar.saveConnectionButton.text",
+        defaultMessage: "Save"
+    });
+
+    const GCalendarTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.GCalendar.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
+            }),
+    }
+    };
+
     return (
         <div>
             <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                 <div className={classes.fullWidth}>
                     {showConnectionName ? (
                         <>
-                        <p className={wizardClasses.subTitle}>Connection</p>
+                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.operationForm.title" defaultMessage="Connection"/></p>
                          <Box border={1} borderRadius={5} className={wizardClasses.box}>
                             <Typography variant="subtitle2">
                                 {connectionDetails.name}
@@ -187,7 +218,7 @@ export function OperationForm(props: OperationFormProps) {
                     ) : null
                     }
                     <>
-                    <p className={wizardClasses.subTitle}>Operation</p>
+                    <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.operationForm.operation.title" defaultMessage="Operation"/></p>
                     <Box border={1} borderRadius={5} className={wizardClasses.box}>
                         <Typography variant="subtitle2">
                             {selectedOperation}
@@ -218,7 +249,7 @@ export function OperationForm(props: OperationFormProps) {
                                 ) : (
                                     <>
                                         {showCalendarSelector && (
-                                            <p className={wizardClasses.subTitle}>Select Calendar</p>
+                                            <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.GCalendar.operationForm.showCalendar.title" defaultMessage="Select Calendar :"/></p>
                                         )}
                                         {showCalendarSelector && isCalenderFetching && (
                                             <CirclePreloader position="relative" />
@@ -226,7 +257,7 @@ export function OperationForm(props: OperationFormProps) {
                                         {showCalendarSelector && !isCalenderFetching && gcalenderList && (
                                             <>
                                                 <FormAutocomplete
-                                                    placeholder="Choose Calendar"
+                                                    placeholder={chooseCalendarPlaceholder}
                                                     itemList={gcalenderList}
                                                     value={getActiveGcalendar()}
                                                     getItemLabel={handleItemLabel}
@@ -242,25 +273,24 @@ export function OperationForm(props: OperationFormProps) {
                         }
                     </div>
 
-                    {hasReturn && (
-                        <FormTextInput
-                            customProps={{
-                                validate: validateNameValue
-                            }}
-                            defaultValue={defaultResponseVarName}
-                            placeholder={"Enter Response Variable Name"}
-                            onChange={onNameChange}
-                            label={"Response Variable Name"}
-                            errorMessage={responseVarError}
-                        />
-                    )}
+                    <FormTextInput
+                        customProps={{
+                            validate: validateNameValue,
+                            tooltipTitle: GCalendarTooltipMessages.responseVariableName.title,
+                        }}
+                        defaultValue={defaultResponseVarName}
+                        placeholder={addResponseVariablePlaceholder}
+                        onChange={onNameChange}
+                        label={addResponseVariableLabel}
+                        errorMessage={responseVarError}
+                    />
                 </div>
             </div>
             <div className={classes.wizardBtnHolder}>
                 <PrimaryButton
                     dataTestId={"calender-save-btn"}
                     className={wizardClasses.buttonSm}
-                    text="Save"
+                    text={saveConnectionButtonText}
                     fullWidth={false}
                     disabled={isSaveButtonDisabled}
                     onClick={handleOnSave}

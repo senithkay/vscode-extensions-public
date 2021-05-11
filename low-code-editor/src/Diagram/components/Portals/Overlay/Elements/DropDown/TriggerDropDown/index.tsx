@@ -22,7 +22,6 @@ import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
-import { tooltipMessages } from '../../../../utils/constants';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
 import { ApiConfigureWizard } from '../ApiConfigureWizard';
 import { ScheduleConfigureWizard } from '../ScheduleConfigureWizard';
@@ -30,6 +29,7 @@ import "../style.scss";
 import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
+import { FormattedMessage, useIntl } from 'react-intl';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -53,6 +53,7 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(DiagramContext);
+    const intl = useIntl();
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
     const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
@@ -103,6 +104,68 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         setActiveConnector(undefined);
     }
 
+    const triggerDropDownTooltipMessages = {
+        triggerSelector: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.title",
+            defaultMessage: "Select a suitable trigger. A trigger is an event or an action that causes a Choreo application to start executing."
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionText",
+            defaultMessage: "Learn about triggers"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
+            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
+        })
+    }
+    };
+
+    const scheduleTriggerTooltipMessages = {
+        scheduleTrigger: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.title",
+            defaultMessage: "To trigger an application according to a given schedule."
+        })
+    }
+    };
+
+    const manualTriggerTooltipMessages = {
+        manualTrigger: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
+            defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
+        })
+    }
+    };
+
+    const gitHubTriggerTooltipMessages = {
+        gitHubTrigger: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.title",
+            defaultMessage: "To trigger an application based on GitHub events."
+        })
+    }
+    };
+
+    const calendarTriggerTooltipMessages = {
+        calendarTrigger: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.title",
+            defaultMessage: "To trigger an application based on Google Calendar events."
+        })
+    }
+    };
+
+    const salesforceTriggerTooltipMessages = {
+        salesforceTrigger: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.title",
+            defaultMessage: "To trigger an application based on Salesforce events."
+        })
+    }
+    };
+
     const integrationMenu = (
         <div>
             <DiagramOverlay className={"trigger-container"} position={position}>
@@ -111,9 +174,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         <p>{title}</p>
                         <div>
                             <TooltipIcon
-                                title={tooltipMessages.triggerSelector.title}
-                                actionText={tooltipMessages.triggerSelector.actionText}
-                                actionLink={tooltipMessages.triggerSelector.actionLink}
+                                title={triggerDropDownTooltipMessages.triggerSelector.title}
+                                actionText={triggerDropDownTooltipMessages.triggerSelector.actionText}
+                                actionLink={triggerDropDownTooltipMessages.triggerSelector.actionLink}
                                 interactive={true}
                                 arrow={true}
                             />
@@ -128,11 +191,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     <div className={"trigger-list"}>
                         <div>
                             <Tooltip
-                                title={tooltipMessages.scheduleTrigger.title}
-                                actionText={tooltipMessages.scheduleTrigger.actionText}
-                                actionLink={tooltipMessages.scheduleTrigger.actionLink}
+                                title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -142,16 +203,14 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <ScheduleIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">  Schedule </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.schedule.title" defaultMessage="Schedule"/></div>
                                 </div>
                             </Tooltip>
                             {/* INFO:webhook trigger has been removed */}
                             <Tooltip
-                                title={tooltipMessages.calenderTrigger.title}
-                                actionText={tooltipMessages.calenderTrigger.actionText}
-                                actionLink={tooltipMessages.calenderTrigger.actionLink}
+                                title={calendarTriggerTooltipMessages.calendarTrigger.title}
                                 interactive={true}
-                                placement="right"
+                                placement="left"
                                 arrow={true}
                             >
                                 <div
@@ -161,14 +220,12 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <CalendarIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label "> Calendar </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.calendar.title" defaultMessage="Calendar"/></div>
                                 </div>
                             </Tooltip>
 
                             <Tooltip
-                                title={tooltipMessages.salesforceTrigger.title}
-                                actionText={tooltipMessages.salesforceTrigger.actionText}
-                                actionLink={tooltipMessages.salesforceTrigger.actionLink}
+                                title={salesforceTriggerTooltipMessages.salesforceTrigger.title}
                                 interactive={true}
                                 placement="left"
                                 arrow={true}
@@ -180,17 +237,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <SalesforceIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">Salesforce</div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.salesforce.title" defaultMessage="Salesforce"/></div>
                                 </div>
                             </Tooltip>
                         </div>
                         <div>
                             <Tooltip
-                                title={tooltipMessages.manualTrigger.title}
-                                actionText={tooltipMessages.manualTrigger.actionText}
-                                actionLink={tooltipMessages.manualTrigger.actionLink}
+                                title={manualTriggerTooltipMessages.manualTrigger.title}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div
@@ -200,16 +255,14 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <ManualIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label "> Manual </div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.manual.title" defaultMessage="Manual"/></div>
                                 </div>
                             </Tooltip>
 
                             <Tooltip
-                                title={tooltipMessages.gitHubTrigger.title}
-                                actionText={tooltipMessages.gitHubTrigger.actionText}
-                                actionLink={tooltipMessages.gitHubTrigger.actionLink}
+                                title={gitHubTriggerTooltipMessages.gitHubTrigger.title}
                                 interactive={true}
-                                placement="left"
+                                placement="right"
                                 arrow={true}
                             >
                                 <div
@@ -219,7 +272,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                                     <div className="icon-wrapper">
                                         <GitHubIcon className="trigger-selector-icon" />
                                     </div>
-                                    <div className="trigger-label ">GitHub</div>
+                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.GitHub.title" defaultMessage="GitHub"/></div>
                                 </div>
                             </Tooltip>
                         </div>

@@ -46,9 +46,9 @@ export function WorkerBody(props: DiagramProps) {
 
     return (
         <g>
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 }

@@ -70,7 +70,7 @@ export function Respond(props: RespondProps) {
         cy = model.viewState.bBox.cy;
         sourceSnippet = model.source;
         if (model.viewState.isCallerAction) {
-            compType = "RESPOND";
+            compType = "respond";
         }
 
         if (model.kind === 'ActionStatement' && (model as ActionStatement).expression.kind === 'CheckAction') {
@@ -84,13 +84,13 @@ export function Respond(props: RespondProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: isEditable ? cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - DELETE_SVG_OFFSET : cx - DELETE_SVG_OFFSET,
-        cy: cy + (RESPOND_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
+        cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
-        cy: cy + (RESPOND_SVG_HEIGHT / 2) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 2)
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + PROCESS_SVG_WIDTH / 3 + (DefaultConfig.dotGap / 2) ,
+        cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
     const onClickOpenInCodeView = () => {
@@ -103,7 +103,7 @@ export function Respond(props: RespondProps) {
             <g className="respond-wrapper">
                 <RespondSVG
                     x={cx - (RESPOND_SVG_WIDTH_WITH_SHADOW / 2)}
-                    y={cy - DefaultConfig.shadow}
+                    y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
                     sourceSnippet={sourceSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
@@ -195,7 +195,7 @@ export function Respond(props: RespondProps) {
                     {!isConfigWizardOpen && (
                         <>
                             <rect
-                                x={cx - (PROCESS_SVG_WIDTH / 3)}
+                                x={cx - (PROCESS_SVG_WIDTH / 3) - DefaultConfig.dotGap * 1.5}
                                 y={cy + (PROCESS_SVG_HEIGHT / 4)}
                                 className="respond-rect"
                             />

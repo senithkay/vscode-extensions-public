@@ -12,10 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
@@ -25,7 +27,6 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {
@@ -34,6 +35,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
@@ -48,10 +50,11 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
-    const { onSave, onBackClick, initFields, connectorConfig, isOauthConnector,
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name,
@@ -108,23 +111,83 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const createConnectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const createConnectionPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.saveButton.label",
+        defaultMessage: "Save & Next"
+    });
+
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
+
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = configForm;
+        onSaveNext();
+    };
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: tooltipMessages.connectionName,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={"Connection Name"}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={createConnectionPlaceholder}
                         />
+                    </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>
@@ -132,14 +195,16 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 </div>
                 <div className={classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text="Save &amp; Next"
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <PrimaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                    </div>
                 </div>
             </FormControl>
         </div>

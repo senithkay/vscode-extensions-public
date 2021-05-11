@@ -12,10 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
 import { Connector } from "../../../../../Definitions/lang-client-extended";
@@ -34,6 +36,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
 }
@@ -45,11 +48,13 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSave, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, onConfigNameChange,
+            isNewConnectorInitWizard } = props;
     const { state } = useContext(DiagramContext);
     const { stSymbolInfo: symbolInfo } = state;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
+    const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: '',
@@ -151,32 +156,86 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const createConnectionNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.name.label",
+        defaultMessage: "Connection Name"
+    });
+
+    const connectionNamePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.name.placeholder",
+        defaultMessage: "Enter connection name"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const saveConnectionButtonText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.saveButton.text",
+        defaultMessage: "Save & Next"
+    });
+
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GitHub.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                disabled: hasReference
+                                disabled: hasReference,
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={"Connection Name"}
                             errorMessage={connectorNameError}
-                            placeholder={"Enter Connection Name"}
+                            placeholder={connectionNamePlaceholder}
                         />
+                    </Section>
                         <ExpressionEditor {...expElementProps} />
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
-                        <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <PrimaryButton
                         dataTestId={"git-save-next-btn"}
-                        text="Save &amp; Next"
+                        text={saveConnectionButtonText}
                         disabled={!(isAccessTokenValid && nameState.isNameProvided && nameState.isValidName)}
                         fullWidth={false}
                         onClick={handleOnSave}

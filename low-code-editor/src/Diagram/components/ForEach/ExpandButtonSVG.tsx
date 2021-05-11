@@ -22,22 +22,19 @@ export const EXPAND_SHADOW_OFFSET = EXPAND_SVG_WIDTH_WITH_SHADOW - EXPAND_SVG_HE
 export function ExpandButtonSVG(props: { x: number, y: number, onClick: () => void }) {
     const { onClick, ...xyProps } = props;
     return (
-        <svg {...xyProps} width={EXPAND_SVG_WIDTH}  height={EXPAND_SVG_HEIGHT} className="expand" onClick={onClick}>
-            <g id="UnfoldRectangle" fill="#f7f8fb" stroke="#05a26b" strokeMiterlimit="10" strokeWidth="1">
-                <rect width={EXPAND_SVG_WIDTH} height={EXPAND_SVG_HEIGHT} rx="4" stroke="none" />
-                <rect x="0.5" y="0.5" width="24" height="24" rx="3.5" fill="none" />
+        <svg {...xyProps} width={EXPAND_SVG_WIDTH} height={EXPAND_SVG_HEIGHT} onClick={onClick}>
+        <g id="Expand_default" transform="translate(1 1)">
+            <g id="Rectangle_Copy_8">
+                <rect id="Rectangle_Copy_8-2" width="14" height="14" rx="2" fill="#fff" />
+                <g id="Rectangle_Copy_8-3" fill="none" stroke="#bdbec4" strokeMiterlimit="10" strokeWidth="1">
+                    <rect width="14" height="14" rx="2" stroke="none" />
+                    <rect x="-0.5" y="-0.5" width="15" height="15" rx="2.5" fill="none" />
+                </g>
             </g>
-            <path
-                id="ExpandIcon"
-                className="expand-icon"
-                d="M3.038,12.884a.5.5,0,0,1-.147-.363L.147,9.775a.5.5,0,0,1,.707-.707L3,11.215V8.482a.5.5,0,0,1,
-                1,0v2.733L6.147,9.068a.5.5,0,1,1,.707.707L4.109,12.521a.5.5,0,0,1-.5.509.484.484,0,0,1-.108-.012.5.5,
-                0,0,1-.462-.134ZM3,4.518V1.785L.853,3.932a.5.5,0,0,1-.707-.707L2.892.479a.5.5,0,0,1,
-                .608-.5A.484.484,0,0,1,3.608-.03a.5.5,0,0,1,.5.508L6.854,3.225a.5.5,0,0,1-.707.707L4,
-                1.786V4.518a.5.5,0,0,1-1,0Z"
-                transform="translate(8.996 6)"
-                fill="#36b475"
-            />
+            <path id="Path_4_Copy_7" d="M.146-.146a.5.5,0,0,0,.638.058L.854-.146,2.5-1.79,4.146-.146a.5.5,0,0,0,.638.058l.069-.058a.5.5,0,0,0,.058-.637L4.854-.852,2.5-3.2.146-.852A.5.5,0,0,0,.146-.146Z" transform="translate(4.5 5.205)" fill="#40404b" />
+            <path id="Path_4_Copy_9" d="M.146-.146a.5.5,0,0,0,.638.058L.854-.146,2.5-1.79,4.146-.146a.5.5,0,0,0,.638.058l.069-.058a.5.5,0,0,0,.058-.637L4.854-.852,2.5-3.2.146-.852A.5.5,0,0,0,.146-.146Z" transform="translate(9.5 8.802) rotate(180)" fill="#40404b" />
+            <path id="Path_5_Copy_4" d="M1,1.5a.5.5,0,0,1-.992.09L0,1.5V.5A.5.5,0,0,1,.992.41L1,.5Z" transform="translate(6.55 6.001)" fill="#40404b" />
+        </g>
         </svg>
     )
 }

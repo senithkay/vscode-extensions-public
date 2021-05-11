@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ActionStatement, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -18,9 +18,8 @@ import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
-import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
@@ -236,24 +235,18 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         mainEp.collapsed = value.firstAction?.collapsed;
 
         if (index === 0) {
-            if (mainEp.isUsed) {
-                if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                    mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                    const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                    if (diff < DefaultConfig.epGap) {
-                        mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                    }
+            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
+                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
+                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
+                if (diff < DefaultConfig.epGap) {
+                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
                 }
-                prevX = mainEp.lifeLine.cx;
-            } else {
-                prevX = containerRightMostConerCX;
             }
+            prevX = mainEp.lifeLine.cx;
         } else {
-            if (mainEp.isUsed) {
-                mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                prevX = mainEp.lifeLine.cx;
-            }
+            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            prevX = mainEp.lifeLine.cx;
         }
 
         updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
@@ -273,7 +266,7 @@ export function getMaXWidthOfConnectors(allEndpoints: Map<string, Endpoint>): nu
         const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
-        if (mainEp.isUsed && (prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
+        if ((prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
             prevCX = mainEp.lifeLine.cx + (mainEp.bBox.w / 2);
         }
     });
@@ -422,62 +415,91 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
 
 export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
+    const variable = actionInvo as LocalVarDecl;
+    const viewState: StatementViewState = variable.viewState as StatementViewState;
     let actionVariable: RemoteMethodCallAction;
     let remoteMethodCallAction: RemoteMethodCallAction;
     let matchModule: boolean = false;
     let matchName: boolean = false;
 
-    switch (actionInvo.kind) {
-        case "LocalVarDecl":
-            const variable = actionInvo as LocalVarDecl;
-            switch (variable.kind) {
-                case 'TypeCastExpression':
-                    const initializer = variable.initializer as TypeCastExpression;
-                    actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+    // if (variable.initializer) {
+        if (viewState.isAction) {
+            switch (actionInvo.kind) {
+                case "LocalVarDecl":
+                    switch (variable.initializer.kind) {
+                        case 'TypeCastExpression':
+                            const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
+                            actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                            break;
+                        case 'RemoteMethodCallAction':
+                            actionVariable = variable.initializer as RemoteMethodCallAction;
+                            break;
+                        default:
+                            actionVariable = (variable.initializer as CheckAction).expression;
+                    }
                     break;
-                case 'RemoteMethodCallAction':
-                    actionVariable = variable.initializer as RemoteMethodCallAction;
+
+                case "ActionStatement":
+                    const statement = actionInvo as ActionStatement;
+                    actionVariable = (statement.expression as CheckAction).expression;
                     break;
+
                 default:
-                    actionVariable = (variable.initializer as CheckAction).expression;
+                    // TODO: need to handle this flow
+                    return undefined;
             }
-            break;
 
-        case "ActionStatement":
-            const statement = actionInvo as ActionStatement;
-            actionVariable = (statement.expression as CheckAction).expression;
-            break;
+            remoteMethodCallAction = isSTActionInvocation(actionVariable);
 
-        default:
-            // TODO: need to handle this flow
-            return undefined;
-    }
+            if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
+                remoteMethodCallAction.methodName.typeData) {
+                const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
+                const endPoint = stSymbolInfo.endpoints.get(endPointName);
+                const typeData: any = remoteMethodCallAction.methodName.typeData;
+                if (typeData?.symbol?.moduleID) {
+                    const moduleId: any = typeData?.symbol?.moduleID;
+                    for (const connectorInfo of connectors) {
+                        if (connectorInfo.module === moduleId.moduleName) {
+                            matchModule = true;
+                        }
+                        if (connectorInfo.name ===
+                            ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                                .identifier.value) {
+                            matchName = true;
+                        }
 
-    remoteMethodCallAction = isSTActionInvocation(actionVariable);
-
-    if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
-        remoteMethodCallAction.methodName.typeData) {
-        const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
-        const endPoint = stSymbolInfo.endpoints.get(endPointName);
-        const typeData: any = remoteMethodCallAction.methodName.typeData;
-        if (typeData?.symbol?.moduleID) {
-            const moduleId: any = typeData?.symbol?.moduleID;
-            for (const connectorInfo of connectors) {
-                if (connectorInfo.module === moduleId.moduleName) {
-                    matchModule = true;
+                        if (matchModule && matchName) {
+                            connector = connectorInfo;
+                            break;
+                        }
+                    }
                 }
-                if (connectorInfo.name ===
-                    ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                        .identifier.value) {
-                    matchName = true;
-                }
-                if (matchModule && matchName) {
-                    connector = connectorInfo;
-                    break;
+            }
+        } else if (viewState.isEndpoint) {
+            if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+                const captureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+                const endpointName: string = captureBindingPattern.variableName.value;
+                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
+                if (typeData?.symbol?.moduleID) {
+                    const moduleId: any = typeData?.symbol?.moduleID;
+                    for (const connectorInfo of connectors) {
+                        if (connectorInfo.module === moduleId.moduleName) {
+                            matchModule = true;
+                        }
+                        if (connectorInfo.name ===
+                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                                .identifier.value) {
+                            matchName = true;
+                        }
+                        if (matchModule && matchName) {
+                            connector = connectorInfo;
+                            break;
+                        }
+                    }
                 }
             }
         }
-    }
+    // }
     return connector;
 }
 
@@ -507,6 +529,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -523,7 +546,8 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.split("\n")[0].substring(13)
+                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
+                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
             }
         default:
             return undefined;
