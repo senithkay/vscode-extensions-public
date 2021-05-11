@@ -14,9 +14,11 @@
 import {
     AssignmentStatement,
     CaptureBindingPattern,
+    FieldAccess,
     IdentifierToken,
     LocalVarDecl,
     MappingConstructor,
+    MethodCall,
     RecordField,
     RecordTypeDesc,
     SimpleNameReference,
@@ -26,6 +28,8 @@ import {
     TypedBindingPattern,
     Visitor,
 } from '@ballerina/syntax-tree';
+import { Method } from 'axios';
+import { expression } from 'joi';
 
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
@@ -245,6 +249,32 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.type = 'float';
             } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 viewstate.type = 'mapconstructor'; // TODO: check for the correct term
+            } else if (STKindChecker.isSimpleNameReference(node.valueExpr)) {
+                const simpleNameRefNode = node.valueExpr as SimpleNameReference;
+                if (simpleNameRefNode.typeData) {
+                    const typeSymbol = simpleNameRefNode.typeData.typeSymbol;
+                    if (typeSymbol) {
+                        viewstate.type = typeSymbol.typeKind;
+                    }
+                }
+            } else if (STKindChecker.isMethodCall(node.valueExpr)) {
+                const methodCallNode: MethodCall = node.valueExpr as MethodCall;
+                methodCallNode.expression.dataMapperViewState = new DataMapperViewState();
+
+                if (methodCallNode.typeData) {
+                    const typeSymbol = methodCallNode.typeData.typeSymbol;
+                    if (typeSymbol) {
+                        viewstate.type = typeSymbol.typeKind;
+                    }
+                }
+            } else if (STKindChecker.isFieldAccess(node.valueExpr)) {
+                const fieldAccessNode: FieldAccess = node.valueExpr as FieldAccess;
+                if (fieldAccessNode.typeData) {
+                    const typeSymbol = fieldAccessNode.typeData.typeSymbol;
+                    if (typeSymbol) {
+                        viewstate.type = typeSymbol.typeKind;
+                    }
+                }
             }
 
             if (this.visitType === VisitingType.OUTPUT && !viewstate.targetPointViewState) {
