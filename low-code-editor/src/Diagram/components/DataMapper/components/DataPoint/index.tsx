@@ -10,9 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
+import "../InputTypes/style.scss";
+// tslint:disable-next-line: no-duplicate-imports
+import "../InputTypes/style.scss";
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
@@ -26,14 +30,18 @@ export function DataPoint(props: DataPointProps) {
     if (dataPointViewState instanceof SourcePointViewState) {
         (dataPointViewState as SourcePointViewState).connections.forEach(connection => {
             connections.push(
-                <line
-                    x1={connection.x1}
-                    x2={connection.x2 - 20}
-                    y1={connection.y1}
-                    y2={connection.y2}
-                    style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
-                    markerEnd="url(#arrowhead)"
-                />
+                <g>
+                    <line
+                        x1={connection.x1 + 100}
+                        x2={connection.x2 - 8 + 100}
+                        y1={connection.y1}
+                        y2={connection.y2}
+                        className="connect-line"
+                        markerEnd="url(#arrowhead)"
+                    />
+                    <path y={connection.y1} d="M651.85,149.03l5.335,5.87-5.869,5.435" fill="none" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" />
+                </g>
+
             );
         })
     }
@@ -46,14 +54,18 @@ export function DataPoint(props: DataPointProps) {
         <>
             {connections}
             <circle
-                cx={dataPointViewState.bBox.x}
+                cx={dataPointViewState.bBox.x + 100}
                 cy={dataPointViewState.bBox.y}
                 r={5}
-                stroke="black"
-                strokeWidth="3"
-                fill="red"
                 onClick={onDataPointClick}
+                className="default-circle"
             />
+            {/* <g>
+                <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
+                <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+            </g> */}
+
         </>
     )
 }
+

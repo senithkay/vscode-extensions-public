@@ -16,7 +16,7 @@ import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, Rec
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 
-const DEFAULT_OFFSET = 20;
+export const DEFAULT_OFFSET = 40;
 const FIRST_FIELD = 'MAP_START_FIELD';
 
 export class DataMapperPositionVisitor implements Visitor {
@@ -59,8 +59,8 @@ export class DataMapperPositionVisitor implements Visitor {
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
-            viewState.bBox.x = this.offset;
-            viewState.bBox.y = this.height;
+            viewState.bBox.x = this.offset + 100;
+            viewState.bBox.y = this.height + 100;
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
         }
     }
@@ -89,8 +89,8 @@ export class DataMapperPositionVisitor implements Visitor {
         if (node.dataMapperViewState) {
             this.height += DEFAULT_OFFSET;
             const viewState = node.dataMapperViewState as DataMapperViewState;
-            viewState.bBox.y = this.height;
-            viewState.bBox.x = this.offset;
+            viewState.bBox.y = this.height + 100;
+            viewState.bBox.x = this.offset + 100;
         }
     }
 

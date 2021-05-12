@@ -16,6 +16,7 @@ import { AssignmentStatement, LocalVarDecl, RecordField, SpecificField, Visitor 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
 export const MAIN_TARGET_NAME = 'MAIN_TARGET';
+export const OUTPUT_OFFSET_GAP = 560;
 
 export class DataPointVisitor implements Visitor {
     private _sourcePointMap: Map<string, SourcePointViewState> = new Map();
@@ -60,7 +61,7 @@ export class DataPointVisitor implements Visitor {
             }
 
             if (viewState.targetPointViewState) {
-                viewState.targetPointViewState.bBox.x = 450;
+                viewState.targetPointViewState.bBox.x = OUTPUT_OFFSET_GAP;
                 viewState.targetPointViewState.bBox.y = viewState.bBox.y;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewState.targetPointViewState);
             }
@@ -87,7 +88,7 @@ export class DataPointVisitor implements Visitor {
             }
 
             if (viewstate.targetPointViewState) {
-                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.x = OUTPUT_OFFSET_GAP;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
@@ -113,7 +114,7 @@ export class DataPointVisitor implements Visitor {
             }
 
             if (viewstate.targetPointViewState) {
-                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.x = OUTPUT_OFFSET_GAP;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
@@ -138,7 +139,7 @@ export class DataPointVisitor implements Visitor {
             }
 
             if (viewstate.targetPointViewState) {
-                viewstate.targetPointViewState.bBox.x = 450;
+                viewstate.targetPointViewState.bBox.x = OUTPUT_OFFSET_GAP;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }

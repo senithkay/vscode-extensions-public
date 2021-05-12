@@ -10,13 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: no-empty
+// tslint:disable: jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode } from '@ballerina/syntax-tree';
 
+import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { getDataMapperComponent } from '../../../util';
+import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
+import "../style.scss";
 
 interface JsonTypeProps {
     model: STNode;
@@ -78,17 +84,35 @@ export function JsonType(props: JsonTypeProps) {
     }
 
     return (
-        <g>
-            <text
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                fontFamily="Verdana"
-                fontSize="15"
-                fontWeight={isMain ? 'bold' : null}
-                fill="blue"
-            >
-                {`${name}${type === 'map' ? '' : `: ${type}`}`}
-            </text>
+
+        <g id="JsonWrapper" >
+            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height="30" className="data-wrapper" />
+            {/* <line
+                x1={isMain ? viewState.bBox.x : viewState.bBox.x - (DEFAULT_OFFSET)}
+                y1={viewState.bBox.y + 20}
+                x2={isMain ? viewState.bBox.x + 190 : viewState.bBox.x + 150}
+                y2={viewState.bBox.y + 20}
+                strokeWidth="1"
+                stroke="#d8dbe3"
+            /> */}
+            <g render-order="1">
+                {isMain ?
+                    (
+                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + 10} height="50" >
+                            <tspan className="key-value"> {`${name}:`} </tspan>
+                            <tspan className="value-para"> {`${type}`}  </tspan>
+                        </text>
+                    )
+                    :
+                    (
+                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + DefaultConfig.dotGap} height="50" >
+                            <tspan className="value-para"> {`${name}:`} </tspan>
+                            <tspan className="value-para"> {`${type}`}  </tspan>
+                        </text>
+                    )
+                }
+            </g>
+
             {fields}
         </g>
     );

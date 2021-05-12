@@ -25,17 +25,15 @@ import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
 import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
+import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
-import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
-import { DataPoint } from './components/DataPoint';
+// import sampleConfig from './sample-config.json';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
-import { SourcePointViewState, TargetPointViewState } from './viewstate';
-// import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
 // import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 
@@ -113,7 +111,7 @@ export function DataMapper(props: DataMapperProps) {
         if (selectedNode.dataMapperTypeDescNode) {
             switch (selectedNode.dataMapperTypeDescNode.kind) {
                 case 'RecordTypeDesc': {
-                    (selectedNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                    (selectedNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
                         completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
                     })
                 }
@@ -128,7 +126,7 @@ export function DataMapper(props: DataMapperProps) {
             if (variableInfo.node.dataMapperTypeDescNode) {
                 switch (variableInfo.node.dataMapperTypeDescNode.kind) {
                     case 'RecordTypeDesc': {
-                        (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach(field => {
+                        (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
                             completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
                         })
                     }
@@ -142,7 +140,7 @@ export function DataMapper(props: DataMapperProps) {
 
         // selected node visit
         positionVisitor.setHeight(15);
-        positionVisitor.setOffset(500);
+        positionVisitor.setOffset(600);
         traversNode(selectedNode, positionVisitor);
 
         // datapoint visitor
@@ -159,14 +157,19 @@ export function DataMapper(props: DataMapperProps) {
 
     return (
         <>
-            <g>
-                {inputComponents}
-            </g>
-            <g>
+            <g id="outputComponent">
+                <rect className="main-wrapper" width="280" height="300" rx="6" fill="green" x="640" y="60" />
+                <text className="main-title-text" x="660" y="85"> Output</text>
+
                 {outputComponent}
             </g>
+            <g id="inputComponents">
+                <rect className="main-wrapper" width="280" height="300" rx="6" x="80" y="60" />
+                <text x="105" y="85" className="main-title-text"> Input</text>
+                {inputComponents}
+            </g>
             {/* {dataPoints} */}
-            <DiagramOverlayContainer>
+            {/* <DiagramOverlayContainer>
                 <DiagramOverlay
                     position={{ x: 15, y: 15 }}
                 >
@@ -188,7 +191,7 @@ export function DataMapper(props: DataMapperProps) {
                         hahaha
                     </div>
                 </DiagramOverlay>
-            </DiagramOverlayContainer >
+            </DiagramOverlayContainer > */}
         </>
     )
 
