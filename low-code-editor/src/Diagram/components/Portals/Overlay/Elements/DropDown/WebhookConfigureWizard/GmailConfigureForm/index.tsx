@@ -39,7 +39,7 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { useStyles } from "../../styles";
 
-interface CalendarConfigureFormProps {
+interface GmailConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
@@ -49,7 +49,7 @@ export interface ConnectorEvents {
     [key: string]: any;
 }
 
-export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
+export function GmailConfigureForm(props: GmailConfigureFormProps) {
     const { state } = useContext(DiagramContext);
     const {
         isMutationProgress: isFileSaving,
@@ -63,20 +63,51 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         originalSyntaxTree,
         onMutate: dispatchMutations
     } = state;
-    const { onComplete, currentConnection } = props;
+    const model: FunctionDefinition = syntaxTree as FunctionDefinition;
+    const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
+    const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
     const intl = useIntl();
 
     const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     const [triggerChanged, setTriggerChanged] = useState(false);
-    const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
-    const [calendarEvent, setCalendarEvent] = useState();
+    const [gmailList, setGmailList] = useState(undefined)
+    const [gmailEvent, setGmailEvent] = useState<string>();
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
-    const Trigger = "Google Calendar";
+    const Trigger = "Google Gmail";
 
     // HACK: hardcoded event list until get it form connector API
-    const calenderEvents = ['onNewEvent', 'onEventUpdate', 'onEventDelete'];
+    const gmailEvents = {
+        onNewEmail : {
+            type: "gmail:Message",
+            variable: "message"
+        },
+        onNewThread : {
+            type: "gmail:MailThread",
+            variable: "thread"
+        },
+        onNewAttachment : {
+            type: "gmailListener:MailAttachment",
+            variable: "attachment"
+        },
+        onNewLabeledEmail : {
+            type: "gmailListener:ChangedLabel",
+            variable: "changedLabeldMsg"
+        },
+        onNewStarredEmail : {
+            type: "gmail:Message",
+            variable: "message"
+        },
+        onLabelRemovedEmail : {
+            type: "gmailListener:ChangedLabel",
+            variable: "changedLabeldMsg"
+        },
+        onStarRemovedEmail : {
+            type: "gmail:Message",
+            variable: "message"
+        },
+    };
 
     useEffect(() => {
         if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -88,8 +119,8 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         if (activeConnection) {
             setIsCalenderFetching(true);
             (async () => {
-                const calendarList = await getGcalendarList(currentApp?.org, activeConnection.handle);
-                setGcalenderList(calendarList);
+                const mailList = await getGcalendarList(currentApp?.org, activeConnection.handle);
+                setGmailList(mailList);
                 setIsCalenderFetching(false);
             })();
         }
@@ -101,50 +132,43 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             setActiveConnection(connection);
         }
     }
-
     function handleOnDeselectConnection() {
         setActiveConnection(undefined);
     }
-
     function handleError() {
         setActiveConnection(undefined);
     }
-
-    function getActiveGcalendar() {
-        if (gcalenderList && activeGcalendar === null) {
-            // select primary calender from list
-            const calender = gcalenderList.find(calendar => calendar.primary === true);
-            setActiveGcalendar(calender);
-        }
-        return activeGcalendar;
-    }
-
+    // function getActiveGcalendar() {
+    //     if (gmailList && activeGcalendar === null) {
+    //         // select primary gmail from list
+    //         const gmail = gmailList.find(calendar => calendar.primary === true);
+    //         setActiveGcalendar(calender);
+    //     }
+    //     return activeGcalendar;
+    // }
     function handleItemLabel(gcalendar: Gcalendar) {
         return gcalendar.summary;
     }
-
     const handleGcalendarChange = (event: object, value: any) => {
         setActiveGcalendar(value);
     };
-
-    const handleCalendarEventChange = (event: object, value: any) => {
-        setCalendarEvent(value);
+    const handleGmailEventChange = (event: object, value: any) => {
+        setGmailEvent(value);
     };
-
     const getKeyFromCalConnection = (key: string) => {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
     };
 
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
-            createCalendarTrigger();
+            createGmailTrigger();
         } else {
-            updateCalendarTrigger();
+            updateGmailTrigger();
         }
     };
 
     // handle trigger configure complete
-    const createCalendarTrigger = () => {
+    const createGmailTrigger = () => {
         const clientId = getKeyFromCalConnection('clientIdKey');
         const clientSecret = getKeyFromCalConnection('clientSecretKey');
         const refreshUrl = getKeyFromCalConnection('tokenEpKey');
@@ -160,13 +184,13 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             REFRESH_URL: refreshUrl,
             REFRESH_TOKEN: refreshToken,
             CALENDAR_ID: activeGcalendar.id,
-            EVENT: calendarEvent,
+            EVENT: gmailEvent,
         });
         trackTriggerSelection("Google Calender");
     };
 
     // handle calendar trigger update
-    const updateCalendarTrigger = () => {
+    const updateGmailTrigger = () => {
         // get nodes to be edited
         const functionDefs = (originalSyntaxTree as ModulePart).members.filter(member =>
             STKindChecker.isFunctionDefinition(member)) as FunctionDefinition[];
@@ -231,27 +255,23 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             setTriggerChanged(true);
         }
     };
-
-    const chooseCalendarPlaceholder = intl.formatMessage({
-            id: "lowcode.develop.GCalendarConfigWizard.chooseCalendar.placeholder",
+    const chooseGmailPlaceholder = intl.formatMessage({
+            id: "lowcode.develop.GmailConfigWizard.chooseGmail.placeholder",
             defaultMessage: "Choose calendar"
         });
-
     const chooseEventPlaceholder = intl.formatMessage({
-            id: "lowcode.develop.GCalendarConfigWizard.chooseEvent.placeholder",
+            id: "lowcode.develop.GmailConfigWizard.chooseEvent.placeholder",
             defaultMessage: "Choose Event"
         });
-
     const saveConfigButton = intl.formatMessage({
-            id: "lowcode.develop.GCalendarConfigWizard.saveConfigButton.text",
+            id: "lowcode.develop.GmailConfigWizard.saveConfigButton.text",
             defaultMessage: "Save"
         });
-
     return (
         <>
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
-                <OauthConnectButton
+                {/* <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p> */}
+                {/* <OauthConnectButton
                     connectorName={Trigger}
                     currentConnection={activeConnection}
                     onSelectConnection={handleOnSelectConnection}
@@ -263,37 +283,37 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     <div className={classes.loader}>
                         <CirclePreloader position="relative" />
                         <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..."/>
+                        <FormattedMessage id="lowcode.develop.GmailConfigWizard.fetchingGmailMessage.text" defaultMessage="Fetching calendars ..."/>
                         </Typography>
                     </div>
 
                 )}
-                {activeConnection && !isCalenderFetching && gcalenderList && (
+                {activeConnection && !isCalenderFetching && gmailList && (
                     <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar"/></p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.gmail.title.text" defaultMessage="Google Gmail"/></p>
                         <FormAutocomplete
-                            placeholder={chooseCalendarPlaceholder}
-                            itemList={gcalenderList}
+                            placeholder={chooseGmailPlaceholder}
+                            itemList={gmailList}
                             value={getActiveGcalendar()}
                             getItemLabel={handleItemLabel}
                             onChange={handleGcalendarChange}
                         />
                     </>
-                )}
-                {activeGcalendar && (
+                )} */}
+                {true && (
                     <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event"/></p>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.googleGmailEvent.title.text" defaultMessage="Event"/></p>
                         <FormAutocomplete
                             placeholder={chooseEventPlaceholder}
-                            itemList={calenderEvents}
-                            value={calendarEvent}
-                            onChange={handleCalendarEventChange}
+                            itemList={Object.keys(gmailEvents)}
+                            value={gmailEvent}
+                            onChange={handleGmailEventChange}
                         />
                     </>
                 )}
             </div>
 
-            { activeConnection && activeGcalendar && calendarEvent &&
+            { activeConnection && activeGcalendar &&
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
