@@ -86,7 +86,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
     model.displayName = "Array Expression"
     return (
         <>
-            <ExpressionEditorLabel {...props} model={{...model, displayName: "To"}} />
+            <ExpressionEditorLabel {...props} model={{...model, displayName: model.name}} />
             <div className={classes.groupedForm}>
                 <ExpressionEditor {...elementPropsSubEditor} />
                 <div className="add-element-button">
