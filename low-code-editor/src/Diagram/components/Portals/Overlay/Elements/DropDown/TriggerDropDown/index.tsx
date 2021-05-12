@@ -18,7 +18,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
-import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
+import { Context } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
@@ -53,7 +53,7 @@ export enum ConnectorType {
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const intl = useIntl();
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger,
             originalSyntaxTree } = state;

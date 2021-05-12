@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography } from "@material-ui/core";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { WebhookMethodType, WEBHOOK_METHODS } from "../../../../../models";
 import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
@@ -32,7 +32,7 @@ export interface WebhookConfigFormProps {
 }
 
 export function WebhookConfigForm(props: WebhookConfigFormProps) {
-    const { state } = useContext(DiagramContext)
+    const { state } = useContext(Context)
     const { isMutationInProgress } = state;
     const { onComplete, onClose } = props;
     let { path: currentPath = ""} = props;

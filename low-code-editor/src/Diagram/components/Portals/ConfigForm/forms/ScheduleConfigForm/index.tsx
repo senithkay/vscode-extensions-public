@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { Box, FormControl, FormHelperText, TextField, Typography } from "@material-ui/core";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
 import { useStyles as useTextFieldStyles } from "../../Elements/TextField/style";
@@ -29,7 +29,7 @@ export interface ScheduleConfigFormProps {
 }
 
 export function ScheduleConfigForm(props: ScheduleConfigFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { currentApp, isMutationInProgress } = state;
     const currentCronSchedule = currentApp ? currentApp.cronSchedule : "";
     const { onComplete, onClose  } = props;

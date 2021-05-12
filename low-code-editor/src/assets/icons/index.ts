@@ -1,4 +1,10 @@
-export { default as AddIcon } from '@material-ui/icons/Add';
+export { default as AddIcon } from "@material-ui/icons/Add";
+export { default as CloseIcon } from "@material-ui/icons/Close";
+export { default as CloseRounded } from "@material-ui/icons/CloseRounded";
+export { default as EditIcon } from "@material-ui/icons/Edit";
+export { default as LayersOutlined } from '@material-ui/icons/LayersOutlined';
+export { default as CodeIcon } from '@material-ui/icons/Code';
+export { default as FunctionsIcon } from '@material-ui/icons/Functions';
 
 export { default as ApiIcon } from "./Api";
 export { default as CalendarIcon } from "./Calendar";

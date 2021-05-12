@@ -15,9 +15,9 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import cn from "classnames";
 
+import { CloseRounded } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
