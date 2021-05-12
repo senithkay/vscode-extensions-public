@@ -14,7 +14,6 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -25,6 +24,8 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+
+import { CloseRounded } from "../../../../../../assets/icons";
 
 interface LogConfigProps {
     config: ProcessConfig;

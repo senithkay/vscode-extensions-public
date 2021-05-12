@@ -17,7 +17,7 @@ import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@bal
 import cn from "classnames";
 
 import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState, ViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
@@ -47,7 +47,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             isReadOnly
         },
         diagramCleanDraw
-    } = useContext(DiagramContext);
+    } = useContext(Context);
 
     const {
         model, blockViewState, selectedConnector

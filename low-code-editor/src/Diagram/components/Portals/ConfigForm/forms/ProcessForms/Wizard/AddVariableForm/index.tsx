@@ -24,7 +24,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { PropertyIcon } from "../../../../../../../../assets/icons"
 import { balTypes, FormField, PrimitiveBalType, WizardType } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName, getParams } from "../../../../../utils";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
@@ -45,7 +45,7 @@ export const DEFINE_VALUE: string = "Define Value";
 export const DEFINE_EXPRESSION: string = "Define Expression";
 
 export function AddVariableForm(props: AddVariableProps) {
-    const { state: { isMutationProgress: isMutationInProgress, stSymbolInfo } } = useContext(DiagramContext);
+    const { state: { isMutationProgress: isMutationInProgress, stSymbolInfo } } = useContext(Context);
 
     const classes = useStyles();
     const { config, onCancel, onSave } = props;

@@ -17,7 +17,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl } from '@ballerina/syntax-tree';
 import { Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
 import {
@@ -26,11 +25,13 @@ import {
     ConnectionDetails,
     OauthProviderConfig
 } from "../../../../../api/models";
+import { CloseRounded } from "../../../../../assets/icons";
 import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
+import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { BallerinaConnectorsInfo, STModification } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { DiagramContext } from "../../../../../providers/contexts";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
@@ -82,13 +83,13 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const { state } = useContext(DiagramContext);
+    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
     const {
         stSymbolInfo,
         isMutationProgress,
         oauthProviderConfigs,
         userInfo,
-        onMutate: dispatchMutations,
         getAiSuggestions,
         trackAddConnector,
         syntaxTree,
@@ -289,7 +290,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         }
         if (modifications.length > 0) {
-            dispatchMutations(modifications);
+            onMutate(modifications);
             onClose();
         }
     }
@@ -357,7 +358,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
 
         }
-        dispatchMutations(modifications);
+        onMutate(modifications);
         onClose();
     }
 
@@ -414,7 +415,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
-            dispatchMutations(sourceModifications);
+            onMutate(sourceModifications);
             onClose();
         }
     };
