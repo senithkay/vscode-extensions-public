@@ -27,13 +27,16 @@ export enum DEBUG_CONFIG {
     TEST_DEBUG_NAME = 'Ballerina Test'
 }
 
-const debugConfigProvider: DebugConfigurationProvider = {
-    resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
+class DebugConfigProvider implements DebugConfigurationProvider {
+    resolveDebugConfiguration(_folder: WorkspaceFolder, config: DebugConfiguration)
         : Thenable<DebugConfiguration> {
+        if (!config.type) {
+            commands.executeCommand('workbench.action.debug.configure');
+            return Promise.resolve({ request: '', type: '', name: '' });
+        }
         return getModifiedConfigs(config);
     }
-
-};
+}
 
 async function getModifiedConfigs(config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
@@ -106,7 +109,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext>ballerinaExtInstance.context;
 
-    context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigProvider));
+    context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', new DebugConfigProvider()));
 
     const factory = new BallerinaDebugAdapterDescriptorFactory(ballerinaExtInstance);
     context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
