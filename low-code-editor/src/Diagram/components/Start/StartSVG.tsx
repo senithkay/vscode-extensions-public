@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 
 import { EditIconSVG } from "./Hover/EditIconSVG";
 
@@ -34,7 +34,7 @@ export function StartSVG(props: {
     handleDropDown?: () => void,
     handleEdit: () => void
 }) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress, isWaitingOnWorkspace, isReadOnly } = state;
     const { text, showIcon, handleDropDown, handleEdit, ...xyProps } = props;
 

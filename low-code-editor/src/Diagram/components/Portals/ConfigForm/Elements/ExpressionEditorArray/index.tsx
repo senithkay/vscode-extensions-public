@@ -13,7 +13,11 @@
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
 
+import { AddRounded } from "@material-ui/icons";
+
+import { useStyles } from "../../forms/style"
 import { FormElementProps } from "../../types";
+import { IconBtnWithText } from "../Button/IconBtnWithText";
 import { PrimaryButton } from "../Button/PrimaryButton";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
@@ -24,6 +28,7 @@ import { appendToArray } from "./utils";
 
 export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorProps>) {
     const { customProps, model, defaultValue } = props;
+    const classes = useStyles();
 
     const [changed, setChanged] = useState(true);
     const [clearInput, setClearInput] = useState(false);
@@ -32,7 +37,11 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
     const [mainEditorValue, setMainEditorValue] = useState(getInitialValue(defaultValue, model));
 
     const handleSubEditorValidation = (_field: string, isInvalid: boolean) => {
-        setAddButtonDisabled(isInvalid)
+        if (subEditorValue === "") {
+            setAddButtonDisabled(true)
+        } else {
+            setAddButtonDisabled(isInvalid)
+        }
     }
 
     const handleSubEditorChange = (value: string) => {
@@ -59,41 +68,45 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
+            displayName: "Item",
             type: subEditorType,
-            value: subEditorValue
+            value: subEditorValue,
+            tooltip: "Add elements to Array",
+            optional: true
         },
         customProps: {
             validate: handleSubEditorValidation,
-            hideTextLabel: true,
             clearInput,
-            revertClearInput
+            revertClearInput,
+            subEditor: true
         },
         onChange: handleSubEditorChange
     };
 
+    model.displayName = "Array Expression"
     return (
         <>
-            <ExpressionEditorLabel {...props} />
-            <span className="array-editor-container">
-                <div className="array-editor-wrapper">
-                    <ExpressionEditor {...elementPropsSubEditor} />
+            <ExpressionEditorLabel {...props} model={{...model, displayName: "To"}} />
+            <div className={classes.groupedForm}>
+                <ExpressionEditor {...elementPropsSubEditor} />
+                <div className="add-element-button">
+                    <IconBtnWithText
+                        disabled={addButtonDisabled}
+                        text={"Add Item"}
+                        onClick={handleAddButtonClick}
+                        icon={<AddRounded fontSize="small" className={classes.iconButton} />}
+                    />
                 </div>
-                <PrimaryButton
-                    text={"Add"}
-                    fullWidth={false}
-                    onClick={handleAddButtonClick}
-                    disabled={addButtonDisabled}
+                <ExpressionEditor
+                    model={model}
+                    customProps={{
+                        ...customProps,
+                        changed,
+                        expandDefault: true
+                    }}
+                    onChange={handleMainEditorChange}
                 />
-            </span>
-            <ExpressionEditor
-                model={model}
-                customProps={{
-                    ...customProps,
-                    hideTextLabel: true,
-                    changed
-                }}
-                onChange={handleMainEditorChange}
-            />
+            </div>
         </>
     )
 }

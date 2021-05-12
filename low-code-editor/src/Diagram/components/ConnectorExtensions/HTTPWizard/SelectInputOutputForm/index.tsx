@@ -28,7 +28,7 @@ import {
     httpRequest,
     PrimitiveBalType
 } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -70,7 +70,7 @@ interface PayloadState {
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
-    const { state: diagramState } = useContext(DiagramContext);
+    const { state: diagramState } = useContext(Context);
     const { isMutationProgress } = diagramState;
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -277,7 +277,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.HTTP.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -314,9 +314,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         payloadVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
-                defaultMessage: "Add a valid name for the payload"
+                defaultMessage: "Add a valid name for the payload variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
+            })
+        },
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.HTTP.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
-        }
+    }
     };
 
     let payloadComponent: React.ReactNode = null;

@@ -38,7 +38,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>
+                                    {!customProps?.subEditor && <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>}
                                 </div>
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (

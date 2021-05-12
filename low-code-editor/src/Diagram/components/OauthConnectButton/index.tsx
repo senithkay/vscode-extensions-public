@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
 
 import ConnectedButton from "./ConnectedButton";
@@ -50,7 +50,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     dispatchResetOauthSession,
     dispatchTimeoutOauthRequest,
     dispatchDeleteOauthSession,
-  } = useContext(DiagramContext).state;
+  } = useContext(Context).state;
 
   const {
     connectorName,

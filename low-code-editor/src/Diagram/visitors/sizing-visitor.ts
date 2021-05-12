@@ -16,6 +16,7 @@ import {
     BlockStatement,
     CallStatement,
     CaptureBindingPattern,
+    DoStatement,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -23,6 +24,7 @@ import {
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
+    OnFailClause,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode,
@@ -46,7 +48,7 @@ import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../componen
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
@@ -519,6 +521,47 @@ class SizingVisitor implements Visitor {
         // Calculate whole if/else statement width and height
         viewState.bBox.h = viewState.headIf.h + ifBodyViewState.bBox.length;
         viewState.bBox.w = ((viewState.headIf.w / 2) + diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth)) * 2;
+    }
+
+    public endVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.container.h = viewState.container.offsetFromTop + blockViewState.bBox.h + viewState.container.offsetFromBottom;
+            viewState.container.w = blockViewState.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2);
+
+            viewState.bBox.w = viewState.container.w;
+            viewState.bBox.h = viewState.container.h;
+        } else {
+            this.sizeStatement(node);
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.header.h = DefaultConfig.onErrorHeader.h;
+            viewState.header.w = DefaultConfig.onErrorHeader.w;
+            viewState.lifeLine.h = blockViewState.bBox.h;
+            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w + DefaultConfig.onErrorHeader.w;
+            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
+        }
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.lifeLine.h = blockViewState.bBox.h;
+
+            if (blockViewState.isEndComponentAvailable) {
+                viewState.lifeLine.h -= (blockViewState.bBox.offsetFromBottom + blockViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromBottom);
+            }
+
+            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w;
+            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
+        }
     }
 
     private sizeStatement(node: STNode) {

@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context } from "../../../../Contexts/Diagram"
 import "../style.scss";
 
 import { ColapseButtonSVG, COLLAPSE_BUTTON_SHADOW_OFFSET, COLLAPSE_BUTTON_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_BUTTON_SVG_WIDTH, COLLAPSE_BUTTON_SVG_WIDTH_WITH_SHADOW } from "./CollapseButtonSVG";
@@ -31,7 +31,7 @@ export interface PlusCollapseProps {
 }
 
 export function PlusAndCollapseSVG(props: PlusCollapseProps) {
-    const { isReadOnly } = useContext(DiagramContext).state;
+    const { isReadOnly } = useContext(Context).state;
 
     const { x, y, handlePlusClick, handleCollapseClick, collapseDisabled } = props;
     const collapseClassName: string = collapseDisabled ? "disabled" : "";
