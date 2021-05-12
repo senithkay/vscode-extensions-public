@@ -105,7 +105,7 @@ export function ConnectorInitForm(props: any) {
                 getParams(connectorConfig.action.fields), targetPosition
             );
             modifications.push(addActionInvocation);
-            dispatchMutations(modifications);
+            onMutate(modifications);
         }
     };
 

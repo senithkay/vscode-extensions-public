@@ -52,7 +52,8 @@ export interface ConnectorConfigWizardProps {
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const { state } = useContext(Context);
-    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen, isCodeEditorActive } = state;
+    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen,
+        isCodeEditorActive, triggerErrorNotification } = state;
 
     const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
