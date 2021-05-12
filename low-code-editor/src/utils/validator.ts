@@ -21,12 +21,16 @@ export function validatePath(text: string) {
             return ((/^[a-zA-Z0-9\/\[\].]+$/g.test(text)) && (!/^\d/g.test(text)))
         } else if (!text.includes("/") && text.includes("[") && text.includes("]")) {
             return false;
-        } else if (text === "[]") return false;
-        else if (text.match(/\/\d/g)) return false;
-        else {
+        } else if (text === "[]") {
+            return false;
+        } else if (text.match(/\/\d/g)) {
+            return false;
+        } else {
             return ((/^[a-zA-Z0-9\/\[\]]+$/g.test(text)) && (!/^\d/g.test(text)));
         }
-    } else return true;
+    } else {
+        return true;
+    }
 }
 
 export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
