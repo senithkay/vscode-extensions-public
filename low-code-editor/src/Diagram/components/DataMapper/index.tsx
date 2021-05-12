@@ -36,6 +36,7 @@ import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { SourcePointViewState, TargetPointViewState } from './viewstate';
+import "./components/InputTypes/style.scss";
 
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
@@ -91,11 +92,15 @@ export function DataMapper(props: DataMapperProps) {
                 setSelectedSource(undefined);
                 window.removeEventListener("mousemove", eventListenerMap.mousemove);
                 eventListenerMap.mousemove = undefined;
+                drawingLineRef.current.setAttribute('x1', -5);
+                drawingLineRef.current.setAttribute('x2', -5);
+                drawingLineRef.current.setAttribute('y1', -5);
+                drawingLineRef.current.setAttribute('y2', -5);
                 onSave([updatePropertyStatement(selectedSource.text, dataPointVS.position)])
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
-                drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x);
-                drawingLineRef.current.setAttribute('x2', dataPointVS.bBox.x);
+                drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x + 100);
+                drawingLineRef.current.setAttribute('x2', dataPointVS.bBox.x + 92);
                 drawingLineRef.current.setAttribute('y1', dataPointVS.bBox.y);
                 drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
                 setIsDataPointSelected(true);
@@ -213,11 +218,11 @@ export function DataMapper(props: DataMapperProps) {
             <g>
                 <line
                     ref={drawingLineRef}
-                    x1={0}
-                    x2={0}
-                    y1={0}
-                    y2={0}
-                    style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
+                    x1={-5}
+                    x2={-5}
+                    y1={-5}
+                    y2={-5}
+                    className="connect-line"
                     markerEnd="url(#arrowhead)"
                 />
             </g>

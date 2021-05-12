@@ -15,8 +15,8 @@ import React from 'react';
 
 import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 import "../InputTypes/style.scss";
-// tslint:disable-next-line: no-duplicate-imports
-import "../InputTypes/style.scss";
+// // tslint:disable-next-line: no-duplicate-imports
+// import "../InputTypes/style.scss";
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
@@ -39,7 +39,6 @@ export function DataPoint(props: DataPointProps) {
                         className="connect-line"
                         markerEnd="url(#arrowhead)"
                     />
-                    <path y={connection.y1} d="M651.85,149.03l5.335,5.87-5.869,5.435" fill="none" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1" />
                 </g>
 
             );
