@@ -59,7 +59,7 @@ const ignoreList = [
     'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
     'ballerina/oauth2:1.1.0-alpha8:ClientConfiguration',
     'ballerina/oauth2:1.1.0-alpha8:ClientCredentialsGrantConfig',
-]
+];
 
 export function getOverlayElement(
     type: string,
@@ -143,22 +143,10 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey);
                             const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
-                            // console.log(">>> ------------------------\n")
-                            // console.warn(`recordKey, ignoredRecord, depth, skip by depth >>> `, recordKey, ignoredRecord, depth)
-                            // if (depth > maxDepth){
-                            //     return;
-                            // }
                             if (!recordRes){
                                 recordRes = loadedRecords.get(recordKey);
                             }
                             if (!ignoredRecord && recordRes === undefined) {
-                                // recordRes = await getRecordDefFromCache({
-                                //     module: typeInfo.modName,
-                                //     org: typeInfo.orgName,
-                                //     version: typeInfo.version,
-                                //     name: typeInfo.name
-                                // });
-
                                 if (recordRes === undefined) {
                                     const record = await langClient.getRecord({
                                         module: typeInfo.modName,
@@ -170,9 +158,6 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                     if (record && record.ast) {
                                         recordRes = record.ast;
                                         loadedRecords.set(recordKey, recordRes);
-                                        // console.info(`found record ast >>> `, recordKey)
-                                    } else {
-                                        // console.error(`cannot found record ast >>> `, recordKey)
                                     }
                                 }
                             }
@@ -662,14 +647,14 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     let functionDefInfo = await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
 
-    // if (!functionDefInfo) {
-    //     // get form fields from file cache
-    //     functionDefInfo = await getFormFieldFromFileCache(connector);
-    //     // save form fields in browser cache
-    //     if (functionDefInfo){
-    //         await addToFormFieldCache(connector, functionDefInfo);
-    //     }
-    // }
+    if (!functionDefInfo) {
+        // get form fields from file cache
+        functionDefInfo = await getFormFieldFromFileCache(connector);
+        // save form fields in browser cache
+        if (functionDefInfo){
+            await addToFormFieldCache(connector, functionDefInfo);
+        }
+    }
 
     if (!functionDefInfo) {
         // generate form fields form connector syntax tree
@@ -705,12 +690,12 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         await addToFormFieldCache(connector, functionDefInfo);
 
         // INFO: uncomment below code to get connector form field json object
-        const formFieldJsonObject: any = {};
-        functionDefInfo.forEach((value, key) => {
-            formFieldJsonObject[key] = value;
-        });
+        // const formFieldJsonObject: any = {};
+        // functionDefInfo.forEach((value, key) => {
+        //     formFieldJsonObject[key] = value;
+        // });
         // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
-        // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
+        // console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 
     // Filter connector functions to have better usability.
