@@ -65,8 +65,6 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     trackTriggerSelection,
-    onModify: dispatchModifyTrigger,
-    onMutate,
     originalSyntaxTree
   } = state;
 
@@ -270,7 +268,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const createSchedule = () => {
     const saveSelectedCron = cronForSelectedType();
     const utcCron = UTCCronForSelectedType();
-    dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
+    onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
       "SCHEDULE_TYPE": scheduledComp
@@ -278,24 +276,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   };
 
   const handleOnSave = () => {
-    const utcCron = UTCCronForSelectedType();
-    // dispatch and close the wizard
-    setTriggerChanged(true);
-    const saveSelectedCron = cronForSelectedType();
-    onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
-      "CRON": saveSelectedCron,
-      "UTCCRON": utcCron,
-      "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
-      "SYNTAX_TREE": originalSyntaxTree,
-      "SCHEDULE_TYPE": scheduledComp
-    });
-    trackTriggerSelection("Schedule");
     const saveSelectedCron = cronForSelectedType();
     if ((initialTriggerType === TRIGGER_TYPE_SCHEDULE) || (initialTriggerType === TRIGGER_TYPE_INTEGRATION_DRAFT)) {
       const utcCron = UTCCronForSelectedType();
       // dispatch and close the wizard
       setTriggerChanged(true);
-      dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
+      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
         "CRON": saveSelectedCron,
         "UTCCRON": utcCron,
         "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),

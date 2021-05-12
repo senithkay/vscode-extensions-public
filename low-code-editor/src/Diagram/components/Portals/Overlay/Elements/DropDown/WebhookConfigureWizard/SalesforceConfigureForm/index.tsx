@@ -222,7 +222,6 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                         />
                     </div>
                 )}
-                ) }
             { showConfirmDialog && (
                 <SourceUpdateConfirmDialog
                     onConfirm={createSalesforceTrigger}

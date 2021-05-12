@@ -30,6 +30,7 @@ import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from 'react-intl';
+import { DiagramContext } from "../../../../../../../providers/contexts";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -54,9 +55,9 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
+    const { onModify } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger,
-            originalSyntaxTree } = state;
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
@@ -82,9 +83,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
             if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
-                onModifyTrigger(newTrigger);
+                onModify(newTrigger);
             } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
-                onModifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
+                onModify(TRIGGER_TYPE_MANUAL, undefined, {
                     "SYNTAX_TREE": originalSyntaxTree,
                     "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
                 });
@@ -97,7 +98,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModifyTrigger(selectedTrigger);
+        onModify(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
