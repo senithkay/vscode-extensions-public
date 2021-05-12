@@ -11,7 +11,7 @@
  * associated services.
  */
 /* tslint:disable:jsx-no-multiline-js */
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import {
     LocalVarDecl,
@@ -24,6 +24,7 @@ import {
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
+import { updatePropertyStatement } from '../../utils/modification-util';
 import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
@@ -34,9 +35,11 @@ import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from 
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
+import { SourcePointViewState, TargetPointViewState } from './viewstate';
+
+// import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
 // import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
-
 interface DataMapperProps {
     width: number;
 }
@@ -58,9 +61,48 @@ export function DataMapper(props: DataMapperProps) {
     // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
+    const [isDataPointSelected, setIsDataPointSelected] = useState(false);
+    const [selectedSource, setSelectedSource] = useState(undefined);
+    const [eventListenerMap] = useState<any>({});
+    const drawingLineRef = useRef(null);
 
     const onSave = (modifications: STModification[]) => {
         dispatchMutations(modifications);
+    }
+
+    const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
+        // current element is wrapped by a <g/> element
+        const parentSVG = (drawingLineRef.current as SVGGraphicsElement).parentElement.parentElement.parentElement;
+
+        if (parentSVG instanceof SVGSVGElement) {
+            const ctm = (parentSVG as SVGSVGElement).getScreenCTM();
+            const point = (parentSVG as SVGSVGElement).createSVGPoint();
+
+            const onMouseMove = (evt: MouseEvent) => {
+                point.x = evt.pageX;
+                point.y = evt.pageY;
+                const mappedPoint = point.matrixTransform(ctm.inverse());
+                drawingLineRef.current.setAttribute('x2', mappedPoint.x - 20);
+                drawingLineRef.current.setAttribute('y2', mappedPoint.y);
+            }
+
+            if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
+                setIsDataPointSelected(false);
+                setSelectedSource(undefined);
+                window.removeEventListener("mousemove", eventListenerMap.mousemove);
+                eventListenerMap.mousemove = undefined;
+                onSave([updatePropertyStatement(selectedSource.text, dataPointVS.position)])
+            } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
+                eventListenerMap.mousemove = onMouseMove;
+                drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x);
+                drawingLineRef.current.setAttribute('x2', dataPointVS.bBox.x);
+                drawingLineRef.current.setAttribute('y1', dataPointVS.bBox.y);
+                drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
+                setIsDataPointSelected(true);
+                setSelectedSource(dataPointVS);
+                window.addEventListener('mousemove', eventListenerMap.mousemove);
+            }
+        }
     }
 
     let outputType: string = '';
@@ -135,7 +177,7 @@ export function DataMapper(props: DataMapperProps) {
 
             traversNode(variableInfo.node, positionVisitor);
             const { dataMapperViewState } = variableInfo.node;
-            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true }))
+            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick }))
         });
 
         // selected node visit
@@ -152,7 +194,7 @@ export function DataMapper(props: DataMapperProps) {
         traversNode(selectedNode, dataPointVisitor);
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
 
-        outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true }))
+        outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick }))
     }
 
     return (
@@ -167,6 +209,17 @@ export function DataMapper(props: DataMapperProps) {
                 <rect className="main-wrapper" width="280" height="300" rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
                 {inputComponents}
+            </g>
+            <g>
+                <line
+                    ref={drawingLineRef}
+                    x1={0}
+                    x2={0}
+                    y1={0}
+                    y2={0}
+                    style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
+                    markerEnd="url(#arrowhead)"
+                />
             </g>
             {/* {dataPoints} */}
             {/* <DiagramOverlayContainer>

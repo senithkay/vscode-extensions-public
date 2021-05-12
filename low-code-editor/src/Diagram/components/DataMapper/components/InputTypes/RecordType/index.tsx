@@ -23,18 +23,19 @@ import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagr
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getDataMapperComponent } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
-import { FieldViewState } from '../../../viewstate';
+import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
 
 interface RecordTypeProps {
     model: STNode;
     isMain?: boolean;
+    onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
 }
 
 export function RecordType(props: RecordTypeProps) {
     const { state: { currentApp } } = useContext(DiagramContext);
-    const { model, isMain } = props;
+    const { model, isMain, onDataPointClick } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
@@ -49,16 +50,16 @@ export function RecordType(props: RecordTypeProps) {
         const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
         typeDescNode.fields.forEach((field: any) => {
             const fieldVS = field.dataMapperViewState
-            fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
+            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick }));
         })
     }
 
     if (viewState.sourcePointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />)
     }
 
     if (viewState.targetPointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
     }
 
     return (
@@ -92,7 +93,7 @@ export function RecordType(props: RecordTypeProps) {
             </g>
 
             {fields}
-            {dataPoints}
+            {fields.length === 0 && dataPoints}
         </g>
     );
 }

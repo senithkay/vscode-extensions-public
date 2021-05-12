@@ -19,17 +19,18 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
-import { FieldViewState } from "../../../viewstate";
+import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
 
 interface ValueTypeProps {
     model: STNode;
     isMain?: boolean;
+    onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { model, isMain } = props;
+    const { model, isMain, onDataPointClick } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
     let name: string = viewState.name;
@@ -44,11 +45,11 @@ export function ValueType(props: ValueTypeProps) {
     }
 
     if (viewState.sourcePointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />)
     }
 
     if (viewState.targetPointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
     }
 
     return (

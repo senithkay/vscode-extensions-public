@@ -20,17 +20,18 @@ import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { getDataMapperComponent } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
-import { FieldViewState } from '../../../viewstate';
+import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
 
 interface JsonTypeProps {
     model: STNode;
     isMain?: boolean;
+    onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model, isMain } = props;
+    const { model, isMain, onDataPointClick } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     let name = viewState.name;
@@ -51,7 +52,6 @@ export function JsonType(props: JsonTypeProps) {
                         fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
                     });
                 }
-
             } else if (model.dataMapperTypeDescNode) {
                 // todo: handle from typedesc node when json sample is given for input
             }
@@ -76,11 +76,11 @@ export function JsonType(props: JsonTypeProps) {
     }
 
     if (viewState.sourcePointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />)
     }
 
     if (viewState.targetPointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={() => { }} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
     }
 
     return (

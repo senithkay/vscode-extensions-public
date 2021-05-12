@@ -57,6 +57,7 @@ export class DataPointVisitor implements Visitor {
             if (viewState.sourcePointViewState) {
                 viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewState.sourcePointViewState.bBox.y = viewState.bBox.y;
+                viewState.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewState.sourcePointViewState);
             }
 
@@ -84,6 +85,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
 
@@ -110,6 +112,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
 
@@ -135,6 +138,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
 

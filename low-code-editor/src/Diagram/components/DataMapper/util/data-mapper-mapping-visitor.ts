@@ -40,6 +40,7 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.expression.position;
         }
     }
 
@@ -53,7 +54,6 @@ export class DataMapperMappingVisitor implements Visitor {
                     this.generateDataPointName(this.nameParts),
                     node.expression.position
                 );
-                // viewstate.sourcePointViewState.connections.push(connectionVS);
                 this.sourcePoints.get(ref).connections.push(connectionVS);
             });
 
@@ -65,6 +65,7 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.initializer.position;
         }
     }
 
@@ -78,10 +79,8 @@ export class DataMapperMappingVisitor implements Visitor {
                     this.generateDataPointName(this.nameParts),
                     node.initializer.position
                 );
-                // viewstate.sourcePointViewState.connections.push(connectionVS);
                 this.sourcePoints.get(ref).connections.push(connectionVS);
             });
-
             this.references = [];
         }
     }
@@ -90,6 +89,7 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.valueExpr.position;
         }
     }
 
@@ -107,7 +107,6 @@ export class DataMapperMappingVisitor implements Visitor {
 
             this.references = [];
             this.nameParts.splice(this.nameParts.length - 1, 1);
-
         }
     }
 
