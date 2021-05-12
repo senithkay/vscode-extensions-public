@@ -85,7 +85,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === undefined);
+    const payloadSelected = !(connectorConfig.responsePayloadMap &&
+        (connectorConfig.responsePayloadMap.selectedPayloadType === "" ||
+            connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
     const httpVar = model as LocalVarDecl;
@@ -111,19 +113,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
 
-    let newField: FormField;
+    let forwardReqField: FormField;
     if (connectorConfig?.action?.name === "forward") {
         actions.forEach((fields, name) => {
             if (name === "forward") {
                 fields.parameters.forEach((field, key) => {
-                    if (field.name === "forwardReq") {
-                        newField = field;
+                    if (field.name === "request") {
+                        forwardReqField = field;
                     }
                 });
             }
         });
     }
-    const [forwardReqField] = useState(newField);
 
     const onForwardReqChange = (value: string) => {
         if (forwardReqField) {
@@ -162,6 +163,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const frmFields: FormField[] = connectorConfig?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
     const [onOperationChange, setOnOperationChange] = useState(false);
+    const [isOperationChanged, setIsOperationChanged] = useState(false);
     let action: ActionConfig = new ActionConfig();
     if (connectorConfig.action) {
         action = connectorConfig.action;
@@ -204,6 +206,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 :
                 connectorConfig.responsePayloadMap.payloadVariableName
         });
+        setDefaultPayloadVarName(connectorConfig.responsePayloadMap.payloadVariableName);
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
     };
@@ -383,17 +386,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             && isPayloadMapped);
 
     const handleSwitchToggleChange = () => {
+        if (connectorConfig.responsePayloadMap) {
+            connectorConfig.responsePayloadMap.isPayloadSelected = false;
+            connectorConfig.responsePayloadMap.selectedPayloadType = "";
+            connectorConfig.responsePayloadMap.payloadVariableName = "";
+        }
         if (!payloadState.isPayloadSelected) {
             setPayloadState({
                 ...payloadState,
-                isPayloadSelected: true
+                isPayloadSelected: true,
+                selectedPayload: "",
             });
         } else {
-            if (connectorConfig.responsePayloadMap) {
-                connectorConfig.responsePayloadMap.isPayloadSelected = false;
-                connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
-            }
             setPayloadState({
                 isPayloadSelected: false,
                 selectedPayload: "",
@@ -409,7 +413,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             let actionInitializer: CheckAction;
             connectorConfig.action.returnVariableName =
                 (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-            connectorConfig.responsePayloadMap.selectedPayloadType = '';
             setReturnNameState({
                 isNameProvided: true,
                 value: connectorConfig.action.returnVariableName,
@@ -419,7 +422,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             switch (httpVar.initializer.kind) {
                 case 'CheckAction':
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
                     // payload population logic stuff
                     const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
@@ -443,7 +445,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 } else if (variableStatement.source.includes('getJsonPayload')) {
                                     connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
                                 } else {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = undefined;
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = "";
                                 }
                                 setPayloadState({
                                     isPayloadSelected: (connectorConfig.responsePayloadMap.selectedPayloadType !==
@@ -468,6 +470,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
+        setIsOperationChanged(true);
         if (isNewConnectorInitWizard) {
             setReturnNameState({
                 value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
@@ -483,6 +486,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             setFormFields(derivedFormFields);
             setOnOperationChange(false);
         }
+        setPayloadState({
+            isPayloadSelected: false,
+            selectedPayload: "",
+            isNameProvided: false,
+            validPayloadName: true,
+            variableName: undefined
+        });
+        connectorConfig.responsePayloadMap.selectedPayloadType = "";
     };
 
     const handleOperationChange = () => {
@@ -541,7 +552,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     />
                                 </div>
 
-                                {(isNewConnectorInitWizard || !(connectorConfig.responsePayloadMap.selectedPayloadType)) ? (
+                                {(isNewConnectorInitWizard || isOperationChanged ||
+                                    !(connectorConfig.responsePayloadMap.selectedPayloadType)) && (
                                     // <Tooltip
                                     //     title={tooltipMessages.HTTPPayload.title}
                                     //     content={tooltipMessages.HTTPPayload.content}
@@ -552,15 +564,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         <SwitchToggle
                                             text="Do you want to extract a payload?"
                                             onChange={handleSwitchToggleChange}
-                                            initSwitch={payloadSelected}
+                                            initSwitch={payloadState.isPayloadSelected}
                                         />
                                     // </Tooltip>
-                                ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
-
+                                )}
                                 {payloadState.isPayloadSelected && (
-                                    <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                                        {payloadComponent}
-                                    </div>
+                                    <>
+                                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                            {payloadComponent}
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>
