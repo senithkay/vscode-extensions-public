@@ -185,7 +185,7 @@ export function StartButton(props: StartButtonProps) {
         : activeTriggerType.toUpperCase();
 
     return (
-        <g className="start-wrapper-edit">
+        <g className={triggerType === TRIGGER_TYPE_WEBHOOK ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}

@@ -292,6 +292,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
                     cron={configData?.cron}
+                    schType={configData?.schType}
                 />
             )}
             {selectedTrigger === TRIGGER_TYPE_WEBHOOK && activeConnector !== undefined && (
