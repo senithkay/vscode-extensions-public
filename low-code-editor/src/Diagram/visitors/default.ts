@@ -12,6 +12,10 @@
  */
 export class DiagramConfig {
 
+    public startingOnErrorX: number = 120;
+
+    public startingOnErrorY: number = 25;
+
     public startingY: number = 90;
 
     public dotGap: number = 8;
@@ -163,6 +167,11 @@ export class DiagramConfig {
         x: 350,
         y: 54,
     };
+
+    public onErrorHeader = {
+        h: 100,
+        w: 200,
+    }
 }
 
 export const DefaultConfig = new DiagramConfig();

@@ -10,20 +10,38 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./simple-bbox";
-export * from "./view-state";
-export * from "./compilationUnit";
-export * from "./function";
-export * from "./statement";
-export * from "./endpoint";
-export * from "./block";
-export * from "./if";
-export * from "./foreach";
-export * from "./plus";
-export * from "./end";
-export * from "./else";
-export * from "./plus";
-export * from "./collapse";
-export * from "./while";
-export * from "./onError";
-export * from "./do";
+svg {
+    overflow: visible !important;
+}
+
+.on-error-wrapper {
+    .on-error-line {
+        line {
+            stroke: #5567d5;
+            stroke-width: 1px;
+        }
+    }
+
+    .main-title {
+        fill: #32324d;
+        font-size: 16px;
+        font-family: inherit;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    .sub-title {
+        fill: #32324d;
+        font-size: 12px;
+        font-family: inherit;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    .on-error-separator {
+        line {
+            stroke: #e0e2eb;
+            stroke-width: 1px;
+        }
+    }
+}
