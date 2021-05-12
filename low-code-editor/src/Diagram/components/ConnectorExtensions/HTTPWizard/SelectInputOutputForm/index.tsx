@@ -28,7 +28,7 @@ import {
     httpRequest,
     PrimitiveBalType
 } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -73,7 +73,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard,
             headerObject, model } = props;
     const actions = functionDefinitions;
-    const { state: diagramState } = useContext(DiagramContext);
+    const { state: diagramState } = useContext(Context);
     const { isMutationProgress } = diagramState;
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");

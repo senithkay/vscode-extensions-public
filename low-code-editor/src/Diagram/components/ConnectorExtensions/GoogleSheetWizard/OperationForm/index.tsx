@@ -20,7 +20,7 @@ import classNames from 'classnames';
 
 import { ConnectionDetails } from "../../../../../api/models";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext} from '../../../../../Contexts/Diagram';
+import { Context } from '../../../../../Contexts/Diagram';
 import {
     GithubRepo,
     GSpreadsheet
@@ -54,7 +54,7 @@ export function OperationForm(props: OperationFormProps) {
             onOperationChange, mutationInProgress, isManualConnection,
             // gsheetConnections, dispatchFetchGsheetList,
             connectionInfo } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, currentApp, getGsheetList } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();

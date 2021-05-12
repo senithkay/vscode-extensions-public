@@ -22,7 +22,7 @@ import {
     STKindChecker,
 } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
@@ -50,7 +50,7 @@ export interface StartButtonProps {
 }
 
 export function StartButton(props: StartButtonProps) {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
     const isMutationProgress = state.isMutationProgress || false;
     const { syntaxTree, appInfo, originalSyntaxTree } = state;
 

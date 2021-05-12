@@ -17,7 +17,7 @@ import { BlockStatement, FunctionBodyBlock, LocalVarDecl, STNode } from "@baller
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../Definitions/lang-client-extended";
 import { BlockViewState } from "../../view-state";
 import { PlusViewState } from "../../view-state/plus";
@@ -42,7 +42,7 @@ export interface PlusStates {
 }
 
 export const PlusButton = (props: PlusProps) => {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
     const { syntaxTree, isReadOnly } = state;
     const isWaitingOnWorkspace = state.isWaitingOnWorkspace || false;
 

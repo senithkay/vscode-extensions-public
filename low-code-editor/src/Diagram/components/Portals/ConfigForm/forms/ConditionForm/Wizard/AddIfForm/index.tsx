@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { IfIcon } from "../../../../../../../../assets/icons";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
@@ -36,7 +36,7 @@ export const DEFINE_CONDITION: string = "Define Condition Expression";
 export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 export function AddIfForm(props: IfProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationInProgress } = state;
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();

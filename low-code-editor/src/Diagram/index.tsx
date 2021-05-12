@@ -38,8 +38,8 @@ export interface DiagramProps {
     isLoadingAST: boolean;
     isWaitingOnWorkspace: boolean;
     error?: Error;
-    dispatchMutations?: (modifications: STModification[]) => void;
-    dispatchModifyTrigger?: (triggerType: TriggerType, model?: any, configObject?: any) => void;
+    // onMutate?: (modifications: STModification[]) => void;
+    // onModify?: (triggerType: TriggerType, model?: any, configObject?: any) => void;
     isMutationInProgress: boolean;
     isCodeEditorActive: boolean;
     isConfigPanelOpen: boolean;
@@ -106,7 +106,7 @@ export function Diagram(props: DiagramProps) {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen}/>
+            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
         </div>
     );
 

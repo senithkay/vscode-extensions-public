@@ -19,7 +19,7 @@ import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins";
@@ -73,7 +73,7 @@ export function HTTPWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
             model, selectedConnector, isAction } = props;
-    const { state: diagramState } = useContext(DiagramContext);
+    const { state: diagramState } = useContext(Context);
 
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;

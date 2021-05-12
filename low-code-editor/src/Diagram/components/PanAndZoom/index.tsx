@@ -18,7 +18,7 @@ import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
 import Tooltip from "../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 
 import { useStyles } from "./styles";
 
@@ -32,7 +32,7 @@ interface PanningEvent {
 }
 
 export default function PanAndZoom(props: PanAndZoomProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const [appId, setAppId] = useState(-1);
 
     const { onZoomIn, onZoomOut, onFitToScreen, onPanLocation, appInfo } = state;

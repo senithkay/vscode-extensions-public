@@ -16,9 +16,8 @@ import React, { useContext, useState } from "react";
 
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
-import { ForEachIcon } from "../../../../../../assets/icons";
+import { CloseRounded, ForEachIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
