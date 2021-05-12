@@ -50,8 +50,8 @@ export class DataMapperPositionVisitor implements Visitor {
     beginVisitAssignmentStatement(node: AssignmentStatement) {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
-            viewState.bBox.x = this.offset;
-            viewState.bBox.y = this.height;
+            viewState.bBox.x = this.offset + 100;
+            viewState.bBox.y = this.height + 100;
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
         }
     }
