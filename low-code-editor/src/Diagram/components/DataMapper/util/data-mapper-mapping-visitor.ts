@@ -47,7 +47,6 @@ export class DataMapperMappingVisitor implements Visitor {
     endVisitAssignmentStatement(node: AssignmentStatement) {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
-            this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references.forEach(ref => {
                 const connectionVS = this._generateConnection(
                     ref,
@@ -56,7 +55,7 @@ export class DataMapperMappingVisitor implements Visitor {
                 );
                 this.sourcePoints.get(ref).connections.push(connectionVS);
             });
-
+            this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
     }
@@ -72,7 +71,6 @@ export class DataMapperMappingVisitor implements Visitor {
     endVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
-            this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references.forEach(ref => {
                 const connectionVS = this._generateConnection(
                     ref,
@@ -81,6 +79,7 @@ export class DataMapperMappingVisitor implements Visitor {
                 );
                 this.sourcePoints.get(ref).connections.push(connectionVS);
             });
+            this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
     }

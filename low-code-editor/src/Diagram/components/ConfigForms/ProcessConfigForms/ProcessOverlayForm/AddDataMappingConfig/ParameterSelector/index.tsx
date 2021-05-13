@@ -79,7 +79,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
             </div>
             <FormAutocomplete
                 itemList={types}
-                label={'Select parameter'}
+                label={'Select Variables:'}
                 onChange={handleChangeVariableType}
                 renderItem={(option) => (
                     <React.Fragment>
@@ -91,14 +91,15 @@ export function ParameterSelector(props: ParameterSelectorProps) {
             />
             <IconBtnWithText
                 onClick={onParameterAddClick}
-                text="Add Parameter"
+                text="Add Variable"
                 icon={<AddRounded fontSize="small" className={formClasses.iconButton} />}
                 disabled={false}
             />
             {
                 parameterElements.length > 0 &&
                 <>
-                    <FormHelperText className={formClasses.inputLabelForRequired}>Parameters :</FormHelperText>
+                    <br />
+                    <FormHelperText className={formClasses.inputLabelForRequired}>Variables for Mapping :</FormHelperText>
                     <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                         {parameterElements}
                     </div>
