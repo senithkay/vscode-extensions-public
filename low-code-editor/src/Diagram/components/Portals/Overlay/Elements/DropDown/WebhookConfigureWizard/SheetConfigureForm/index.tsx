@@ -92,13 +92,14 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
 
     // handle trigger update
     const updateSheetTrigger = () => {
-        // TODO:
+        // TODO: need to implement update logic
     };
 
     const sheetIdPlaceholder = intl.formatMessage({
         id: "lowcode.develop.GSheetConfigWizard.sheetId.placeholder",
         defaultMessage: "Sheet Id"
     });
+
     const sheetConfigTooltips = {
         sheetTrigger: {
             sheetId: intl.formatMessage({
@@ -107,10 +108,12 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
             }),
         }
     };
+
     const chooseEventPlaceholder = intl.formatMessage({
         id: "lowcode.develop.GSheetConfigWizard.chooseEvent.placeholder",
         defaultMessage: "Choose Event"
     });
+
     const saveConfigButton = intl.formatMessage({
         id: "lowcode.develop.GSheetConfigWizard.saveConfigButton.text",
         defaultMessage: "Save"

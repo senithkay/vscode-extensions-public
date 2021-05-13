@@ -105,7 +105,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         onComplete(selectedTrigger);
     }
     function handleSubMenuClose() {
-        setSelectedTrigger(undefined);
+        setSelectedTrigger(TRIGGER_TYPE_INTEGRATION_DRAFT);
         setActiveConnector(undefined);
     }
 
@@ -270,13 +270,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#5-GitHub"
                         ) }
 
-                        {/* { getConnectorTriggerButton(
+                        { getConnectorTriggerButton(
                             ConnectorType.GMAIL,
                             'googleapis_gmail_Client',
                             "To trigger an application based on GMail events.",
                             "Learn about the GMail trigger.",
                             "#",
-                        ) } */}
+                        ) }
 
                         { getConnectorTriggerButton(
                             ConnectorType.G_CALENDAR,
