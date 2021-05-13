@@ -121,7 +121,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
         })
     }
     };
@@ -132,14 +132,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.title",
             defaultMessage: "To trigger an application according to a given schedule."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the schedule trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#3--schedule"
-        })
     }
     };
 
@@ -149,41 +141,24 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
             defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the manual trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#2-Manual"
-        })
     }
     };
 
-    const getConnectorTriggerButton = (connector: ConnectorType, iconId: string, tooltipTitle: string, actionText: string, actionLink: string, label?: string) => {
+    const getConnectorTriggerButton = (connector: ConnectorType, iconId: string, tooltipTitle: string, label?: string, tooltipPlacement?: any) => {
         const shortName = connector.replace(/ /gi, '').toLowerCase();
+        const placement = tooltipPlacement
         const triggerTooltipMessages = {
             title: intl.formatMessage({
                 id: `lowcode.develop.triggerDropDown.${shortName}Trigger.tooltip.title`,
                 defaultMessage: tooltipTitle
             }),
-            actionText: intl.formatMessage({
-                id: `lowcode.develop.triggerDropDown.${shortName}Trigger.tooltip.actionText`,
-                defaultMessage: actionText
-            }),
-            actionLink: intl.formatMessage({
-                id: `lowcode.develop.triggerDropDown.${shortName}Trigger.tooltip.actionTitle`,
-                defaultMessage: actionLink
-            })
         };
 
         return (
             <Tooltip
                 title={triggerTooltipMessages.title}
-                actionText={triggerTooltipMessages.actionText}
-                actionLink={triggerTooltipMessages.actionLink}
                 interactive={true}
-                placement="left"
+                placement={placement}
                 arrow={true}
             >
                 <div
@@ -226,8 +201,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     <div className={"trigger-list"}>
                         <Tooltip
                             title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
-                            actionText={scheduleTriggerTooltipMessages.scheduleTrigger.actionText}
-                            actionLink={scheduleTriggerTooltipMessages.scheduleTrigger.actionLink}
                             interactive={true}
                             placement="left"
                             arrow={true}
@@ -245,8 +218,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
                         <Tooltip
                             title={manualTriggerTooltipMessages.manualTrigger.title}
-                            actionText={manualTriggerTooltipMessages.manualTrigger.actionText}
-                            actionLink={manualTriggerTooltipMessages.manualTrigger.actionLink}
                             interactive={true}
                             placement="right"
                             arrow={true}
@@ -266,42 +237,38 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             ConnectorType.GITHUB,
                             'github_Client',
                             "To trigger an application based on GitHub events.",
-                            "Learn about the GitHub trigger.",
-                            "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#5-GitHub"
+                            "GitHub",
+                            "left",
                         ) }
 
                         { getConnectorTriggerButton(
                             ConnectorType.GMAIL,
                             'googleapis_gmail_Client',
                             "To trigger an application based on GMail events.",
-                            "Learn about the GMail trigger.",
-                            "#",
+                            "GMail",
+                            "right",
                         ) }
 
                         { getConnectorTriggerButton(
                             ConnectorType.G_CALENDAR,
                             'googleapis_calendar_Client',
                             "To trigger an application based on Google Calendar events.",
-                            "Learn about the calendar trigger.",
-                            "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar",
-                            "Calender"
+                            "Calendar",
+                            "left"
                         ) }
 
                         { getConnectorTriggerButton(
                             ConnectorType.G_SHEET,
                             'googleapis_sheets_Sheet',
                             "To trigger an application based on Google Sheet events.",
-                            "Learn about the sheet trigger.",
-                            "#",
-                            "Sheet"
+                            "Sheet",
+                            "right"
                         ) }
 
                         {/* { getConnectorTriggerButton(
                             ConnectorType.G_DRIVE,
                             'googleapis_drive_Client',
                             "To trigger an application based on Google Drive events.",
-                            "Learn about the google drive trigger.",
-                            "#",
                             "Drive"
                         ) } */}
 
@@ -309,8 +276,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             ConnectorType.SALESFORCE,
                             'sfdc_Client',
                             "To trigger an application based on Salesforce events.",
-                            "Learn about the Salesforce trigger.",
-                            "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md",
+                            "Salesforce",
+                            "left"
                         ) }
 
 
