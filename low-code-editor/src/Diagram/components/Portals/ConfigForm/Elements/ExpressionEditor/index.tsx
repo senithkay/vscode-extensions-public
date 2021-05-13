@@ -791,14 +791,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     (
                         <>
                             <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
+                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
-                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occured in the code-editor. Please fix it first to continue."/></FormHelperText>
+                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
                         </>
                     ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                         (
                             <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                                <FormHelperText className={formClasses.invalidCode}  data-testid='expr-diagnostics'>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                             </TooltipCodeSnippet>
                         ) : addCheck ?
                             (
