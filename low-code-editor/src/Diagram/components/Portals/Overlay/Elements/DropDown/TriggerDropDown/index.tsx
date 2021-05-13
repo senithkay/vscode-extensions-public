@@ -245,7 +245,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             ConnectorType.GMAIL,
                             'googleapis_gmail_Client',
                             "To trigger an application based on GMail events.",
-                            "GMail",
+                            "Gmail",
                             "right",
                         ) }
 
