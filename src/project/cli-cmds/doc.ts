@@ -42,12 +42,11 @@ function activateDocCommand() {
                     });
 
                     if (userSelection!.id === DOC_OPTIONS.DOC_MODULE) {
-                        let moduleName;
-                        do {
-                            moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                        } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
-                            moduleName);
+                        const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
+                        if (moduleName && moduleName.trim().length > 0) {
+                            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(),
+                                BALLERINA_COMMANDS.BUILD, moduleName);
+                        }
                     }
                     if (userSelection!.id === DOC_OPTIONS.DOC_ALL) {
                         runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,

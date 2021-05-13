@@ -18,12 +18,11 @@ function activateRunCommand() {
                     currentProject.path!, ...args);
 
             } else if (ballerinaExtInstance.is12x && currentProject.path) {
-                let moduleName;
-                do {
-                    moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                    moduleName);
+                const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
+                if (moduleName && moduleName.trim().length > 0) {
+                    runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
+                        moduleName);
+                }
 
             } else if (ballerinaExtInstance.isSwanLake || ballerinaExtInstance.is12x) {
                 runCurrentFile();

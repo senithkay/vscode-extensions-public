@@ -41,11 +41,11 @@ function activateAddCommand() {
             }
 
             if (ballerinaExtInstance.isSwanLake || ballerinaExtInstance.is12x) {
-                let moduleName;
-                do {
-                    moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.ADD, moduleName);
+                const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
+                if (moduleName && moduleName.trim().length > 0) {
+                    runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.ADD,
+                        moduleName);
+                }
             } else {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, MESSAGES.NOT_SUPPORT);
                 window.showErrorMessage(MESSAGES.NOT_SUPPORT);
