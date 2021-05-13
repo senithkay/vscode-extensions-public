@@ -42,12 +42,11 @@ export function activateTestRunner() {
                     });
 
                     if (userSelection!.id === TEST_OPTIONS.TEST_MODULE) {
-                        let moduleName;
-                        do {
-                            moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                        } while (!moduleName || moduleName && moduleName.trim().length === 0);
-                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
-                            moduleName);
+                        const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
+                        if (moduleName && moduleName.trim().length > 0) {
+                            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
+                                moduleName);
+                        }
                     }
                     if (userSelection!.id === TEST_OPTIONS.TEST_ALL) {
                         runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
