@@ -85,6 +85,7 @@ export interface FormField {
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
     isErrorType?: boolean;
+    customAutoComplete?: string[];
 }
 
 // tslint:disable-next-line: max-classes-per-file

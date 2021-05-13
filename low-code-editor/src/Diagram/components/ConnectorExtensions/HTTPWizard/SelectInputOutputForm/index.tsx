@@ -572,14 +572,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         isParam: true,
         name: "headers",
         optional: true,
-        // customAutoComplete: ["asdas", "asdasd"],
+        customAutoComplete: ["\"key1\"", "\"key2\""],
         type: "map",
         fields: [
             {
                 isParam: true,
                 type: "union",
                 isUnion: true,
-                // customAutoComplete: ["asdas", "asdasd"],
+                customAutoComplete: ["\"val1\"", "\"val2\"", "\"val3\""],
                 fields: [
                     {
                         isParam: true,

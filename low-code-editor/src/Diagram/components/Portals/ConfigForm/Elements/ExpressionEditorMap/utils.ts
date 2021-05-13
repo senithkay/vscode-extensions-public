@@ -23,5 +23,13 @@ export function appendToMap(key: string, value: string, editorValue: string) {
             }
         }
     }
-    return `${editorValue} + {${key}: ${value}}`
+    return
+}
+
+export function newMap(editorValue: string) : boolean {
+    const trimmedEditorValue = editorValue.replace(" ", "");
+    if (!editorValue || trimmedEditorValue === "" || (trimmedEditorValue.startsWith("{") && trimmedEditorValue.endsWith("}"))) {
+        return true
+    }
+    return false
 }

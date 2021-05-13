@@ -357,6 +357,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     }
                                     completionItems.push(completionItemAI);
                                 }
+                                if (model?.customAutoComplete) {
+                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string) => {
+                                        return {
+                                            range: null,
+                                            label: customCompletion,
+                                            kind: monaco.languages.CompletionItemKind.Enum,
+                                            insertText: customCompletion,
+                                            sortText: '0'
+                                        }
+                                    })
+                                    completionItems.push(...completionItemCustom);
+                                }
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
                                     suggestions: completionItems

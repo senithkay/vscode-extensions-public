@@ -39,11 +39,13 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     }
 
     const handleAddButtonClick = () => {
-        const newMap = appendToMap(keyEditorContent, valueEditorContent, mainEditorValue || "");
-        model.value = newMap;
-        setMainEditorValue(newMap)
-        setClearInput(true)
-        setChanged(!changed)
+        const updatedMap = appendToMap(keyEditorContent, valueEditorContent, mainEditorValue || "");
+        if (updatedMap) {
+            model.value = updatedMap;
+            setMainEditorValue(updatedMap)
+            setClearInput(true)
+            setChanged(!changed)
+        }
     }
 
     const revertClearInput = () => {
@@ -57,7 +59,11 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     const keyEditorType: string = "string";
 
     const handleKeyEditorValidation = (_field: string, isInvalid: boolean) => {
-        keyEditorContent === "" ? setKeyEditorValid(true) : setKeyEditorValid(isInvalid)
+        if (keyEditorContent === "") {
+            setKeyEditorValid(true)
+        } else {
+            setKeyEditorValid(isInvalid)
+        }
     }
 
     const handleKeyEditorChange = (value: string) => {
@@ -71,7 +77,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             type: keyEditorType,
             value: keyEditorContent,
             tooltip: "Key of the Key-Value pair",
-            optional: true
+            optional: true,
+            customAutoComplete: model?.customAutoComplete
         },
         customProps: {
             validate: handleKeyEditorValidation,
@@ -86,10 +93,14 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     // States and functions for value-exp-editor
     const [valueEditorValid, setValueEditorValid] = useState(false);
     const [valueEditorContent, setValueEditorContent] = useState("");
-    const valueEditorType: string = transformFormFieldTypeToString(model.fields);
+    const valueEditorType: string = transformFormFieldTypeToString(model.fields[0]);
 
     const handleValueEditorValidation = (_field: string, isInvalid: boolean) => {
-        valueEditorContent === "" ? setValueEditorValid(true) : setValueEditorValid(isInvalid)
+        if (valueEditorContent === "") {
+            setValueEditorValid(true)
+        } else {
+            setValueEditorValid(isInvalid)
+        }
     }
 
     const handleValueEditorChange = (value: string) => {
@@ -103,7 +114,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             type: valueEditorType,
             value: valueEditorContent,
             tooltip: "Value of the Key-Value pair",
-            optional: true
+            optional: true,
+            customAutoComplete: model?.fields[0]?.customAutoComplete
         },
         customProps: {
             validate: handleValueEditorValidation,
@@ -122,7 +134,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
                 <ExpressionEditor {...elementPropsValueEditor} />
                 <div className="add-element-button">
                     <IconBtnWithText
-                        disabled={keyEditorValid && valueEditorValid}
+                        disabled={keyEditorValid || valueEditorValid}
                         text={"Add Key-Value Pair"}
                         onClick={handleAddButtonClick}
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
