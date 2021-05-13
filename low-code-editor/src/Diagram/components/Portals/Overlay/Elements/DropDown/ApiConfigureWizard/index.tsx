@@ -95,12 +95,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
       const resourceMembers = [];
       if (stMethod && stPath) {
-        resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+        if (resources.length === 0) {
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+          setResources(resourceMembers);
+        }
       } else {
         const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
         resourceMembers.push(defaultConfig);
+        setResources(resourceMembers);
       }
-      setResources(resourceMembers)
     }
   }, [syntaxTree])
 
