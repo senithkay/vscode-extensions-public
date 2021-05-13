@@ -18,16 +18,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             width: "100%",
             backgroundColor: "#FFF",
-            padding: "0.5rem 0 1rem 0",
+            paddingBottom: "0.5rem",
             "& .MuiInputBase-root": {
                 width: '100% !important',
             },
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
+            "& div": {
+                margin: '0 !important',
+            },
         },
         accordionWrapper: {
-            marginTop: '8px',
             width: '100%',
         },
         activeAccordionRoot: {
