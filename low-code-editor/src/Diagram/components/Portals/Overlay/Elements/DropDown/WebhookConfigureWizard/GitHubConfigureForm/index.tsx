@@ -73,7 +73,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const [githubRepoList, setGithubRepoList] = useState<GithubRepo[]>(undefined)
     const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
 
-    // HACK: hardcoded event list for testing
+    // HACK: hardcoded event list until get it form connector API
     const githubEvents: ConnectorEvents = {
         issue_comment: {
             action: {
