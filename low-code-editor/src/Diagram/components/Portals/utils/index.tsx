@@ -23,6 +23,7 @@ import {
 } from "@ballerina/syntax-tree";
 import { isRef } from "joi";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
+import { resetRequestCollction } from "store/actions";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
@@ -251,6 +252,26 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "union" && !field.hide && field.fields?.length > 1) {
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (name) {
+                            // get selected filed
+                            const selectedField: FormField = field.fields?.find((subField: FormField) => {
+                                if (subField.label === field.selectedDataType) {return true}
+                                if (subField.name === field.selectedDataType) {return true}
+                                if (subField.typeInfo?.name === field.selectedDataType) {return true}
+                                return false;
+                            });
+                            const params = getParams([selectedField]);
+                            if (params && params.length > 0) {
+                                if (firstRecordField) {
+                                    recordFieldsString += ", ";
+                                } else {
+                                    firstRecordField = true;
+                                }
+                                recordFieldsString += name + ": " + params;
+                            }
+                        }
                     } else if (field.type === "record" && !field.hide) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
@@ -402,7 +423,16 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
-                        mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
+                        // mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
+                        if (formField.type === "union"){
+                            formField.fields.forEach(subFormField => {
+                                if (subFormField.type === "record" && subFormField.fields){
+                                    mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFormField.fields);
+                                }
+                            });
+                        }else{
+                            mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
+                        }
                     }
 
                     // if the assigned value is an array

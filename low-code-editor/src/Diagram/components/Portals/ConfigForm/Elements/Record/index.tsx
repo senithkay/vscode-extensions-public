@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { FormField } from "../../../../../../ConfigurationSpec/types";
 import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
@@ -44,7 +45,20 @@ export function Record(props: FormElementProps<RecordProps>) {
                             validate: customProps.validate
                         }
                     };
-                    const element = getFormElement(elementProps, field.type);
+
+                    let type = field.type;
+                    // validate union types
+                    // only union record types will get Union element
+                    // other union types will get expression editor
+                    if (field.type === "union"){
+                        field.fields?.forEach((subField: FormField) => {
+                            if (subField.type !== "record"){
+                                type = "expression";
+                            }
+                        });
+                    }
+                    const element = getFormElement(elementProps, type);
+
                     if (element) {
                         field?.optional ? optionalRecordFields.push(element) : recordFields.push(element);
                     }
@@ -57,7 +71,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         <div className={classes.marginTB}>
             <FormAccordion
                 title={model.label || model.name}
-                depth={2}
+                depth={1}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
             />

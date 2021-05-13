@@ -167,7 +167,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     // managing name set by the non oauth connectors
     config.name = (isNewConnectorInitWizard && !config.name) ?
-        genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo))
+        genVariableName(getFormattedModuleName(connectorInfo.module) + "Endpoint", getAllVariables(symbolInfo))
         : config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
@@ -200,11 +200,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onManualConnection = () => {
-        setConfigName(genVariableName(connectorInfo.module + "Endpoint", getAllVariables(symbolInfo)));
+        setConfigName(genVariableName(getFormattedModuleName(connectorInfo.module) + "Endpoint", getAllVariables(symbolInfo)));
         setIsManualConnection(true);
         setFormState(FormStates.CreateNewConnection);
     };
-
 
     const onSelectExisting = (value: any) => {
         setConfigName(value);

@@ -59,9 +59,21 @@ export function Form(props: FormProps) {
                     tooltipTitle: field.tooltip
                 },
             };
-            const element = getFormElement(elementProps, field.type);
+
+            let type = field.type;
+            // validate union types
+            // only union record types will get Union element
+            // other union types will get expression editor
+            if (field.type === "union"){
+                field.fields?.forEach((subField: FormField) => {
+                    if (subField.type !== "record"){
+                        type = "expression";
+                    }
+                });
+            }
+            const element = getFormElement(elementProps, type);
+
             if (element) {
-                // elements.push(element);
                 field?.optional ? optionalElements.push(element) : elements.push(element);
             }
         }
