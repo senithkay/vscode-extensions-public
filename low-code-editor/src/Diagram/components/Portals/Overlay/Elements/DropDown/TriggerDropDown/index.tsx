@@ -30,7 +30,6 @@ import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from 'react-intl';
-import { DiagramContext } from "../../../../../../../providers/contexts";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -40,7 +39,6 @@ interface TriggerDropDownProps {
     // dispatchGoToNextTourStep: (nextStepId: string) => void;
     isEmptySource?: boolean;
     triggerType?: TriggerType;
-    activeConnectorType?: ConnectorType;
     configData?: any;
     isDropdownActive?: boolean;
     // createTrigger: (triggerType: TriggerType, model?: any, configObject?: any) => void; // todo: handle dispatch
@@ -55,13 +53,12 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { onModify } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree } = state;
-    const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
+    const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
-    const [activeConnector, setActiveConnector] = useState<ConnectorType>(activeConnectorType);
+    const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
@@ -82,14 +79,10 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         //     dispatchGoToNextTourStep("SELECT_TRIGGER");
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
-            if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
-                onModify(newTrigger);
-            } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
-                onModify(TRIGGER_TYPE_MANUAL, undefined, {
-                    "SYNTAX_TREE": originalSyntaxTree,
-                    "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
-                });
-            } else if (triggerType !== TRIGGER_TYPE_MANUAL) {
+            if (isEmptySource) {
+                // todo: handle dispatch
+                onModifyTrigger(newTrigger);
+            } else {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
             }
@@ -98,7 +91,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModify(selectedTrigger);
+        onModifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
@@ -289,11 +282,9 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
-                    initialTriggerType={triggerType}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
                     cron={configData?.cron}
-                    schType={configData?.schType}
                 />
             )}
             {selectedTrigger === TRIGGER_TYPE_WEBHOOK && activeConnector !== undefined && (
@@ -302,7 +293,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
-                    isWebhookTypeChanged={activeConnectorType !== activeConnector}
                 />
             )}
             {showConfirmDialog && (

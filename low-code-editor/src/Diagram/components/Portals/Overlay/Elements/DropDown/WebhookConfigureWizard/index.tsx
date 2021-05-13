@@ -26,7 +26,6 @@ import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
   connector: ConnectorType;
-  isWebhookTypeChanged: boolean;
   onWizardComplete: () => void;
   onClose: () => void;
 }
@@ -37,7 +36,7 @@ export interface ConnectorEvents {
 
 export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
 
-  const { position, connector, onWizardComplete, onClose, isWebhookTypeChanged } = props;
+  const { position, connector, onWizardComplete, onClose } = props;
   const classes = useStyles();
 
   function handleOnWizardComplete() {
@@ -59,21 +58,18 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <GitHubConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
-          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.G_CALENDAR && (
         <CalendarConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
-          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.SALESFORCE && (
         <SalesforceConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
-          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
     </DiagramOverlay>

@@ -38,12 +38,10 @@ import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConne
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
-import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
-    isTriggerTypeChanged: boolean;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
 }
@@ -65,7 +63,9 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         stSymbolInfo,
         originalSyntaxTree,
     } = state;
-    const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
+    const model: FunctionDefinition = syntaxTree as FunctionDefinition;
+    const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
+    const { position, onComplete, currentConnection } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -74,7 +74,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const [triggerChanged, setTriggerChanged] = useState(false);
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const Trigger = "Google Calendar";
 
     useEffect(() => {
@@ -124,17 +123,11 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
     };
 
-    const handleDialogOnCancel = () => {
-        setShowConfirmDialog(false);
-    };
-
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createCalendarTrigger();
-        } else if (!isTriggerTypeChanged) {
-            updateCalendarTrigger();
         } else {
-            setShowConfirmDialog(true);
+            updateCalendarTrigger();
         }
     };
 
@@ -282,13 +275,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         />
                     </div>
                 )}
-
-            { showConfirmDialog && (
-                <SourceUpdateConfirmDialog
-                    onConfirm={createCalendarTrigger}
-                    onCancel={handleDialogOnCancel}
-                />
-            )}
         </>
     )
 }
