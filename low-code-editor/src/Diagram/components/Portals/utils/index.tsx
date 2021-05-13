@@ -755,7 +755,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // connectorConfig.initPosition = matchingEndPoint.position;
         // matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
     }
-    connectorConfig.existingConnections = symbolInfo.variables.get(connector.module + ":" + connector.name);
+    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.module) + ":" + connector.name);
 
     return {
         isLoading: false,

@@ -27,10 +27,11 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
+import { DiagramContext } from "../../../../../../../../providers/contexts";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
@@ -50,18 +51,17 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
         originalSyntaxTree,
-        onMutate: dispatchMutations
     } = state;
     const { onComplete, currentConnection } = props;
     const classes = useStyles();
@@ -152,7 +152,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gcalendar",
             PORT: 8090,
             CLIENT_ID: clientId,
@@ -227,7 +227,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                                       }`;
             modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
             modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
-            dispatchMutations(modifications);
+            onMutate(modifications);
             setTriggerChanged(true);
         }
     };

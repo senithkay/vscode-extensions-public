@@ -22,8 +22,9 @@ import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import RadioControl from "../../../../../../../components/RadioControl";
-import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../Contexts/Diagram";
 import { updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
+import { DiagramContext } from "../../../../../../../providers/contexts";
 import { validatePath } from "../../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -47,14 +48,13 @@ export interface ConnectorEvents {
 }
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
-  const { state } = useContext(DiagramContext);
+  const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+  const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     connectionData,
-    onModify: dispatchModifyTrigger,
-    onMutate,
     trackTriggerSelection
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -170,7 +170,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       setShowConfirmDialog(false);
       // dispatch and close the wizard
       setTriggerChanged(true);
-      dispatchModifyTrigger(TRIGGER_TYPE_API, undefined, {
+      onModify(TRIGGER_TYPE_API, undefined, {
         "PORT": 8090,
         "BASE_PATH": "/",
         "RES_PATH": currentPath,
@@ -212,17 +212,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathInstructionsBullet1 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1",
-    defaultMessage: "include spaces outside the square brackets"
+    defaultMessage: "Include spaces outside the square brackets"
   });
 
   const pathInstructionsBullet2 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint2",
-    defaultMessage: "start with a numerical character"
+    defaultMessage: "Start with a numerical character"
   });
 
   const pathInstructionsBullet3 = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
-    defaultMessage: "include keywords such as Return , Foreach , Resource, Object etc."
+    defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
   });
 
   const resourceConfigTitle = intl.formatMessage({
@@ -298,7 +298,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
             <Section
               title={pathTitle}
-              tooltip={{ title, content: pathExample}}
+              tooltipWithExample={{ title, content: pathExample }}
             >
               <FormTextInput
                 dataTestId="api-path"
@@ -322,7 +322,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           >
             <div className={classes.addResourceBtnWrap}>
               <AddIcon />
-              <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addResource.title" defaultMessage="Add Resource"/></p>
+              <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addResource.title" defaultMessage="Add Resource" /></p>
             </div>
           </button>
         )}

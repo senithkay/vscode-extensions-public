@@ -162,7 +162,7 @@ export function IfElse(props: IfElseProps) {
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
-                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
                     assignment={assignmentText}
                     className="condition-assignment"
@@ -322,7 +322,7 @@ export function IfElse(props: IfElseProps) {
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
                         />
                         <ContitionAssignment
-                            x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                            x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                             y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
                             assignment={assignmentText}
                             className="condition-assignment"

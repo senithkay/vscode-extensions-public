@@ -18,7 +18,7 @@ import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core"
 
 import { RespondIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
@@ -37,7 +37,7 @@ export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddRespondForm(props: RespondFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress } = state;
     const formClasses = useFormStyles();
     const { config, onCancel, onSave } = props;

@@ -17,7 +17,7 @@ import { useIntl } from 'react-intl';
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 
 import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo, Connector } from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
@@ -51,7 +51,7 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen,
             isCodeEditorActive, triggerErrorNotification } = state;
 
