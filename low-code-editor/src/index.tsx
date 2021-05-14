@@ -17,7 +17,6 @@ import DiagramContainer from "./Diagram/Container";
 import { DiagramErrorBoundary } from "./ErrorBoundrary";
 import Provider from "./providers";
 import { LowCodeEditorProps as Props } from "./types";
-import { init as formFieldIndexDB } from './utils/idb';
 
 export { LowCodeEditorProps, PortalState } from "./types";
 export {
@@ -84,9 +83,6 @@ export default function LowCodeEditor(props: Props) {
         ...restProps,
         currentApp
     }
-
-    // Initialized form field IndexedDB
-    formFieldIndexDB();
 
     return (
         <Provider {...props}>
