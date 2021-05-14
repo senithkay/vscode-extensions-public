@@ -28,6 +28,11 @@ interface DataPointProps {
 export function DataPoint(props: DataPointProps) {
     const { dataPointViewState, onClick } = props;
     const connections: JSX.Element[] = [];
+    const dataPointElement: JSX.Element[] = [];
+
+    const onDataPointClick = () => {
+        onClick(dataPointViewState);
+    }
 
     if (dataPointViewState instanceof SourcePointViewState) {
         (dataPointViewState as SourcePointViewState).connections.forEach(connection => {
@@ -36,37 +41,54 @@ export function DataPoint(props: DataPointProps) {
                     <g>
                         <line
                             x1={connection.x1 + PADDING_OFFSET}
-                            x2={connection.x2 - (DefaultConfig.dotGap) + PADDING_OFFSET}
+                            x2={connection.x2 - 125 - (DefaultConfig.dotGap) + PADDING_OFFSET}
                             y1={connection.y1}
                             y2={connection.y2}
                             className="connect-line"
                             markerEnd="url(#arrowhead)"
                         />
                     </g>
-                    <ExpressionBoxSVG x={connection.x2} y={connection.y2 - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
-                    <g>
-                        <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
-                        <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
-                    </g>
                 </g>
             );
         })
+        dataPointElement.push((
+            <>
+                <g>
+                    <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+                </g>
+            </>
+        ))
+    } else if (dataPointViewState instanceof TargetPointViewState) {
+        dataPointElement.push((
+            <>
+                <ExpressionBoxSVG x={dataPointViewState.bBox.x - 25} y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
+                <g>
+                    <circle id="Oval" cx={dataPointViewState.bBox.x - 25} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x - 25} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+                </g>
+                <line
+                    x1={dataPointViewState.bBox.x}
+                    x2={dataPointViewState.bBox.x + 100 - DefaultConfig.dotGap}
+                    y1={dataPointViewState.bBox.y}
+                    y2={dataPointViewState.bBox.y}
+                    className="connect-line"
+                    markerEnd="url(#arrowhead)"
+                />
+                <g>
+                    <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+                </g>
+            </>
+        ))
     }
 
-    const onDataPointClick = () => {
-        onClick(dataPointViewState);
-    }
+
 
     return (
         <>
             {connections}
-            <circle
-                cx={dataPointViewState.bBox.x + 100}
-                cy={dataPointViewState.bBox.y}
-                r={5}
-                onClick={onDataPointClick}
-                className="default-circle"
-            />
+            {dataPointElement}
         </>
     )
 }
