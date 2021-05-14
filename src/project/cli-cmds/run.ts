@@ -11,6 +11,9 @@ function activateRunCommand() {
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (...args: any[]) => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN);
+            if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
+                await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+            }
 
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake && currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {

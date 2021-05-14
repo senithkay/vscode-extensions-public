@@ -14,6 +14,9 @@ export function activateTestRunner() {
     commands.registerCommand(PALETTE_COMMANDS.TEST, async (...args: any[]) => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_TEST, CMP_PROJECT_TEST);
+            if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
+                await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+            }
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
             if (ballerinaExtInstance.isSwanLake) {

@@ -7,7 +7,8 @@ export enum PALETTE_COMMANDS {
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     RUN = 'ballerina.project.run',
-    TEST = 'ballerina.project.test'
+    TEST = 'ballerina.project.test',
+    SAVE_ALL = 'workbench.action.files.saveFiles'
 }
 
 export enum BALLERINA_COMMANDS {
