@@ -37,8 +37,9 @@ export function Canvas(props: CanvasProps) {
                         refX="0"
                         refY="3.5"
                         orient="auto"
+                        fill="#5567d5"
                     >
-                        <polygon points="0 0, 10 3.5, 0 7" />
+                        <polygon points="0 0, 7 3.5, 0 7" />
                     </marker>
                 </defs>
                 <g>

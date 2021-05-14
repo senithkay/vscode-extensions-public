@@ -13,10 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { DefaultConfig } from '../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 import "../InputTypes/style.scss";
-// // tslint:disable-next-line: no-duplicate-imports
-// import "../InputTypes/style.scss";
+
+import { ExpressionBoxSVG, EXPRESSION_BOX_SVG_HEIGHT } from './ExpressionBoxSVG';
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
@@ -31,16 +33,22 @@ export function DataPoint(props: DataPointProps) {
         (dataPointViewState as SourcePointViewState).connections.forEach(connection => {
             connections.push(
                 <g>
-                    <line
-                        x1={connection.x1 + 100}
-                        x2={connection.x2 - 8 + 100}
-                        y1={connection.y1}
-                        y2={connection.y2}
-                        className="connect-line"
-                        markerEnd="url(#arrowhead)"
-                    />
+                    <g>
+                        <line
+                            x1={connection.x1 + PADDING_OFFSET}
+                            x2={connection.x2 - (DefaultConfig.dotGap) + PADDING_OFFSET}
+                            y1={connection.y1}
+                            y2={connection.y2}
+                            className="connect-line"
+                            markerEnd="url(#arrowhead)"
+                        />
+                    </g>
+                    <ExpressionBoxSVG x={connection.x2} y={connection.y2 - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
+                    <g>
+                        <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
+                        <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+                    </g>
                 </g>
-
             );
         })
     }
@@ -59,11 +67,6 @@ export function DataPoint(props: DataPointProps) {
                 onClick={onDataPointClick}
                 className="default-circle"
             />
-            {/* <g>
-                <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
-                <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
-            </g> */}
-
         </>
     )
 }

@@ -29,14 +29,14 @@ import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlay
 import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 
-// import sampleConfig from './sample-config.json';
+import "./components/InputTypes/style.scss";
+import sampleConfig from './sample-config.json';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
 import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { SourcePointViewState, TargetPointViewState } from './viewstate';
-import "./components/InputTypes/style.scss";
 
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
@@ -53,11 +53,11 @@ export function DataMapper(props: DataMapperProps) {
     const {
         stSymbolInfo,
         onMutate: dispatchMutations,
-        dataMapperConfig, // todo: revert
+        // dataMapperConfig, // todo: revert
         currentApp
     } = state
 
-    // const dataMapperConfig: any = sampleConfig; // todo: remove
+    const dataMapperConfig: any = sampleConfig; // todo: remove
     // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
     // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
@@ -224,6 +224,7 @@ export function DataMapper(props: DataMapperProps) {
                     y2={-5}
                     className="connect-line"
                     markerEnd="url(#arrowhead)"
+                    id="Arrow-head"
                 />
             </g>
             {/* {dataPoints} */}
