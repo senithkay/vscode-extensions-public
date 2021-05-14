@@ -220,7 +220,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             color: '#1D2028',
             letterSpacing: 0,
-            textTransform:'capitalize'
+            textTransform: 'capitalize'
         },
         mainTitleWrapper: {
             display: 'flex',
