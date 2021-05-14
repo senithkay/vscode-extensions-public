@@ -216,7 +216,8 @@ export function getParams(formFields: FormField[]): string[] {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
-            } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
+            } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
+                formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
                 let recordFieldsString: string = "";
@@ -446,7 +447,8 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             nextValueIndex++;
         } else {
             const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
-            if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" || formField.type === "float") {
+            if (formField.type === "string" || formField.type === "int" || formField.type === "boolean"
+                || formField.type === "float" || formField.type === "httpRequest") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression)) {
                     const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
                     formField.value = stringLiteral.literalToken.value;

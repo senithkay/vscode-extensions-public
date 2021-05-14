@@ -23,6 +23,7 @@ export { ExpressionEditor as float };
 export { ExpressionEditorArray as collection };
 export { ExpressionEditor as union };
 export { ExpressionEditor as map };
+export { ExpressionEditor as httpRequest };
 export { Record as record };
 export { FormJson as json };
 export { XML as xml };

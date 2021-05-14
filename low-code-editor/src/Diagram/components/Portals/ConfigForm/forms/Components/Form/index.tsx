@@ -50,7 +50,8 @@ export function Form(props: FormProps) {
     fields.map((field, index) => {
         if (!field.hide && (field.type === "string" || field.type === "record" || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
-            || field.type === "map" || field.type === "union" || field.type === "json")) {
+            || field.type === "map" || field.type === "union" || field.type === "json" ||
+            field.type === "httpRequest")) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,

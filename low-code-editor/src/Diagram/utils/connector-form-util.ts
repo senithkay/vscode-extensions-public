@@ -84,10 +84,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach((param) => {
                         if (param.name === "path") {
                             param.displayName = "Resource Path";
-                            param.value = "\"\"";
+                            param.value = "\"/\"";
                         } else if (param.name === "request") {
                             param.displayName = "Request";
-                            param.type = PrimitiveBalType.Record;
+                            param.type = "httpRequest";
                             param.typeInfo = httpRequest;
                         }
                     });
