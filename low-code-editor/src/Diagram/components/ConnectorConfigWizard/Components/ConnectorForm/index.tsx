@@ -481,7 +481,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                        <p className={wizardClasses.subTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                                        <p className={wizardClasses.manualConnectionTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
                                         <LinePrimaryButton
                                             className={wizardClasses.fullWidth}
                                             text={manualConnectionButtonLabel}

@@ -84,8 +84,14 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             color: "#222228",
         },
         subTitle: {
-            color: "#1D2028;",
+            color: "#1D2028",
             fontSize: 15,
+            textTransform: "capitalize",
+            fontWeight: 500,
+        },
+        manualConnectionTitle: {
+            color: "#1D2028",
+            fontSize: 13,
             textTransform: "capitalize",
             fontWeight: 500,
         },
