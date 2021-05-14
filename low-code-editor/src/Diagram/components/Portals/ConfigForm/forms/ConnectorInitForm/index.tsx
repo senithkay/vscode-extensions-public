@@ -40,7 +40,7 @@ export interface ConnectorInitFormProps {
 }
 
 export function ConnectorInitForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const {
         connector, typeDef, targetPosition, wizardType, fieldsForFunctions,
         config
@@ -118,7 +118,7 @@ export function ConnectorInitForm(props: any) {
                 modifications.push(addPayload);
             }
 
-            onMutate(modifications);
+            modifyDiagram(modifications);
         }
     };
 

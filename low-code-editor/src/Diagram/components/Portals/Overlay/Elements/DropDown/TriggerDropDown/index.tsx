@@ -54,7 +54,7 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { onModify } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved } = state;
     const { onClose, onComplete, title = "Select Trigger",
@@ -83,7 +83,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
             if (isEmptySource) {
                 // todo: handle dispatch
-                onModify(newTrigger);
+                modifyTrigger(newTrigger);
             } else {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
@@ -93,7 +93,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModify(selectedTrigger);
+        modifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);

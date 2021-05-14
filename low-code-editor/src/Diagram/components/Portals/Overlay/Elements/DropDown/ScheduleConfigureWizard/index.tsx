@@ -50,7 +50,7 @@ export interface ConnectorEvents {
 }
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
-  const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+  const { modifyTrigger } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
@@ -263,7 +263,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     // dispatch and close the wizard
     setTriggerChanged(true);
     const saveSelectedCron = cronForSelectedType();
-    onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+    modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
       "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),

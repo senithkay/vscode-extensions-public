@@ -47,7 +47,7 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const { trackAddStatement, stSymbolInfo, configOverlayFormStatus } = state;
 
@@ -88,7 +88,7 @@ export function EndConfigForm(props: any) {
                         modifications.push(updateRespond);
                         break;
                 }
-                onMutate(modifications);
+                modifyDiagram(modifications);
             } else {
                 if (endConfig.type === "Return") {
                     trackAddStatement(endConfig.type);
@@ -144,7 +144,7 @@ export function EndConfigForm(props: any) {
                     }
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onSave();
         }
     };

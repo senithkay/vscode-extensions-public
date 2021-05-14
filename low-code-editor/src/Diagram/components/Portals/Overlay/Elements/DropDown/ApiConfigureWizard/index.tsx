@@ -48,7 +48,7 @@ export interface ConnectorEvents {
 }
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
-  const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
@@ -162,7 +162,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (isNewService) {
       // dispatch and close the wizard
       setTriggerChanged(true);
-      onModify(TRIGGER_TYPE_API, undefined, {
+
+      modifyTrigger(TRIGGER_TYPE_API, undefined, {
         "PORT": 8090,
         "BASE_PATH": "/",
         "RES_PATH": currentPath,
@@ -188,7 +189,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       mutations.push(updatePropertyStatement(resource, updatePosition));
 
       setTriggerChanged(true);
-      onMutate(mutations);
+      modifyDiagram(mutations);
     }
   };
 

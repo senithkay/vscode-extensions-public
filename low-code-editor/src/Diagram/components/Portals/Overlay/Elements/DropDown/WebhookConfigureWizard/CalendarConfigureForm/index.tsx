@@ -51,7 +51,7 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
@@ -141,7 +141,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gcalendar",
             PORT: 8090,
             ACCESS_TOKEN: accessToken,
@@ -217,7 +217,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                                       }`;
             modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
             modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
-            onMutate(modifications);
+            modifyDiagram(modifications);
             setTriggerChanged(true);
         }
     };
