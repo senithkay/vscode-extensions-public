@@ -113,50 +113,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
 
-    let forwardReqField: FormField;
-    if (connectorConfig?.action?.name === "forward") {
-        actions.forEach((fields, name) => {
-            if (name === "forward") {
-                fields.parameters.forEach((field, key) => {
-                    if (field.name === "request") {
-                        forwardReqField = field;
-                    }
-                });
-            }
-        });
-    }
-
-    const onForwardReqChange = (value: string) => {
-        if (forwardReqField) {
-            forwardReqField.value = value;
-        }
-    };
-
-    const validateReqField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsGenFieldsFilled(!isInvalidFromField)
-    }
-
-    const reqField: FormField = {
-        name: "request",
-        displayName: "Request",
-        type: PrimitiveBalType.Record,
-        typeInfo: httpRequest,
-        value: forwardReqField?.value
-
-    }
-
-    const expElementProps: FormElementProps = {
-        model: reqField,
-        customProps: {
-            validate: validateReqField,
-            statementType: reqField.type
-        },
-        onChange: onForwardReqChange,
-    };
-
-    const forwardReq: ReactNode = (connectorConfig?.action?.name === "forward") ?
-        (<ExpressionEditor {...expElementProps} />) : null;
-
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
     const [payloadState, setPayloadState] = useState<PayloadState>(initialPayloadState);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(returnNameState.value);
@@ -258,7 +214,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     }
 
-    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "forward" &&
+    const selectedOperationParams = state && isFieldsAvailable && action.name &&
         (<Form fields={formFields} onValidate={onValidate} />);
 
     const onPayloadNameChange = (value: string) => {
@@ -541,7 +497,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
                                 <div className={classNames(classes.groupedForm, classes.marginTB)}>
                                     {selectedOperationParams}
-                                    {forwardReq}
                                 </div>
                                 <div className={classes.marginTB}>
                                     <FormTextInput

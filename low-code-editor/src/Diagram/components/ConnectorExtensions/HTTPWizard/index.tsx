@@ -160,9 +160,6 @@ export function HTTPWizard(props: WizardProps) {
                 const params: string[] = getParams(connectorConfig.action.fields);
                 let serviceCallParams: string = params.toString();
 
-                if (connectorConfig.action.name === "forward") {
-                    serviceCallParams += `, ${connectorConfig.action.fields.find(field => field.name === "request").value}`;
-                }
                 if (headerField?.value) {
                     // updating headers
                     serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
@@ -236,14 +233,11 @@ export function HTTPWizard(props: WizardProps) {
                     const params: string[] = getParams(connectorConfig.action.fields);
                     let serviceCallParams = params.toString();
 
-                    if (connectorConfig.action.name === "forward") {
-                        serviceCallParams += `, ${connectorConfig.action.fields.find(field => field.name === "request").value}`
-                    } else {
-                        // Header addition
-                        if (headerField.value) {
-                            serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
-                        }
+                    // Header addition
+                    if (headerField?.value) {
+                        serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
                     }
+
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "http:Response",
                         connectorConfig.action.returnVariableName,
