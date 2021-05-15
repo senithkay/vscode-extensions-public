@@ -422,6 +422,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             justifyContent: "space-between",
             marginTop: '-1.5rem !important'
-        }
+        },
+        removeInnerMargin: {
+            margin: '0.5rem 0 0 0 !important',
+            "& div": {
+                margin: '0 !important',
+                "& div": {
+                    margin: '0 !important',
+                    "& div": {
+                        margin: '0 !important',
+                    }
+                }
+            }
+        },
     }),
 );

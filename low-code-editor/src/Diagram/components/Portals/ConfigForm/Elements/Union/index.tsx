@@ -14,16 +14,13 @@
 import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { validate } from "@apidevtools/swagger-parser";
 import { FormHelperText } from "@material-ui/core";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
-import { getFormElement } from "../../../utils";
 import { Form } from "../../forms/Components/Form";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
-import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
@@ -45,22 +42,12 @@ export function Union(props: FormElementProps<UnionProps>) {
         }
     }, [ selectedType ]);
 
-    const getFieldName = (field: FormField): string => {
-        let name = field.label;
-        if (!name) {
-            name = field.name;
-        }
-        if (!name) {
-            name = field.typeInfo?.name;
-        }
 
-        return name;
-    };
 
     const getTypes = () => {
         const types: string[] = [];
         model.fields?.forEach((field: FormField, key: number) => {
-            const name = getFieldName(field);
+            const name = getUnionFormFieldName(field);
             if (name) {
                 types.push(name);
             }
@@ -71,7 +58,7 @@ export function Union(props: FormElementProps<UnionProps>) {
 
     const getSelectedFormField = () => {
         const selectedField: FormField = model.fields.find((field: FormField) => {
-            const name = getFieldName(field);
+            const name = getUnionFormFieldName(field);
             return name === selectedType;
         });
 
@@ -83,7 +70,11 @@ export function Union(props: FormElementProps<UnionProps>) {
         const selectedField = getSelectedFormField();
         model.selectedDataType = selectedType;
         if (selectedField && selectedField.type) {
-            element = <Form fields={selectedField.fields} onValidate={validateForm} />;
+            element = (
+                <div className={classes.removeInnerMargin}>
+                    <Form fields={selectedField.fields} onValidate={validateForm} />
+                </div>
+            );
         }
 
         return element;
@@ -133,4 +124,17 @@ export function Union(props: FormElementProps<UnionProps>) {
             {getElement()}
         </div>
     );
+}
+
+// get field name of the union record
+export function getUnionFormFieldName(field: FormField): string {
+    let name = field.label;
+    if (!name) {
+        name = field.name;
+    }
+    if (!name) {
+        name = field.typeInfo?.name;
+    }
+
+    return name;
 }

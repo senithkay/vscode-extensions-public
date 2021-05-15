@@ -166,22 +166,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
-        // case "ballerinax_github_Client":
-        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-        //         if (key === "createIssue") {
-        //             // make label list and assignee list optional and set default values
-        //             value.parameters.find(fields => fields.name === "labelList").optional = true;
-        //             value.parameters.find(fields => fields.name === "labelList").value = `[]`;
-        //             value.parameters.find(fields => fields.name === "assigneeList").optional = true;
-        //             value.parameters.find(fields => fields.name === "assigneeList").value = `[]`;
-        //             filteredFunctions.set(key, value);
-        //         } else if ((key !== "getColumnListNextPage") && (key !== "getIssueListNextPage")
-        //             && (key !== "getProjectListNextPage") && (key !== "getPullRequestListNextPage")) {
-        //             // todo: add these operations when bal connector class fetch support is there
-        //             filteredFunctions.set(key, value);
-        //         }
-        //     });
-        //     break;
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
@@ -220,198 +204,87 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerinax_googleapis.gmail_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    // replace single record inside "OAuth2RefreshTokenGrantConfig" record with inner field list
-                    const subFields = value.parameters.find(fields => fields.name === "gmailConfig")?.
-                        fields.find(fields => fields.name === "oauthClientConfig")?.
-                        fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields[ 0 ].fields;
-
-                    if (subFields) {
-                        value.parameters.find(fields => fields.name === "gmailConfig").
-                            fields.find(fields => fields.name === "oauthClientConfig").
-                            fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = subFields;
-                    }
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
+                    value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                        if (field.name === "contentType") {
+                            // set content type in sendMessage form
+                            field.value = `"text/plain"`;
+                        }
+                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
+                            field.hide = true;
+                            field.noCodeGen = true;
+                        }
+                    });
                 }
+                // hide optional fields from gmail forms
+                if (key === "readMessage") {
+                    value.parameters.find(fields => fields.name === "format").hide = true;
+                    value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
+                }
+                if (key === "listMessages") {
+                    value.parameters.find(fields => fields.name === "filter").hide = true;
+                }
+
                 filteredFunctions.set(key, value);
-                // if (key === "init") {
-                //     // replace single record inside "oauthClientConfig" record with inner field list
-                //     const subFields = value.parameters.find(fields => fields.name === "gmailConfig")
-                //         .fields.find(fields => fields.name === "oauthClientConfig").fields[ 0 ].fields;
 
-                //     value.parameters.find(fields => fields.name === "gmailConfig")
-                //         .fields.find(fields => fields.name === "oauthClientConfig").fields = subFields;
-                // }
-                // if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
-                //     value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
-                //         if (field.name === "contentType") {
-                //             // set content type in sendMessage form
-                //             field.value = `"text/plain"`;
-                //         }
-                //         if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
-                //             field.hide = true;
-                //             field.noCodeGen = true;
-                //         }
-                //     });
-                // }
-                // // hide optional fields from gmail forms
-                // if (key === "readMessage") {
-                //     value.parameters.find(fields => fields.name === "format").hide = true;
-                //     value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
-                // }
-                // if (key === "listMessages") {
-                //     value.parameters.find(fields => fields.name === "filter").hide = true;
-                // }
-
-                // filteredFunctions.set(key, value);
-
-                // // add default value to userId field
-                // let formField: FormField[] = [];
-                // // const state = store.getState();
-                // value.parameters[0].value = state.userInfo?.user?.email ? `"${state.userInfo?.user?.email}"` : undefined;
-                // formField = [value.parameters[0], ...formField];
+                // add default value to userId field
+                let formField: FormField[] = [];
+                // const state = store.getState();
+                value.parameters[0].value = state.userInfo?.user?.email ? `"${state.userInfo?.user?.email}"` : undefined;
+                formField = [value.parameters[0], ...formField];
             });
             break;
         case "ballerinax_googleapis.calendar_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    // replace single record inside "OAuth2RefreshTokenGrantConfig" record with inner field list
-                    const subFields = value.parameters.find(fields => fields.name === "calendarConfig")?.
-                        fields.find(fields => fields.name === "oauth2Config")?.
-                        fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields[ 0 ].fields;
-
-                    if (subFields) {
-                        value.parameters.find(fields => fields.name === "calendarConfig").
-                            fields.find(fields => fields.name === "oauth2Config").
-                            fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = subFields;
-                    }
+                if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
+                        if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
+                            (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
+                            field.hide = true;
+                        } else if (field.name === "attendees") {
+                            field.displayName = "Attendee Emails";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "quickAddEvent") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "sendUpdates")) {
+                            field.hide = true;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
+                    filteredFunctions.set(key, value);
                 }
-                filteredFunctions.set(key, value);
-                // if (key === "init"){
-                //     // replace single record inside "oauth2Config" record with inner field list
-                //     const subFields = value.parameters.find(fields => fields.name === "calendarConfig")
-                //     .fields.find(fields => fields.name === "oauth2Config").fields[0].fields;
-
-                //     value.parameters.find(fields => fields.name === "calendarConfig")
-                //     .fields.find(fields => fields.name === "oauth2Config").fields = subFields;
-
-                //     filteredFunctions.set(key, value);
-                // } else if (key === "createEvent" || key === "updateEvent") {
-                //     value.parameters.find(field => field.name === "event").fields.forEach((field) => {
-                //         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
-                //             (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
-                //             field.hide = true;
-                //         } else if (field.name === "attendees") {
-                //             field.displayName = "Attendee Emails";
-                //         }
-                //     });
-                //     filteredFunctions.set(key, value);
-                // } else if (key === "quickAddEvent") {
-                //     value.parameters.forEach((field) => {
-                //         if ((field.name === "sendUpdates")) {
-                //             field.hide = true;
-                //         }
-                //     });
-                //     filteredFunctions.set(key, value);
-                // } else if (key === "getEvents") {
-                //     value.parameters.forEach((field) => {
-                //         if ((field.name === "count")) {
-                //             field.value = "10";
-                //         }
-                //     });
-                //     filteredFunctions.set(key, value);
-                // } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
-                //     filteredFunctions.set(key, value);
-                // }
             });
             break;
-        case 'ballerinax_googleapis.sheets_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    // replace single record inside "OAuth2RefreshTokenGrantConfig" record with inner field list
-                    const subFields = value.parameters.find(fields => fields.name === "spreadsheetConfig")?.
-                        fields.find(fields => fields.name === "oauthClientConfig")?.
-                        fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields[ 0 ].fields;
-
-                    if (subFields) {
-                        value.parameters.find(fields => fields.name === "spreadsheetConfig").
-                            fields.find(fields => fields.name === "oauthClientConfig").
-                            fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = subFields;
-                    }
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
-        case "ballerinax_googleapis.drive_Client":
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    // replace single record inside "OAuth2RefreshTokenGrantConfig" record with inner field list
-                    const subFields = value.parameters.find(fields => fields.name === "driveConfig")?.
-                        fields.find(fields => fields.name === "clientConfig")?.
-                        fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields[ 0 ].fields;
-
-                    if (subFields) {
-                        value.parameters.find(fields => fields.name === "driveConfig").
-                            fields.find(fields => fields.name === "clientConfig").
-                            fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = subFields;
-                    }
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
-        // case 'ballerinax_twilio_Client':
-        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-        //         if (key === "init") {
-        //             value.parameters[0].fields.forEach((field) => {
-        //                 if ((field.name !== "accountSId") && (field.name !== "authToken") && (field.name !== "xAuthyKey")) {
-        //                     field.hide = true;
-        //                 }
-        //             });
-        //         }
-        //         filteredFunctions.set(key, value);
-        //     });
-        //     break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
-                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.forEach(subFields => {
-                        // replace single record inside "clientConfig" record with inner field list
-                        if (subFields.name === "clientConfig"){
-                            // HACK: a quick fix to show salesforce connector init form input fields. Need to fix form generation with inner level records
-                            subFields.fields =  subFields.fields[0].fields[0].fields;
-                            subFields.type = PrimitiveBalType.Record;
-                            subFields.isUnion = undefined;
-                            subFields.fields.find(field => field.name === "clientConfig").hide = true;
-                            subFields.fields.find(field => field.name === "scopes").hide = true;
-                            // subFields.fields.find(field => field.name === "defaultTokenExpInSeconds").hide = true;
-                            // subFields.fields.find(field => field.name === "clockSkewInSeconds").hide = true;
-                            subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
-                            subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
-                            subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
-                            subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                        }
-                        if (subFields.name === "secureSocketConfig"){
-                            subFields.hide = true;
-                        }
-                        if ((subFields.name === "baseUrl")) {
-                            subFields.tooltip = tooltipMessages.salesforce.baseURL
-                        }
+                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.
+                        find(fields => fields.name === "clientConfig").fields.
+                            find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields.forEach(subFields => {
+                                if (subFields.name === "clientConfig"){;
+                                    subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                                    subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
+                                    subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
+                                    subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
+                                }
+                                if ((subFields.name === "baseUrl")) {
+                                    subFields.tooltip = tooltipMessages.salesforce.baseURL
+                                }
                     });
                 }
                 filteredFunctions.set(key, value);
             });
             break;
-        // case 'ballerinax_slack_Client':
-        //     fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-        //         if (key === "init") {
-        //             value.parameters.find(field => field.name === "config")?.fields.forEach(field => {
-        //                 if (field.name === "secureSocketConfig"){
-        //                     field.hide = true;
-        //                 }
-        //             });
-        //         }
-        //         filteredFunctions.set(key, value);
-        //     });
-        //     break;
         case 'ballerinax_netsuite_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // HACK: use hardcoded FormFields until ENUM fix from lang-server

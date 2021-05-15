@@ -46,6 +46,7 @@ import * as Icons from "../../Connector/Icon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
+import { getUnionFormFieldName } from "../ConfigForm/Elements/Union";
 import * as Forms from "../ConfigForm/forms";
 import { FormElementProps } from "../ConfigForm/types";
 import * as OverlayElement from "../Overlay/Elements";
@@ -245,31 +246,30 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.hide && field.isUnion && field.value) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.hide && field.fields?.length > 1) {
+                    } else if (field.type === "union" && !field.hide && field.isUnion) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
-                            // get selected filed
                             const selectedField: FormField = field.fields?.find((subField: FormField) => {
-                                if (subField.label === field.selectedDataType) {return true}
-                                if (subField.name === field.selectedDataType) {return true}
-                                if (subField.typeInfo?.name === field.selectedDataType) {return true}
-                                return false;
+                                const fieldName = getUnionFormFieldName(subField);
+                                return fieldName === field.selectedDataType;
                             });
-                            const params = getParams([selectedField]);
-                            if (params && params.length > 0) {
+                            if (selectedField) {
+                                const params = getParams([ selectedField ]);
+                                if (params && params.length > 0) {
+                                    if (firstRecordField) {
+                                        recordFieldsString += ", ";
+                                    } else {
+                                        firstRecordField = true;
+                                    }
+                                    recordFieldsString += name + ": " + params;
+                                }
+                            } else if (field.value){
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
                                 } else {
                                     firstRecordField = true;
                                 }
-                                recordFieldsString += name + ": " + params;
+                                recordFieldsString += name + ": " + field.value;
                             }
                         }
                     } else if (field.type === "record" && !field.hide) {
@@ -296,6 +296,12 @@ export function getParams(formFields: FormField[]): string[] {
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }
+                // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
+                //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
+                //      here skip that RefreshTokenGrantConfig record form code string
+                if (paramString.includes("RefreshTokenGrantConfig")){
+                    paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
             } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
@@ -423,11 +429,22 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
-                        // mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
                         if (formField.type === "union"){
                             formField.fields.forEach(subFormField => {
                                 if (subFormField.type === "record" && subFormField.fields){
-                                    mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFormField.fields);
+                                    // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
+                                    //      it will generate empty formField. getParams() code-gen skip this empty FormField.
+                                    //      here skip that empty FormFiled and use inside field array
+                                    const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
+                                        subFormField.fields[0]?.fields : subFormField.fields;
+                                    if (subFields){
+                                        mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
+                                        // find selected data type using non optional field's value
+                                        const valueFilled = subFields.find(field => (field.optional === false && field.value));
+                                        if (valueFilled){
+                                            formField.selectedDataType = getUnionFormFieldName(subFormField);
+                                        }
+                                    }
                                 }
                             });
                         }else{
