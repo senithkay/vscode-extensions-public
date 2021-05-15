@@ -19,10 +19,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { GreyButton } from "../../../../components/Buttons/GreyButton";
-import { PrimaryButtonSquare } from "../../../../components/Buttons/PrimaryButtonSquare";
 import { CodeAction, CodeActionParams, TextDocumentEdit } from "monaco-languageclient";
 
+import { GreyButton } from "../../../../components/Buttons/GreyButton";
+import { PrimaryButtonSquare } from "../../../../components/Buttons/PrimaryButtonSquare";
 import { Context } from "../../../../Contexts/Diagram";
 
 import { useStyles } from "./style";
