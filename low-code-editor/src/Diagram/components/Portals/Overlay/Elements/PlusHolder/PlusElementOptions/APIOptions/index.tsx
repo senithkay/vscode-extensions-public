@@ -379,7 +379,7 @@ export function APIOptions(props: APIOptionsProps) {
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
+                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
                     <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">
@@ -396,7 +396,12 @@ export function APIOptions(props: APIOptionsProps) {
                 connectorInfo: connector,
                 component
             }
-            connectorComponents.push(connectorComponent);
+
+            // filter connectors due to maintenance
+            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs'];
+            if(!filletedConnectors.includes(connector.module)){
+                connectorComponents.push(connectorComponent);
+            }
         });
 
         const getConnector = (moduleName: string, name: string): BallerinaConnectorsInfo => {
