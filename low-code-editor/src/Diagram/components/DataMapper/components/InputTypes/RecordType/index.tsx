@@ -65,7 +65,7 @@ export function RecordType(props: RecordTypeProps) {
     return (
 
         <g id="RecodWrapper" className="my-class">
-            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height="30" className="data-wrapper" />
+            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height={viewState.bBox.h} width={viewState.bBox.w} className="data-wrapper" />
             {/* <line
                 x1={isMain ? viewState.bBox.x : viewState.bBox.x - (DEFAULT_OFFSET)}
                 y1={viewState.bBox.y + 20}

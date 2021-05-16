@@ -28,19 +28,21 @@ import { updatePropertyStatement } from '../../utils/modification-util';
 import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
+import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import "./components/InputTypes/style.scss";
-import sampleConfig from './sample-config.json';
+import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
-import { DataMapperInitVisitor as NewDataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
+import { DataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
-import { DataMapperPositionVisitor as NewDataMapperPositionVisitor } from './util/data-mapper-position-visitor';
+import { DataMapperPositionVisitor } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
-import { SourcePointViewState, TargetPointViewState } from './viewstate';
+import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
+import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
 
+import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
-// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 interface DataMapperProps {
     width: number;
 }
@@ -57,13 +59,14 @@ export function DataMapper(props: DataMapperProps) {
         currentApp
     } = state
 
-    const dataMapperConfig: any = sampleConfig; // todo: remove
+    // const dataMapperConfig: any = sampleConfig; // todo: remove
     // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
-    // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
+    const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
     const [isDataPointSelected, setIsDataPointSelected] = useState(false);
     const [selectedSource, setSelectedSource] = useState(undefined);
+    const [expressionConfig, setExpressionConfig] = useState(undefined);
     const [eventListenerMap] = useState<any>({});
     const drawingLineRef = useRef(null);
 
@@ -106,6 +109,8 @@ export function DataMapper(props: DataMapperProps) {
                 setIsDataPointSelected(true);
                 setSelectedSource(dataPointVS);
                 window.addEventListener('mousemove', eventListenerMap.mousemove);
+            } else if (!isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
+                // todo: handle logic to show expression editor
             }
         }
     }
@@ -144,31 +149,26 @@ export function DataMapper(props: DataMapperProps) {
     const inputComponents: JSX.Element[] = [];
     const outputComponent: JSX.Element[] = [];
 
+    let maxFieldWidth: number = 0
+    let inputHeight: number = 0;
+    let outputHeight: number = 0;
+
     if (selectedNode) {
+        /*
+         * flow:
+         * Run init visitors and set defaults for everything
+         * Run sizing visitor and calculate height and width for input and output seperately
+         * Run position visitor and set the positions
+         *
+         */
+
+        // start: Initialization
         const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
             addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
-        });
-
-        addTypeDescInfo(selectedNode, stSymbolInfo.recordTypeDescriptions);
-        traversNode(selectedNode, new NewDataMapperInitVisitor(VisitingType.OUTPUT));
-
-        if (selectedNode.dataMapperTypeDescNode) {
-            switch (selectedNode.dataMapperTypeDescNode.kind) {
-                case 'RecordTypeDesc': {
-                    (selectedNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
-                    })
-                }
-            }
-        }
-
-        const positionVisitor = new NewDataMapperPositionVisitor(15, 15);
-
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            traversNode(variableInfo.node, new NewDataMapperInitVisitor(VisitingType.INPUT));
+            traversNode(variableInfo.node, new DataMapperInitVisitor(VisitingType.INPUT));
 
             if (variableInfo.node.dataMapperTypeDescNode) {
                 switch (variableInfo.node.dataMapperTypeDescNode.kind) {
@@ -179,7 +179,63 @@ export function DataMapper(props: DataMapperProps) {
                     }
                 }
             }
+        });
 
+        addTypeDescInfo(selectedNode, stSymbolInfo.recordTypeDescriptions);
+        traversNode(selectedNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
+
+        if (selectedNode.dataMapperTypeDescNode) {
+            switch (selectedNode.dataMapperTypeDescNode.kind) {
+                case 'RecordTypeDesc': {
+                    (selectedNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
+                    })
+                }
+            }
+        }
+        // end: Initialization
+
+        // start: sizing visitor
+        const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
+        const dataMapperOutputSizingVisitor = new DataMapperSizingVisitor();
+
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+            const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+            traversNode(varSTNode, dataMapperInputSizingVisitor);
+        });
+
+        traversNode(selectedNode, dataMapperOutputSizingVisitor);
+
+        if (dataMapperInputSizingVisitor.getMaxWidth() < dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperOutputSizingVisitor.getMaxWidth();
+        } else if (dataMapperInputSizingVisitor.getMaxWidth() > dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        } else {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        }
+
+        dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo, i: number) => {
+            inputHeight += (variableInfo.node.dataMapperViewState as DataMapperViewState).bBox.h;
+            if (i < inputVariables.length - 1) {
+                inputHeight += 40 // todo: convert to constant
+            }
+        });
+
+        outputHeight = ((selectedNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
+        // end: sizing visitor
+
+
+        const positionVisitor = new DataMapperPositionVisitor(15, 15);
+
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             traversNode(variableInfo.node, positionVisitor);
             const { dataMapperViewState } = variableInfo.node;
             inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick }))
@@ -187,11 +243,11 @@ export function DataMapper(props: DataMapperProps) {
 
         // selected node visit
         positionVisitor.setHeight(15);
-        positionVisitor.setOffset(600);
+        positionVisitor.setOffset(maxFieldWidth + 400);
         traversNode(selectedNode, positionVisitor);
 
         // datapoint visitor
-        const dataPointVisitor = new DataPointVisitor(positionVisitor.getMaxOffset());
+        const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             traversNode(variableInfo.node, dataPointVisitor);
         });
@@ -205,13 +261,13 @@ export function DataMapper(props: DataMapperProps) {
     return (
         <>
             <g id="outputComponent">
-                <rect className="main-wrapper" width="280" height="300" rx="6" fill="green" x="640" y="60" />
-                <text className="main-title-text" x="660" y="85"> Output</text>
+                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight + 65} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
+                <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
 
                 {outputComponent}
             </g>
             <g id="inputComponents">
-                <rect className="main-wrapper" width="280" height="300" rx="6" x="80" y="60" />
+                <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight + 65} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
                 {inputComponents}
             </g>
@@ -228,29 +284,33 @@ export function DataMapper(props: DataMapperProps) {
                 />
             </g>
             {/* {dataPoints} */}
-            {/* <DiagramOverlayContainer>
-                <DiagramOverlay
-                    position={{ x: 15, y: 15 }}
-                >
-                    <div>
-                        hahaha
-                    </div>
-                </DiagramOverlay>
-                <DiagramOverlay
-                    position={{ x: width + (width / 2), y: -5 }}
-                >
-                    <div>
-                        hahaha
-                    </div>
-                </DiagramOverlay>
-                <DiagramOverlay
-                    position={{ x: width + (width / 2), y: -25 }}
-                >
-                    <div>
-                        hahaha
-                    </div>
-                </DiagramOverlay>
-            </DiagramOverlayContainer > */}
+            {
+                expressionConfig && (
+                    <DiagramOverlayContainer>
+                        <DiagramOverlay
+                            position={{ x: expressionConfig.positionX, y: expressionConfig.positionY }}
+                        >
+                            <div>
+                                hahaha
+                            </div>
+                        </DiagramOverlay>
+                        {/* <DiagramOverlay
+                                position={{ x: width + (width / 2), y: -5 }}
+                            >
+                                <div>
+                                    hahaha
+                                </div>
+                            </DiagramOverlay>
+                            <DiagramOverlay
+                                position={{ x: width + (width / 2), y: -25 }}
+                            >
+                                <div>
+                                    hahaha
+                                </div>
+                            </DiagramOverlay> */}
+                    </DiagramOverlayContainer >
+                )
+            }
         </>
     )
 

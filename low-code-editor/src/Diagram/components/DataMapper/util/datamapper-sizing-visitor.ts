@@ -10,9 +10,242 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ExplicitAnonymousFunctionExpression, Visitor } from '@ballerina/syntax-tree';
+import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
+import { expression } from 'joi';
 
-export class DatamapperSizingVisitor implements Visitor {
+import { DataMapperViewState, FieldViewState } from '../viewstate';
 
+const FIELD_HEIGHT: number = 40
+const FIELD_WIDTH: number = 200;
+const FIELD_OFFSET: number = 15;
+export class DataMapperSizingVisitor implements Visitor {
+    private hasTypeDescNode: boolean = false;
+    private offSet: number = 0;
+    private maxWidth: number = 0;
+    private viewstateMap: Map<string, DataMapperViewState> = new Map();
+    private nameparts: string[] = [];
+
+    beginVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.hasTypeDescNode = node.dataMapperTypeDescNode !== undefined;
+            this.nameparts.push(viewstate.name);
+
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+            viewstate.bBox.w = FIELD_WIDTH
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.expression)) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
+            let height: number = 0;
+
+            height += FIELD_HEIGHT; // title height
+
+            if (this.hasTypeDescNode) {
+                if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+                    const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const viewstate: FieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += viewstate.bBox.h;
+                    });
+                }
+            } else {
+                const expressionNode = node.expression;
+                if (STKindChecker.isMappingConstructor(expressionNode)) {
+                    expressionNode.fields.filter(field => !STKindChecker.isCommaToken(field)).forEach(field => {
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
+
+                        height += fieldVS.bBox.h;
+                    })
+                }
+            }
+
+            viewState.bBox.h = height;
+
+            // cleanup
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.expression)) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
+
+    beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.hasTypeDescNode = node.dataMapperTypeDescNode !== undefined;
+
+            this.nameparts.push(viewstate.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+
+            viewstate.bBox.w = FIELD_WIDTH
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer)) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitLocalVarDecl(node: LocalVarDecl) {
+        if (node.dataMapperViewState) {
+            const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
+            let height: number = 0;
+
+            height += FIELD_HEIGHT; // title height
+
+            if (this.hasTypeDescNode) {
+                if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+                    const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const viewstate: FieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += viewstate.bBox.h;
+                    });
+                }
+            } else {
+                const expressionNode = node.initializer;
+                if (STKindChecker.isMappingConstructor(expressionNode)) {
+                    expressionNode.fields.filter(field => !STKindChecker.isCommaToken(field)).forEach(field => {
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
+
+                        height += fieldVS.bBox.h;
+                    })
+                }
+            }
+
+            viewState.bBox.h = height;
+
+            // cleanup
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer)) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
+
+    beginVisitSpecificField(node: SpecificField) {
+        if (node.dataMapperViewState && !this.hasTypeDescNode) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.offSet += FIELD_OFFSET;
+            viewstate.bBox.h = FIELD_HEIGHT;
+            viewstate.bBox.w = this.offSet + FIELD_WIDTH;
+            this.nameparts.push(viewstate.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.valueExpr)) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitSpecificField(node: SpecificField) {
+        if (node.dataMapperViewState && !this.hasTypeDescNode) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            viewstate.bBox.h = FIELD_HEIGHT;
+            this.offSet -= FIELD_OFFSET;
+            const valueExpr = node.valueExpr;
+            let height: number = 0;
+            if (valueExpr) {
+                if (STKindChecker.isMappingConstructor(valueExpr)) {
+                    valueExpr.fields.filter(field => !STKindChecker.isCommaToken(field)).forEach(field => {
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
+
+                        height += fieldVS.bBox.h;
+                    })
+                }
+            }
+
+            viewstate.bBox.h += height;
+
+            // cleanup
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.valueExpr)) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
+
+    beginVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState && this.hasTypeDescNode) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            viewstate.bBox.h = FIELD_HEIGHT;
+            this.offSet += FIELD_OFFSET;
+            viewstate.bBox.w = this.offSet + FIELD_WIDTH;
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            this.nameparts.push(viewstate.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+
+            if (node.dataMapperTypeDescNode) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState && this.hasTypeDescNode) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            this.offSet -= FIELD_OFFSET;
+
+            if (node.dataMapperTypeDescNode) {
+                let height: number = 0;
+
+                if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+                    const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const fieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += fieldViewState.bBox.h;
+                    });
+
+                }
+
+                viewstate.bBox.h += height;
+            }
+
+            // clean up
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
+
+    getViewStateMap(): Map<string, DataMapperViewState> {
+        return this.viewstateMap;
+    }
+
+    getMaxWidth(): number {
+        return this.maxWidth;
+    }
+
+    generateDataPointName(nameParts: string[]) {
+        let name = '';
+
+        nameParts.forEach((part: string, i: number) => {
+            name += `${i !== 0 ? '.' : ''}${part}`;
+        });
+
+        return name;
+    }
 }
-
