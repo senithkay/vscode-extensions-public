@@ -394,8 +394,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         addCheckIcon: {
             marginRight: '6px',
             marginTop: '3px',
-            height: '16px',
-            width: '16px'
+            height: '20px',
+            width: '20px'
         },
         addCheckText: {
             fontSize: '13px !important',
@@ -406,7 +406,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         addCheckTextClickable: {
-            color: '#5567d5 !important',
+            color: '#ea4c4d !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'

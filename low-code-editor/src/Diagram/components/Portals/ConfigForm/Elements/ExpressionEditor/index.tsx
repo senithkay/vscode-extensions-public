@@ -804,7 +804,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     ) : addCheck ?
                         (
                             <div className={formClasses.addCheckWrapper} >
-                                <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
+                                <img className={formClasses.addCheckIcon} src="../../../../../../images/console-error.svg" />
                                 <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
