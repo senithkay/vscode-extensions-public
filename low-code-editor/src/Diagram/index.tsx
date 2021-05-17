@@ -144,8 +144,8 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
-    // const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
-    const child =  <DataMapper width={w} />;
+    const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
+    // const child =  <DataMapper width={w} />;
 
     return (
         <div id="canvas">
