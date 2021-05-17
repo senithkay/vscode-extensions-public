@@ -18,4 +18,5 @@ import { DataMapperViewState } from "./data-mapper-viewstate";
 export class TargetPointViewState extends DataMapperViewState {
     public position: DraftUpdatePosition;
     public value: string;
+    public type: string;
 }

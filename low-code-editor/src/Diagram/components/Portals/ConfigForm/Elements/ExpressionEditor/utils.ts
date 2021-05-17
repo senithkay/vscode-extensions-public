@@ -81,7 +81,7 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
         if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
             const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
             return {
-                line: functionBodyPosition.startLine + 1,
+                line: functionBodyPosition.endLine,
                 column: undefined
             }
         } else {

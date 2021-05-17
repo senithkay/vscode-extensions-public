@@ -40,7 +40,9 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
-            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.expression.position;
+            const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+            targetPoint.position = node.expression.position;
+            targetPoint.value = node.expression.source;
         }
     }
 
@@ -64,7 +66,9 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
-            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.initializer.position;
+            const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+            targetPoint.position = node.initializer.position;
+            targetPoint.value = node.initializer.source;
         }
     }
 
@@ -88,7 +92,9 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
-            this.targetPoints.get(this.generateDataPointName(this.nameParts)).position = node.valueExpr.position;
+            const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+            targetPoint.position = node.valueExpr.position;
+            targetPoint.value = node.valueExpr.source;
         }
     }
 
@@ -111,13 +117,13 @@ export class DataMapperMappingVisitor implements Visitor {
 
     beginVisitSimpleNameReference(node: SimpleNameReference) {
         if (node.dataMapperViewState) {
-            this.references.push(node.source);
+            this.references.push(node.source.trim());
         }
     }
 
     beginVisitFieldAccess(node: FieldAccess) {
         if (node.dataMapperViewState) {
-            this.references.push(node.source);
+            this.references.push(node.source.trim());
         }
     }
 
