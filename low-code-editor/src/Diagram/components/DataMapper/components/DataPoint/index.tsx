@@ -41,7 +41,7 @@ export function DataPoint(props: DataPointProps) {
                     <g>
                         <line
                             x1={connection.x1 + PADDING_OFFSET}
-                            x2={connection.x2 - 125 - (DefaultConfig.dotGap) + PADDING_OFFSET}
+                            x2={connection.x2 - (PADDING_OFFSET + 40)}
                             y1={connection.y1}
                             y2={connection.y2}
                             className="connect-line"
@@ -54,7 +54,7 @@ export function DataPoint(props: DataPointProps) {
         dataPointElement.push((
             <>
                 <g>
-                    <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
+                    <circle id="Oval-test" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
                     <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
                 </g>
             </>
@@ -62,22 +62,27 @@ export function DataPoint(props: DataPointProps) {
     } else if (dataPointViewState instanceof TargetPointViewState) {
         dataPointElement.push((
             <>
-                <ExpressionBoxSVG x={dataPointViewState.bBox.x - 25} y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
+                <rect className="connector-wrapper" x={dataPointViewState.bBox.x - 143} y={dataPointViewState.bBox.y - ((EXPRESSION_BOX_SVG_HEIGHT / 2) + 1.5)} width={88} height={36} rx={3} />
                 <g>
-                    <circle id="Oval" cx={dataPointViewState.bBox.x - 25} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
-                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x - 25} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
+                    <circle id="Oval-test2" cx={dataPointViewState.bBox.x + 85} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 85} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
+                </g>
+                <ExpressionBoxSVG x={dataPointViewState.bBox.x - 115} y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
+                <g>
+                    <circle id="Oval-test2" cx={dataPointViewState.bBox.x - 125} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x - 125} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
                 </g>
                 <line
-                    x1={dataPointViewState.bBox.x}
-                    x2={dataPointViewState.bBox.x + 100 - DefaultConfig.dotGap}
+                    x1={dataPointViewState.bBox.x - 65}
+                    x2={dataPointViewState.bBox.x + 80 - DefaultConfig.dotGap}
                     y1={dataPointViewState.bBox.y}
                     y2={dataPointViewState.bBox.y}
                     className="connect-line"
                     markerEnd="url(#arrowhead)"
                 />
                 <g>
-                    <circle id="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
-                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 100} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
+                    <circle id="Oval" cx={dataPointViewState.bBox.x - 70} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" />
+                    <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x - 70} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" />
                 </g>
             </>
         ))

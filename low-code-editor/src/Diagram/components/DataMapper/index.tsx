@@ -31,7 +31,8 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import "./components/InputTypes/style.scss";
-import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
+// import sampleConfig from './sample-config.json';
+// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
@@ -40,7 +41,7 @@ import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
 
-import sampleConfig from './sample-config.json';
+// import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
 interface DataMapperProps {
@@ -55,13 +56,13 @@ export function DataMapper(props: DataMapperProps) {
     const {
         stSymbolInfo,
         onMutate: dispatchMutations,
-        // dataMapperConfig, // todo: revert
+        dataMapperConfig, // todo: revert
         currentApp
     } = state
 
     // const dataMapperConfig: any = sampleConfig; // todo: remove
     // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
-    const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
+    // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
     const [isDataPointSelected, setIsDataPointSelected] = useState(false);

@@ -31,11 +31,12 @@ interface RecordTypeProps {
     model: STNode;
     isMain?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
+    offSet: number;
 }
 
 export function RecordType(props: RecordTypeProps) {
     const { state: { currentApp } } = useContext(DiagramContext);
-    const { model, isMain, onDataPointClick } = props;
+    const { model, isMain, onDataPointClick, offSet } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
@@ -45,12 +46,13 @@ export function RecordType(props: RecordTypeProps) {
 
     const fields: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
+    const OffestValue = 10;
 
     if (model.dataMapperTypeDescNode) {
         const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
         typeDescNode.fields.forEach((field: any) => {
             const fieldVS = field.dataMapperViewState
-            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick }));
+            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
         })
     }
 
@@ -65,7 +67,14 @@ export function RecordType(props: RecordTypeProps) {
     return (
 
         <g id="RecodWrapper" className="my-class">
-            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height={viewState.bBox.h} width={viewState.bBox.w} className="data-wrapper" />
+            <rect
+                render-order="-1"
+                x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (offSet + DEFAULT_OFFSET)}
+                y={viewState.bBox.y - 15}
+                height={viewState.bBox.h}
+                width={viewState.bBox.w}
+                className="data-wrapper"
+            />
             {/* <line
                 x1={isMain ? viewState.bBox.x : viewState.bBox.x - (DEFAULT_OFFSET)}
                 y1={viewState.bBox.y + 20}
