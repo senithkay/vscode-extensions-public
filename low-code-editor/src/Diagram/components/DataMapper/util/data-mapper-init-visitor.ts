@@ -13,6 +13,7 @@
 
 import {
     AssignmentStatement,
+    BinaryExpression,
     CaptureBindingPattern,
     FieldAccess,
     IdentifierToken,
@@ -77,6 +78,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewState.targetPointViewState = new TargetPointViewState();
                 viewState.targetPointViewState.position = node.expression.position;
                 viewState.targetPointViewState.value = node.expression.source;
+                viewState.targetPointViewState.type = viewState.type;
                 node.expression.dataMapperViewState = new DataMapperViewState();
             }
         }
@@ -134,6 +136,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewState.targetPointViewState = new TargetPointViewState();
                 viewState.targetPointViewState.position = node.initializer.position;
                 viewState.targetPointViewState.value = node.initializer.source;
+                viewState.targetPointViewState.type = viewState.type;
                 node.initializer.dataMapperViewState = new DataMapperViewState();
             }
         }
@@ -264,6 +267,7 @@ export class DataMapperInitVisitor implements Visitor {
             if (this.visitType === VisitingType.OUTPUT && !viewstate.targetPointViewState) {
                 viewstate.targetPointViewState = new TargetPointViewState();
                 viewstate.targetPointViewState.value = node.valueExpr.source;
+                viewstate.targetPointViewState.type = viewstate.type;
                 viewstate.targetPointViewState.position = node.valueExpr.position;
             }
 
@@ -273,5 +277,14 @@ export class DataMapperInitVisitor implements Visitor {
         if (this.visitType === VisitingType.INPUT) {
             viewstate.sourcePointViewState = new SourcePointViewState();
         }
+    }
+
+    beginVisitBinaryExpression(node: BinaryExpression) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperViewState();
+        }
+
+        node.lhsExpr.dataMapperViewState = new DataMapperViewState();
+        node.rhsExpr.dataMapperViewState = new DataMapperViewState();
     }
 }

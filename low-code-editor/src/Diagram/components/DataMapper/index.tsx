@@ -40,7 +40,12 @@ import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
 
-import sampleConfig from './sample-config.json';
+import ExpressionEditor from '../Portals/ConfigForm/Elements/ExpressionEditor';
+import { wizardStyles } from '../ConfigForms/style';
+import { SecondaryButton } from '../Portals/ConfigForm/Elements/Button/SecondaryButton';
+import { PrimaryButton } from '../Portals/ConfigForm/Elements/Button/PrimaryButton';
+
+// import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
 interface DataMapperProps {
@@ -55,19 +60,23 @@ export function DataMapper(props: DataMapperProps) {
     const {
         stSymbolInfo,
         onMutate: dispatchMutations,
-        // dataMapperConfig, // todo: revert
+        dataMapperConfig, // todo: revert
         currentApp
     } = state
+    const overlayClasses = wizardStyles();
+
 
     // const dataMapperConfig: any = sampleConfig; // todo: remove
     // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
-    const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
+    // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
     const { width } = props;
     const [appRecordSTMap, setAppRecordSTMap] = useState<Map<string, STNode>>(new Map());
     const [isDataPointSelected, setIsDataPointSelected] = useState(false);
-    const [selectedSource, setSelectedSource] = useState(undefined);
+    const [selectedDataPoint, setSelectedDataPoint] = useState(undefined);
     const [expressionConfig, setExpressionConfig] = useState(undefined);
     const [eventListenerMap] = useState<any>({});
+    const [isExpressionValid, setIsExpressionValid] = useState(true);
+    const [expressionEditorText, setExpressionEditorText] = useState(undefined);
     const drawingLineRef = useRef(null);
 
     const onSave = (modifications: STModification[]) => {
@@ -92,14 +101,14 @@ export function DataMapper(props: DataMapperProps) {
 
             if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
                 setIsDataPointSelected(false);
-                setSelectedSource(undefined);
+                setSelectedDataPoint(undefined);
                 window.removeEventListener("mousemove", eventListenerMap.mousemove);
                 eventListenerMap.mousemove = undefined;
                 drawingLineRef.current.setAttribute('x1', -5);
                 drawingLineRef.current.setAttribute('x2', -5);
                 drawingLineRef.current.setAttribute('y1', -5);
                 drawingLineRef.current.setAttribute('y2', -5);
-                onSave([updatePropertyStatement(selectedSource.text, dataPointVS.position)])
+                onSave([updatePropertyStatement(selectedDataPoint.text, dataPointVS.position)])
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
                 drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x + 100);
@@ -107,12 +116,55 @@ export function DataMapper(props: DataMapperProps) {
                 drawingLineRef.current.setAttribute('y1', dataPointVS.bBox.y);
                 drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
                 setIsDataPointSelected(true);
-                setSelectedSource(dataPointVS);
+                setSelectedDataPoint(dataPointVS);
                 window.addEventListener('mousemove', eventListenerMap.mousemove);
             } else if (!isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
+                const validateFunction = (name: string, validity: boolean) => {
+                    setIsExpressionValid(validity);
+                }
+
+                const onChange = (value: string) => {
+                    setExpressionEditorText(value);
+                }
+
                 // todo: handle logic to show expression editor
+                setExpressionConfig({
+                    positionX: dataPointVS.bBox.x,
+                    positionY: dataPointVS.bBox.y,
+                    config: {
+                        model: {
+                            name: 'expression',
+                            displayName: 'expression',
+                            type: dataPointVS.type
+                        },
+                        customProps: {
+                            validate: validateFunction,
+                            tooltipTitle: '',
+                            tooltipActionText: '',
+                            tooltipActionLink: '',
+                            interactive: true,
+                            statementType: PrimitiveBalType.String
+                        },
+                        onChange,
+                        defaultValue: dataPointVS.value,
+                    }
+                });
+                setSelectedDataPoint(dataPointVS);
             }
         }
+    }
+
+    const expressionEditorOnCancel = () => {
+        setExpressionConfig(undefined);
+        setExpressionEditorText(undefined);
+        setIsExpressionValid(false);
+    }
+
+    const expressionEditorOnSave = () => {
+        onSave([updatePropertyStatement(expressionEditorText, selectedDataPoint.position)]);
+        setExpressionConfig(undefined);
+        setExpressionEditorText(undefined);
+        setIsExpressionValid(false);
     }
 
     let outputType: string = '';
@@ -254,7 +306,7 @@ export function DataMapper(props: DataMapperProps) {
 
         traversNode(selectedNode, dataPointVisitor);
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
-
+        // debugger;
         outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick }))
     }
 
@@ -284,33 +336,30 @@ export function DataMapper(props: DataMapperProps) {
                 />
             </g>
             {/* {dataPoints} */}
-            {
-                expressionConfig && (
-                    <DiagramOverlayContainer>
+
+            <DiagramOverlayContainer>
+                {
+                    expressionConfig && (
                         <DiagramOverlay
                             position={{ x: expressionConfig.positionX, y: expressionConfig.positionY }}
                         >
-                            <div>
-                                hahaha
+                            <div className='main-wrapper' style={{ width: 300, padding: 15, background: 'white' }}>
+                                <ExpressionEditor {...expressionConfig.config} />
+                                <div className={overlayClasses.buttonWrapper}>
+                                    <SecondaryButton text="Cancel" fullWidth={false} onClick={expressionEditorOnCancel} />
+                                    <PrimaryButton
+                                        disabled={isExpressionValid}
+                                        dataTestId={"datamapper-save-btn"}
+                                        text={"Save"}
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnSave}
+                                    />
+                                </div>
                             </div>
                         </DiagramOverlay>
-                        {/* <DiagramOverlay
-                                position={{ x: width + (width / 2), y: -5 }}
-                            >
-                                <div>
-                                    hahaha
-                                </div>
-                            </DiagramOverlay>
-                            <DiagramOverlay
-                                position={{ x: width + (width / 2), y: -25 }}
-                            >
-                                <div>
-                                    hahaha
-                                </div>
-                            </DiagramOverlay> */}
-                    </DiagramOverlayContainer >
-                )
-            }
+                    )
+                }
+            </DiagramOverlayContainer >
         </>
     )
 

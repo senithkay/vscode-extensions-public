@@ -65,6 +65,7 @@ export class DataPointVisitor implements Visitor {
             if (viewState.targetPointViewState) {
                 viewState.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewState.targetPointViewState.bBox.y = viewState.bBox.y;
+                viewState.targetPointViewState.type = viewState.type;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewState.targetPointViewState);
             }
         }
@@ -93,6 +94,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.targetPointViewState) {
                 viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.targetPointViewState.type = viewstate.type;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
         }
@@ -120,6 +122,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.targetPointViewState) {
                 viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.targetPointViewState.type = viewstate.type;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
         }
@@ -146,6 +149,7 @@ export class DataPointVisitor implements Visitor {
             if (viewstate.targetPointViewState) {
                 viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.targetPointViewState.type = viewstate.type;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
         }
