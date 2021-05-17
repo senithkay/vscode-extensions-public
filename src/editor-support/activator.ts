@@ -19,6 +19,7 @@
 import { languages } from "vscode";
 import { BallerinaExtension, LANGUAGE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
+import { ReadOnlyFileProvider } from "./readonly-file-provider";
 import { StringSplitFeature, StringSplitter } from "./split-provider";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -31,4 +32,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }], new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
+
+    // Create a read only file provider
+    new ReadOnlyFileProvider(ballerinaExtInstance).markReadOnlyFiles();
 }
