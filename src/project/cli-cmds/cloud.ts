@@ -51,7 +51,7 @@ const CLOUD_TOML_DEFAULT_CONTENT = `# This file contains most used configeration
 #port = 9090
 #path = "/probe/live"
 #
-#[[cloud.deployment.storage.volumes]]
+#[cloud.deployment.storage.volumes]
 #name = "volume1"
 #local_path = "files"
 #size = "2Gi"
