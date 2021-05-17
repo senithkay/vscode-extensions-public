@@ -16,3 +16,4 @@
  * under the License.
  */
 export * from "./activator";
+export * from "./model";
