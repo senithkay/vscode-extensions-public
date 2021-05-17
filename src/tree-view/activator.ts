@@ -57,7 +57,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     ballerinaExtInstance.onPackageTreeElementClicked((construct: ConstructIdentifier) => {
-        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
+        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.MAIN_FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
             showDiagramEditor(ballerinaExtInstance.context!, ballerinaExtInstance, construct.startLine,
                 construct.startColumn, construct.kind, construct.name, construct.filePath);
         }

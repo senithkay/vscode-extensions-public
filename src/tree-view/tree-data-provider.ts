@@ -147,7 +147,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
             serviceNodes.forEach(service => {
                 components.push(new PackageTreeItem(service.name, `${service.filePath}`,
-                    TreeItemCollapsibleState.Collapsed, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                    TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
                     parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
                     parent, { resources: service.resources }, service.startLine, service.startColumn));
             });
@@ -158,7 +158,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             let count: number = 0;
             serviceNodesWithoutName.forEach(service => {
                 components.push(new PackageTreeItem(`${CMP_KIND.SERVICE} ${++count}`, `${service.filePath}`,
-                    TreeItemCollapsibleState.Collapsed, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                    TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
                     parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
                     parent, { resources: service.resources }, service.startLine, service.startColumn));
             });
