@@ -123,7 +123,7 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
     // check if message contains temp_Expression
     let typeCheck = false;
     Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
-        if ((diagnostic.message as string).includes(varName) && varType === "var") {
+        if ((diagnostic.message).includes(varName) && varType === "var") {
             typeCheck = true;
             return
         }
