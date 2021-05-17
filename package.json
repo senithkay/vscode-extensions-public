@@ -138,6 +138,9 @@
             {
                 "type": "ballerina",
                 "label": "Ballerina Debug",
+                "languages": [
+                    "ballerina"
+                ],
                 "program": "/usr/local/Cellar/ballerina/0.991.0/libexec/lib/tools/debug-adapter/launcher/debug-adapter-launcher.sh",
                 "configurationAttributes": {
                     "launch": {
