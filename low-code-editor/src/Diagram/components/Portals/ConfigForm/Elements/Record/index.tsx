@@ -78,6 +78,7 @@ export function Record(props: FormElementProps<RecordProps>) {
     */}
             <FormAccordion
                 title={modelName}
+                depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
             />

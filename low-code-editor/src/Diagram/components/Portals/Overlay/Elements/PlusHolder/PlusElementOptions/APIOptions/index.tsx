@@ -18,7 +18,7 @@ import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
 import Tooltip from "../../../../../../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
 import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
@@ -52,7 +52,7 @@ export interface ExisitingConnctorComponent {
 }
 
 export function APIOptions(props: APIOptionsProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { connectors, stSymbolInfo, targetPosition, viewState } = state;
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");

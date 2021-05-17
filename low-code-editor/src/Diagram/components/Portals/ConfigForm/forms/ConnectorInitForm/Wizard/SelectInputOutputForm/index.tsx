@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../utils";
@@ -54,7 +54,7 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, syntaxTree, stSymbolInfo } = state;
     const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");

@@ -18,7 +18,7 @@ import { FormControl } from "@material-ui/core";
 
 import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -50,7 +50,7 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard,
             homePageEnabled, onSaveNext } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
         connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;

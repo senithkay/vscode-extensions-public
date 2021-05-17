@@ -22,7 +22,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context } from "../../../../Contexts/Diagram"
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
@@ -76,7 +76,7 @@ enum FormStates {
 }
 
 export function GmailWizard(props: WizardProps) {
-    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(DiagramContext);
+    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(Context);
 
     const wizardClasses = wizardStyles();
     const classes = useStyles();

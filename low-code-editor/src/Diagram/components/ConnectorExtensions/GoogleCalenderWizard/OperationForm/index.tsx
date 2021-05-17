@@ -20,7 +20,7 @@ import classNames from 'classnames';
 
 import { ConnectionDetails } from "../../../../../api/models";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
+import { Context } from '../../../../../Contexts/Diagram';
 import { Gcalendar } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import {CirclePreloader} from "../../../../../PreLoader/CirclePreloader";
@@ -52,8 +52,8 @@ export interface OperationFormProps {
 export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
             onOperationChange, mutationInProgress, isManualConnection, isNewConnectorInitWizard,
-            connectionInfo, hasReturn } = props;
-    const { state } = useContext(DiagramContext);
+            connectionInfo } = props;
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, currentApp, getGcalendarList } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();

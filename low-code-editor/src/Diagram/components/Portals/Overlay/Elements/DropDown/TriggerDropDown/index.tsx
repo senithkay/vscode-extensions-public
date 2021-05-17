@@ -18,7 +18,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
-import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
+import { Context } from '../../../../../../../Contexts/Diagram';
 import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
@@ -30,6 +30,7 @@ import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from 'react-intl';
+import { DiagramContext } from "../../../../../../../providers/contexts";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -52,9 +53,10 @@ export enum ConnectorType {
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
+    const { onModify } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved } = state;
     const { onClose, onComplete, title = "Select Trigger",
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
@@ -81,7 +83,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
             if (isEmptySource) {
                 // todo: handle dispatch
-                onModifyTrigger(newTrigger);
+                onModify(newTrigger);
             } else {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
@@ -91,7 +93,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModifyTrigger(selectedTrigger);
+        onModify(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
