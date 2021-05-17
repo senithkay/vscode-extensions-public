@@ -175,7 +175,7 @@ export function CreateEvent(props: OperationDropdownProps) {
 
     const chooseCalendarPlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GCalendar.chooseCalendar.placeholder",
-        defaultMessage: "Choose Calendar"
+        defaultMessage: "Choose calendar"
     });
 
     const startDateLabel = intl.formatMessage({

@@ -12,18 +12,59 @@
  */
 .respond-contect-wrapper {
     .respond-wrapper {
-        rect {
-            fill: #5567d5;
-        }
+        .respond {
+            .respond-comp {
+                rect {
+                    stroke: #5567d5;
+                    stroke-miterlimit: 10;
+                    stroke-width: 1;
+                    fill: url(#linear-gradient) #fafafc;
+                    filter: url(#RespondFilter) #fafafc;
+                }
 
-        user-select: none;
+                text {
+                    tspan {
+                        fill: #5567d5;
+                        font-family: inherit;
+                        font-size: 12px;
+                        letter-spacing: 0;
+                        line-height: 12px;
+                        font-weight: 100;
+                    }
+                }
 
-        text {
-            fill: #fff !important;
-            font-size: 10px !important;
-            font-family: inherit;
-            letter-spacing: 0.05em !important;
-            font-weight: 600 !important;
+                &:hover {
+                    rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9;
+                        fill: url(#linear-gradient) #fafafc;
+                        filter: none;
+                    }
+
+                    .click-effect {
+                        stroke-width: 1px !important;
+                        stroke: #5566d5 !important;
+                    }
+                }
+
+                &:active {
+                    rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9;
+                        fill: url(#linear-gradient) #fafafc;
+                        filter: none;
+                    }
+
+                    .click-effect {
+                        stroke-width: 1px !important;
+                        stroke: #5566d5 !important;
+                    }
+                }
+            }
         }
     }
 
@@ -34,25 +75,50 @@
         height: 30px;
 
         .disable {
-            pointer-events: none !important;
             opacity: 0.5;
+        }
 
-            &:hover {
-                cursor: none !important;
-            }
+        .respond-rect {
+            fill: #fafafc;
+            height: 15px;
+            width: 60px;
         }
     }
 
     &:hover {
         .respond-options-wrapper {
             display: inline !important;
-            fill: #5567d5;
         }
 
-        .respond-rect {
-            fill: #5567d5;
-            height: 20px;
-            width: 60px;
+        .respond-active {
+
+            /* stylelint-disable */
+            rect {
+                cursor: pointer;
+                stroke: #c0ceff8a;
+                stroke-miterlimit: 10;
+                stroke-width: 9;
+                fill: url(#linear-gradient) #fafafc;
+                filter: none;
+            }
+
+            .click-effect {
+                stroke-width: 1px !important;
+                stroke: #5566d5 !important;
+            }
+
+            text {
+                tspan {
+                    fill: #5567d5;
+                    font-family: inherit;
+                    font-size: 12px;
+                    letter-spacing: 0;
+                    line-height: 12px;
+                    font-weight: 100;
+                }
+            }
+
+            /* stylelint-enable */
         }
     }
 }

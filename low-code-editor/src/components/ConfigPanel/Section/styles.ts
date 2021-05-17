@@ -10,21 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { makeStyles } from '@material-ui/core/styles';
 
-export const useStyles = makeStyles({
+import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+
+export const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
     sectionWrapper: {
-        marginBottom: 15,
+        marginBottom: '0.5rem',
         "& .MuiFormControl-marginNormal": {
-            margin: '0 !important'
+            margin: '0 !important',
         }
     },
     sectionTitle: {
-        height: 10,
-        color: "#686b73",
-        fontSize: 10,
-        letterSpacing: 1,
-        textTransform: "uppercase",
-        margin: "0 0 15px"
-    },
-});
+        fontSize: '14px',
+        letterSpacing: 'normal',
+        textTransform: 'capitalize',
+        margin: '0 0 8px',
+        fontFamily: 'Gilmer',
+        lineHeight: '1rem',
+        paddingBottom: '0.6rem'
+    }
+}),
+);

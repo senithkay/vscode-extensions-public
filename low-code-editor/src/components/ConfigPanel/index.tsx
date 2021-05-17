@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import CloseIcon from "@material-ui/icons/Close";
+import { CloseIcon } from "../../assets/icons";
 
 import { useStyles } from "./styles";
 

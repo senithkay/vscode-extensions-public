@@ -11,23 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-// tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from "react";
-import { FormHelperText, Link } from "@material-ui/core";
+import { FormattedMessage, useIntl } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
-
+import { FormHelperText } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
 import grammar from "../../../../../../ballerina.monarch.json";
+import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
+import { Context } from "../../../../../../Contexts/Diagram";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
-import { useStyles as useTextInputStyles } from "../TextField/style";
-import { TooltipIcon, TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
@@ -36,13 +36,12 @@ import {
     addToTargetLine,
     addToTargetPosition,
     createContentWidget,
+    createSortText,
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
     transformFormFieldTypeToString
 } from "./utils";
-import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
-import { FormattedMessage, useIntl } from "react-intl";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -130,10 +129,13 @@ export interface ExpressionEditorProps {
     }
     expandDefault?: boolean;
     revertClearInput?: () => void;
+    hideTextLabel?: boolean;
+    changed?: boolean;
+    subEditor?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
 
     const {
         diagnostics: mainDiagnostics,
@@ -161,21 +163,20 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput  } = customProps;
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor } = customProps;
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [ expand, setExpand ] = useState(expandDefault || false);
     const [ addCheck, setAddCheck ] = useState(false);
+    const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
-    const mockedCodeSnippet = "\n var tempVarTempVarTempVarAtEnd" + getRandomInt(1000) + " =  100;\n"; // FIXME: Remove this once compiler perf is improved for this case
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
-    const textFieldClasses = useTextInputStyles();
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
 
@@ -254,6 +255,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (monacoRef.current) {
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
+                setCursorOnEditor(true);
                 handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
             }));
 
@@ -295,8 +297,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                             return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (acceptedKind.includes(completionResponse.kind as CompletionItemKind) && completionResponse.label !== varName && completionResponse.label !== model.aiSuggestion && completionResponse.label !== "main()"))
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse) => {
+                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
+                                    completionResponse.label !== varName &&
+                                    completionResponse.label !== model.aiSuggestion &&
+                                    completionResponse.label !== "main()"
+                                ));
+                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
                                     return {
                                         range: null,
                                         label: completionResponse.label,
@@ -304,7 +311,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         insertText: completionResponse.insertText,
                                         insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'c'
+                                        sortText: createSortText(order)
                                     }
                                 });
                                 if (varType === "string") {
@@ -315,7 +322,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         // tslint:disable-next-line: no-invalid-template-strings
                                         insertText: '"${1:}"',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
                                 }
@@ -326,7 +333,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         kind: monaco.languages.CompletionItemKind.Keyword,
                                         insertText: 'true',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     const completionItemTemplate1: monaco.languages.CompletionItem = {
                                         range: null,
@@ -334,7 +341,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         kind: monaco.languages.CompletionItemKind.Keyword,
                                         insertText: 'false',
                                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: 'b'
+                                        sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
                                     completionItems.push(completionItemTemplate1);
@@ -345,7 +352,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         label: model.aiSuggestion,
                                         kind: 1 as CompletionItemKind,
                                         insertText: model.aiSuggestion,
-                                        sortText: 'a'
+                                        sortText: '1'
                                     }
                                     completionItems.push(completionItemAI);
                                 }
@@ -404,6 +411,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 const editorModel = monacoRef.current.editor.getModel();
                 if (editorModel) {
                     editorModel.setValue("");
+
+                    // update the change of the field
+                    model.value = "";
+                    if (onChange) {
+                        onChange("");
+                    }
+
                     revertClearInput()
                 }
             }
@@ -414,17 +428,88 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         handleDiagnostic();
     }, [expressionEditorState.diagnostic])
 
+    useEffect(() => {
+        if (monacoRef.current && changed !== undefined) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel && model.value) {
+                editorModel.setValue(model.value);
+                validateAndRevert(model.value, monacoRef.current.editor.getModel().getEOL());
+            }
+        }
+    }, [changed])
+
+    // Use this function to validate the expression editor from another component. File content will revert after validating
+    const validateAndRevert = async (currentContent: string, EOL: string) => {
+        let initContent: string = null;
+        if (model.optional === true && (currentContent === undefined || currentContent === "")) {
+            // No need to send didChange with the template because this is an optional field and empty content is allowed.
+            return
+        } else {
+            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addImportModuleToCode(initContent, model);
+        }
+
+        expressionEditorState.name = model.name;
+        expressionEditorState.content = initContent;
+        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
+                }
+            });
+        });
+
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.diagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            }).then((diagResp: any) => {
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                })
+            });
+        });
+
+        // Revert the file content
+        expressionEditorState.content = atob(currentFile.content);
+
+        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
+                    }
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
+                }
+            });
+        });
+    }
+
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
         let initContent: string = null;
         if (model.optional === true && (currentContent === undefined || currentContent === "")) {
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
-            const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
+            const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         } else {
-            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
@@ -476,24 +561,24 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
+        if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
     }
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        if (expressionEditorState?.name === model.name) {
+        if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
-                const newCodeSnippet: string = " ".repeat(snippetTargetPosition) + "\n" + mockedCodeSnippet;
+                const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
-                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+                const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
                 newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             }
@@ -551,7 +636,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            if (currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) {
+            if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
         }
@@ -578,6 +663,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     }
                 });
             });
+
+            setCursorOnEditor(false);
+            if (subEditor) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 
@@ -680,54 +770,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     return (
         <>
-            {textLabel ?
-                (model && model.optional ?
-                    (
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.inputWrapper}>
-                                <div className={textFieldClasses.labelWrapper}>
-                                    <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>
-                                </div>
-                                {(customProps?.tooltipTitle || model?.tooltip) &&
-                                    (
-                                        <div>
-                                            <TooltipIcon
-                                                title={customProps?.tooltipTitle || model?.tooltip}
-                                                interactive={customProps?.interactive || true}
-                                                actionText={customProps?.tooltipActionText}
-                                                actionLink={customProps?.tooltipActionLink}
-                                                arrow={true}
-                                            />
-                                        </div>
-                                    )
-                                }
-                            </div>
-                        </div>
-                    ) : (
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.labelWrapper}>
-                                <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
-                            </div>
-                            {(customProps?.tooltipTitle || model?.tooltip) &&
-                                (
-                                    <TooltipIcon
-                                        title={model?.tooltip}
-                                        interactive={customProps?.interactive || true}
-                                        actionText={customProps?.tooltipActionText}
-                                        actionLink={customProps?.tooltipActionLink}
-                                        arrow={true}
-                                    />
-                                )
-                            }
-                        </div>
-                    )
-                ) : null
-            }
-            <div className="exp-container" style={expand ? {height: '114px'} : {height: '32px'}}>
+            <ExpressionEditorLabel {...props} />
+            <div className="exp-container" style={{height: expand ? '114px' : '32px'}}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={expand ? {height: '100px'} : {height: '32px'}} >
+                    <div className="exp-editor" style={{height: expand ? '100px' : '32px'}} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -739,26 +785,27 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            {invalidSourceCode ?
-                (
-                    <>
-                        <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
-                            <FormHelperText className={formClasses.invalidCode}>{handleError(mainDiagnostics)}</FormHelperText>
-                        </TooltipCodeSnippet>
-                        <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occured in the code-editor. Please fix it first to continue."/></FormHelperText>
-                    </>
-                ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
+            {subEditor && !cursorOnEditor ? null :
+                invalidSourceCode ?
                     (
-                        <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                            <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                        </TooltipCodeSnippet>
-                    ) : addCheck ?
+                        <>
+                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
+                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
+                            </TooltipCodeSnippet>
+                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
+                        </>
+                    ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                         (
-                            <div className={formClasses.addCheckWrapper} >
-                                <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
-                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
-                            </div>
-                        ) : null
+                            <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                <FormHelperText className={formClasses.invalidCode}  data-testid='expr-diagnostics'>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                            </TooltipCodeSnippet>
+                        ) : addCheck ?
+                            (
+                                <div className={formClasses.addCheckWrapper} >
+                                    <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
+                                    <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
+                                </div>
+                            ) : null
             }
         </>
     );

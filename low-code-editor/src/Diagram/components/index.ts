@@ -14,7 +14,7 @@ import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
-import { ModulePart } from "./ModulePart";
+import { ModulePartComponent } from "./ModulePart";
 import { Statement } from "./Statement";
 import { While } from './While';
 
@@ -24,7 +24,8 @@ export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
+export { Statement as DoStatement };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
-export { ModulePart as ModulePart};
+export { ModulePartComponent as ModulePart};
 export { While as WhileStatement };

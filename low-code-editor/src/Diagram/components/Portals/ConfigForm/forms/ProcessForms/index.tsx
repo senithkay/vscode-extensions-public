@@ -17,8 +17,8 @@ import React, { useContext } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../../../providers/contexts";
 import {
     createImportStatement,
     createLogStatement,
@@ -41,7 +41,7 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { onMutate: dispatchMutations } = useContext(DiagramContext).state;
+    const { onMutate } = useContext(DiagramContext).callbacks;
 
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddProcessFormProps;
 
@@ -105,7 +105,7 @@ export function ProcessConfigForm(props: any) {
                 }
             }
         }
-        dispatchMutations(modifications);
+        onMutate(modifications);
     };
 
     return (

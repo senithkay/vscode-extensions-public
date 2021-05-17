@@ -17,7 +17,8 @@ import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { DiagramContext } from "../../../../providers/contexts";
+import { Context } from "../../../../Contexts/Diagram";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { STModification } from "../../../../Definitions";
@@ -46,9 +47,9 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { state } = useContext(DiagramContext);
-    const { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo, configOverlayFormStatus } = state;
-
+    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
+    const { trackAddStatement, stSymbolInfo, configOverlayFormStatus } = state;
 
     const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -87,7 +88,7 @@ export function EndConfigForm(props: any) {
                         modifications.push(updateRespond);
                         break;
                 }
-                dispatchMutations(modifications);
+                onMutate(modifications);
             } else {
                 if (endConfig.type === "Return") {
                     trackAddStatement(endConfig.type);
@@ -143,7 +144,7 @@ export function EndConfigForm(props: any) {
                     }
                 }
             }
-            dispatchMutations(modifications);
+            onMutate(modifications);
             onSave();
         }
     };

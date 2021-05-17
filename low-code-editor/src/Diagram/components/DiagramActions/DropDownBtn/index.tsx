@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context } from "../../../../Contexts/Diagram"
 import { DropDownMenu, DropDownMenuProps } from "../../Portals/Overlay/Elements";
 
 import {
@@ -29,7 +29,7 @@ export interface DropDownMenuTriggerProps<DataType> {
 }
 
 export function DropDownMenuTrigger<DataType>(props: DropDownMenuTriggerProps<DataType>) {
-    const { state: { isReadOnly } } = useContext(DiagramContext);
+    const { state: { isReadOnly } } = useContext(Context);
 
     const { cx, cy, menuOptions, active } = props;
     const { onChange, onClose = () => undefined } = menuOptions;
