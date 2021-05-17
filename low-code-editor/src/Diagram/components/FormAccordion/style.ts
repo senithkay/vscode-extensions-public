@@ -18,16 +18,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             width: "100%",
             backgroundColor: "#FFF",
-            padding: "0.5rem 0 1rem 0",
+            paddingBottom: "0.5rem",
             "& .MuiInputBase-root": {
                 width: '100% !important',
             },
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
+            "& div": {
+                margin: '0 !important',
+            },
         },
         accordionWrapper: {
-            marginTop: '8px',
             width: '100%',
         },
         activeAccordionRoot: {
@@ -149,11 +151,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
         },
         accordionSummaryFirst: {
-            padding: '0 0 0 0',
+            padding: 0,
             minHeight: '32px !important',
             root: {
                 marginBottom: -1,
-                padding: '0 0 0 0',
+                padding: 0,
                 '& .Mui-expanded': {
                     minHeight: '32px !important',
                 },
@@ -169,7 +171,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
         },
         accordionDetailsFirst: {
-            padding: '0 0 0 0',
+            padding: 0,
             root: {
                 display: 'flex',
             },
