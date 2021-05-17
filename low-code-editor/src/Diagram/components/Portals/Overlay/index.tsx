@@ -14,7 +14,7 @@
 import React, { useContext } from "react";
 import ReactDOM from "react-dom";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context } from "../../../../Contexts/Diagram"
 
 export interface DiagramOverlayPosition {
     x: number,
@@ -48,7 +48,7 @@ export interface DiagramOverlayContainerProps {
 }
 
 export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
-    const { isReadOnly } = useContext(DiagramContext).state;
+    const { isReadOnly } = useContext(Context).state;
     const { children, forceRender } = props;
 
     if (!forceRender && isReadOnly) {

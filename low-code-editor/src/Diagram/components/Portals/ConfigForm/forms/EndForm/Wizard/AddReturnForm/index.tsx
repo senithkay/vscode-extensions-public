@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { ReturnIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { getVaribaleNamesFromVariableDefList } from "../../../../../utils";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
@@ -38,7 +38,7 @@ export const DEFINE_RETURN_EXR: string = "Define Return Expression";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddReturnForm(props: ReturnFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { currentApp, isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;

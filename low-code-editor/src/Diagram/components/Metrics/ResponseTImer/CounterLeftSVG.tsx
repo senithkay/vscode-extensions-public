@@ -72,7 +72,7 @@ export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
                         y="0"
                         textAnchor="middle"
                     >
-                        {maxTextWidth ? text.slice(0, 5) + "... ms" : text}
+                        {maxTextWidth ? text.slice(0, 5) + "... s" : text}
                     </tspan>
                 </text>
             </g>
