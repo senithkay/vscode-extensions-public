@@ -20,8 +20,10 @@ import { join } from 'path';
 
 export enum CMP_KIND {
     PACKAGE = "package",
+    DEFAULT_MODULE = "default_module",
     MODULE = "module",
     FUNCTION = "function",
+    MAIN_FUNCTION = "main_function",
     SERVICE = "service",
     RESOURCE = "resource"
 }
@@ -57,9 +59,10 @@ export class PackageTreeItem extends TreeItem {
         this.isSingleFile = isSingleFile;
 
         if (hasIcon) {
+            const iconName = kind === CMP_KIND.DEFAULT_MODULE ? 'module' : kind;
             this.iconPath = {
-                light: join(this.extensionPath, 'resources', 'images', 'icons', `${kind.toLowerCase()}.svg`),
-                dark: join(this.extensionPath, 'resources', 'images', 'icons', `${kind.toLowerCase()}-inverse.svg`)
+                light: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}.svg`),
+                dark: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}-inverse.svg`)
             };
         }
 
@@ -106,6 +109,10 @@ export class PackageTreeItem extends TreeItem {
 
     getIsSingleFile() {
         return this.isSingleFile;
+    }
+
+    getName() {
+        return this.label;
     }
 }
 
