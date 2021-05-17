@@ -102,7 +102,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         onComplete(selectedTrigger);
     }
     function handleSubMenuClose() {
-        setSelectedTrigger(undefined);
+        setSelectedTrigger(triggerType);
         setActiveConnector(undefined);
     }
 
