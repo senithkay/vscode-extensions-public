@@ -23,12 +23,13 @@ import {useStyles} from './style';
 
 interface FormAccordionProps {
     title?: string;
+    depth?: number;
     mandatoryFields?: React.ReactNode[];
     optionalFields?: React.ReactNode[];
 }
 
 export default function FormAccordion(props: FormAccordionProps) {
-    const { title, mandatoryFields, optionalFields } = props;
+    const { title, depth, mandatoryFields, optionalFields } = props;
     const classes = useStyles();
     const [ expanded, setExpanded ] = React.useState<string | false>('mandatory');
 
@@ -47,10 +48,10 @@ export default function FormAccordion(props: FormAccordionProps) {
                 </div >
             ) }
             { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
-                <ExpansionPanel className={classes.activeAccordionRoot} expanded={true}>
+                <ExpansionPanel className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
                     {title && (
                         <ExpansionPanelSummary
-                            className={classes.accordionSummary}
+                            className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1bh-content"
                             id="panel1bh-header"
@@ -59,7 +60,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                             <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>
                         </ExpansionPanelSummary>
                     ) }
-                    <ExpansionPanelDetails className={classes.accordionDetails}>
+                    <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
                             {...mandatoryFields}
                         </div >
@@ -67,17 +68,17 @@ export default function FormAccordion(props: FormAccordionProps) {
                 </ExpansionPanel>
             ) }
             { !isEmptyOptionalFields && (
-                <ExpansionPanel className={classes.accordionRoot} expanded={expanded === 'optional'} onChange={handleChange('optional')}>
+                <ExpansionPanel className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={expanded === 'optional'} onChange={handleChange('optional')}>
                     <ExpansionPanelSummary
-                        className={classes.accordionSummary}
+                        className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1bh-content"
                         id="panel1bh-header"
                     >
                         {title && isEmptyMandatoryFields && (<Typography className={classes.accordionHeading}>{title}</Typography>)}
-                        <Typography className={classes.accordionSecondaryHeading}>Optional</Typography>
+                        {title !== "Optional" && <Typography className={classes.accordionSecondaryHeading}>Optional</Typography>}
                     </ExpansionPanelSummary>
-                    <ExpansionPanelDetails className={classes.accordionDetails}>
+                    <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
                             {...optionalFields}
                         </div >
