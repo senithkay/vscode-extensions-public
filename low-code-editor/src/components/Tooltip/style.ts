@@ -45,7 +45,7 @@ const useStyles = makeStyles(() =>
             justifyContent: "space-between",
         },
         iconWrapper: {
-            marginRight: "0.5rem",
+            // marginRight: "0.5rem",
             alignSelf: "center"
         },
         buttonLink: {

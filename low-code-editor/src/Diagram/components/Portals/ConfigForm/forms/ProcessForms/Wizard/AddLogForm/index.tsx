@@ -18,7 +18,7 @@ import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core"
 
 import { LogIcon } from "../../../../../../../../assets/icons";
 import { WizardType } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
@@ -38,7 +38,7 @@ export const DEFINE_LOG_EXR: string = "Define Log Expression";
 export const SELECT_PROPERTY: string = "Select Existing Property";
 
 export function AddLogForm(props: LogFormProps) {
-    const { isMutationProgress: isMutationInProgress } = useContext(DiagramContext).state;
+    const { isMutationProgress: isMutationInProgress } = useContext(Context).state;
     const formClasses = useFormStyles();
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;

@@ -14,7 +14,6 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -25,6 +24,8 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+
+import { CloseRounded } from "../../../../../../assets/icons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -74,15 +75,15 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const customStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
-            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+            defaultMessage: "Enter a Ballerina expression."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
-            defaultMessage: "Read more"
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            defaultMessage: "https://ballerina.io/learn/by-example/"
         })
     }
     return (

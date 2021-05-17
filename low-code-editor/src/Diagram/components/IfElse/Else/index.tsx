@@ -16,7 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { BlockStatement, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../utils";
 import { ElseViewState } from "../../../view-state";
 import { DefaultConfig } from "../../../visitors/default";
@@ -33,7 +33,7 @@ export interface ElseProps {
 }
 
 export function Else(props: ElseProps) {
-    const { state, insertComponentStart } = useContext(DiagramContext);
+    const { state, insertComponentStart } = useContext(Context);
     const { model, defaultViewState } = props;
 
     let viewState: ElseViewState;
@@ -124,10 +124,10 @@ export function Else(props: ElseProps) {
 
     return (
         <g className={classes}>
-            {...components}
-            {...children}
-            {...pluses}
-            {...drafts}
+            {components}
+            {children}
+            {pluses}
+            {drafts}
         </g>
     )
 }

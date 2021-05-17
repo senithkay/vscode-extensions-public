@@ -225,3 +225,8 @@ export function createContentWidget(id: string) : monaco.editor.IContentWidget {
         }
     }
 }
+
+export function createSortText(index: number) : string {
+    const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
+    return "z".repeat(Math.floor(index / 26)) + alpList[index]
+}

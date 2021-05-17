@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import classNames from "classnames";
 
 import { ForEachIcon } from "../../../../../../../../assets/icons";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../utils";
 import { PrimaryButton } from "../../../../Elements/Button/PrimaryButton";
@@ -46,7 +46,7 @@ export const DEFINE_RANGE: string = "Define Range";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 

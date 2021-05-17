@@ -18,6 +18,7 @@ import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../providers/contexts";
 import {
     createForeachStatement,
     createIfStatement, createWhileStatement, updateForEachCondition,
@@ -42,12 +43,12 @@ export interface ConditionConfigFormProps {
 }
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
+    const { onMutate } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isReadOnly,
         configPanelStatus,
         syntaxTree,
-        onMutate: dispatchMutations,
         trackAddStatement
     } = state;
     const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
@@ -114,7 +115,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     modifications.push(updateWhileStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
                 }
             }
-            dispatchMutations(modifications);
+            onMutate(modifications);
             onSave();
         }
     };
