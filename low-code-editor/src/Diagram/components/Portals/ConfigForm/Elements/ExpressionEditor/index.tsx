@@ -40,7 +40,8 @@ import {
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
-    transformFormFieldTypeToString
+    transformFormFieldTypeToString,
+    typeCheckerExp
 } from "./utils";
 
 function getRandomInt(max: number) {
@@ -232,6 +233,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     validExpEditor();
                 }
+            }
+
+            // Suggest to add check depending on the diagnostic message
+            if (monacoRef.current) {
+                setAddCheck(typeCheckerExp(expressionEditorState.diagnostic, varName, varType))
             }
         }
     }

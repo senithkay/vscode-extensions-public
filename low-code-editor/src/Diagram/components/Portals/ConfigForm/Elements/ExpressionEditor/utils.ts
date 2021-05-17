@@ -116,6 +116,21 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     return diagnosticChecker(diagnostics)
 }
 
+export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
+    if (!diagnostics) {
+        return false
+    }
+    // check if message contains temp_Expression
+    let typeCheck = false;
+    Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
+        if ((diagnostic.message as string).includes(varName) && varType === "var") {
+            typeCheck = true;
+            return
+        }
+    });
+    return typeCheck;
+}
+
 /**
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
