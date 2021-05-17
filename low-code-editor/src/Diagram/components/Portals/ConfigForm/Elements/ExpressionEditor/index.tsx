@@ -445,7 +445,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             return
         } else {
-            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet + mockedCodeSnippet, (snippetTargetPosition - 1), currentContent);
+            const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
             initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
