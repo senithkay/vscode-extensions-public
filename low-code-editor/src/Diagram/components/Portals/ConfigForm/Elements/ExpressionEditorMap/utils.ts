@@ -22,8 +22,9 @@ export function appendToMap(key: string, value: string, editorValue: string) {
                 return `${tempMap}, ${key}: ${value}}`;
             }
         }
+    } else {
+        return `{${key}: ${value}}`
     }
-    return
 }
 
 export function newMap(editorValue: string) : boolean {

@@ -40,12 +40,10 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
 
     const handleAddButtonClick = () => {
         const updatedMap = appendToMap(keyEditorContent, valueEditorContent, mainEditorValue || "");
-        if (updatedMap) {
-            model.value = updatedMap;
-            setMainEditorValue(updatedMap)
-            setClearInput(true)
-            setChanged(!changed)
-        }
+        model.value = updatedMap;
+        setMainEditorValue(updatedMap)
+        setClearInput(true)
+        setChanged(!changed)
     }
 
     const revertClearInput = () => {
