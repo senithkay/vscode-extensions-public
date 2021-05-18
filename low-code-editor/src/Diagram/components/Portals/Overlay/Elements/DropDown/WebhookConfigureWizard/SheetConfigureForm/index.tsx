@@ -20,7 +20,12 @@ import {STKindChecker} from "@ballerina/syntax-tree";
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -43,7 +48,7 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
         isLoadingSuccess: isFileSaved,
         syntaxTree,
         onModify: dispatchModifyTrigger,
-        trackTriggerSelection    } = state;
+        onEvent    } = state;
     const { onComplete } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -87,7 +92,12 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
             SPREADSHEET_ID: sheetId,
             EVENT: sheetEvent,
         });
-        trackTriggerSelection("Google Sheet");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Google Sheet"
+        };
+        onEvent(event);
     };
 
     // handle trigger update

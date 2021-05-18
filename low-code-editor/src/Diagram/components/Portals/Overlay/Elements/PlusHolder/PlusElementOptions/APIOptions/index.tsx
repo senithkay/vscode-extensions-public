@@ -21,6 +21,12 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    START_CONNECTOR_ADD_INSIGHTS,
+    START_EXISTING_CONNECTOR_ADD_INSIGHTS
+} from "../../../../../../../models";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
@@ -53,7 +59,7 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(Context);
-    const { connectors, stSymbolInfo, targetPosition, viewState } = state;
+    const { connectors, stSymbolInfo, targetPosition, viewState, onEvent } = state;
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const intl = useIntl();
@@ -371,6 +377,26 @@ export function APIOptions(props: APIOptionsProps) {
         }
     }
 
+    const onSelectConnector = (connector: BallerinaConnectorsInfo) => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: START_CONNECTOR_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        onEvent(event);
+        onSelect(connector, undefined);
+    }
+
+    const onSelectExistingConnector = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: START_EXISTING_CONNECTOR_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        onEvent(event);
+        onSelect(connector, selectedConnector);
+    }
+
     const exsitingConnectorComponents: ExisitingConnctorComponent[] = [];
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
@@ -380,7 +406,7 @@ export function APIOptions(props: APIOptionsProps) {
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
                 <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
-                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
+                    <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">
                                 {getConnectorIconSVG(connector)}
@@ -423,7 +449,7 @@ export function APIOptions(props: APIOptionsProps) {
             const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
             const existConnector = getConnector(moduleName, name);
             const component: ReactNode = (
-                <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
                     <div className="existing-connector-details product-tour-add-http">
                         <div className="existing-connector-icon">
                             {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}

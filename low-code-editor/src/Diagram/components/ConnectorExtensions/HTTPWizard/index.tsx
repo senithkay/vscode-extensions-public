@@ -22,6 +22,12 @@ import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../
 import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent
+} from "../../../models";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -114,6 +120,12 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
@@ -142,6 +154,13 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleActionOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
+
         const headerField = connectorConfig.action.fields.find(field => field.name === "headers");
 
         const modifications: STModification[] = [];

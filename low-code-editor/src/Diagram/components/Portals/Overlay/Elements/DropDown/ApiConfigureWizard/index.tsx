@@ -26,7 +26,14 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import { validatePath } from "../../../../../../../utils/validator";
-import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
+import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
+  ServiceMethodType,
+  SERVICE_METHODS,
+  TriggerType,
+  TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
+} from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
@@ -55,7 +62,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     connectionData,
-    trackTriggerSelection
+    onEvent
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
@@ -172,7 +179,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           "METHOD": res.method.toLowerCase()
         }))
       });
-      trackTriggerSelection("API");
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "API"
+      };
+      onEvent(event);
       // todo: handle dispatch
       // dispatchGoToNextTourStep("CONFIG_SAVE");
     } else {

@@ -17,11 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import {
     FunctionBodyBlock,
-    FunctionDefinition, LocalVarDecl, MappingConstructor,
+    FunctionDefinition,
+    LocalVarDecl,
+    MappingConstructor,
     ModulePart,
     ModuleVarDecl,
-    QualifiedNameReference, SpecificField,
-    STKindChecker, STNode
+    QualifiedNameReference,
+    SpecificField,
+    STKindChecker,
+    STNode
 } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
@@ -32,7 +36,12 @@ import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
@@ -57,11 +66,11 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        trackTriggerSelection,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
         originalSyntaxTree,
+        onEvent
     } = state;
     const { onComplete, currentConnection } = props;
     const classes = useStyles();
@@ -162,7 +171,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             CALENDAR_ID: activeGcalendar.id,
             EVENT: calendarEvent,
         });
-        trackTriggerSelection("Google Calender");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Google Calender"
+        };
+        onEvent(event);
     };
 
     // handle calendar trigger update

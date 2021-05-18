@@ -26,7 +26,12 @@ import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
+import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
+  TRIGGER_SELECTED_INSIGHTS,
+  TRIGGER_TYPE_SCHEDULE
+} from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -56,7 +61,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
-    trackTriggerSelection,
+    onEvent,
     originalSyntaxTree
   } = state;
 
@@ -270,7 +275,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       "SYNTAX_TREE": originalSyntaxTree,
       "SCHEDULE_TYPE": scheduledComp
     });
-    trackTriggerSelection("Schedule");
+    const event: LowcodeEvent = {
+      type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+      name: TRIGGER_SELECTED_INSIGHTS,
+      property: "Schedule"
+    };
+    onEvent(event);
   };
 
   const deafultMinute = cron ? cronMinuteValue.replace("*/", "") : cronMinuteValue;

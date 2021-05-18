@@ -22,6 +22,7 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
+import { API_TAB_SELECTION_INSIGHTS, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../../models";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
@@ -59,7 +60,7 @@ export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 525;
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
     const { state, diagramRedraw } = useContext(Context);
-    const { isCodeEditorActive, stSymbolInfo, syntaxTree } = state;
+    const { isCodeEditorActive, stSymbolInfo, syntaxTree, onEvent } = state;
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
     const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
@@ -77,6 +78,11 @@ export function PlusElements(props: PlusElementsProps) {
         }
     };
     const handleAPIClick = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: API_TAB_SELECTION_INSIGHTS,
+        };
+        onEvent(event);
         setSelectedItem("APIS");
         if (onComponentClick) {
             onComponentClick("APIS");

@@ -33,6 +33,12 @@ import { BallerinaConnectorsInfo, STModification } from "../../../../../Definiti
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { DiagramContext } from "../../../../../providers/contexts";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent
+} from "../../../../models";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -95,7 +101,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         oauthProviderConfigs,
         userInfo,
         getAiSuggestions,
-        trackAddConnector,
+        onEvent,
         syntaxTree,
         getAllConnections
     } = state;
@@ -223,7 +229,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         const modifications: STModification[] = [];
         const isInitReturnError = checkErrorsReturnType('init', functionDefInfo);
         const moduleName = getFormattedModuleName(connectorInfo.module);
-        trackAddConnector(connectorInfo.displayName);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
 
         // check oauth flow and manual flow
         if (isOauthConnector && !isManualConnection && connection) {
@@ -302,7 +313,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
         const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefInfo);
-        trackAddConnector(connectorInfo.displayName);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (isActionReturnError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
@@ -414,7 +430,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
-        trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
             onMutate(sourceModifications);
