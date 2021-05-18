@@ -22,7 +22,7 @@ import { commands, window } from 'vscode';
 import { CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
 import { PackageOverviewDataProvider } from "./tree-data-provider";
 
-export function activate(ballerinaExtInstance: BallerinaExtension) {
+export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
 
@@ -36,7 +36,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     );
 
     if (!ballerinaExtInstance.isSwanLake) {
-        return;
+        return packageTreeDataProvider;
     }
 
     packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
@@ -62,4 +62,5 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 construct.startColumn, construct.kind, construct.name, construct.filePath);
         }
     });
+    return packageTreeDataProvider;
 }

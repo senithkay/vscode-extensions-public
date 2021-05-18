@@ -17,3 +17,4 @@
  */
 export * from "./activator";
 export * from "./model";
+export { PackageOverviewDataProvider } from "./tree-data-provider";
