@@ -69,7 +69,7 @@ export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
-export { InsertorDelete } from "./Diagram/utils/modification-util";
+export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
 
 export default function LowCodeEditor(props: Props) {
 
