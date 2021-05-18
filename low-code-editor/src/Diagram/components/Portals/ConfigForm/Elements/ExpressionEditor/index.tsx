@@ -824,6 +824,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                             (
                                 <>
+                                    <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                                    </TooltipCodeSnippet>
                                     {stringCheck && (
                                         <div className={formClasses.suggestionsWrapper} >
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
@@ -833,9 +836,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             </FormHelperText>
                                         </div>
                                     )}
-                                    <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                                    </TooltipCodeSnippet>
                                 </>
                             ) : null
             }
