@@ -426,7 +426,6 @@ export function APIOptions(props: APIOptionsProps) {
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
-            // const placement = index % 2 === 0 ? 'left' : 'right';
             const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
