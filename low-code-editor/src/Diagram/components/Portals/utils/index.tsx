@@ -15,16 +15,17 @@ import React, { ReactNode } from "react";
 import {
     CaptureBindingPattern, CheckAction,
     CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NumericLiteral,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, traversNode, TypeCastExpression
+    STNode, StringLiteral, traversNode, TypeCastExpression, XmlTypeDesc
 } from "@ballerina/syntax-tree";
+import { isRef } from "joi";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
+import { resetRequestCollction } from "store/actions";
 
 import { ConnectionDetails } from "../../../../api/models";
-// import { getLangClientForCurrentApp, waitForCurrentWorkspace } from "../../../../../../$store/actions";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
@@ -35,13 +36,17 @@ import {
     getConnectorDefFromCache,
     getFormFieldFromFileCache,
     getFromFormFieldCache,
-    getRecordDefFromCache} from "../../../utils/st-util";
+    getRecordDefFromCache,
+    isSTActionInvocation
+} from "../../../utils/st-util";
+import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
+import { getUnionFormFieldName } from "../ConfigForm/Elements/Union";
 import * as Forms from "../ConfigForm/forms";
 import { FormElementProps } from "../ConfigForm/types";
 import * as OverlayElement from "../Overlay/Elements";
@@ -51,39 +56,12 @@ import { keywords, symbolKind } from "./constants";
 const receivedRecords: Map<string, STNode> = new Map();
 // in order to ignore classes, object and enum type references
 const ignoreList = [
-    // sl alpha2
-    'ballerina/http:1.1.0-alpha4:Request',
-    'ballerina/http:1.1.0-alpha4:Response',
-    'ballerina/http:1.1.0-alpha4:HttpFuture',
-    'ballerina/http:1.1.0-alpha4:PushPromise',
-    'ballerina/http:1.1.0-alpha4:CookieStore',
-    'ballerina/email:1.1.0-alpha4:Security',
-    'ballerinax/twilio:0.99.6:Account',
-    'ballerinax/twilio:0.99.6:MessageResourceResponse',
-    'ballerinax/twilio:0.99.6:WhatsAppResponse',
-    'ballerina/oauth2:1.1.0-alpha4:CredentialBearer',
-    'ballerina/oauth2:1.1.0-alpha4:HttpVersion',
-    'ballerinax/googleapis_gmail:0.99.4:MessageRequest',
-    'ballerinax/googleapis_gmail:0.99.4:Message',
-    'ballerinax/googleapis_gmail:0.99.4:DraftListPage',
-    'ballerinax/googleapis_calendar:0.1.3:Shared',
-    'ballerinax/googleapis_calendar:0.1.3:CalendarListOptional',
-    'ballerinax/sfdc:2.1.5:BulkJob',
-    'ballerina/http:1.1.0-alpha4:PersistentCookieHandler',
-    'ballerinax/github.webhook:0.99.12:User',
-    'ballerinax/github.webhook:0.99.12:Milestone',
-    'ballerinax/github.webhook:0.99.12:Branch',
-    'ballerinax/github.webhook:0.99.12:Links',
-    'ballerinax/github:0.99.12:ColumnList',
-    'ballerinax/github:0.99.12:BranchList',
-    'ballerinax/github:0.99.12:IssueList',
-    'ballerinax/github:0.99.12:ProjectList',
-    'ballerinax/github:0.99.12:RepositoryList',
-    'ballerinax/github:0.99.12:ColumnList',
-    'ballerinax/github:0.99.12:PullRequestList',
-    'ballerinax/netsuite:0.9.3:GetAllRecordType',
-    'ballerinax/netsuite:0.9.3:GetSaveSearchType'
-]
+    // sl alpha5
+    'ballerina/oauth2:1.1.0-alpha8:HttpVersion',
+    'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
+    'ballerina/oauth2:1.1.0-alpha8:ClientConfiguration',
+    'ballerina/oauth2:1.1.0-alpha8:ClientCredentialsGrantConfig',
+];
 
 export function getOverlayElement(
     type: string,
@@ -133,8 +111,9 @@ export function getConnectorComponent(type: string, args: any) {
     ) : undefined;
 }
 
-export async function getRecordFields(formFields: any, records: object, langClient: any) {
+export async function getRecordFields(formFields: any, records: object, langClient: any, loadedRecords: Map<string, STNode>, depth = 1) {
     return new Promise(async (resolve) => {
+        const maxDepth = 10;
         for (const formField of formFields) {
             // check primitive types if it's not a primitive go and fetch record
             if (!formField.noCodeGen) {
@@ -150,10 +129,10 @@ export async function getRecordFields(formFields: any, records: object, langClie
                         break;
                     case 'union':
                         if (formField.fields) {
-                            await getRecordFields(formField.fields, records, langClient);
+                            await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
                             formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
                                 if (property?.length > 0) {
-                                    formField.fields = [ ...formField.fields, ...property.fields ];
+                                    formField.fields = [...formField.fields, ...property.fields];
                                 }
                             });
                         }
@@ -164,15 +143,12 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             let recordRes: STNode;
                             const typeInfo = formField.typeInfo;
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
-                            recordRes = receivedRecords.get(recordKey)
-                            if (ignoreList.indexOf(recordKey) === -1 && recordRes === undefined) {
-                                recordRes = await getRecordDefFromCache({
-                                    module: typeInfo.modName,
-                                    org: typeInfo.orgName,
-                                    version: typeInfo.version,
-                                    name: typeInfo.name
-                                });
-
+                            recordRes = receivedRecords.get(recordKey);
+                            const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
+                            if (!recordRes){
+                                recordRes = loadedRecords.get(recordKey);
+                            }
+                            if (!ignoredRecord && recordRes === undefined) {
                                 if (recordRes === undefined) {
                                     const record = await langClient.getRecord({
                                         module: typeInfo.modName,
@@ -183,6 +159,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
 
                                     if (record && record.ast) {
                                         recordRes = record.ast;
+                                        loadedRecords.set(recordKey, recordRes);
                                     }
                                 }
                             }
@@ -209,10 +186,12 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 recordRes.viewState = formField;
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
-                                    await getRecordFields(formField.fields, records, langClient);
+                                    if (depth < maxDepth){
+                                        await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
+                                    }
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property?.length > 0){
+                                        if (property?.length > 0) {
                                             formField.fields = [...formField.fields, ...property.fields]
                                         }
                                     })
@@ -239,11 +218,13 @@ export function getParams(formFields: FormField[]): string[] {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
-            } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" || formField.type === "json") && formField.value) {
+            } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
+                formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
+
                 formField.fields.forEach(field => {
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
@@ -266,32 +247,62 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "union" && !field.hide && field.isUnion && field.value) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.type === "record" && !field.hide) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-
-                        const fieldArray: FormField[] = [
-                            {
-                                isParam: true,
-                                type: PrimitiveBalType.Record,
-                                fields: field.fields
+                    } else if (field.type === "union" && !field.hide && field.isUnion) {
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (name) {
+                            const selectedField: FormField = field.fields?.find((subField: FormField) => {
+                                const fieldName = getUnionFormFieldName(subField);
+                                return fieldName === field.selectedDataType;
+                            });
+                            if (selectedField) {
+                                const params = getParams([ selectedField ]);
+                                if (params && params.length > 0) {
+                                    if (firstRecordField) {
+                                        recordFieldsString += ", ";
+                                    } else {
+                                        firstRecordField = true;
+                                    }
+                                    recordFieldsString += name + ": " + params;
+                                }
+                            } else if (field.value){
+                                if (firstRecordField) {
+                                    recordFieldsString += ", ";
+                                } else {
+                                    firstRecordField = true;
+                                }
+                                recordFieldsString += name + ": " + field.value;
                             }
-                        ]
-                        recordFieldsString += getFieldName(field.name) + ": " + getParams(fieldArray);
+                        }
+                    } else if (field.type === "record" && !field.hide) {
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (name) {
+                            const fieldArray: FormField[] = [
+                                {
+                                    isParam: true,
+                                    type: PrimitiveBalType.Record,
+                                    fields: field.fields
+                                }
+                            ]
+                            const params = getParams(fieldArray);
+                            if (params && params.length > 0) {
+                                if (firstRecordField) {
+                                    recordFieldsString += ", ";
+                                } else {
+                                    firstRecordField = true;
+                                }
+                                recordFieldsString += name + ": " + params;
+                            }
+                        }
                     }
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }
+                // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
+                //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
+                //      here skip that RefreshTokenGrantConfig record form code string
+                if (paramString.includes("RefreshTokenGrantConfig")){
+                    paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
             } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
@@ -419,7 +430,27 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
-                        mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
+                        if (formField.type === "union"){
+                            formField.fields.forEach(subFormField => {
+                                if (subFormField.type === "record" && subFormField.fields){
+                                    // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
+                                    //      it will generate empty formField. getParams() code-gen skip this empty FormField.
+                                    //      here skip that empty FormFiled and use inside field array
+                                    const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
+                                        subFormField.fields[0]?.fields : subFormField.fields;
+                                    if (subFields){
+                                        mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
+                                        // find selected data type using non optional field's value
+                                        const valueFilled = subFields.find(field => (field.optional === false && field.value));
+                                        if (valueFilled){
+                                            formField.selectedDataType = getUnionFormFieldName(subFormField);
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
+                        }
                     }
 
                     // if the assigned value is an array
@@ -454,36 +485,49 @@ export function matchActionToFormField(variable: LocalVarDecl, formFields: FormF
             break;
         }
 
-        const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
-        if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" || formField.type === "float") {
-            if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
-                formField.value = stringLiteral.literalToken.value;
-            } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                formField.value = numericLiteral.literalToken.value;
-            } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                formField.value = booleanLiteral.literalToken.value;
-            } else {
-                formField.value = positionalArg.expression.source;
+        if (STKindChecker.isNamedArg(remoteMethodCallArguments[nextValueIndex])) {
+            const namedArg: NamedArg = remoteMethodCallArguments[nextValueIndex] as NamedArg;
+            const fieldForNamedArg = formFields.find(field => field.name === namedArg.argumentName.name.value);
+            if (fieldForNamedArg) {
+                fieldForNamedArg.value = namedArg.expression.source;
             }
             nextValueIndex++;
-        } else if (formField.type === 'collection') {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
-        } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
-            const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-            if (mappingConstructor) {
-                mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+        } else {
+            const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
+            if (formField.type === "string" || formField.type === "int" || formField.type === "boolean"
+                || formField.type === "float" || formField.type === "httpRequest") {
+                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
+                    const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
+                    formField.value = stringLiteral.literalToken.value;
+                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
+                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
+                    formField.value = numericLiteral.literalToken.value;
+                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
+                    const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
+                    formField.value = booleanLiteral.literalToken.value;
+                } else {
+                    formField.value = positionalArg.expression.source;
+                }
+                nextValueIndex++;
+            } else if (formField.type === 'collection') {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+                    nextValueIndex++;
+                }
+            } else if (formField.type === "record" && STKindChecker.isSimpleNameReference(positionalArg.expression)) {
+                formField.value = positionalArg.expression.name.value;
+                nextValueIndex++;
+            } else if (formField.type === "union" && formField.isUnion) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.type === "json") {
+                formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
-        } else if (formField.type === "union" && formField.isUnion) {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
-        } else if (formField.type === "json") {
-            formField.value = positionalArg.expression?.source;
-            nextValueIndex++;
         }
     }
 }
@@ -496,7 +540,7 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
 }
 
 export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
-    const Icon = (Icons as any)[iconId];
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
     return Icon ? (
         <Icon {...props} />
@@ -505,7 +549,18 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 
 export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: number = 1): React.ReactNode {
     const iconId = getConnectorIconId(connector);
-    const Icon = (Icons as any)[iconId];
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
+    const DefaultIcon = (Icons as any).default;
+    const props = {
+        scale
+    }
+    return Icon ? (
+        <Icon {...props} />
+    ) : <DefaultIcon {...props} />;
+}
+
+export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
+    const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
     const props = {
         scale
@@ -521,7 +576,7 @@ export function getConnectorIconId(connector: BallerinaConnectorsInfo) {
 
 export function genVariableName(defaultName: string, variables: string[]): string {
     const baseName: string = convertToCamelCase(defaultName);
-    let varName: string = baseName;
+    let varName: string = baseName.includes('.') ? baseName.split('.').pop() : baseName;
     let index = 0;
     while (variables.includes(varName)) {
         index++;
@@ -645,7 +700,9 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // get form fields from file cache
         functionDefInfo = await getFormFieldFromFileCache(connector);
         // save form fields in browser cache
-        await addToFormFieldCache(connector, functionDefInfo);
+        if (functionDefInfo){
+            await addToFormFieldCache(connector, functionDefInfo);
+        }
     }
 
     if (!functionDefInfo) {
@@ -656,6 +713,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             const connectorResp = await langClient.getConnector(connector);
             connectorDef = connectorResp.ast;
         }
+        if (!connectorDef){
+            // handle error when connector loading form
+            return null;
+        }
         connectorDef.viewState = {};
 
         cleanFields();
@@ -664,12 +725,13 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
 
         for (const value of Array.from(functionDefInfo.values())) {
-            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient);
+            const loadedRecords: Map<string, STNode> = new Map();
+            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient, loadedRecords);
             if (value.returnType) {
                 if (value.returnType.type === 'union') {
-                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient);
+                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient, loadedRecords);
                 } else {
-                    await getRecordFields([ value.returnType ], connectorDef.typeData.records, langClient);
+                    await getRecordFields([value.returnType], connectorDef.typeData.records, langClient, loadedRecords);
                 }
             }
         }
@@ -682,57 +744,73 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         //     formFieldJsonObject[key] = value;
         // });
         // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
-        // console.log("form field json >>>", JSON.stringify(formFieldJsonObject))
+        // console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 
     // Filter connector functions to have better usability.
-    const filteredFunctionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
-
+    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
-        let remoteCall: RemoteMethodCallAction;
-        switch (variable.initializer.kind) {
-            case 'TypeCastExpression':
-                const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
-                remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                break;
-            case 'RemoteMethodCallAction':
-                remoteCall = variable.initializer as RemoteMethodCallAction;
-                break;
-            default:
-                remoteCall = (variable.initializer as CheckAction).expression;
-        }
-        const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-            CaptureBindingPattern;
-        const returnVarName: string = bindingPattern.variableName.value;
-        if (remoteCall && returnVarName) {
-            const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-            const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
-            if (remoteCall && actionName) {
-                const action: ActionConfig = new ActionConfig();
-                action.name = actionName.name.value;
-                action.returnVariableName = returnVarName;
-                connectorConfig.action = action;
-                connectorConfig.name = configName.name.value;
-                connectorConfig.action.fields = filteredFunctionDefInfo.get(connectorConfig.action.name).parameters;
-                matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+        const viewState: StatementViewState = model.viewState as StatementViewState;
+        if (isSTActionInvocation(variable)) {
+            let remoteCall: RemoteMethodCallAction;
+            switch (variable.initializer.kind) {
+                case 'TypeCastExpression':
+                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                    remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                    break;
+                case 'RemoteMethodCallAction':
+                    remoteCall = variable.initializer as RemoteMethodCallAction;
+                    break;
+                default:
+                    remoteCall = (variable.initializer as CheckAction).expression;
+            }
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                CaptureBindingPattern;
+            const returnVarName: string = bindingPattern.variableName.value;
+            if (remoteCall && returnVarName) {
+                const configName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
+                const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
+                if (remoteCall && actionName) {
+                    const action: ActionConfig = new ActionConfig();
+                    action.name = actionName.name.value;
+                    action.returnVariableName = returnVarName;
+                    connectorConfig.action = action;
+                    connectorConfig.name = configName.name.value;
+                    connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
+                    matchActionToFormField(model as LocalVarDecl, connectorConfig.action.fields);
+                }
+            }
+        } else if (viewState.isEndpoint) {
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
+                CaptureBindingPattern;
+            const endpointVarName: string = bindingPattern.variableName.value;
+            if (endpointVarName) {
+                connectorConfig.name = endpointVarName;
             }
         }
-
-        connectorConfig.connectorInit = filteredFunctionDefInfo.get("init") ?
-        filteredFunctionDefInfo.get("init").parameters
-            : filteredFunctionDefInfo.get("__init").parameters;
+        connectorConfig.connectorInit = functionDefInfo.get("init") ?
+            functionDefInfo.get("init").parameters
+            : functionDefInfo.get("__init").parameters;
         const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
         connectorConfig.initPosition = matchingEndPoint.position;
         matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
+        // }
+
+        // connectorConfig.connectorInit = filteredFunctionDefInfo.get("init") ?
+        // filteredFunctionDefInfo.get("init").parameters
+        //     : filteredFunctionDefInfo.get("__init").parameters;
+        // const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        // connectorConfig.initPosition = matchingEndPoint.position;
+        // matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
     }
-    connectorConfig.existingConnections = symbolInfo.variables.get(connector.module + ":" + connector.name);
+    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.module) + ":" + connector.name);
 
     return {
         isLoading: false,
         connector,
         wizardType: model ? WizardType.EXISTING : WizardType.NEW,
-        functionDefInfo: filteredFunctionDefInfo,
+        functionDefInfo,
         connectorConfig,
         model
     };
@@ -742,7 +820,7 @@ export const getKeyFromConnection = (connection: ConnectionDetails, key: string)
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
-export function getOauthConnectionParams(connectorName: string, connectionDetail: ConnectionDetails): any {
+export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails): any {
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
@@ -795,18 +873,162 @@ export function getOauthConnectionParams(connectorName: string, connectionDetail
     }
 }
 
+function getFormFieldValue(formFields: FormField[], connectorName: string, key: string) {
+    switch (connectorName) {
+        case "github": {
+            return formFields[0].fields[1].value;
+        }
+        case "google sheets":
+            return formFields.find(field => field.name === "spreadsheetConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        case "gmail": {
+            return formFields.find(field => field.name === "gmailConfig").fields
+                .find(field => field.name === "oauthClientConfig").fields
+                .find(field => field.name === key).value || "";
+        }
+        case "google calendar":
+            return formFields.find(field => field.name === "calendarConfig").fields
+                .find(field => field.name === "oauth2Config").fields
+                .find(field => field.name === key).value || "";
+    }
+}
+
+export function getOauthParamsFromFormFields(connectorName: string, formFields: FormField[]): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getFormFieldValue(formFields, connectorName, 'accessToken');
+            return (`{
+                accessToken: ${githubAccessToken}
+            }`);
+        }
+        case "gmail":
+        case "google sheets": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauthClientConfig: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+        case "google calendar": {
+            const clientId = getFormFieldValue(formFields, connectorName, 'clientId');
+            const clientSecret = getFormFieldValue(formFields, connectorName, 'clientSecret');
+            const refreshUrl = getFormFieldValue(formFields, connectorName, 'refreshUrl');
+            const refreshToken = getFormFieldValue(formFields, connectorName, 'refreshToken');
+            return (`{
+                oauth2Config: {
+                    clientId: ${clientId},
+                    clientSecret: ${clientSecret},
+                    refreshToken: ${refreshToken},
+                    refreshUrl: ${refreshUrl}
+                }
+             }`);
+        }
+    }
+}
+
+export function getOauthConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>): any {
+    switch (connectorName) {
+        case "github": {
+            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
+            if (!configurables?.get(githubAccessToken)){
+                return `configurable string ${githubAccessToken} = ?;`;
+            }
+            break;
+        }
+        case "google sheets":
+        case "google calendar":
+        case "gmail": {
+            const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
+            const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
+            const refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+            const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
+            let statement = '';
+
+            if (!configurables?.get(clientId)){
+                statement += `configurable string ${clientId} = ?;\n`;
+            }
+            if (!configurables?.get(clientSecret)){
+                statement += `configurable string ${clientSecret} = ?;\n`;
+            }
+            if (!configurables?.get(refreshUrl)){
+                statement += `configurable string ${refreshUrl} = ?;\n`;
+            }
+            if (!configurables?.get(refreshToken)){
+                statement += `configurable string ${refreshToken} = ?;\n`;
+            }
+
+            return statement !== '' ? statement : null;
+        }
+    }
+    return null;
+}
+
+export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
+    const connectorModuleName = formField?.typeInfo.modName;
+    let variableKey: string;
+    let activeConnection: ConnectionDetails;
+
+    switch (connectorModuleName) {
+        case "github":
+            variableKey = formField.fields?.find(field => field.name === "accessToken")?.value;
+            break;
+        case "googleapis.gmail":
+        case "googleapis.sheets":
+            variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
+                field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+            break;
+        case "googleapis.calendar": {
+            variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
+                field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+            break;
+        }
+        default:
+            return null;
+    }
+
+    allConnections.forEach(connection => {
+        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)){
+            activeConnection = connection;
+        }
+    });
+
+    return activeConnection;
+}
+
 export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
     if (functionDefinitions.get(action)?.returnType?.isErrorType) {
         // return type has an error
         return true;
     }
-    if (functionDefinitions.get(action)?.returnType?.fields
-        .find((param: any) => (param?.isErrorType || param?.type === "error"))) {
+    if (functionDefinitions.get(action)?.returnType?.typeInfo?.name === "Error"){
+        // return type has an error
+        return true;
+    }
+    if (functionDefinitions.get(action)?.returnType?.fields?.
+            find((param: any) => (param?.isErrorType || param?.type === "error" || param?.typeInfo?.name === "Error"))) {
         // return type has an error
         return true;
     }
     // return type hasn't any error
     return false;
+}
+
+export function getFormattedModuleName(moduleName: string): string {
+    let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
+    if (keywords.includes(formattedModuleName)){
+        formattedModuleName = `${formattedModuleName}0`;
+    }
+    return formattedModuleName;
 }
 
 export interface VariableNameValidationResponse {

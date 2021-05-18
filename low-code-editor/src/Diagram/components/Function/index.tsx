@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -30,7 +30,7 @@ export interface FunctionProps {
 }
 
 export function Function(props: FunctionProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isWaitingOnWorkspace, isCodeEditorActive, isReadOnly } = state;
 
     const { model } = props;

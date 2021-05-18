@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 
 import { FunctionBodyBlock } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
 import { Collapse } from "../Collapse";
@@ -25,7 +25,7 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state, insertComponentStart } = useContext(DiagramContext);
+    const { state, insertComponentStart } = useContext(Context);
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
@@ -46,9 +46,9 @@ export function WorkerBody(props: DiagramProps) {
 
     return (
         <g>
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 }

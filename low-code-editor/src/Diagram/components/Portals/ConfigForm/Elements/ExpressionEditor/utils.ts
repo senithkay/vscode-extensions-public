@@ -13,7 +13,6 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 import { ExpressionEditorState } from '../../../../../../Definitions';
 import { DraftInsertPosition } from '../../../../../view-state/draft';
@@ -99,27 +98,24 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     return initVal;
 }
 
-/** Check if a mandatory fields is empty or not */
-export const isFieldEmpty = (value: string, model?: FormField): boolean => {
-    if (!model.optional && (!value || !value.replace(/"/g, ''))){
-        return true;
-    }
-    return false;
-}
-
-/** Generate error markers for expression editor */
-export const generateErrorMarkers = (message: string): monaco.editor.IMarkerData[] => ([{
-    startLineNumber: 1,
-    startColumn: 1,
-    endLineNumber: 2,
-    endColumn: 1000,
-    message,
-    severity: monaco.MarkerSeverity.Error
-}])
-
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     // check for severity level == 1
     return diagnosticChecker(diagnostics)
+}
+
+export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
+    if (!diagnostics) {
+        return false
+    }
+    // check if message contains temp_Expression
+    let typeCheck = false;
+    Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
+        if ((diagnostic.message).includes(varName) && varType === "var") {
+            typeCheck = true;
+            return
+        }
+    });
+    return typeCheck;
 }
 
 /**
@@ -159,6 +155,15 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
         } else if (model.collectionDataType) {
             return model.collectionDataType + "[]";
+        }
+    } else if (model.type === "map") {
+        if (model.fields) {
+            const returnTypesList: string[] = [];
+            model.fields.forEach(field => {
+                const fieldTypeString = transformFormFieldTypeToString(field);
+                returnTypesList.push(fieldTypeString);
+            });
+            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
         }
     } else if (model.type) {
         return model.type;
@@ -239,4 +244,9 @@ export function createContentWidget(id: string) : monaco.editor.IContentWidget {
             };
         }
     }
+}
+
+export function createSortText(index: number) : string {
+    const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
+    return "z".repeat(Math.floor(index / 26)) + alpList[index]
 }

@@ -12,8 +12,10 @@
  */
 import React, { ReactNode } from "react";
 
+import { validateFormFields } from "../../../../../../../../src/utils/validator";
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { useStyles } from "../../../../../ConfigPanel/styles";
+import FormAccordion from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
 
@@ -28,6 +30,7 @@ export function Form(props: FormProps) {
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
+    const optionalElements: ReactNode[] = [];
 
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
 
@@ -36,29 +39,9 @@ export function Form(props: FormProps) {
         let allFieldsValid = true;
 
         for (const formValue of fields) {
-            if (formValue.type === "record") {
-                for (const recordField of formValue.fields) {
-                    const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                    // breaks the loop if one field is empty
-                    if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                        allFieldsValid = !isFieldValueInValid;
-                        break;
-                    }
-                }
-            } else if (formValue.type === "union") {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
-            } else {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
+            allFieldsValid = validateFormFields(formValue, emptyFieldChecker);
+            if (!allFieldsValid) {
+                break;
             }
         }
         onValidate(allFieldsValid);
@@ -67,26 +50,43 @@ export function Form(props: FormProps) {
     fields.map((field, index) => {
         if (!field.hide && (field.type === "string" || field.type === "record" || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
-            || field.type === "union" || field.type === "json")) {
+            || field.type === "map" || field.type === "union" || field.type === "json" ||
+            field.type === "httpRequest")) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip,
-                    statementType: field.type
+                    tooltipTitle: field.tooltip
                 },
             };
-            const element = getFormElement(elementProps, field.type);
+
+            let type = field.type;
+            // validate union types
+            // only union record types will get Union element
+            // other union types will get expression editor
+            if (field.type === "union"){
+                field.fields?.forEach((subField: FormField) => {
+                    if (subField.type !== "record"){
+                        type = "expression";
+                    }
+                });
+            }
+            const element = getFormElement(elementProps, type);
+
             if (element) {
-                elements.push(element);
+                field?.optional ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
 
     return (
         <form className={classes.inputUrl} noValidate={true} autoComplete="off">
-            {elements}
+            <FormAccordion
+                depth={1}
+                mandatoryFields={elements}
+                optionalFields={optionalElements}
+            />
         </form>
     );
 }

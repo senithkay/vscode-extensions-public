@@ -15,6 +15,8 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
+    CaptureBindingPattern,
+    DoStatement,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -22,30 +24,34 @@ import {
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
+    OnFailClause,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
-import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
+import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/ActionInvocation/TriggerSVG";
+import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/Collapse/CollapseSVG";
+import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/Connector/ConnectorHeader/ConnectorClientSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
-import { PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
-import {WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH} from "../components/While/WhileSVG";
+import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
+import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, PlusViewState, StatementViewState } from "../view-state";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
-import {WhileViewState} from "../view-state/while";
+import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
@@ -297,7 +303,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = 0;
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
                 ? (viewState.foreachHead.w / 2) + DefaultConfig.horizontalGapBetweenComponents
-                + DefaultConfig.forEach.emptyHorizontalGap + DefaultConfig.dotGap
+                + DefaultConfig.forEach.emptyHorizontalGap + (DefaultConfig.dotGap * 2)
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) + DefaultConfig.forEach.offSet +
                 COLLAPSE_DOTS_SVG_HEIGHT + DefaultConfig.forEach.offSet;
@@ -305,7 +311,7 @@ class SizingVisitor implements Visitor {
             viewState.foreachLifeLine.h = viewState.foreachHead.offsetFromBottom + viewState.foreachBody.bBox.h;
 
             viewState.foreachBodyRect.w = (viewState.foreachBody.bBox.w > 0)
-                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2)
+                ? viewState.foreachBody.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2) + (DefaultConfig.dotGap * 2) + DefaultConfig.forEach.emptyHorizontalGap
                 : viewState.foreachBody.bBox.w + (DefaultConfig.forEach.emptyHorizontalGap * 2) + (DefaultConfig.dotGap * 2);
             viewState.foreachBodyRect.h = (viewState.foreachHead.h / 2) +
                 viewState.foreachLifeLine.h + viewState.foreachBodyRect.offsetFromBottom;
@@ -437,6 +443,7 @@ class SizingVisitor implements Visitor {
                 }
                 elseWidth = elseViewState.bBox.w;
 
+
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth / 2);
@@ -516,6 +523,47 @@ class SizingVisitor implements Visitor {
         viewState.bBox.w = ((viewState.headIf.w / 2) + diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + (elseWidth)) * 2;
     }
 
+    public endVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.container.h = viewState.container.offsetFromTop + blockViewState.bBox.h + viewState.container.offsetFromBottom;
+            viewState.container.w = blockViewState.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2);
+
+            viewState.bBox.w = viewState.container.w;
+            viewState.bBox.h = viewState.container.h;
+        } else {
+            this.sizeStatement(node);
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.header.h = DefaultConfig.onErrorHeader.h;
+            viewState.header.w = DefaultConfig.onErrorHeader.w;
+            viewState.lifeLine.h = blockViewState.bBox.h;
+            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w + DefaultConfig.onErrorHeader.w;
+            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
+        }
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.lifeLine.h = blockViewState.bBox.h;
+
+            if (blockViewState.isEndComponentAvailable) {
+                viewState.lifeLine.h -= (blockViewState.bBox.offsetFromBottom + blockViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromBottom);
+            }
+
+            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w;
+            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
+        }
+    }
+
     private sizeStatement(node: STNode) {
         if (!node.viewState) {
             return;
@@ -523,12 +571,24 @@ class SizingVisitor implements Visitor {
         const viewState: StatementViewState = node.viewState;
         if ((viewState.isAction || viewState.isEndpoint) && !viewState.isCallerAction) {
             if (viewState.isAction && viewState.action.endpointName && !viewState.hidden) {
-                viewState.bBox.h = CLIENT_SVG_HEIGHT;
-                viewState.bBox.w = CLIENT_SVG_WIDTH;
-                viewState.bBox.r = CLIENT_RADIUS;
+                viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
+                viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
+                viewState.bBox.h = viewState.dataProcess.h;
+                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+                viewState.action.trigger.w = TRIGGER_RECT_SVG_WIDTH;
+                viewState.action.trigger.h = TRIGGER_RECT_SVG_HEIGHT;
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
+
+                // Update endpoint sizing values.
+                viewState.bBox.h = CLIENT_SVG_HEIGHT;
+                viewState.bBox.w = CLIENT_SVG_WIDTH;
+                viewState.bBox.r = CLIENT_RADIUS;
+
+                // Update endpoint lifeline values.
                 const endpointViewState: EndpointViewState = viewState.endpoint;
                 endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
                 endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
@@ -537,7 +597,7 @@ class SizingVisitor implements Visitor {
                 const endpoint: Endpoint = allEndpoints.get(viewState.endpoint.epName);
                 const visibleEndpoint: any = endpoint.visibleEndpoint;
                 const mainEp = endpointViewState;
-                mainEp.isUsed = false;
+                mainEp.isUsed = endpoint.firstAction !== undefined;
                 visibleEndpoint.viewState = mainEp;
             }
         } else {
@@ -547,8 +607,15 @@ class SizingVisitor implements Visitor {
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
                 viewState.bBox.h = viewState.dataProcess.h;
-                viewState.bBox.w = viewState.dataProcess.w;
+                if (STKindChecker.isLocalVarDecl) {
+                    const varDeclatarion = node as LocalVarDecl
+                    viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+                } else {
+                    viewState.bBox.w = viewState.dataProcess.w;
+                }
             }
         }
     }
@@ -609,6 +676,7 @@ class SizingVisitor implements Visitor {
             draft.type = plusViewState.draftAdded;
             draft.subType = plusViewState.draftSubType;
             draft.connector = plusViewState.draftConnector;
+            draft.selectedConnector = plusViewState.draftSelectedConnector;
             draft.targetPosition = {
                 line: node.position.endLine, // todo: can't find the equivalent to position
                 column: node.position.endColumn - 1
@@ -618,8 +686,16 @@ class SizingVisitor implements Visitor {
         } else if (plusViewState && plusViewState.expanded) {
             if (plusViewState.selectedComponent === "STATEMENT") {
                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
-            } else if (plusViewState.selectedComponent === "APIS") {
+            } else if (plusViewState.selectedComponent === "APIS" && !plusViewState?.isAPICallsExisting) {
                 height += PLUS_HOLDER_API_HEIGHT;
+            } else if (plusViewState.selectedComponent === "APIS" && plusViewState.isAPICallsExisting) {
+                if (plusViewState.isAPICallsExistingCollapsed) {
+                    height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                } else if (plusViewState.isAPICallsExistingCreateCollapsed) {
+                    height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                } else {
+                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                }
             }
             if (width < PLUS_HOLDER_WIDTH) {
                 width = PLUS_HOLDER_WIDTH;
@@ -653,14 +729,16 @@ class SizingVisitor implements Visitor {
                             width = collapsedView.bBox.w;
                         }
                         blockViewState.collapseView = collapsedView;
+
                         // to make the next plus invisible if the current statement is not the last statement
-                        if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
-                            for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                                if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
-                                    invisiblePlusIndex.visible = false;
-                                }
+                        // if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
+                        for (const invisiblePlusIndex of blockViewState.plusButtons) {
+                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
+                                invisiblePlusIndex.visible = false;
                             }
                         }
+                        // }
+
                         plusForIndex.collapsedClicked = false;
                     } else {
                         height += blockViewState.collapseView.bBox.h;
@@ -675,6 +753,7 @@ class SizingVisitor implements Visitor {
                                 draft.type = plusForIndex.draftAdded;
                                 draft.subType = plusForIndex.draftSubType;
                                 draft.connector = plusForIndex.draftConnector;
+                                draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
                                     line: element.position.startLine, // todo: position?
@@ -690,8 +769,16 @@ class SizingVisitor implements Visitor {
                             } else if (plusForIndex?.expanded) {
                                 if (plusForIndex.selectedComponent === "STATEMENT") {
                                     height += PLUS_HOLDER_STATEMENT_HEIGHT;
-                                } else if (plusForIndex.selectedComponent === "APIS") {
+                                } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
                                     height += PLUS_HOLDER_API_HEIGHT;
+                                } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
+                                    if (plusForIndex.isAPICallsExistingCollapsed) {
+                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                    } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
+                                        height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                    } else {
+                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                    }
                                 }
                                 if (width < PLUS_HOLDER_WIDTH) {
                                     width = PLUS_HOLDER_WIDTH;
@@ -712,8 +799,16 @@ class SizingVisitor implements Visitor {
                         } else if (plusForIndex?.expanded) {
                             if (plusForIndex.selectedComponent === "STATEMENT") {
                                 height += PLUS_HOLDER_STATEMENT_HEIGHT;
-                            } else if (plusForIndex.selectedComponent === "APIS") {
+                            } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
                                 height += PLUS_HOLDER_API_HEIGHT;
+                            } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
+                                if (plusForIndex.isAPICallsExistingCollapsed) {
+                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
+                                    height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                } else {
+                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                }
                             }
                             if (width < PLUS_HOLDER_WIDTH) {
                                 width = PLUS_HOLDER_WIDTH;
@@ -726,6 +821,7 @@ class SizingVisitor implements Visitor {
                         draft.type = plusForIndex.draftAdded;
                         draft.subType = plusForIndex.draftSubType;
                         draft.connector = plusForIndex.draftConnector;
+                        draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
                             line: element.position.startLine, // todo:position?
@@ -736,7 +832,15 @@ class SizingVisitor implements Visitor {
                     } else if (plusForIndex && plusForIndex.expanded) {
                         if (plusForIndex.selectedComponent === "STATEMENT") {
                             height += PLUS_HOLDER_STATEMENT_HEIGHT;
-                        } else if (plusForIndex.selectedComponent === "APIS") {
+                        } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
+                            if (plusForIndex.isAPICallsExistingCollapsed) {
+                                height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
+                                height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            } else {
+                                height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            }
+                        } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
                             height += PLUS_HOLDER_API_HEIGHT;
                         }
                         if (width < PLUS_HOLDER_WIDTH) {
@@ -747,8 +851,7 @@ class SizingVisitor implements Visitor {
                         if (width < PLUS_SVG_WIDTH) {
                             width = PLUS_SVG_WIDTH;
                         }
-                    } else if (!plusForIndex && (!stmtViewState.isEndpoint
-                        || (stmtViewState.isAction && stmtViewState.isEndpoint && !stmtViewState.hidden))) {
+                    } else if (!plusForIndex && !stmtViewState.hidden) {
                         const plusBtnViewState: PlusViewState = new PlusViewState();
                         plusBtnViewState.index = index;
                         plusBtnViewState.expanded = false;
@@ -756,7 +859,7 @@ class SizingVisitor implements Visitor {
                     }
 
                     if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
-                        (!stmtViewState.isEndpoint && !stmtViewState.collapsed)) {
+                        (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
                         if (!(blockViewState.isEndComponentInMain && (index === node.statements.length - 1))) {
                             stmtViewState.bBox.h = stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h +

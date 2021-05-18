@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon } from "../../../../../../../../assets/icons";
 
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
 import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../../../../components/Tooltip";
@@ -46,7 +46,7 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const intl = useIntl();
     const { syntaxTree } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
@@ -207,7 +207,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     data-testid="addReturn"
                     className={cn("sub-option", { enabled: !isResource && viewState.isLast })}
-                    onClick={!isResource ? onSelect.bind(undefined, 'Return') : null}
+                    onClick={!isResource && viewState.isLast ? onSelect.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
                         <ReturnIcon />
@@ -259,7 +259,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <CustomStatementIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Custom Statement"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Other"/></div>
                 </div>
             </Tooltip>
         )
@@ -332,7 +332,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {(processComp.length > 0 ? <Divider /> : null)}
+                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

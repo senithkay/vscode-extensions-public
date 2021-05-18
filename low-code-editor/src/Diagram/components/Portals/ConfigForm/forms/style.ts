@@ -116,6 +116,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             marginTop: "2.5rem",
         },
+        wizardCreateBtnHolder: {
+            display: "flex",
+            justifyContent: "space-between",
+            height: "auto",
+            marginTop: "2.5rem",
+        },
+        saveBtnHolder: {
+            display: "flex",
+        },
         formCreate: {
             width: 191.2,
             height: 191.2,
@@ -164,11 +173,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         formTitleTag: {
-            justifyContent: 'space-between',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            padding: '0 0.5rem',
+            padding: '0',
             width: 164
         },
         inputHelpTips: {
@@ -386,8 +394,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         suggestionsIcon: {
             marginRight: '6px',
             marginTop: '3px',
-            height: '16px',
-            width: '16px'
+            height: '20px',
+            width: '20px'
         },
         suggestionsText: {
             fontSize: '13px !important',
@@ -398,7 +406,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         suggestionsTextInfo: {
-            color: '#5567d5 !important',
+            color: '#ea4c4d !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'
@@ -421,6 +429,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             justifyContent: "space-between",
             marginTop: '-1.5rem !important'
-        }
+        },
+        removeInnerMargin: {
+            margin: '0.5rem 0 0 0 !important',
+            "& div": {
+                margin: '0 !important',
+                "& div": {
+                    margin: '0 !important',
+                    "& div": {
+                        margin: '0 !important',
+                    }
+                }
+            }
+        },
     }),
 );

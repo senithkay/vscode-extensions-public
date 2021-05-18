@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 
-import { Context as DiagramContext } from "../../Contexts/Diagram";
 import * as stComponents from '../components';
-import { ConnectorClient } from "../components/ActionInvocation/ConnectorClient";
+import { ActionProcessor } from "../components/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../components/Connector/ConnectorProcess";
+// import { ConnectorHeader } from "../components/connector/ConnectorHeader";
 import { IfElse } from "../components/IfElse";
 import { DataProcessor } from "../components/Processor";
 import { Respond } from "../components/Respond";
@@ -48,14 +49,23 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     const draftComponents: React.ReactNode[] = [];
     switch (draft[1].type) {
         case "APIS":
-            draftComponents.push(<ConnectorClient model={null} blockViewState={viewState} />);
+            switch (draft[1].subType) {
+                case "New":
+                    draftComponents.push(<ConnectorProcess model={null} blockViewState={viewState} />);
+                    break;
+                case "Existing":
+                    draftComponents.push(<ActionProcessor model={null} blockViewState={viewState} />);
+                    break;
+                default:
+                    break;
+            }
             break;
         case "STATEMENT":
             switch (draft[1].subType) {
                 case "If":
                 case "ForEach":
-                    // FIXME: Reusing existing implementation of IfElse to add both If/Foreach
-                    // We should refactor it to use Foreach component for the latter.
+                // FIXME: Reusing existing implementation of IfElse to add both If/Foreach
+                // We should refactor it to use Foreach component for the latter.
                 case "While":
                     draftComponents.push(<IfElse model={null} blockViewState={viewState} />);
                     break;

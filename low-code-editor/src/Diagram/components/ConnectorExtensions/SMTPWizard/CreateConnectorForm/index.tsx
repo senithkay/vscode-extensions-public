@@ -16,8 +16,9 @@ import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -35,6 +36,7 @@ interface CreateConnectorFormProps {
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
+    onSaveNext?: () => void;
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
 }
@@ -46,8 +48,9 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled } = props;
-    const { state } = useContext(DiagramContext);
+    const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard,
+            homePageEnabled, onSaveNext } = props;
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
         connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -120,19 +123,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const handleOnSave = () => {
-        const actionName = "sendEmailMessage";
-
         // if connector name available skip setting new value
         connectorConfig.name = nameState.value;
-        connectorConfig.action = {
-            name: actionName,
-            fields: functionDefinitions.get(actionName)?.parameters
-        }
         connectorConfig.connectorInit = connectorInitFormFields;
         onSave();
     };
 
-    const connectionNameLabel = intl.formatMessage({
+    const createConnectionNameLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.name.label",
         defaultMessage: "Connection Name"
     });
@@ -152,48 +149,80 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const SMTPCreateConnectionTooltipMessages = {
-        connectionName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.connectorForms.SMTP.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name"
-            })
-    }
-    };
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: SMTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
+                    </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={connectorInitFormFields} onValidate={onValidate} />
                         </div>
                     </div>
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard && homePageEnabled ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && homePageEnabled && (
                         <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <PrimaryButton
-                        text={saveConnectionButtonText}
-                        disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
+                    <div className={classes.saveBtnHolder}>
+                        <SecondaryButton
+                            text="Save"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSave}
+                        />
+                        <PrimaryButton
+                            text="Save &amp; Next"
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            fullWidth={false}
+                            onClick={onSaveNext}
+                        />
+                    </div>
                     {/* </div> */}
                 </div>
             </FormControl>

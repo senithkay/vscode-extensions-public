@@ -14,10 +14,9 @@
 import React, { ReactNode, useContext } from "react";
 
 import { ConnectorConfig, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram"
 import { Connector, STModification } from "../../../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../../../providers/contexts";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration
@@ -40,7 +39,7 @@ export interface ConnectorInitFormProps {
 }
 
 export function ConnectorInitForm(props: any) {
-    const { onMutate: dispatchMutations } = useContext(DiagramContext).state;
+    const { onMutate } = useContext(DiagramContext).callbacks;
     const {
         connector, typeDef, targetPosition, wizardType, fieldsForFunctions,
         config
@@ -106,19 +105,7 @@ export function ConnectorInitForm(props: any) {
                 getParams(connectorConfig.action.fields), targetPosition
             );
             modifications.push(addActionInvocation);
-
-            if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                    connectorConfig.responsePayloadMap.payloadVariableName,
-                    "var",
-                    connectorConfig.action.returnVariableName,
-                    connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                    targetPosition
-                );
-                modifications.push(addPayload);
-            }
-
-            dispatchMutations(modifications);
+            onMutate(modifications);
         }
     };
 

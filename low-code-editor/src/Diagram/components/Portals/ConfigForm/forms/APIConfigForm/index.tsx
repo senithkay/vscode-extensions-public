@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography } from "@material-ui/core";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS } from "../../../../../models";
 import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
@@ -31,7 +31,7 @@ export interface APIConfigFormProps {
 }
 
 export function APIConfigForm(props: APIConfigFormProps) {
-    const { isMutationProgress: isMutationInProgress } = useContext(DiagramContext).state;
+    const { isMutationProgress: isMutationInProgress } = useContext(Context).state;
 
     const { onComplete, onClose, methods: currentMethod = ["GET"] } = props;
     let { path: currentPath = "" } = props;

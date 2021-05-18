@@ -64,6 +64,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: 1,
             textTransform: "uppercase"
         },
+        textFieldLabel: {
+            padding: 0,
+            margin: 0,
+            color: '#1D2028',
+            fontSize: 14,
+            textTransform: 'capitalize',
+            display: 'inline-block',
+            lineHeight: '35px'
+        },
         triggerList: {
             // display: "flex",
             marginTop: 18,

@@ -13,10 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-export const CLIENT_SVG_WIDTH_WITH_SHADOW = 142;
-export const CLIENT_SVG_HEIGHT_WITH_SHADOW = 142;
-export const CLIENT_STROKE_HEIGHT = 0.75;
-export const CLIENT_RADIUS = 48 + CLIENT_STROKE_HEIGHT ;
+export const CLIENT_SVG_WIDTH_WITH_SHADOW = 100;
+export const CLIENT_SVG_HEIGHT_WITH_SHADOW = 100;
+export const CLIENT_STROKE_HEIGHT = 1;
+export const CLIENT_RADIUS = 24 + CLIENT_STROKE_HEIGHT ;
 export const CLIENT_SVG_WIDTH = CLIENT_RADIUS * 2;
 export const CLIENT_SVG_HEIGHT = CLIENT_RADIUS * 2;
 export const CLIENT_SHADOW_OFFSET = CLIENT_SVG_HEIGHT_WITH_SHADOW - CLIENT_SVG_HEIGHT;
@@ -52,11 +52,11 @@ export function ConnectorSVG(props: { x: number, y: number }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Connector" className="connector-group connector-group-active" transform="translate(18.5 19.5)">
-                <g transform="matrix(1, 0, 0, 1, -18.5, -19.5)">
-                    <g id="ConnectorOval" transform="translate(23.5 22.5)" >
-                        <circle cx="48" cy="48" r="48" stroke="none" />
-                        <circle cx="48" cy="48" r="48" fill="none" className="click-effect" />
+            <g id="Connector" className="connector-group connector-group-active" transform="translate(7 5.5)">
+                <g transform="matrix(1, 0, 0, 1, -29.5, -27)">
+                    <g id="ConnectorOval" transform="translate(48 47)" >
+                        <circle cx="24" cy="24" r="24" stroke="none" />
+                        <circle cx="24" cy="24" r="24.5" fill="none" className="click-effect" />
                     </g>
                 </g>
             </g>

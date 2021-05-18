@@ -17,8 +17,9 @@ import { useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -27,13 +28,13 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from "../../../Portals/utils";
-
 interface CreateConnectorFormProps {
     initFields: FormField[];
     connector: Connector;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave: () => void;
+    onSaveNext?: () => void;
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
 }
@@ -45,8 +46,9 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSave, onBackClick, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard } = props;
-    const { state } = useContext(DiagramContext);
+    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, onConfigNameChange,
+            isNewConnectorInitWizard } = props;
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -124,6 +126,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = connectorInitFields;
+        onSaveNext();
+    };
+
     const filteredFormFields = () => {
         return connectorInitFields.find(config => config.name === "calendarConfig").fields
             .find(field => field.name === "oauth2Config").fields
@@ -150,26 +159,60 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.GCalendar.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                disabled: hasReference
+                                disabled: hasReference,
                             }}
                             defaultValue={defaultText}
                             onChange={onNameChange}
-                            label={createConnectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={createConnectionPlaceholder}
                         />
+                    </Section>
                         <Form fields={filteredFormFields()} onValidate={validateForm} />
                     </div>
                 </div>
-                <div className={classes.wizardBtnHolder}>
+                <div className={isNewConnectorInitWizard ? classes.wizardCreateBtnHolder : classes.wizardBtnHolder}>
                     {isNewConnectorInitWizard && (
                         <SecondaryButton text={backButtonText} fullWidth={false} onClick={onBackClick}/>
                     )}

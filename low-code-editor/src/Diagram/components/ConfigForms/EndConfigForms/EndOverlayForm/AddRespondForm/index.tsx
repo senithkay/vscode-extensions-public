@@ -15,9 +15,9 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import cn from "classnames";
 
+import { CloseRounded } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -46,13 +46,13 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
-    const isFormValid = (): boolean => {
-        return (respondFormConfig.caller !== '') && (respondFormConfig.respondExpression !== '');
+    const isFormValid = (respondExp: string): boolean => {
+        return (respondFormConfig.caller !== '') && (respondExp !== '');
     };
 
-    const [validForm, setValidForm] = useState(isFormValid());
+    const [validForm, setValidForm] = useState(isFormValid(respondFormConfig.respondExpression));
     const [validStatusCode, setValidStatusCode] = useState(validForm);
-    const [isStatusCode, setStatusCode] = useState(undefined);
+    const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
 
@@ -67,13 +67,13 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const onSaveWithTour = () => {
         dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
-        respondFormConfig.responseCode = isStatusCode;
+        respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();
     }
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        if (isFormValid()) {
+        if (isFormValid(resExp)) {
             setValidForm(!isInvalid);
         } else {
             setValidForm(false);
@@ -81,7 +81,7 @@ export function AddRespondForm(props: RespondFormProps) {
     };
 
     const statusCodeValidateExpression = (fieldName: string, isInvalid: boolean) => {
-        const responseCodeNumber = Math.floor(Number(respondFormConfig.responseCode));
+        const responseCodeNumber = Math.floor(statusCodeState);
 
         if ((responseCodeNumber < 99) || (responseCodeNumber > 600)) {
             setValidStatusCode(false);
@@ -103,15 +103,15 @@ export function AddRespondForm(props: RespondFormProps) {
     const respondStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Add relevant expression syntax to provide inputs to different fields in a contextual manner"
+            defaultMessage: "Enter a Ballerina expression."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Read more"
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/expression-editor.md"
+            defaultMessage: "https://ballerina.io/learn/by-example/"
         })
     };
 

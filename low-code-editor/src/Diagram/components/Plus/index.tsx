@@ -11,13 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
-import { BlockStatement, FunctionBodyBlock, STNode } from "@ballerina/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../Definitions/lang-client-extended";
 import { BlockViewState } from "../../view-state";
 import { PlusViewState } from "../../view-state/plus";
@@ -42,11 +42,13 @@ export interface PlusStates {
 }
 
 export const PlusButton = (props: PlusProps) => {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
     const { syntaxTree, isReadOnly } = state;
     const isWaitingOnWorkspace = state.isWaitingOnWorkspace || false;
 
     const { viewState, model, initPlus } = props;
+    const plusRef = useRef(null);
+    // const boundingClient = plusRef?.current?.getBoundingClientRect();
 
     const [states, setStates] = useState<PlusStates>({
         isCollapsePlusDuoShown: false,
@@ -170,7 +172,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorsInfo = undefined) => {
+                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,
@@ -181,7 +183,9 @@ export const PlusButton = (props: PlusProps) => {
         viewState.collapsedPlusDuoExpanded = false;
         viewState.draftAdded = type;
         viewState.draftSubType = subType;
+        viewState.draftSelectedConnector = selectedConnector;
         viewState.draftConnector = connectorType;
+        viewState.draftForExistingConnector = isExisting;
         diagramRedraw(syntaxTree);
     };
 
@@ -196,7 +200,7 @@ export const PlusButton = (props: PlusProps) => {
     const plusHolder = states.isPlusHolderShown ?
         <g>
             <PlusElements
-                position={{ x: (x - (DefaultConfig.plusHolder.width / 2)), y: y }}
+                position={{ x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) }}
                 onComponentClick={handlePlusHolderComponentClick}
                 onClose={handleOnClose}
                 onChange={handlePlusHolderItemClick}
@@ -213,27 +217,18 @@ export const PlusButton = (props: PlusProps) => {
                 className={classes}
                 x={x}
             >
-                <g onClick={smallPlusClick}>
+                <g>
                     <SmallPlusSVG
                         x={x - (SMALLPLUS_SVG_WIDTH_WITH_SHADOW / 2)}
                         y={y - (SMALLPLUS_SVG_HEIGHT_WITH_SHADOW / 2)}
+                        handlePlusClick={handlePlusClick}
                     />
                 </g>
             </g>
         ) : null;
-    const plusCollapse = states.isCollapsePlusDuoShown
-        ? (
-            <PlusAndCollapseSVG
-                x={x}
-                y={y}
-                handlePlusClick={handlePlusClick}
-                handleCollapseClick={handleCollapseClick}
-                collapseDisabled={viewState.isLast}
-            />
-        ) : null;
 
     return (
-        <>
+        <g ref={plusRef}>
             {
                 (!isReadOnly && !isWaitingOnWorkspace) && (<g className="main-plus-wrapper">
                     {plusCircle}
@@ -245,12 +240,11 @@ export const PlusButton = (props: PlusProps) => {
                     >
                         <g>
                             {smallPlus}
-                            {plusCollapse}
                         </g>
 
                     </ClickAwayListener>
                 </g>)
             }
-        </>
+        </g>
     );
 };

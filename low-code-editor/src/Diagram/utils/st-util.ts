@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -18,14 +18,13 @@ import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/ActionInvocation/ConnectorClient/ConnectorClientSVG";
-import { OperationDropdown } from '../components/ConnectorConfigWizard/Components/OperationDropdown';
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
-import { EndpointViewState, PlusViewState, StatementViewState } from "../view-state";
+import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
@@ -236,24 +235,18 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         mainEp.collapsed = value.firstAction?.collapsed;
 
         if (index === 0) {
-            if (mainEp.isUsed) {
-                if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                    mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                    const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                    if (diff < DefaultConfig.epGap) {
-                        mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                    }
+            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
+                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
+                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
+                if (diff < DefaultConfig.epGap) {
+                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
                 }
-                prevX = mainEp.lifeLine.cx;
-            } else {
-                prevX = containerRightMostConerCX;
             }
+            prevX = mainEp.lifeLine.cx;
         } else {
-            if (mainEp.isUsed) {
-                mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                prevX = mainEp.lifeLine.cx;
-            }
+            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            prevX = mainEp.lifeLine.cx;
         }
 
         updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
@@ -273,7 +266,7 @@ export function getMaXWidthOfConnectors(allEndpoints: Map<string, Endpoint>): nu
         const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
-        if (mainEp.isUsed && (prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
+        if ((prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
             prevCX = mainEp.lifeLine.cx + (mainEp.bBox.w / 2);
         }
     });
@@ -423,45 +416,74 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
 export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
     const variable: LocalVarDecl = actionInvo;
+    const viewState: StatementViewState = variable.viewState as StatementViewState;
 
     if (variable.initializer) {
-        let actionVariable: RemoteMethodCallAction;
-        switch (variable.initializer.kind) {
-            case 'TypeCastExpression':
-                const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                break;
-            case 'RemoteMethodCallAction':
-                actionVariable = variable.initializer as RemoteMethodCallAction;
-                break;
-            default:
-                actionVariable = (variable.initializer as CheckAction).expression;
-        }
+        if (viewState.isAction) {
+            let actionVariable: RemoteMethodCallAction;
+            switch (variable.initializer.kind) {
+                case 'TypeCastExpression':
+                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                    actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                    break;
+                case 'RemoteMethodCallAction':
+                    actionVariable = variable.initializer as RemoteMethodCallAction;
+                    break;
+                default:
+                    actionVariable = (variable.initializer as CheckAction).expression;
+            }
 
-        const remoteMethodCallAction: RemoteMethodCallAction = isSTActionInvocation(actionVariable);
-        let matchModule: boolean = false;
-        let matchName: boolean = false;
+            const remoteMethodCallAction: RemoteMethodCallAction = isSTActionInvocation(actionVariable);
+            let matchModule: boolean = false;
+            let matchName: boolean = false;
 
-        if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
-            remoteMethodCallAction.methodName.typeData) {
-            const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
-            const endPoint = stSymbolInfo.endpoints.get(endPointName);
-            const typeData: any = remoteMethodCallAction.methodName.typeData;
-            if (typeData?.symbol?.moduleID) {
-                const moduleId: any = typeData?.symbol?.moduleID;
-                for (const connectorInfo of connectors) {
-                    if (connectorInfo.module === moduleId.moduleName) {
-                        matchModule = true;
+            if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
+                remoteMethodCallAction.methodName.typeData) {
+                const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
+                const endPoint = stSymbolInfo.endpoints.get(endPointName);
+                const typeData: any = remoteMethodCallAction.methodName.typeData;
+                if (typeData?.symbol?.moduleID) {
+                    const moduleId: any = typeData?.symbol?.moduleID;
+                    for (const connectorInfo of connectors) {
+                        if (connectorInfo.module === moduleId.moduleName) {
+                            matchModule = true;
+                        }
+                        if (connectorInfo.name ===
+                            ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                                .identifier.value) {
+                            matchName = true;
+                        }
+
+                        if (matchModule && matchName) {
+                            connector = connectorInfo;
+                            break;
+                        }
                     }
-                    if (connectorInfo.name ===
-                        ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                            .identifier.value) {
-                        matchName = true;
-                    }
+                }
+            }
+        } else if (viewState.isEndpoint) {
+            let matchModule: boolean = false;
+            let matchName: boolean = false;
+            if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+                const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+                const endpointName: string = captureBindingPattern.variableName.value;
+                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
+                if (typeData?.symbol?.moduleID) {
+                    const moduleId: any = typeData?.symbol?.moduleID;
+                    for (const connectorInfo of connectors) {
+                        if (connectorInfo.module === moduleId.moduleName) {
+                            matchModule = true;
+                        }
+                        if (connectorInfo.name ===
+                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                                .identifier.value) {
+                            matchName = true;
+                        }
 
-                    if (matchModule && matchName) {
-                        connector = connectorInfo;
-                        break;
+                        if (matchModule && matchName) {
+                            connector = connectorInfo;
+                            break;
+                        }
                     }
                 }
             }
@@ -496,6 +518,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -512,7 +535,8 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.split("\n")[0].substring(13)
+                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
+                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
             }
         default:
             return undefined;
@@ -523,6 +547,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
@@ -530,6 +559,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
 export function recalculateSizingAndPositioningST(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
