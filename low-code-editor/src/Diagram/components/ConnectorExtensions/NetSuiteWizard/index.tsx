@@ -23,7 +23,6 @@ import { Context } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
@@ -283,19 +282,6 @@ export function NetSuiteWizard(props: WizardProps) {
                     );
                     modifications.push(addActionInvocation);
                 }
-
-                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        config.responsePayloadMap.payloadVariableName,
-                        "var",
-                        config.action.returnVariableName,
-                        config.responsePayloadMap.payloadTypes.get(
-                            config.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                }
-
             }
         }
         onSave(modifications);

@@ -17,7 +17,6 @@ import { ConnectorConfig, FormField, WizardType } from "../../../../../../Config
 import { Connector, STModification } from "../../../../../../Definitions/lang-client-extended";
 import { DiagramContext } from "../../../../../../providers/contexts";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createObjectDeclaration
@@ -106,18 +105,6 @@ export function ConnectorInitForm(props: any) {
                 getParams(connectorConfig.action.fields), targetPosition
             );
             modifications.push(addActionInvocation);
-
-            if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                    connectorConfig.responsePayloadMap.payloadVariableName,
-                    "var",
-                    connectorConfig.action.returnVariableName,
-                    connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                    targetPosition
-                );
-                modifications.push(addPayload);
-            }
-
             modifyDiagram(modifications);
         }
     };

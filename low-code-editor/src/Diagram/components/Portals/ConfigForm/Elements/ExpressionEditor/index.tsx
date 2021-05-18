@@ -40,7 +40,8 @@ import {
     diagnosticCheckerExp,
     getInitialValue,
     getTargetPosition,
-    transformFormFieldTypeToString
+    transformFormFieldTypeToString,
+    typeCheckerExp
 } from "./utils";
 
 function getRandomInt(max: number) {
@@ -231,6 +232,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     validExpEditor();
                 }
+            }
+
+            // Suggest to add check depending on the diagnostic message
+            if (monacoRef.current) {
+                setAddCheck(typeCheckerExp(expressionEditorState.diagnostic, varName, varType))
             }
         }
     }
@@ -794,17 +800,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
                         </>
-                    ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
+                    ) : addCheck ?
                         (
-                            <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode}  data-testid='expr-diagnostics'>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                            </TooltipCodeSnippet>
-                        ) : addCheck ?
+                            <div className={formClasses.addCheckWrapper} >
+                                <img className={formClasses.addCheckIcon} src="../../../../../../images/console-error.svg" />
+                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
+                            </div>
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                             (
-                                <div className={formClasses.addCheckWrapper} >
-                                    <img className={formClasses.addCheckIcon} src="../../../../../../images/info-blue.svg" />
-                                    <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/>{<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
-                                </div>
+                                <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                    <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                                </TooltipCodeSnippet>
                             ) : null
             }
         </>
