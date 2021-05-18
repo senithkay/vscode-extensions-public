@@ -204,6 +204,7 @@ export function updateReturnStatement(returnExpr: string, targetPosition: DraftU
 }
 
 export function createImportStatement(org: string, module: string, targetPosition: DraftInsertPosition): STModification {
+    const moduleName = module;
     const importStatement: STModification = {
         startLine: 0,
         startColumn: 0,
@@ -211,7 +212,7 @@ export function createImportStatement(org: string, module: string, targetPositio
         endColumn: 0,
         type: "IMPORT",
         config: {
-            "TYPE": org + "/" + module
+            "TYPE": org + "/" + module + (moduleName.includes('.') ? " as " + moduleName.split('.').pop() : "")
         }
     };
 
