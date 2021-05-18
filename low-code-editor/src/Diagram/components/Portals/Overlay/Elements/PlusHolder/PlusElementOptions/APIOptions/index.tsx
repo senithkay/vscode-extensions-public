@@ -68,227 +68,251 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.content",
                 defaultMessage: "Send a GET or POST request"
             }),
-    },
+            placement: 'left'
+
+        },
         smtpConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.title",
-            defaultMessage: "Setup an email client to use the SMTP protocol."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
-            defaultMessage: "Send email messages"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.title",
+                defaultMessage: "Setup an email client to use the SMTP protocol."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
+                defaultMessage: "Send email messages"
+            }),
+            placement: 'right'
+        },
         pop3Connector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.title",
-            defaultMessage: "Setup an email client to use the POP3 protocol."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.content",
-            defaultMessage: "Receive email messages"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.title",
+                defaultMessage: "Setup an email client to use the POP3 protocol."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.content",
+                defaultMessage: "Receive email messages"
+            }),
+            placement: 'left'
+        },
         imapConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-            defaultMessage: "Setup an email client to use the IMAP protocol."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
-            defaultMessage: "Receive email messages"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
+                defaultMessage: "Setup an email client to use the IMAP protocol."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
+                defaultMessage: "Receive email messages"
+            }),
+            placement: 'right'
+        },
         gitHubConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.title",
-            defaultMessage: "Connect with GitHub API to perform operations in GitHub."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
-            defaultMessage: "Create issues and pull requests"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.title",
+                defaultMessage: "Connect with GitHub API to perform operations in GitHub."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
+                defaultMessage: "Create issues and pull requests"
+            }),
+            placement: 'left'
+        },
         gmailConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.title",
-            defaultMessage: "Connect with Gmail API to perform email operations."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.content",
-            defaultMessage: "Send and receive email messages"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.title",
+                defaultMessage: "Connect with Gmail API to perform email operations."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.content",
+                defaultMessage: "Send and receive email messages"
+            }),
+            placement: 'right'
+        },
         gCalendarConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.title",
-            defaultMessage: "Connect with Google Calendar API to perform operations in Google Calendar."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.content",
-            defaultMessage: "Create events, Set reminders"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.title",
+                defaultMessage: "Connect with Google Calendar API to perform operations in Google Calendar."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.content",
+                defaultMessage: "Create events, Set reminders"
+            }),
+            placement: 'left'
+        },
         gSheetConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.title",
-            defaultMessage: "Connect with Google Sheets API to perform operations in Google Sheets."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.content",
-            defaultMessage: "Create and edit Google Sheets"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.title",
+                defaultMessage: "Connect with Google Sheets API to perform operations in Google Sheets."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.content",
+                defaultMessage: "Create and edit Google Sheets"
+            }),
+            placement: 'right'
+        },
         slackConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.title",
-            defaultMessage: "Connect with Slack API to perform operations in Slack."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
-            defaultMessage: "Post messages, Send files"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.title",
+                defaultMessage: "Connect with Slack API to perform operations in Slack."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
+                defaultMessage: "Post messages, Send files"
+            }),
+            placement: 'right'
+        },
         twilioConnector: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.title",
-            defaultMessage: "Connect with Twilio API, and communicate with external services."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.content",
-            defaultMessage: "Send SMS, Make voice calls"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.title",
+                defaultMessage: "Connect with Twilio API, and communicate with external services."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.content",
+                defaultMessage: "Send SMS, Make voice calls"
+            }),
+            placement: 'left'
+        },
         netsuite: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.title",
-            defaultMessage: "Connect with Netsuite API to perform Netsuite operations."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.content",
-            defaultMessage: "Search customer details \nSearch transactions"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.title",
+                defaultMessage: "Connect with Netsuite API to perform Netsuite operations."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.content",
+                defaultMessage: "Search customer details \nSearch transactions"
+            }),
+            placement: 'right'
+        },
         salesforce: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.title",
-            defaultMessage: "Connect with Salesforce API to perform Salesforce operations."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
-            defaultMessage: "Create records, Create leads"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.title",
+                defaultMessage: "Connect with Salesforce API to perform Salesforce operations."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
+                defaultMessage: "Create records, Create leads"
+            }),
+            placement: 'left'
+        },
         postgreSQL: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.title",
-            defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL"
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.content",
-            defaultMessage: "Execute SQL queries"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.title",
+                defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL"
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.content",
+                defaultMessage: "Execute SQL queries"
+            }),
+            placement: 'right'
+        },
         gDrive: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.title",
-            defaultMessage: "Connect with Google Drive API to perform file management operations in Google Drive."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.content",
-            defaultMessage: "Create file, Download file "
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.title",
+                defaultMessage: "Connect with Google Drive API to perform file management operations in Google Drive."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.content",
+                defaultMessage: "Create file, Download file "
+            }),
+            placement: 'left'
+        },
         gPeopleAPI: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.title",
-            defaultMessage: "Connect with Google People API to perform contant management operations in Google People."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
-            defaultMessage: "Create contact, Modify contact"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.title",
+                defaultMessage: "Connect with Google People API to perform contant management operations in Google People."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
+                defaultMessage: "Create contact, Modify contact"
+            }),
+            placement: 'right'
+        },
         azureEventHub: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.title",
-            defaultMessage: "Connect with Azure Event Hub to perform Event hub service operations."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.content",
-            defaultMessage: "List partitions, Update event hub"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.title",
+                defaultMessage: "Connect with Azure Event Hub to perform Event hub service operations."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.content",
+                defaultMessage: "List partitions, Update event hub"
+            }),
+            placement: 'left'
+        },
         azureCosmosDB: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.title",
-            defaultMessage: "Connect with Azure Cosmos DB to perform database operations in Cosmos DB."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
-            defaultMessage: "Create document \nCreate stored procedure"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.title",
+                defaultMessage: "Connect with Azure Cosmos DB to perform database operations in Cosmos DB."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
+                defaultMessage: "Create document \nCreate stored procedure"
+            }),
+            placement: 'left'
+        },
         azureFileService: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.title",
-            defaultMessage: "Connect with Azure Storage File Service to perform operations in Azure File Storage."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.content",
-            defaultMessage: "Create directory, Upload file"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.title",
+                defaultMessage: "Connect with Azure Storage File Service to perform operations in Azure File Storage."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.content",
+                defaultMessage: "Create directory, Upload file"
+            }),
+            placement: 'left'
+        },
         azureBlobService: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.title",
-            defaultMessage: "Connect with Azure Blob to perform operations in Azure Blob Storage."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.content",
-            defaultMessage: "Create blob, Update blob"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.title",
+                defaultMessage: "Connect with Azure Blob to perform operations in Azure Blob Storage."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.content",
+                defaultMessage: "Create blob, Update blob"
+            }),
+            placement: 'left'
+        },
         mongoDB: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.title",
-            defaultMessage: "Connect with Mongo DB API to perform database operations."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
-            defaultMessage: "Insert document, List collections"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.title",
+                defaultMessage: "Connect with Mongo DB API to perform database operations."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
+                defaultMessage: "Insert document, List collections"
+            }),
+            placement: 'right'
+        },
         redis: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.title",
-            defaultMessage: "Connect with Redis to perform operations on a Redis data source."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
-            defaultMessage: "Insert string value to a cache"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.title",
+                defaultMessage: "Connect with Redis to perform operations on a Redis data source."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
+                defaultMessage: "Insert string value to a cache"
+            }),
+            placement: 'left'
+        },
         AWSS3: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.title",
-            defaultMessage: "Connect with Amazon S3 API to manage Amzon S3 buckets and objects."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
-            defaultMessage: "Create bucket, List objects"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.title",
+                defaultMessage: "Connect with Amazon S3 API to manage Amzon S3 buckets and objects."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
+                defaultMessage: "Create bucket, List objects"
+            }),
+            placement: 'right'
+        },
         AWSSQS: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.title",
-            defaultMessage: "Connect with Amazon Simple Queue Service API to manage queues and messages."
-        }),
-        content: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
-            defaultMessage: "Create SQS queue, \nReceive a message from a SQS Queue"
-        }),
-    },
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.title",
+                defaultMessage: "Connect with Amazon Simple Queue Service API to manage queues and messages."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
+                defaultMessage: "Create SQS queue, \nReceive a message from a SQS Queue"
+            }),
+            placement: 'left'
+        },
     }
     // tslint:disable-next-line: no-shadowed-variable
     const tooltipTitles: Record<any, string> = {
@@ -302,9 +326,9 @@ export function APIOptions(props: APIOptionsProps) {
         "GOOGLE CALENDAR": connectionsTooltipMessages.gCalendarConnector.title,
         "GOOGLE SHEETS": connectionsTooltipMessages.gSheetConnector.title,
         SLACK: connectionsTooltipMessages.slackConnector.title,
-        SALESFORCE : connectionsTooltipMessages.salesforce.title,
-        POSTGRESQL : connectionsTooltipMessages.postgreSQL.title,
-        NETSUITE : connectionsTooltipMessages.netsuite.title,
+        SALESFORCE: connectionsTooltipMessages.salesforce.title,
+        POSTGRESQL: connectionsTooltipMessages.postgreSQL.title,
+        NETSUITE: connectionsTooltipMessages.netsuite.title,
         "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.title,
         "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.title,
         "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.title,
@@ -329,9 +353,9 @@ export function APIOptions(props: APIOptionsProps) {
         "GOOGLE CALENDAR": connectionsTooltipMessages.gCalendarConnector.content,
         "GOOGLE SHEETS": connectionsTooltipMessages.gSheetConnector.content,
         SLACK: connectionsTooltipMessages.slackConnector.content,
-        SALESFORCE : connectionsTooltipMessages.salesforce.content,
-        POSTGRESQL : connectionsTooltipMessages.postgreSQL.content,
-        NETSUITE : connectionsTooltipMessages.netsuite.content,
+        SALESFORCE: connectionsTooltipMessages.salesforce.content,
+        POSTGRESQL: connectionsTooltipMessages.postgreSQL.content,
+        NETSUITE: connectionsTooltipMessages.netsuite.content,
         "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.content,
         "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.content,
         "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.content,
@@ -343,6 +367,33 @@ export function APIOptions(props: APIOptionsProps) {
         "AWS S3": connectionsTooltipMessages.AWSS3.content,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.content,
     };
+
+    const tooltipPlacement: Record<any, any> = {
+        HTTP: connectionsTooltipMessages.httpConnector.placement,
+        SMTP: connectionsTooltipMessages.smtpConnector.placement,
+        POP3: connectionsTooltipMessages.pop3Connector.placement,
+        IMAP: connectionsTooltipMessages.imapConnector.placement,
+        TWILIO: connectionsTooltipMessages.twilioConnector.placement,
+        GITHUB: connectionsTooltipMessages.gitHubConnector.placement,
+        GMAIL: connectionsTooltipMessages.gmailConnector.placement,
+        "GOOGLE CALENDAR": connectionsTooltipMessages.gCalendarConnector.placement,
+        "GOOGLE SHEETS": connectionsTooltipMessages.gSheetConnector.placement,
+        SLACK: connectionsTooltipMessages.slackConnector.placement,
+        SALESFORCE: connectionsTooltipMessages.salesforce.placement,
+        POSTGRESQL: connectionsTooltipMessages.postgreSQL.placement,
+        NETSUITE: connectionsTooltipMessages.netsuite.placement,
+        "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.placement,
+        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.placement,
+        "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.placement,
+        "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.placement,
+        "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.placement,
+        "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.placement,
+        "MONGO DB": connectionsTooltipMessages.mongoDB.placement,
+        "REDIS": connectionsTooltipMessages.redis.placement,
+        "AWS S3": connectionsTooltipMessages.AWSS3.placement,
+        "AWS SQS": connectionsTooltipMessages.AWSSQS.placement,
+    };
+
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
     const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
     const [isExistingConnectorCollapsed, setExistingConnectorCollapsed] = useState(false);
@@ -375,7 +426,8 @@ export function APIOptions(props: APIOptionsProps) {
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
-            const placement = index % 2 === 0 ? 'left' : 'right';
+            // const placement = index % 2 === 0 ? 'left' : 'right';
+            const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
@@ -399,7 +451,7 @@ export function APIOptions(props: APIOptionsProps) {
 
             // filter connectors due to maintenance
             const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs'];
-            if (!filletedConnectors.includes(connector.module)){
+            if (!filletedConnectors.includes(connector.module)) {
                 connectorComponents.push(connectorComponent);
             }
         });
