@@ -809,7 +809,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                             (
                                 <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                                    <FormHelperText className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                                    <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                 </TooltipCodeSnippet>
                             ) : null
             }
