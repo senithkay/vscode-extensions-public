@@ -40,7 +40,7 @@ import "./components/InputTypes/style.scss";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
-import { DataMapperPositionVisitor } from './util/data-mapper-position-visitor';
+import { DataMapperPositionVisitor, PADDING_OFFSET } from './util/data-mapper-position-visitor';
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
@@ -341,9 +341,9 @@ export function DataMapper(props: DataMapperProps) {
                 {
                     expressionConfig && (
                         <DiagramOverlay
-                            position={{ x: expressionConfig.positionX, y: expressionConfig.positionY }}
+                            position={{ x: expressionConfig.positionX - (PADDING_OFFSET * 2.4), y: expressionConfig.positionY - (PADDING_OFFSET / 2) }}
                         >
-                            <div className='main-wrapper' style={{ width: 300, padding: 15, background: 'white' }}>
+                            <div className='expression-wrapper'>
                                 <ExpressionEditor {...expressionConfig.config} />
                                 <div className={overlayClasses.buttonWrapper}>
                                     <SecondaryButton text="Cancel" fullWidth={false} onClick={expressionEditorOnCancel} />
