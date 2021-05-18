@@ -63,9 +63,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         stSymbolInfo,
         originalSyntaxTree,
     } = state;
-    const model: FunctionDefinition = syntaxTree as FunctionDefinition;
-    const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
-    const { position, onComplete, currentConnection } = props;
+    const { onComplete, currentConnection } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -73,8 +71,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
     const [triggerChanged, setTriggerChanged] = useState(false);
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
+    const [calendarEvent, setCalendarEvent] = useState();
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
     const Trigger = "Google Calendar";
+
+    // HACK: hardcoded event list until get it form connector API
+    const calenderEvents = ['onNewEvent', 'onEventUpdate', 'onEventDelete'];
 
     useEffect(() => {
         if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -99,12 +101,15 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             setActiveConnection(connection);
         }
     }
+
     function handleOnDeselectConnection() {
         setActiveConnection(undefined);
     }
+
     function handleError() {
         setActiveConnection(undefined);
     }
+
     function getActiveGcalendar() {
         if (gcalenderList && activeGcalendar === null) {
             // select primary calender from list
@@ -113,12 +118,19 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         }
         return activeGcalendar;
     }
+
     function handleItemLabel(gcalendar: Gcalendar) {
         return gcalendar.summary;
     }
+
     const handleGcalendarChange = (event: object, value: any) => {
         setActiveGcalendar(value);
     };
+
+    const handleCalendarEventChange = (event: object, value: any) => {
+        setCalendarEvent(value);
+    };
+
     const getKeyFromCalConnection = (key: string) => {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
     };
@@ -133,7 +145,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
     // handle trigger configure complete
     const createCalendarTrigger = () => {
-        const accessToken = getKeyFromCalConnection('accessTokenKey');
         const clientId = getKeyFromCalConnection('clientIdKey');
         const clientSecret = getKeyFromCalConnection('clientSecretKey');
         const refreshUrl = getKeyFromCalConnection('tokenEpKey');
@@ -144,13 +155,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gcalendar",
             PORT: 8090,
-            ACCESS_TOKEN: accessToken,
             CLIENT_ID: clientId,
             CLIENT_SECRET: clientSecret,
             REFRESH_URL: refreshUrl,
             REFRESH_TOKEN: refreshToken,
             CALENDAR_ID: activeGcalendar.id,
-            UUID: Math.floor(Math.random() * 10000000) // FIXME: Use UUID instead
+            EVENT: calendarEvent,
         });
         trackTriggerSelection("Google Calender");
     };
@@ -221,15 +231,22 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             setTriggerChanged(true);
         }
     };
+
     const chooseCalendarPlaceholder = intl.formatMessage({
             id: "lowcode.develop.GCalendarConfigWizard.chooseCalendar.placeholder",
             defaultMessage: "Choose calendar"
+        });
+
+    const chooseEventPlaceholder = intl.formatMessage({
+            id: "lowcode.develop.GCalendarConfigWizard.chooseEvent.placeholder",
+            defaultMessage: "Choose Event"
         });
 
     const saveConfigButton = intl.formatMessage({
             id: "lowcode.develop.GCalendarConfigWizard.saveConfigButton.text",
             defaultMessage: "Save"
         });
+
     return (
         <>
             <div className={classes.customWrapper}>
@@ -263,9 +280,20 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         />
                     </>
                 )}
+                {activeGcalendar && (
+                    <>
+                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event"/></p>
+                        <FormAutocomplete
+                            placeholder={chooseEventPlaceholder}
+                            itemList={calenderEvents}
+                            value={calendarEvent}
+                            onChange={handleCalendarEventChange}
+                        />
+                    </>
+                )}
             </div>
 
-            { activeConnection && activeGcalendar &&
+            { activeConnection && activeGcalendar && calendarEvent &&
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton

@@ -21,7 +21,7 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
-import { getConnectorIconSVG, getExistingConnectorIconSVG } from "../../../../../utils";
+import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
 
@@ -176,17 +176,117 @@ export function APIOptions(props: APIOptionsProps) {
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
-            defaultMessage: "Create records , Create leads"
+            defaultMessage: "Create records, Create leads"
         }),
     },
         postgreSQL: {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.title",
-            defaultMessage: "Connect with PostgreSQL API to perform PostgreSQL operations."
+            defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL"
         }),
         content: intl.formatMessage({
             id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.content",
             defaultMessage: "Execute SQL queries"
+        }),
+    },
+        gDrive: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.title",
+            defaultMessage: "Connect with Google Drive API to perform file management operations in Google Drive."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.content",
+            defaultMessage: "Create file, Download file "
+        }),
+    },
+        gPeopleAPI: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.title",
+            defaultMessage: "Connect with Google People API to perform contant management operations in Google People."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
+            defaultMessage: "Create contact, Modify contact"
+        }),
+    },
+        azureEventHub: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.title",
+            defaultMessage: "Connect with Azure Event Hub to perform Event hub service operations."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.content",
+            defaultMessage: "List partitions, Update event hub"
+        }),
+    },
+        azureCosmosDB: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.title",
+            defaultMessage: "Connect with Azure Cosmos DB to perform database operations in Cosmos DB."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
+            defaultMessage: "Create document \nCreate stored procedure"
+        }),
+    },
+        azureFileService: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.title",
+            defaultMessage: "Connect with Azure Storage File Service to perform operations in Azure File Storage."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.content",
+            defaultMessage: "Create directory, Upload file"
+        }),
+    },
+        azureBlobService: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.title",
+            defaultMessage: "Connect with Azure Blob to perform operations in Azure Blob Storage."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.content",
+            defaultMessage: "Create blob, Update blob"
+        }),
+    },
+        mongoDB: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.title",
+            defaultMessage: "Connect with Mongo DB API to perform database operations."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
+            defaultMessage: "Insert document, List collections"
+        }),
+    },
+        redis: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.title",
+            defaultMessage: "Connect with Redis to perform operations on a Redis data source."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
+            defaultMessage: "Insert string value to a cache"
+        }),
+    },
+        AWSS3: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.title",
+            defaultMessage: "Connect with Amazon S3 API to manage Amzon S3 buckets and objects."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
+            defaultMessage: "Create bucket, List objects"
+        }),
+    },
+        AWSSQS: {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.title",
+            defaultMessage: "Connect with Amazon Simple Queue Service API to manage queues and messages."
+        }),
+        content: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
+            defaultMessage: "Create SQS queue, \nReceive a message from a SQS Queue"
         }),
     },
     }
@@ -205,6 +305,16 @@ export function APIOptions(props: APIOptionsProps) {
         SALESFORCE : connectionsTooltipMessages.salesforce.title,
         POSTGRESQL : connectionsTooltipMessages.postgreSQL.title,
         NETSUITE : connectionsTooltipMessages.netsuite.title,
+        "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.title,
+        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.title,
+        "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.title,
+        "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.title,
+        "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.title,
+        "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.title,
+        "MONGO DB": connectionsTooltipMessages.mongoDB.title,
+        "REDIS": connectionsTooltipMessages.redis.title,
+        "AWS S3": connectionsTooltipMessages.AWSS3.title,
+        "AWS SQS": connectionsTooltipMessages.AWSSQS.title,
     };
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -222,6 +332,16 @@ export function APIOptions(props: APIOptionsProps) {
         SALESFORCE : connectionsTooltipMessages.salesforce.content,
         POSTGRESQL : connectionsTooltipMessages.postgreSQL.content,
         NETSUITE : connectionsTooltipMessages.netsuite.content,
+        "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.content,
+        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.content,
+        "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.content,
+        "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.content,
+        "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.content,
+        "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.content,
+        "MONGO DB": connectionsTooltipMessages.mongoDB.content,
+        "REDIS": connectionsTooltipMessages.redis.content,
+        "AWS S3": connectionsTooltipMessages.AWSS3.content,
+        "AWS SQS": connectionsTooltipMessages.AWSSQS.content,
     };
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
     const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
@@ -259,7 +379,7 @@ export function APIOptions(props: APIOptionsProps) {
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample}>
+                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
                     <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
                         <div className="connector-details product-tour-add-http">
                             <div className="connector-icon">
@@ -276,7 +396,12 @@ export function APIOptions(props: APIOptionsProps) {
                 connectorInfo: connector,
                 component
             }
-            connectorComponents.push(connectorComponent);
+
+            // filter connectors due to maintenance
+            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs'];
+            if (!filletedConnectors.includes(connector.module)){
+                connectorComponents.push(connectorComponent);
+            }
         });
 
         const getConnector = (moduleName: string, name: string): BallerinaConnectorsInfo => {
@@ -285,7 +410,8 @@ export function APIOptions(props: APIOptionsProps) {
             Array.from(connectors).forEach(element => {
                 // tslint:disable-next-line: no-unused-expression
                 const existingConnector = element as BallerinaConnectorsInfo;
-                if (existingConnector.module === moduleName && existingConnector.name === name) {
+                const formattedModuleName = getFormattedModuleName(existingConnector.module);
+                if (formattedModuleName === moduleName && existingConnector.name === name) {
                     returnConnnectorType = existingConnector;
                 }
             });
@@ -293,7 +419,6 @@ export function APIOptions(props: APIOptionsProps) {
         }
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
-            const existingConnectorIcon = value.typedBindingPattern.typeDescriptor.source.trim().replace(":", "_");
             const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).modulePrefix.value;
             const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
             const existConnector = getConnector(moduleName, name);
@@ -301,7 +426,7 @@ export function APIOptions(props: APIOptionsProps) {
                 <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
                     <div className="existing-connector-details product-tour-add-http">
                         <div className="existing-connector-icon">
-                            {getExistingConnectorIconSVG(existingConnectorIcon)}
+                            {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}
                         </div>
                         <div className="existing-connector-name">
                             {key}

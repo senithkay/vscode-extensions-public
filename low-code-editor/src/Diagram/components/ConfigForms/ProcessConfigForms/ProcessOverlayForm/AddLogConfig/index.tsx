@@ -50,10 +50,12 @@ export function AddLogConfig(props: LogConfigProps) {
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
-        ['printError', 'Error'],
-        ['print', 'Info']
+        ['printInfo', 'Info'],
+        ['printDebug', 'Debug'],
+        ['printWarn', 'Warn'],
+        ['printError', 'Error']
     ])
-    const logTypes: string[] = ["Info", "Error"];
+    const logTypes: string[] = Array.from(logTypeFunctionNameMap.values());
     const logFormConfig: LogConfig = config.config as LogConfig;
 
     let defaultType = "Info";
@@ -80,7 +82,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const onSaveBtnClick = () => {
         logFormConfig.expression = expression;
-        logFormConfig.type = logType === "Info" ? "" : logType;
+        logFormConfig.type = logType;
         onSave();
     };
 
