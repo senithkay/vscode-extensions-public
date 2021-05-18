@@ -72,7 +72,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   useEffect(() => {
@@ -95,18 +94,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
       const resourceMembers = [];
       if (stMethod && stPath) {
-        resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+        if (resources.length === 0) {
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+          setResources(resourceMembers);
+        }
       } else {
         const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
         resourceMembers.push(defaultConfig);
+        setResources(resourceMembers);
       }
-      setResources(resourceMembers)
     }
   }, [syntaxTree])
-
-  const handleDialogOnCancel = () => {
-    setShowConfirmDialog(false);
-  };
 
   function handleOnSelect(methodType: string, index: number) {
     setCurrentMethod(methodType);
@@ -157,17 +155,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const handleUserConfirm = () => {
-    if (isEmptySource) {
-      handleUpdateResources();
-    } else {
-      // get user confirmation if code there
-      setShowConfirmDialog(true);
-    }
+    handleUpdateResources();
   };
 
   const handleUpdateResources = () => {
     if (isNewService) {
-      setShowConfirmDialog(false);
       // dispatch and close the wizard
       setTriggerChanged(true);
       onModify(TRIGGER_TYPE_API, undefined, {
@@ -343,13 +335,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               </div>
             )
           }
-
-          {showConfirmDialog && (
-            <SourceUpdateConfirmDialog
-              onConfirm={handleUpdateResources}
-              onCancel={handleDialogOnCancel}
-            />
-          )}
         </div>
       </ConfigPanel>
     </DiagramOverlay>

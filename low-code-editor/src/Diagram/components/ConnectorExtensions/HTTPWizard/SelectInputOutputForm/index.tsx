@@ -42,7 +42,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
-import { HeaderObjectConfig, HTTPHeaders } from "../HTTPHeaders";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 
@@ -52,7 +51,6 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
-    headerObject?: HeaderObjectConfig[];
     model?: STNode,
 }
 
@@ -71,8 +69,7 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard,
-            headerObject, model } = props;
+    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
     const { state: diagramState } = useContext(Context);
     const { isMutationProgress } = diagramState;
@@ -85,11 +82,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state, setDefaultActionName] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
-    const [defaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
+    const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(connectorConfig?.responsePayloadMap?.payloadVariableName);
     const [payloadVarError, setPayloadVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
-    const payloadSelected = !(connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType === "");
+    const payloadSelected = !(connectorConfig.responsePayloadMap &&
+        (connectorConfig.responsePayloadMap.selectedPayloadType === "" ||
+            connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
     const httpVar = model as LocalVarDecl;
@@ -115,57 +114,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
     };
 
-    let newField: FormField;
-    if (connectorConfig?.action?.name === "forward") {
-        actions.forEach((fields, name) => {
-            if (name === "forward") {
-                fields.parameters.forEach((field, key) => {
-                    if (field.name === "forwardReq") {
-                        newField = field;
-                    }
-                });
-            }
-        });
-    }
-    const [forwardReqField] = useState(newField);
-
-    const onForwardReqChange = (value: string) => {
-        if (forwardReqField) {
-            forwardReqField.value = value;
-        }
-    };
-
-    const validateReqField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsGenFieldsFilled(!isInvalidFromField)
-    }
-
-    const reqField: FormField = {
-        name: "request",
-        displayName: "Request",
-        type: PrimitiveBalType.Record,
-        typeInfo: httpRequest,
-        value: forwardReqField?.value
-
-    }
-
-    const expElementProps: FormElementProps = {
-        model: reqField,
-        customProps: {
-            validate: validateReqField,
-            statementType: reqField.type
-        },
-        onChange: onForwardReqChange,
-    };
-
-    const forwardReq: ReactNode = (connectorConfig?.action?.name === "forward") ?
-        (<ExpressionEditor {...expElementProps} />) : null;
-
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
     const [payloadState, setPayloadState] = useState<PayloadState>(initialPayloadState);
     const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(returnNameState.value);
     const frmFields: FormField[] = connectorConfig?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
     const [onOperationChange, setOnOperationChange] = useState(false);
+    const [isOperationChanged, setIsOperationChanged] = useState(false);
     let action: ActionConfig = new ActionConfig();
     if (connectorConfig.action) {
         action = connectorConfig.action;
@@ -208,6 +163,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 :
                 connectorConfig.responsePayloadMap.payloadVariableName
         });
+        setDefaultPayloadVarName(connectorConfig.responsePayloadMap.payloadVariableName);
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
     };
@@ -259,7 +215,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     }
 
-    const selectedOperationParams = state && isFieldsAvailable && action.name && action.name !== "forward" &&
+    const selectedOperationParams = state && isFieldsAvailable && action.name &&
         (<Form fields={formFields} onValidate={onValidate} />);
 
     const onPayloadNameChange = (value: string) => {
@@ -393,17 +349,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             && isPayloadMapped);
 
     const handleSwitchToggleChange = () => {
+        if (connectorConfig.responsePayloadMap) {
+            connectorConfig.responsePayloadMap.isPayloadSelected = false;
+            connectorConfig.responsePayloadMap.selectedPayloadType = "";
+            connectorConfig.responsePayloadMap.payloadVariableName = "";
+        }
         if (!payloadState.isPayloadSelected) {
             setPayloadState({
                 ...payloadState,
-                isPayloadSelected: true
+                isPayloadSelected: true,
+                selectedPayload: "",
             });
         } else {
-            if (connectorConfig.responsePayloadMap) {
-                connectorConfig.responsePayloadMap.isPayloadSelected = false;
-                connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
-            }
             setPayloadState({
                 isPayloadSelected: false,
                 selectedPayload: "",
@@ -419,7 +376,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             let actionInitializer: CheckAction;
             connectorConfig.action.returnVariableName =
                 (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-            connectorConfig.responsePayloadMap.selectedPayloadType = '';
             setReturnNameState({
                 isNameProvided: true,
                 value: connectorConfig.action.returnVariableName,
@@ -427,9 +383,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             });
             setDefaultResponseVarName(connectorConfig.action.returnVariableName);
             switch (httpVar.initializer.kind) {
-                case 'TypeCastExpression':
+                case 'CheckAction':
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                    connectorConfig.responsePayloadMap.isPayloadSelected = true;
 
                     // payload population logic stuff
                     const varName = (httpVar.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
@@ -453,8 +408,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 } else if (variableStatement.source.includes('getJsonPayload')) {
                                     connectorConfig.responsePayloadMap.selectedPayloadType = 'JSON';
                                 } else {
-                                    connectorConfig.responsePayloadMap.selectedPayloadType = '';
+                                    connectorConfig.responsePayloadMap.selectedPayloadType = "";
                                 }
+                                setPayloadState({
+                                    isPayloadSelected: (connectorConfig.responsePayloadMap.selectedPayloadType !==
+                                        undefined || (connectorConfig.responsePayloadMap.selectedPayloadType !== "")),
+                                    selectedPayload: connectorConfig.responsePayloadMap.selectedPayloadType,
+                                    isNameProvided: true,
+                                    validPayloadName: true,
+                                    variableName: connectorConfig.responsePayloadMap.payloadVariableName
+                                });
+                                setDefaultPayloadVarName(connectorConfig.responsePayloadMap.payloadVariableName);
                             }
                         }
                     });
@@ -463,90 +427,13 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     actionInitializer = httpVar.initializer as CheckAction;
                 // ignored
             }
-
-            if (actionInitializer) {
-                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
-
-                if (message) {
-                    if (message.kind === 'SimpleNameReference') {
-                        const refName = (message as SimpleNameReference).name.value;
-                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
-
-                        if (connectorConfig.action.name === 'forward') {
-                            connectorConfig.action.fields[3].value = refName;
-                        }
-
-                        if (refCallStatements) {
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setHeader')
-                                .forEach(callStatement => {
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    headerObject.push({
-                                        requestName: refName,
-                                        objectKey: ((callStatementExp.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value,
-                                        objectValue: ((callStatementExp.arguments[2] as PositionalArg).expression as StringLiteral).literalToken.value
-                                    })
-                                });
-
-                            refCallStatements
-                                .filter(callStatement =>
-                                    (((callStatement as CallStatement).expression) as MethodCall).methodName.name.value === 'setPayload')
-                                .forEach(callStatement => {
-                                    // expression types StringLiteral, XmlTemplateExpression, MappingConstructor
-                                    const callStatementExp: any = (callStatement as CallStatement).expression;
-                                    // connectorConfig.action. (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                    connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                        field.requestName = refName;
-
-                                        switch ((callStatementExp.arguments[0] as PositionalArg).expression.kind) {
-                                            case 'XmlTemplateExpression':
-                                                field.selectedDataType = 'xml';
-                                                break;
-                                            case 'MappingConstructor':
-                                                field.selectedDataType = 'json';
-                                                break;
-                                            default:
-                                                field.selectedDataType = 'string';
-                                        }
-
-                                        field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                            .forEach(unionField => {
-                                                unionField.value = (callStatementExp.arguments[0] as PositionalArg).expression.source
-                                            })
-                                    })
-                                });
-                        }
-                    } else {
-                        if (connectorConfig.action.name !== 'get') {
-                            connectorConfig.action.fields.filter(field => field.name === 'message').forEach(field => {
-                                switch (message.kind) {
-                                    case 'XmlTemplateExpression':
-                                        field.selectedDataType = 'xml';
-                                        break;
-                                    case 'MappingConstructor':
-                                        field.selectedDataType = 'json';
-                                        break;
-                                    default:
-                                        field.selectedDataType = 'string';
-                                }
-
-                                field.fields.filter(unionField => unionField.type === field.selectedDataType)
-                                    .forEach(unionField => {
-                                        unionField.value = message.source
-                                    })
-                            });
-                        }
-                    }
-                }
-            }
         }
     }, [isNewConnectorInitWizard]);
 
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
+        setIsOperationChanged(true);
         if (isNewConnectorInitWizard) {
             setReturnNameState({
                 value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
@@ -562,6 +449,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             setFormFields(derivedFormFields);
             setOnOperationChange(false);
         }
+        setPayloadState({
+            isPayloadSelected: false,
+            selectedPayload: "",
+            isNameProvided: false,
+            validPayloadName: true,
+            variableName: undefined
+        });
+        connectorConfig.responsePayloadMap.selectedPayloadType = "";
     };
 
     const handleOperationChange = () => {
@@ -636,7 +531,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
                                 <div className={classNames(classes.groupedForm, classes.marginTB)}>
                                     {selectedOperationParams}
-                                    {forwardReq}
                                 </div>
                                 <div className={classes.marginTB}>
                                     <FormTextInput
@@ -653,7 +547,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     />
                                 </div>
 
-                                {(isNewConnectorInitWizard || !responseVariableHasReferences) ? (
+                                {(isNewConnectorInitWizard || isOperationChanged ||
+                                    !(connectorConfig.responsePayloadMap.selectedPayloadType)) && (
                                     // <Tooltip
                                     //     title={tooltipMessages.HTTPPayload.title}
                                     //     content={tooltipMessages.HTTPPayload.content}
@@ -664,15 +559,17 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         <SwitchToggle
                                             text="Do you want to extract a payload?"
                                             onChange={handleSwitchToggleChange}
-                                            initSwitch={payloadSelected}
+                                            initSwitch={payloadState.isPayloadSelected}
                                         />
                                     // </Tooltip>
-                                ) : <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>}
-
+                                )}
                                 {payloadState.isPayloadSelected && (
-                                    <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                                        {payloadComponent}
-                                    </div>
+                                    <>
+                                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                            {payloadComponent}
+                                        </div>
+                                    </>
                                 )}
                                 {/* <HTTPHeaders headerObject={headerObject} /> */}
                                 <ExpressionEditorMap

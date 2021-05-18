@@ -207,7 +207,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     data-testid="addReturn"
                     className={cn("sub-option", { enabled: !isResource && viewState.isLast })}
-                    onClick={!isResource ? onSelect.bind(undefined, 'Return') : null}
+                    onClick={!isResource && viewState.isLast ? onSelect.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
                         <ReturnIcon />
