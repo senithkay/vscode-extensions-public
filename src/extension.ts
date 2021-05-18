@@ -27,7 +27,7 @@ import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
-import { activate as activatePackageOverview } from './tree-view';
+import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
@@ -60,8 +60,10 @@ export function activate(context: ExtensionContext): Promise<any> {
     ballerinaExtInstance.setContext(context);
     return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
+        // Enable package overview
+        const packageOverviewDataProvider: PackageOverviewDataProvider = activatePackageOverview(ballerinaExtInstance);
         // Enable Ballerina diagram
-        activateDiagram(ballerinaExtInstance);
+        activateDiagram(ballerinaExtInstance, packageOverviewDataProvider);
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
         // Enable Network logs
@@ -73,8 +75,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
-        // Enable package overview
-        activatePackageOverview(ballerinaExtInstance);
+
         if (ballerinaExtInstance.isSwanLake) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);

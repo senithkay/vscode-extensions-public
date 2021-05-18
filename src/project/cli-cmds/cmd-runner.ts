@@ -6,9 +6,10 @@ export enum PALETTE_COMMANDS {
     BUILD = 'ballerina.project.build',
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
+    FOCUS_OVERVIEW = 'ballerinaPackageTreeView.focus',
     RUN = 'ballerina.project.run',
-    TEST = 'ballerina.project.test',
-    SAVE_ALL = 'workbench.action.files.saveFiles'
+    SAVE_ALL = 'workbench.action.files.saveFiles',
+    TEST = 'ballerina.project.test'
 }
 
 export enum BALLERINA_COMMANDS {

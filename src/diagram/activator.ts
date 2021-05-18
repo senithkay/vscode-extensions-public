@@ -27,11 +27,26 @@ import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
+import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
+import { PALETTE_COMMANDS } from '../project';
+
+const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
+
+interface DiagramOptions {
+	name?: string;
+	kind?: string;
+	startLine?: number;
+	startColumn?: number;
+	filePath?: string;
+	isDiagram: boolean;
+}
 
 let diagramViewPanel: WebviewPanel | undefined;
+let langClient: ExtendedLangClient;
+let packageOverviewDataProvider: PackageOverviewDataProvider;
 
-export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstance: BallerinaExtension, startLine: number,
-	startColumn: number, kind: string, name: string, filePath: string = ''): void {
+export async function showDiagramEditor(context: ExtensionContext, ballerinaExtInstance: BallerinaExtension, startLine: number,
+	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
 
 	if (diagramViewPanel) {
 		diagramViewPanel.dispose();
@@ -50,11 +65,11 @@ export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstanc
 		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/design-view-inverse.svg'))
 	};
 
-	const editor = window.activeTextEditor;
 	WebViewRPCHandler.create(diagramViewPanel, ballerinaExtInstance.langClient!);
+	const editor = window.activeTextEditor;
 	let treeItemPath: Uri;
 	if (filePath === '') {
-		if (!editor || !window.activeTextEditor || !window.activeTextEditor.document.fileName.endsWith('.bal')) {
+		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
 			if (diagramViewPanel) {
@@ -68,7 +83,19 @@ export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstanc
 		treeItemPath = Uri.file(filePath);
 	}
 
-	const html = render(treeItemPath!, startLine, startColumn, kind, name);
+	let html;
+	if (isCommand && editor && langClient && packageOverviewDataProvider) {
+		const diagramOptions: DiagramOptions = await getFirstViewElement();
+		if (!diagramOptions.isDiagram) {
+			window.showErrorMessage(NO_DIAGRAM_VIEWS);
+			return;
+		}
+		html = render(Uri.file(diagramOptions.filePath!), diagramOptions.startLine!, diagramOptions.startColumn!,
+			diagramOptions.kind!, diagramOptions.name!);
+	} else {
+		html = render(treeItemPath!, startLine, startColumn, kind, name);
+	}
+
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
@@ -78,9 +105,10 @@ export function showDiagramEditor(context: ExtensionContext, ballerinaExtInstanc
 	});
 }
 
-export function activate(ballerinaExtInstance: BallerinaExtension) {
+export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataProvider: PackageOverviewDataProvider) {
 	const context = <ExtensionContext>ballerinaExtInstance.context;
-	const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+	packageOverviewDataProvider = overviewDataProvider;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		if (!ballerinaExtInstance.isSwanLake) {
@@ -89,17 +117,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				"Diagram Editor is not supported for the ballerina version.");
 			return;
 		}
+		commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				const { experimental } = langClient.initializeResult!.capabilities;
-				const serverProvidesAST = experimental && experimental.astProvider;
-
-				if (!serverProvidesAST) {
-					ballerinaExtInstance.showMessageServerMissingCapability();
-					return {};
-				}
-				showDiagramEditor(context, ballerinaExtInstance, 0, 0, '', '');
+				showDiagramEditor(context, ballerinaExtInstance, 0, 0, '', '', '', true);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -107,4 +129,46 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
+}
+
+async function getFirstViewElement(): Promise<DiagramOptions> {
+	const packageItems: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren();
+	if (!packageItems) {
+		return { isDiagram: false };
+	}
+	if (packageItems.length > 0) {
+		for (let i = 0; i < packageItems.length; i++) {
+			const child: PackageTreeItem | undefined = await getNextChild(packageItems[i]);
+			if (child) {
+				return {
+					name: child.getName(),
+					kind: child.getKind(),
+					filePath: child.getFilePath(),
+					startLine: child.getStartLine(),
+					startColumn: child.getStartColumn(),
+					isDiagram: true
+				};
+			}
+		}
+	}
+	return { isDiagram: false };
+}
+
+async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
+	const children: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren(treeItem);
+	if (!children || children.length === 0) {
+		return;
+	}
+
+	for (let i = 0; i < children.length; i++) {
+		let child: PackageTreeItem = children[i];
+		if (child.getKind() === CMP_KIND.SERVICE) {
+			return await getNextChild(child);
+		}
+		if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.MAIN_FUNCTION ||
+			child.getKind() === CMP_KIND.RESOURCE) {
+			return child;
+		}
+	}
+	return;
 }
