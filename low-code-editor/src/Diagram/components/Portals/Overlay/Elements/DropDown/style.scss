@@ -141,12 +141,14 @@
     .trigger-list {
         display: flex;
         margin: 0 24px 16px 24px;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .trigger-wrapper {
         cursor: pointer;
         font-size: 13px;
-        width: 145px;
+        width: 135px;
         border-radius: 4px;
         padding: 0.25rem 0.54rem 0;
         height: 40px;

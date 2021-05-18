@@ -1,6 +1,7 @@
 export interface FormField {
     type: PrimitiveBalType | any;
     name?: string;
+    label?: string;
     displayName?: string;
     collectionDataType?: PrimitiveBalType;
     selectedDataType?: string;
@@ -27,6 +28,7 @@ export interface FormField {
 }
 
 export interface FunctionDefinitionInfo {
+    label?: string;
     parameters: FormField[];
     returnType: FormField;
 }

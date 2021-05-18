@@ -18,22 +18,51 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             width: "100%",
             backgroundColor: "#FFF",
-            padding: "0.5rem 0 1rem 0",
+            paddingBottom: "0.5rem",
             "& .MuiInputBase-root": {
                 width: '100% !important',
             },
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
+            "& div": {
+                margin: '0 !important',
+            },
         },
         accordionWrapper: {
-            marginTop: '8px',
             width: '100%',
         },
         activeAccordionRoot: {
             margin: '0 !important',
             padding: 0,
-            // border: "2px solid #DEE0E7",
+            border: "2px solid #DEE0E7",
+            boxShadow: 'none',
+            borderRight: 0,
+            borderTop: 0,
+            borderBottom: 0,
+            '&:not(:last-child)': {
+                marginTop: 0,
+            },
+            '&:first-child': {
+                marginBottom: 0,
+            },
+            '&:before': {
+                display: 'none',
+            },
+            '& .Mui-expanded': {
+                margin: 0,
+            },
+            '& .MuiIconButton-edgeEnd': {
+                margin: 'unset',
+            },
+            '& .MuiExpansionPanelSummary-expandIcon': {
+                display: 'none'
+            },
+            expanded: { },
+        },
+        activeAccordionRootFirst: {
+            margin: '0 !important',
+            padding: 0,
             boxShadow: 'none',
             borderRight: 0,
             borderTop: 0,
@@ -83,6 +112,30 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             expanded: { },
         },
+        accordionRootFirst: {
+            margin: '0 !important',
+            padding: 0,
+            boxShadow: 'none',
+            borderRight: 0,
+            borderTop: 0,
+            borderBottom: 0,
+            '&:not(:last-child)': {
+                marginTop: 0,
+            },
+            '&:first-child': {
+                marginBottom: 0,
+            },
+            '&:before': {
+                display: 'none',
+            },
+            '& .Mui-expanded': {
+                margin: 0,
+            },
+            '& .MuiIconButton-edgeEnd': {
+                margin: 'unset',
+            },
+            expanded: { },
+        },
         accordionSummary: {
             padding: '0 0 0 16px',
             minHeight: '32px !important',
@@ -95,11 +148,30 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             expanded: {
                 backgroundColor: 'lavender',
-                padding: '0 0 0 16px',
+            },
+        },
+        accordionSummaryFirst: {
+            padding: 0,
+            minHeight: '32px !important',
+            root: {
+                marginBottom: -1,
+                padding: 0,
+                '& .Mui-expanded': {
+                    minHeight: '32px !important',
+                },
+            },
+            expanded: {
+                backgroundColor: 'lavender',
             },
         },
         accordionDetails: {
-            padding: '0',
+            padding: '0 0 0 16px',
+            root: {
+                display: 'flex',
+            },
+        },
+        accordionDetailsFirst: {
+            padding: 0,
             root: {
                 display: 'flex',
             },
@@ -108,13 +180,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: theme.palette.text.primary,
             fontSize: "13px",
             fontWeight: 500,
-            flexBasis: '33.33%',
-            flexShrink: 0,
             textTransform: 'capitalize',
         },
         accordionSecondaryHeading: {
             color: '#CBCEDB',
             fontSize: "13px",
+            paddingLeft: "8px",
             fontWeight: 500,
             textTransform: 'capitalize',
         },

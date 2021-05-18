@@ -55,16 +55,16 @@ export function DoStatement(props: DoStatementProps) {
     return (
         <g>
             <rect
-                x={doViewState.container.x}
+                x={doViewState.container.x - (DefaultConfig.dotGap * 2)}
                 y={doViewState.container.y}
-                width={doViewState.container.w}
-                height={doViewState.container.h}
+                width={doViewState.container.w + (DefaultConfig.dotGap * 4)}
+                height={doViewState.container.h + (DefaultConfig.dotGap / 3)}
                 rx="6.5"
                 className="error-handdling"
             />
             <text
-                x={doViewState.container.x + DefaultConfig.dotGap}
-                y={doViewState.container.y + DOTEXTWIDTH + DefaultConfig.dotGap}
+                x={doViewState.container.x - (DefaultConfig.dotGap * 1.25)}
+                y={doViewState.container.y + DOTEXTWIDTH + (DefaultConfig.dotGap / 2.5)}
                 className="error-handling-title"
             >
                 DO

@@ -21,7 +21,9 @@ import { ConnectorType } from "../TriggerDropDown";
 
 import { CalendarConfigureForm } from "./CalendarConfigureForm";
 import { GitHubConfigureForm } from "./GitHubConfigureForm";
+import { GmailConfigureForm } from "./GmailConfigureForm";
 import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
+import { SheetConfigureForm } from "./SheetConfigureForm";
 
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -60,8 +62,20 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
           onComplete={handleOnWizardComplete}
         />
       ) }
+      { connector === ConnectorType.GMAIL && (
+        <GmailConfigureForm
+          position={position}
+          onComplete={handleOnWizardComplete}
+        />
+      ) }
       { connector === ConnectorType.G_CALENDAR && (
         <CalendarConfigureForm
+          position={position}
+          onComplete={handleOnWizardComplete}
+        />
+      ) }
+      { connector === ConnectorType.G_SHEET && (
+        <SheetConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
         />
