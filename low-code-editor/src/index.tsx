@@ -13,12 +13,10 @@
 import React from "react";
 
 import { Provider as DiagramProvider } from "./Contexts/Diagram";
-import { STModification } from "./Definitions/lang-client-extended";
 import DiagramContainer from "./Diagram/Container";
-import { TriggerType } from "./Diagram/models";
 import { DiagramErrorBoundary } from "./ErrorBoundrary";
+import Provider from "./providers";
 import { LowCodeEditorProps as Props } from "./types";
-import { init as formFieldIndexDB } from './utils/idb';
 
 export { LowCodeEditorProps, PortalState } from "./types";
 export {
@@ -76,8 +74,6 @@ export { InsertorDelete } from "./Diagram/utils/modification-util";
 export default function LowCodeEditor(props: Props) {
 
     const {
-        langServerURL,
-        workingFile,
         currentApp,
         exprEditorState,
         ...restProps
@@ -88,32 +84,15 @@ export default function LowCodeEditor(props: Props) {
         currentApp
     }
 
-    const onMutate = (mutations: STModification[]) => {
-        // TODO Can move to upper scope. Should do later.
-        props.onMutate(langServerURL, "file://" + workingFile, mutations);
-    }
-
-    const onModifyTrigger = (triggerType: TriggerType, model?: any, configObject?: any) => {
-        // TODO Can move to upper scope. Should do later.
-        props.onModify(triggerType, model, configObject);
-    }
-
-    const diagramProps = {
-        ...props,
-        onMutate,
-        onModifyTrigger
-    };
-
-    // Initialized form field IndexedDB
-    formFieldIndexDB();
-
     return (
-        <DiagramErrorBoundary>
-            <DiagramProvider initialState={initialState} >
-                <div>
-                    <DiagramContainer {...diagramProps} />
-                </div>
-            </DiagramProvider>
-        </DiagramErrorBoundary>
+        <Provider {...props}>
+            <DiagramErrorBoundary>
+                <DiagramProvider initialState={initialState} >
+                    <div>
+                        <DiagramContainer {...props} />
+                    </div>
+                </DiagramProvider>
+            </DiagramErrorBoundary>
+        </Provider>
     );
 }

@@ -19,7 +19,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import classNames from 'classnames';
 
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
+import { Context } from '../../../../../Contexts/Diagram';
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -43,7 +43,7 @@ export interface OperationFormProps {
 export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
             onOperationChange, mutationInProgress } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();

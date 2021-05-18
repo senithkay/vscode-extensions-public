@@ -20,7 +20,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
 import { ActionConfig, ConnectorConfig, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { IconBtnWithText } from "../../../Portals/ConfigForm/Elements/Button/IconBtnWithText";
@@ -49,7 +49,7 @@ interface ReturnNameState {
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
-    const { state: diagramState } = useContext(DiagramContext);
+    const { state: diagramState } = useContext(Context);
     const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
@@ -121,7 +121,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
             && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
             onValidate(true);
-        } else {
+    } else {
             onValidate(false);
         }
     }

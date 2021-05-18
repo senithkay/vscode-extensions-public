@@ -17,7 +17,7 @@ import { AssignmentStatement, CallStatement, FunctionCall, LocalVarDecl, Qualifi
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
@@ -39,7 +39,7 @@ export interface ProcessorProps {
 }
 
 export function DataProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw, dataMapperStart, toggleDiagramOverlay } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, dataMapperStart, toggleDiagramOverlay } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,

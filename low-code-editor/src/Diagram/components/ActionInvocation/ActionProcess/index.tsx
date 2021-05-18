@@ -18,7 +18,7 @@ import cn from "classnames";
 
 import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
@@ -40,7 +40,7 @@ export interface ProcessorProps {
 }
 
 export function ActionProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,

@@ -14,9 +14,8 @@
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
-import { IfIcon } from "../../../../../../assets/icons";
+import { CloseRounded, IfIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";

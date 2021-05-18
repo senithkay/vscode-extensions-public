@@ -15,7 +15,6 @@
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -26,7 +25,8 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
-import { ReturnIcon } from "../../../../../../assets/icons";
+import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
+
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface ReturnFormProps {

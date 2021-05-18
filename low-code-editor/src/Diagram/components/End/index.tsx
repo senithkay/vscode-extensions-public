@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getConditionConfig } from "../../utils/diagram-util";
 import { BlockViewState, EndViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
@@ -53,7 +53,7 @@ export function End(props: EndProps) {
         },
         diagramCleanDraw,
         toggleDiagramOverlay
-    } = useContext(DiagramContext);
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState } = props;

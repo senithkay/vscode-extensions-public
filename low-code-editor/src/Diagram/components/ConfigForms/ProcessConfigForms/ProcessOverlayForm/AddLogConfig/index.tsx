@@ -16,9 +16,8 @@ import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
-import { LogIcon } from "../../../../../../assets/icons";
+import { CloseRounded, LogIcon } from "../../../../../../assets/icons";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -51,10 +50,12 @@ export function AddLogConfig(props: LogConfigProps) {
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
-        ['printError', 'Error'],
-        ['print', 'Info']
+        ['printInfo', 'Info'],
+        ['printDebug', 'Debug'],
+        ['printWarn', 'Warn'],
+        ['printError', 'Error']
     ])
-    const logTypes: string[] = ["Info", "Error"];
+    const logTypes: string[] = Array.from(logTypeFunctionNameMap.values());
     const logFormConfig: LogConfig = config.config as LogConfig;
 
     let defaultType = "Info";
@@ -81,7 +82,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const onSaveBtnClick = () => {
         logFormConfig.expression = expression;
-        logFormConfig.type = logType === "Info" ? "" : logType;
+        logFormConfig.type = logType;
         onSave();
     };
 

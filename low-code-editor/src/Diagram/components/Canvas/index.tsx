@@ -24,6 +24,7 @@ export function Canvas(props: CanvasProps) {
     return (
         <div>
             <svg
+                data-testid="diagram-canvas"
                 className="diagram-canvas"
                 preserveAspectRatio={"xMinYMin"}
                 width={'100vw'} // todo: revert

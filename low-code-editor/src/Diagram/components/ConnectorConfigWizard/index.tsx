@@ -12,12 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
-// import { connect } from "react-redux";
+import { useIntl } from 'react-intl';
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 
 import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo, Connector } from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
@@ -27,6 +27,8 @@ import { fetchConnectorInfo } from "../Portals/utils";
 
 import { ConnectorForm } from "./Components/ConnectorForm";
 import { wizardStyles } from "./style";
+// import { connect } from "react-redux";
+
 
 export interface ConfigWizardState {
     isLoading: boolean;
@@ -49,8 +51,9 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-    const { state, toggleDiagramOverlay } = useContext(DiagramContext);
-    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen, isCodeEditorActive } = state;
+    const { state, toggleDiagramOverlay } = useContext(Context);
+    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen,
+            isCodeEditorActive, triggerErrorNotification } = state;
 
     const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
@@ -62,11 +65,22 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const [wizardState, setWizardState] = useState<ConfigWizardState>(initWizardState);
     const classes = wizardStyles();
 
+    const intl = useIntl();
+    const connectionErrorMsgText = intl.formatMessage({
+    	id: "lowcode.develop.connectorForms.createConnection.errorMessage",
+    	defaultMessage: "Something went wrong. Couldn't load the connection."
+    });
+
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
                 const configList = await fetchConnectorInfo(connectorInfo, model, state);
-                setWizardState(configList);
+                if (configList){
+                    setWizardState(configList);
+                }else{
+                    triggerErrorNotification(new Error(connectionErrorMsgText));
+                    handleClose();
+                }
             })()
             toggleDiagramOverlay();
         }

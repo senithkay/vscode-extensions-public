@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 
-import { Context as DiagramContext } from "../../Contexts/Diagram";
 import * as stComponents from '../components';
 import { ActionProcessor } from "../components/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/Connector/ConnectorProcess";

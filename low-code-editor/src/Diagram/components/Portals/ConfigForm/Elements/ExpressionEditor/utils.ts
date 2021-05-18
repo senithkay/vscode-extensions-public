@@ -116,6 +116,21 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     return diagnosticChecker(diagnostics)
 }
 
+export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
+    if (!diagnostics) {
+        return false
+    }
+    // check if message contains temp_Expression
+    let typeCheck = false;
+    Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
+        if ((diagnostic.message).includes(varName) && varType === "var") {
+            typeCheck = true;
+            return
+        }
+    });
+    return typeCheck;
+}
+
 /**
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
@@ -153,6 +168,15 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
         } else if (model.collectionDataType) {
             return model.collectionDataType + "[]";
+        }
+    } else if (model.type === "map") {
+        if (model.fields) {
+            const returnTypesList: string[] = [];
+            model.fields.forEach(field => {
+                const fieldTypeString = transformFormFieldTypeToString(field);
+                returnTypesList.push(fieldTypeString);
+            });
+            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
         }
     } else if (model.type) {
         return model.type;
@@ -224,4 +248,9 @@ export function createContentWidget(id: string) : monaco.editor.IContentWidget {
             };
         }
     }
+}
+
+export function createSortText(index: number) : string {
+    const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
+    return "z".repeat(Math.floor(index / 26)) + alpList[index]
 }
