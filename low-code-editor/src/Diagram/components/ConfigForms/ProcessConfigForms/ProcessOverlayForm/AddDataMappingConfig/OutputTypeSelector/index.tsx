@@ -206,12 +206,9 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
 
     const useExistingVariableComponent = (
         <>
-            <Typography>
-                <Box paddingTop={2} paddingBottom={2}>Select Output Variable</Box>
-            </Typography>
             <FormAutocomplete
                 itemList={variables}
-                // label={'Select parameter'}
+                label={'Select Output Variable'}
                 onChange={handleOnVariableSelect}
                 renderItem={(option) => (
                     <React.Fragment>

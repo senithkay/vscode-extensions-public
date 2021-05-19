@@ -13,18 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-export const EXPRESSION_BOX_SVG_HEIGHT = 35;
-export const EXPRESSION_BOX_SVG_WIDTH = 35;
+export const EXPRESSION_BOX_SVG_HEIGHT = 29;
+export const EXPRESSION_BOX_SVG_WIDTH = 29;
 
 export function ExpressionBoxSVG(props: { x: number, y: number }) {
     const { ...xyProps } = props;
     return (
         <svg {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} >
-            <g id="Button_Primary_Square_Click" transform="translate(0.5 0.5)">
+            <g id="Button_Primary_Square_Click" transform="translate(2.5 2.5)">
                 <g id="State">
-                    <rect id="Rectangle" width="32" height="32" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />
+                    <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />
                 </g>
-                <g id="Icon_Wrapper" transform="translate(8 8)">
+                <g id="Icon_Wrapper" transform="translate(6 6)">
                     <g id="Group_8" transform="translate(-0.002 2.667)">
                         <path
                             id="Combined_Shape-2"
