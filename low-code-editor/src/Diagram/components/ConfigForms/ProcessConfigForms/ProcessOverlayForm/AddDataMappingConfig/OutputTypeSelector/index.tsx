@@ -16,7 +16,7 @@
 import React, { useState } from 'react';
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
-import { Box, Typography } from '@material-ui/core';
+import { Box, FormControl, Typography } from '@material-ui/core';
 import classNames from 'classnames';
 
 import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
@@ -71,7 +71,7 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
     const [generationType, setGenerationType] = useState<GenerationType>(GenerationType.NEW);
 
     const handleUpdateReturnType = (evt: any, option: DataMapperOutputTypeInfo) => {
-        updateReturnType({...option, generationType});
+        updateReturnType({ ...option, generationType });
     }
 
     const jsonFormField = { isParam: true, type: 'json' }
@@ -230,14 +230,12 @@ export function OutputTypeSelector(props: OutputTypeSelectorProps) {
                     </Typography>
                 </div>
             </div>
-            <div>
+            <div className={classes.formWrapper}>
                 <SwitchToggle
                     text="Use Existing Variable"
                     onChange={handleOutputConfigTypeChange}
                     initSwitch={generationType === GenerationType.ASSIGNMENT}
                 />
-            </div>
-            <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-operation")}>
                 {generationType === GenerationType.NEW && createNewVariableComponent}
                 {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
             </div>
