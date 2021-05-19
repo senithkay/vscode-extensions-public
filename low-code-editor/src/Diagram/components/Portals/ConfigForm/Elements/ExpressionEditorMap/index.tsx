@@ -29,7 +29,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     const { customProps, model, defaultValue } = props;
     const classes = useStyles();
 
-    model.displayName = "Map Expression"
+    model.label = "Map Expression"
     const [changed, setChanged] = useState(true);
     const [mainEditorValue, setMainEditorValue] = useState(getInitialValue(defaultValue, model));
     const [clearInput, setClearInput] = useState(false);
@@ -71,7 +71,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     const elementPropsKeyEditor: FormElementProps = {
         model: {
             name: "key_editor_" + model.name,
-            displayName: "Key",
+            label: `${model.name} Key`,
             type: keyEditorType,
             value: keyEditorContent,
             tooltip: "Key of the Key-Value pair",
@@ -108,7 +108,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     const elementPropsValueEditor: FormElementProps = {
         model: {
             name: "value_editor_" + model.name,
-            displayName: "Value",
+            label: `${model.name} Value`,
             type: valueEditorType,
             value: valueEditorContent,
             tooltip: "Value of the Key-Value pair",
@@ -126,7 +126,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
 
     return (
         <>
-            <ExpressionEditorLabel {...props} model={{...model, displayName: model.name}} />
+            <ExpressionEditorLabel {...props} model={{...model, label: model.name}} />
             <div className={classes.groupedForm}>
                 <ExpressionEditor {...elementPropsKeyEditor} />
                 <ExpressionEditor {...elementPropsValueEditor} />
