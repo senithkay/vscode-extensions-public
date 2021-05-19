@@ -28,16 +28,17 @@ interface ValueTypeProps {
     model: STNode;
     isMain?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
+    offSetCorrection: number;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { model, isMain, onDataPointClick } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
     let name: string = viewState.name;
     const type: string = viewState.type && viewState.type === PrimitiveBalType.Union ?
-                                                                        viewState.unionType
-                                                                        : viewState.type;
+        viewState.unionType
+        : viewState.type;
 
     const dataPoints: JSX.Element[] = [];
     const regexPattern = new RegExp(/^"(\w+)\"$/);
@@ -57,7 +58,14 @@ export function ValueType(props: ValueTypeProps) {
 
     return (
         <g id="Value-wrapper">
-            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height={viewState.bBox.h} width={viewState.bBox.w} className="data-wrapper" />
+            <rect
+                render-order="-1"
+                x={viewState.bBox.x - offSetCorrection}
+                y={viewState.bBox.y - 15}
+                height={viewState.bBox.h}
+                width={viewState.bBox.w}
+                className="data-wrapper"
+            />
             <g render-order="1">
                 {isMain ?
                     (

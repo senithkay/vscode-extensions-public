@@ -300,7 +300,7 @@ export function DataMapper(props: DataMapperProps) {
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             traversNode(variableInfo.node, positionVisitor);
             const { dataMapperViewState } = variableInfo.node;
-            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick }))
+            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
         });
 
         // selected node visit
@@ -317,7 +317,7 @@ export function DataMapper(props: DataMapperProps) {
         traversNode(selectedNode, dataPointVisitor);
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
 
-        outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick }))
+        outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick, offSetCorrection: 10 }))
     }
 
     return (

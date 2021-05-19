@@ -31,12 +31,12 @@ interface RecordTypeProps {
     model: STNode;
     isMain?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
-    offSet: number;
+    offSetCorrection: number;
 }
 
 export function RecordType(props: RecordTypeProps) {
     const { state: { currentApp } } = useContext(DiagramContext);
-    const { model, isMain, onDataPointClick, offSet } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
@@ -55,7 +55,7 @@ export function RecordType(props: RecordTypeProps) {
         const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
         typeDescNode.fields.forEach((field: any) => {
             const fieldVS = field.dataMapperViewState
-            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
         })
     } else if (viewState.hasInlineRecordDescription) {
         if (STKindChecker.isLocalVarDecl(model)) {
@@ -65,7 +65,7 @@ export function RecordType(props: RecordTypeProps) {
             if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
                 typeDescNode.fields.forEach((field: any) => {
                     const fieldVS = field.dataMapperViewState
-                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
                 });
             }
         } else if (STKindChecker.isRecordField(model)) {
@@ -73,7 +73,7 @@ export function RecordType(props: RecordTypeProps) {
             if (STKindChecker.isRecordTypeDesc(typeName)) {
                 typeName.fields.forEach((field: any) => {
                     const fieldVS = field.dataMapperViewState
-                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
                 });
             }
         }
@@ -92,7 +92,7 @@ export function RecordType(props: RecordTypeProps) {
         <g id="RecodWrapper" className="my-class">
             <rect
                 render-order="-1"
-                x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (offSet + DEFAULT_OFFSET)}
+                x={viewState.bBox.x - offSetCorrection}
                 y={viewState.bBox.y - 15}
                 height={viewState.bBox.h}
                 width={viewState.bBox.w}
