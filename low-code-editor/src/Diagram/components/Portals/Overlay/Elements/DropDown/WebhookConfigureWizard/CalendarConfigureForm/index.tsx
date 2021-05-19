@@ -312,7 +312,6 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                             disabled={isFileSaving}
                         />
                     </div>
-                ) }
                 )}
 
             { showConfirmDialog && (

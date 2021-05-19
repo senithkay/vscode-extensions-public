@@ -277,8 +277,8 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const handleOnSave = () => {
     const saveSelectedCron = cronForSelectedType();
+    const utcCron = UTCCronForSelectedType();
     if ((initialTriggerType === TRIGGER_TYPE_SCHEDULE) || (initialTriggerType === TRIGGER_TYPE_INTEGRATION_DRAFT)) {
-      const utcCron = UTCCronForSelectedType();
       // dispatch and close the wizard
       setTriggerChanged(true);
       onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
@@ -292,6 +292,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (initialTriggerType === TRIGGER_TYPE_WEBHOOK) {
       setShowConfirmDialog(true);
     } else {
+      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+        "CRON": saveSelectedCron,
+        "UTCCRON": utcCron,
+        "IS_TRIGGER_CHANGED": true
+      });
       const commentModification = createPropertyStatement(
           `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
           {line: syntaxTree.position.startLine, column: 0});
