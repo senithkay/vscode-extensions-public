@@ -241,13 +241,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left",
                         ) }
 
-                        { getConnectorTriggerButton(
+                        {/* { getConnectorTriggerButton(
                             ConnectorType.GMAIL,
                             'googleapis_gmail_Client',
                             "To trigger an application based on GMail events.",
                             "Gmail",
                             "right",
-                        ) }
+                        ) } */}
 
                         { getConnectorTriggerButton(
                             ConnectorType.G_CALENDAR,
