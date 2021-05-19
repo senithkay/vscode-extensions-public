@@ -145,7 +145,8 @@ export function DataMapper(props: DataMapperProps) {
                             tooltipActionText: '',
                             tooltipActionLink: '',
                             interactive: true,
-                            statementType: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type
+                            statementType: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type,
+                            editPosition: {line: dataMapperConfig.outputType.startLine, column: undefined}
                         },
                         onChange,
                         defaultValue: dataPointVS.value,
