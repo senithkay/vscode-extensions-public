@@ -20,6 +20,7 @@ import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 import { DataMapperInitVisitor, VisitingType } from "./data-mapper-init-visitor";
+import { json } from '../../Portals/ConfigForm/Elements';
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -124,6 +125,37 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
             return returnString;
 
     }
+}
+
+export function generateInlineRecordForJson(jsonStructure: any) {
+    let inlineReturnType: string = '';
+
+    Object.keys(jsonStructure).forEach(key => {
+        switch (typeof jsonStructure[key]) {
+            case 'string':
+                inlineReturnType += `string ${key};`;
+                break;
+            case 'number':
+                inlineReturnType += `int|float|decimal ${key};`;
+                break;
+            case 'boolean':
+                inlineReturnType += `boolean ${key};`;
+                break;
+            case 'object':
+                if (Array.isArray(jsonStructure[key])) {
+                    // jsonStructure[key] = [];
+                    // how to identify which type ?
+                } else {
+                    // resetJsonValueToDefault(jsonStructure[key]);
+                    inlineReturnType += `record {|${generateInlineRecordForJson(jsonStructure[key])}|} ${key};`;
+                }
+                break;
+            default:
+            // ignored
+        }
+    });
+
+    return inlineReturnType;
 }
 
 export function completeMissingTypeDesc(paramNode: STNode, records: Map<string, STNode>, visitType: VisitingType) {

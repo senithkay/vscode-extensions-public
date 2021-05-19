@@ -17,7 +17,7 @@
 // tslint:disable: no-console
 import React, { useContext } from 'react';
 
-import { RecordTypeDesc, STNode } from '@ballerina/syntax-tree';
+import { LocalVarDecl, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
@@ -41,8 +41,11 @@ export function RecordType(props: RecordTypeProps) {
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
     const typeInfo = viewState.typeInfo;
+    let type;
 
-    const type = typeInfo.moduleName === currentApp.name ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`;
+    if (!viewState.hasInlineRecordDescription) {
+        type = typeInfo.moduleName === currentApp.name ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`;
+    }
 
     const fields: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
@@ -54,6 +57,17 @@ export function RecordType(props: RecordTypeProps) {
             const fieldVS = field.dataMapperViewState
             fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
         })
+    } else if (viewState.hasInlineRecordDescription) {
+        const typedBindingPattern = (model as LocalVarDecl).typedBindingPattern;
+        const typeDescNode = typedBindingPattern.typeDescriptor;
+
+        if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
+            typeDescNode.fields.forEach((field: any) => {
+                const fieldVS = field.dataMapperViewState
+                fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+            });
+        }
+
     }
 
     if (viewState.sourcePointViewState) {
@@ -75,27 +89,19 @@ export function RecordType(props: RecordTypeProps) {
                 width={viewState.bBox.w}
                 className="data-wrapper"
             />
-            {/* <line
-                x1={isMain ? viewState.bBox.x : viewState.bBox.x - (DEFAULT_OFFSET)}
-                y1={viewState.bBox.y + 20}
-                x2={isMain ? viewState.bBox.x + 190 : viewState.bBox.x + 150}
-                y2={viewState.bBox.y + 20}
-                strokeWidth="1"
-                stroke="#d8dbe3"
-            /> */}
             <g render-order="1" className="test">
                 {isMain ?
                     (
                         <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + 10} height="50" >
-                            <tspan className="key-value"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
+                            <tspan className="key-value"> {`${name}`} </tspan>
+                            {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
                         </text>
                     )
                     :
                     (
                         <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + DefaultConfig.dotGap} height="50" >
-                            <tspan className="value-para"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
+                            <tspan className="value-para"> {`${name}`} </tspan>
+                            {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
                         </text>
                     )
                 }

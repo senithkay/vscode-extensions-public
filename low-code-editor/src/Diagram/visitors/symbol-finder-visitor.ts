@@ -134,8 +134,10 @@ class SymbolFindingVisitor implements Visitor {
     public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         const typeData = node.typeData;
         const typeSymbol = typeData.typeSymbol;
-        const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
-        recordTypeDescriptions.set(recordMapKey, node);
+        if (typeSymbol.moduleID) {
+            const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
+            recordTypeDescriptions.set(recordMapKey, node);
+        }
     }
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
@@ -182,6 +184,8 @@ function getType(typeNode: any): any {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {
         return "var";
+    } else if (STKindChecker.isRecordTypeDesc(typeNode)) {
+        return 'record';
     }
 }
 

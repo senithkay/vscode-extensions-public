@@ -18,6 +18,7 @@ import React from 'react';
 import { STNode } from "@ballerina/syntax-tree";
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
@@ -34,7 +35,9 @@ export function ValueType(props: ValueTypeProps) {
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
     let name: string = viewState.name;
-    const type: string = viewState.type;
+    const type: string = viewState.type && viewState.type === PrimitiveBalType.Union ?
+                                                                        viewState.unionType
+                                                                        : viewState.type;
 
     const dataPoints: JSX.Element[] = [];
     const regexPattern = new RegExp(/^"(\w+)\"$/);

@@ -19,4 +19,5 @@ export class TargetPointViewState extends DataMapperViewState {
     public position: DraftUpdatePosition;
     public value: string;
     public type: string;
+    public unionType: string;
 }

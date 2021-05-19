@@ -35,8 +35,6 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import "./components/InputTypes/style.scss";
-// import sampleConfig from './sample-config.json';
-// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from './util/data-mapper-mapping-visitor';
@@ -48,6 +46,9 @@ import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from 
 // import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
 // import sampleConfigJsonOutput from './sample-config-json.json';
+// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
+// import sampleConfigJsonInline from './sample-config-json-inline.json';
+
 interface DataMapperProps {
     width: number;
 }
@@ -66,6 +67,7 @@ export function DataMapper(props: DataMapperProps) {
     const overlayClasses = wizardStyles();
 
 
+    // const dataMapperConfig: any = sampleConfigJsonInline; // todo: remove
     // const dataMapperConfig: any = sampleConfig; // todo: remove
     // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
     // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
@@ -135,7 +137,7 @@ export function DataMapper(props: DataMapperProps) {
                         model: {
                             name: 'expression',
                             displayName: 'expression',
-                            type: dataPointVS.type
+                            type: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type
                         },
                         customProps: {
                             validate: validateFunction,
@@ -143,7 +145,7 @@ export function DataMapper(props: DataMapperProps) {
                             tooltipActionText: '',
                             tooltipActionLink: '',
                             interactive: true,
-                            statementType: PrimitiveBalType.String
+                            statementType: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type
                         },
                         onChange,
                         defaultValue: dataPointVS.value,
@@ -169,13 +171,20 @@ export function DataMapper(props: DataMapperProps) {
 
     let outputType: string = '';
 
-    if (dataMapperConfig.outputType?.type && dataMapperConfig.outputType.type === 'record') {
-        const typeInfo = dataMapperConfig.outputType.typeInfo;
-        outputType = typeInfo.moduleName !== currentApp.name ?
-            `${typeInfo.moduleName}:${typeInfo.name}`
-            : typeInfo.name
-    } else {
-        outputType = dataMapperConfig.outputType.type;
+    if (dataMapperConfig.outputType?.type) {
+        switch (dataMapperConfig.outputType.type) {
+            case 'record':
+                const typeInfo = dataMapperConfig.outputType.typeInfo;
+                outputType = typeInfo.moduleName !== currentApp.name ?
+                    `${typeInfo.moduleName}:${typeInfo.name}`
+                    : typeInfo.name;
+                break;
+            case 'json':
+                outputType = 'record';
+                break;
+            default:
+                outputType = dataMapperConfig.outputType.type;
+        }
     }
 
     const outputTypeConfig = dataMapperConfig.outputType as DataMapperOutputTypeInfo;
@@ -306,7 +315,7 @@ export function DataMapper(props: DataMapperProps) {
 
         traversNode(selectedNode, dataPointVisitor);
         traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
-        // debugger;
+
         outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick }))
     }
 
@@ -335,8 +344,6 @@ export function DataMapper(props: DataMapperProps) {
                     id="Arrow-head"
                 />
             </g>
-            {/* {dataPoints} */}
-
             <DiagramOverlayContainer>
                 {
                     expressionConfig && (
