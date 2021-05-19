@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-export default function FitToScreenSVG() {
+export default function FitToScreenHoverSVG() {
   return (
     <svg id="Icon_Controls_Plus" data-name="Icon/Controls/Plus" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
       <defs>

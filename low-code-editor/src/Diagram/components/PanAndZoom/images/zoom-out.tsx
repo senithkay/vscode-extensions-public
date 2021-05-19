@@ -15,18 +15,8 @@ import * as React from "react";
 
 export default function ZoomOutSVG() {
   return (
-      <svg id="Icon_Controls_Plus" data-name="Icon/Controls/Plus" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-        <defs>
-          <clipPath id="clip-path">
-            <rect id="Rectangle_Copy_4" data-name="Rectangle Copy 4" width="2" height="14" rx="1" transform="translate(16 8) rotate(90)"/>
-          </clipPath>
-        </defs>
-        <g id="Group_139" data-name="Group 139">
-          <rect id="Rectangle_Copy_4-2" data-name="Rectangle Copy 4" width="2" height="14" rx="1" transform="translate(16 8) rotate(90)"/>
-          <g id="Mask_Group_142" data-name="Mask Group 142" clip-path="url(#clip-path)">
-            <rect id="Color" width="18" height="18" fill="#8d91a3"/>
-          </g>
-        </g>
+      <svg width="14" height="2">
+        <path id="ZoomOut" d="M151.312,276.1h0a1,1,0,0,1-1,1h-12a1,1,0,0,1-1-1h0a1,1,0,0,1,1-1h12A1,1,0,0,1,151.312,276.1Z" transform="translate(-137.312 -275.104)" fill="#8d91a3" opacity="0.769"/>
       </svg>
   );
 }

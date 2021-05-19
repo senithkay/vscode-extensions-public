@@ -15,18 +15,8 @@ import * as React from "react";
 
 export default function ZoomInSVG() {
   return (
-      <svg id="Icon_Controls_Plus" data-name="Icon/Controls/Plus" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-        <defs>
-          <clipPath id="clip-path">
-            <path id="Shape" d="M5,11V7H1A1,1,0,0,1,1,5H5V1A1,1,0,0,1,7,1V5h4a1,1,0,0,1,0,2H7v4a1,1,0,0,1-2,0Z" transform="translate(3 3)"/>
-          </clipPath>
-        </defs>
-        <g id="Group_141" data-name="Group 141">
-          <path id="Shape-2" data-name="Shape" d="M5,11V7H1A1,1,0,0,1,1,5H5V1A1,1,0,0,1,7,1V5h4a1,1,0,0,1,0,2H7v4a1,1,0,0,1-2,0Z" transform="translate(3 3)"/>
-          <g id="Mask_Group_144" data-name="Mask Group 144" clip-path="url(#clip-path)">
-            <rect id="Color" width="18" height="18" fill="#8d91a3"/>
-          </g>
-        </g>
-      </svg>
+    <svg width="12" height="12" >
+    <path id="ZoomIn" d="M145.521,260.555v-4h-4a1,1,0,0,1,0-2h4v-4a1,1,0,0,1,2,0v4h4a1,1,0,0,1,0,2h-4v4a1,1,0,0,1-2,0Z" transform="translate(-140.521 -249.555)" fill="#8d91a3" opacity="0.769"/>
+  </svg>
   );
 }
