@@ -17,7 +17,7 @@ import { STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon } from "../../../../../../../../assets/icons";
+import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -255,7 +255,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
                     <div className="icon-wrapper">
-                        <img src="../../../../../../images/Property.svg" />
+                        <DataMapperIcon />
                     </div>
                     <div className="text-label">Data Mapping</div>
                 </div>
