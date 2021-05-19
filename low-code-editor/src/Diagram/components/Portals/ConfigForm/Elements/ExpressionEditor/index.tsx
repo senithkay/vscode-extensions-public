@@ -35,6 +35,7 @@ import {
     addImportModuleToCode,
     addToTargetLine,
     addToTargetPosition,
+    checkIfStringExist,
     createContentWidget,
     createSortText,
     diagnosticCheckerExp,
@@ -180,6 +181,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
+    const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
 
     const validExpEditor = () => {
         validate(model.name, false);
@@ -259,6 +261,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         disposeAllTriggers();
 
         if (monacoRef.current) {
+            // Check if string is selected
+            setStringCheck(checkIfStringExist(varType))
+
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 setCursorOnEditor(true);
@@ -763,6 +768,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const stringCheckToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("\"" + editorModel.getValue() + "\"");
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
     const handleError = (mainDiagnosticsArray: any) => {
         const errorMsg = mainDiagnosticsArray[0]?.message;
         if (errorMsg.length > 50)
@@ -811,15 +826,26 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         </>
                     ) : addCheck ?
                         (
-                            <div className={formClasses.addCheckWrapper} >
-                                <img className={formClasses.addCheckIcon} src="../../../../../../images/console-error.svg" />
-                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
+                            <div className={formClasses.suggestionsWrapper} >
+                                <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                             (
-                                <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
-                                    <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                                </TooltipCodeSnippet>
+                                <>
+                                    <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
+                                    </TooltipCodeSnippet>
+                                    {stringCheck && (
+                                        <div className={formClasses.suggestionsWrapper} >
+                                            <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                                            <FormHelperText className={formClasses.suggestionsText}>
+                                                {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
+                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ?  " to add double quotes to the empty expression" : " to convert the expression to a string"}
+                                            </FormHelperText>
+                                        </div>
+                                    )}
+                                </>
                             ) : null
             }
         </>
