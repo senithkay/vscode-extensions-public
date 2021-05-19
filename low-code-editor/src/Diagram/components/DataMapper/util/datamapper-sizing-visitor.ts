@@ -96,7 +96,7 @@ export class DataMapperSizingVisitor implements Visitor {
                 this.maxWidth = viewstate.bBox.w;
             }
 
-            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer)) {
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer) || viewstate.hasInlineRecordDescription) {
                 this.offSet += FIELD_OFFSET;
             }
         }
@@ -141,16 +141,15 @@ export class DataMapperSizingVisitor implements Visitor {
 
             // cleanup
             this.nameparts.splice(this.nameparts.length - 1, 1);
-            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer)) {
+            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer) || viewState.hasInlineRecordDescription) {
                 this.offSet -= FIELD_OFFSET;
             }
         }
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !this.hasTypeDescNode) {
+        if (node.dataMapperViewState && !(this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
-            this.offSet += FIELD_OFFSET;
             viewstate.bBox.h = FIELD_HEIGHT;
             viewstate.bBox.w = this.offSet + FIELD_WIDTH;
             this.nameparts.push(viewstate.name);
@@ -160,17 +159,16 @@ export class DataMapperSizingVisitor implements Visitor {
                 this.maxWidth = viewstate.bBox.w;
             }
 
-            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.valueExpr)) {
+            if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 this.offSet += FIELD_OFFSET;
             }
         }
     }
 
     endVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !this.hasTypeDescNode) {
+        if (node.dataMapperViewState && !(this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.h = FIELD_HEIGHT;
-            this.offSet -= FIELD_OFFSET;
             const valueExpr = node.valueExpr;
             let height: number = 0;
             if (valueExpr) {
@@ -187,7 +185,7 @@ export class DataMapperSizingVisitor implements Visitor {
 
             // cleanup
             this.nameparts.splice(this.nameparts.length - 1, 1);
-            if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.valueExpr)) {
+            if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 this.offSet -= FIELD_OFFSET;
             }
         }
@@ -197,7 +195,6 @@ export class DataMapperSizingVisitor implements Visitor {
         if (node.dataMapperViewState && (this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.h = FIELD_HEIGHT;
-            this.offSet += FIELD_OFFSET;
             viewstate.bBox.w = this.offSet + FIELD_WIDTH;
 
             if (viewstate.bBox.w > this.maxWidth) {
@@ -207,7 +204,7 @@ export class DataMapperSizingVisitor implements Visitor {
             this.nameparts.push(viewstate.name);
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
 
-            if (node.dataMapperTypeDescNode) {
+            if (node.dataMapperTypeDescNode || viewstate.hasInlineRecordDescription) {
                 this.offSet += FIELD_OFFSET;
             }
         }
@@ -217,26 +214,33 @@ export class DataMapperSizingVisitor implements Visitor {
         if (node.dataMapperViewState && (this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
-            this.offSet -= FIELD_OFFSET;
+            let height: number = 0;
 
             if (node.dataMapperTypeDescNode) {
-                let height: number = 0;
-
                 if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
                     const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
                     typeDescNode.fields.forEach(field => {
                         const fieldViewState = field.dataMapperViewState as FieldViewState;
                         height += fieldViewState.bBox.h;
                     });
-
                 }
-
-                viewstate.bBox.h += height;
             }
+
+            if (viewstate.hasInlineRecordDescription) {
+                if (STKindChecker.isRecordTypeDesc(node.typeName)) {
+                    const typeDescNode: RecordTypeDesc = node.typeName as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const fieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += fieldViewState.bBox.h;
+                    });
+                }
+            }
+
+            viewstate.bBox.h += height;
 
             // clean up
             this.nameparts.splice(this.nameparts.length - 1, 1);
-            if (node.dataMapperTypeDescNode) {
+            if (node.dataMapperTypeDescNode || viewstate.hasInlineRecordDescription) {
                 this.offSet -= FIELD_OFFSET;
             }
         }

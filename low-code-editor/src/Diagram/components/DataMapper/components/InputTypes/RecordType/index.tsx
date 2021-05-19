@@ -58,16 +58,25 @@ export function RecordType(props: RecordTypeProps) {
             fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
         })
     } else if (viewState.hasInlineRecordDescription) {
-        const typedBindingPattern = (model as LocalVarDecl).typedBindingPattern;
-        const typeDescNode = typedBindingPattern.typeDescriptor;
+        if (STKindChecker.isLocalVarDecl(model)) {
+            const typedBindingPattern = (model as LocalVarDecl).typedBindingPattern;
+            const typeDescNode = typedBindingPattern.typeDescriptor;
 
-        if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
-            typeDescNode.fields.forEach((field: any) => {
-                const fieldVS = field.dataMapperViewState
-                fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
-            });
+            if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
+                typeDescNode.fields.forEach((field: any) => {
+                    const fieldVS = field.dataMapperViewState
+                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+                });
+            }
+        } else if (STKindChecker.isRecordField(model)) {
+            const typeName = model.typeName;
+            if (STKindChecker.isRecordTypeDesc(typeName)) {
+                typeName.fields.forEach((field: any) => {
+                    const fieldVS = field.dataMapperViewState
+                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSet: OffestValue }));
+                });
+            }
         }
-
     }
 
     if (viewState.sourcePointViewState) {

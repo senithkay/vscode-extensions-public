@@ -194,6 +194,9 @@ export class DataMapperInitVisitor implements Visitor {
         } else if (STKindChecker.isUnionTypeDesc(typeName)) {
             viewState.type = PrimitiveBalType.Union;
             viewState.unionType = typeName.source.trim();
+        } else if (STKindChecker.isRecordTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Record;
+            viewState.hasInlineRecordDescription = true;
         }
 
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
