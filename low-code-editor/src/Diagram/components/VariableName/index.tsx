@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { ReactElement, useEffect, useState } from "react";
 
-import Tooltip from '../../../../../low-code-editor/src/components/Tooltip';
-import { PropertyIcon } from "../../../../src/assets/icons";
+import { PropertyIcon } from "../../../assets/icons";
+import Tooltip from '../../../components/Tooltip';
 import { DefaultConfig } from "../../visitors/default";
 
 import "./style.scss";

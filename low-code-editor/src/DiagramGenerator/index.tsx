@@ -5,9 +5,10 @@ import { StringValueNode } from "graphql";
 import LowCodeEditor from "..";
 import { ExpressionEditorLangClientInterface } from "../Definitions";
 import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
-import { useStyles } from "../Diagram/styles";
 
+import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import { getLowcodeST, getSyntaxTree } from "./generatorUtil";
+import { useGeneratorStyles } from "./styles";
 
 export interface DiagramGeneratorProps {
     diagramLangClient: DiagramEditorLangClientInterface;
@@ -18,7 +19,7 @@ export interface DiagramGeneratorProps {
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { diagramLangClient, filePath, startLine, startCharacter } = props;
-    const classes = useStyles();
+    const classes = useGeneratorStyles();
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
 
@@ -27,16 +28,21 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
             const vistedSyntaxTree = getLowcodeST(genSyntaxTree, startLine, startCharacter);
             setSyntaxTree(vistedSyntaxTree);
+            if (!syntaxTree){
+                return (<div><h1>Parse error...!</h1></div>);
+            }
         })();
     }, []);
 
     if (!syntaxTree){
-        return (<div><h1>Diagram Not Loaded...!</h1></div>);
+        return (<div className={classes.loader}/>);
     }
 
     return (
-        <div>
-            <LowCodeEditor isReadOnly={true} syntaxTree={syntaxTree}  />
+         <div>
+            <DiagramGenErrorBoundary>
+                <LowCodeEditor isReadOnly={true} syntaxTree={syntaxTree}  />
+            </DiagramGenErrorBoundary>
         </div>
     );
 }

@@ -12,8 +12,8 @@
  */
 import React, { ReactNode } from "react";
 
-import { validateFormFields } from "../../../../../../../../src/utils/validator";
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
+import { validateFormFields } from "../../../../../../../utils/validator";
 import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
