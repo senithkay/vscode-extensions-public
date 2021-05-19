@@ -449,7 +449,7 @@ export function APIOptions(props: APIOptionsProps) {
             }
 
             // filter connectors due to maintenance
-            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs'];
+            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'mongodb'];
             if (!filletedConnectors.includes(connector.module)) {
                 connectorComponents.push(connectorComponent);
             }
