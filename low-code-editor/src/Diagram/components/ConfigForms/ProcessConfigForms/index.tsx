@@ -29,12 +29,13 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { getDefaultValueForType } from "../../DataMapper/util";
+import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataMapper/util";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
 import { GenerationType } from "./ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
+import { generateFieldStructureForJsonSample } from "./ProcessOverlayForm/AddDataMappingConfig";
 
 export interface AddProcessFormProps {
     type: string;
@@ -125,7 +126,9 @@ export function ProcessConfigForm(props: any) {
 
                     switch (datamapperConfig.outputType.type) {
                         case 'json':
-                            outputType = 'json';
+                            // outputType = 'json';
+                            // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
+                            outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
                             break;
                         case 'record':
                             const outputTypeInfo = datamapperConfig.outputType?.typeInfo;

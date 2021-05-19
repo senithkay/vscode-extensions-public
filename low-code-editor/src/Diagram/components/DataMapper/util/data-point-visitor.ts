@@ -25,6 +25,7 @@ export class DataPointVisitor implements Visitor {
     private outPutOffsetGap: number = 0;
     private readonly sourceTypeX: number = 0;
     private hasDataMapperTypeDesc: boolean;
+    private hasInlineTypeDesc: boolean;
 
     constructor(maxFieldWidth: number, outputOffsetGap: number) {
         this.sourceTypeX = maxFieldWidth - 25;
@@ -83,6 +84,7 @@ export class DataPointVisitor implements Visitor {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            this.hasInlineTypeDesc = viewstate.hasInlineRecordDescription;
 
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
@@ -135,7 +137,7 @@ export class DataPointVisitor implements Visitor {
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+        if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
@@ -156,7 +158,7 @@ export class DataPointVisitor implements Visitor {
     }
 
     endVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+        if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
         }
     }

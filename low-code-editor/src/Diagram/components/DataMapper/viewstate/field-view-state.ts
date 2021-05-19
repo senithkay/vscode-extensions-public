@@ -16,9 +16,11 @@ import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from 
 
 export class FieldViewState extends DataMapperViewState {
     public type: string;
+    public unionType: string;
     public name: string;
     public typeInfo: TypeInfo;
     public hasMappedConstructorInitializer: boolean;
+    public hasInlineRecordDescription: boolean;
     public sourcePointViewState: SourcePointViewState;
     public targetPointViewState: TargetPointViewState;
 }

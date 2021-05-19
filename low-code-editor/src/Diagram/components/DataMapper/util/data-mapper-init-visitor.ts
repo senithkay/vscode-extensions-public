@@ -125,6 +125,9 @@ export class DataMapperInitVisitor implements Visitor {
                     version: moduleID.version
                 }
             }
+        } else if (STKindChecker.isRecordTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Record;
+            viewState.hasInlineRecordDescription = true;
         }
 
         viewState.name = bindingPattern.variableName.value;
@@ -188,6 +191,9 @@ export class DataMapperInitVisitor implements Visitor {
                     version: moduleID.version
                 }
             }
+        } else if (STKindChecker.isUnionTypeDesc(typeName)) {
+            viewState.type = PrimitiveBalType.Union;
+            viewState.unionType = typeName.source.trim();
         }
 
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
@@ -233,7 +239,8 @@ export class DataMapperInitVisitor implements Visitor {
             } else if (STKindChecker.isBooleanLiteral(node.valueExpr)) {
                 viewstate.type = 'boolean';
             } else if (STKindChecker.isNumericLiteral(node.valueExpr)) {
-                viewstate.type = 'float';
+                viewstate.type = 'union';
+                viewstate.unionType = 'int|float|decimal';
             } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 viewstate.type = 'mapconstructor'; // TODO: check for the correct term
             } else if (STKindChecker.isSimpleNameReference(node.valueExpr)) {
@@ -268,6 +275,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.targetPointViewState = new TargetPointViewState();
                 viewstate.targetPointViewState.value = node.valueExpr.source;
                 viewstate.targetPointViewState.type = viewstate.type;
+                viewstate.targetPointViewState.unionType = viewstate.unionType;
                 viewstate.targetPointViewState.position = node.valueExpr.position;
             }
 

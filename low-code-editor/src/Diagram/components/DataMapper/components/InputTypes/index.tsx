@@ -20,6 +20,7 @@ export {
     ValueType as int,
     ValueType as boolean,
     ValueType as float,
+    ValueType as union,
     JsonType as json,
     JsonType as mapconstructor
 }

@@ -20,6 +20,7 @@ const FIELD_WIDTH: number = 200;
 const FIELD_OFFSET: number = 15;
 export class DataMapperSizingVisitor implements Visitor {
     private hasTypeDescNode: boolean = false;
+    private hasInlineTypeDesc: boolean = false;
     private offSet: number = 0;
     private maxWidth: number = 0;
     private viewstateMap: Map<string, DataMapperViewState> = new Map();
@@ -84,6 +85,7 @@ export class DataMapperSizingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.hasTypeDescNode = node.dataMapperTypeDescNode !== undefined;
+            this.hasInlineTypeDesc = viewstate.hasInlineRecordDescription;
 
             this.nameparts.push(viewstate.name);
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
@@ -110,6 +112,15 @@ export class DataMapperSizingVisitor implements Visitor {
             if (this.hasTypeDescNode) {
                 if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
                     const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const viewstate: FieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += viewstate.bBox.h;
+                    });
+                }
+            } else if (this.hasInlineTypeDesc) {
+                const typedBindingPattern = node.typedBindingPattern;
+                if (STKindChecker.isRecordTypeDesc(typedBindingPattern.typeDescriptor)) {
+                    const typeDescNode: RecordTypeDesc = typedBindingPattern.typeDescriptor as RecordTypeDesc;
                     typeDescNode.fields.forEach(field => {
                         const viewstate: FieldViewState = field.dataMapperViewState as FieldViewState;
                         height += viewstate.bBox.h;
@@ -183,7 +194,7 @@ export class DataMapperSizingVisitor implements Visitor {
     }
 
     beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState && this.hasTypeDescNode) {
+        if (node.dataMapperViewState && (this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.h = FIELD_HEIGHT;
             this.offSet += FIELD_OFFSET;
@@ -203,7 +214,7 @@ export class DataMapperSizingVisitor implements Visitor {
     }
 
     endVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState && this.hasTypeDescNode) {
+        if (node.dataMapperViewState && (this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
             this.offSet -= FIELD_OFFSET;
