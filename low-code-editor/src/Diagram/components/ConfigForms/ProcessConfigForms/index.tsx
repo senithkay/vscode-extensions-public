@@ -123,12 +123,14 @@ export function ProcessConfigForm(props: any) {
                     })
 
                     let outputType = '';
+                    let conversionStatement = '';
 
                     switch (datamapperConfig.outputType.type) {
                         case 'json':
                             // outputType = 'json';
                             // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
                             outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
+                            conversionStatement = `json ${datamapperConfig.outputType.variableName}Json = ${datamapperConfig.outputType.variableName}.toJson();`
                             break;
                         case 'record':
                             const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
@@ -145,6 +147,9 @@ export function ProcessConfigForm(props: any) {
 
                     const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
                     modifications.push(dataMapperFunction);
+                    if (conversionStatement.length > 0) {
+                        modifications.push(createPropertyStatement(conversionStatement, formArgs?.targetPosition));
+                    }
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
