@@ -122,7 +122,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         if (!emptyFieldChecker.get("subject") && !emptyFieldChecker.get("'from") && !emptyFieldChecker.get("to")
             && !emptyFieldChecker.get("body") && !BccChecker && !CcChecker) {
             onValidate(true);
-        } else {
+    } else {
             onValidate(false);
         }
     }

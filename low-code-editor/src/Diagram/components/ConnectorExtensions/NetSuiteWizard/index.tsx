@@ -23,7 +23,6 @@ import { Context } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createImportStatement,
     createPropertyStatement,
     updatePropertyStatement} from "../../../utils/modification-util";
@@ -36,8 +35,6 @@ import {
     getActionReturnType,
     getConnectorIcon,
     getInitReturnType,
-    getKeyFromConnection,
-    getOauthParamsFromConnection,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
