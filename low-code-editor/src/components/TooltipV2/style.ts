@@ -17,7 +17,7 @@ export const tooltipBaseStyles = {
         color: "#8d91a3",
         backgroundColor: "#fdfdfd",
         border: "1px solid #e6e7ec",
-        borderRadius: "4px",
+        borderRadius: "6px",
         padding: "1rem"
     },
     arrow: {
@@ -80,13 +80,13 @@ const useStyles = makeStyles(() =>
         },
         heading: {
             fontSize: 13,
-            fontWeight: 500,
+            fontWeight: 600,
             color: '#1D2028',
-            marginBottom: '2px'
+            marginBottom: '0.5rem'
         },
         subHeading: {
-            fontSize: 10,
-            fontWeight: 300,
+            fontSize: 13,
+            fontWeight: 400,
             color: '#40404B'
         }
     }),

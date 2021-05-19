@@ -18,6 +18,7 @@ import { TooltipCodeSnippet } from "../../../components/Tooltip";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import "./style.scss";
+import TooltipV2 from "../../../components/TooltipV2";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;

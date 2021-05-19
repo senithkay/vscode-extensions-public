@@ -22,7 +22,7 @@ import useStyles, {tooltipBaseStyles} from "./style";
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
 interface TooltipPropsExtended extends TooltipProps {
-    type?: string,
+    type: string,
     heading?: string,
     subHeading?: string;
     actionText?: string;
@@ -127,9 +127,9 @@ function ExampleTooltip(props: Partial<TooltipPropsExtended>) {
         <div>
             <h4 className={styles.heading}>{heading}</h4>
             <h2 className={styles.subHeading}>{subHeading}</h2>
-            <p className={styles.exampleCodeWrap}>
+            <div className={styles.codeExample}>
                <div>Eg: </div>{example}
-            </p>
+            </div>
         </div>
     )
 }
