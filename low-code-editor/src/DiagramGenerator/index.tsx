@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import Grid from "@material-ui/core/Grid";
 import { StringValueNode } from "graphql";
 
 import LowCodeEditor from "..";
@@ -25,11 +26,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     React.useEffect(() => {
         (async () => {
-            const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
-            const vistedSyntaxTree = getLowcodeST(genSyntaxTree, startLine, startCharacter);
-            setSyntaxTree(vistedSyntaxTree);
-            if (!syntaxTree){
-                return (<div><h1>Parse error...!</h1></div>);
+            try {
+                const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
+                const vistedSyntaxTree = getLowcodeST(genSyntaxTree, startLine, startCharacter);
+                setSyntaxTree(vistedSyntaxTree);
+                if (!syntaxTree) {
+                    return (<div><h1>Parse error...!</h1></div>);
+                }
+            } catch (err) {
+                throw err;
             }
         })();
     }, []);
@@ -40,9 +45,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     return (
          <div>
-            <DiagramGenErrorBoundary>
-                <LowCodeEditor isReadOnly={true} syntaxTree={syntaxTree}  />
-            </DiagramGenErrorBoundary>
+            <Grid container={true}>
+                <Grid item={true} xs={10} sm={11} md={11}>
+                    <DiagramGenErrorBoundary>
+                        <LowCodeEditor isReadOnly={true} syntaxTree={syntaxTree}  />
+                    </DiagramGenErrorBoundary>
+                </Grid>
+            </Grid>
         </div>
     );
 }
