@@ -17,13 +17,12 @@
  */
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
-    commands, Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window,
-    workspace
+    Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND } from './model';
 import { join, sep } from 'path';
 import fileUriToPath = require('file-uri-to-path');
-import { BAL_TOML, PALETTE_COMMANDS, PROJECT_TYPE } from '../project';
+import { BAL_TOML, PROJECT_TYPE } from '../project';
 
 /**
  * Data provider class for package tree.
@@ -39,14 +38,12 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
-                commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
-                commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
                 this.refresh();
             }
         });

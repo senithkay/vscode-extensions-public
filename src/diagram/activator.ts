@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel } from 'vscode';
+import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
@@ -39,42 +39,23 @@ interface DiagramOptions {
 	startColumn?: number;
 	filePath?: string;
 	isDiagram: boolean;
+	fileUri?: Uri;
 }
 
-let diagramViewPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
 let packageOverviewDataProvider: PackageOverviewDataProvider;
+let diagramElement: DiagramOptions;
+let extensionPath: string;
 
-export async function showDiagramEditor(context: ExtensionContext, ballerinaExtInstance: BallerinaExtension, startLine: number,
+export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
 	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
 
-	if (diagramViewPanel) {
-		diagramViewPanel.dispose();
-	}
-
-	// Create and show a new webview
-	diagramViewPanel = window.createWebviewPanel(
-		'ballerinaDiagram',
-		"Ballerina Diagram",
-		{ viewColumn: ViewColumn.One, preserveFocus: true },
-		getCommonWebViewOptions()
-	);
-
-	diagramViewPanel.iconPath = {
-		light: Uri.file(join(context.extensionPath, 'resources/images/icons/design-view.svg')),
-		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/design-view-inverse.svg'))
-	};
-
-	WebViewRPCHandler.create(diagramViewPanel, ballerinaExtInstance.langClient!);
 	const editor = window.activeTextEditor;
 	let treeItemPath: Uri;
 	if (filePath === '') {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
-			if (diagramViewPanel) {
-				diagramViewPanel.dispose();
-			}
 			window.showErrorMessage(message);
 			return;
 		}
@@ -83,32 +64,39 @@ export async function showDiagramEditor(context: ExtensionContext, ballerinaExtI
 		treeItemPath = Uri.file(filePath);
 	}
 
-	let html;
 	if (isCommand && editor && langClient && packageOverviewDataProvider) {
 		const diagramOptions: DiagramOptions = await getFirstViewElement();
 		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
 		}
-		html = render(Uri.file(diagramOptions.filePath!), diagramOptions.startLine!, diagramOptions.startColumn!,
-			diagramOptions.kind!, diagramOptions.name!);
+		diagramElement = {
+			fileUri: Uri.file(diagramOptions.filePath!),
+			startLine: diagramOptions.startLine!,
+			startColumn: diagramOptions.startColumn!,
+			kind: diagramOptions.kind!,
+			name: diagramOptions.name!,
+			isDiagram: true
+		};
 	} else {
-		html = render(treeItemPath!, startLine, startColumn, kind, name);
+		diagramElement = {
+			fileUri: treeItemPath!,
+			startLine,
+			startColumn,
+			kind,
+			name,
+			isDiagram: true
+		};
 	}
 
-	if (diagramViewPanel && html) {
-		diagramViewPanel.webview.html = html;
-	}
-
-	diagramViewPanel.onDidDispose(() => {
-		diagramViewPanel = undefined;
-	});
+	DiagramPanel.create();
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataProvider: PackageOverviewDataProvider) {
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	packageOverviewDataProvider = overviewDataProvider;
+	extensionPath = context.extensionPath;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		if (!ballerinaExtInstance.isSwanLake) {
@@ -121,7 +109,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(context, ballerinaExtInstance, 0, 0, '', '', '', true);
+				showDiagramEditor(ballerinaExtInstance, 0, 0, '', '', '', true);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -171,4 +159,59 @@ async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem 
 		}
 	}
 	return;
+}
+
+class DiagramPanel {
+	public static currentPanel: DiagramPanel | undefined;
+	private readonly webviewPanel: WebviewPanel;
+	private disposables: Disposable[] = [];
+
+	private constructor(panel: WebviewPanel) {
+		this.webviewPanel = panel;
+		this.update();
+		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
+
+		this.webviewPanel.onDidChangeViewState((_event) => {
+			if (this.webviewPanel.visible) {
+				this.dispose();
+				DiagramPanel.create();
+			}
+		}, null, this.disposables);
+	}
+
+	public static create() {
+		if (DiagramPanel.currentPanel) {
+			DiagramPanel.currentPanel.webviewPanel.reveal();
+			DiagramPanel.currentPanel.update();
+			return;
+		}
+
+		const panel = window.createWebviewPanel(
+			'ballerinaDiagram',
+			"Ballerina Diagram",
+			{ viewColumn: ViewColumn.One, preserveFocus: true },
+			getCommonWebViewOptions()
+		);
+
+		panel.iconPath = {
+			light: Uri.file(join(extensionPath, 'resources/images/icons/design-view.svg')),
+			dark: Uri.file(join(extensionPath, 'resources/images/icons/design-view-inverse.svg'))
+		};
+
+		WebViewRPCHandler.create(panel, langClient);
+		DiagramPanel.currentPanel = new DiagramPanel(panel);
+	}
+
+	public dispose() {
+		DiagramPanel.currentPanel = undefined;
+		this.webviewPanel.dispose();
+		this.disposables.forEach(disposable => {
+			disposable.dispose();
+		});
+	}
+
+	private update() {
+		this.webviewPanel.webview.html = render(diagramElement.fileUri!, diagramElement.startLine!, diagramElement.startColumn!,
+			diagramElement.kind!, diagramElement.name!);
+	}
 }

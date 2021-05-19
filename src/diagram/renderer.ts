@@ -72,9 +72,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             let kind = ${JSON.stringify(kind)};
             function drawDiagram() {
                 try {
-                    let width = window.innerWidth - 6;
-                    let height = window.innerHeight;
-                    let zoom = 1;
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
