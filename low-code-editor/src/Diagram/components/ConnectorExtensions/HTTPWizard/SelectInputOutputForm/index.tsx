@@ -35,7 +35,6 @@ import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { ExpressionEditorMap } from "../../../Portals/ConfigForm/Elements/ExpressionEditorMap";
 import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
@@ -463,39 +462,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setOnOperationChange(true);
     }
 
-    const headerModel: FormField = {
-        isParam: true,
-        name: "headers",
-        optional: true,
-        customAutoComplete: ["\"key1\"", "\"key2\""],
-        type: "map",
-        fields: [
-            {
-                isParam: true,
-                type: "union",
-                isUnion: true,
-                customAutoComplete: ["\"val1\"", "\"val2\"", "\"val3\""],
-                fields: [
-                    {
-                        isParam: true,
-                        type: "string"
-                    },
-                    {
-                        isParam: true,
-                        type: "collection",
-                        isArray: true,
-                        collectionDataType: PrimitiveBalType.String
-                    }
-                ]
-            }
-        ],
-        description: "# + headers - The entity headers"
-    }
-
-    const validateHeader = (_field: string, isInvalid: boolean) => {
-        // Enable/disable the Save button
-    }
-
     return (
         <div>
             {((!selectedOperation || onOperationChange) && (
@@ -571,13 +537,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         </div>
                                     </>
                                 )}
-                                {/* <HTTPHeaders headerObject={headerObject} /> */}
-                                <ExpressionEditorMap
-                                    model={headerModel}
-                                    customProps={{
-                                        validate: validateHeader
-                                    }}
-                                />
                             </div>
                         </div>
                         <div className={classes.wizardBtnHolder}>
