@@ -43,6 +43,7 @@ import {
     transformFormFieldTypeToString,
     typeCheckerExp
 } from "./utils";
+import { DraftUpdatePosition } from "tools/low-code-editor/src/Diagram/view-state/draft";
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -133,6 +134,7 @@ export interface ExpressionEditorProps {
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
+    editPosition?: any;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -148,28 +150,28 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState, setExpressionEditorState ] = useState({
+    const [expressionEditorState, setExpressionEditorState] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
         diagnostic: [],
     });
 
-    const [ disposableTriggers ] = useState([]);
+    const [disposableTriggers] = useState([]);
 
     const {
         index,
         defaultValue,
         model,
         onChange,
-        customProps
+        customProps,
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor } = customProps;
-    const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor, editPosition } = customProps;
+    const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
-    const [ expand, setExpand ] = useState(expandDefault || false);
-    const [ addCheck, setAddCheck ] = useState(false);
-    const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
+    const [expand, setExpand] = useState(expandDefault || false);
+    const [addCheck, setAddCheck] = useState(false);
+    const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
@@ -413,7 +415,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     useEffect(() => {
         // Programatically clear exp-editor
         if (clearInput && revertClearInput) {
-            if (monacoRef.current){
+            if (monacoRef.current) {
                 const editorModel = monacoRef.current.editor.getModel();
                 if (editorModel) {
                     editorModel.setValue("");
@@ -777,9 +779,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{height: expand ? '114px' : '32px'}}>
+            <div className="exp-container" style={{ height: expand ? '114px' : '32px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{height: expand ? '100px' : '32px'}} >
+                    <div className="exp-editor" style={{ height: expand ? '100px' : '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -798,13 +800,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                                 <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
-                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
+                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
                         (
                             <div className={formClasses.addCheckWrapper} >
                                 <img className={formClasses.addCheckIcon} src="../../../../../../images/console-error.svg" />
-                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
+                                <FormHelperText className={formClasses.addCheckText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.addCheckTextClickable} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
                             (
