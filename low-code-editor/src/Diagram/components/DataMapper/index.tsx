@@ -97,7 +97,7 @@ export function DataMapper(props: DataMapperProps) {
                 point.x = evt.pageX;
                 point.y = evt.pageY;
                 const mappedPoint = point.matrixTransform(ctm.inverse());
-                drawingLineRef.current.setAttribute('x2', mappedPoint.x - 20);
+                drawingLineRef.current.setAttribute('x2', mappedPoint.x - 5);
                 drawingLineRef.current.setAttribute('y2', mappedPoint.y);
             }
 
@@ -146,7 +146,7 @@ export function DataMapper(props: DataMapperProps) {
                             tooltipActionLink: '',
                             interactive: true,
                             statementType: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type,
-                            editPosition: {line: dataMapperConfig.outputType.startLine, column: undefined}
+                            editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
                         },
                         onChange,
                         defaultValue: dataPointVS.value,
