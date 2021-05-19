@@ -67,7 +67,7 @@ export function DataPoint(props: DataPointProps) {
                     <circle id="Oval-test2" cx={dataPointViewState.bBox.x + 85} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
                     <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x + 85} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
                 </g>
-                <ExpressionBoxSVG x={dataPointViewState.bBox.x - 115} y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)} />
+                <ExpressionBoxSVG x={dataPointViewState.bBox.x - 115} y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)} onClick={onDataPointClick} />
                 <g>
                     <circle id="Oval-test2" cx={dataPointViewState.bBox.x - 125} cy={dataPointViewState.bBox.y} r="6" fill="none" stroke="#a6b3ff" stroke-miterlimit="10" stroke-width="1" onClick={onDataPointClick} />
                     <circle id="Oval-2" data-name="Oval" cx={dataPointViewState.bBox.x - 125} cy={dataPointViewState.bBox.y} r="3" fill="#5567d5" onClick={onDataPointClick} />
