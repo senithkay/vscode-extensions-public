@@ -89,11 +89,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: () => {
             return langClient.getDidOpenParams();
         }
-    }, {
-        methodName: 'getSyntaxTreeFileRange',
-        handler: (args: any[]) => {
-            return langClient.getSyntaxTreeFileRange(args[0]);
-        }
     }
     ];
 };
