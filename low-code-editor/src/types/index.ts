@@ -111,6 +111,7 @@ export interface LowCodeEditorProps {
     dispatchFileChange?: (content: string) => Promise<void>;
     dispatchCodeChangeCommit?: () => Promise<void>;
     onEvent?: (event: LowcodeEvent) => void;
+    hasConfigurables?: (templateST: ModulePart) => boolean;
 }
 
 export interface STSymbolInfo {
