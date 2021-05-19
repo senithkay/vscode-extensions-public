@@ -489,7 +489,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 ]
             }
         ],
-        description: "# + headers - The entity headers"
+        description: "# + headers - The entity headers",
+        tooltip: "The entity headers"
     }
 
     const validateHeader = (_field: string, isInvalid: boolean) => {
