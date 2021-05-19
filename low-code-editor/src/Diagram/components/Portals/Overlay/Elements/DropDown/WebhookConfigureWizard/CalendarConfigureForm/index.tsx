@@ -249,8 +249,9 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
     return (
         <>
+
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection" /></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     currentConnection={activeConnection}
@@ -259,39 +260,39 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     onFailure={handleError}
                 />
                 <p />
-                {activeConnection && isCalenderFetching && (
-                    <div className={classes.loader}>
-                        <CirclePreloader position="relative" />
-                        <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..."/>
-                        </Typography>
-                    </div>
-
-                )}
-                {activeConnection && !isCalenderFetching && gcalenderList && (
-                    <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar"/></p>
-                        <FormAutocomplete
-                            placeholder={chooseCalendarPlaceholder}
-                            itemList={gcalenderList}
-                            value={getActiveGcalendar()}
-                            getItemLabel={handleItemLabel}
-                            onChange={handleGcalendarChange}
-                        />
-                    </>
-                )}
-                {activeGcalendar && (
-                    <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event"/></p>
-                        <FormAutocomplete
-                            placeholder={chooseEventPlaceholder}
-                            itemList={calenderEvents}
-                            value={calendarEvent}
-                            onChange={handleCalendarEventChange}
-                        />
-                    </>
-                )}
             </div>
+            {activeConnection && isCalenderFetching && (
+                <div className={classes.loader}>
+                    <CirclePreloader position="relative" />
+                    <Typography variant="subtitle2" className={classes.loaderTitle}>
+                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..." />
+                    </Typography>
+                </div>
+
+            ) }
+            {activeConnection && !isCalenderFetching && gcalenderList && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar" /></p>
+                    <FormAutocomplete
+                        placeholder={chooseCalendarPlaceholder}
+                        itemList={gcalenderList}
+                        value={getActiveGcalendar()}
+                        getItemLabel={handleItemLabel}
+                        onChange={handleGcalendarChange}
+                    />
+                </div>
+            ) }
+            {activeGcalendar && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event" /></p>
+                    <FormAutocomplete
+                        placeholder={chooseEventPlaceholder}
+                        itemList={calenderEvents}
+                        value={calendarEvent}
+                        onChange={handleCalendarEventChange}
+                    />
+                </div>
+            ) }
 
             { activeConnection && activeGcalendar && calendarEvent &&
                 (
@@ -302,7 +303,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                             disabled={isFileSaving}
                         />
                     </div>
-                )}
+                ) }
         </>
-    )
+    );
 }
