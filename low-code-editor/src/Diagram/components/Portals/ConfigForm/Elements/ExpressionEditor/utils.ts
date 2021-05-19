@@ -95,7 +95,20 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
 
 export function getInitialValue(defaultValue: string, model: FormField): string {
     const initVal = defaultValue ? defaultValue : model.value;
+    // if (model.type === PrimitiveBalType.String && !model.optional) {
+    //     // if (initVal) {
+    //     //     return initVal;
+    //     // } else if (model.defaultValue) {
+    //     //     return model.defaultValue;
+    //     // } else {
+    //     //     model.defaultValue = "\"\"";
+    //     //     return model.defaultValue;
+    //     // }
+
+    //     return initVal ? initVal : "\"\"";
+    // } else {
     return initVal;
+    // }
 }
 
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
@@ -169,15 +182,6 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
         return model.type;
     }
     return PrimitiveBalType.Var.toString();
-}
-
-export function checkIfStringExist(varType: string) : boolean {
-    if (varType.endsWith(")[]")) {
-        // Check for union array
-        return false;
-    }
-    const types: string[] = varType.split("|");
-    return types.includes("string")
 }
 
 /**

@@ -387,17 +387,17 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsWrapper: {
+        addCheckWrapper: {
             display: 'flex',
             marginTop: '4px'
         },
-        suggestionsIcon: {
+        addCheckIcon: {
             marginRight: '6px',
             marginTop: '3px',
             height: '20px',
             width: '20px'
         },
-        suggestionsText: {
+        addCheckText: {
             fontSize: '13px !important',
             color: '#8d91a3 !important',
             marginTop: '0 !important',
@@ -405,14 +405,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsTextInfo: {
-            color: '#ea4c4d !important',
-            "&:hover": {
-                cursor: 'pointer',
-                textDecoration: 'underline'
-            }
-        },
-        suggestionsTextError: {
+        addCheckTextClickable: {
             color: '#ea4c4d !important',
             "&:hover": {
                 cursor: 'pointer',
