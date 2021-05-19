@@ -13,7 +13,7 @@
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
-import { getParams } from "../components/Portals/utils";
+import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdateStatement } from "../view-state/draft";
 /* tslint:disable ordered-imports */
 import { getInsertComponentSource } from "./template-utils";
@@ -205,6 +205,14 @@ export function updateReturnStatement(returnExpr: string, targetPosition: DraftU
 
 export function createImportStatement(org: string, module: string, targetPosition: DraftInsertPosition): STModification {
     const moduleName = module;
+    const formattedName = getFormattedModuleName(module);
+    let moduleNameStr = org + "/" + module;
+
+    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName){
+        // add alias if module name is different with formatted name
+        moduleNameStr = org + "/" + module + " as " + formattedName
+    }
+
     const importStatement: STModification = {
         startLine: 0,
         startColumn: 0,
@@ -212,7 +220,7 @@ export function createImportStatement(org: string, module: string, targetPositio
         endColumn: 0,
         type: "IMPORT",
         config: {
-            "TYPE": org + "/" + module + (moduleName.includes('.') ? " as " + moduleName.split('.').pop() : "")
+            "TYPE": moduleNameStr
         }
     };
 
