@@ -18,6 +18,7 @@ import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-t
 import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
+import DataMapperIcon from '../../../../../../../src/assets/icons/DataMapper';
 import { LogIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
@@ -142,7 +143,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 <div className={formClasses.formTitleWrapper}>
                     <div className={formClasses.mainTitleWrapper}>
                         <div className={formClasses.iconWrapper}>
-                            <LogIcon /> {/* TODO: Need a datamapper icon */}
+                            <DataMapperIcon />
                         </div>
                         <Typography variant="h4">
                             <Box paddingTop={2} paddingBottom={2}>Data Mapping Object</Box>

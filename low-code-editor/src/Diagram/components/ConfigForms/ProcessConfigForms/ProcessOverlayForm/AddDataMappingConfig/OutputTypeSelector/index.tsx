@@ -15,6 +15,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useState } from 'react';
 
+import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, Typography } from '@material-ui/core';
 import classNames from 'classnames';
 
@@ -26,7 +27,6 @@ import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextFi
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from "../../../../../Portals/ConfigForm/types";
 import { checkVariableName } from '../../../../../Portals/utils';
-import { LocalVarDecl } from 'tools/syntax-tree/lib';
 
 interface OutputTypeSelectorProps {
     types: DataMapperOutputTypeInfo[];

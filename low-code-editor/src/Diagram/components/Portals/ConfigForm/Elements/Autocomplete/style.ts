@@ -37,5 +37,20 @@ export const useStyles = makeStyles(() =>
       padding: "9px !important",
       marginLeft: 12
     },
+    titleLabel: {
+      padding: 0,
+      color: '#1D2028',
+      fontSize: 14,
+      lineHeight: '40px',
+      display: 'inline-block',
+    },
+    titleLabelRequired: {
+      padding: 0,
+      color: '#DC143C',
+      fontSize: "13px",
+      textTransform: 'capitalize',
+      display: 'inline-block',
+      paddingTop: '0.25rem'
+    }
   })
 );

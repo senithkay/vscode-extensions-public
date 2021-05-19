@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent } from "react";
 
+import { FormHelperText } from "@material-ui/core";
 import TextField, { FilledTextFieldProps, OutlinedTextFieldProps, StandardTextFieldProps } from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
@@ -36,9 +37,11 @@ export function FormAutocomplete(props: AutocompleteProps) {
         return (
             <TextField
                 {...params}
-                label={label}
                 placeholder={placeholder}
                 variant="outlined"
+                InputLabelProps={{
+                    shrink: false
+                }}
             />
         );
     }
@@ -50,6 +53,9 @@ export function FormAutocomplete(props: AutocompleteProps) {
         <div
             onWheel={preventDiagramScrolling}
         >
+            <FormHelperText className={classes.titleLabel}>{label}</FormHelperText>
+            <FormHelperText className={classes.titleLabelRequired}>*</FormHelperText>
+
             <Autocomplete
                 id="combo-box-demo"
                 options={itemList}

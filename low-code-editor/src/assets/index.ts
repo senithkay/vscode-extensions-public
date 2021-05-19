@@ -12,3 +12,4 @@ export { default as formCreateSvg } from "./images/form-create.svg";
 export { default as emailSvg } from "./images/email.svg";
 export { default as webhookSvg } from "./images/webhook.svg";
 export { default as customSvg } from "./images/custom.svg";
+export { default as DataMapper } from "./images/dataMapper.svg";
