@@ -10,17 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
-import { getFormElement } from "../../../utils";
+import { Form } from "../../forms/Components/Form";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
-import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
@@ -31,120 +31,75 @@ export function Union(props: FormElementProps<UnionProps>) {
     const classes = useStyles();
     const textLabel = model && model.displayName ? model.displayName : model.name;
 
-    const [selectedType, setSelectedType] = useState(model.selectedDataType);
+    const [ selectedType, setSelectedType ] = useState(model.selectedDataType);
 
-    if (!model.optional && !model.selectedDataType && model.fields && model.fields.length > 1) {
-        customProps?.validate(model.name, true);
-    }
-
-    const getValues = () => {
-        const values: string[] = [];
-        if (model.fields) {
-            for (const field of model.fields) {
-                if (field.type && (!field?.noCodeGen)) {
-                    if (field.type === "record") {
-                        if (field.typeName) {
-                            values.push(field.typeName);
-                        }
-                    } else if ((field.type === "collection")) {
-                        if (field.collectionDataType) {
-                            values.push(field.collectionDataType);
-                        }
-                    } else {
-                        values.push(transformFormFieldTypeToString(field));
-                    }
-                }
+    useEffect(() => {
+        if (!selectedType) {
+            const types = getTypes();
+            if (types && types.length > 0) {
+                setSelectedType(types[ 0 ]);
             }
         }
-        return values;
+    }, [ selectedType ]);
+
+
+
+    const getTypes = () => {
+        const types: string[] = [];
+        model.fields?.forEach((field: FormField, key: number) => {
+            const name = getUnionFormFieldName(field);
+            if (name) {
+                types.push(name);
+            }
+        });
+
+        return types;
     };
 
-    const getSelectedField = (value: string) => {
-        let selectedField: FormField;
-        if (model.fields) {
-            for (const field of model.fields) {
-                let type: string = "";
-                if (field.type === "record") {
-                    type = field.typeName;
-                } else if (field.type === "collection" && field.collectionDataType) {
-                    type = field.collectionDataType;
-                } else {
-                    type = transformFormFieldTypeToString(field);
-                }
-                if (type === value) {
-                    selectedField = field;
-                    break;
-                }
-            }
-        }
+    const getSelectedFormField = () => {
+        const selectedField: FormField = model.fields.find((field: FormField) => {
+            const name = getUnionFormFieldName(field);
+            return name === selectedType;
+        });
+
         return selectedField;
     };
 
-    const emptyFieldChecker: Map<string, boolean> = new Map<string, boolean>();
-    const validate = (field: string, isInvalid: boolean) => {
-        const name: string = !field ? model.name : field;
-        emptyFieldChecker.set(name, isInvalid);
-        let allFieldsValid = true;
-
-        for (const formValue of model.fields) {
-            if (formValue.type === "record") {
-                for (const recordField of formValue.fields) {
-                    const isFieldValueInValid: boolean = emptyFieldChecker.get(recordField.name);
-                    // breaks the loop if one field is empty
-                    if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                        allFieldsValid = !isFieldValueInValid;
-                        break;
-                    }
-                }
-            } else {
-                const isFieldValueInValid: boolean = emptyFieldChecker.get(!field ? model.name : formValue.name);
-                // breaks the loop if one field is empty
-                if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-                    allFieldsValid = !isFieldValueInValid;
-                    break;
-                }
-            }
+    const getElement = () => {
+        let element: React.ReactNode = null;
+        const selectedField = getSelectedFormField();
+        model.selectedDataType = selectedType;
+        if (selectedField && selectedField.type) {
+            element = (
+                <div className={classes.removeInnerMargin}>
+                    <Form fields={selectedField.fields} onValidate={validateForm} />
+                </div>
+            );
         }
 
-        customProps?.validate(model.name, !allFieldsValid);
-    }
+        return element;
+    };
 
-    const fieldModel: FormField = model && model.fields?.length === 1
-        ? getSelectedField(getValues()[0])
-        : getSelectedField(selectedType);
-    let typeField: React.ReactNode = null;
-    if (fieldModel) {
-        if (fieldModel.type !== "nil") {
-            fieldModel.optional = model?.optional;
-            fieldModel.displayName = "Enter " + textLabel;
-            const elementProps: FormElementProps = {
-                model: fieldModel,
-                customProps: {
-                    validate: model.fields && model.fields.length > 1 ? validate : customProps?.validate,
-                    statementType: fieldModel.type
-                }
-            }
-            typeField = getFormElement(elementProps, transformFormFieldTypeToString(fieldModel));
-        }
-    }
+    const validateForm = (isValid: boolean) => {
+        customProps?.validate(model.name, !isValid);
+    };
 
-    const onSelectConn = (value: string) => {
+    const handleTypeChange = (value: string) => {
         model.selectedDataType = value;
-        setSelectedType(model.selectedDataType);
+        setSelectedType(value);
         if (value === "nil") {
             customProps?.validate(model.name, false);
         }
     };
 
-    // tslint:disable: jsx-no-multiline-js
     const selector = model && model.fields && model.fields.length > 1 && (
         <SelectDropdownWithButton
-            onChange={onSelectConn}
-            customProps={{
-                values: getValues(),
+            onChange={handleTypeChange}
+            customProps={ {
+                values: getTypes(),
                 disableCreateNew: true,
                 className: "unionDropdown"
-            }}
+            } }
             defaultValue={selectedType ? selectedType : ""}
             placeholder="Select Type"
         />
@@ -156,7 +111,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                 (
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>{textLabel}</FormHelperText>
-                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.union.optional.label" defaultMessage="Optional"/></FormHelperText>
+                        <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.union.optional.label" defaultMessage="Optional" /></FormHelperText>
                     </div>
                 ) : (
                     <div className={classes.labelWrapper}>
@@ -166,7 +121,20 @@ export function Union(props: FormElementProps<UnionProps>) {
                 )
             }
             {selector}
-            {typeField}
+            {getElement()}
         </div>
     );
+}
+
+// get field name of the union record
+export function getUnionFormFieldName(field: FormField): string {
+    let name = field.label;
+    if (!name) {
+        name = field.name;
+    }
+    if (!name) {
+        name = field.typeInfo?.name;
+    }
+
+    return name;
 }

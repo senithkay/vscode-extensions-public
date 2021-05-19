@@ -1,23 +1,32 @@
+import { AwsS3Logo } from "./AwsS3Logo";
+import { AwsSQSLogo } from "./AwsSQSLogo";
+import { AzureBlobServiceLogo } from "./AzureBlobServiceLogo";
+import { AzureCosmosDBLogo } from "./AzureCosmosDBLogo";
+import { AzureEventhubLogo } from "./AzureEventhub";
+import { AzureFileServiceLogo } from "./AzureFileService";
 import { BulkJobLogo } from "./BulkJobLogo";
 import { DefaultLogo } from "./DefaultLogo";
 // import { GenaricMailLogo } from "./GenaricMailLogo";
 import { GitHubLogo } from "./GitHubLogo";
 import { GmailLogo } from "./GmailLogo"
-import { GoogleCalanderLogo } from "./GoogleCalanderLogo"
-import { GoogleSheetLogo } from "./GoogleSheetLogo"
+import { GoogleCalanderLogo } from "./GoogleCalanderLogo";
+import { GoogleDriveLogo } from "./GoogleDriveLogo";
+import { GooglePeopleAPILogo } from "./GooglePeopleAPILogo";
+import { GoogleSheetLogo } from "./GoogleSheetLogo";
 import { HttpLogo } from "./HttpLogo";
 import { ImapLogo } from "./ImapLogo"
+import { MongoDBLogo } from "./MongoDBLogo";
 import { NetsuiteLogo } from "./NetsuiteLogo";
 import { Pop3Logo } from "./Pop3Logo";
 import { PostgreSQLogo } from "./PostgreSQLogo";
 import { QueryClientLogo } from "./QueryClientLogo";
+import { RedisLogo } from "./RedisLogo";
 import { SalesforceLogo } from "./SalesforceLogo";
 import { SlackLogo } from "./SlackLogo";
 import { SMTPLogo } from "./SMTPLogo";
 import { SObjectClientLogo } from "./SObjectClientLogo";
 import { TwilioLogo } from "./TwilioLogo";
 import { TwitterLogo } from "./TwitterLogo";
-
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
@@ -38,3 +47,13 @@ export { GoogleSheetLogo as googleapis_sheets_Client };
 export { GoogleSheetLogo as googleapis_sheets_Sheet };
 export { PostgreSQLogo as postgresql_Client };
 export { NetsuiteLogo as netsuite_Client };
+export { GoogleDriveLogo as googleapis_drive_Client};
+export { GooglePeopleAPILogo as googleapis_people_Client};
+export { AwsS3Logo as aws_s3_Client};
+export { AwsSQSLogo as aws_sqs_Client};
+export { AzureEventhubLogo as azure_eventhub_Client};
+export { AzureCosmosDBLogo as azure_cosmosdb_Client};
+export { AzureFileServiceLogo as azure_storage_service_files_FileClient};
+export { AzureBlobServiceLogo as azure_storage_service_blobs_BlobClient};
+export { MongoDBLogo as mongodb_Client};
+export { RedisLogo as redis_Client};
