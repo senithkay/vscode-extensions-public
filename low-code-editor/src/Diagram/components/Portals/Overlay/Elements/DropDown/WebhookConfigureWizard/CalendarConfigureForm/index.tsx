@@ -38,10 +38,12 @@ import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConne
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
+import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
+    isTriggerTypeChanged: boolean;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
 }
@@ -63,7 +65,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         stSymbolInfo,
         originalSyntaxTree,
     } = state;
-    const { onComplete, currentConnection } = props;
+    const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -73,6 +75,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
     const [calendarEvent, setCalendarEvent] = useState();
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const Trigger = "Google Calendar";
 
     // HACK: hardcoded event list until get it form connector API
@@ -135,11 +138,17 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
     };
 
+    const handleDialogOnCancel = () => {
+        setShowConfirmDialog(false);
+    };
+
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createCalendarTrigger();
-        } else {
+        } else if (!isTriggerTypeChanged) {
             updateCalendarTrigger();
+        } else {
+            setShowConfirmDialog(true);
         }
     };
 
@@ -303,7 +312,14 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                             disabled={isFileSaving}
                         />
                     </div>
-                ) }
+                )}
+
+            { showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createCalendarTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
+            )}
         </>
     );
 }

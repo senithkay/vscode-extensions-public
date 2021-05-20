@@ -32,10 +32,12 @@ import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
+import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface SalesforceConfigureFormProps {
     position: DiagramOverlayPosition;
+    isTriggerTypeChanged: boolean;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
 }
@@ -51,20 +53,23 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
+        onModify: dispatchModifyTrigger,
         originalSyntaxTree,
+        onMutate: dispatchMutations,
         trackTriggerSelection
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
     const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
-    const { onComplete } = props;
+    const { onComplete, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
 
-    const [triggerChanged, setTriggerChanged] = useState(false);
-    const [topic, setTopic] = useState("");
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [ triggerChanged, setTriggerChanged ] = useState(false);
+    const [ topic, setTopic ] = useState("");
+    const [ username, setUsername ] = useState("");
+    const [ password, setPassword ] = useState("");
+    const [ showConfirmDialog, setShowConfirmDialog ] = useState(false);
 
     const Trigger = "Salesforce";
 
@@ -127,9 +132,15 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const handleConfigureOnSave = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createSalesforceTrigger();
-        } else {
+        } else if (!isTriggerTypeChanged) {
             updateSalesforceTrigger();
+        } else {
+            setShowConfirmDialog(true);
         }
+    };
+
+    const handleDialogOnCancel = () => {
+        setShowConfirmDialog(false);
     };
 
     const userNamePlaceholder = intl.formatMessage({
@@ -211,6 +222,12 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                         />
                     </div>
                 )}
+            { showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createSalesforceTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
+            )}
         </>
     );
 }

@@ -38,15 +38,15 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
     const { index, customProps, onChange, defaultValue, label, placeholder, errorMessage, dataTestId, size = "medium" } = props;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
-    // const defaultText: string = defaultValue ? defaultValue : "";
+    const defaultText: string = defaultValue ? defaultValue : "";
     const textLabel = label ? label : "";
 
-    // const [inputValue, setInputValue] = useState(defaultText);
+    const [inputValue, setInputValue] = useState(defaultText);
 
     if (customProps?.clearInput) {
         // setting the prop to false to avoid render loop
         customProps.clearInput = false;
-        // setInputValue("");
+        setInputValue("");
     }
 
     // to render invalid variable
@@ -71,7 +71,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
             && !customProps.disableValidation) || (customProps && customProps.disableValidation === undefined))) {
             setIsInvalid(!customProps.validate(event.target.value));
         }
-        // setInputValue(event.target.value);
+        setInputValue(event.target.value);
     };
 
     return (
@@ -127,7 +127,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
                 onChange={handleOnChange}
-                value={defaultValue ? defaultValue : ""}
+                value={inputValue}
                 helperText={isInvalid ? errorMessage : ""}
                 autoFocus={customProps?.focused}
                 disabled={customProps?.disabled}
