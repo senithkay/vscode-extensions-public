@@ -109,6 +109,7 @@ export interface LowCodeEditorProps {
     oauthSessions?: OauthSessionState;
     dispatchFileChange?: (content: string) => Promise<void>;
     dispatchCodeChangeCommit?: () => Promise<void>;
+    hasConfigurables?: (templateST: ModulePart) => boolean;
 }
 
 export interface STSymbolInfo {

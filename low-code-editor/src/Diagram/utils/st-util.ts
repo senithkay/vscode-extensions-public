@@ -473,26 +473,34 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
                     }
                 }
             }
-        }
-    } else if (viewState.isEndpoint) {
-        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-            const captureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-            const endpointName: string = captureBindingPattern.variableName.value;
-            const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
-            if (typeData?.symbol?.moduleID) {
+        } else if (viewState.isEndpoint) {
+            let matchModule: boolean = false;
+            let matchName: boolean = false;
+            if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+                const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+                const endpointName: string = captureBindingPattern.variableName.value;
+                const moduleName: any = (variable.typedBindingPattern.typeDescriptor as QualifiedNameReference).
+                    modulePrefix.value;
+                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
                 const moduleId: any = typeData?.symbol?.moduleID;
-                for (const connectorInfo of connectors) {
-                    if (connectorInfo.module === moduleId.moduleName) {
-                        matchModule = true;
-                    }
-                    if (connectorInfo.name ===
-                        ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                            .identifier.value) {
-                        matchName = true;
-                    }
-                    if (matchModule && matchName) {
-                        connector = connectorInfo;
-                        break;
+                if (moduleName) {
+                    for (const connectorInfo of connectors) {
+                        if (connectorInfo.module === moduleName) {
+                            matchModule = true;
+                        }
+                        if (moduleId && connectorInfo.module === moduleId.moduleName) {
+                            matchModule = true;
+                        }
+                        if (connectorInfo.name ===
+                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                                .identifier.value) {
+                            matchName = true;
+                        }
+
+                        if (matchModule && matchName) {
+                            connector = connectorInfo;
+                            break;
+                        }
                     }
                 }
             }
@@ -528,7 +536,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
-    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly|Custom): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
