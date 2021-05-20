@@ -16,12 +16,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import {
-    FunctionDefinition, STKindChecker} from "@ballerina/syntax-tree";
+    FunctionDefinition, STKindChecker
+} from "@ballerina/syntax-tree";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
+import { DiagramContext } from "../../../../../../../../providers/contexts";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
@@ -35,32 +37,31 @@ interface GmailConfigureFormProps {
 }
 
 export interface ConnectorEvents {
-    [ key: string ]: any;
+    [key: string]: any;
 }
 
 export function GmailConfigureForm(props: GmailConfigureFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
-        originalSyntaxTree,
-        onMutate: dispatchMutations
+        originalSyntaxTree
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const { onComplete, currentConnection } = props;
     const classes = useStyles();
     const intl = useIntl();
 
-    const [ activeConnection, setActiveConnection ] = useState<ConnectionDetails>(currentConnection);
-    const [ activeGcalendar, setActiveGcalendar ] = useState<Gcalendar>(null);
-    const [ triggerChanged, setTriggerChanged ] = useState(false);
-    const [ gmailEvent, setGmailEvent ] = useState<string>();
+    const [activeConnection, setActiveConnection] = useState<ConnectionDetails>(currentConnection);
+    const [activeGcalendar, setActiveGcalendar] = useState<Gcalendar>(null);
+    const [triggerChanged, setTriggerChanged] = useState(false);
+    const [gmailEvent, setGmailEvent] = useState<string>();
     const Trigger = "Gmail";
 
     // HACK: hardcoded event list until get it form connector API
@@ -100,7 +101,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
             onComplete();
             setTriggerChanged(false);
         }
-    }, [ isFileSaving, isFileSaved ]);
+    }, [isFileSaving, isFileSaved]);
 
     // handle oauth connect button callbacks
     function handleOnSelectConnection(type: ConnectionType, connection: ConnectionDetails) {
@@ -141,15 +142,15 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gmail",
             PORT: 8090,
             CLIENT_ID: clientId,
             CLIENT_SECRET: clientSecret,
             REFRESH_TOKEN: refreshToken,
             EVENT: gmailEvent,
-            EVENT_TYPE: gmailEvents[ gmailEvent ].type,
-            EVENT_VAR: gmailEvents[ gmailEvent ].variable,
+            EVENT_TYPE: gmailEvents[gmailEvent].type,
+            EVENT_VAR: gmailEvents[gmailEvent].variable,
         });
         trackTriggerSelection("Gmail");
     };
@@ -172,7 +173,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
     return (
         <>
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.googleConnection.title" defaultMessage="Google Connection" /></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     currentConnection={activeConnection}
@@ -181,7 +182,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
                     onFailure={handleError}
                 />
                 <p />
-                { activeConnection && (
+                {activeConnection && (
                     <>
                         <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GmailConfigWizard.googleGmailEvent.title.text" defaultMessage="Event" /></p>
                         <FormAutocomplete
@@ -191,7 +192,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
                             onChange={handleGmailEventChange}
                         />
                     </>
-                ) }
+                )}
             </div>
 
             { activeConnection && gmailEvent &&
@@ -203,7 +204,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
                             disabled={isFileSaving}
                         />
                     </div>
-                ) }
+                )}
         </>
     );
 }
