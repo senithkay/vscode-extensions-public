@@ -87,7 +87,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : (new Date().getHours().toString()));
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
-  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
+  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[(new Date().getDay()) + 1]);
   const [checked, setChecked] = useState(true);
   const [isDropdownChanged, setIsDropdownChanged] = useState(false)
 
