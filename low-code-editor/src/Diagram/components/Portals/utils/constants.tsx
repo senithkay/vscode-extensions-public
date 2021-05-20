@@ -251,7 +251,7 @@ export const tooltipMessages: Record<string, any> = {
         password: "Password from your POP3 client configurations",
     },
     BalVersionLabel: {
-        title: "We are using Ballerina Swan Lake Alpha2",
+        title: "We are using Ballerina Swan Lake Alpha5",
         actionText: "Learn more at ballerina.io",
         actionLink: "https://ballerina.io/"
     },

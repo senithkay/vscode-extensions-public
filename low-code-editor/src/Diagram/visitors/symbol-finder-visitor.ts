@@ -50,6 +50,10 @@ class SymbolFindingVisitor implements Visitor {
             actions.set(captureBindingPattern.variableName.value, node);
         }
         const type: string = getType(node.typedBindingPattern.typeDescriptor);
+        if (!type) {
+            return;
+        }
+
         if (type.endsWith("[]")) {
             variables.get("array") ? variables.get("array").push(node) : variables.set("array", [node]);
         } else if (type.startsWith("map")) {
@@ -165,6 +169,8 @@ function getType(typeNode: any): any {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {
         return "var";
+    } else if (STKindChecker.isSimpleNameReference(typeNode)) {
+        return typeNode?.name?.value;
     }
 }
 
