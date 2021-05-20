@@ -140,19 +140,21 @@ class PositioningVisitor implements Visitor {
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
-        bodyViewState.bBox.cx = viewState.workerLine.x;
+        if (bodyViewState) {
+            bodyViewState.bBox.cx = viewState.workerLine.x;
 
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+            if (viewState.triggerParams) {
+                node?.functionSignature?.parameters?.length > 0 ?
+                    viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+                viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                    : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+            } else {
+                bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+            }
+
+            viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
+            viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
         }
-
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
     }
 
     public endVisitFunctionDefinition(node: FunctionDefinition) {
@@ -235,19 +237,21 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
         viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
 
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
-            const plusBtnViewState: PlusViewState = viewState.initPlus;
-            if (bodyViewState.draft === undefined && plusBtnViewState) {
-                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+        if (bodyViewState) {
+            // If body has no statements and doesn't have a end component
+            // Add the plus button to show up on the start end
+            if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+                const plusBtnViewState: PlusViewState = viewState.initPlus;
+                if (bodyViewState.draft === undefined && plusBtnViewState) {
+                    plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                    plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+                }
             }
-        }
 
-        updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
-        // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+            updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+            // Add the connector max width to the diagram width.
+            viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        }
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
