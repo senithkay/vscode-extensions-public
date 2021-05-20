@@ -3,6 +3,7 @@ out
 node_modules
 .vscode-test/
 *.vsix
+!resources/jslibs/themes/assets/images/pattern-background.svg
 resources/jslibs
 !.vscode
 coverage

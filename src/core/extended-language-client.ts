@@ -24,8 +24,7 @@ import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
     DiagramEditorLangClientInterface, BallerinaSyntaxTreeModifyRequest, BallerinaSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
-    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
-    GetSyntaxTreeFileRangeParams, GetSyntaxTreeFileRangeResponse
+    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest
 } from "@wso2-enterprise/low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
@@ -184,7 +183,7 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
 
     public close(): void {
     }
-    
+
     getDidOpenParams(): DidOpenParams {
         return {
             textDocument: {
@@ -194,10 +193,6 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
                 version: 1
             }
         };
-    }
-
-    getSyntaxTreeFileRange(params: GetSyntaxTreeFileRangeParams): Thenable<GetSyntaxTreeFileRangeResponse> {
-        return this.sendRequest("ballerinaDocument/syntaxTreeByRange", params);
     }
 
     getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {

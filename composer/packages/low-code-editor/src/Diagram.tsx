@@ -18,6 +18,8 @@
 // tslint:disable-next-line:no-submodule-imports
 import { DiagramEditorLangClientInterface } from "@wso2-enterprise/low-code-editor";
 // tslint:disable-next-line:no-submodule-imports
+import { DiagramGenErrorBoundary } from "@wso2-enterprise/low-code-editor/build/DiagramGenerator/ErrorBoundrary/index";
+// tslint:disable-next-line:no-submodule-imports
 import { DiagramGenerator } from "@wso2-enterprise/low-code-editor/build/DiagramGenerator/index";
 import * as React from "react";
 import { Header } from "semantic-ui-react";
@@ -58,13 +60,15 @@ export class Diagram extends React.Component<DiagramProps> {
 
     public render() {
         return (
-            <>
+            <div className="low-code-container">
                 <Header className="header-wrapper">
                     {this.kind}: {this.name}
                 </Header>
-                <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.filePath}
-                    startLine={this.startLine.toString()} startCharacter={this.startColumn.toString()} />
-            </>
+                <DiagramGenErrorBoundary>
+                    <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.filePath}
+                        startLine={this.startLine.toString()} startCharacter={this.startColumn.toString()} />
+                </DiagramGenErrorBoundary>
+            </div>
         );
     }
 }

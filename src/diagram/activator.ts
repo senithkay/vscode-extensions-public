@@ -171,19 +171,20 @@ class DiagramPanel {
 		this.update();
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 
-		this.webviewPanel.onDidChangeViewState((_event) => {
-			if (this.webviewPanel.visible) {
-				this.dispose();
-				DiagramPanel.create();
-			}
-		}, null, this.disposables);
+		// this.webviewPanel.onDidChangeViewState((_event) => {
+		// 	if (this.webviewPanel.visible) {
+		// 		this.dispose();
+		// 		DiagramPanel.create();
+		// 	}
+		// }, null, this.disposables);
 	}
 
 	public static create() {
 		if (DiagramPanel.currentPanel) {
-			DiagramPanel.currentPanel.webviewPanel.reveal();
-			DiagramPanel.currentPanel.update();
-			return;
+			DiagramPanel.currentPanel.dispose();
+			// DiagramPanel.currentPanel.webviewPanel.reveal();
+			// DiagramPanel.currentPanel.update();
+			// return;
 		}
 
 		const panel = window.createWebviewPanel(
