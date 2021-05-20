@@ -10,7 +10,6 @@ export function render(filePath: Uri, startLine: number, startColumn: number, ki
 function renderDiagram(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
 
     const body = `
-        <div id="warning"></div>
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
 
@@ -27,7 +26,9 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             fill-opacity: 0;
         }
         #diagram {
-            height : 100%;
+            height: 100%;
+            display: inline-block;
+            width: 100%
         }
         #errors {
             display: table;
