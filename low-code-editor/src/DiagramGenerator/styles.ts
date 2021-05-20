@@ -23,7 +23,18 @@ export const useGeneratorStyles = makeStyles((theme: Theme) =>
             height: "150px",
             animation: "spin 2s linear infinite",
             margin: "auto",
-            marginTop: "20%"
+        },
+        lowCodeContainer: {
+            backgroundColor: "transparent",
+            height: "100%",
+        },
+        loaderContainer: {
+            marginRight: theme.spacing(1),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            height: "100vh",
         }
     })
 );

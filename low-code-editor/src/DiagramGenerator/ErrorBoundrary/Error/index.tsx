@@ -23,13 +23,13 @@ export default function Default() {
                     <ErrorGenSvg />
                 </Grid>
                 <Grid item={true}>
-                    <Typography variant="h1" className={classes.errorTitle} component="div">
+                    <Typography variant="h3" className={classes.errorTitle} component="div">
                         Oops! This is embarrassing.
                     </Typography>
                 </Grid>
                 <Grid item={true}>
-                    <Typography variant="subtitle1" component="div" className={classes.errorMsg}>
-                        Something went terribly wrong. Can you please refresh and try again
+                    <Typography variant="subtitle2" component="div" className={classes.errorMsg}>
+                        Something went terribly wrong. Please check the ballerina source.
                     </Typography>
                 </Grid>
             </Grid>
