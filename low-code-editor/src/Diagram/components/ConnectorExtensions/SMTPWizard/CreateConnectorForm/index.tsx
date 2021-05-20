@@ -16,8 +16,9 @@ import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -49,7 +50,7 @@ interface NameState {
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { onBackClick, onSave, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard,
             homePageEnabled, onSaveNext } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const configForm: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ?
         connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -128,7 +129,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
-    const connectionNameLabel = intl.formatMessage({
+    const createConnectionNameLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.SMTP.createConnection.name.label",
         defaultMessage: "Connection Name"
     });
@@ -148,32 +149,56 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const SMTPCreateConnectionTooltipMessages = {
-        connectionName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.connectorForms.SMTP.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name"
-            })
-    }
-    };
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.SMTP.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: SMTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
+                    </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={connectorInitFormFields} onValidate={onValidate} />
                         </div>

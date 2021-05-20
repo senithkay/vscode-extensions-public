@@ -24,7 +24,7 @@ import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElse
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
-import { EndpointViewState, PlusViewState, StatementViewState } from "../view-state";
+import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
@@ -467,11 +467,11 @@ export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: Balle
             if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
                 const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 const endpointName: string = captureBindingPattern.variableName.value;
-                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
-                if (typeData?.symbol?.moduleID) {
-                    const moduleId: any = typeData?.symbol?.moduleID;
+                const moduleName: any = (variable.typedBindingPattern.typeDescriptor as QualifiedNameReference).
+                    modulePrefix.value;
+                if (moduleName) {
                     for (const connectorInfo of connectors) {
-                        if (connectorInfo.module === moduleId.moduleName) {
+                        if (connectorInfo.module === moduleName) {
                             matchModule = true;
                         }
                         if (connectorInfo.name ===
@@ -518,6 +518,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -534,7 +535,8 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.split("\n")[0].substring(13)
+                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
+                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
             }
         default:
             return undefined;
@@ -545,6 +547,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
@@ -552,6 +559,11 @@ export function sizingAndPositioningST(st: STNode): STNode {
 export function recalculateSizingAndPositioningST(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }

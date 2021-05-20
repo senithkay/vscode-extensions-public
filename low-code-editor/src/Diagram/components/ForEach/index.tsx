@@ -212,7 +212,7 @@ export function ForEach(props: ForeachProps) {
                 />
 
                 <ContitionAssignment
-                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
                     className="condition-assignment"
@@ -263,9 +263,9 @@ export function ForEach(props: ForeachProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
-            {...pluses}
-            {...children}
-            {...drafts}
+            {pluses}
+            {children}
+            {drafts}
         </g>
     );
 
@@ -276,7 +276,7 @@ export function ForEach(props: ForeachProps) {
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
                 {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/> */}
                 <ContitionAssignment
-                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
                     className="condition-assignment"

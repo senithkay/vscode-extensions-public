@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getConditionConfig } from "../../utils/diagram-util";
 import { BlockViewState, EndViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
@@ -53,7 +53,7 @@ export function End(props: EndProps) {
             isCodeEditorActive
         },
         diagramCleanDraw
-    } = useContext(DiagramContext);
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState } = props;
@@ -63,7 +63,7 @@ export function End(props: EndProps) {
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [endConfigFormOverlayState, setEndConfigFormOverlayState] = useState(undefined);
 
-    const compType = "END";
+    const compType = "end";
     let cx: number;
     let cy: number;
     if (viewState) {
@@ -75,13 +75,13 @@ export function End(props: EndProps) {
     }
 
     const deleteTriggerPosition = {
-        cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) + DELETE_SVG_OFFSET,
-        cy: cy + (STOP_SVG_HEIGHT / 4)
+        cx: cx - ((DELETE_SVG_WIDTH_WITH_SHADOW / 2) + (DELETE_SVG_OFFSET / 2) - (DefaultConfig.dotGap / 1.6)),
+        cy: cy + ((STOP_SVG_HEIGHT / 3) - (DefaultConfig.dotGap / 1.6))
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2),
-        cy: cy + (STOP_SVG_HEIGHT / 4)
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap * 2.2,
+        cy: cy + ((STOP_SVG_HEIGHT / 3) - (DefaultConfig.dotGap / 1.6))
     };
 
     const onDraftDelete = () => {

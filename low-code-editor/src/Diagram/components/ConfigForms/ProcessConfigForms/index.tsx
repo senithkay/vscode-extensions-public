@@ -17,9 +17,10 @@ import React, { useContext } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../providers/contexts";
 import {
     createImportStatement,
     createLogStatement,
@@ -46,7 +47,8 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state: { onMutate: dispatchMutations, trackAddStatement } } = useContext(DiagramContext);
+    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { state: { trackAddStatement } } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -77,6 +79,7 @@ export function ProcessConfigForm(props: any) {
                     );
                     modifications.push(updateLogStmt);
                     break;
+                case 'Call':
                 case 'Custom':
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
@@ -100,7 +103,7 @@ export function ProcessConfigForm(props: any) {
                         "ballerina", "log", formArgs?.targetPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
-                } else if (processConfig.type === "Custom") {
+                } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
                     modifications.push(addCustomStatement);
@@ -108,7 +111,7 @@ export function ProcessConfigForm(props: any) {
                 trackAddStatement(processConfig.type);
             }
         }
-        dispatchMutations(modifications);
+        onMutate(modifications);
         onSave()
     };
 

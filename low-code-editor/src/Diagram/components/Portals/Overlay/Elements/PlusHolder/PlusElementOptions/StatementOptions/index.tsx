@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon } from "../../../../../../../../assets/icons";
 
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
 import { PlusViewState } from "../../../../../../../view-state/plus";
 import Tooltip from "../../../../../../../../components/Tooltip";
@@ -46,7 +46,7 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const intl = useIntl();
     const { syntaxTree } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
@@ -56,7 +56,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         logStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement  logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the Run and Test  console. If the event has occured, you can view ithe logs from the Observability page."
+                defaultMessage: "A log statement logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the 'Run & Test' console . If the event has occured, you can view the logs from the Observability page."
             })},
         variableStatement: {
         title: intl.formatMessage({
@@ -66,7 +66,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         ifStatement: {
         title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
-                defaultMessage: "An IF statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
+                defaultMessage: "An if statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
         })},
         foreachStatement: {
             title: intl.formatMessage({
@@ -207,7 +207,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     data-testid="addReturn"
                     className={cn("sub-option", { enabled: !isResource && viewState.isLast })}
-                    onClick={!isResource ? onSelect.bind(undefined, 'Return') : null}
+                    onClick={!isResource && viewState.isLast ? onSelect.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
                         <ReturnIcon />

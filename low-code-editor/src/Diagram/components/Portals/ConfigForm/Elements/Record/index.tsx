@@ -12,8 +12,8 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { FormattedMessage } from "react-intl";
 
+import { FormField } from "../../../../../../ConfigurationSpec/types";
 import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
@@ -38,7 +38,6 @@ export function Record(props: FormElementProps<RecordProps>) {
                 if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
                     || field.type === "float" || field.type === "collection" || (field.type === 'record' && !field.isReference) ||
                     (field.type === "union" && !field.optional))) {
-                    // field.optional = model.optional ? model.optional : field.optional;
                     const elementProps: FormElementProps = {
                         model: field,
                         index,
@@ -46,7 +45,20 @@ export function Record(props: FormElementProps<RecordProps>) {
                             validate: customProps.validate
                         }
                     };
-                    const element = getFormElement(elementProps, field.type);
+
+                    let type = field.type;
+                    // validate union types
+                    // only union record types will get Union element
+                    // other union types will get expression editor
+                    if (field.type === "union"){
+                        field.fields?.forEach((subField: FormField) => {
+                            if (subField.type !== "record"){
+                                type = "expression";
+                            }
+                        });
+                    }
+                    const element = getFormElement(elementProps, type);
+
                     if (element) {
                         field?.optional ? optionalRecordFields.push(element) : recordFields.push(element);
                     }
@@ -55,29 +67,11 @@ export function Record(props: FormElementProps<RecordProps>) {
         }
     }
 
-    const modelName = model && model.displayName ? model.displayName : model.name;
-
     return (
         <div className={classes.marginTB}>
-            {/* model && model.optional ?
-                 (
-                     <div className={classes.labelWrapper}>
-                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                         <FormHelperText className={classes.optionalLabel}><FormattedMessage id="lowcode.develop.elements.record.optional.label" defaultMessage="Optional"/></FormHelperText>
-                     </div>
-                 ) : (
-                     <div className={classes.labelWrapper}>
-                         <FormHelperText className={classes.inputLabelForRequired}>{modelName}</FormHelperText>
-                         <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-                     </div>
-                 )
-     */}
-            {/* <div className={classes.groupedForm}>
-                    {recordFields}
-             </div >
-    */}
             <FormAccordion
-                title={modelName}
+                title={model.label || model.name}
+                depth={1}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
             />

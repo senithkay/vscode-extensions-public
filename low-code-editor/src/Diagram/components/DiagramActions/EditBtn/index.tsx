@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram"
+import { Context } from "../../../../Contexts/Diagram"
 
 import { EditSVG } from "./EditSVG";
 import "./style.scss";
@@ -35,7 +35,7 @@ export interface EditBtnProps {
 }
 
 export function EditBtn(props: EditBtnProps) {
-    const { state, editorComponentStart: dispatchEditComponentStart } = useContext(DiagramContext);
+    const { state, editorComponentStart: dispatchEditComponentStart } = useContext(Context);
     const { cx, cy, onHandleEdit, model, isButtonDisabled } = props;
     const onEditClick = () => {
         if (!isButtonDisabled) {

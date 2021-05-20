@@ -25,3 +25,5 @@ export * from "./else";
 export * from "./plus";
 export * from "./collapse";
 export * from "./while";
+export * from "./onError";
+export * from "./do";

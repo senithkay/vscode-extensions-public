@@ -19,11 +19,10 @@ import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
@@ -73,7 +72,7 @@ enum FormStates {
 export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
@@ -283,19 +282,6 @@ export function NetSuiteWizard(props: WizardProps) {
                     );
                     modifications.push(addActionInvocation);
                 }
-
-                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        config.responsePayloadMap.payloadVariableName,
-                        "var",
-                        config.action.returnVariableName,
-                        config.responsePayloadMap.payloadTypes.get(
-                            config.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                }
-
             }
         }
         onSave(modifications);
