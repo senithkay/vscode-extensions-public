@@ -86,12 +86,12 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         font-style:normal;
                     }
                     .loader {
-                        border: 16px solid #f3f3f3;
-                        border-top: 16px solid #dadada;
+                        border: 4px solid #bec5f5;
+                        border-top: 4px solid #5463dc;
                         border-radius: 50%;
-                        width: 150px;
-                        height: 150px;
-                        animation: spin 2s linear infinite;
+                        width: 30px;
+                        height: 30px;
+                        animation: spin 1s linear infinite;
                         margin: auto;
                         margin-top: 20%;
                     }

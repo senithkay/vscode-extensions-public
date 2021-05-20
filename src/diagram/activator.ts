@@ -171,12 +171,12 @@ class DiagramPanel {
 		this.update();
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 
-		this.webviewPanel.onDidChangeViewState((_event) => {
-			if (this.webviewPanel.visible) {
-				this.dispose();
-				DiagramPanel.create();
-			}
-		}, null, this.disposables);
+		// this.webviewPanel.onDidChangeViewState((_event) => {
+		// 	if (this.webviewPanel.visible) {
+		// 		this.dispose();
+		// 		DiagramPanel.create();
+		// 	}
+		// }, null, this.disposables);
 	}
 
 	public static create() {
