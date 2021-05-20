@@ -257,31 +257,31 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             action: {
                 published: [
                     "onReleasePublished",
-                    "ReleasePublishedEvent"
+                    "ReleaseEvent"
                 ],
                 unpublished: [
                     "onReleaseUnpublished",
-                    "ReleaseUnpublishedEvent"
+                    "ReleaseEvent"
                 ],
                 created: [
                     "onReleaseCreated",
-                    "ReleaseCreatedEvent"
+                    "ReleaseEvent"
                 ],
                 edited: [
                     "onReleaseEdited",
-                    "ReleaseEditedEvent"
+                    "ReleaseEvent"
                 ],
                 deleted: [
                     "onReleaseDeleted",
-                    "ReleaseDeletedEvent"
+                    "ReleaseEvent"
                 ],
                 pre_released: [
                     "onPreReleased",
-                    "PreReleasedEvent"
+                    "ReleaseEvent"
                 ],
                 released: [
                     "onReleased",
-                    "ReleasedEvent"
+                    "ReleaseEvent"
                 ]
             }
         }
