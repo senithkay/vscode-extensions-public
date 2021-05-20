@@ -307,7 +307,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
                                     completionResponse.label !== varName &&
                                     completionResponse.label !== model.aiSuggestion &&
-                                    completionResponse.label !== "main()"
+                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function") &&
+                                    !completionResponse.label.includes("ACCESS_TOKEN")
                                 ));
                                 const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
                                     return {
