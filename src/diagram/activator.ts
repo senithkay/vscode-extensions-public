@@ -181,9 +181,10 @@ class DiagramPanel {
 
 	public static create() {
 		if (DiagramPanel.currentPanel) {
-			DiagramPanel.currentPanel.webviewPanel.reveal();
-			DiagramPanel.currentPanel.update();
-			return;
+			DiagramPanel.currentPanel.dispose();
+			// DiagramPanel.currentPanel.webviewPanel.reveal();
+			// DiagramPanel.currentPanel.update();
+			// return;
 		}
 
 		const panel = window.createWebviewPanel(
