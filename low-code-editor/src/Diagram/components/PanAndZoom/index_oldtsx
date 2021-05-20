@@ -18,11 +18,8 @@ import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
 import Tooltip from "../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 
-import FitToScreenSVG from "./images/fit-to-screen";
-import ZoomInSVG from "./images/zoom-in";
-import ZoomOutSVG from "./images/zoom-out";
 import { useStyles } from "./styles";
 
 export interface PanAndZoomProps {
@@ -35,7 +32,7 @@ interface PanningEvent {
 }
 
 export default function PanAndZoom(props: PanAndZoomProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const [appId, setAppId] = useState(-1);
 
     const { onZoomIn, onZoomOut, onFitToScreen, onPanLocation, appInfo } = state;
@@ -140,9 +137,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div data-testid={"zoom-in-btn"} className={classes.zoomControlWrapper}>
-                            <ZoomInSVG/>
-                        </div>
+                        <div data-testid={"zoom-in-btn"} className={classes.zoomIn} />
                     </Tooltip>
                 </Button>
                 <Button variant="contained" className={classes.panelBtn} onClick={onClickZoomOut}>
@@ -151,9 +146,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div data-testid={"zoom-out-btn"} className={classes.zoomControlWrapper}>
-                            <ZoomOutSVG/>
-                        </div>
+                        <div data-testid={"zoom-out-btn"} className={classes.zoomOut} />
                     </Tooltip>
                 </Button>
                 <Button variant="contained" className={classes.panelBtn} onClick={onClickFitToScreen}>
@@ -162,9 +155,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                         placement="left-start"
                         arrow={true}
                     >
-                        <div data-testid={"fit-to-screen-btn"} className={classes.zoomControlWrapper} >
-                            <FitToScreenSVG/>
-                        </div>
+                        <div data-testid={"fit-to-screen-btn"} className={classes.fitToScreen} />
                     </Tooltip>
                 </Button>
             </div>
