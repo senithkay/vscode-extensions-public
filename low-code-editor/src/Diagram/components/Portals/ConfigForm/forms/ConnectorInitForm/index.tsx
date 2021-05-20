@@ -72,7 +72,7 @@ export function ConnectorInitForm(props: any) {
     //     })
     // });
 
-     const onSave = (/* sourceModifications: STModification[] */) => {
+    const onSave = (/* sourceModifications: STModification[] */) => {
         // insert initialized connector logic
         if (targetPosition) {
             const modifications: STModification[] = [];
