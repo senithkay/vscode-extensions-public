@@ -185,7 +185,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         accordionSecondaryHeading: {
             color: '#CBCEDB',
             fontSize: "13px",
-            paddingLeft: "8",
+            paddingLeft: "8px",
             fontWeight: 500,
             textTransform: 'capitalize',
         },
