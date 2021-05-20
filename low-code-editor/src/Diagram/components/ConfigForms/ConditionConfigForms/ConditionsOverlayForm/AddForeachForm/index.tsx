@@ -83,19 +83,19 @@ export function AddForeachForm(props: ForeachProps) {
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$|^\[[a-zA-Z0-9_]*, *[a-zA-Z0-9_]*\]$");
 
     // const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
-            return nameRegex.test(value);
+            return value.match(nameRegex) !== null;
         }
         return true;
     };
 
     const onVariableNameChange = (value: string) => {
-        conditionExpression.variable = nameRegex.test(value) ? value : '';
+        conditionExpression.variable = value.match(nameRegex) !== null ? value : '';
     };
 
     if (!conditionExpression.variable || (conditionExpression.variable === '')) {
