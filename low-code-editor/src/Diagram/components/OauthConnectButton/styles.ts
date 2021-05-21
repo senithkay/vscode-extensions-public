@@ -55,10 +55,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#8d91a3"
         },
         box: {
-            width: "100%",
+            width: "auto",
             borderRadius: 5,
-            padding: theme.spacing(1),
-            paddingLeft: theme.spacing(2.5),
             marginBottom: theme.spacing(1),
             borderColor: theme.palette.secondary.main,
             display: 'flex',
@@ -69,6 +67,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: "100%",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                paddingLeft: theme.spacing(2.5),
             }
         },
         radio: {
