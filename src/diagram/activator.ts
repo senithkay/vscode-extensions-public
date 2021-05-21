@@ -20,7 +20,7 @@ import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disp
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { BallerinaExtension } from '../core';
+import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
@@ -29,6 +29,7 @@ import {
 } from '../telemetry';
 import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
+import { sep } from "path";
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -42,14 +43,43 @@ interface DiagramOptions {
 	fileUri?: Uri;
 }
 
+interface SyntaxTree {
+	members: Member[];
+}
+
+interface Member {
+	kind: string;
+	position: Position;
+	functionName?: {
+		value: string;
+		position: Position;
+	};
+	members: Member[];
+	relativeResourcePath?: ResourcePath[];
+}
+
+interface Position {
+	startLine: number;
+	startColumn: number;
+	endLine: number;
+	endColumn: number;
+}
+
+interface ResourcePath {
+	value: string;
+}
+
 let langClient: ExtendedLangClient;
 let packageOverviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions;
 let extensionPath: string;
+let ballerinaExtension: BallerinaExtension;
+let webviewRPCHandler: WebViewRPCHandler;
 
 export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
 	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
 
+	ballerinaExtInstance.resetLastChange();
 	const editor = window.activeTextEditor;
 	let treeItemPath: Uri;
 	if (filePath === '') {
@@ -97,6 +127,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	packageOverviewDataProvider = overviewDataProvider;
 	extensionPath = context.extensionPath;
+	ballerinaExtension = ballerinaExtInstance;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		if (!ballerinaExtInstance.isSwanLake) {
@@ -171,26 +202,24 @@ class DiagramPanel {
 		this.update();
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 
-		// this.webviewPanel.onDidChangeViewState((_event) => {
-		// 	if (this.webviewPanel.visible) {
-		// 		this.dispose();
-		// 		DiagramPanel.create();
-		// 	}
-		// }, null, this.disposables);
+		this.webviewPanel.onDidChangeViewState(async (_event) => {
+			if (this.webviewPanel.visible) {
+				await refreshDiagram();
+			}
+		}, null, this.disposables);
 	}
 
 	public static create() {
 		if (DiagramPanel.currentPanel) {
-			DiagramPanel.currentPanel.dispose();
-			// DiagramPanel.currentPanel.webviewPanel.reveal();
-			// DiagramPanel.currentPanel.update();
-			// return;
+			DiagramPanel.currentPanel.webviewPanel.reveal();
+			DiagramPanel.currentPanel.update();
+			return;
 		}
 
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
 			"Ballerina Diagram",
-			{ viewColumn: ViewColumn.One, preserveFocus: true },
+			{ viewColumn: ViewColumn.Two, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
 
@@ -199,7 +228,7 @@ class DiagramPanel {
 			dark: Uri.file(join(extensionPath, 'resources/images/icons/design-view-inverse.svg'))
 		};
 
-		WebViewRPCHandler.create(panel, langClient);
+		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
 		DiagramPanel.currentPanel = new DiagramPanel(panel);
 	}
 
@@ -212,7 +241,105 @@ class DiagramPanel {
 	}
 
 	private update() {
-		this.webviewPanel.webview.html = render(diagramElement.fileUri!, diagramElement.startLine!, diagramElement.startColumn!,
-			diagramElement.kind!, diagramElement.name!);
+		this.webviewPanel.webview.html = render(diagramElement.fileUri!, diagramElement.startLine!,
+			diagramElement.startColumn!, diagramElement.kind!, diagramElement.name!);
 	}
+}
+
+function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
+	if (st.members) {
+		const functions: Member[] = st.members.filter(member => {
+			return member.kind === 'FunctionDefinition';
+		});
+		if (functions.length > 0) {
+			for (let i = 0; i < functions.length; i++) {
+				const fn = functions[i];
+				if (isWithinRange(fn, change)) {
+					return {
+						isDiagram: true, name: fn.functionName?.value, kind: CMP_KIND.FUNCTION,
+						fileUri: change.fileUri, startLine: fn.functionName?.position.startLine,
+						startColumn: fn.functionName?.position.startColumn
+					};
+				}
+			}
+		}
+
+		const services: Member[] = st.members.filter(member => {
+			return member.kind === 'ServiceDeclaration';
+		});
+
+		if (services.length > 0) {
+			for (let i = 0; i < services.length; i++) {
+				const service = services[i];
+				if (service.members && service.members.length > 0) {
+					for (let ri = 0; ri < service.members.length; ri++) {
+						const resource = service.members[ri];
+						if (isWithinRange(resource, change)) {
+							let resourceName = resource.functionName?.value;
+							const resourcePaths = resource.relativeResourcePath;
+							if (resourcePaths && resourcePaths.length > 0) {
+								resourcePaths.forEach(resourcePath => {
+									resourceName += ' ' + resourcePath.value;
+								});
+							}
+							return {
+								isDiagram: true, name: resourceName, kind: CMP_KIND.RESOURCE,
+								fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
+								startColumn: resource.functionName?.position.startColumn
+							};
+						}
+					}
+				}
+			}
+		}
+	}
+	return { isDiagram: false };
+}
+
+export async function refreshDiagram() {
+	if (!webviewRPCHandler) {
+		return;
+	}
+
+	const change: Change | undefined = ballerinaExtension.getLastChange();
+	if (change && langClient) {
+		await langClient.getSyntaxTree({
+			documentIdentifier: {
+				uri: change.fileUri.toString()
+			}
+		}).then(response => {
+			if (response.parseSuccess && response.syntaxTree) {
+				const st: SyntaxTree = response.syntaxTree;
+				diagramElement = getChangedElement(st, change);
+			}
+		});
+	}
+
+	if (!diagramElement.isDiagram) {
+		return;
+	}
+
+	let elementKind = diagramElement.kind;
+	elementKind = elementKind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : elementKind;
+	elementKind = elementKind!.charAt(0).toUpperCase() + elementKind!.slice(1);
+
+	let ballerinaFilePath = diagramElement.fileUri!.fsPath;
+	if (process.platform === 'win32') {
+		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
+	}
+
+	const args = [{
+		filePath: ballerinaFilePath,
+		startLine: diagramElement.startLine,
+		startColumn: diagramElement.startColumn,
+		name: diagramElement.name,
+		kind: elementKind
+	}];
+	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+}
+
+function isWithinRange(member: Member, change: Change) {
+	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
+		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
+			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
 }

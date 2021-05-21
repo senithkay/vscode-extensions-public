@@ -63,6 +63,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     if (process.platform === 'win32') {
         ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
     }
+
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
@@ -85,8 +86,15 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                         }
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
-                    webViewRPCHandler.addMethod("updateAST", (args) => {
-                        diagram.updateAST(args[0]);
+                    webViewRPCHandler.addMethod("updateDiagram", (args) => {
+                        diagram.update({
+                            langClient: getLangClient(),
+                            filePath: args[0].filePath,
+                            startLine: args[0].startLine,
+                            startColumn: args[0].startColumn,
+                            name: args[0].name,
+                            kind: args[0].kind
+                        });
                         return Promise.resolve({});
                     });
                 } catch(e) {

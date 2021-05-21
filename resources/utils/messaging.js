@@ -70,7 +70,7 @@ function getLangClient() {
         },
         getSyntaxTree: (params) => {
             return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params.documentIdentifier.uri], (resp) => {
+                webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params], (resp) => {
                     resolve(resp);
                 });
             });

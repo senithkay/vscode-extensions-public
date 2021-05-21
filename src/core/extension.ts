@@ -60,6 +60,12 @@ export interface ConstructIdentifier {
     name: string;
 }
 
+export interface Change {
+    fileUri: Uri;
+    startLine: number;
+    startColumn: number;
+}
+
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -73,6 +79,7 @@ export class BallerinaExtension {
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
     private packageTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private lastChange: Change | undefined;
 
     private webviewPanels: {
         [name: string]: WebviewPanel;
@@ -89,6 +96,7 @@ export class BallerinaExtension {
         this.sdkVersion.show();
         this.isSwanLake = false;
         this.is12x = false;
+        this.lastChange = undefined;
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
@@ -501,6 +509,18 @@ export class BallerinaExtension {
 
     public onPackageTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
         this.packageTreeElementClickedCallbacks.push(callback);
+    }
+
+    public setLastChange(fileUri: Uri, startLine: number, startColumn: number) {
+        this.lastChange = { fileUri, startLine, startColumn };
+    }
+
+    public resetLastChange() {
+        this.lastChange = undefined;
+    }
+
+    public getLastChange(): Change | undefined {
+        return this.lastChange;
     }
 }
 

@@ -32,5 +32,5 @@ export function renderDiagramEditor(options: {
 }) {
     options.target.classList.add("composer");
     const DiagramElement = createElement(Diagram, options);
-    render(DiagramElement, options.target);
+    return render(DiagramElement, options.target);
 }
