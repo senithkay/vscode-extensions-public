@@ -298,4 +298,12 @@ export class DataMapperInitVisitor implements Visitor {
         node.lhsExpr.dataMapperViewState = new DataMapperViewState();
         node.rhsExpr.dataMapperViewState = new DataMapperViewState();
     }
+
+    beginVisitMethodCall(node: MethodCall) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperViewState();
+        }
+
+        node.expression.dataMapperViewState = new DataMapperViewState();
+    }
 }

@@ -55,7 +55,7 @@ interface DataMapperProps {
 
 export function DataMapper(props: DataMapperProps) {
     const {
-        state
+        state, dataMapperStart
     } = useContext(DiagramContext);
 
     const {
@@ -101,6 +101,20 @@ export function DataMapper(props: DataMapperProps) {
                 drawingLineRef.current.setAttribute('y2', mappedPoint.y);
             }
 
+            const escapeListener = (evt: any) => {
+                if (evt.key === 'Escape') {
+                    window.removeEventListener("mousemove", eventListenerMap.mousemove);
+                    drawingLineRef.current.setAttribute('x1', -5);
+                    drawingLineRef.current.setAttribute('x2', -5);
+                    drawingLineRef.current.setAttribute('y1', -5);
+                    drawingLineRef.current.setAttribute('y2', -5);
+                    drawingLineRef.current.setAttribute('style', 'display: none;')
+                    setSelectedDataPoint(undefined);
+                    setIsDataPointSelected(false);
+                    window.removeEventListener("keyup", eventListenerMap.keyup);
+                }
+            }
+
             if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
                 setIsDataPointSelected(false);
                 setSelectedDataPoint(undefined);
@@ -110,16 +124,20 @@ export function DataMapper(props: DataMapperProps) {
                 drawingLineRef.current.setAttribute('x2', -5);
                 drawingLineRef.current.setAttribute('y1', -5);
                 drawingLineRef.current.setAttribute('y2', -5);
+                drawingLineRef.current.setAttribute('style', 'display: none;')
                 onSave([updatePropertyStatement(selectedDataPoint.text, dataPointVS.position)])
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
+                eventListenerMap.keyup = escapeListener
                 drawingLineRef.current.setAttribute('x1', dataPointVS.bBox.x + 100);
                 drawingLineRef.current.setAttribute('x2', dataPointVS.bBox.x + 92);
                 drawingLineRef.current.setAttribute('y1', dataPointVS.bBox.y);
                 drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
+                drawingLineRef.current.setAttribute('style', '')
                 setIsDataPointSelected(true);
                 setSelectedDataPoint(dataPointVS);
                 window.addEventListener('mousemove', eventListenerMap.mousemove);
+                window.addEventListener('keyup', eventListenerMap.keyup);
             } else if (!isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
                 const validateFunction = (name: string, validity: boolean) => {
                     setIsExpressionValid(validity);
@@ -367,6 +385,18 @@ export function DataMapper(props: DataMapperProps) {
                         </DiagramOverlay>
                     )
                 }
+                <DiagramOverlay
+                    position={{ x: (maxFieldWidth * 2) + 400 + 25, y: 65 }}
+                    stylePosition='absolute'
+                >
+                    <PrimaryButton
+                        disabled={false}
+                        dataTestId={"datamapper-save-btn"}
+                        text={"Save"}
+                        fullWidth={false}
+                        onClick={() => { dataMapperStart(undefined); }}
+                    />
+                </DiagramOverlay>
             </DiagramOverlayContainer >
         </>
     )
