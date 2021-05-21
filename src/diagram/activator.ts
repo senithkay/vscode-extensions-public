@@ -241,8 +241,8 @@ class DiagramPanel {
 	}
 
 	private update() {
-		this.webviewPanel.webview.html = render(diagramElement.fileUri!, diagramElement.startLine!, diagramElement.startColumn!,
-			diagramElement.kind!, diagramElement.name!);
+		this.webviewPanel.webview.html = render(diagramElement.fileUri!, diagramElement.startLine!,
+			diagramElement.startColumn!, diagramElement.kind!, diagramElement.name!);
 	}
 }
 
@@ -257,7 +257,8 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 				if (isWithinRange(fn, change)) {
 					return {
 						isDiagram: true, name: fn.functionName?.value, kind: CMP_KIND.FUNCTION,
-						fileUri: change.fileUri, startLine: fn.functionName?.position.startLine, startColumn: fn.functionName?.position.startColumn
+						fileUri: change.fileUri, startLine: fn.functionName?.position.startLine,
+						startColumn: fn.functionName?.position.startColumn
 					};
 				}
 			}
