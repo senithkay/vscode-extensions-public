@@ -134,7 +134,7 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (bodyViewState && !bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -230,14 +230,13 @@ class SizingVisitor implements Visitor {
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        if (bodyViewState) {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-            if (body.statements.length > 0) {
-                lifeLine.h += end.bBox.offsetFromTop;
-            }
-            viewState.bBox.h = lifeLine.h;
-            viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        if (body.statements.length > 0) {
+            lifeLine.h += end.bBox.offsetFromTop;
         }
+
+        viewState.bBox.h = lifeLine.h;
+        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
