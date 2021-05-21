@@ -18,6 +18,7 @@ export interface DiagramGeneratorProps {
     filePath: string;
     startLine: string;
     startCharacter: string;
+    updated: boolean;
 }
 
 const defaultZoomStatus = {
@@ -31,8 +32,10 @@ const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { diagramLangClient, filePath, startLine, startCharacter } = props;
+    const { diagramLangClient, filePath, startLine, startCharacter, updated } = props;
     const classes = useGeneratorStyles();
+    // tslint:disable-next-line:no-console
+    console.log("Diagram Generator render()");
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
@@ -50,7 +53,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 throw err;
             }
         })();
-    }, []);
+    }, [updated]);
 
     function onZoomIn(appId: number) {
         const newZoomStatus = cloneDeep(zoomStatus);

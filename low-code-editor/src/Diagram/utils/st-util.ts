@@ -66,18 +66,21 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 };
 
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
-    const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
+    const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath, position: tPosition } = targetResource;
     const targetMethod = tFunctionName?.value;
     const targetPath = tRelativeResourcePath[0]?.value;
+    const targetStartLine = tPosition?.startLine.toString();
 
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
         const resources = m.members;
         const found = resources?.find((r: any) => {
-            const { functionName, relativeResourcePath } = r;
+            const { functionName, relativeResourcePath, position } = r;
             const method = functionName?.value;
             const path = relativeResourcePath[0]?.value;
-            return method === targetMethod && path === targetPath;
+            const startLine = position?.startLine.toString();
+            const lineCheck = (targetStartLine && startLine) ? (targetStartLine === startLine) : true;
+            return method === targetMethod && path === targetPath && lineCheck ;
         });
         if (found) service = m;
     });
