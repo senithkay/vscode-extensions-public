@@ -101,7 +101,12 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <img src="../../../../../../images/Logo_Circle.svg" />
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Other Statement</Box>
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.customStatement.title"
+                                                defaultMessage="Other"
+                                            />
+                                        </Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -141,3 +146,4 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         </FormControl>
     );
 }
+

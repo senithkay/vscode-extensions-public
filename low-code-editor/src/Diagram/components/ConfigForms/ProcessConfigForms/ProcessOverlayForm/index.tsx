@@ -41,8 +41,8 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
             const existingVariableModelValue: LocalVarDecl = config.model as LocalVarDecl;
-            const existingVariableValue = existingVariableModelValue.initializer.source;
-            config.config = existingVariableValue;
+            const existingVariableValue = existingVariableModelValue?.initializer?.source;
+            config.config = existingVariableValue ? existingVariableValue : "";
         }
         else {
             config.config = "";

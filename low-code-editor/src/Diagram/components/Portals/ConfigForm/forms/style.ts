@@ -217,10 +217,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         subtitle: {
             marginTop: '1.25rem',
-            fontWeight: 500,
-            fontSize: 15,
-            color: '#222228',
+            fontSize: 14,
+            color: '#1D2028',
             letterSpacing: 0,
+            textTransform: 'capitalize'
         },
         mainTitleWrapper: {
             display: 'flex',
