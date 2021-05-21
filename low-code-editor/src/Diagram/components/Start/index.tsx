@@ -22,21 +22,17 @@ import {
     STKindChecker,
 } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
-    TRIGGER_TYPE_API,
-    TRIGGER_TYPE_MANUAL,
-    TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_WEBHOOK
+    TRIGGER_TYPE_WEBHOOK
 } from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
 import { DefaultConfig } from "../../visitors/default";
 import { PlusButton } from "../Plus";
-import { DiagramOverlayContainer, DiagramOverlayPosition } from "../Portals/Overlay";
+import { DiagramOverlayPosition } from "../Portals/Overlay";
 import { ConnectorType, TriggerDropDown } from "../Portals/Overlay/Elements";
-import { ScheduleConfigureWizard } from "../Portals/Overlay/Elements/DropDown/ScheduleConfigureWizard";
-import { WebhookConfigureWizard } from "../Portals/Overlay/Elements/DropDown/WebhookConfigureWizard";
 
 import {
     StartSVG,
@@ -50,7 +46,7 @@ export interface StartButtonProps {
 }
 
 export function StartButton(props: StartButtonProps) {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
     const isMutationProgress = state.isMutationProgress || false;
     const { syntaxTree, appInfo, originalSyntaxTree } = state;
 
@@ -109,7 +105,7 @@ export function StartButton(props: StartButtonProps) {
         const webHookSyntaxTree = originalSyntaxTree as ModulePart;
         const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
             STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
-        let webHookType = "";
+        let webHookType;
         services.forEach(service => {
             if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
                 resourcePath.value === "calendar")) {
@@ -136,40 +132,17 @@ export function StartButton(props: StartButtonProps) {
             x: cx + DefaultConfig.triggerPortalOffset.x,
             y: cy + DefaultConfig.triggerPortalOffset.y
         };
-        if (activeTriggerType === TRIGGER_TYPE_API) {
-            setdropDownC(
-                <TriggerDropDown
-                    position={position}
-                    onClose={handleOnClose}
-                    isEmptySource={emptySource}
-                    triggerType={activeTriggerType}
-                    onComplete={handleOnComplete}
-                    configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
-                />
-            );
-        } else if (activeTriggerType === TRIGGER_TYPE_SCHEDULE) {
-            setdropDownC(
-                <DiagramOverlayContainer forceRender={true}>
-                    <ScheduleConfigureWizard
-                        position={{ x: position.x, y: position.y + 10 }}
-                        onWizardComplete={handleOnScheduleComplete}
-                        onClose={handleSubMenuClose}
-                        cron={(getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)).cron}
-                    />
-                </DiagramOverlayContainer>
-            );
-        } else if (activeTriggerType === TRIGGER_TYPE_WEBHOOK) {
-            setdropDownC(
-                <DiagramOverlayContainer forceRender={true}>
-                    <WebhookConfigureWizard
-                        position={{ x: position.x, y: position.y }}
-                        connector={getWebhookType()}
-                        onWizardComplete={handleWebhookEditOnComplete}
-                        onClose={handleOnClose}
-                    />
-                </DiagramOverlayContainer>
-            );
-        }
+        setdropDownC(
+            <TriggerDropDown
+                position={position}
+                onClose={handleOnClose}
+                isEmptySource={emptySource}
+                triggerType={activeTriggerType}
+                activeConnectorType={getWebhookType()}
+                onComplete={handleOnComplete}
+                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
+            />
+        );
         if (plusView) {
             plusView.isTriggerDropdown = true;
         }
@@ -212,7 +185,7 @@ export function StartButton(props: StartButtonProps) {
         : activeTriggerType.toUpperCase();
 
     return (
-        <g className={triggerType === TRIGGER_TYPE_MANUAL ? "start-wrapper" : "start-wrapper-edit"}>
+        <g className={triggerType === TRIGGER_TYPE_WEBHOOK ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}

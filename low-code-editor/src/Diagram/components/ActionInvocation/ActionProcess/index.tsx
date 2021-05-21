@@ -18,11 +18,12 @@ import cn from "classnames";
 
 import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
+import { DefaultConfig } from "../../../visitors/default";
 import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
@@ -39,7 +40,7 @@ export interface ProcessorProps {
 }
 
 export function ActionProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,
@@ -199,7 +200,7 @@ export function ActionProcessor(props: ProcessorProps) {
                                 <VariableName
                                     processType={processType}
                                     variableName={processName}
-                                    x={cx - (VARIABLE_NAME_WIDTH + 40)}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                     y={cy + PROCESS_SVG_HEIGHT / 4}
                                     key_id={getRandomInt(1000)}
                                 />

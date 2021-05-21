@@ -23,20 +23,23 @@ import Typography from "@material-ui/core/Typography";
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { GithubRepo, STModification } from "../../../../../../../../Definitions";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
+import { DiagramContext } from "../../../../../../../../providers/contexts";
 import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
+import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface GitHubConfigureFormProps {
     position: DiagramOverlayPosition;
     onComplete: () => void;
+    isTriggerTypeChanged: boolean;
     currentEvent?: string;
     currentAction?: string;
     currentConnection?: ConnectionDetails;
@@ -47,20 +50,19 @@ export interface ConnectorEvents {
 }
 
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         trackTriggerSelection,
         currentApp,
         getGithubRepoList,
         stSymbolInfo,
-        originalSyntaxTree,
-        onMutate: dispatchMutations
+        originalSyntaxTree
     } = state;
-    const { onComplete, currentEvent, currentAction, currentConnection } = props;
+    const { onComplete, currentEvent, currentAction, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -73,7 +75,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const [githubRepoList, setGithubRepoList] = useState<GithubRepo[]>(undefined)
     const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
 
-    // HACK: hardcoded event list for testing
+    // HACK: hardcoded event list until get it form connector API
     const githubEvents: ConnectorEvents = {
         issue_comment: {
             action: {
@@ -250,6 +252,38 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     "PullRequestReviewCommentEvent"
                 ]
             }
+        },
+        release: {
+            action: {
+                published: [
+                    "onReleasePublished",
+                    "ReleaseEvent"
+                ],
+                unpublished: [
+                    "onReleaseUnpublished",
+                    "ReleaseEvent"
+                ],
+                created: [
+                    "onReleaseCreated",
+                    "ReleaseEvent"
+                ],
+                edited: [
+                    "onReleaseEdited",
+                    "ReleaseEvent"
+                ],
+                deleted: [
+                    "onReleaseDeleted",
+                    "ReleaseEvent"
+                ],
+                pre_released: [
+                    "onPreReleased",
+                    "ReleaseEvent"
+                ],
+                released: [
+                    "onReleased",
+                    "ReleaseEvent"
+                ]
+            }
         }
     };
 
@@ -306,8 +340,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createGithubTrigger();
-        } else {
+        } else if (!isTriggerTypeChanged) {
             updateGithubTrigger();
+        } else {
+            setShowConfirmDialog(true);
         }
     };
     // handle github trigger creation
@@ -317,7 +353,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: 'github',
             ACCESS_TOKEN: accessTokenKey,
             SECRET_KEY: clientSecretKey,
@@ -382,7 +418,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             modifications.push(updatePropertyStatement(webSubUpdateTemplate, webSubNode.position));
             modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][0], resourceFunctionNameNode.position));
             modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][1], recordNameNode.position));
-            dispatchMutations(modifications);
+            onMutate(modifications);
         }
         setTriggerChanged(true);
     }
@@ -498,6 +534,13 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         disabled={isFileSaving}
                     />
                 </div>
+            )}
+
+            { showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createGithubTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
             )}
         </>
     );

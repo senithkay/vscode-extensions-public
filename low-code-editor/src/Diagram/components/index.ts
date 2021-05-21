@@ -24,6 +24,7 @@ export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
+export { Statement as DoStatement };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
 export { ModulePartComponent as ModulePart};

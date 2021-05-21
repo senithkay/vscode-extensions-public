@@ -30,10 +30,11 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from '../../../Portals/utils/constants';
 import { wizardStyles } from "../../style";
+import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
 
 export interface OperationFormProps {
-    operations: string[];
+    operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
     onSave: (sourceModifications?: STModification[]) => void;
@@ -120,7 +121,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -137,7 +138,7 @@ export function OperationForm(props: OperationFormProps) {
         responseVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
-                defaultMessage: "Enter a valid name for the response variable"
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
     }
     };
@@ -153,7 +154,7 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {selectedOperationState}
+                                        {operations.find(operation => operation.name === selectedOperationState)?.label || selectedOperationState}
                                     </Typography>
                                     <IconButton
                                         color="primary"
@@ -176,7 +177,7 @@ export function OperationForm(props: OperationFormProps) {
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: tooltipMessages.responseVariableName,
+                                    tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                     disabled: responseVariableHasReferences
                                 }}
                                 defaultValue={defaultResponseVarName}

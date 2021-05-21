@@ -12,13 +12,16 @@
  */
 import {
     BlockStatement,
+    DoStatement,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
     ModulePart,
     ObjectMethodDefinition,
+    OnFailClause,
     ResourceAccessorDefinition,
+    STKindChecker,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -33,11 +36,13 @@ import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX 
 import {
     BlockViewState,
     CompilationUnitViewState,
+    DoViewState,
     ElseViewState,
     EndpointViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    OnErrorViewState,
     PlusViewState,
     StatementViewState,
     WhileViewState
@@ -179,9 +184,24 @@ class PositioningVisitor implements Visitor {
             }
         }
 
-        updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+        let widthOfOnFailClause = 0;
+        if (body.statements.length > 0) {
+            for (const statement of body.statements) {
+                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
+                    if (statement.onFailClause) {
+                        const onFailBlockViewState = statement.onFailClause.blockStatement.viewState as BlockViewState;
+                        widthOfOnFailClause = onFailBlockViewState.bBox.w;
+                        const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
+                        onFailViewState.bBox.cx = viewState.end.bBox.cx + (DefaultConfig.startingOnErrorX * 2);
+                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2) + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2);
+                        viewState.onFail = statement.onFailClause;
+                    }
+                }
+            }
+        }
+        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -342,14 +362,14 @@ class PositioningVisitor implements Visitor {
                     if (!endpoint.firstAction) {
                         endpoint.firstAction = statementViewState;
                         mainEp.isUsed = true;
-                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
+                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     } else if (mainEp.lifeLine.cy > statementViewState.bBox.cy) {
                         // To catch the endpoints define at the function block and used after a child block
-                        mainEp.lifeLine.h = mainEp.lifeLine.cy - statementViewState.bBox.cy;
+                        mainEp.lifeLine.h = mainEp.lifeLine.cy - statementViewState.bBox.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                         // mainEp.lifeLine.cy = statementViewState.bBox.cy;
                     } else if ((mainEp.lifeLine.h + mainEp.lifeLine.cy) < (statementViewState.action.trigger.cy)) {
                         // to skip updating EP heights which less than the current EP height
-                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy;
+                        mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     }
 
                     // Add actions to the corresponding map item.
@@ -504,6 +524,42 @@ class PositioningVisitor implements Visitor {
                 defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
             }
         }
+    }
+
+    public beginVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = viewState.bBox.cx;
+            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
+
+            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
+            viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const onFailViewState = node.viewState as OnErrorViewState;
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = onFailViewState.bBox.cx;
+            blockViewState.bBox.cy = onFailViewState.bBox.cy;
+            // blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
+        }
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const onFailBlockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.header.cx = viewState.bBox.cx;
+            viewState.header.cy = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.x = viewState.bBox.cx;
+            viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
+        }
+
     }
 
 }

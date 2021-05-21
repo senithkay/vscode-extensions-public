@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { OnFailClause } from "@ballerina/syntax-tree";
+
 import { BlockViewState } from "./block";
 import { EndViewState } from "./end";
 import { PlusViewState } from "./plus";
@@ -23,6 +25,7 @@ export class FunctionViewState extends ViewState {
     public workerBody: BlockViewState = new BlockViewState();
     public end: EndViewState = new EndViewState();
     public initPlus: PlusViewState = undefined;
+    public onFail: OnFailClause = undefined;
     public triggerParams: TriggerParamsViewState = new TriggerParamsViewState();
 
     constructor() {

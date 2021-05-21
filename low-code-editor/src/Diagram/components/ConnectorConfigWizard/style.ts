@@ -84,12 +84,16 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             color: "#222228",
         },
         subTitle: {
-            height: 10,
-            color: "#686b73",
-            fontSize: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            backgroundColor: "red"
+            color: "#1D2028",
+            fontSize: 15,
+            textTransform: "capitalize",
+            fontWeight: 500,
+        },
+        manualConnectionTitle: {
+            color: "#1D2028",
+            fontSize: 13,
+            textTransform: "capitalize",
+            fontWeight: 500,
         },
         connectorIconWrapper: {
             width: 32,

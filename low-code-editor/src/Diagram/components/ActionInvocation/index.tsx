@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { SimpleBBox, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
@@ -34,7 +34,7 @@ export interface ConnectorLineProps {
 
 export function ActionInvocation(props: ConnectorLineProps) {
     const { model } = props;
-    const { state: { obsViewState } } = useContext(DiagramContext);
+    const { state: { obsViewState } } = useContext(Context);
     const classes = cn("action-invocation");
     const leftline = "leftline";
     const dashedLine = "dashedLine";

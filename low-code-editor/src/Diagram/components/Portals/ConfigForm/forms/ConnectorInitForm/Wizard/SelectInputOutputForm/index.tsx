@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../utils";
@@ -54,7 +54,7 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, syntaxTree, stSymbolInfo } = state;
     const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -74,7 +74,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         selectedPayload: payloadType,
         isNameProvided: false,
         validPayloadName: true,
-        variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
+        variableName: null
     };
 
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
@@ -103,8 +103,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         if (connectorConfig.responsePayloadMap) {
             connectorConfig.responsePayloadMap.isPayloadSelected = true;
             connectorConfig.responsePayloadMap.selectedPayloadType = value;
-            connectorConfig.responsePayloadMap.payloadVariableName = genVariableName(value.toLowerCase() +
-                "Payload", getAllVariables(stSymbolInfo));
         }
         setPayloadState({
             ...payloadState,
@@ -123,7 +121,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             if (connectorConfig.responsePayloadMap) {
                 connectorConfig.responsePayloadMap.isPayloadSelected = false;
                 connectorConfig.responsePayloadMap.selectedPayloadType = "";
-                connectorConfig.responsePayloadMap.payloadVariableName = "";
             }
             setPayloadState({
                 mapPayload: NO_PAYLOAD,
@@ -176,13 +173,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     // check for respond name when navigating back.
-    if (connectorConfig.responsePayloadMap && !payloadState.isNameProvided && connectorConfig.responsePayloadMap.payloadVariableName !== undefined
-        && connectorConfig.responsePayloadMap.payloadVariableName !== "") {
+    if (connectorConfig.responsePayloadMap && !payloadState.isNameProvided) {
         setPayloadState({
             ...payloadState,
             selectedPayload: payloadType,
             isNameProvided: true,
-            validPayloadName: nameRegex.test(connectorConfig.responsePayloadMap.payloadVariableName)
+            validPayloadName: nameRegex.test(null)
         });
     }
 
@@ -203,9 +199,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     };
 
     const onPayloadNameChange = (value: string) => {
-        if (connectorConfig.responsePayloadMap) {
-            connectorConfig.responsePayloadMap.payloadVariableName = value;
-        }
         setPayloadState({
             ...payloadState,
             isNameProvided: value && value !== "",

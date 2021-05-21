@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig } from "../../utils/diagram-util";
 import { BlockViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
@@ -37,7 +37,7 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state, diagramCleanDraw } = useContext(DiagramContext);
+    const { state, diagramCleanDraw } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,

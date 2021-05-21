@@ -11,10 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, ReactNode, useEffect, useState } from "react";
 
 import classNames from "classnames";
 
+import Tooltip from '../../../../../low-code-editor/src/components/Tooltip';
 import { DefaultConfig } from "../../visitors/default";
 
 import "./style.scss"
@@ -26,24 +27,33 @@ export function ContitionAssignment(props: { x: number, y: number, assignment: s
     const [textWidth, setTextWidth] = useState(CONDITION_ASSIGNMENT_NAME_WIDTH);
 
     useEffect(() => {
-        setTextWidth(document.getElementById("textLegnth_" + key_id).getBoundingClientRect().width);
+        setTextWidth(document.getElementById("textLegnth_" + key_id)?.getBoundingClientRect().width);
     }, []);
 
     const assignmentMaxWidth = assignment?.length >= 15;
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    const assignemtComponant: ReactElement = (
+        <text
+            className={classNames("assignment-text", className)}
+            id="Assignment_text"
+            transform="translate(15 11)"
+        >
+            <tspan x={assignmentX} y="0" id={"textLegnth_" + key_id}>  {assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment} </tspan>
+        </text>
+    );
 
     return (
         <svg {...xyProps}>
-            <text
-                className={classNames("assignment-text", className)}
-                id="Assignment_text"
-                transform="translate(15 11)"
-            >
-                <tspan x={assignmentX} y="0" id={"textLegnth_" + key_id}>  {assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment} </tspan>
-            </text>
-        </svg>
+            {assignmentMaxWidth ?
+                <Tooltip arrow={true} placement="top-start" title={assignment} inverted={false} interactive={true}>
+                    {assignemtComponant}
+                </Tooltip>
+                :
+                assignemtComponant
+            }
+        </svg >
     );
 }
