@@ -47,12 +47,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 16,
         },
         radioBtnTitle: {
-            marginBottom: 2,
+            margin: 0,
             fontWeight: 400,
         },
         radioBtnSubtitle: {
             fontSize: "smaller",
-            color: "#8d91a3"
+            color: "#8d91a3",
+            margin: "-5px 0",
         },
         box: {
             width: "auto",
@@ -68,6 +69,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 paddingLeft: theme.spacing(2.5),
+                padding: "0.7rem"
             }
         },
         radio: {

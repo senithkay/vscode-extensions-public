@@ -15,7 +15,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const wizardStyles = makeStyles((theme: Theme) =>
     createStyles({
         configWizardContainer: {
-            width: 302,
+            width: 350,
             paddingBottom: 24,
             paddingLeft: 24,
             paddingRight: 24,
