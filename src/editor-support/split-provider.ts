@@ -33,20 +33,21 @@ export class StringSplitter {
         if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0) {
             return;
         }
-
-        let documentChange: TextDocumentContentChangeEvent | undefined;
-        event.contentChanges.forEach(change => {
-            if (change.text.startsWith(newLine)) {
-                documentChange = change;
-            }
-        });
-
-        if (!documentChange) {
-            return;
-        }
-
-        const range: Range = documentChange!.range;
         if (this instanceof BallerinaExtension) {
+            this.setLastChange(editor.document.uri, event.contentChanges[0].range.start.line, event.contentChanges[0].range.start.character);
+            let documentChange: TextDocumentContentChangeEvent | undefined;
+            event.contentChanges.forEach(change => {
+                if (change.text.startsWith(newLine)) {
+                    documentChange = change;
+                }
+            });
+
+            if (!documentChange) {
+                return;
+            }
+
+            const range: Range = documentChange!.range;
+
             if (!this.langClient) {
                 return;
             }

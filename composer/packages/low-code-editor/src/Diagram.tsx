@@ -36,39 +36,68 @@ export interface DiagramProps {
     };
 }
 
+export interface DiagramStates {
+    filePath: string;
+    kind: string;
+    langClient: DiagramEditorLangClientInterface;
+    name: string;
+    startColumn: number;
+    startLine: number;
+}
+
 /**
  * React component for rendering a the low code editor.
  */
-export class Diagram extends React.Component<DiagramProps> {
+export class Diagram extends React.Component<DiagramProps, DiagramStates> {
 
     private languageClient: DiagramEditorLangClientInterface;
-    private filePath: string;
-    private startLine: number;
-    private startColumn: number;
-    private name: string;
-    private kind: string;
+    private updated: boolean;
 
     constructor(props: DiagramProps) {
         super(props);
-        this.filePath = props.editorProps.filePath;
-        this.startLine = props.editorProps.startLine;
-        this.startColumn = props.editorProps.startColumn;
         this.languageClient = props.editorProps.langClient;
-        this.name = props.editorProps.name;
-        this.kind = props.editorProps.kind;
+        this.updated = false;
+        this.state = {
+            filePath: props.editorProps.filePath,
+            kind: props.editorProps.kind,
+            langClient: props.editorProps.langClient,
+            name: props.editorProps.name,
+            startColumn: props.editorProps.startColumn,
+            startLine: props.editorProps.startLine
+        };
     }
 
     public render() {
         return (
             <div className="low-code-container">
                 <Header className="header-wrapper">
-                    {this.kind}: {this.name}
+                    {this.state.kind}: {this.state.name}
                 </Header>
                 <DiagramGenErrorBoundary>
-                    <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.filePath}
-                        startLine={this.startLine.toString()} startCharacter={this.startColumn.toString()} />
+                    <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.state.filePath}
+                        startLine={this.state.startLine.toString()} updated={this.updated}
+                        startCharacter={this.state.startColumn.toString()} />
                 </DiagramGenErrorBoundary>
             </div>
         );
+    }
+
+    public update(properties: {
+        filePath: string,
+        startLine: number,
+        startColumn: number,
+        kind: string,
+        name: string,
+        langClient: DiagramEditorLangClientInterface
+    }) {
+        this.updated = !this.updated;
+        this.setState({
+            filePath: properties.filePath,
+            kind: properties.kind,
+            langClient: properties.langClient,
+            name: properties.name,
+            startColumn: properties.startColumn,
+            startLine: properties.startLine
+        });
     }
 }

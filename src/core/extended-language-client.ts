@@ -34,10 +34,6 @@ export interface BallerinaSyntaxTree {
     topLevelNodes: any[];
 }
 
-export interface GetSyntaxTreeRequest {
-    documentIdentifier: DocumentIdentifier;
-}
-
 export interface BallerinaExample {
     title: string;
     url: string;
@@ -202,12 +198,7 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
         return this.sendRequest("ballerinaSyntaxHighlighter/list", req);
     }
 
-    getSyntaxTree(uri: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
-        const req: GetSyntaxTreeRequest = {
-            documentIdentifier: {
-                uri: uri.toString()
-            }
-        };
+    getSyntaxTree(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
         return this.sendRequest("ballerinaDocument/syntaxTree", req);
     }
 

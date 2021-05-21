@@ -20,8 +20,8 @@ import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disp
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { BallerinaExtension } from '../core';
-import { getCommonWebViewOptions, WebViewRPCHandler } from '../utils';
+import { BallerinaExtension, Change } from '../core';
+import { getCommonWebViewOptions, log, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
@@ -29,6 +29,7 @@ import {
 } from '../telemetry';
 import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
+// import fileUriToPath = require('file-uri-to-path');
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -42,14 +43,39 @@ interface DiagramOptions {
 	fileUri?: Uri;
 }
 
+interface SyntaxTree {
+	members: Member[];
+}
+
+interface Member {
+	kind: string;
+	position: Position;
+	functionName?: {
+		value: string;
+		position: Position;
+	};
+	members: Member[];
+}
+
+interface Position {
+	startLine: number;
+	startColumn: number;
+	endLine: number;
+	endColumn: number;
+}
+
 let langClient: ExtendedLangClient;
 let packageOverviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions;
 let extensionPath: string;
+let ballerinaExtension: BallerinaExtension;
+let webviewRPCHandler: WebViewRPCHandler;
+let count = 0;
 
 export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
 	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
 
+	ballerinaExtInstance.resetLastChange();
 	const editor = window.activeTextEditor;
 	let treeItemPath: Uri;
 	if (filePath === '') {
@@ -97,6 +123,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	packageOverviewDataProvider = overviewDataProvider;
 	extensionPath = context.extensionPath;
+	ballerinaExtension = ballerinaExtInstance;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		if (!ballerinaExtInstance.isSwanLake) {
@@ -171,20 +198,66 @@ class DiagramPanel {
 		this.update();
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 
-		// this.webviewPanel.onDidChangeViewState((_event) => {
-		// 	if (this.webviewPanel.visible) {
-		// 		this.dispose();
-		// 		DiagramPanel.create();
-		// 	}
-		// }, null, this.disposables);
+		this.webviewPanel.onDidChangeViewState(async (_event) => {
+			if (this.webviewPanel.visible) {
+				await refreshDiagram();
+				// const change: Change | undefined = ballerinaExtension.getLastChange();
+				// if (change && langClient) {
+				// 	log('change sL: ' + change.startLine + ' sC: ' + change.startColumn + ' fP: ' + change.fileUri.fsPath);
+				// 	// const documentIdentifiers: DocumentIdentifier[] = [{ uri: change.fileUri.toString() }];
+				// 	// await langClient.getBallerinaProjectComponents({ documentIdentifiers }).then(response => {
+				// 	// 	if (response.packages) {
+				// 	// 		const changedElement = getChangedElement(response.packages[0], change);
+				// 	// 		if (changedElement.isDiagram) {
+				// 	// 			diagramElement = changedElement;
+				// 	// 		}
+				// 	// 	}
+				// 	// });
+				// 	log('uri: ' + change.fileUri.toString());
+				// 	await langClient.getSyntaxTree({
+				// 		documentIdentifier: {
+				// 			uri: change.fileUri.toString()
+				// 		}
+				// 	}).then(response => {
+				// 		log('parse ' + response.parseSuccess);
+				// 		if (response.parseSuccess && response.syntaxTree) {
+				// 			log(response.syntaxTree);
+				// 			const st: SyntaxTree = response.syntaxTree;
+				// 			const changedElement = getChangedElement(st, change);
+				// 			diagramElement = changedElement;
+				// 		}
+				// 	});
+				// 	//set new values for diagramElement
+				// }
+
+				// // this.dispose();
+				// // DiagramPanel.create();
+				// log('refresh fP: ' + diagramElement.fileUri!.fsPath);
+				// log('refresh stL: ' + diagramElement.startLine);
+				// log('refresh stC: ' + diagramElement.startColumn);
+				// //TODO add render chnges for windows
+				// if (webviewRPCHandler) {
+				// 	const args = [{
+				// 		filePath: diagramElement.fileUri!.fsPath,
+				// 		startLine: diagramElement.startLine,
+				// 		startColumn: diagramElement.startColumn,
+				// 		name: diagramElement.name,
+				// 		kind: diagramElement.kind! + count++
+				// 	}];
+				// 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => {
+				// 		// Promise.resolve(resp);
+				// 	});
+				// }
+			}
+		}, null, this.disposables);
 	}
 
 	public static create() {
 		if (DiagramPanel.currentPanel) {
-			DiagramPanel.currentPanel.dispose();
-			// DiagramPanel.currentPanel.webviewPanel.reveal();
-			// DiagramPanel.currentPanel.update();
-			// return;
+			// DiagramPanel.currentPanel.dispose();
+			DiagramPanel.currentPanel.webviewPanel.reveal();
+			DiagramPanel.currentPanel.update();
+			return;
 		}
 
 		const panel = window.createWebviewPanel(
@@ -199,7 +272,9 @@ class DiagramPanel {
 			dark: Uri.file(join(extensionPath, 'resources/images/icons/design-view-inverse.svg'))
 		};
 
-		WebViewRPCHandler.create(panel, langClient);
+		// if (!webviewRPCHandler) {
+		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
+		// }
 		DiagramPanel.currentPanel = new DiagramPanel(panel);
 	}
 
@@ -209,6 +284,7 @@ class DiagramPanel {
 		this.disposables.forEach(disposable => {
 			disposable.dispose();
 		});
+		// webviewRPCHandler.dispose();
 	}
 
 	private update() {
@@ -216,3 +292,128 @@ class DiagramPanel {
 			diagramElement.kind!, diagramElement.name!);
 	}
 }
+
+function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
+	if (st.members) {
+		const functions: Member[] = st.members.filter(member => {
+			return member.kind === 'FunctionDefinition';
+		});
+		if (functions.length > 0) {
+			for (let i = 0; i < functions.length; i++) {
+				const fn = functions[i];
+				if ((fn.position.startLine < change.startLine || (fn.position.startLine === change.startLine &&
+					fn.position.startColumn <= change.startColumn)) && (fn.position.endLine > change.startLine ||
+						(fn.position.endLine === change.startLine && fn.position.endColumn >= change.startColumn))) {
+					return {
+						isDiagram: true, name: fn.functionName?.value, kind: CMP_KIND.FUNCTION,
+						fileUri: change.fileUri, startLine: fn.functionName?.position.startLine, startColumn: fn.functionName?.position.startColumn
+					};
+				}
+			}
+		}
+
+		const services: Member[] = st.members.filter(member => {
+			return member.kind === 'ServiceDeclaration';
+		});
+		if (services.length > 0) {
+			for (let i = 0; i < services.length; i++) {
+				const service = services[i];
+				log(service.kind);
+				if (service.members && service.members.length > 0) {
+					for (let ri = 0; ri < service.members.length; ri++) {
+
+					}
+				}
+			}
+		}
+	}
+	return { isDiagram: false };
+}
+
+async function refreshDiagram() {
+	const change: Change | undefined = ballerinaExtension.getLastChange();
+	if (change && langClient) {
+		log('change sL: ' + change.startLine + ' sC: ' + change.startColumn + ' fP: ' + change.fileUri.fsPath);
+		// const documentIdentifiers: DocumentIdentifier[] = [{ uri: change.fileUri.toString() }];
+		// await langClient.getBallerinaProjectComponents({ documentIdentifiers }).then(response => {
+		// 	if (response.packages) {
+		// 		const changedElement = getChangedElement(response.packages[0], change);
+		// 		if (changedElement.isDiagram) {
+		// 			diagramElement = changedElement;
+		// 		}
+		// 	}
+		// });
+		log('uri: ' + change.fileUri.toString());
+		await langClient.getSyntaxTree({
+			documentIdentifier: {
+				uri: change.fileUri.toString()
+			}
+		}).then(response => {
+			log('parse ' + response.parseSuccess);
+			if (response.parseSuccess && response.syntaxTree) {
+				log(response.syntaxTree);
+				const st: SyntaxTree = response.syntaxTree;
+				const changedElement = getChangedElement(st, change);
+				if (changedElement.isDiagram) {
+					diagramElement = changedElement;
+				}
+			}
+		});
+		//set new values for diagramElement
+	}
+
+	// this.dispose();
+	// DiagramPanel.create();
+	log('refresh fP: ' + diagramElement.fileUri!.fsPath);
+	log('refresh stL: ' + diagramElement.startLine);
+	log('refresh stC: ' + diagramElement.startColumn);
+	//TODO add render chnges for windows
+	if (webviewRPCHandler) {
+		const args = [{
+			filePath: diagramElement.fileUri!.fsPath,
+			startLine: diagramElement.startLine,
+			startColumn: diagramElement.startColumn,
+			name: diagramElement.name,
+			kind: diagramElement.kind! + count++
+		}];
+		webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => {
+			// Promise.resolve(resp);
+		});
+	}
+}
+
+function isWithinRange(member: Member, change: Change) {
+
+}
+// function getChangedElement(projectPackage: Package, change: Change): DiagramOptions {
+// 	let filePath: string = fileUriToPath(projectPackage.filePath);
+// 	if (projectPackage.name === '.') {
+// 		//single file project
+// 	} else {
+
+// 	}
+
+// 	const modules: Module[] = projectPackage.modules;
+// 	if (modules && modules.length > 0) {
+// 		for (let i = 0; i < modules.length; i++) {
+// 			const module: Module = modules[i];
+// 			const functions = module.functions;
+// 			if (functions && functions.length > 0) {
+// 				for (let fi = 0; fi < functions.length; fi++) {
+// 					const fn = functions[fi];
+// 					if ((fn.startLine < change.startLine || (fn.startLine === change.startLine &&
+// 						fn.startColumn <= change.startColumn)) && (fn.endLine > change.startLine ||
+// 							(fn.endLine === change.startLine && fn.endColumn >= change.startColumn))) {
+// 						return {
+// 							isDiagram: true, name: fn.name, kind: CMP_KIND.FUNCTION,
+// 							fileUri: Uri.file(filePath), startLine: fn.startLine, startColumn: fn.startColumn
+// 						};
+// 					}
+// 				}
+// 			}
+// 		}
+// 		return { isDiagram: false };
+// 	} else {
+// 		return { isDiagram: false };
+// 	}
+// }
