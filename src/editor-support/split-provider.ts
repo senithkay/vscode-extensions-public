@@ -19,6 +19,7 @@
 import { BallerinaExtension } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
+import { refreshDiagram } from "../diagram";
 
 const newLine: string = process.platform === "win32" ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
@@ -34,7 +35,10 @@ export class StringSplitter {
             return;
         }
         if (this instanceof BallerinaExtension) {
-            this.setLastChange(editor.document.uri, event.contentChanges[0].range.start.line, event.contentChanges[0].range.start.character);
+            // Refresh diagram
+            this.setLastChange(editor.document.uri, editor.selection.active.line, editor.selection.active.character);
+            refreshDiagram();
+
             let documentChange: TextDocumentContentChangeEvent | undefined;
             event.contentChanges.forEach(change => {
                 if (change.text.startsWith(newLine)) {

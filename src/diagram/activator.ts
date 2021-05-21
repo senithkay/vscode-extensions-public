@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension, Change } from '../core';
-import { getCommonWebViewOptions, log, WebViewRPCHandler } from '../utils';
+import { getCommonWebViewOptions, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
@@ -55,6 +55,7 @@ interface Member {
 		position: Position;
 	};
 	members: Member[];
+	relativeResourcePath?: ResourcePath[];
 }
 
 interface Position {
@@ -62,6 +63,10 @@ interface Position {
 	startColumn: number;
 	endLine: number;
 	endColumn: number;
+}
+
+interface ResourcePath {
+	value: string;
 }
 
 let langClient: ExtendedLangClient;
@@ -214,7 +219,7 @@ class DiagramPanel {
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
 			"Ballerina Diagram",
-			{ viewColumn: ViewColumn.One, preserveFocus: true },
+			{ viewColumn: ViewColumn.Two, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
 
@@ -265,13 +270,19 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		if (services.length > 0) {
 			for (let i = 0; i < services.length; i++) {
 				const service = services[i];
-				log(service.kind);
 				if (service.members && service.members.length > 0) {
 					for (let ri = 0; ri < service.members.length; ri++) {
 						const resource = service.members[ri];
 						if (isWithinRange(resource, change)) {
+							let resourceName = resource.functionName?.value;
+							const resourcePaths = resource.relativeResourcePath;
+							if (resourcePaths && resourcePaths.length > 0) {
+								resourcePaths.forEach(resourcePath => {
+									resourceName += ' ' + resourcePath.value;
+								});
+							}
 							return {
-								isDiagram: true, name: resource.functionName?.value, kind: CMP_KIND.FUNCTION,
+								isDiagram: true, name: resourceName, kind: CMP_KIND.RESOURCE,
 								fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
 								startColumn: resource.functionName?.position.startColumn
 							};
@@ -284,19 +295,19 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 	return { isDiagram: false };
 }
 
-async function refreshDiagram() {
+export async function refreshDiagram() {
+	if (!webviewRPCHandler) {
+		return;
+	}
+
 	const change: Change | undefined = ballerinaExtension.getLastChange();
 	if (change && langClient) {
-		log('change sL: ' + change.startLine + ' sC: ' + change.startColumn + ' fP: ' + change.fileUri.fsPath);
-		log('uri: ' + change.fileUri.toString());
 		await langClient.getSyntaxTree({
 			documentIdentifier: {
 				uri: change.fileUri.toString()
 			}
 		}).then(response => {
-			log('parse ' + response.parseSuccess);
 			if (response.parseSuccess && response.syntaxTree) {
-				log(response.syntaxTree);
 				const st: SyntaxTree = response.syntaxTree;
 				diagramElement = getChangedElement(st, change);
 			}
@@ -307,9 +318,6 @@ async function refreshDiagram() {
 		return;
 	}
 
-	log('refresh fP: ' + diagramElement.fileUri!.fsPath);
-	log('refresh stL: ' + diagramElement.startLine);
-	log('refresh stC: ' + diagramElement.startColumn);
 	let elementKind = diagramElement.kind;
 	elementKind = elementKind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : elementKind;
 	elementKind = elementKind!.charAt(0).toUpperCase() + elementKind!.slice(1);
@@ -318,16 +326,15 @@ async function refreshDiagram() {
 	if (process.platform === 'win32') {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
 	}
-	if (webviewRPCHandler) {
-		const args = [{
-			filePath: ballerinaFilePath,
-			startLine: diagramElement.startLine,
-			startColumn: diagramElement.startColumn,
-			name: diagramElement.name,
-			kind: elementKind
-		}];
-		webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
-	}
+
+	const args = [{
+		filePath: ballerinaFilePath,
+		startLine: diagramElement.startLine,
+		startColumn: diagramElement.startColumn,
+		name: diagramElement.name,
+		kind: elementKind
+	}];
+	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }
 
 function isWithinRange(member: Member, change: Change) {

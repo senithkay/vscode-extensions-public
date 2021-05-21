@@ -1,5 +1,5 @@
 import { Uri } from 'vscode';
-import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, log } from '../utils';
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 import { sep } from "path";
 import { CMP_KIND } from '../tree-view';
 
@@ -56,8 +56,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
         }
     `;
 
-    log('go through create');
-
     kind = kind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : kind;
     kind = kind.charAt(0).toUpperCase() + kind.slice(1);
 
@@ -65,9 +63,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     if (process.platform === 'win32') {
         ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
     }
-    log('render fP: ' + ballerinaFilePath);
-    log('render stL: ' + startLine);
-    log('render stC: ' + startColumn);
+
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
@@ -91,8 +87,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
                     webViewRPCHandler.addMethod("updateDiagram", (args) => {
-                        console.log("In updateDiagram");
-                        console.log(args[0]);
                         diagram.update({
                             langClient: getLangClient(),
                             filePath: args[0].filePath,
