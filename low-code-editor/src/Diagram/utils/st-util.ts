@@ -465,17 +465,16 @@ export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: Balle
             let matchModule: boolean = false;
             let matchName: boolean = false;
             if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-                const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-                const endpointName: string = captureBindingPattern.variableName.value;
-                const moduleName: any = (variable.typedBindingPattern.typeDescriptor as QualifiedNameReference).
+                const moduleID: any =  variable?.typedBindingPattern?.typeDescriptor?.typeData?.symbol?.moduleID?.moduleName;
+                const moduleName: any = (variable?.typedBindingPattern?.typeDescriptor as QualifiedNameReference).
                     modulePrefix.value;
                 if (moduleName) {
                     for (const connectorInfo of connectors) {
-                        if (connectorInfo.module === moduleName) {
+                        if (connectorInfo?.module === moduleName || connectorInfo.module === moduleID) {
                             matchModule = true;
                         }
-                        if (connectorInfo.name ===
-                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                        if (connectorInfo?.name ===
+                            ((variable as LocalVarDecl)?.typedBindingPattern?.typeDescriptor as QualifiedNameReference)
                                 .identifier.value) {
                             matchName = true;
                         }
