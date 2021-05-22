@@ -59,12 +59,13 @@ export function StatementOptions(props: StatementOptionsProps) {
                 defaultMessage: "A log statement logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the 'Run & Test' console . If the event has occured, you can view the logs from the Observability page."
             })},
         variableStatement: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
-            defaultMessage: "A variable statement holds a value of a specific data type (string, integer, etc.,) so that it can be used later in the logical process of the service/integration."
-        })},
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
+                defaultMessage: "A variable statement holds a value of a specific data type (string, integer, etc.,) so that it can be used later in the logical process of the service/integration."
+            })
+        },
         ifStatement: {
-        title: intl.formatMessage({
+            title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
                 defaultMessage: "An if statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
         })},
@@ -72,28 +73,38 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.foreach.tooltip.title",
                 defaultMessage: "A foreach statement is a control flow statement that can be used to iterate over a list of items.",
-            })},
+            })
+        },
         whileStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.while.tooltip.title",
                 defaultMessage: "A while statement executes a block of statements in a loop as long as the specified condition is true."
-            })},
+            })
+        },
         returnStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.return.tooltip.title",
                 defaultMessage: "A return statement stops executing the current path or returns a value back to the caller."
-            })},
+            })
+        },
         respondStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.respond.tooltip.title",
                 defaultMessage: "A respond statement sends the response of a service back to the client."
-            })},
+            })
+        },
         customStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.customStatement.tooltip.title",
                 defaultMessage: "A custom statement can be used to write a single or a multiline code snippet that is not supported by the low code diagram."
-            }),
-    }
+            })
+        },
+        dataMapperStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.dataMapping.tooltip.title",
+                defaultMessage: "A data mapping statement can be used to create an object using several other variables."
+            })
+        }
     }
 
     const logStm: StatementComponent = {
@@ -111,7 +122,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log"/></div>
+                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log" /></div>
                     </div>
                 </Tooltip>
             )
@@ -130,7 +141,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <PropertyIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.variable.title" defaultMessage="Variable"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.variable.title" defaultMessage="Variable" /></div>
                 </div>
             </Tooltip>
         )
@@ -149,7 +160,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <IfIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.if.title" defaultMessage="If"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.if.title" defaultMessage="If" /></div>
                 </div>
             </Tooltip>
         )
@@ -168,7 +179,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <ForEachIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.foreach.title" defaultMessage="ForEach"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.foreach.title" defaultMessage="ForEach" /></div>
                 </ div>
             </Tooltip>
         )
@@ -187,7 +198,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <While />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.while.title" defaultMessage="While"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.while.title" defaultMessage="While" /></div>
                 </ div>
             </Tooltip>
         )
@@ -212,7 +223,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <ReturnIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.return.title" defaultMessage="Return"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.return.title" defaultMessage="Return" /></div>
                 </div>
             </Tooltip>
         )
@@ -236,7 +247,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <RespondIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.respond.title" defaultMessage="Respond"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.respond.title" defaultMessage="Respond" /></div>
                 </div>
             </Tooltip>
         )
@@ -246,11 +257,11 @@ export function StatementOptions(props: StatementOptionsProps) {
         category: 'process',
         component: (
             <Tooltip
-                title={plusHolderStatementTooltipMessages.respondStatement.title}
+                title={plusHolderStatementTooltipMessages.dataMapperStatement.title}
                 placement="right"
                 arrow={true}
-                example={true}
-                codeSnippet={true}
+                // example={false}
+                // codeSnippet={true}
                 interactive={true}
             >
                 <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
@@ -280,7 +291,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <CustomStatementIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Other"/></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.customStatement.title" defaultMessage="Other" /></div>
                 </div>
             </Tooltip>
         )
@@ -335,14 +346,14 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
 
     const searchPlaceholder = intl.formatMessage({
-        id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
+        id: "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
         defaultMessage: "Search"
     })
 
     return (
         <>
             <div className="search-options-wrapper">
-                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list"/></label>
+                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list" /></label>
 
                 <input
                     type="search"

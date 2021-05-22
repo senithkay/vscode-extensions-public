@@ -83,8 +83,7 @@ export function ParameterSelector(props: ParameterSelectorProps) {
                 onChange={handleChangeVariableType}
                 renderItem={(option) => (
                     <React.Fragment>
-                        <span>{option.name}</span>
-                        {option.type}
+                        {option.name} {option.type}
                     </React.Fragment>
                 )}
                 getItemLabel={(option) => option.name}

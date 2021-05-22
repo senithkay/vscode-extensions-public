@@ -12,7 +12,7 @@
  */
 // tslint:disable:jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-tree';
 import { Box, FormControl, Typography } from '@material-ui/core';
@@ -48,7 +48,7 @@ enum DataMapperSteps {
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { processConfig, onCancel, onSave } = props;
-    const { state, dataMapperStart } = useContext(DiagramContext);
+    const { state, dataMapperStart, toggleDiagramOverlay } = useContext(DiagramContext);
     const { stSymbolInfo } = state;
     const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
     const defaultVariableName = stSymbolInfo ?
@@ -109,6 +109,11 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         }
     }
 
+    useEffect(() => {
+        dataMapperStart();
+        toggleDiagramOverlay()
+    }, []);
+
     const addNewParam = (type: DataMapperInputTypeInfo) => {
         setParameters([...inputTypes, type])
     }
@@ -133,58 +138,59 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const overlayClasses = wizardStyles();
 
     return (
-        <FormControl data-testid="data-mapper-form" className={formClasses.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
-                <ButtonWithIcon
-                    className={formClasses.overlayDeleteBtn}
-                    onClick={onCancel}
-                    icon={<CloseRounded fontSize="small" />}
-                />
-                <div className={formClasses.formTitleWrapper}>
-                    <div className={formClasses.mainTitleWrapper}>
-                        <div className={formClasses.iconWrapper}>
-                            <DataMapperIcon />
-                        </div>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Data Mapping Object</Box>
-                        </Typography>
-                    </div>
-                </div>
-                {
-                    dataMapperStep === DataMapperSteps.SELECT_INPUT &&
-                    <ParameterSelector
-                        parameters={inputTypes}
-                        insertParameter={addNewParam}
-                        removeParameter={removeParam}
-                        types={varData}
-                    />
-                }
-                {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
-                    <OutputTypeSelector
-                        types={typeArray}
-                        variables={varData}
-                        updateReturnType={setReturnType}
-                        updateSampleStructure={handleSampleStructureUpdate}
-                        updateValidity={handleJsonValidation}
-                        updateVariableName={updateVariableNameOnChange}
-                        updateVariableNameValidity={setIsVariableNameValidity}
-                        diagramState={state}
-                        variableName={variableName}
-                    />}
-
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        disabled={!isVariableNameValid && isJsonValid}
-                        dataTestId={"datamapper-save-btn"}
-                        text={dataMapperStep === DataMapperSteps.SELECT_INPUT ? "Save" : "Next"}
-                        fullWidth={false}
-                        onClick={handleNextClick}
-                    />
-                </div>
-            </div>
-        </FormControl>
+        <></>
     )
+    // <FormControl data-testid="data-mapper-form" className={formClasses.wizardFormControl}>
+    //     <div className={overlayClasses.configWizardContainer}>
+    //         <ButtonWithIcon
+    //             className={formClasses.overlayDeleteBtn}
+    //             onClick={onCancel}
+    //             icon={<CloseRounded fontSize="small" />}
+    //         />
+    //         <div className={formClasses.formTitleWrapper}>
+    //             <div className={formClasses.mainTitleWrapper}>
+    //                 <div className={formClasses.iconWrapper}>
+    //                     <DataMapperIcon />
+    //                 </div>
+    //                 <Typography variant="h4">
+    //                     <Box paddingTop={2} paddingBottom={2}>Data Mapping Object</Box>
+    //                 </Typography>
+    //             </div>
+    //         </div>
+    //         {
+    //             dataMapperStep === DataMapperSteps.SELECT_INPUT &&
+    //             <ParameterSelector
+    //                 parameters={inputTypes}
+    //                 insertParameter={addNewParam}
+    //                 removeParameter={removeParam}
+    //                 types={varData}
+    //             />
+    //         }
+    //         {dataMapperStep === DataMapperSteps.SELECT_OUTPUT &&
+    //             <OutputTypeSelector
+    //                 types={typeArray}
+    //                 variables={varData}
+    //                 updateReturnType={setReturnType}
+    //                 updateSampleStructure={handleSampleStructureUpdate}
+    //                 updateValidity={handleJsonValidation}
+    //                 updateVariableName={updateVariableNameOnChange}
+    //                 updateVariableNameValidity={setIsVariableNameValidity}
+    //                 diagramState={state}
+    //                 variableName={variableName}
+    //             />}
+
+    //         <div className={overlayClasses.buttonWrapper}>
+    //             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+    //             <PrimaryButton
+    //                 disabled={!isVariableNameValid && isJsonValid}
+    //                 dataTestId={"datamapper-save-btn"}
+    //                 text={dataMapperStep === DataMapperSteps.SELECT_INPUT ? "Save" : "Next"}
+    //                 fullWidth={false}
+    //                 onClick={handleNextClick}
+    //             />
+    //         </div>
+    //     </div>
+    // </FormControl>
 }
 
 export function generateFieldStructureForJsonSample(obj: any): DataMapperOutputField[] {

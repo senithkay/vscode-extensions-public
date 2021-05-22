@@ -118,11 +118,19 @@ export function DataProcessor(props: ProcessorProps) {
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
+
+            if (STKindChecker.isMappingConstructor(model.initializer)) {
+                processType = 'DataMapper';
+            }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
+            }
+
+            if (STKindChecker.isMappingConstructor(model.expression)) {
+                processType = 'DataMapper';
             }
         } else {
             processType = "Custom";
