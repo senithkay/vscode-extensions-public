@@ -13,7 +13,16 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { AssignmentStatement, CallStatement, FunctionCall, LocalVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import {
+    AssignmentStatement,
+    CallStatement,
+    FunctionCall,
+    LocalVarDecl,
+    PositionalArg,
+    QualifiedNameReference,
+    STKindChecker,
+    STNode
+} from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
@@ -78,7 +87,7 @@ export function DataProcessor(props: ProcessorProps) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
             const nameRef: QualifiedNameReference = stmtFunctionCall.functionName as QualifiedNameReference;
-            if (nameRef?.modulePrefix.value === "log") {
+            if (nameRef?.modulePrefix?.value === "log") {
                 processType = "Log";
                 processName = processType;
                 isLogStmt = true;
@@ -105,6 +114,7 @@ export function DataProcessor(props: ProcessorProps) {
             //     }
             // }
         } else if (STKindChecker.isLocalVarDecl(model)) {
+
             const typedBindingPattern = model?.typedBindingPattern;
             const bindingPattern = typedBindingPattern?.bindingPattern;
             if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
@@ -223,11 +233,17 @@ export function DataProcessor(props: ProcessorProps) {
 
     let assignmentText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
-        assignmentText = ((model as CallStatement).expression as FunctionCall).arguments[0].source;
+        if (STKindChecker.isFunctionCall(model.expression)) {
+            assignmentText = model.expression.arguments[0]?.source;
+        } else if (STKindChecker.isCheckExpression(model.expression)) {
+            if (STKindChecker.isFunctionCall(model.expression.expression)) {
+                assignmentText = model.expression.expression.source;
+            }
+        }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
-        assignmentText = (model as AssignmentStatement).expression.source;
+        assignmentText = (model as AssignmentStatement)?.expression?.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
-        assignmentText = (model as LocalVarDecl).initializer.source;
+        assignmentText = (model as LocalVarDecl)?.initializer?.source;
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");

@@ -13,7 +13,14 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { BlockStatement, BracedExpression, IfElseStatement, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import {
+    BinaryExpression,
+    BlockStatement, BooleanLiteral,
+    BracedExpression,
+    IfElseStatement,
+    STKindChecker,
+    STNode, TypeTestExpression
+} from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
@@ -252,7 +259,17 @@ export function IfElse(props: IfElseProps) {
 
         const componentName: string = name ? "ELSE IF" : "IF";
 
-        const conditionExpr: BracedExpression = ifStatement.condition as BracedExpression;
+        let conditionExpr: BinaryExpression | BracedExpression | BooleanLiteral | TypeTestExpression;
+        if (STKindChecker.isBracedExpression(ifStatement.condition)) {
+            conditionExpr = ifStatement.condition as BracedExpression;
+        } else if (STKindChecker.isBinaryExpression(ifStatement.condition)) {
+            conditionExpr = ifStatement.condition as BinaryExpression;
+        } else if (STKindChecker.isBooleanLiteral(ifStatement.condition)) {
+            conditionExpr = ifStatement.condition as BooleanLiteral;
+        } else if (STKindChecker.isTypeTestExpression(ifStatement.condition)) {
+            conditionExpr = ifStatement.condition as TypeTestExpression;
+        }
+
         const isElseExist: boolean = ((ifStatement.elseBody?.elseBody as BlockStatement)?.kind === "BlockStatement");
         const isDefaultElseExist: boolean = viewState.defaultElseVS !== undefined;
 
@@ -269,7 +286,8 @@ export function IfElse(props: IfElseProps) {
         }
 
         const onIfHeadClick = () => {
-            const conditionExpression = conditionExpr.expression.source;
+            const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ?
+                conditionExpr.expression.source : conditionExpr.source;
             const position = {
                 column: model.position.startColumn,
                 line: model.position.startLine
@@ -285,17 +303,19 @@ export function IfElse(props: IfElseProps) {
 
 
         component = (
-            conditionExpr && conditionExpr.expression && viewState && !viewState.collapsed &&
+            conditionExpr && viewState && !viewState.collapsed &&
             (
                 <g className="if-else">
                     <text className="then-text" x={x - IFELSE_SVG_WIDTH_WITH_SHADOW / 2} y={y + IFELSE_SVG_HEIGHT_WITH_SHADOW / 2}>then</text>
                     {/* Render top horizontal line in else if scenario */}
-                    <line
-                        x1={viewState.elseIfTopHorizontalLine.x}
-                        y1={viewState.elseIfTopHorizontalLine.y}
-                        x2={viewState.elseIfLifeLine.x - (IFELSE_SVG_WIDTH / 2)}
-                        y2={viewState.elseIfTopHorizontalLine.y}
-                    />
+                    {viewState.elseIfLifeLine.x > 0 && (
+                        <line
+                            x1={viewState.elseIfTopHorizontalLine.x}
+                            y1={viewState.elseIfTopHorizontalLine.y}
+                            x2={viewState.elseIfLifeLine.x - (IFELSE_SVG_WIDTH / 2)}
+                            y2={viewState.elseIfTopHorizontalLine.y}
+                        />
+                    )}
                     {/* Render top vertical life line in else if scenario */}
                     <line
                         x1={viewState.elseIfLifeLine.x}

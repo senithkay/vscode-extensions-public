@@ -12,25 +12,29 @@
  */
 import * as React from "react";
 
-export const AWSSQS_LOGO_WIDTH = 39.66;
-export const AWSSQS_LOGO_HEIGHT = 47.87;
+export const AWSSQS_LOGO_WIDTH = 20;
+export const AWSSQS_LOGO_HEIGHT = 20;
 
-export function AwsSQSLogoprops(props: { cx?: number, cy?: number, scale?: number }) {
+export function AwsSQSLogo(props: { cx?: number, cy?: number, scale?: number }) {
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (AWSSQS_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (AWSSQS_LOGO_HEIGHT / 2)} width={AWSSQS_LOGO_WIDTH} height={AWSSQS_LOGO_HEIGHT}>
-            <g id="AWSSQS_wrapper" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                <g id="AWSSQS" transform="translate(-4.000000, 0.000000)" fillRule="nonzero">
-                    <g id="AWSSQS_polyline" transform="translate(4.000000, 0.000000)">
-                        <polyline id="XMLID_2_" fill="#D9A741" points="39.7639344 15.5934426 39.1213115 15.5803279 19.947541 9.90163934 19.9344262 9.63934426 19.9344262 0.0655737705 39.7639344 9.98032787 39.7639344 15.5934426" />
-                        <polyline id="XMLID_3_" fill="#876929" points="19.9344262 10.2163934 19.9344262 0.0655737705 0.104918033 9.98032787 0.104918033 38.0196721 0.118032787 38.0196721 0.118032787 38.0196721 19.9344262 47.9344262 20 47.842623 19.9737705 38.4131148 19.9344262 38.3606557 18.7016393 37.4819672 3.35737705 32.904918 3.43606557 15.1737705 19.9344262 10.2163934" />
-                        <polyline id="XMLID_4_" fill="#D9A741" points="22.8983607 30.3213115 2.63606557 33.1672131 2.63606557 14.8196721 22.8983607 17.6786885 22.8983607 30.3213115" />
-                        <polyline id="XMLID_5_" fill="#876929" points="12.6295082 29.1540984 19.9344262 30.0852459 19.9344262 17.9016393 12.6295082 18.8327869 12.6295082 29.1540984" />
-                        <polyline id="XMLID_6_" fill="#876929" points="5.27213115 28.2229508 10.0196721 28.8262295 10.0196721 19.1606557 5.27213115 19.7639344 5.27213115 28.2229508" />
-                        <polyline id="XMLID_7_" fill="#624A1E" points="2.63606557 14.8196721 19.9344262 9.63934426 39.7639344 15.5934426 22.9114754 17.6786885 2.63606557 14.8196721" />
-                        <polyline id="XMLID_8_" fill="#D9A741" points="39.7508197 27.5409836 19.9344262 30.0459016 19.9344262 17.9016393 39.7508197 20.4327869 39.7508197 27.5409836" />
-                        <polyline id="XMLID_9_" fill="#D9A741" points="39.7508197 32.4196721 39.3180328 32.4327869 20 38.2819672 19.9344262 38.3606557 19.9344262 47.9344262 39.7508197 38.0327869 39.7508197 32.4196721" />
-                        <polyline id="XMLID_10_" fill="#FAD791" points="2.63606557 33.1672131 19.9344262 38.3606557 39.7508197 32.4196721 22.8983607 30.3213115 2.63606557 33.1672131" />
+            <g id="Aws-sqs" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g id="new-adding-new" transform="translate(-1048.000000, -674.000000)" fill-rule="nonzero">
+                    <g id="Dropdown/Select/Default-Copy-26" transform="translate(1038.000000, 664.000000)">
+                        <g id="Icon/Connectro-logo" transform="translate(10.000000, 10.000000)">
+                            <g id="AWSSQS" transform="translate(2.000000, 0.000000)">
+                                <polyline id="XMLID_2_" fill="#D9A741" points="16 6.48767123 15.7407407 6.48219178 8.00529101 4.10958904 8 4 8 0 16 4.14246575 16 6.48767123"/>
+                                <polyline id="XMLID_3_" fill="#876929" points="8 4.24109589 8 0 0 4.14246575 0 15.8575342 0.00529100529 15.8575342 0.00529100529 15.8575342 8 20 8.02645503 19.9616438 8.01587302 16.0219178 8 16 7.5026455 15.6328767 1.31216931 13.7205479 1.34391534 6.31232877 8 4.24109589"/>
+                                <polyline id="XMLID_4_" fill="#D9A741" points="9.1957672 12.6410959 1.02116402 13.830137 1.02116402 6.16438356 9.1957672 7.35890411 9.1957672 12.6410959"/>
+                                <polyline id="XMLID_5_" fill="#876929" points="5.05291005 12.1534247 8 12.5424658 8 7.45205479 5.05291005 7.84109589 5.05291005 12.1534247"/>
+                                <polyline id="XMLID_6_" fill="#876929" points="2.08465608 11.7643836 4 12.0164384 4 7.97808219 2.08465608 8.23013699 2.08465608 11.7643836"/>
+                                <polyline id="XMLID_7_" fill="#624A1E" points="1.02116402 6.16438356 8 4 16 6.48767123 9.2010582 7.35890411 1.02116402 6.16438356"/>
+                                <polyline id="XMLID_8_" fill="#D9A741" points="15.994709 11.4794521 8 12.5260274 8 7.45205479 15.994709 8.50958904 15.994709 11.4794521"/>
+                                <polyline id="XMLID_9_" fill="#D9A741" points="15.994709 13.5178082 15.8201058 13.5232877 8.02645503 15.9671233 8 16 8 20 15.994709 15.8630137 15.994709 13.5178082"/>
+                                <polyline id="XMLID_10_" fill="#FAD791" points="1.02116402 13.830137 8 16 15.994709 13.5178082 9.1957672 12.6410959 1.02116402 13.830137"/>
+                            </g>
+                        </g>
                     </g>
                 </g>
             </g>

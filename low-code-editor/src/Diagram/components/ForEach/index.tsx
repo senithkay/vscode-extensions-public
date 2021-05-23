@@ -125,9 +125,7 @@ export function ForEach(props: ForeachProps) {
 
     const onForeachHeadClick = () => {
         // TODO: re enable this after the release
-
-        const varRef: CaptureBindingPattern = modelForeach.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-        const variable: string = varRef.variableName.value;
+        const variable: string = modelForeach?.typedBindingPattern?.bindingPattern?.source?.trim();
 
         const conditionExpression: ForeachConfig = {
             variable,
@@ -195,9 +193,9 @@ export function ForEach(props: ForeachProps) {
 
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
     const forEachModel = model as ForeachStatement
-    const variableName = ((((forEachModel.typedBindingPattern) as TypedBindingPattern).bindingPattern) as CaptureBindingPattern).variableName.value
+    const variableName = ((forEachModel.typedBindingPattern) as TypedBindingPattern)?.bindingPattern?.source?.trim();
     const keyWord = forEachModel.inKeyword.value
-    const forEachSource = forEachModel?.actionOrExpressionNode.source;
+    const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
 
     const unFoldedComponent = (

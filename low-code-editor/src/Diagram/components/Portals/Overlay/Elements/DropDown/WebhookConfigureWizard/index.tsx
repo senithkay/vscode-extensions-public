@@ -21,11 +21,14 @@ import { ConnectorType } from "../TriggerDropDown";
 
 import { CalendarConfigureForm } from "./CalendarConfigureForm";
 import { GitHubConfigureForm } from "./GitHubConfigureForm";
+import { GmailConfigureForm } from "./GmailConfigureForm";
 import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
+import { SheetConfigureForm } from "./SheetConfigureForm";
 
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
   connector: ConnectorType;
+  isWebhookTypeChanged: boolean;
   onWizardComplete: () => void;
   onClose: () => void;
 }
@@ -36,7 +39,7 @@ export interface ConnectorEvents {
 
 export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
 
-  const { position, connector, onWizardComplete, onClose } = props;
+  const { position, connector, onWizardComplete, onClose, isWebhookTypeChanged } = props;
   const classes = useStyles();
 
   function handleOnWizardComplete() {
@@ -58,10 +61,24 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <GitHubConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
+        />
+      ) }
+      { connector === ConnectorType.GMAIL && (
+        <GmailConfigureForm
+          position={position}
+          onComplete={handleOnWizardComplete}
         />
       ) }
       { connector === ConnectorType.G_CALENDAR && (
         <CalendarConfigureForm
+          position={position}
+          onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
+        />
+      ) }
+      { connector === ConnectorType.G_SHEET && (
+        <SheetConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
         />
@@ -70,6 +87,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <SalesforceConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
     </DiagramOverlay>

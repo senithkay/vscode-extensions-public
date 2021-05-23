@@ -24,7 +24,7 @@ import { useStyles as useTextInputStyles } from "../TextField/style";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
     const { model, customProps } = props;
-    const textLabel = model && model.displayName ? model.displayName : model.name;
+    const textLabel = model.label || model.displayName || model.name;
 
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();

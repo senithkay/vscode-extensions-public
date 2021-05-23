@@ -465,17 +465,16 @@ export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: Balle
             let matchModule: boolean = false;
             let matchName: boolean = false;
             if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-                const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-                const endpointName: string = captureBindingPattern.variableName.value;
-                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
-                if (typeData?.symbol?.moduleID) {
-                    const moduleId: any = typeData?.symbol?.moduleID;
+                const moduleID: any =  variable?.typedBindingPattern?.typeDescriptor?.typeData?.symbol?.moduleID?.moduleName;
+                const moduleName: any = (variable?.typedBindingPattern?.typeDescriptor as QualifiedNameReference).
+                    modulePrefix.value;
+                if (moduleName) {
                     for (const connectorInfo of connectors) {
-                        if (connectorInfo.module === moduleId.moduleName) {
+                        if (connectorInfo?.module === moduleName || connectorInfo.module === moduleID) {
                             matchModule = true;
                         }
-                        if (connectorInfo.name ===
-                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
+                        if (connectorInfo?.name ===
+                            ((variable as LocalVarDecl)?.typedBindingPattern?.typeDescriptor as QualifiedNameReference)
                                 .identifier.value) {
                             matchName = true;
                         }
@@ -518,7 +517,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
 }
 
 export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
-    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
+    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly|Custom): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
     switch (triggerType) {
         case "API":
         case "Webhook":
