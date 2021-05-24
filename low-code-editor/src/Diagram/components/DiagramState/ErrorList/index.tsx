@@ -19,10 +19,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { GreyButton } from "components/Buttons/GreyButton";
-import { PrimaryButtonSquare } from "components/Buttons/PrimaryButtonSquare";
 import { CodeAction, CodeActionParams, TextDocumentEdit } from "monaco-languageclient";
 
+import { GreyButton } from "../../../../components/Buttons/GreyButton";
+import { PrimaryButtonSquare } from "../../../../components/Buttons/PrimaryButtonSquare";
 import { Context } from "../../../../Contexts/Diagram";
 
 import { useStyles } from "./style";
@@ -126,7 +126,7 @@ export function ErrorList() {
                         <div className={classes.diagramErrorMessageText}>{item.message}</div>
                         {codeActions[index] && codeActions[index].length > 0 && !isReadOnly && !isWaitingOnWorkspace &&
                             <PrimaryButtonSquare
-                                onClick={(event) => onActionClick(event, codeActions[index])}
+                                onClick={(event: any) => onActionClick(event, codeActions[index])}
                                 text={codeActions[index].length > 1 ? 'Quick Fix' : codeActions[index][0].title}
                                 className={classes.diagramErrorMessageButton}
                                 disabled={isCodeEditorActive || isCodeChangeInProgress}

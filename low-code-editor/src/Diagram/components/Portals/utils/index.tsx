@@ -21,9 +21,7 @@ import {
     STKindChecker,
     STNode, StringLiteral, traversNode, TypeCastExpression, XmlTypeDesc
 } from "@ballerina/syntax-tree";
-import { isRef } from "joi";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
-import { resetRequestCollction } from "store/actions";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
