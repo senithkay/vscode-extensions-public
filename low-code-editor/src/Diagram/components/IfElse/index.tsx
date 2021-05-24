@@ -19,7 +19,7 @@ import {
     BracedExpression,
     IfElseStatement,
     STKindChecker,
-    STNode, TypeTestExpression
+    STNode, TypeTestExpression, UnaryExpression
 } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
@@ -259,7 +259,7 @@ export function IfElse(props: IfElseProps) {
 
         const componentName: string = name ? "ELSE IF" : "IF";
 
-        let conditionExpr: BinaryExpression | BracedExpression | BooleanLiteral | TypeTestExpression;
+        let conditionExpr: BinaryExpression | BracedExpression | BooleanLiteral | TypeTestExpression | UnaryExpression;
         if (STKindChecker.isBracedExpression(ifStatement.condition)) {
             conditionExpr = ifStatement.condition as BracedExpression;
         } else if (STKindChecker.isBinaryExpression(ifStatement.condition)) {
@@ -268,6 +268,8 @@ export function IfElse(props: IfElseProps) {
             conditionExpr = ifStatement.condition as BooleanLiteral;
         } else if (STKindChecker.isTypeTestExpression(ifStatement.condition)) {
             conditionExpr = ifStatement.condition as TypeTestExpression;
+        } else if (STKindChecker.isUnaryExpression(ifStatement.condition)) {
+            conditionExpr = ifStatement.condition as UnaryExpression;
         }
 
         const isElseExist: boolean = ((ifStatement.elseBody?.elseBody as BlockStatement)?.kind === "BlockStatement");
