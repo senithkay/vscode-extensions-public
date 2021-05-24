@@ -103,23 +103,24 @@ export function AddReturnForm(props: ReturnFormProps) {
 
                             <div className={classes.formWrapper}>
                                 {
-                                    containsMainFunction ?
+                                    // containsMainFunction ?
                                         (
                                             <div className="exp-wrapper">
                                                 <ExpressionEditor
-                                                    model={{ name: "return expression", type: "error", value: config.expression }}
+                                                    model={{ name: "return expression", type: "var", value: config.expression }}
                                                     customProps={{
                                                         validate: validateExpression,
                                                         tooltipTitle: returnStatementTooltipMessages.title,
                                                         tooltipActionText: returnStatementTooltipMessages.actionText,
                                                         tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                                         interactive: true,
-                                                        statementType: 'error'
+                                                        statementType: 'var'
                                                     }}
                                                     onChange={onReturnValueChange}
                                                 />
                                             </div>
-                                        ) : null
+                                        )
+                                        // : null
                                 }
 
                             </div>
