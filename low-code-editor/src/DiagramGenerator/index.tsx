@@ -45,9 +45,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
                 const vistedSyntaxTree = getLowcodeST(genSyntaxTree, startLine, startCharacter);
-                setSyntaxTree(vistedSyntaxTree);
                 if (!syntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
+                } else {
+                    setSyntaxTree(vistedSyntaxTree);
                 }
             } catch (err) {
                 throw err;
