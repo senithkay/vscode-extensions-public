@@ -14,12 +14,10 @@
 import React, { useContext, useState } from "react";
 
 import {
-    BinaryExpression,
-    BlockStatement, BooleanLiteral,
-    BracedExpression,
+    BlockStatement,
     IfElseStatement,
     STKindChecker,
-    STNode, TypeTestExpression, UnaryExpression
+    STNode
 } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
@@ -259,18 +257,7 @@ export function IfElse(props: IfElseProps) {
 
         const componentName: string = name ? "ELSE IF" : "IF";
 
-        let conditionExpr: BinaryExpression | BracedExpression | BooleanLiteral | TypeTestExpression | UnaryExpression;
-        if (STKindChecker.isBracedExpression(ifStatement.condition)) {
-            conditionExpr = ifStatement.condition as BracedExpression;
-        } else if (STKindChecker.isBinaryExpression(ifStatement.condition)) {
-            conditionExpr = ifStatement.condition as BinaryExpression;
-        } else if (STKindChecker.isBooleanLiteral(ifStatement.condition)) {
-            conditionExpr = ifStatement.condition as BooleanLiteral;
-        } else if (STKindChecker.isTypeTestExpression(ifStatement.condition)) {
-            conditionExpr = ifStatement.condition as TypeTestExpression;
-        } else if (STKindChecker.isUnaryExpression(ifStatement.condition)) {
-            conditionExpr = ifStatement.condition as UnaryExpression;
-        }
+        const conditionExpr = ifStatement.condition;
 
         const isElseExist: boolean = ((ifStatement.elseBody?.elseBody as BlockStatement)?.kind === "BlockStatement");
         const isDefaultElseExist: boolean = viewState.defaultElseVS !== undefined;
