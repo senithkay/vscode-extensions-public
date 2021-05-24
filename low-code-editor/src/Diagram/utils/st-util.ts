@@ -21,6 +21,7 @@ import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Defin
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
@@ -348,6 +349,10 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+    if (!connector){
+        return undefined;
+    }
+
     const { org, module, version, name, cacheVersion} = connector;
     const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
     try {
@@ -387,15 +392,17 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name, cacheVersion } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-    const formFieldCache = await formFieldDatabase.get(cacheId);
-    if (formFieldCache) {
-        const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-        for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
-            functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+    if (connector){
+        const { org, module: mod, version, name, cacheVersion } = connector;
+        const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+        const formFieldCache = await formFieldDatabase.get(cacheId);
+        if (formFieldCache) {
+            const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+            for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
+                functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+            }
+            return functionDef.size > 0 ? functionDef : undefined;
         }
-        return functionDef.size > 0 ? functionDef : undefined;
     }
     return undefined;
 }
@@ -452,18 +459,16 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
 
         if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
             remoteMethodCallAction.methodName.typeData) {
+            const moduleName = remoteMethodCallAction.methodName.typeData?.symbol.moduleID.moduleName;
             const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
-            const typeData: any = remoteMethodCallAction.methodName.typeData;
-            if (typeData?.symbol?.moduleID) {
-                const moduleId: any = typeData?.symbol?.moduleID;
+            const identifierName = ((endPoint as LocalVarDecl)?.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier.value;
+            if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
-                    if (connectorInfo.module === moduleId.moduleName) {
+                    if (connectorInfo.module === moduleName) {
                         matchModule = true;
                     }
-                    if (connectorInfo.name ===
-                        ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                            .identifier.value) {
+                    if (connectorInfo.name === identifierName) {
                         matchName = true;
                     }
 
@@ -473,34 +478,24 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
                     }
                 }
             }
-        } else if (viewState.isEndpoint) {
-            let matchModule: boolean = false;
-            let matchName: boolean = false;
-            if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-                const captureBindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-                const endpointName: string = captureBindingPattern.variableName.value;
-                const moduleName: any = (variable.typedBindingPattern.typeDescriptor as QualifiedNameReference).
-                    modulePrefix.value;
-                const typeData: any = variable.typedBindingPattern.typeDescriptor.typeData;
-                const moduleId: any = typeData?.symbol?.moduleID;
-                if (moduleName) {
-                    for (const connectorInfo of connectors) {
-                        if (connectorInfo.module === moduleName) {
-                            matchModule = true;
-                        }
-                        if (moduleId && connectorInfo.module === moduleId.moduleName) {
-                            matchModule = true;
-                        }
-                        if (connectorInfo.name ===
-                            ((variable as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                                .identifier.value) {
-                            matchName = true;
-                        }
+        }
+    } else if (viewState.isEndpoint) {
+        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+            const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+            const moduleName = nameReference?.modulePrefix.value;
+            const identifierName = nameReference?.identifier.value;
+            if (moduleName && identifierName) {
+                for (const connectorInfo of connectors) {
+                    if (getFormattedModuleName(connectorInfo.module) === moduleName) {
+                        matchModule = true;
+                    }
+                    if (connectorInfo.name === identifierName) {
+                        matchName = true;
+                    }
 
-                        if (matchModule && matchName) {
-                            connector = connectorInfo;
-                            break;
-                        }
+                    if (matchModule && matchName) {
+                        connector = connectorInfo;
+                        break;
                     }
                 }
             }

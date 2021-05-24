@@ -692,7 +692,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    if (!functionDefInfo || true) {
+    if (!functionDefInfo) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
         let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
@@ -730,8 +730,8 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo.forEach((value, key) => {
             formFieldJsonObject[key] = value;
         });
-        console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
-        console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
+        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
+        // console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 
     // Filter connector functions to have better usability.
@@ -894,58 +894,13 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
             case "union":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        let type = "";
-                        if (field.type === "error" || field?.isErrorType) {
-                            response.hasError = true;
-                            response.returnType = "";
-                        }
-                        if (type === "" && field?.typeInfo && !field?.isErrorType) {
-                            // set class/record types
-                            type = `${field.typeInfo.modName}:${field.typeInfo.name}`;
-                            response.hasReturn = true;
-                        }
-                        if (type === "" && field?.type && primitives.includes(field.type)) {
-                            // set primitive types
-                            type = field.type;
-                            response.hasReturn = true;
-                        }
+                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const type = returnTypeResponse.returnType;
+                        response.hasError = returnTypeResponse.hasError || response.hasError;
+                        response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
 
-                        if (field.type === 'tuple') {
-                            // set tuple type
-                            const returnTypeResponse = getFormFieldReturnType(field);
-                            response.hasError = returnTypeResponse.hasError || response.hasError;
-                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
-                            type = returnTypeResponse.returnType;
-                        }
-                        if (field.type === "union") {
-                            // get union form field return types
-                            const returnTypeResponse = getFormFieldReturnType(field);
-                            response.hasError = returnTypeResponse.hasError || response.hasError;
-                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
-                            type = returnTypeResponse.returnType;
-                        }
-                        if (field.type === "collection" && field?.collectionDataType) {
-                            // get union form field return types
-                            const returnTypeResponse = getFormFieldReturnType(field.collectionDataType);
-                            response.hasError = returnTypeResponse.hasError || response.hasError;
-                            response.hasReturn = returnTypeResponse.hasReturn || response.hasError;
-                            type = returnTypeResponse.returnType;
-                        }
-                        // filters
-                        if (field?.isArray) {
-                            // set array type
-                            type = type.includes('|') ? `(${type})[]` : `${type}[]`;
-                        }
-                        if (field?.optional) {
-                            // set optional tag
-                            type = type.includes('|') ? `(${type})?` : `${type}?`;
-                        }
-                        if (type !== "" && field?.isStream) {
-                            // set stream tags
-                            type = `stream<${type}>`;
-                        }
                         // collector
-                        if (type) {
+                        if (type && type !== "var") {
                             returnTypes.push(type);
                         }
                     }
@@ -966,25 +921,24 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 }
                 break;
 
+            case "collection":
+                if (formField?.isParam && formField?.collectionDataType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType);
+                    response.returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                }
+                break;
+
             case "tuple":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        let type = "";
-                        if (field.type === "error" || field?.isErrorType) {
-                            response.hasError = true;
-                        }
-                        if (type === "" && field?.typeInfo && !field?.isErrorType) {
-                            // set class/record types
-                            type = `${field.typeInfo.modName}:${field.typeInfo.name}`;
-                            response.hasReturn = true;
-                        }
-                        if (type === "" && field?.type && primitives.includes(field.type)) {
-                            // set primitive types
-                            type = field.type;
-                            response.hasReturn = true;
-                        }
+                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const type = returnTypeResponse.returnType;
+                        response.hasError = returnTypeResponse.hasError || response.hasError;
+                        response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
                         // collector
-                        if (type) {
+                        if (type && type !== "var") {
                             returnTypes.push(type);
                         }
                     }
@@ -1003,13 +957,34 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                     }
                     if (type === "" && formField.typeInfo && !formField.isErrorType) {
                         // set class/record types
-                        type = `${formField.typeInfo.modName}:${formField.typeInfo.name}`;
+                        type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name}`;
                         response.hasReturn = true;
+                    }
+                    if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
+                        // set stream record type with error
+                        type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name},error`;
+                        response.hasReturn = true;
+                        // remove error return
+                        response.hasError = false;
                     }
                     if (type === "" && formField.type && primitives.includes(formField.type)) {
                         // set primitive types
                         type = formField.type;
                         response.hasReturn = true;
+                    }
+
+                    // filters
+                    if (formField?.isArray) {
+                        // set array type
+                        type = type.includes('|') ? `(${type})[]` : `${type}[]`;
+                    }
+                    if (formField?.optional) {
+                        // set optional tag
+                        type = type.includes('|') ? `(${type})?` : `${type}?`;
+                    }
+                    if (type !== "" && formField?.isStream) {
+                        // set stream tags
+                        type = `stream<${type}>`;
                     }
 
                     if (type) {

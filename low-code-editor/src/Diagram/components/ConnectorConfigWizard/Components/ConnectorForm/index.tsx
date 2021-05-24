@@ -439,6 +439,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = getInitReturnType(functionDefInfo);
+        const moduleName = getFormattedModuleName(connectorInfo.module);
         trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
@@ -450,7 +451,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
             if (!isNewConnectorInitWizard) {
                 const updateConnectorInit = updatePropertyStatement(
-                    `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                     config.initPosition
                 );
                 modifications.push(updateConnectorInit);
@@ -483,14 +484,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         let addConnectorInit: STModification
                         if (isOauthConnector && !isManualConnection) {
                             addConnectorInit = createObjectDeclaration(
-                                (connectorInfo.module + ":" + connectorInfo.name),
+                                (moduleName + ":" + connectorInfo.name),
                                 config.name,
                                 getOauthConnectionParams(connectorInfo.displayName.toLocaleLowerCase(), connection),
                                 targetPosition
                             );
                         } else {
                             addConnectorInit = createPropertyStatement(
-                                `${connectorInfo.module}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                                 targetPosition
                             );
                         }

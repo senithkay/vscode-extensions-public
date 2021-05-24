@@ -35,6 +35,7 @@ import {
     SpecificField,
     STNode,
     StreamTypeDesc,
+    StreamTypeParams,
     StringLiteral,
     StringTypeDesc,
     traversNode,
@@ -169,7 +170,7 @@ class FieldVisitor implements Visitor {
 
     endVisitArrayTypeDesc(node: ArrayTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
-            node.viewState.collectionDataType = node.memberTypeDesc?.viewState;
+            node.viewState.collectionDataType = node.memberTypeDesc?.viewState || PrimitiveBalType.String;
         }
     }
 
@@ -334,6 +335,15 @@ class FieldVisitor implements Visitor {
                     version: typeParameter.moduleID.version
                 };
             }
+
+            node.streamTypeParamsNode.viewState = viewState;
+        }
+    }
+
+    beginVisitStreamTypeParams(node: StreamTypeParams) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState;
+            node.rightTypeDescNode.viewState = viewState;
         }
     }
 
