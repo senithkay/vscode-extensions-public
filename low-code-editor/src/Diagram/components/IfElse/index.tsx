@@ -308,12 +308,14 @@ export function IfElse(props: IfElseProps) {
                 <g className="if-else">
                     <text className="then-text" x={x - IFELSE_SVG_WIDTH_WITH_SHADOW / 2} y={y + IFELSE_SVG_HEIGHT_WITH_SHADOW / 2}>then</text>
                     {/* Render top horizontal line in else if scenario */}
-                    <line
-                        x1={viewState.elseIfTopHorizontalLine.x}
-                        y1={viewState.elseIfTopHorizontalLine.y}
-                        x2={viewState.elseIfLifeLine.x - (IFELSE_SVG_WIDTH / 2)}
-                        y2={viewState.elseIfTopHorizontalLine.y}
-                    />
+                    {viewState.elseIfLifeLine.x > 0 && (
+                        <line
+                            x1={viewState.elseIfTopHorizontalLine.x}
+                            y1={viewState.elseIfTopHorizontalLine.y}
+                            x2={viewState.elseIfLifeLine.x - (IFELSE_SVG_WIDTH / 2)}
+                            y2={viewState.elseIfTopHorizontalLine.y}
+                        />
+                    )}
                     {/* Render top vertical life line in else if scenario */}
                     <line
                         x1={viewState.elseIfLifeLine.x}
