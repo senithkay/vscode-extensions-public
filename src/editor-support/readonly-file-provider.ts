@@ -40,7 +40,9 @@ export class ReadOnlyFileProvider {
 
             childProcess.stderr.on("data", (data) => {
                 debug(`Error occured while updating file access: ${data}`);
-                window.showErrorMessage(`Error at file access update: ${data}`);
+                if (!data.includes('Operation not permitted')) {
+                    window.showErrorMessage(`Error at file access update: ${data}`);
+                }
             });
 
             childProcess.on("close", (code) => {
