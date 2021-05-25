@@ -287,6 +287,13 @@
                     "when": "view == ballerinaPackageTreeView",
                     "group": "navigation"
                 }
+            ],
+            "editor/title" : [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.show.diagram",
+                    "group": "navigation"
+                }
             ]
         }
     },
