@@ -69,16 +69,6 @@ interface ResourcePath {
 	value: string;
 }
 
-interface UserOption {
-	label: string;
-	filePath: string;
-	startLine: number;
-	startColumn: number;
-	name: string;
-	kind: string;
-	description: string;
-}
-
 let langClient: ExtendedLangClient;
 let packageOverviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
@@ -105,24 +95,18 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 	}
 
 	if (isCommand && editor && langClient && packageOverviewDataProvider) {
-		const options: UserOption[] = await listDiagramViews();
-		if (options.length === 0) {
+		const diagramOptions: DiagramOptions = await getFirstViewElement();
+		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
 		}
-		const userSelection = await window.showQuickPick(options, {
-			placeHolder: 'Select a diagram view.'
-		});
 
-		if (!userSelection) {
-			return;
-		}
 		diagramElement = {
-			fileUri: Uri.file(userSelection.filePath!),
-			startLine: userSelection.startLine!,
-			startColumn: userSelection.startColumn!,
-			kind: userSelection.kind!,
-			name: userSelection.name!,
+			fileUri: Uri.file(diagramOptions.filePath!),
+			startLine: diagramOptions.startLine!,
+			startColumn: diagramOptions.startColumn!,
+			kind: diagramOptions.kind!,
+			name: diagramOptions.name!,
 			isDiagram: true
 		};
 	} else {
@@ -188,40 +172,6 @@ export async function getFirstViewElement(): Promise<DiagramOptions> {
 		}
 	}
 	return { isDiagram: false };
-}
-
-async function listDiagramViews(): Promise<UserOption[]> {
-	let viewOptions: UserOption[] = [];
-	const packageItems: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren();
-	packageItems?.forEach(async currentPackage => {
-		const children: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren(currentPackage);
-		children?.forEach(async child => {
-			await traverseChildren(currentPackage.getName(), viewOptions, child);
-		});
-	});
-	return viewOptions;
-}
-
-async function traverseChildren(packageName: string, viewOptions: UserOption[], child: PackageTreeItem): Promise<UserOption[]> {
-	if (child.getKind() === CMP_KIND.MAIN_FUNCTION || child.getKind() === CMP_KIND.FUNCTION ||
-		child.getKind() === CMP_KIND.RESOURCE) {
-		viewOptions.push({
-			label: `${child.getName()} (${child.getKind()})`,
-			filePath: child.getFilePath(),
-			startLine: child.getStartLine(),
-			startColumn: child.getStartColumn(),
-			name: child.getName(),
-			kind: child.getKind(),
-			description: packageName
-		});
-	}
-	if (child.getKind() === CMP_KIND.SERVICE) {
-		const children: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren(child);
-		children?.forEach(async resource => {
-			await traverseChildren(packageName, viewOptions, resource);
-		});
-	}
-	return viewOptions;
 }
 
 async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
@@ -325,23 +275,22 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		if (!service.members || !isWithinRange(service, change)) {
 			continue;
 		}
-		
+
 		for (let ri = 0; ri < service.members.length; ri++) {
-				const resource = service.members[ri];
-				if (isWithinRange(resource, change)) {
-					let resourceName = resource.functionName?.value;
-					const resourcePaths = resource.relativeResourcePath;
-					if (resourcePaths && resourcePaths.length > 0) {
-						resourcePaths.forEach(resourcePath => {
-							resourceName += ` ${resourcePath.value}`;
-						});
-					}
-					return {
-						isDiagram: true, name: resourceName, kind: CMP_KIND.RESOURCE,
-						fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
-						startColumn: resource.functionName?.position.startColumn
-					};
+			const resource = service.members[ri];
+			if (isWithinRange(resource, change)) {
+				let resourceName = resource.functionName?.value;
+				const resourcePaths = resource.relativeResourcePath;
+				if (resourcePaths && resourcePaths.length > 0) {
+					resourcePaths.forEach(resourcePath => {
+						resourceName += ` ${resourcePath.value}`;
+					});
 				}
+				return {
+					isDiagram: true, name: resourceName, kind: CMP_KIND.RESOURCE,
+					fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
+					startColumn: resource.functionName?.position.startColumn
+				};
 			}
 		}
 	}

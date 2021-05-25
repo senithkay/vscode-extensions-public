@@ -276,7 +276,7 @@
             "explorer": [
                 {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagram Views"
+                    "name": "Diagrams"
                 }
             ]
         },
@@ -288,7 +288,7 @@
                     "group": "navigation"
                 }
             ],
-            "editor/title" : [
+            "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
