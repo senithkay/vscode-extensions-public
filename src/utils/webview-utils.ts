@@ -78,12 +78,12 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         left: calc(50% - 20px);
                         top: calc(50% - 20px);
                     }
-                    @font-face{
-                        font-family: font-ballerina;
-                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot");
-                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot?#iefix") format("embedded-opentype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff2") format("woff2"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff") format("woff"), url("${fontDirWithSeparatorReplaced}/font-ballerina.ttf") format("truetype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.svg#font-ballerina") format("svg");
-                        font-weight:normal;
-                        font-style:normal;
+                    @font-face {
+                        font-family: "Droid Sans Mono";
+                        src: url("${fontDirWithSeparatorReplaced}/DroidSansMono.ttf") format("truetype");
+                        font-weight: normal;
+                        font-style: normal;
+                        font-stretch: normal;
                     }
                     .loader {
                         border: 4px solid #bec5f5;
