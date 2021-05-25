@@ -76,7 +76,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                         id="panel1bh-header"
                     >
                         {title && isEmptyMandatoryFields && (<Typography className={classes.accordionHeading}>{title}</Typography>)}
-                        {title !== "Optional" && <Typography className={classes.accordionSecondaryHeading}>Optional</Typography>}
+                        {title !== "optional" && <Typography className={classes.accordionSecondaryHeading}>&nbsp; Optional</Typography>}
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>

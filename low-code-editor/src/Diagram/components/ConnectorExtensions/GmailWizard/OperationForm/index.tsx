@@ -38,6 +38,7 @@ export interface OperationFormProps {
     onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
+    hasReturn: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
@@ -46,7 +47,7 @@ export function OperationForm(props: OperationFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
-            onOperationChange, mutationInProgress } = props;
+            onOperationChange, mutationInProgress, hasReturn } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
