@@ -98,6 +98,11 @@ const actions = {
         return () => {
             dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
         }
+    },
+    updateDataMapperConfig: (dispatch: any) => {
+        return (dataMapperConfig: DataMapperConfig) => {
+            dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
+        }
     }
 };
 
