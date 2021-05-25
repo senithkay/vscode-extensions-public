@@ -110,8 +110,12 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     }
 
     useEffect(() => {
-        dataMapperStart();
-        toggleDiagramOverlay()
+        toggleDiagramOverlay();
+        dataMapperStart({
+            inputTypes: [],
+            outputType: undefined,
+            wizardType: processConfig.wizardType
+        });
     }, []);
 
     const addNewParam = (type: DataMapperInputTypeInfo) => {
