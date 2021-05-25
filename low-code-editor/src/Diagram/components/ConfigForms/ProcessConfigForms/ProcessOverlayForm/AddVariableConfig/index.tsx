@@ -271,6 +271,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         model={{ name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType }}
                                         customProps={{
                                             validate: validateExpression,
+                                            expandDefault: (selectedType === "other"),
                                             tooltipTitle: variableTooltipMessages.expressionEditor.title,
                                             tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
                                             tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,

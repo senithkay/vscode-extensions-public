@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
@@ -26,14 +26,9 @@ import { Context } from "../../../../Contexts/Diagram"
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
-    createRemoteServiceCall,
-    updateCheckedRemoteServiceCall,
-    updatePropertyStatement,
-    updateRemoteServiceCall
-} from "../../../utils/modification-util";
+    updatePropertyStatement} from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
@@ -44,9 +39,10 @@ import { PrimaryButton } from "../../Portals/ConfigForm/Elements/Button/PrimaryB
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { useStyles } from "../../Portals/ConfigForm/forms/style";
 import {
-    checkErrorsReturnType,
     genVariableName,
+    getActionReturnType,
     getConnectorIcon,
+    getInitReturnType,
     getKeyFromConnection,
     getOauthParamsFromConnection,
     getParams,
@@ -144,7 +140,6 @@ export function GmailWizard(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -204,7 +199,7 @@ export function GmailWizard(props: WizardProps) {
     };
 
     const handleOauthConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard && targetPosition) {
             // Add an import.
@@ -259,7 +254,7 @@ export function GmailWizard(props: WizardProps) {
     };
 
     const handleManualConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard && targetPosition) {
             // Add an import.
@@ -331,9 +326,10 @@ export function GmailWizard(props: WizardProps) {
             .find(field => field.name === key).value || "";
     }
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -384,22 +380,16 @@ export function GmailWizard(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                if (isActionReturnError) {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                if (actionReturnType.hasReturn) {
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 } else {
-                    const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 }
@@ -418,23 +408,15 @@ export function GmailWizard(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError) {
-                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+            if (actionReturnType.hasReturn) {
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -445,10 +427,15 @@ export function GmailWizard(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
-        connectorInitFormFields = config.connectorInit;
-        config.action.returnVariableName =
-            (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+    } else if (actionReturnType.hasReturn) {
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
+            connectorInitFormFields = config.connectorInit;
+            config.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
+        }
     }
 
     const manualConnectionButtonText = intl.formatMessage({
@@ -558,7 +545,8 @@ export function GmailWizard(props: WizardProps) {
                     connectionDetails={config}
                     showConnectionName={showConnectionName}
                     formFields={formFields}
-                    selectedOperation={config.action.name}
+                    selectedOperation={selectedOperation}
+                    hasReturn={actionReturnType.hasReturn}
                     onSave={handleOnSave}
                     onConnectionChange={onConnectionNameChange}
                     onOperationChange={onOperationChange}

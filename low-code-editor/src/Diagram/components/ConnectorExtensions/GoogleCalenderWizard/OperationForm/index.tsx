@@ -44,6 +44,7 @@ export interface OperationFormProps {
     isManualConnection: boolean;
     isNewConnectorInitWizard: boolean;
     connectionInfo: ConnectionDetails;
+    hasReturn: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }

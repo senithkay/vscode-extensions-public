@@ -13,8 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
+import classnames from 'classnames';
 
 import { Context } from "../Contexts/Diagram";
 import { STModification } from "../Definitions";
@@ -31,10 +32,10 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
-
 export interface DiagramProps {
     isReadOnly: boolean;
     syntaxTree: STNode;
+    originalSyntaxTree: STNode;
     isLoadingAST: boolean;
     isWaitingOnWorkspace: boolean;
     error?: Error;
@@ -47,12 +48,14 @@ export interface DiagramProps {
     triggerType?: TriggerType;
     dispatchFileChange?: (content: string) => Promise<void>;
     dispatchCodeChangeCommit?: () => Promise<void>;
+    hasConfigurables: (templateST: ModulePart) => boolean;
 }
 
 export function Diagram(props: DiagramProps) {
     const {
         isReadOnly,
         syntaxTree,
+        originalSyntaxTree,
         isLoadingAST,
         error,
         isWaitingOnWorkspace,
@@ -60,7 +63,8 @@ export function Diagram(props: DiagramProps) {
         isCodeEditorActive,
         isConfigPanelOpen,
         isConfigOverlayFormOpen,
-        triggerType
+        triggerType,
+        hasConfigurables
     } = props;
     const { state: {
         diagnostics
@@ -134,6 +138,11 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
+    let hasConfigurable = false;
+    if (originalSyntaxTree){
+        hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
+    }
+
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
@@ -146,7 +155,7 @@ export function Diagram(props: DiagramProps) {
             </div>
 
             {diagnosticInDiagram && (
-                <div className={classes.diagramErrorStateWrapper}>
+                <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>
                     <OverlayBackground />
                     {diagramStatus}
                 </div>

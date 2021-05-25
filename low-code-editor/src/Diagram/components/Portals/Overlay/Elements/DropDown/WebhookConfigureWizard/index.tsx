@@ -28,6 +28,7 @@ import { SheetConfigureForm } from "./SheetConfigureForm";
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
   connector: ConnectorType;
+  isWebhookTypeChanged: boolean;
   onWizardComplete: () => void;
   onClose: () => void;
 }
@@ -38,7 +39,7 @@ export interface ConnectorEvents {
 
 export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
 
-  const { position, connector, onWizardComplete, onClose } = props;
+  const { position, connector, onWizardComplete, onClose, isWebhookTypeChanged } = props;
   const classes = useStyles();
 
   function handleOnWizardComplete() {
@@ -60,6 +61,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <GitHubConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.GMAIL && (
@@ -72,6 +74,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <CalendarConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.G_SHEET && (
@@ -84,6 +87,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <SalesforceConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
     </DiagramOverlay>
