@@ -322,11 +322,11 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 
 	for (let i = 0; i < services.length; i++) {
 		const service = services[i];
-		if (!isWithinRange(service, change)) {
+		if (!service.members || !isWithinRange(service, change)) {
 			continue;
 		}
-		if (service.members) {
-			for (let ri = 0; ri < service.members.length; ri++) {
+		
+		for (let ri = 0; ri < service.members.length; ri++) {
 				const resource = service.members[ri];
 				if (isWithinRange(resource, change)) {
 					let resourceName = resource.functionName?.value;
