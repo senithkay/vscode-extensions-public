@@ -100,8 +100,6 @@ export interface DataMapperInputTypeInfo {
     type: string;
     name: string;
     node?: STNode;
-    typeDescNode?: STNode;
-    sampleJsonStructure?: string;
 }
 
 export interface DataMapperOutputTypeInfo {
