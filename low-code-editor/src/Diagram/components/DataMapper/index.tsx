@@ -11,7 +11,7 @@
  * associated services.
  */
 /* tslint:disable:jsx-no-multiline-js */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
     LocalVarDecl,
@@ -34,6 +34,9 @@ import ExpressionEditor from '../Portals/ConfigForm/Elements/ExpressionEditor';
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
+import { SaveButton } from './components/buttons/SaveButton';
+import { AddVariableButton } from './components/buttons/SelectNewVariable';
+import { VariablePicker } from './components/forms/VariablePicker';
 import "./components/InputTypes/style.scss";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
 import { DataMapperInitVisitor, VisitingType } from './util/data-mapper-init-visitor';
@@ -42,6 +45,8 @@ import { DataMapperPositionVisitor, PADDING_OFFSET } from './util/data-mapper-po
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
+import { OutputConfigureButton } from './components/buttons/OutputConfigureButton';
+import { OutputTypeConfigForm } from './components/forms/OutputTypeConfigForm';
 
 // import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
@@ -59,13 +64,18 @@ export function DataMapper(props: DataMapperProps) {
     } = useContext(DiagramContext);
 
     const {
+        appInfo,
         stSymbolInfo,
         onMutate: dispatchMutations,
         dataMapperConfig, // todo: revert
-        currentApp
+        currentApp,
+        onFitToScreen
     } = state
     const overlayClasses = wizardStyles();
 
+    useEffect(() => {
+        onFitToScreen(appInfo?.currentApp?.id);
+    }, []);
 
     // const dataMapperConfig: any = sampleConfigJsonInline; // todo: remove
     // const dataMapperConfig: any = sampleConfig; // todo: remove
@@ -79,10 +89,22 @@ export function DataMapper(props: DataMapperProps) {
     const [eventListenerMap] = useState<any>({});
     const [isExpressionValid, setIsExpressionValid] = useState(true);
     const [expressionEditorText, setExpressionEditorText] = useState(undefined);
+    const [showAddVariableForm, setShowAddVariableForm] = useState(false);
+    const [showConfigureOutputForm, setShowConfigureOutputForm] = useState(false);
     const drawingLineRef = useRef(null);
 
     const onSave = (modifications: STModification[]) => {
         dispatchMutations(modifications);
+    }
+
+    const toggleSelectVariable = () => {
+        setShowAddVariableForm(!showAddVariableForm);
+        setShowConfigureOutputForm(false);
+    }
+
+    const toggleOutputConfigure = () => {
+        setShowConfigureOutputForm(!showConfigureOutputForm);
+        setShowAddVariableForm(false);
     }
 
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
@@ -199,6 +221,47 @@ export function DataMapper(props: DataMapperProps) {
     let outputHeight: number = 100;
 
     if (dataMapperConfig) {
+        const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
+        const positionVisitor = new DataMapperPositionVisitor(15, 15);
+        const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
+
+        if (dataMapperConfig.inputTypes.length > 0) {
+
+            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
+                traversNode(variableInfo.node, new DataMapperInitVisitor(VisitingType.INPUT));
+
+                if (variableInfo.node.dataMapperTypeDescNode) {
+                    switch (variableInfo.node.dataMapperTypeDescNode.kind) {
+                        case 'RecordTypeDesc': {
+                            (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+                            })
+                        }
+                    }
+                }
+            });
+
+            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+                traversNode(varSTNode, dataMapperInputSizingVisitor);
+            });
+
+            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo, i: number) => {
+                inputHeight += (variableInfo.node.dataMapperViewState as DataMapperViewState).bBox.h;
+                if (i < inputVariables.length - 1) {
+                    inputHeight += 40 // todo: convert to constant
+                }
+            });
+
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+
+            dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+                viewstate.bBox.w = maxFieldWidth;
+            });
+        }
+
         let outputType: string = '';
 
         if (dataMapperConfig.outputType?.type) {
@@ -219,21 +282,22 @@ export function DataMapper(props: DataMapperProps) {
 
         const outputTypeConfig = dataMapperConfig.outputType as DataMapperOutputTypeInfo;
 
-
-        if (outputTypeConfig.generationType === GenerationType.NEW) {
-            const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
-            selectedNode = outputTypeVariables ?
-                outputTypeVariables
-                    .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
-                : undefined;
-        } else {
-            const outputTypeVariables = stSymbolInfo.variables.size > 0 ?
-                stSymbolInfo.assignmentStatement.get(outputTypeConfig.variableName)
-                : undefined;
-            selectedNode = outputTypeVariables ?
-                outputTypeVariables
-                    .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
-                : undefined;
+        if (outputTypeConfig) {
+            if (outputTypeConfig.generationType === GenerationType.NEW) {
+                const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
+                selectedNode = outputTypeVariables ?
+                    outputTypeVariables
+                        .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+                    : undefined;
+            } else {
+                const outputTypeVariables = stSymbolInfo.variables.size > 0 ?
+                    stSymbolInfo.assignmentStatement.get(outputTypeConfig.variableName)
+                    : undefined;
+                selectedNode = outputTypeVariables ?
+                    outputTypeVariables
+                        .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+                    : undefined;
+            }
         }
 
 
@@ -248,23 +312,23 @@ export function DataMapper(props: DataMapperProps) {
              */
 
             // start: Initialization
-            const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
+            // const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
-                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
-                traversNode(variableInfo.node, new DataMapperInitVisitor(VisitingType.INPUT));
+            // inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+            //     const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+            //     addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
+            //     traversNode(variableInfo.node, new DataMapperInitVisitor(VisitingType.INPUT));
 
-                if (variableInfo.node.dataMapperTypeDescNode) {
-                    switch (variableInfo.node.dataMapperTypeDescNode.kind) {
-                        case 'RecordTypeDesc': {
-                            (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
-                            })
-                        }
-                    }
-                }
-            });
+            //     if (variableInfo.node.dataMapperTypeDescNode) {
+            //         switch (variableInfo.node.dataMapperTypeDescNode.kind) {
+            //             case 'RecordTypeDesc': {
+            //                 (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+            //                     completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+            //                 })
+            //             }
+            //         }
+            //     }
+            // });
 
             addTypeDescInfo(selectedNode, stSymbolInfo.recordTypeDescriptions);
             traversNode(selectedNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
@@ -281,13 +345,13 @@ export function DataMapper(props: DataMapperProps) {
             // end: Initialization
 
             // start: sizing visitor
-            const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
+            // const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
             const dataMapperOutputSizingVisitor = new DataMapperSizingVisitor();
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
-                traversNode(varSTNode, dataMapperInputSizingVisitor);
-            });
+            // inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+            //     const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
+            //     traversNode(varSTNode, dataMapperInputSizingVisitor);
+            // });
 
             traversNode(selectedNode, dataMapperOutputSizingVisitor);
 
@@ -307,24 +371,20 @@ export function DataMapper(props: DataMapperProps) {
                 viewstate.bBox.w = maxFieldWidth;
             });
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo, i: number) => {
-                inputHeight += (variableInfo.node.dataMapperViewState as DataMapperViewState).bBox.h;
-                if (i < inputVariables.length - 1) {
-                    inputHeight += 40 // todo: convert to constant
-                }
-            });
+            // inputVariables.forEach((variableInfo: DataMapperInputTypeInfo, i: number) => {
+            //     inputHeight += (variableInfo.node.dataMapperViewState as DataMapperViewState).bBox.h;
+            //     if (i < inputVariables.length - 1) {
+            //         inputHeight += 40 // todo: convert to constant
+            //     }
+            // });
 
             outputHeight = ((selectedNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
             // end: sizing visitor
 
 
-            const positionVisitor = new DataMapperPositionVisitor(15, 15);
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                traversNode(variableInfo.node, positionVisitor);
-                const { dataMapperViewState } = variableInfo.node;
-                inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
-            });
+
+
 
             // selected node visit
             positionVisitor.setHeight(15);
@@ -342,18 +402,27 @@ export function DataMapper(props: DataMapperProps) {
 
             outputComponent.push(getDataMapperComponent(selectedNode.dataMapperViewState.type, { model: selectedNode, isMain: true, onDataPointClick, offSetCorrection: 10 }))
         }
+
+
+        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
+            traversNode(variableInfo.node, positionVisitor);
+            const { dataMapperViewState } = variableInfo.node;
+            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
+        });
     }
     return (
         <>
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight + 65} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
-
+                <SaveButton x={(maxFieldWidth * 2) + 400 + 75 - 32} y={65} />
+                <OutputConfigureButton x={(maxFieldWidth * 2) + 400 - 64} y={65} onClick={toggleOutputConfigure} />
                 {outputComponent}
             </g>
             <g id="inputComponents">
                 <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight + 65} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
+                <AddVariableButton x={maxFieldWidth + 50} y={65} onClick={toggleSelectVariable} />
                 {inputComponents}
             </g>
             <g>
@@ -390,7 +459,27 @@ export function DataMapper(props: DataMapperProps) {
                         </DiagramOverlay>
                     )
                 }
-                <DiagramOverlay
+                {
+                    showAddVariableForm && (
+                        <DiagramOverlay
+                            position={{ x: maxFieldWidth + 50 + 64, y: 65 }}
+
+                        >
+                            <VariablePicker dataMapperConfig={dataMapperConfig} toggleVariablePicker={toggleSelectVariable} />
+                        </DiagramOverlay>
+                    )
+                }
+                {
+                    showConfigureOutputForm && (
+                        <DiagramOverlay
+                            position={{ x: (maxFieldWidth * 2) + 400 - 64, y: 65 }}
+
+                        >
+                            <OutputTypeConfigForm dataMapperConfig={dataMapperConfig} toggleVariablePicker={toggleOutputConfigure} />
+                        </DiagramOverlay>
+                    )
+                }
+                {/* <DiagramOverlay
                     position={{ x: (maxFieldWidth * 2) + 400 + 25, y: 65 }}
                     stylePosition='absolute'
                 >
@@ -401,7 +490,13 @@ export function DataMapper(props: DataMapperProps) {
                         fullWidth={false}
                         onClick={() => { dataMapperStart(undefined); }}
                     />
-                </DiagramOverlay>
+                </DiagramOverlay> */}
+                {/* <DiagramOverlay
+                    position={{ x: 105, y: 105 }}
+                    stylePosition='absolute'
+                >
+                    <VariablePicker />
+                </DiagramOverlay> */}
             </DiagramOverlayContainer >
         </>
     )
