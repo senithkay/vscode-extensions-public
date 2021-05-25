@@ -123,7 +123,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
                             param.type = "collection";
-                            param.collectionDataType = PrimitiveBalType.String;
+                            param.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
                             param.isUnion = false;
                             param.fields = [];
                             param.tooltip = tooltipMessages.SMTP.to

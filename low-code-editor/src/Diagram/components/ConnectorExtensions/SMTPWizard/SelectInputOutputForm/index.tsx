@@ -40,6 +40,7 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
+    hasReturn: boolean;
 }
 
 interface ReturnNameState {
@@ -291,11 +292,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         </Typography>
                         {selectedOperationParams}
                         <FormTextInput
-                            customProps={{
+                            customProps={ {
                                 validate: validateNameValue,
                                 tooltipTitle: SMTPInputOutputTooltipMessages.responseVariableName.title,
                                 disabled: returnVariableName
-                            }}
+                            } }
                             defaultValue={defaultResponseVariableName}
                             placeholder={addResponseVariablePlaceholder}
                             onChange={onNameChange}

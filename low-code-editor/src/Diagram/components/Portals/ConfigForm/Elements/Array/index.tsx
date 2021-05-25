@@ -52,7 +52,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
 
     const fieldModel: FormField = {
         name: model.name,
-        type: getType(model.collectionDataType),
+        type: getType(model.collectionDataType?.type),
         displayName: model.displayName
     };
 
@@ -80,7 +80,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
     const deleteItem = (index: number) => {
         if (model.fields && model.fields.length > 0) {
             model.fields.splice(index, 1);
-            if (model.collectionDataType === "json" || model.collectionDataType === "xml") {
+            if (model.collectionDataType.type === "json" || model.collectionDataType.type === "xml") {
                 onChange("[" + getParams(model.fields).toString() + "]");
             } else {
                 if (onChange) {
@@ -94,12 +94,12 @@ export function Array(props: FormElementProps<ArrayProps>) {
     const generateComponents = (addedValues: FormField[]) => {
         const components: React.ReactNode[] = [];
         addedValues.map((element, index) => {
-            if (model.collectionDataType) {
-                if (model.collectionDataType === "record") {
+            if (model.collectionDataType?.type) {
+                if (model.collectionDataType.type === "record") {
                     // TODO: Handle record
-                } else if (model.collectionDataType === "collection") {
+                } else if (model.collectionDataType.type === "collection") {
                     // TODO: Handle collection
-                } else if (model.collectionDataType === "json") {
+                } else if (model.collectionDataType.type === "json") {
                     const getDelete = () => {
                         return () => deleteItem(index);
                     };
@@ -113,7 +113,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                             />
                         </div>
                     );
-                } else if (model.collectionDataType === "xml") {
+                } else if (model.collectionDataType.type === "xml") {
                     const getDelete = () => {
                         return () => deleteItem(index);
                     };
@@ -148,15 +148,15 @@ export function Array(props: FormElementProps<ArrayProps>) {
     };
 
     const addValue = () => {
-        fieldModel.type = getType(model.collectionDataType);
+        fieldModel.type = getType(model.collectionDataType?.type);
         fieldModel.collectionDataType  = model.collectionDataType;
         fieldModel.isParam = true;
-        if (model.collectionDataType) {
-            if (model.collectionDataType === "record") {
+        if (model.collectionDataType.type) {
+            if (model.collectionDataType.type === "record") {
                 // TODO: Handle record
-            } else if (model.collectionDataType === "collection") {
+            } else if (model.collectionDataType.type === "collection") {
                 // TODO: Handle collection
-            } else if (model.collectionDataType === "xml") {
+            } else if (model.collectionDataType.type === "xml") {
                 if (validForm && (arrayValue !== undefined) && (arrayValue !== '')) {
                     fieldModel.value = arrayValue;
                     model.fields.push(fieldModel);
@@ -168,7 +168,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     model.value = undefined;
                     setArrayValue(undefined);
                 }
-            } else if (model.collectionDataType === "json") {
+            } else if (model.collectionDataType.type === "json") {
                 if (validForm && (arrayValue !== undefined) && (arrayValue !== '')) {
                     fieldModel.value = arrayValue;
                     model.fields.push(fieldModel);
@@ -184,7 +184,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                 if ((arrayValue && (arrayValue !== '') && validForm) ||
                     // 2nd condition is to cater boolean values coming at the initial instance where array value state
                     // is empty
-                    (model.collectionDataType === "boolean") && (arrayValue === undefined)) {
+                    (model.collectionDataType.type === "boolean") && (arrayValue === undefined)) {
                     if (model.type === "collection") {
                         model.fields.push(fieldModel);
                         if (onChange) {
@@ -199,7 +199,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     if (!model.optional && customProps?.validate) {
                         customProps?.validate(model.name, model.fields.length <= 0);
                     }
-                    if (model.collectionDataType !== "boolean") {
+                    if (model.collectionDataType.type !== "boolean") {
                         setArrayValue(undefined);
                         model.value = undefined;
                     }
@@ -212,7 +212,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
 
     React.useEffect(() => {
         if (model) {
-            if (model.collectionDataType) {
+            if (model.collectionDataType?.type) {
                 const elementProps: FormElementProps = {
                     model: fieldModel,
                 };
@@ -220,16 +220,16 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     validate: validateField,
                     statementType: fieldModel.type
                 };
-                if (model.collectionDataType === "json" || model.collectionDataType === "xml") {
+                if (model.collectionDataType.type === "json" || model.collectionDataType.type === "xml") {
                     elementProps.onChange = onJsonChange;
                     elementProps.defaultValue = arrayValue;
-                } else if (model.collectionDataType === "boolean") {
+                } else if (model.collectionDataType.type === "boolean") {
                     elementProps.onChange = onCollectionChange;
                     elementProps.defaultValue = arrayValue;
                 } else if (model.type === "collection") {
                     elementProps.onChange = onCollectionChange;
                 }
-                setArrayField(getFormElement(elementProps, model.collectionDataType));
+                setArrayField(getFormElement(elementProps, model.collectionDataType.type));
             }
         }
         setArrayValue(undefined);
