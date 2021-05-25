@@ -255,6 +255,10 @@ class SizingVisitor implements Visitor {
         viewState.isEndComponentInMain = true;
     }
 
+    public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        // TODO: Work on this after proper design review for showing expression bodied functions.
+    }
+
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         this.endSizingBlock(node);
     }
