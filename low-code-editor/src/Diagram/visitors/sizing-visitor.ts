@@ -232,7 +232,7 @@ class SizingVisitor implements Visitor {
         end.bBox.h = STOP_SVG_HEIGHT;
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        if (body.statements.length > 0) {
+        if (!STKindChecker.isExpressionFunctionBody(node.functionBody) && body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 

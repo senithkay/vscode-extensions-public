@@ -33,7 +33,8 @@ interface EndOverlayFormProps {
 export function EndOverlayForm(props: EndOverlayFormProps) {
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
-    const isExpressionFunctionBody: boolean = STKindChecker.isExpressionFunctionBody(config.model);
+    const isExpressionFunctionBody: boolean = config.model ?
+        STKindChecker.isExpressionFunctionBody(config.model) : false;
 
     if (formType === "Return") {
         config.expression = "";
@@ -57,8 +58,8 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
             config.expression = expressionEditor.expression?.source;
         } else {
             const returnStmt = config.model as ReturnStatement;
-            const simpleNameRef = returnStmt.expression as SimpleNameReference;
-            config.expression = simpleNameRef?.name.value;
+            const returnExpression = returnStmt.expression;
+            config.expression = returnExpression?.source;
         }
     }
 
