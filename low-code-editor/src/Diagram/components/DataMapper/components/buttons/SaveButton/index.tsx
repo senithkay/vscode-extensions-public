@@ -20,7 +20,7 @@ export interface SaveButtonProps {
 }
 
 export function SaveButton(props: SaveButtonProps) {
-    const { disabled, onClick, ...xyProps } = props;
+    const { disabled, ...xyProps } = props;
 
     return (
         <svg {...xyProps} width="64px" height="35px" viewBox={'0 0 84 52'} version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">

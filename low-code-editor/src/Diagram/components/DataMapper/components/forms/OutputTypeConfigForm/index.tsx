@@ -21,7 +21,9 @@ import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
+import { STModification } from '../../../../../../Definitions';
 import { getAllVariables } from '../../../../../utils/mixins';
+import { createPropertyStatement } from '../../../../../utils/modification-util';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
 import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
@@ -34,7 +36,7 @@ import { FormTextInput } from '../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles as formStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from '../../../../Portals/utils';
-
+import { getDefaultValueForType } from '../../../util';
 interface OutputTypeConfigForm {
     dataMapperConfig: DataMapperConfig
     toggleVariablePicker: () => void;
@@ -53,7 +55,7 @@ export enum GenerationType {
 
 export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const { state: diagramState, updateDataMapperConfig } = useContext(DiagramContext)
-    const { stSymbolInfo, targetPosition } = diagramState;
+    const { onMutate, trackAddStatement, stSymbolInfo, currentApp, targetPosition } = diagramState;
     const defaultVariableName = stSymbolInfo ?
         genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
     const { dataMapperConfig, toggleVariablePicker } = props;
@@ -170,7 +172,38 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     }
 
     const handleSave = () => {
-        debugger;
+        const modifications: STModification[] = [];
+        const datamapperConfig: DataMapperConfig = config as DataMapperConfig;
+        datamapperConfig.outputType.startLine = targetPosition.line;
+        const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
+
+        let outputType = '';
+
+        switch (datamapperConfig.outputType.type) {
+            case 'json':
+                outputType = 'json';
+                // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
+                // outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
+                // conversionStatement = `json ${datamapperConfig.outputType.variableName}Json = ${datamapperConfig.outputType.variableName}.toJson();`
+                break;
+            case 'record':
+                const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
+                outputType = outputTypeInfo.moduleName === currentApp.name ?
+                    outputTypeInfo.name
+                    : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                break;
+            default:
+                outputType = datamapperConfig.outputType.type;
+        }
+
+
+        const variableDefString = `${datamapperConfig.outputType.generationType === GenerationType.NEW ? outputType : ''} ${datamapperConfig.outputType.variableName} = ${defaultReturn};`
+
+        const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
+        modifications.push(dataMapperFunction);
+
+        onMutate(modifications);
+        toggleVariablePicker();
     }
 
     const returnTypes: string[] = ['String', 'Int', 'Float', 'Boolean', 'Json', 'Record'];
