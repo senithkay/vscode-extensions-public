@@ -34,8 +34,10 @@ import ExpressionEditor from '../Portals/ConfigForm/Elements/ExpressionEditor';
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
+import { OutputConfigureButton } from './components/buttons/OutputConfigureButton';
 import { SaveButton } from './components/buttons/SaveButton';
 import { AddVariableButton } from './components/buttons/SelectNewVariable';
+import { OutputTypeConfigForm } from './components/forms/OutputTypeConfigForm';
 import { VariablePicker } from './components/forms/VariablePicker';
 import "./components/InputTypes/style.scss";
 import { completeMissingTypeDesc, getDataMapperComponent } from "./util";
@@ -45,8 +47,6 @@ import { DataMapperPositionVisitor, PADDING_OFFSET } from './util/data-mapper-po
 import { DataPointVisitor } from "./util/data-point-visitor";
 import { DataMapperSizingVisitor } from './util/datamapper-sizing-visitor';
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from './viewstate';
-import { OutputConfigureButton } from './components/buttons/OutputConfigureButton';
-import { OutputTypeConfigForm } from './components/forms/OutputTypeConfigForm';
 
 // import sampleConfig from './sample-config.json';
 // import sampleConfig from './sample-config.json';
@@ -277,7 +277,7 @@ export function DataMapper(props: DataMapperProps) {
                         : typeInfo.name;
                     break;
                 case 'json':
-                    outputType = 'record';
+                    outputType = 'json';
                     break;
                 default:
                     outputType = dataMapperConfig.outputType.type;
@@ -362,15 +362,17 @@ export function DataMapper(props: DataMapperProps) {
         }
 
         // datapoint poisitions
+        const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
+
         if (inputVariables.length > 0) {
-            const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
             inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
                 traversNode(variableInfo.node, dataPointVisitor);
             });
-            if (selectedNode) {
-                traversNode(selectedNode, dataPointVisitor);
-                traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
-            }
+        }
+
+        if (selectedNode) {
+            traversNode(selectedNode, dataPointVisitor);
+            traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
         }
 
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {

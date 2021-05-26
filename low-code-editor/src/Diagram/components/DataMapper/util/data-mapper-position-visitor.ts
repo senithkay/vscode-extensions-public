@@ -107,8 +107,8 @@ export class DataMapperPositionVisitor implements Visitor {
             this.height += DEFAULT_OFFSET;
             const viewstate = node.dataMapperViewState as DataMapperViewState;
 
-            viewstate.bBox.x = this.offset;
-            viewstate.bBox.y = this.height;
+            viewstate.bBox.x = this.offset + PADDING_OFFSET;
+            viewstate.bBox.y = this.height + PADDING_OFFSET;
         }
     }
 

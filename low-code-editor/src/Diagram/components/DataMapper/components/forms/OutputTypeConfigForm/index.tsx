@@ -71,6 +71,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const overlayClasses = wizardStyles();
 
     const variables: DataMapperInputTypeInfo[] = [];
+    const jsonFormField = { isParam: true, type: 'json' } // form field model for json type form
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars
@@ -88,7 +89,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     }
 
     const handleUpdateRecordType = (evt: any, option: DataMapperOutputTypeInfo) => {
-        dataMapperConfig.outputType = {
+        config.outputType = {
             ...option,
             generationType,
             variableName
@@ -96,6 +97,12 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     }
 
     const handleOnTypeChange = (value: string) => {
+        config.outputType = {
+            type: value.toLowerCase(),
+            generationType,
+            variableName
+        }
+
         switch (value.toLocaleLowerCase()) {
             case 'record':
                 setSelectedDataType(SelectedDataType.RECORD);
@@ -104,11 +111,6 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                 setSelectedDataType(SelectedDataType.JSON);
                 break;
             default:
-                dataMapperConfig.outputType = {
-                    type: value.toLowerCase(),
-                    generationType,
-                    variableName
-                }
         }
     }
 
@@ -173,31 +175,30 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
 
     const handleSave = () => {
         const modifications: STModification[] = [];
-        const datamapperConfig: DataMapperConfig = config as DataMapperConfig;
-        datamapperConfig.outputType.startLine = targetPosition.line;
-        const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
+        config.outputType.startLine = targetPosition.line;
+        const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
         let outputType = '';
 
-        switch (datamapperConfig.outputType.type) {
+        switch (config.outputType.type) {
             case 'json':
                 outputType = 'json';
-                // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
-                // outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
-                // conversionStatement = `json ${datamapperConfig.outputType.variableName}Json = ${datamapperConfig.outputType.variableName}.toJson();`
+                // config.outputType.type = 'record'; // todo: handle conversion to json
+                // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
+                // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
                 break;
             case 'record':
-                const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
+                const outputTypeInfo = config.outputType?.typeInfo;
                 outputType = outputTypeInfo.moduleName === currentApp.name ?
                     outputTypeInfo.name
                     : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                 break;
             default:
-                outputType = datamapperConfig.outputType.type;
+                outputType = config.outputType.type;
         }
 
 
-        const variableDefString = `${datamapperConfig.outputType.generationType === GenerationType.NEW ? outputType : ''} ${datamapperConfig.outputType.variableName} = ${defaultReturn};`
+        const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
 
         const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
         modifications.push(dataMapperFunction);
@@ -265,7 +266,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
             }
             {selectedDataType === SelectedDataType.JSON &&
                 <FormJson
-                    model={null}
+                    model={jsonFormField}
                     onChange={handleOnJsonValueChange}
                     customProps={{
                         validate: validateJsonExpression,

@@ -28,10 +28,11 @@ interface JsonTypeProps {
     model: STNode;
     isMain?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
+    offSetCorrection: number;
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model, isMain, onDataPointClick } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection } = props;
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     let name = viewState.name;
@@ -49,7 +50,7 @@ export function JsonType(props: JsonTypeProps) {
                 if (initializer) {
                     initializer.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
                         const fieldVS = field.dataMapperViewState;
-                        fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
+                        fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
                     });
                 }
             } else if (model.dataMapperTypeDescNode) {
@@ -68,7 +69,7 @@ export function JsonType(props: JsonTypeProps) {
 
             fieldModel.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
                 const fieldVS = field.dataMapperViewState;
-                fields.push(getDataMapperComponent(fieldVS.type, { model: field }));
+                fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
             });
             break;
         default:
@@ -86,15 +87,14 @@ export function JsonType(props: JsonTypeProps) {
     return (
 
         <g id="JsonWrapper" >
-            <rect render-order="-1" x={isMain ? viewState.bBox.x - 10 : viewState.bBox.x - (10 + DEFAULT_OFFSET)} y={viewState.bBox.y - 15} height="30" className="data-wrapper" />
-            {/* <line
-                x1={isMain ? viewState.bBox.x : viewState.bBox.x - (DEFAULT_OFFSET)}
-                y1={viewState.bBox.y + 20}
-                x2={isMain ? viewState.bBox.x + 190 : viewState.bBox.x + 150}
-                y2={viewState.bBox.y + 20}
-                strokeWidth="1"
-                stroke="#d8dbe3"
-            /> */}
+            <rect
+                render-order="-1"
+                x={viewState.bBox.x - offSetCorrection}
+                y={viewState.bBox.y - 15}
+                height={viewState.bBox.h}
+                width={viewState.bBox.w}
+                className="data-wrapper"
+            />
             <g render-order="1">
                 {isMain ?
                     (
@@ -112,8 +112,8 @@ export function JsonType(props: JsonTypeProps) {
                     )
                 }
             </g>
-
             {fields}
+            {/* {dataPoints} */}
         </g>
     );
 }

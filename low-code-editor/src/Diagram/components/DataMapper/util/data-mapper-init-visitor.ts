@@ -243,7 +243,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.type = 'boolean';
             } else if (STKindChecker.isNumericLiteral(node.valueExpr)) {
                 viewstate.type = 'union';
-                viewstate.unionType = 'int|float|decimal';
+                viewstate.unionType = 'int|float';
             } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 viewstate.type = 'mapconstructor'; // TODO: check for the correct term
             } else if (STKindChecker.isSimpleNameReference(node.valueExpr)) {
