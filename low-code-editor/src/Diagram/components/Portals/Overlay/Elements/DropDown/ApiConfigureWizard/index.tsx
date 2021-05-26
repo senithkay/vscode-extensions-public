@@ -93,15 +93,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const stPath = relativeResourcePath && relativeResourcePath[0] && (relativeResourcePath[0]?.value || relativeResourcePath[0]?.source) || "";
 
       const resourceMembers = [];
-      if (stMethod && stPath) {
-        if (resources.length === 0) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+      if (resources.length === 0) {
+        if (stMethod && stPath) {
+            resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+            setResources(resourceMembers);
+        } else {
+          const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
+          resourceMembers.push(defaultConfig);
           setResources(resourceMembers);
         }
-      } else {
-        const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
-        resourceMembers.push(defaultConfig);
-        setResources(resourceMembers);
       }
     }
   }, [syntaxTree])
