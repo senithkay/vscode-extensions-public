@@ -58,9 +58,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         originalSyntaxTree,
-        onMutate: dispatchMutations,
         onEvent
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;

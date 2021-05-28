@@ -542,7 +542,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onClose();
         }
     };
