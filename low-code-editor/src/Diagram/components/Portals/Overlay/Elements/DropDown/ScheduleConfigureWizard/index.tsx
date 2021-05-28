@@ -27,14 +27,19 @@ import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
+  TriggerType,
+  TRIGGER_TYPE_INTEGRATION_DRAFT,
+  TRIGGER_TYPE_SCHEDULE,
+  TRIGGER_TYPE_WEBHOOK,
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
   TRIGGER_SELECTED_INSIGHTS,
-  TRIGGER_TYPE_SCHEDULE
 } from "../../../../../../models";
+import { createPropertyStatement } from "../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
+import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
 import { repeatRange, weekOptions } from "./ScheduleConstants";
@@ -44,6 +49,7 @@ import WeekOptions from "./WeekOptions";
 
 interface ScheduleConfigureWizardProps {
   position: DiagramOverlayPosition;
+  initialTriggerType: TriggerType;
   onWizardComplete: () => void;
   onClose: () => void;
   cron?: string,
@@ -69,21 +75,22 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
 
-  const { position, onWizardComplete, onClose, cron, schType } = props;
+  const { position, onWizardComplete, onClose, cron, schType, initialTriggerType } = props;
   const classes = useStyles();
   const intl = useIntl();
   const toggleClasses = toggleStyles();
 
   const [currentCron, setCurrentCron] = useState<string>(cron || "");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const cronSplit = currentCron?.split(" ", 5);
 
   const [cronMinuteValue, setCronMinuteValue] = useState(cron ? cronSplit[0] : format(new Date(), 'm'));
-  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : format(new Date(), 'h'));
+  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : (new Date().getHours().toString()));
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
-  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
+  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[(new Date().getDay()) + 1]);
   const [checked, setChecked] = useState(true);
   const [isDropdownChanged, setIsDropdownChanged] = useState(false)
 
@@ -91,7 +98,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   modifyCronStartTime.setHours(Number(cronHourValue));
   modifyCronStartTime.setMinutes(Number(cronMinuteValue));
 
-  const [scheduledComp, setScheduledComp] = useState("Minute");
+  const [scheduledComp, setScheduledComp] = useState(schType ? schType : "Minute");
 
   const [validCron, setValidCron] = useState(false);
 
@@ -109,15 +116,13 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   }, [cronMinuteValue, cronHourValue, cronDayValue, cronMonthValue, cronWeekValue, cron]);
 
-  useEffect(() => {
-    if (!isDropdownChanged) {
-      setScheduledComp(schType)
-    }
-  })
-
   function handleOnChangeCron(text: string) {
     setCurrentCron(text);
   }
+
+  const handleDialogOnCancel = () => {
+    setShowConfirmDialog(false);
+  };
 
   function validateCron(text: string) {
     if (isValidCron(text, { alias: true })) {
@@ -263,24 +268,48 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   }
 
-  const handleOnSave = () => {
-    const utcCron = UTCCronForSelectedType();
-    // dispatch and close the wizard
-    setTriggerChanged(true);
+  const createSchedule = () => {
     const saveSelectedCron = cronForSelectedType();
+    const utcCron = UTCCronForSelectedType();
     onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
-      "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
-      "SYNTAX_TREE": originalSyntaxTree,
       "SCHEDULE_TYPE": scheduledComp
     });
-    const event: LowcodeEvent = {
-      type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-      name: TRIGGER_SELECTED_INSIGHTS,
-      property: "Schedule"
-    };
-    onEvent(event);
+  };
+
+  const handleOnSave = () => {
+    const saveSelectedCron = cronForSelectedType();
+    const utcCron = UTCCronForSelectedType();
+    if ((initialTriggerType === TRIGGER_TYPE_SCHEDULE) || (initialTriggerType === TRIGGER_TYPE_INTEGRATION_DRAFT)) {
+      // dispatch and close the wizard
+      setTriggerChanged(true);
+      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+        "CRON": saveSelectedCron,
+        "UTCCRON": utcCron,
+        "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
+        "SYNTAX_TREE": originalSyntaxTree,
+        "SCHEDULE_TYPE": scheduledComp
+      });
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "Schedule"
+      };
+      onEvent(event);
+    } else if (initialTriggerType === TRIGGER_TYPE_WEBHOOK) {
+      setShowConfirmDialog(true);
+    } else {
+      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+        "CRON": saveSelectedCron,
+        "UTCCRON": utcCron,
+        "IS_TRIGGER_CHANGED": true
+      });
+      const commentModification = createPropertyStatement(
+          `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
+          {line: syntaxTree.position.startLine, column: 0});
+      onMutate([commentModification]);
+    }
   };
 
   const deafultMinute = cron ? cronMinuteValue.replace("*/", "") : cronMinuteValue;
@@ -581,6 +610,15 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             disabled={!validCron}
           />
         </div>
+
+        {
+          showConfirmDialog && (
+              <SourceUpdateConfirmDialog
+                  onConfirm={createSchedule}
+                  onCancel={handleDialogOnCancel}
+              />
+          )
+        }
       </>
     </DiagramOverlay>
   );

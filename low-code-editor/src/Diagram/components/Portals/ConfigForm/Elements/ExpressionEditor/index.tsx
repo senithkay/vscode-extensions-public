@@ -307,7 +307,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
                                     completionResponse.label !== varName &&
                                     completionResponse.label !== model.aiSuggestion &&
-                                    completionResponse.label !== "main()"
+                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
                                 ));
                                 const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
                                     return {
@@ -442,7 +442,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 validateAndRevert(model.value, monacoRef.current.editor.getModel().getEOL());
             }
         }
-    }, [changed])
+    }, [changed]);
+
+    useEffect(() => {
+        if (expandDefault !== undefined) {
+            setExpand(expandDefault)
+        }
+    }, [expandDefault]);
 
     // Use this function to validate the expression editor from another component. File content will revert after validating
     const validateAndRevert = async (currentContent: string, EOL: string) => {
