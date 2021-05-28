@@ -27,13 +27,13 @@ import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
   TriggerType,
+  TRIGGER_SELECTED_INSIGHTS,
   TRIGGER_TYPE_INTEGRATION_DRAFT,
   TRIGGER_TYPE_SCHEDULE,
   TRIGGER_TYPE_WEBHOOK,
-  EVENT_TYPE_AZURE_APP_INSIGHTS,
-  LowcodeEvent,
-  TRIGGER_SELECTED_INSIGHTS,
 } from "../../../../../../models";
 import { createPropertyStatement } from "../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
