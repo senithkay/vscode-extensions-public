@@ -25,7 +25,7 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT, OLD_PLUGIN_INSTALLED
 } from "./messages";
 import * as path from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -41,12 +41,14 @@ import {
     TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
     TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
 } from "../telemetry";
+import { BALLERINA_COMMANDS, runCommand } from "../project";
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 const PREV_REGEX = /1\.2\.[0-9]+/g;
 
 export const EXTENSION_ID = 'wso2.ballerina';
+const PREV_EXTENSION_ID = 'ballerina.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
     TOML = 'toml'
@@ -113,6 +115,9 @@ export class BallerinaExtension {
     }
 
     init(_onBeforeInit: Function): Promise<void> {
+        if (extensions.getExtension(PREV_EXTENSION_ID)) {
+            this.showUninstallOldVersion();
+        }
         // Register show logs command.
         const showLogs = commands.registerCommand('ballerina.showLogs', () => {
             outputChannel.show();
@@ -353,6 +358,15 @@ export class BallerinaExtension {
                 }
             }
 
+        });
+    }
+
+    showUninstallOldVersion(): void {
+        const action = 'Uninstall';
+        window.showErrorMessage(OLD_PLUGIN_INSTALLED, action).then(selection => {
+            if (selection === action) {
+                runCommand('', 'code', BALLERINA_COMMANDS.OTHER, '--uninstall-extension', PREV_EXTENSION_ID);
+            }
         });
     }
 

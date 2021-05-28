@@ -34,3 +34,4 @@ export const UNKNOWN_ERROR: string = "Unknown Error : Failed to start Ballerina 
 export const COMMAND_NOT_FOUND = "command not found";
 export const NO_SUCH_FILE = "No such file or directory";
 export const ERROR = "Error:";
+export const OLD_PLUGIN_INSTALLED = "You have an older version of the Ballerina extension installed. Please uninstall the `ballerina.ballerina` extension and continue.";
