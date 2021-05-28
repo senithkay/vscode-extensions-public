@@ -13,7 +13,7 @@ export enum PALETTE_COMMANDS {
 }
 
 export enum BALLERINA_COMMANDS {
-    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add"
+    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add", OTHER = "other"
 }
 
 export enum PROJECT_TYPE {
@@ -32,6 +32,7 @@ export enum MESSAGES {
 }
 
 export const BAL_TOML = "Ballerina.toml";
+const TERMINAL_NAME = 'Terminal';
 
 let terminal: Terminal;
 export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
@@ -46,10 +47,17 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
             argsList += arg.concat(' ');
         });
     }
-    terminal = window.createTerminal({ name: 'Terminal', cwd: filePath });
+    let commandText;
+    if (cmd === BALLERINA_COMMANDS.OTHER) {
+        commandText = `${executor} ${argsList}`;
+        terminal = window.createTerminal({ name: TERMINAL_NAME });
+    } else {
+        commandText = `${executor} ${cmd} ${argsList}`;
+        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath });
+    }
     terminal.sendText(process.platform === 'win32' ? 'cls' : 'clear', true);
     terminal.show(true);
-    terminal.sendText(`${executor} ${cmd} ${argsList}`, true);
+    terminal.sendText(commandText, true);
 }
 
 export function clearTerminal(): void {
