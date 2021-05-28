@@ -26,7 +26,14 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import { validatePath } from "../../../../../../../utils/validator";
-import { ServiceMethodType, SERVICE_METHODS, TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT } from "../../../../../../models";
+import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
+  ServiceMethodType,
+  SERVICE_METHODS,
+  TriggerType,
+  TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
+} from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
@@ -48,14 +55,14 @@ export interface ConnectorEvents {
 }
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
-  const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     connectionData,
-    trackTriggerSelection
+    onEvent
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
@@ -93,15 +100,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const stPath = relativeResourcePath && relativeResourcePath[0] && (relativeResourcePath[0]?.value || relativeResourcePath[0]?.source) || "";
 
       const resourceMembers = [];
-      if (stMethod && stPath) {
-        if (resources.length === 0) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+      if (resources.length === 0) {
+        if (stMethod && stPath) {
+            resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath });
+            setResources(resourceMembers);
+        } else {
+          const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
+          resourceMembers.push(defaultConfig);
           setResources(resourceMembers);
         }
-      } else {
-        const defaultConfig = { id: `${resources.length}`, method: "GET", path: "" };
-        resourceMembers.push(defaultConfig);
-        setResources(resourceMembers);
       }
     }
   }, [syntaxTree])
@@ -162,7 +169,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (isNewService) {
       // dispatch and close the wizard
       setTriggerChanged(true);
-      onModify(TRIGGER_TYPE_API, undefined, {
+
+      modifyTrigger(TRIGGER_TYPE_API, undefined, {
         "PORT": 8090,
         "BASE_PATH": "/",
         "RES_PATH": currentPath,
@@ -172,7 +180,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           "METHOD": res.method.toLowerCase()
         }))
       });
-      trackTriggerSelection("API");
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "API"
+      };
+      onEvent(event);
       // todo: handle dispatch
       // dispatchGoToNextTourStep("CONFIG_SAVE");
     } else {
@@ -188,7 +201,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       mutations.push(updatePropertyStatement(resource, updatePosition));
 
       setTriggerChanged(true);
-      onMutate(mutations);
+      modifyDiagram(mutations);
     }
   };
 

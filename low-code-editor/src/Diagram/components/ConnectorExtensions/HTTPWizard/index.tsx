@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 
@@ -22,6 +22,12 @@ import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../
 import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent
+} from "../../../models";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -37,14 +43,12 @@ import {
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
-import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { genVariableName, getConnectorIcon, getParams, matchEndpointToFormField } from "../../Portals/utils";
+import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
-import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -114,6 +118,12 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
@@ -142,6 +152,13 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleActionOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
+
         const headerField = connectorConfig.action.fields.find(field => field.name === "headers");
 
         const modifications: STModification[] = [];
@@ -200,7 +217,7 @@ export function HTTPWizard(props: WizardProps) {
                     } else {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             { line: model.position.startLine + 1, column: 0 }
@@ -262,6 +279,15 @@ export function HTTPWizard(props: WizardProps) {
             }
         }
         onSave(modifications);
+    }
+
+    const getPayloadReturnType = () => {
+        switch (connectorConfig.responsePayloadMap.selectedPayloadType) {
+            case "Text":
+                return "string";
+            default:
+                return connectorConfig.responsePayloadMap.selectedPayloadType.toLowerCase();
+        }
     }
 
     const handleOnSave = () => {
@@ -465,7 +491,7 @@ export function HTTPWizard(props: WizardProps) {
                     if (responseModel) {
                         const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             responseModel.position
@@ -474,7 +500,7 @@ export function HTTPWizard(props: WizardProps) {
                     } else {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             { line: model.position.startLine + 1, column: 0 }
@@ -557,7 +583,7 @@ export function HTTPWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
-                        "var",
+                        getPayloadReturnType(),
                         connectorConfig.action.returnVariableName,
                         connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                         targetPosition

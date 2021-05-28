@@ -36,7 +36,7 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { isReadOnly } = useContext(Context).state;
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddEndFormProps;
 
@@ -81,7 +81,7 @@ export function EndConfigForm(props: any) {
                     modifications.push(addRespond);
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
         }
     };
 

@@ -75,8 +75,12 @@ export function StartButton(props: StartButtonProps) {
 
     if (STKindChecker.isFunctionDefinition(model)) {
         const tempModel: FunctionDefinition = model as FunctionDefinition;
-        const body: FunctionBodyBlock = tempModel.functionBody as FunctionBodyBlock;
-        emptySource = body.statements.length < 1 || body.statements === undefined;
+        if (STKindChecker.isExpressionFunctionBody(tempModel.functionBody)) {
+            emptySource = false;
+        } else {
+            const body: FunctionBodyBlock = tempModel.functionBody as FunctionBodyBlock;
+            emptySource = body.statements.length < 1 || body.statements === undefined;
+        }
     } else if (STKindChecker.isModulePart(model)) {
         emptySource = true;
     }
@@ -101,7 +105,7 @@ export function StartButton(props: StartButtonProps) {
         handleOnComplete(activeTriggerType);
     }
 
-    const getWebhookType = () : ConnectorType => {
+    const getWebhookType = (): ConnectorType => {
         const webHookSyntaxTree = originalSyntaxTree as ModulePart;
         const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
             STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];

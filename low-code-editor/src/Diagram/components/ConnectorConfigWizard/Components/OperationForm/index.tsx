@@ -42,6 +42,7 @@ export interface OperationFormProps {
     mutationInProgress: boolean;
     onConnectionChange: () => void;
     isNewConnectorInitWizard?: boolean;
+    hasReturn: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
 
@@ -50,7 +51,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, hasReturn } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -174,18 +175,20 @@ export function OperationForm(props: OperationFormProps) {
                                 }
                             </div>
 
-                            <FormTextInput
-                                customProps={{
-                                    validate: validateNameValue,
-                                    tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
-                                    disabled: responseVariableHasReferences
-                                }}
-                                defaultValue={defaultResponseVarName}
-                                placeholder={"Enter Response Variable Name"}
-                                onChange={onNameChange}
-                                label={"Response Variable Name"}
-                                errorMessage={responseVarError}
-                            />
+                            { hasReturn && (
+                                <FormTextInput
+                                    customProps={ {
+                                        validate: validateNameValue,
+                                        tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
+                                        disabled: responseVariableHasReferences
+                                    } }
+                                    defaultValue={defaultResponseVarName}
+                                    placeholder={"Enter Response Variable Name"}
+                                    onChange={onNameChange}
+                                    label={"Response Variable Name"}
+                                    errorMessage={responseVarError}
+                                />
+                            ) }
                         </div>
                     </div>
                     <div className={classes.wizardBtnHolder}>

@@ -28,7 +28,12 @@ import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -47,16 +52,15 @@ export interface ConnectorEvents {
 }
 
 export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         originalSyntaxTree,
-        onMutate: dispatchMutations,
-        trackTriggerSelection
+        trackTriggerSelection,
+        onEvent
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
@@ -111,7 +115,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
             modifications.push(updatePropertyStatement(pushTopicVarTemplate, pushTopicsVarNode.position));
             modifications.push(updatePropertyStatement(listenerConfigTemplate, listenerConfigNode.position));
 
-            onMutate(modifications);
+            modifyDiagram(modifications);
             setTriggerChanged(true);
         }
     }
@@ -119,13 +123,18 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const createSalesforceTrigger = () => {
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "salesforce",
             PUSH_TOPIC_NAME: topic,
             USER_NAME: username,
             PASSWORD: password,
         });
-        trackTriggerSelection(Trigger);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: Trigger
+        };
+        onEvent(event);
     }
 
     // handle trigger configure complete

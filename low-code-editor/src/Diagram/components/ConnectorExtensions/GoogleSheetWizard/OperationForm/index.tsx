@@ -45,6 +45,7 @@ export interface OperationFormProps {
     mutationInProgress: boolean;
     isManualConnection: boolean;
     connectionInfo: ConnectionDetails;
+    hasReturnType: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
