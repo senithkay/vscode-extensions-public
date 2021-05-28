@@ -269,7 +269,31 @@ export class DataMapperInitVisitor implements Visitor {
                 if (fieldAccessNode.typeData) {
                     const typeSymbol = fieldAccessNode.typeData.typeSymbol;
                     if (typeSymbol) {
-                        viewstate.type = typeSymbol.typeKind;
+                        switch (typeSymbol.typeKind) {
+                            case 'int':
+                            case 'float':
+                                viewstate.type = 'union';
+                                viewstate.unionType = 'int|float';;
+                                break;
+                            default:
+                                viewstate.type = typeSymbol.typeKind;
+                        }
+                    }
+                }
+            } else if (STKindChecker.isBinaryExpression(node.valueExpr)) {
+                const binaryExp: BinaryExpression = node.valueExpr as BinaryExpression;
+                if (binaryExp.typeData) {
+                    const typeSymbol = binaryExp.typeData.typeSymbol;
+                    if (typeSymbol) {
+                        switch (typeSymbol.typeKind) {
+                            case 'int':
+                            case 'float':
+                                viewstate.type = 'union';
+                                viewstate.unionType = 'int|float';;
+                                break;
+                            default:
+                                viewstate.type = typeSymbol.typeKind;
+                        }
                     }
                 }
             }
