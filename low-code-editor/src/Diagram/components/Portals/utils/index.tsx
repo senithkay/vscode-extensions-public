@@ -521,7 +521,7 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
     if (asts === undefined) {
         return [];
     }
-    return (asts as LocalVarDecl[]).map((item) => (item.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value);
+    return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
 export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {

@@ -17,6 +17,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     DoStatement,
+    ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -183,7 +184,7 @@ class SizingVisitor implements Visitor {
         } else {
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
         }
-        if (body.statements.length > 0) {
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
@@ -231,7 +232,7 @@ class SizingVisitor implements Visitor {
         end.bBox.h = STOP_SVG_HEIGHT;
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        if (body.statements.length > 0) {
+        if (!STKindChecker.isExpressionFunctionBody(node.functionBody) && body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
@@ -246,6 +247,16 @@ class SizingVisitor implements Visitor {
         }
         this.beginSizingBlock(node);
         allEndpoints = viewState.connectors;
+    }
+
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const viewState: BlockViewState = node.viewState;
+        allEndpoints = viewState.connectors;
+        viewState.isEndComponentInMain = true;
+    }
+
+    public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        // TODO: Work on this after proper design review for showing expression bodied functions.
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
