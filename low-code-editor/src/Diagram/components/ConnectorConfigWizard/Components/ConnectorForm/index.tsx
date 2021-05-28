@@ -585,7 +585,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         />
                         <div className={wizardClasses.titleWrapper}>
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
-                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection" /></Typography>
+                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="&nbsp;Connection" /></Typography>
                         </div>
                     </div>
                     {(formState === FormStates.OauthConnect) && (
