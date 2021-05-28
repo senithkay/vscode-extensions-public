@@ -54,8 +54,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
         currentApp,
         getGcalendarList,
         stSymbolInfo,
-        originalSyntaxTree,
-        onMutate: dispatchMutations
+        originalSyntaxTree
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const { onComplete, currentConnection } = props;

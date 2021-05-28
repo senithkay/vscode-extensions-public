@@ -48,8 +48,8 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
-    const { state: { onEvent } } = useContext(Context);
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { state: { trackAddStatement, onEvent } } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -117,7 +117,7 @@ export function ProcessConfigForm(props: any) {
                 onEvent(event);
             }
         }
-        onMutate(modifications);
+        modifyDiagram(modifications);
         onSave()
     };
 

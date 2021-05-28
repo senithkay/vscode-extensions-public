@@ -39,7 +39,7 @@ export interface ConnectorInitFormProps {
 }
 
 export function ConnectorInitForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const {
         connector, typeDef, targetPosition, wizardType, fieldsForFunctions,
         config
@@ -73,7 +73,6 @@ export function ConnectorInitForm(props: any) {
     // });
 
     const onSave = (/* sourceModifications: STModification[] */) => {
-
         // insert initialized connector logic
         if (targetPosition) {
             const modifications: STModification[] = [];
@@ -105,7 +104,7 @@ export function ConnectorInitForm(props: any) {
                 getParams(connectorConfig.action.fields), targetPosition
             );
             modifications.push(addActionInvocation);
-            onMutate(modifications);
+            modifyDiagram(modifications);
         }
     };
 

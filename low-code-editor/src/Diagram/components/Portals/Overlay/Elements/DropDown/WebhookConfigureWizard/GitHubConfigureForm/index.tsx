@@ -55,7 +55,7 @@ export interface ConnectorEvents {
 }
 
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
@@ -358,7 +358,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: 'github',
             ACCESS_TOKEN: accessTokenKey,
             SECRET_KEY: clientSecretKey,
@@ -428,7 +428,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             modifications.push(updatePropertyStatement(webSubUpdateTemplate, webSubNode.position));
             modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][0], resourceFunctionNameNode.position));
             modifications.push(updatePropertyStatement(githubEvents[activeEvent].action[activeAction][1], recordNameNode.position));
-            onMutate(modifications);
+            modifyDiagram(modifications);
         }
         setTriggerChanged(true);
     }

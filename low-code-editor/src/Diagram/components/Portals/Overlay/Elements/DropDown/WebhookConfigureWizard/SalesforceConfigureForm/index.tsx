@@ -52,15 +52,13 @@ export interface ConnectorEvents {
 }
 
 export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
         originalSyntaxTree,
-        onMutate: dispatchMutations,
         onEvent
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -116,7 +114,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
             modifications.push(updatePropertyStatement(pushTopicVarTemplate, pushTopicsVarNode.position));
             modifications.push(updatePropertyStatement(listenerConfigTemplate, listenerConfigNode.position));
 
-            onMutate(modifications);
+            modifyDiagram(modifications);
             setTriggerChanged(true);
         }
     }
@@ -124,7 +122,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const createSalesforceTrigger = () => {
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "salesforce",
             PUSH_TOPIC_NAME: topic,
             USER_NAME: username,

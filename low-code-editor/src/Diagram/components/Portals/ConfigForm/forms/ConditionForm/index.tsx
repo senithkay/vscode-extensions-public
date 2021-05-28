@@ -38,7 +38,7 @@ export interface ConditionFormProps {
 }
 
 export function ConditionFormC(props: ConditionFormProps) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { isReadOnly } = useContext(Context).state;
     const { type, targetPosition, wizardType, config, onCancel, scopeSymbols } = props;
     let conditionConfig: ConditionConfig;
@@ -96,7 +96,7 @@ export function ConditionFormC(props: ConditionFormProps) {
                 }
                 // modifications.push();
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
         }
     };
 

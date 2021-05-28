@@ -44,7 +44,7 @@ export interface ConditionConfigFormProps {
 }
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isReadOnly,
@@ -131,7 +131,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     modifications.push(updateWhileStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onSave();
         }
     };

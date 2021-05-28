@@ -69,7 +69,7 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { onModify } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
     const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
@@ -97,15 +97,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
             if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
+                modifyTrigger(newTrigger);
                 const event: LowcodeEvent = {
                     type: EVENT_TYPE_AZURE_APP_INSIGHTS,
                     name: TRIGGER_SELECTED_INSIGHTS,
                     property: "Manual"
                 };
                 onEvent(event);
-                onModify(newTrigger);
             } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
-                onModify(TRIGGER_TYPE_MANUAL, undefined, {
+                modifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
                     "SYNTAX_TREE": originalSyntaxTree,
                     "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
                 });
@@ -118,7 +118,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModify(selectedTrigger);
+        modifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);

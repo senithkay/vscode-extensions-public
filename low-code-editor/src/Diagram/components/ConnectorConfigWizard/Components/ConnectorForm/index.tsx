@@ -94,7 +94,7 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         stSymbolInfo,
@@ -337,7 +337,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         }
         if (modifications.length > 0) {
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onClose();
         }
     }
@@ -396,7 +396,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
 
         }
-        onMutate(modifications);
+        modifyDiagram(modifications);
         onClose();
     }
 
@@ -458,7 +458,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         const moduleName = getFormattedModuleName(connectorInfo.module);
         if (sourceModifications) {
             // Modifications for special Connectors
-            onMutate(sourceModifications);
+            modifyDiagram(sourceModifications);
             onClose();
         } else {
             // insert initialized connector logic
@@ -542,7 +542,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onClose();
         }
     };

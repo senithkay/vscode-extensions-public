@@ -1,25 +1,30 @@
 import React from "react";
 
-import { Provider as DiagramProvider } from "./contexts/Diagram";
+import { STModification } from "../Definitions";
+import { TriggerType } from "../Diagram/models";
 
-// TODO: Complete Props declaation
-interface Props {
-    children: JSX.Element
-};
+import { Provider as DiagramProvider } from "./contexts/Diagram";
 
 export default function Provider(props: any) {
     const {
         children,
         onMutate,
-        onModify,
         ...restProps
     } = props;
 
     const initialState = restProps;
 
+    const modifyTrigger = (triggerType: TriggerType, model?: any, configObject?: any) => {
+        onMutate('TRIGGER', { triggerType, model, configObject });
+    }
+
+    const modifyDiagram = (mutations: STModification[], options: any = {}) => {
+        onMutate('DIAGRAM', { mutations, ...options });
+    }
+
     const callbacks = {
-        onMutate,
-        onModify
+        modifyDiagram,
+        modifyTrigger
     };
 
     return (

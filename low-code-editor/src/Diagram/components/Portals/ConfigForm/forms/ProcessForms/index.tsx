@@ -41,7 +41,7 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
 
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddProcessFormProps;
 
@@ -105,7 +105,7 @@ export function ProcessConfigForm(props: any) {
                 }
             }
         }
-        onMutate(modifications);
+        modifyDiagram(modifications);
     };
 
     return (

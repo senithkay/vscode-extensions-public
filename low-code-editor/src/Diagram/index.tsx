@@ -40,8 +40,6 @@ export interface DiagramProps {
     isLoadingAST: boolean;
     isWaitingOnWorkspace: boolean;
     error?: Error;
-    // onMutate?: (modifications: STModification[]) => void;
-    // onModify?: (triggerType: TriggerType, model?: any, configObject?: any) => void;
     isMutationInProgress: boolean;
     isCodeEditorActive: boolean;
     isConfigPanelOpen: boolean;
