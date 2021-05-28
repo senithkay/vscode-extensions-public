@@ -343,7 +343,9 @@ class FieldVisitor implements Visitor {
     beginVisitStreamTypeParams(node: StreamTypeParams) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
-            node.rightTypeDescNode.viewState = viewState;
+            if (node.rightTypeDescNode){
+                node.rightTypeDescNode.viewState = viewState;
+            }
         }
     }
 
