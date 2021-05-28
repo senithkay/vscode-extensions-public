@@ -27,7 +27,12 @@ import { Context } from "../../../../../../../../Contexts/Diagram";
 import { GithubRepo, STModification } from "../../../../../../../../Definitions";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
@@ -56,7 +61,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        trackTriggerSelection,
+        onEvent,
         currentApp,
         getGithubRepoList,
         stSymbolInfo,
@@ -252,6 +257,38 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     "PullRequestReviewCommentEvent"
                 ]
             }
+        },
+        release: {
+            action: {
+                published: [
+                    "onReleasePublished",
+                    "ReleaseEvent"
+                ],
+                unpublished: [
+                    "onReleaseUnpublished",
+                    "ReleaseEvent"
+                ],
+                created: [
+                    "onReleaseCreated",
+                    "ReleaseEvent"
+                ],
+                edited: [
+                    "onReleaseEdited",
+                    "ReleaseEvent"
+                ],
+                deleted: [
+                    "onReleaseDeleted",
+                    "ReleaseEvent"
+                ],
+                pre_released: [
+                    "onPreReleased",
+                    "ReleaseEvent"
+                ],
+                released: [
+                    "onReleased",
+                    "ReleaseEvent"
+                ]
+            }
         }
     };
 
@@ -331,7 +368,12 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             RESOURCE_NAME: githubEvents[activeEvent].action[activeAction][0],
             RECORD_NAME: githubEvents[activeEvent].action[activeAction][1]
         });
-        trackTriggerSelection("Github");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Github"
+        };
+        onEvent(event);
     };
 
     const updateGithubTrigger = () => {

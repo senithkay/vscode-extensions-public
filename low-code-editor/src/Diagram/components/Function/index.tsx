@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { End } from "../End";
 import { StartButton } from "../Start";
-import {TriggerParams} from "../TriggerParams";
+import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
@@ -36,25 +36,42 @@ export function Function(props: FunctionProps) {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
-    const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-    const isStatementsAvailable: boolean = block.statements.length > 0;
-    const bodyViewState: BlockViewState = block.viewState;
-    const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
+    const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
+    let component: React.ReactNode;
+    if (isExpressionFuncBody) {
+        component = (
+            <g>
+                <StartButton model={model} />
+                <WorkerLine viewState={viewState} />
+                <End model={model.functionBody} viewState={viewState.end} isExpressionFunction={true} />
+            </g>
+        );
+    } else {
+        const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
+        const isStatementsAvailable: boolean = block.statements.length > 0;
+        const bodyViewState: BlockViewState = block.viewState;
+        const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
+        component = (
+            <g>
+                <>
+                    {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
+                </>
+
+                {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
+                {isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && <StartButton model={model} />}
+                {isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
+                {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
+                {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
+                {!isInitPlusAvailable && isStatementsAvailable && (!bodyViewState?.isEndComponentInMain ||
+                    bodyViewState?.collapseView) && <End viewState={viewState.end} />}
+            </g>
+        );
+    }
 
     return (
         <g>
-            <>
-                {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
-            </>
-
-            {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
-            {isInitPlusAvailable && <StartButton model={model} />}
-            {!isInitPlusAvailable && <StartButton model={model} />}
-            {isInitPlusAvailable && isTriggerParamsAvailable &&  <TriggerParams model={model} />}
-            {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
-            {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
-            {!isInitPlusAvailable && isStatementsAvailable && (!bodyViewState?.isEndComponentInMain ||
-                bodyViewState?.collapseView) && <End viewState={viewState.end} />}
+            {component}
         </g>
     );
 }

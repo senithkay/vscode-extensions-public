@@ -27,10 +27,13 @@ import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
   TriggerType,
+  TRIGGER_SELECTED_INSIGHTS,
   TRIGGER_TYPE_INTEGRATION_DRAFT,
   TRIGGER_TYPE_SCHEDULE,
-  TRIGGER_TYPE_WEBHOOK
+  TRIGGER_TYPE_WEBHOOK,
 } from "../../../../../../models";
 import { createPropertyStatement } from "../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -64,7 +67,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
-    trackTriggerSelection,
+    onEvent,
     originalSyntaxTree
   } = state;
 
@@ -84,10 +87,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const cronSplit = currentCron?.split(" ", 5);
 
   const [cronMinuteValue, setCronMinuteValue] = useState(cron ? cronSplit[0] : format(new Date(), 'm'));
-  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : format(new Date(), 'h'));
+  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : (new Date().getHours().toString()));
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
-  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
+  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[(new Date().getDay()) + 1]);
   const [checked, setChecked] = useState(true);
   const [isDropdownChanged, setIsDropdownChanged] = useState(false)
 
@@ -288,7 +291,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
         "SYNTAX_TREE": originalSyntaxTree,
         "SCHEDULE_TYPE": scheduledComp
       });
-      trackTriggerSelection("Schedule");
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "Schedule"
+      };
+      onEvent(event);
     } else if (initialTriggerType === TRIGGER_TYPE_WEBHOOK) {
       setShowConfirmDialog(true);
     } else {
