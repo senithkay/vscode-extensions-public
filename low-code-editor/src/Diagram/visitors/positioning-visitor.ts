@@ -13,6 +13,7 @@
 import {
     BlockStatement,
     DoStatement,
+    ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -165,7 +166,7 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable  && body.statements.length <= 0) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -185,7 +186,7 @@ class PositioningVisitor implements Visitor {
         }
 
         let widthOfOnFailClause = 0;
-        if (body.statements.length > 0) {
+        if (!STKindChecker.isExpressionFunctionBody(body) && body.statements.length > 0) {
             for (const statement of body.statements) {
                 if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
                     if (statement.onFailClause) {
@@ -255,6 +256,12 @@ class PositioningVisitor implements Visitor {
         allEndpoints = blockViewState.connectors;
         epCount = 0;
         this.beginVisitBlockStatement(node);
+    }
+
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const blockViewState: BlockViewState = node.viewState;
+        allEndpoints = blockViewState.connectors;
+        epCount = 0;
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {

@@ -22,7 +22,12 @@ import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -45,7 +50,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
         isLoadingSuccess: isFileSaved,
         syntaxTree,
         onModify: dispatchModifyTrigger,
-        trackTriggerSelection,
+        onEvent,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
@@ -151,7 +156,12 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
             EVENT_TYPE: gmailEvents[ gmailEvent ].type,
             EVENT_VAR: gmailEvents[ gmailEvent ].variable,
         });
-        trackTriggerSelection("Gmail");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Gmail"
+        };
+        onEvent(event);
     };
 
     // handle calendar trigger update

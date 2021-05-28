@@ -28,7 +28,12 @@ import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
@@ -56,7 +61,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         onModify: dispatchModifyTrigger,
         originalSyntaxTree,
         onMutate: dispatchMutations,
-        trackTriggerSelection
+        onEvent
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
@@ -125,7 +130,12 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
             USER_NAME: username,
             PASSWORD: password,
         });
-        trackTriggerSelection(Trigger);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: Trigger
+        };
+        onEvent(event);
     }
 
     // handle trigger configure complete

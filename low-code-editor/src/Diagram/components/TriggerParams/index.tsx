@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
-import {FunctionDefinition, RequiredParam, STNode} from "@ballerina/syntax-tree";
+import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
 import {BlockViewState} from "../../view-state";
 import {DefaultConfig} from "../../visitors/default";
@@ -38,8 +38,11 @@ export function TriggerParams(props: TriggerParamsProps) {
     let funcParam;
 
     for (let i = 0; i <= modelTriggerParams?.functionSignature?.parameters?.length - 1; i++) {
-        funcParam = modelTriggerParams?.functionSignature?.parameters[i] as RequiredParam
-        if (funcParam.kind === "RequiredParam") {
+        if (STKindChecker.isRequiredParam(modelTriggerParams?.functionSignature?.parameters[i])) {
+            funcParam = modelTriggerParams?.functionSignature?.parameters[i] as RequiredParam;
+            triggerParamsText = triggerParamsText + " " + funcParam?.paramName?.value + ",";
+        } else if (STKindChecker.isRestParam(modelTriggerParams?.functionSignature?.parameters[i])) {
+            funcParam = modelTriggerParams?.functionSignature?.parameters[i] as RestParam;
             triggerParamsText = triggerParamsText + " " + funcParam?.paramName?.value + ",";
         }
     }

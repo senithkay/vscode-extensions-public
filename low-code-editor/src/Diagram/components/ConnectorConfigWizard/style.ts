@@ -212,16 +212,17 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         box: {
-            width: "100%",
+            width: "auto",
             height: 45,
             borderRadius: 5,
-            padding: theme.spacing(1),
-            paddingLeft: theme.spacing(2.5),
             marginBottom: theme.spacing(1),
             borderColor: theme.palette.secondary.main,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            '& h6.MuiTypography-root.MuiTypography-subtitle2': {
+                paddingLeft: theme.spacing(2.5),
+            }
         },
         changeConnectionBtn: {
             padding: 3,
