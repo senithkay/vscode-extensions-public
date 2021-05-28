@@ -210,26 +210,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources([...resources, defaultConfig])
   }
 
-  const pathInstructions = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip",
-    defaultMessage: "A valid path should not :"
-  });
-
-  const pathInstructionsBullet1 = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1",
-    defaultMessage: "Include spaces outside the square brackets"
-  });
-
-  const pathInstructionsBullet2 = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint2",
-    defaultMessage: "Start with a numerical character"
-  });
-
-  const pathInstructionsBullet3 = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.instructions.bulletPoint3",
-    defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
-  });
-
   const resourceConfigTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
     defaultMessage: "Configure Resource"
@@ -262,16 +242,24 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
-    defaultMessage: "/users/[string name]"
+    defaultMessage: "/users/[string name] \n/users/[int userId]/groups"
   });
 
   const title = (
     <div>
-      <p>{pathInstructions}</p>
+      <p>
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="A valid path should"/>
+      </p>
       <ul>
-        <li>{pathInstructionsBullet1}</li>
-        <li>{pathInstructionsBullet2}</li>
-        <li>{pathInstructionsBullet3}</li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="<b>NOT</b> include spaces outside the square brackets" values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc." values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        </li>
       </ul>
     </div>
   );
