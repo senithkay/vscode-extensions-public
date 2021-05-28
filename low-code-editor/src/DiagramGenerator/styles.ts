@@ -27,8 +27,7 @@ export const useGeneratorStyles = makeStyles((theme: Theme) =>
         lowCodeContainer: {
             backgroundColor: "transparent",
             height: "100%",
-            overflowY: "auto",
-            overflowX: "auto"
+            overflowX: "scroll"
         },
         loaderContainer: {
             marginRight: theme.spacing(1),

@@ -19,23 +19,29 @@ export interface DiagramGeneratorProps {
     startLine: string;
     startCharacter: string;
     updated: boolean;
+    scale: string;
+    panX: string;
+    panY: string;
 }
-
-const defaultZoomStatus = {
-    scale: 1,
-    panX: 0,
-    panY: 0,
-};
 
 const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { diagramLangClient, filePath, startLine, startCharacter, updated } = props;
+    const { diagramLangClient, filePath, startLine, startCharacter, updated, scale, panX, panY } = props;
     const classes = useGeneratorStyles();
+    const defaultScale = scale ? Number(scale) : 1;
+    const defaultPanX = panX ? Number(panX) : 0;
+    const defaultPanY = panY ? Number(panY) : 0;
     // tslint:disable-next-line:no-console
     console.log("Diagram Generator render()");
+
+    const defaultZoomStatus = {
+        scale: defaultScale,
+        panX: defaultPanX,
+        panY: defaultPanY,
+    };
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
