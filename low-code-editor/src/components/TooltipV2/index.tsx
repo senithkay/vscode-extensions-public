@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -21,8 +21,12 @@ import useStyles, {tooltipBaseStyles} from "./style";
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
+interface hellotext { title : string, body : string , example : string}
+
 interface TooltipPropsExtended extends TooltipProps {
     type: string,
+    // text: string | object (title, body, example),
+    text?: string,
     heading?: string,
     subHeading?: string;
     actionText?: string;
@@ -135,11 +139,13 @@ function ExampleTooltip(props: Partial<TooltipPropsExtended>) {
 }
 
 function ActionTooltip(props: Partial<TooltipPropsExtended>) {
-    const { heading, actionText, actionLink } = props;
+    const { heading, subHeading, actionText, actionLink } = props;
     const styles = useStyles();
     return (
         <div>
-            {heading && (<h4 className={styles.heading}>{heading}</h4>)}
+            {heading && (<div className={styles.heading}>{heading}</div>)}
+            {subHeading && (<div className={styles.subHeading}>{subHeading}</div>)}
+            <Divider className={styles.divider} light={true}/>
             {actionText && (<a className={styles.buttonLink} href={actionLink} target="_blank">{actionText}</a>)}
         </div>
     )
