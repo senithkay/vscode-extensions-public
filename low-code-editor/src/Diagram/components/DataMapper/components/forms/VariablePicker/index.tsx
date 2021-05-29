@@ -29,17 +29,18 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { DataMapperConfig, DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 
 export interface VariablePickerProps {
+    fieldWidth: number;
     dataMapperConfig: DataMapperConfig
     toggleVariablePicker: () => void;
 }
 
 export function VariablePicker(props: VariablePickerProps) {
     const { state: { stSymbolInfo }, updateDataMapperConfig } = useContext(DiagramContext)
-    const { toggleVariablePicker, dataMapperConfig } = props;
+    const { toggleVariablePicker, dataMapperConfig, fieldWidth } = props;
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
 
-    const selectedVariables = dataMapperConfig.inputTypes.map(input => input.name);
+    const selectedVariables = dataMapperConfig ? dataMapperConfig.inputTypes.map(input => input.name) : [];
     const variables: DataMapperInputTypeInfo[] = [];
 
     const onSelectVariable = (evt: any, typeEntry: DataMapperInputTypeInfo) => {
@@ -74,43 +75,29 @@ export function VariablePicker(props: VariablePickerProps) {
 
     return (
         <>
-            <FormControl data-testid="data-mapper-form" className={formClasses.wizardFormControl}>
-                <div className={overlayClasses.configWizardContainer}>
-                    <ButtonWithIcon
-                        className={formClasses.overlayDeleteBtn}
-                        onClick={toggleVariablePicker}
-                        icon={<CloseRounded fontSize="small" />}
+            <div style={{width: fieldWidth + 5}}>
+                <FormAutocomplete
+                    itemList={variables}
+                    onChange={onSelectVariable}
+                    label={'Select Input type'}
+                    getItemLabel={(option) => option.name}
+                    renderItem={(option) => (
+                        <React.Fragment>
+                            {option.name} {option.type}
+                        </React.Fragment>
+                    )}
+                />
+                <div className={overlayClasses.buttonWrapper} style={{paddingTop: '0.5rem'}}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
+                    <PrimaryButton
+                        disabled={false}
+                        dataTestId={"datamapper-save-btn"}
+                        text={"Add"}
+                        fullWidth={false}
+                        onClick={onClickAdd}
                     />
-                    <div className={formClasses.formTitleWrapper}>
-                        <div className={formClasses.mainTitleWrapper}>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>Select Input Variables</Box>
-                            </Typography>
-                        </div>
-                    </div>
-                    <FormAutocomplete
-                        itemList={variables}
-                        onChange={onSelectVariable}
-                        label={'Select Input type'}
-                        getItemLabel={(option) => option.name}
-                        renderItem={(option) => (
-                            <React.Fragment>
-                                {option.name} {option.type}
-                            </React.Fragment>
-                        )}
-                    />
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
-                        <PrimaryButton
-                            disabled={false}
-                            dataTestId={"datamapper-save-btn"}
-                            text={"Add"}
-                            fullWidth={false}
-                            onClick={onClickAdd}
-                        />
-                    </div>
                 </div>
-            </FormControl>
+            </div>
         </>
     );
 }

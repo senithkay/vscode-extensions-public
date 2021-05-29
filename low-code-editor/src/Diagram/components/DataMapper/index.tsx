@@ -218,12 +218,12 @@ export function DataMapper(props: DataMapperProps) {
     let selectedNode;
 
     let maxFieldWidth: number = 200;
-    let inputHeight: number = 100;
-    let outputHeight: number = 100;
+    let inputHeight: number = 0;
+    let outputHeight: number = 0;
 
     if (dataMapperConfig) {
         const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
-        const positionVisitor = new DataMapperPositionVisitor(15, 15);
+        const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
         const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
 
         if (dataMapperConfig.inputTypes.length > 0) {
@@ -416,19 +416,37 @@ export function DataMapper(props: DataMapperProps) {
             }
         });
     }
+
+    // fix rectangle heights
+    if (inputComponents.length > 0) {
+        inputHeight += 65;
+    } else {
+        inputHeight += 40;
+    }
+
+    if (outputComponent.length > 0) {
+        outputHeight += 65;
+    } else {
+        outputHeight += 40;
+    }
+
+    if (showAddVariableForm) {
+        inputHeight += 117;
+    }
+
     return (
         <>
             <g id="outputComponent">
-                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight + 65} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
+                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
                 <SaveButton x={(maxFieldWidth * 2) + 400 + 75 - 32} y={65} onClick={() => { dataMapperStart(undefined); }} />
                 <OutputConfigureButton x={(maxFieldWidth * 2) + 400 - 64} y={65} onClick={toggleOutputConfigure} />
                 {outputComponent}
             </g>
             <g id="inputComponents">
-                <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight + 65} rx="6" x="80" y="60" />
+                <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
-                <AddVariableButton x={maxFieldWidth + 50} y={65} onClick={toggleSelectVariable} />
+                <AddVariableButton x={maxFieldWidth} y={70} onClick={toggleSelectVariable} />
                 {inputComponents}
             </g>
             <g>
@@ -466,12 +484,12 @@ export function DataMapper(props: DataMapperProps) {
                     )
                 }
                 {
+                    // todo: revert
                     showAddVariableForm && (
                         <DiagramOverlay
-                            position={{ x: maxFieldWidth + 50 + 64, y: 65 }}
-
+                            position={{ x: 105, y: 90 }}
                         >
-                            <VariablePicker dataMapperConfig={dataMapperConfig} toggleVariablePicker={toggleSelectVariable} />
+                            <VariablePicker fieldWidth={maxFieldWidth} dataMapperConfig={dataMapperConfig} toggleVariablePicker={toggleSelectVariable} />
                         </DiagramOverlay>
                     )
                 }
