@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
+    CaptureBindingPattern,
     LocalVarDecl,
     RecordTypeDesc,
     STKindChecker,
@@ -60,7 +61,7 @@ interface DataMapperProps {
 
 export function DataMapper(props: DataMapperProps) {
     const {
-        state, dataMapperStart
+        state, dataMapperStart, updateDataMapperConfig
     } = useContext(DiagramContext);
 
     const {
@@ -372,12 +373,47 @@ export function DataMapper(props: DataMapperProps) {
 
         if (selectedNode) {
             traversNode(selectedNode, dataPointVisitor);
-            traversNode(selectedNode, new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap));
+            const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap)
+            traversNode(selectedNode, mappingVisitor);
+            if (mappingVisitor.getMissingVarRefList().length > 0) {
+                stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
+                    value.forEach((varNode: STNode) => {
+                        if (STKindChecker.isLocalVarDecl(varNode)) {
+                            const varName = (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                                .variableName.value;
+
+                            mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                                if (missingVarName === varName) {
+                                    dataMapperConfig.inputTypes.push({
+                                        type: key,
+                                        name: varName,
+                                        node: varNode
+                                    });
+                                }
+                            })
+                        } else if (STKindChecker.isRequiredParam(varNode)) {
+                            const varName = varNode.paramName.value;
+                            mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                                if (missingVarName === varName) {
+                                    dataMapperConfig.inputTypes.push({
+                                        type: key,
+                                        name: varName,
+                                        node: varNode
+                                    });
+                                }
+                            })
+                        }
+                    })
+                })
+                updateDataMapperConfig(dataMapperConfig);
+            }
         }
 
         inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
             const { dataMapperViewState } = variableInfo.node;
-            inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
+            if (dataMapperViewState) {
+                inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
+            }
         });
     }
     return (

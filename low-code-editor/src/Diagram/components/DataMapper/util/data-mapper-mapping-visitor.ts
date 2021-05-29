@@ -30,6 +30,7 @@ export class DataMapperMappingVisitor implements Visitor {
     private sourcePoints: Map<string, SourcePointViewState>;
     private targetPoints: Map<string, TargetPointViewState>;
     private references: string[] = [];
+    private missingVariableRefName: string[] = [];
 
     constructor(sourcePoints: Map<string, SourcePointViewState>, targetPoints: Map<string, TargetPointViewState>) {
         this.sourcePoints = sourcePoints;
@@ -76,12 +77,27 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.references.forEach(ref => {
-                const connectionVS = this._generateConnection(
-                    ref,
-                    this.generateDataPointName(this.nameParts),
-                    node.initializer.position
-                );
-                this.sourcePoints.get(ref).connections.push(connectionVS);
+                let dataPointRef;
+                const refArray = ref.split('.');
+
+                do {
+                    dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
+                    if (dataPointRef === undefined && refArray.length > 1) {
+                        refArray.splice(refArray.length - 1, 1);
+                    }
+                } while (dataPointRef === undefined && refArray.length > 1);
+
+                if (dataPointRef) {
+                    const connectionVS = this._generateConnection(
+                        this.generateDataPointName(refArray),
+                        this.generateDataPointName(this.nameParts),
+                        node.initializer.position
+                    );
+                    dataPointRef.connections.push(connectionVS);
+                } else {
+                    this.missingVariableRefName.push(this.generateDataPointName(refArray));
+                }
+
             });
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
@@ -150,5 +166,9 @@ export class DataMapperMappingVisitor implements Visitor {
         }
 
         return undefined;
+    }
+
+    public getMissingVarRefList(): string[] {
+        return this.missingVariableRefName;
     }
 }

@@ -16,7 +16,7 @@
 
 import React, { useContext, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
@@ -75,12 +75,20 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars
-            .forEach((el: LocalVarDecl) => {
-                variables.push({
-                    name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
-                    type,
-                    node: el
-                })
+            .forEach((el: STNode) => {
+                if (STKindChecker.isLocalVarDecl(el)) {
+                    variables.push({
+                        name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
+                        type,
+                        node: el
+                    })
+                } else if (STKindChecker.isRequiredParam(el)) {
+                    variables.push({
+                        name: el.paramName.value,
+                        type,
+                        node: el
+                    })
+                }
             });
     });
 

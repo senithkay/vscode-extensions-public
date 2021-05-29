@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     BinaryExpression,
     CaptureBindingPattern,
+    CheckExpression,
     FieldAccess,
     IdentifierToken,
     LocalVarDecl,
@@ -321,6 +322,14 @@ export class DataMapperInitVisitor implements Visitor {
 
         node.lhsExpr.dataMapperViewState = new DataMapperViewState();
         node.rhsExpr.dataMapperViewState = new DataMapperViewState();
+    }
+
+    beginVisitCheckExpression(node: CheckExpression) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperViewState();
+        }
+
+        node.expression.dataMapperViewState = new DataMapperViewState();
     }
 
     beginVisitMethodCall(node: MethodCall) {

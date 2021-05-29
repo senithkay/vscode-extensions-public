@@ -20,7 +20,6 @@ import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 import { DataMapperInitVisitor, VisitingType } from "./data-mapper-init-visitor";
-import { json } from '../../Portals/ConfigForm/Elements';
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];

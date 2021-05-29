@@ -50,64 +50,64 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { processConfig, onCancel, onSave } = props;
     const { state, dataMapperStart, toggleDiagramOverlay } = useContext(DiagramContext);
     const { stSymbolInfo } = state;
-    const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-    const defaultVariableName = stSymbolInfo ?
-        genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
-    const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_OUTPUT);
-    const [inputTypes, setParameters] = useState(dataMapperConfig.inputTypes);
-    const [outputType, setReturnType] = useState(dataMapperConfig.outputType);
-    const [variableName, setVariableName] = useState(defaultVariableName);
-    const [sampleStructure, setSampleStructure] = useState<string>('');
-    const [isVariableNameValid, setIsVariableNameValidity] = useState(true);
-    const [isJsonValid, setIsJsonValid] = useState(true);
+    // const dataMapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+    // const defaultVariableName = stSymbolInfo ?
+    //     genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
+    // const [dataMapperStep, setDataMapperStep] = useState(DataMapperSteps.SELECT_OUTPUT);
+    // const [inputTypes, setParameters] = useState(dataMapperConfig.inputTypes);
+    // const [outputType, setReturnType] = useState(dataMapperConfig.outputType);
+    // const [variableName, setVariableName] = useState(defaultVariableName);
+    // const [sampleStructure, setSampleStructure] = useState<string>('');
+    // const [isVariableNameValid, setIsVariableNameValidity] = useState(true);
+    // const [isJsonValid, setIsJsonValid] = useState(true);
 
-    const varData: DataMapperInputTypeInfo[] = [];
-    const typeArray: DataMapperOutputTypeInfo[] = [];
+    // const varData: DataMapperInputTypeInfo[] = [];
+    // const typeArray: DataMapperOutputTypeInfo[] = [];
 
-    stSymbolInfo.recordTypeDescriptions.forEach((node: STNode) => {
-        const typeData = node.typeData;
-        const typeSymbol = typeData.typeSymbol;
-        const moduleID = typeSymbol.moduleID;
+    // stSymbolInfo.recordTypeDescriptions.forEach((node: STNode) => {
+    //     const typeData = node.typeData;
+    //     const typeSymbol = typeData.typeSymbol;
+    //     const moduleID = typeSymbol.moduleID;
 
-        if (moduleID) {
-            typeArray.push({
-                variableName: '',
-                type: 'record',
-                typeInfo: {
-                    name: typeSymbol.name,
-                    ...moduleID
-                }
-            })
-        }
-    });
+    //     if (moduleID) {
+    //         typeArray.push({
+    //             variableName: '',
+    //             type: 'record',
+    //             typeInfo: {
+    //                 name: typeSymbol.name,
+    //                 ...moduleID
+    //             }
+    //         })
+    //     }
+    // });
 
-    stSymbolInfo.variables.forEach((values: STNode[], key: string) => {
-        values.forEach((varNode: LocalVarDecl) => {
-            varData.push({
-                type: key,
-                name: (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
-                node: varNode
-            });
-        })
-    });
+    // stSymbolInfo.variables.forEach((values: STNode[], key: string) => {
+    //     values.forEach((varNode: LocalVarDecl) => {
+    //         varData.push({
+    //             type: key,
+    //             name: (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
+    //             node: varNode
+    //         });
+    //     })
+    // });
 
-    const handleNextClick = () => {
-        if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
-            setDataMapperStep(DataMapperSteps.SELECT_INPUT);
-        } else {
-            let fields: DataMapperOutputField[] = [];
-            if (outputType.type === 'json' && sampleStructure.length > 0) {
-                fields = generateFieldStructureForJsonSample(JSON.parse(sampleStructure));
-            }
-            processConfig.config = {
-                inputTypes,
-                outputType: { ...outputType, sampleStructure, variableName, fields },
-                wizardType: processConfig.wizardType
-            };
-            onSave();
-            dataMapperStart(processConfig.config);
-        }
-    }
+    // const handleNextClick = () => {
+    //     if (dataMapperStep === DataMapperSteps.SELECT_OUTPUT) {
+    //         setDataMapperStep(DataMapperSteps.SELECT_INPUT);
+    //     } else {
+    //         let fields: DataMapperOutputField[] = [];
+    //         if (outputType.type === 'json' && sampleStructure.length > 0) {
+    //             fields = generateFieldStructureForJsonSample(JSON.parse(sampleStructure));
+    //         }
+    //         processConfig.config = {
+    //             inputTypes,
+    //             outputType: { ...outputType, sampleStructure, variableName, fields },
+    //             wizardType: processConfig.wizardType
+    //         };
+    //         onSave();
+    //         dataMapperStart(processConfig.config);
+    //     }
+    // }
 
     useEffect(() => {
         toggleDiagramOverlay();
@@ -118,28 +118,28 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         });
     }, []);
 
-    const addNewParam = (type: DataMapperInputTypeInfo) => {
-        setParameters([...inputTypes, type])
-    }
+    // const addNewParam = (type: DataMapperInputTypeInfo) => {
+    //     setParameters([...inputTypes, type])
+    // }
 
-    const removeParam = (index: number) => {
-        setParameters([...inputTypes.splice(index, 1)])
-    }
+    // const removeParam = (index: number) => {
+    //     setParameters([...inputTypes.splice(index, 1)])
+    // }
 
-    const handleSampleStructureUpdate = (value: string) => {
-        setSampleStructure(value);
-    }
+    // const handleSampleStructureUpdate = (value: string) => {
+    //     setSampleStructure(value);
+    // }
 
-    const handleJsonValidation = (isValid: boolean) => {
-        setIsJsonValid(isValid);
-    }
+    // const handleJsonValidation = (isValid: boolean) => {
+    //     setIsJsonValid(isValid);
+    // }
 
-    const updateVariableNameOnChange = (value: string) => {
-        setVariableName(value);
-    }
+    // const updateVariableNameOnChange = (value: string) => {
+    //     setVariableName(value);
+    // }
 
-    const formClasses = useFormStyles();
-    const overlayClasses = wizardStyles();
+    // const formClasses = useFormStyles();
+    // const overlayClasses = wizardStyles();
 
     return (
         <></>

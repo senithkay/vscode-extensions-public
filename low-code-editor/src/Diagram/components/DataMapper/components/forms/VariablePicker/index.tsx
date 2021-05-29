@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 import classNames from 'classnames';
@@ -53,7 +53,16 @@ export function VariablePicker(props: VariablePickerProps) {
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars
-            .filter((el: LocalVarDecl) => selectedVariables.indexOf((el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value) === -1)
+            .filter((el: STNode) => {
+                let varName: string;
+                if (STKindChecker.isLocalVarDecl(el)) {
+                    varName = (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+                } else if (STKindChecker.isRequiredParam(el)) {
+                    varName = el.paramName.value;
+                }
+
+                return selectedVariables.indexOf(varName) === -1;
+            })
             .forEach((el: LocalVarDecl) => {
                 variables.push({
                     name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
