@@ -110,7 +110,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     // }
 
     useEffect(() => {
-        toggleDiagramOverlay();
+        onCancel();
         dataMapperStart({
             inputTypes: [],
             outputType: undefined,

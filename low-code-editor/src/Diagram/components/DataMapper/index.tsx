@@ -68,7 +68,7 @@ export function DataMapper(props: DataMapperProps) {
         appInfo,
         stSymbolInfo,
         onMutate: dispatchMutations,
-        dataMapperConfig, // todo: revert
+        dataMapperConfig,
         currentApp,
         onFitToScreen
     } = state
@@ -93,10 +93,15 @@ export function DataMapper(props: DataMapperProps) {
     const [showAddVariableForm, setShowAddVariableForm] = useState(false);
     const [showConfigureOutputForm, setShowConfigureOutputForm] = useState(false);
     const [isExistingOutputSelected, setIsExistingOutputSelected] = useState(false);
+    const [isJsonRecordTypeSelected, setIsJsonRecordTypeSelected] = useState(false);
     const drawingLineRef = useRef(null);
 
     const onSave = (modifications: STModification[]) => {
         dispatchMutations(modifications);
+    }
+
+    const handleSwitchBackToDiagram = () => {
+        dataMapperStart(undefined);
     }
 
     const toggleSelectVariable = () => {
@@ -107,6 +112,8 @@ export function DataMapper(props: DataMapperProps) {
     const toggleOutputConfigure = () => {
         setShowConfigureOutputForm(!showConfigureOutputForm);
         setShowAddVariableForm(false);
+        setIsExistingOutputSelected(false);
+        setIsJsonRecordTypeSelected(false);
     }
 
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
@@ -418,7 +425,7 @@ export function DataMapper(props: DataMapperProps) {
         });
     }
 
-    // fix rectangle heights
+    // fix rectangle heights based on forms
     if (inputComponents.length > 0) {
         inputHeight += 65;
     } else {
@@ -426,7 +433,7 @@ export function DataMapper(props: DataMapperProps) {
     }
 
     if (outputComponent.length > 0) {
-        outputHeight += 65;
+        outputHeight += 65 + 55;
     } else {
         outputHeight += 40;
     }
@@ -436,21 +443,34 @@ export function DataMapper(props: DataMapperProps) {
     }
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
-        outputHeight += 315;
+        if (isJsonRecordTypeSelected) {
+            outputHeight += 332;
+        } else {
+            outputHeight += 265;
+        }
     }
 
     if (showConfigureOutputForm && isExistingOutputSelected) {
-        outputHeight += 222;
+        outputHeight += 172;
     }
 
-
+    // save button x position
+    let saveYPosition = outputHeight;
+    if (selectedNode) {
+        const dataMapperViewState: DataMapperViewState = (selectedNode as STNode).dataMapperViewState;
+        if (dataMapperViewState) {
+            saveYPosition = dataMapperViewState.bBox.h + 100 + 15;
+        }
+    }
 
     return (
         <>
+            {!selectedNode && <g><text x="45" y="30" onClick={handleSwitchBackToDiagram}>←  Back to the Diagram</text></g>}
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
                 {!selectedNode && <OutputConfigureButton x={(maxFieldWidth * 2) + 400} y={70} onClick={toggleOutputConfigure} />}
+                {selectedNode && <SaveButton x={(maxFieldWidth * 2) + 400 + 32} y={saveYPosition} onClick={handleSwitchBackToDiagram} />}
                 {outputComponent}
             </g>
             <g id="inputComponents">
@@ -514,6 +534,7 @@ export function DataMapper(props: DataMapperProps) {
                                 dataMapperConfig={dataMapperConfig}
                                 toggleVariablePicker={toggleOutputConfigure}
                                 onExistingVarOptionSelected={setIsExistingOutputSelected}
+                                onJsonRecordTypeSelected={setIsJsonRecordTypeSelected}
                             />
                         </DiagramOverlay>
                     )

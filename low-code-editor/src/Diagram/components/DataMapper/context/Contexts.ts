@@ -12,7 +12,6 @@
  */
 
 import createContext from '../../../../Contexts/createContext';
-import { DataMapperConfig } from '../../Portals/ConfigForm/types';
 
 const reducer = (state: any, action: any) => {
     switch (action.type) {
@@ -25,14 +24,7 @@ const actions = {
 
 }
 
-const initialState: DataMapperConfig = {
-    elementName: '',
-    inputTypes: [],
-    outputType: undefined
-};
-
 export const { Context, Provider } = createContext(
     reducer,
     actions,
-    initialState
 );

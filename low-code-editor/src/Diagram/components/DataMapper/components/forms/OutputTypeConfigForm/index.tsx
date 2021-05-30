@@ -42,6 +42,7 @@ interface OutputTypeConfigForm {
     dataMapperConfig: DataMapperConfig
     toggleVariablePicker: () => void;
     onExistingVarOptionSelected: (status: boolean) => void;
+    onJsonRecordTypeSelected: (status: boolean) => void;
 }
 
 enum SelectedDataType {
@@ -60,7 +61,13 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const { onMutate, trackAddStatement, stSymbolInfo, currentApp, targetPosition } = diagramState;
     const defaultVariableName = stSymbolInfo ?
         genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
-    const { dataMapperConfig, toggleVariablePicker, fieldWidth, onExistingVarOptionSelected } = props;
+    const {
+        dataMapperConfig,
+        toggleVariablePicker,
+        fieldWidth,
+        onExistingVarOptionSelected,
+        onJsonRecordTypeSelected
+    } = props;
     const [config] = useState(dataMapperConfig);
     const [generationType, setGenerationType] = useState<GenerationType>(GenerationType.NEW);
     const [selectedDataType, setSelectedDataType] = useState<SelectedDataType>(SelectedDataType.DEFAULT);
@@ -107,20 +114,23 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     }
 
     const handleOnTypeChange = (value: string) => {
-        config.outputType = {
-            type: value.toLowerCase(),
-            generationType,
-            variableName
-        }
-
         switch (value.toLocaleLowerCase()) {
             case 'record':
                 setSelectedDataType(SelectedDataType.RECORD);
+                onJsonRecordTypeSelected(true);
                 break;
             case 'json':
                 setSelectedDataType(SelectedDataType.JSON);
+                onJsonRecordTypeSelected(true);
                 break;
             default:
+                setSelectedDataType(SelectedDataType.DEFAULT);
+                onJsonRecordTypeSelected(false);
+                config.outputType = {
+                    type: value.toLocaleLowerCase(),
+                    generationType,
+                    variableName
+                }
         }
     }
 
@@ -308,13 +318,6 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     return (
         <>
             <div style={{ width: fieldWidth + 40 }}>
-                <div className={formClasses.formTitleWrapper}>
-                    <div className={formClasses.mainTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Select Input Variables</Box>
-                        </Typography>
-                    </div>
-                </div>
                 <SwitchToggle
                     text="Use Existing Variable"
                     onChange={handleOutputConfigTypeChange}
@@ -322,7 +325,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                 />
                 {generationType === GenerationType.NEW && createNewVariableComponent}
                 {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
-                <div className={overlayClasses.buttonWrapper} style={{paddingTop: '0.5rem'}} >
+                <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }} >
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
                     <PrimaryButton
                         disabled={false}
