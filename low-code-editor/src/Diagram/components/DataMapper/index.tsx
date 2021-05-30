@@ -92,6 +92,7 @@ export function DataMapper(props: DataMapperProps) {
     const [expressionEditorText, setExpressionEditorText] = useState(undefined);
     const [showAddVariableForm, setShowAddVariableForm] = useState(false);
     const [showConfigureOutputForm, setShowConfigureOutputForm] = useState(false);
+    const [isExistingOutputSelected, setIsExistingOutputSelected] = useState(false);
     const drawingLineRef = useRef(null);
 
     const onSave = (modifications: STModification[]) => {
@@ -434,13 +435,22 @@ export function DataMapper(props: DataMapperProps) {
         inputHeight += 117;
     }
 
+    if (showConfigureOutputForm && !isExistingOutputSelected) {
+        outputHeight += 315;
+    }
+
+    if (showConfigureOutputForm && isExistingOutputSelected) {
+        outputHeight += 222;
+    }
+
+
+
     return (
         <>
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
-                <SaveButton x={(maxFieldWidth * 2) + 400 + 75 - 32} y={65} onClick={() => { dataMapperStart(undefined); }} />
-                <OutputConfigureButton x={(maxFieldWidth * 2) + 400 - 64} y={65} onClick={toggleOutputConfigure} />
+                {!selectedNode && <OutputConfigureButton x={(maxFieldWidth * 2) + 400} y={70} onClick={toggleOutputConfigure} />}
                 {outputComponent}
             </g>
             <g id="inputComponents">
@@ -496,10 +506,15 @@ export function DataMapper(props: DataMapperProps) {
                 {
                     showConfigureOutputForm && (
                         <DiagramOverlay
-                            position={{ x: (maxFieldWidth * 2) + 400 - 64, y: 65 }}
+                            position={{ x: maxFieldWidth + 400 + 60, y: 90 }}
 
                         >
-                            <OutputTypeConfigForm dataMapperConfig={dataMapperConfig} toggleVariablePicker={toggleOutputConfigure} />
+                            <OutputTypeConfigForm
+                                fieldWidth={maxFieldWidth}
+                                dataMapperConfig={dataMapperConfig}
+                                toggleVariablePicker={toggleOutputConfigure}
+                                onExistingVarOptionSelected={setIsExistingOutputSelected}
+                            />
                         </DiagramOverlay>
                     )
                 }

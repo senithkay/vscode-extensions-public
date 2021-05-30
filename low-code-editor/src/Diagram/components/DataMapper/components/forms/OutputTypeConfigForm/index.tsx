@@ -38,8 +38,10 @@ import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } f
 import { checkVariableName, genVariableName } from '../../../../Portals/utils';
 import { getDefaultValueForType } from '../../../util';
 interface OutputTypeConfigForm {
+    fieldWidth: number;
     dataMapperConfig: DataMapperConfig
     toggleVariablePicker: () => void;
+    onExistingVarOptionSelected: (status: boolean) => void;
 }
 
 enum SelectedDataType {
@@ -58,7 +60,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const { onMutate, trackAddStatement, stSymbolInfo, currentApp, targetPosition } = diagramState;
     const defaultVariableName = stSymbolInfo ?
         genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
-    const { dataMapperConfig, toggleVariablePicker } = props;
+    const { dataMapperConfig, toggleVariablePicker, fieldWidth, onExistingVarOptionSelected } = props;
     const [config] = useState(dataMapperConfig);
     const [generationType, setGenerationType] = useState<GenerationType>(GenerationType.NEW);
     const [selectedDataType, setSelectedDataType] = useState<SelectedDataType>(SelectedDataType.DEFAULT);
@@ -153,8 +155,10 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const handleOutputConfigTypeChange = () => {
         if (generationType === GenerationType.NEW) {
             setGenerationType(GenerationType.ASSIGNMENT);
+            onExistingVarOptionSelected(true);
         } else {
             setGenerationType(GenerationType.NEW);
+            onExistingVarOptionSelected(false);
         }
     }
 
@@ -303,39 +307,33 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
 
     return (
         <>
-            <FormControl data-testid="data-mapper-form" className={formClasses.wizardFormControl}>
-                <div className={overlayClasses.configWizardContainer}>
-                    <ButtonWithIcon
-                        className={formClasses.overlayDeleteBtn}
-                        onClick={toggleVariablePicker}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
-                    <div className={formClasses.formTitleWrapper}>
-                        <div className={formClasses.mainTitleWrapper}>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>Select Input Variables</Box>
-                            </Typography>
-                        </div>
-                    </div>
-                    <SwitchToggle
-                        text="Use Existing Variable"
-                        onChange={handleOutputConfigTypeChange}
-                        initSwitch={generationType === GenerationType.ASSIGNMENT}
-                    />
-                    {generationType === GenerationType.NEW && createNewVariableComponent}
-                    {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
-                        <PrimaryButton
-                            disabled={false}
-                            dataTestId={"datamapper-save-btn"}
-                            text={"Save"}
-                            fullWidth={false}
-                            onClick={handleSave}
-                        />
+            <div style={{ width: fieldWidth + 40 }}>
+                <div className={formClasses.formTitleWrapper}>
+                    <div className={formClasses.mainTitleWrapper}>
+                        <Typography variant="h4">
+                            <Box paddingTop={2} paddingBottom={2}>Select Input Variables</Box>
+                        </Typography>
                     </div>
                 </div>
-            </FormControl>
+                <SwitchToggle
+                    text="Use Existing Variable"
+                    onChange={handleOutputConfigTypeChange}
+                    initSwitch={generationType === GenerationType.ASSIGNMENT}
+                />
+                {generationType === GenerationType.NEW && createNewVariableComponent}
+                {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
+                <div className={overlayClasses.buttonWrapper} style={{paddingTop: '0.5rem'}} >
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
+                    <PrimaryButton
+                        disabled={false}
+                        dataTestId={"datamapper-save-btn"}
+                        text={"Save"}
+                        fullWidth={false}
+                        onClick={handleSave}
+                    />
+                </div>
+            </div>
         </>
     );
 }
+// 315 & 222
