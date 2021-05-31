@@ -928,6 +928,11 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
                 }
+
+                if (response.returnType && formField?.isArray) {
+                    // set array type
+                    response.returnType = response.returnType.includes('|') ? `(${response.returnType})[]` : `${response.returnType}[]`;
+                }
                 break;
 
             case "tuple":
