@@ -23,6 +23,8 @@ import { DeleteConfirmDialog } from "../../Portals/Overlay/Elements";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";
+import { removeStatement } from "../../../utils/modification-util";
+import { STSymbolInfo } from "../../../../Definitions/store";
 
 export interface DeleteBtnProps {
     cx: number;
@@ -36,7 +38,7 @@ export interface DeleteBtnProps {
 
 export function DeleteBtn(props: DeleteBtnProps) {
     const { onMutate } = useContext(DiagramContext).callbacks;
-    const { state: { isReadOnly } } = useContext(Context);
+    const { state: { isReadOnly, stSymbolInfo } } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
 
@@ -69,18 +71,28 @@ export function DeleteBtn(props: DeleteBtnProps) {
     const onDeleteConfirm = () => {
         // delete logic
         if (model) {
-            const position = model.position;
-            const modification: STModification = {
-                type: "delete",
-                ...position
-            };
-            if (createModifications) {
-                const deleteModification: STModification[] = createModifications(model);
-                if (deleteModification) {
-                    modifications = deleteModification;
-                }
-            }
-            modifications.push(modification);
+            // delete action
+            const deleteAction: STModification = removeStatement(
+                model.position
+            );
+            modifications.push(deleteAction);
+
+            // used configurable
+            const configurables: Map<string, STNode> = stSymbolInfo.configurables;
+            const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
+            const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
+            
+            // delete unused configurables
+            usedConfigurables.forEach(configurable => {
+                // check used configurables usages
+                if(variableReferences.has(configurable) && variableReferences.get(configurable).length === 1){
+                    const deleteConfig: STModification = removeStatement(
+                        configurables.get(configurable).position
+                    );
+                    modifications.push(deleteConfig);
+                }                
+            });
+
             onMutate(modifications);
             closeConfirmDialog();
         } else if (onDraftDelete) {
