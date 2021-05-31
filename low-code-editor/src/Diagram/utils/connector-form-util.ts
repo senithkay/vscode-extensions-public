@@ -406,7 +406,6 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             });
             break;
         case 'ballerinax_googleapis_sheets_Client':
-            // ballerinax_googleapis.sheets_Client
             functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
                     case 'init':
