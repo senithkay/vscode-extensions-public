@@ -122,6 +122,11 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
             case 'json':
                 setSelectedDataType(SelectedDataType.JSON);
                 onJsonRecordTypeSelected(true);
+                config.outputType = {
+                    type: value.toLocaleLowerCase(),
+                    generationType,
+                    variableName
+                }
                 break;
             default:
                 setSelectedDataType(SelectedDataType.DEFAULT);
