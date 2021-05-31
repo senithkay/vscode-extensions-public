@@ -25,7 +25,7 @@ The aforementioned are some of the main language support features offered by the
 
 ---
 ## Run and Debug
-The Ballerina language is supported with source and test debugging and remote debugging capabilities. For more details, see [Ballerina Debugging](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/debugging/) .
+The Ballerina language extension has built-in support for running/debugging Ballerina programs and tests, including remote debugging capabilities as well. For more details, see [Ballerina Debugging](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/debugging/).
 ![Debugger](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/debugger.gif?raw=true)
 
 ---
