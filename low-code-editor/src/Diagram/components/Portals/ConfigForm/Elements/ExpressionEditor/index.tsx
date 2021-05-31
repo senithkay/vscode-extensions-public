@@ -172,7 +172,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
-    const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
+    const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
