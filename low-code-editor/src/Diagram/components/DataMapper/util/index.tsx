@@ -15,7 +15,7 @@ import React from 'react';
 import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
+import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 

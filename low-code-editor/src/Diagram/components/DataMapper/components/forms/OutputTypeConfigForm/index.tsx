@@ -89,13 +89,13 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                     variables.push({
                         name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
                         type,
-                        node: el
+                        // node: el
                     })
                 } else if (STKindChecker.isRequiredParam(el)) {
                     variables.push({
                         name: el.paramName.value,
                         type,
-                        node: el
+                        // node: el
                     })
                 }
             });

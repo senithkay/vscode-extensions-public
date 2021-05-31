@@ -230,43 +230,64 @@ export function DataMapper(props: DataMapperProps) {
     let outputHeight: number = 0;
 
     if (dataMapperConfig) {
-        const inputVariables: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
+        const inputVariableInfo: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
+
+        const inputSTNodes: STNode[] = [];
+        inputVariableInfo.forEach(varInfo => {
+            stSymbolInfo.variables.get(varInfo.type).forEach((node: STNode) => {
+                let varName: string;
+                if (STKindChecker.isLocalVarDecl(node)) {
+                    varName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+                } else if (STKindChecker.isRequiredParam(node)) {
+                    varName = node.paramName.value;
+                }
+
+                if (varName === varInfo.name) {
+                    inputSTNodes.push(node);
+                }
+            });
+        });
+
         const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
         const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
 
-        if (dataMapperConfig.inputTypes.length > 0) {
+        if (inputSTNodes.length > 0) {
             inputHeight = 0; // reset height from default value
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
-                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
-                traversNode(variableInfo.node, new DataMapperInitVisitor(VisitingType.INPUT));
+            inputSTNodes.forEach((node: STNode) => {
+                if (STKindChecker.isLocalVarDecl(node)) {
+                    const varSTNode: LocalVarDecl = node as LocalVarDecl;
+                    addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
 
-                if (variableInfo.node.dataMapperTypeDescNode) {
-                    switch (variableInfo.node.dataMapperTypeDescNode.kind) {
-                        case 'RecordTypeDesc': {
-                            (variableInfo.node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
-                            })
+                    traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+                    if (node.dataMapperTypeDescNode) {
+                        switch (node.dataMapperTypeDescNode.kind) {
+                            case 'RecordTypeDesc': {
+                                (node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                                    completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+                                })
+                            }
                         }
                     }
+                } else {
+                    traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
                 }
+
             });
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                const varSTNode: LocalVarDecl = variableInfo.node as LocalVarDecl;
-                traversNode(varSTNode, dataMapperInputSizingVisitor);
+            inputSTNodes.forEach((node: STNode) => {
+                traversNode(node, dataMapperInputSizingVisitor);
             });
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo, i: number) => {
-                inputHeight += (variableInfo.node.dataMapperViewState as DataMapperViewState).bBox.h;
-                if (i < inputVariables.length - 1) {
+            inputSTNodes.forEach((node: STNode, i: number) => {
+                inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
+                if (i < inputSTNodes.length - 1) {
                     inputHeight += 40 // todo: convert to constant
                 }
             });
 
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                traversNode(variableInfo.node, positionVisitor);
+            inputSTNodes.forEach((node: STNode) => {
+                traversNode(node, positionVisitor);
             });
             maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
 
@@ -321,7 +342,8 @@ export function DataMapper(props: DataMapperProps) {
              * Run init visitors and set defaults for everything
              * Run sizing visitor and calculate height and width for input and output seperately
              * Run position visitor and set the positions
-             *
+             * Run data point visitor extract out the data points in the diagram
+             * Run mapping visitor to identify connections between positions
              */
             outputHeight = 0; // reset height from default value
             // start: Initialization
@@ -373,11 +395,9 @@ export function DataMapper(props: DataMapperProps) {
         // datapoint poisitions
         const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
 
-        if (inputVariables.length > 0) {
-            inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-                traversNode(variableInfo.node, dataPointVisitor);
-            });
-        }
+        inputSTNodes.forEach((node: STNode) => {
+            traversNode(node, dataPointVisitor);
+        });
 
         if (selectedNode) {
             traversNode(selectedNode, dataPointVisitor);
@@ -417,10 +437,15 @@ export function DataMapper(props: DataMapperProps) {
             }
         }
 
-        inputVariables.forEach((variableInfo: DataMapperInputTypeInfo) => {
-            const { dataMapperViewState } = variableInfo.node;
+        inputSTNodes.forEach((node: STNode) => {
+            const { dataMapperViewState } = node;
             if (dataMapperViewState) {
-                inputComponents.push(getDataMapperComponent(dataMapperViewState.type, { model: variableInfo.node, isMain: true, onDataPointClick, offSetCorrection: 10 }))
+                inputComponents.push(
+                    getDataMapperComponent(
+                        dataMapperViewState.type,
+                        { model: node, isMain: true, onDataPointClick, offSetCorrection: 10 }
+                    )
+                );
             }
         });
     }
