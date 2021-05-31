@@ -1,12 +1,47 @@
-# Ballerina extension for Visual Studio Code
+# Ballerina Extension for Visual Studio Code
 
-The VS Code Ballerina extension provides the Ballerina development capabilities in VS Code. 
+The Visual Studio Code Ballerina extension provides a set of rich language features along with an enhanced user experience. It offers easy development, execution, debugging, and testing for the Ballerina programming language. The Ballerina language possesses bidirectional mapping between its syntaxes and the visual representation. You can further visualize the graphical representaion of your Ballerina source via the extension.
 
-For instructions on the topics below about the VS Code extension, go to the [Visual Studio Code Extension Guide](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/).
+---
+## Language Intelligence
+- IntelliSense
+    ![IntelliSense](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/intellisense.gif?raw=true)
+- Code Navigation
+    ![Code Navigation](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-navigation.gif?raw=true)
+- Diagnostics
+    ![Diagnostics](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagnostics.gif?raw=true)
+- Code Formatting
+    ![Code Formatting](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-formatting.gif?raw=true)
+- Code Refactoring
+    ![Code Refactoring](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-refactoring.gif?raw=true)
+- Code Actions
+    ![Code Actions](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-action.gif?raw=true)
+- Code Lenses
+    ![Code Lenses](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-lens.gif?raw=true)
+- Data Mapping
+    ![Data Mapper](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.gif?raw=true)
 
-- Installing
-- Language Intelligence
-- VSCode Commands
-- Run and Debug
-- Customizations
-- Graphical Editor
+Aforementioned are some of the main language support features offered by the extension. Refer to [Ballerina Language Support](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/language-support/) for more details.
+
+---
+## Run and Debug
+The Ballerina language is supported with source and test debugging, and remote debugging capabilities. Refer to [Ballerina Debugging](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/debugging/) for more details.
+![Debugger](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/debugger.gif?raw=true)
+
+---
+## Diagram Editor
+The extension provides a graphical view that helps visualizing the Ballerina source. Refer to [Diagram Editor](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/diagram-editor/) for more details.
+![Diagram](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagram.gif?raw=true)
+
+---
+## VS Code Commands
+There are a set of Ballerina specific palette commands available for quick access. Refer to [VS Code Commands](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/vs-code-commands/) for more details.
+![Palette Commands](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/commands.gif?raw=true)
+
+---
+## Configurations
+Additionally, there are a set of customisations allowed for the extension. Refer to [Ballerina Configurations](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/configurations/) for more details.
+
+---
+## License
+By downloading and using the Visual Studio Code Ballerina extension, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
