@@ -112,6 +112,15 @@ export function JsonType(props: JsonTypeProps) {
                     )
                 }
             </g>
+            <g render-order="1" >
+                <text
+                    x={viewState.bBox.x + viewState.bBox.w - 40}
+                    y={viewState.bBox.y + DefaultConfig.dotGap + 5}
+                    height="50"
+                >
+                    <tspan className="plus-symbol"> + </tspan>
+                </text>
+            </g>
             {fields}
             {/* {dataPoints} */}
         </g>
