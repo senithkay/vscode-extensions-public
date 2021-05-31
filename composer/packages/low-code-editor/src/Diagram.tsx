@@ -76,7 +76,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
                 <DiagramGenErrorBoundary>
                     <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.state.filePath}
                         startLine={this.state.startLine.toString()} updated={this.updated}
-                        startCharacter={this.state.startColumn.toString()} />
+                        startCharacter={this.state.startColumn.toString()} panX="-30" panY="0" scale="0.9"/>
                 </DiagramGenErrorBoundary>
             </div>
         );
