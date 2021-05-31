@@ -40,7 +40,7 @@ export interface ConnectorEvents {
 }
 
 export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizardProps) {
-  const { onModify } = useContext(DiagramContext).callbacks;
+  const { modifyTrigger } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -87,7 +87,7 @@ export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizard
   const handleOnSave = () => {
     setShowConfirmDialog(false);
     // dispatch and close the wizard
-    onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
+    modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
       TRIGGER_NAME: "manualwebhook",
       PORT: 8090,
       RES_PATH: currentPath,

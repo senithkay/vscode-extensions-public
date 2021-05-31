@@ -123,7 +123,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
                             param.type = "collection";
-                            param.collectionDataType = PrimitiveBalType.String;
+                            param.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
                             param.isUnion = false;
                             param.fields = [];
                             param.tooltip = tooltipMessages.SMTP.to
@@ -224,14 +224,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "listMessages") {
                     value.parameters.find(fields => fields.name === "filter").hide = true;
                 }
-
+                // set default value to userId field
+                const userIdField = value.parameters.find(field => field.name === "userId");
+                if (userIdField && !(userIdField?.value)) {
+                    value.parameters.find(field => field.name === "userId").value = `"me"`;
+                }
                 filteredFunctions.set(key, value);
-
-                // add default value to userId field
-                let formField: FormField[] = [];
-                // const state = store.getState();
-                value.parameters[0].value = state.userInfo?.user?.email ? `"${state.userInfo?.user?.email}"` : undefined;
-                formField = [value.parameters[0], ...formField];
             });
             break;
         case "ballerinax_googleapis.calendar_Client":

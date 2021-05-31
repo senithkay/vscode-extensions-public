@@ -35,7 +35,7 @@ export interface DeleteBtnProps {
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state: { isReadOnly } } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
@@ -81,7 +81,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
                 }
             }
             modifications.push(modification);
-            onMutate(modifications);
+            modifyDiagram(modifications);
             closeConfirmDialog();
         } else if (onDraftDelete) {
             onDraftDelete();

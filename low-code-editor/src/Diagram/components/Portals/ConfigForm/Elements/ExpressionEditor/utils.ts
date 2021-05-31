@@ -149,9 +149,11 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                     if (field.typeInfo){
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
+                } else if (field.type === "tuple") {
+                    type = transformFormFieldTypeToString(field);
                 } else if (field.type === "collection") {
-                    if (field.collectionDataType) {
-                        type = field.collectionDataType + "[]";
+                    if (field.collectionDataType?.type) {
+                        type = field.collectionDataType.type + "[]";
                     }
                 } else if (field.type) {
                     type = field.type;
@@ -163,11 +165,31 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             }
             return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
         }
+    } else if (model.type === "tuple") {
+        if (model.fields) {
+            const allTypes: string[] = [];
+            for (const field of model.fields) {
+                let type;
+                if (field.type === "record" && field.typeInfo) {
+                    type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                } else if (field.type) {
+                    type = field.type;
+                }
+                if (type && field.isParam && !field.noCodeGen) {
+                    allTypes.push(type.toString());
+                }
+            }
+            return "[" + allTypes.join(",") + "]";
+        }
     } else if (model.type === "collection") {
         if (model.typeInfo) {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
         } else if (model.collectionDataType) {
-            return model.collectionDataType + "[]";
+            const returnTypeString = transformFormFieldTypeToString(model.collectionDataType);
+            if (model?.isArray) {
+                return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
+            }
+            return returnTypeString;
         }
     } else if (model.type === "map") {
         if (model.fields) {
