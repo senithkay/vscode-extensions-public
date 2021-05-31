@@ -3,6 +3,11 @@ name: Publish VSCode Extension
 
 on:
   workflow_dispatch:
+    inputs:
+      plugin_version:
+        description: VSIX Release Version
+        required: true
+        default: 2.0.0-beta1
     branches: [master]
 
 jobs:
@@ -12,15 +17,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Install node
+      - name: Build project
         uses: actions/setup-node@v1
         with:
           node-version: 12
       - run: npm ci
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
-      - run: npm install -g vsce
+      - name: Build repository with tests
+        uses: GabrielBB/xvfb-action@v1.0
+        with:
+          run: ./gradlew clean build -x test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
-      - run: vsce package
-      - run: vsce publish -p ${{ secrets.EXTENSION_PUBLISH_TOKEN }}
+      - name: Publish the extension
+        uses: lannonbr/vsce-action@master
+        with:
+          args: publish -p $VSCE_TOKEN --packagePath ./ballerina-${{ github.event.inputs.plugin_version }}.vsix
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
