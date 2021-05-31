@@ -21,7 +21,7 @@ The Visual Studio Code Ballerina extension provides a set of rich language featu
 - Data Mapping
     ![Data Mapper](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.gif?raw=true)
 
-Aforementioned are some of the main language support features offered by the extension. Refer to [Ballerina Language Support](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/language-support/) for more details.
+The aforementioned are some of the main language support features offered by the extension. For more details, see [Ballerina Language Support](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/language-support/).
 
 ---
 ## Run and Debug
