@@ -40,7 +40,7 @@ There are a set of Ballerina-specific palette commands available for quick acces
 
 ---
 ## Configurations
-Additionally, there are a set of customisations allowed for the extension. For more details, see [Ballerina Configurations](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/configurations/).
+Additionally, there are a set of customizations allowed for the extension. For more details, see [Ballerina Configurations](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/configurations/).
 
 ---
 ## License
