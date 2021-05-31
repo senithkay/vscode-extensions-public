@@ -751,8 +751,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         // Disabling certain key events
         monacoEditor.onKeyDown((event: monaco.IKeyboardEvent) => {
-            const {keyCode, ctrlKey} = event;
-            if ([36, 37].includes(keyCode) && ctrlKey){
+            const {keyCode, ctrlKey, metaKey} = event;
+            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)){
                 // Disabling ctrl/cmd + (f || g)
                 event.stopPropagation();
             }
