@@ -299,7 +299,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_slack_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                // hide file upload operation until the Choreo support file upload feature
+                // TODO: hide file upload operation until the Choreo support file upload feature
                 if (key !== "uploadFile") {
                     filteredFunctions.set(key, value);
                 }
