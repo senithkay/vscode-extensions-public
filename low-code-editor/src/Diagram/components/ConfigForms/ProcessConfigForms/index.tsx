@@ -35,7 +35,6 @@ import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
 import { GenerationType } from "./ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
-import { generateFieldStructureForJsonSample } from "./ProcessOverlayForm/AddDataMappingConfig";
 
 export interface AddProcessFormProps {
     type: string;
