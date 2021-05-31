@@ -55,7 +55,7 @@ export function OperationForm(props: OperationFormProps) {
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
-    const operationLabelMaxLength = 55;
+    const operationLabelMaxLength = 32;
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const frmFields: FormField[] = connectionDetails?.action?.fields;
