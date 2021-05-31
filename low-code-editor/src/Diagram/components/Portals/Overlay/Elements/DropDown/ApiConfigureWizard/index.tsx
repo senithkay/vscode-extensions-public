@@ -242,7 +242,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
-    defaultMessage: "/users/[string name] \n/users/[int userId]/groups"
+    defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
   });
 
   const title = (
