@@ -55,6 +55,7 @@ export function OperationForm(props: OperationFormProps) {
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
+    const operationLabelMaxLength = 55;
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const frmFields: FormField[] = connectionDetails?.action?.fields;
@@ -144,6 +145,8 @@ export function OperationForm(props: OperationFormProps) {
     }
     };
 
+    const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
+
     return (
         <div>
             {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
@@ -155,7 +158,8 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {operations.find(operation => operation.name === selectedOperationState)?.label || selectedOperationState}
+                                        {(operationLabel.length > operationLabelMaxLength ? operationLabel.slice(0, operationLabelMaxLength) + "..." : operationLabel)
+                                            || (selectedOperationState.length > operationLabelMaxLength ? selectedOperationState.slice(0, operationLabelMaxLength) + "..." : selectedOperationState)}
                                     </Typography>
                                     <IconButton
                                         color="primary"
