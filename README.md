@@ -30,7 +30,7 @@ The Ballerina language is supported with source and test debugging and remote de
 
 ---
 ## Diagram Editor
-The extension provides a graphical view that helps visualizing the Ballerina source. Refer to [Diagram Editor](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/diagram-editor/) for more details.
+The extension provides a graphical view that helps visualizing the Ballerina source. For more details, see [Diagram Editor](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/diagram-editor/).
 ![Diagram](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagram.gif?raw=true)
 
 ---
