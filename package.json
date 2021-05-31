@@ -313,7 +313,7 @@
     "dependencies": {
         "@types/js-base64": "^2.3.1",
         "@types/vscode": "^1.54.0",
-        "@wso2-enterprise/low-code-editor": "^1.0.0",
+        "@wso2-enterprise/low-code-editor": "^1.0.1",
         "cross-env": "^5.2.0",
         "dom-parser": "^0.1.6",
         "file-uri-to-path": "^2.0.0",
