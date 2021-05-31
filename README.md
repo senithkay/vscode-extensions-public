@@ -35,7 +35,7 @@ The extension provides a graphical view that helps visualizing the Ballerina sou
 
 ---
 ## VS Code Commands
-There are a set of Ballerina specific palette commands available for quick access. Refer to [VS Code Commands](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/vs-code-commands/) for more details.
+There are a set of Ballerina-specific palette commands available for quick access. For more details, see [VS Code Commands](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/vs-code-commands/).
 ![Palette Commands](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/commands.gif?raw=true)
 
 ---
