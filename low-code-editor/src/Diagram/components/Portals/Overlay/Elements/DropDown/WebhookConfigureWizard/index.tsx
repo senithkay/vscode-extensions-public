@@ -24,6 +24,7 @@ import { GitHubConfigureForm } from "./GitHubConfigureForm";
 import { GmailConfigureForm } from "./GmailConfigureForm";
 import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
 import { SheetConfigureForm } from "./SheetConfigureForm";
+import { SlackConfigureForm } from "./SlackConfigureForm";
 
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -89,6 +90,12 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
           onComplete={handleOnWizardComplete}
           isTriggerTypeChanged={isWebhookTypeChanged}
         />
+      ) }
+      { connector === ConnectorType.SLACK && (
+          <SlackConfigureForm
+              position={position}
+              onComplete={handleOnWizardComplete}
+          />
       ) }
     </DiagramOverlay>
   );
