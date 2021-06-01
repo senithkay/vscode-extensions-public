@@ -144,7 +144,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
             defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
-        },{learnChoreo:window.choreo_docs})
+        }, {learnChoreo: window.choreo_docs})
     }
     };
 
