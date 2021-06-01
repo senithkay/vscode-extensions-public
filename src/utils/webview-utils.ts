@@ -99,6 +99,9 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
                     }
+                    html {
+                        overflow: hidden !important;
+                    }
                     ${styles}
                 </style>
             </head>
