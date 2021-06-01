@@ -5,38 +5,57 @@ The Visual Studio Code Ballerina extension provides a set of rich language featu
 ---
 ## Language Intelligence
 - IntelliSense
-    ![IntelliSense](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/intellisense.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/intellisense.gif?raw=true" width="65%" height="65%"/>
+
 - Code Navigation
-    ![Code Navigation](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-navigation.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-navigation.gif?raw=true" width="65%" height="65%"/>
+
 - Diagnostics
-    ![Diagnostics](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagnostics.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagnostics.gif?raw=true" width="65%" height="65%"/>
+
 - Code Formatting
-    ![Code Formatting](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-formatting.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-formatting.gif?raw=true" width="65%" height="65%"/>
+
 - Code Refactoring
-    ![Code Refactoring](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-refactoring.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-refactoring.gif?raw=true" width="65%" height="65%"/>
+
 - Code Actions
-    ![Code Actions](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-action.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-action.gif?raw=true" width="65%" height="65%"/>
+
 - Code Lenses
-    ![Code Lenses](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-lens.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/code-lens.gif?raw=true" width="65%" height="65%"/>
+
 - Data Mapping
-    ![Data Mapper](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.gif?raw=true)
+
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.gif?raw=true" width="65%" height="65%"/>
+
 
 The aforementioned are some of the main language support features offered by the extension. For more details, see [Ballerina Language Support](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/language-support/).
 
 ---
 ## Run and Debug
 The Ballerina language extension has built-in support for running/debugging Ballerina programs and tests including remote debugging capabilities as well. For more details, see [Ballerina Debugging](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/debugging/).
-![Debugger](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/debugger.gif?raw=true)
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/debugger.gif?raw=true" width="80%" height="80%"/>
 
 ---
 ## Diagram Editor
 The extension provides a graphical view that helps visualizing the Ballerina source. For more details, see [Diagram Editor](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/diagram-editor/).
-![Diagram](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagram.gif?raw=true)
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagram.gif?raw=true" width="80%" height="80%"/>
 
 ---
 ## VS Code Commands
 The Ballerina extension provides a set of Ballerina-specific palette commands available for quick access. For more details, see [VS Code Commands](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/vs-code-commands/).
-![Palette Commands](https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/commands.gif?raw=true)
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/commands.gif?raw=true" width="80%" height="80%"/>
 
 ---
 ## Configurations
