@@ -21,20 +21,12 @@ import useStyles, {tooltipBaseStyles} from "./style";
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
-interface hellotext { title : string, body : string , example : string}
-
 interface TooltipPropsExtended extends TooltipProps {
     type: string,
-    // text: string | object (title, body, example),
-    text?: string,
-    heading?: string,
-    subHeading?: string;
-    actionText?: string;
-    actionLink?: string;
-    codeSnippet?: string;
-    example?: string;
+    text?: {heading?: string, content?: string, example?: string, code?: string},
+    action?: {link: string, text: string},
     disabled?: boolean;
-    openInCodeView?: () => void;
+    onClick?: () => void;
 }
 
 const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
@@ -45,12 +37,11 @@ const codeRef = (ref: HTMLPreElement) => {
 }
 
 export default function TooltipV2(props: Partial<TooltipPropsExtended>) {
-    const { children, title, example, actionText, actionLink, disabled, codeSnippet, openInCodeView, heading,
-            subHeading, type, ...restProps } = props;
+    const { children, title, text, action, disabled, onClick, type, ...restProps } = props;
     const styles = useStyles();
     let tooltipComp = (
         <div>
-            <h4 className={styles.heading}>{heading}</h4>
+            <h4 className={styles.heading}>{text.heading}</h4>
         </div>
     )
 
@@ -61,16 +52,16 @@ export default function TooltipV2(props: Partial<TooltipPropsExtended>) {
         case "example" :
             tooltipComp = ExampleTooltip(props)
             break;
-        case "title" :
-            tooltipComp = TitleTooltip(props)
+        case "heading" :
+            tooltipComp = HeadingTooltip(props)
             break;
-        case "title-content" :
-            tooltipComp = TitleContentTooltip(props)
+        case "heading-content" :
+            tooltipComp = HeadingContentTooltip(props)
             break;
         case "truncate-code" :
             tooltipComp = CodeTruncateTooltip(props)
             break;
-        case "action" :
+        case "info" :
             tooltipComp = ActionTooltip(props)
             break;
         case "icon" :
@@ -99,81 +90,81 @@ function TooltipIcon(props: Partial<TooltipPropsExtended>) {
 }
 
 function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
-    const {codeSnippet, openInCodeView} = props;
+    const { text, onClick } = props;
     const styles = useStyles();
     const Code = () => (
         <code
             ref={codeRef}
             data-lang="ballerina"
-            className={codeSnippet ? styles.codeExample : styles.code}
+            className={text.code ? styles.codeExample : styles.code}
         >
-            {codeSnippet.trim()}
+            {text.code.trim()}
         </code>
     );
     const OpenInCodeLink = () => (
         <React.Fragment>
             <Divider className={styles.divider} light={true}/>
-            <span className={styles.editorLink} onClick={openInCodeView}>View in Code Editor</span>
+            <span className={styles.editorLink} onClick={onClick}>View in Code Editor</span>
         </React.Fragment>
     )
     return (
         <pre className={styles.pre}>
                 <Code/>
-            {openInCodeView && <OpenInCodeLink/>}
+            {onClick && <OpenInCodeLink/>}
             </pre>
     );
 }
 
 function ExampleTooltip(props: Partial<TooltipPropsExtended>) {
-    const { heading, subHeading, example } = props;
+    const { text } = props;
     const styles = useStyles();
     return (
         <div>
-            <h4 className={styles.heading}>{heading}</h4>
-            <h2 className={styles.subHeading}>{subHeading}</h2>
+            <h4 className={styles.heading}>{text.heading}</h4>
+            <h2 className={styles.subHeading}>{text.content}</h2>
             <div className={styles.codeExample}>
-               <div>Eg: </div>{example}
+               <div>Eg: </div>{text.example}
             </div>
         </div>
     )
 }
 
 function ActionTooltip(props: Partial<TooltipPropsExtended>) {
-    const { heading, subHeading, actionText, actionLink } = props;
+    const { text, action } = props;
     const styles = useStyles();
     return (
         <div>
-            {heading && (<div className={styles.heading}>{heading}</div>)}
-            {subHeading && (<div className={styles.subHeading}>{subHeading}</div>)}
+            {text.heading && (<div className={styles.heading}>{text.heading}</div>)}
+            {text.content && (<div className={styles.subHeading}>{text.content}</div>)}
             <Divider className={styles.divider} light={true}/>
-            {actionText && (<a className={styles.buttonLink} href={actionLink} target="_blank">{actionText}</a>)}
+            {action.text && (<a className={styles.buttonLink} href={action.link} target="_blank">{action.text}</a>)}
         </div>
     )
 }
 
-function TitleTooltip(props: Partial<TooltipPropsExtended>) {
-    const { heading } = props;
+function HeadingTooltip(props: Partial<TooltipPropsExtended>) {
+    const { text } = props;
     const styles = useStyles();
     return (
         <div>
-            <h4 className={styles.heading}>{heading}</h4>
+            <h4 className={styles.heading}>{text.content}</h4>
         </div>
     );
 }
 
-function TitleContentTooltip(props: Partial<TooltipPropsExtended>) {
-    const { heading, subHeading } = props;
+function HeadingContentTooltip(props: Partial<TooltipPropsExtended>) {
+    const { text } = props;
     const styles = useStyles();
     return (
         <div>
-            <div className={styles.heading}>{heading}</div>
-            <div className={styles.subHeading}>{subHeading}</div>
+            <div className={styles.heading}>{text.heading}</div>
+            <div className={styles.subHeading}>{text.content}</div>
         </div>
     );
 }
 
 function CodeTruncateTooltip(props: Partial<TooltipPropsExtended>) {
-    const {codeSnippet} = props;
+    const { text } = props;
     const styles = useStyles();
     return (
         <code
@@ -181,7 +172,7 @@ function CodeTruncateTooltip(props: Partial<TooltipPropsExtended>) {
             data-lang="ballerina"
             className={styles.code}
         >
-            {codeSnippet.trim()}
+            {text.code.trim()}
         </code>
     );
 }
