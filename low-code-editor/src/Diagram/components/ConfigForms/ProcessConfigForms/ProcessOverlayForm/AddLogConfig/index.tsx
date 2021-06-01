@@ -106,8 +106,8 @@ export function AddLogConfig(props: LogConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: window.ballerina_docs })
     }
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>

@@ -197,8 +197,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: window.ballerina_docs })
     }
     };
 

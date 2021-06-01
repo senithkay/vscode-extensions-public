@@ -78,8 +78,8 @@ export function AddReturnForm(props: ReturnFormProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: window.ballerina_docs })
     };
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.

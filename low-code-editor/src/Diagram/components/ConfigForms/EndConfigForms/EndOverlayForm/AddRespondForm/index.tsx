@@ -111,8 +111,8 @@ export function AddRespondForm(props: RespondFormProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: window.ballerina_docs })
     };
 
     const statusCodeComp: ReactNode = (

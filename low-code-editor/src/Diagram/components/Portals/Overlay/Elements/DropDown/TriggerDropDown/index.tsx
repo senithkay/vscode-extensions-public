@@ -143,8 +143,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
-        })
+            defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
+        },{learnChoreo:window.choreo_docs})
     }
     };
 

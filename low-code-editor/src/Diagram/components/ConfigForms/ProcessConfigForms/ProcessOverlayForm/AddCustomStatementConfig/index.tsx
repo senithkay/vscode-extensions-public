@@ -83,8 +83,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: window.ballerina_docs })
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
