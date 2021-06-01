@@ -305,6 +305,24 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_googleapis.drive_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // TODO: hide these operation until the Choreo support file upload feature
+                const hiddenActions: string[] = [
+                    "uploadFile",
+                    "uploadFileUsingByteArray",
+                    "watchFiles",
+                    "watchFilesById",
+                    "watchStop",
+                    "getAbout",
+                    "updateFileMetadataById",
+                    "listChanges"
+                ];
+                if (!hiddenActions.includes(key)) {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
         default:
             filteredFunctions = fieldsForFunctions;
             break;
