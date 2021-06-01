@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-beta1-rc7-SNAPSHOT",
+    "version": "2.0.0-beta1-rc7",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -313,7 +313,7 @@
     "dependencies": {
         "@types/js-base64": "^2.3.1",
         "@types/vscode": "^1.54.0",
-        "@wso2-enterprise/low-code-editor": "^1.0.2",
+        "@wso2-enterprise/low-code-editor": "^1.0.3",
         "cross-env": "^5.2.0",
         "dom-parser": "^0.1.6",
         "file-uri-to-path": "^2.0.0",
