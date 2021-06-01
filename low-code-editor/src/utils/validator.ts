@@ -8,16 +8,14 @@ export function validatePath(text: string) {
             return false;
         }
 
-        let hasKeywords = false;
-        text.split("/").forEach(word => {
+        const splitPath = text.split("/");
+        for (const word of splitPath) {
             if (keywords.includes(word)) {
-                hasKeywords = true;
+                return false;
             }
-        })
+        }
 
-        if (hasKeywords) {
-            return false;
-        } else if (text.includes("/") && text.includes("[") && text.includes("]")) {
+        if (text.includes("/") && text.includes("[") && text.includes("]")) {
             if (text.match(/\/\d/g)) return false;
             const paramArray = (text.match(/\[([^\[\]]*)\]/g));
             const arrayLength = paramArray.length;
