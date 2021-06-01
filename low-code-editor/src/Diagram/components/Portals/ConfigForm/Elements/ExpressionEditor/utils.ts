@@ -272,3 +272,7 @@ export function createSortText(index: number) : string {
     const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
     return "z".repeat(Math.floor(index / 26)) + alpList[index]
 }
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
