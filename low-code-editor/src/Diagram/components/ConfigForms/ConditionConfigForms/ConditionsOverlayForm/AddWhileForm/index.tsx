@@ -70,8 +70,8 @@ export function AddWhileForm(props: WhileProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: window.ballerina_docs })
+            defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
+        }, { learnBallerina: window.choreo_docs })
     };
     const expElementProps: FormElementProps = {
         model: formField,

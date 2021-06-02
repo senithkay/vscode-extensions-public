@@ -136,8 +136,8 @@ export function AddForeachForm(props: ForeachProps) {
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: window.ballerina_docs })
+                defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
+            }, { learnBallerina: window.choreo_docs })
     },
         currentValueVariable: {
             title: intl.formatMessage({
