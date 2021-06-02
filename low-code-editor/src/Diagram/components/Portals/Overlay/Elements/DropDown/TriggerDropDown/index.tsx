@@ -302,6 +302,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left"
                         ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.SLACK,
+                            'slack_Client',
+                            "To trigger an application based on Slack events.",
+                            "Slack",
+                            "left"
+                        ) }
 
                     </div>
                 </div>
