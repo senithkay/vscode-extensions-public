@@ -13,7 +13,7 @@ The extension works across all Ballerina versions, and some of the supported fea
 
 	***Info:** When the extension is activated, you can see the `Ballerina SDK: <version>` in the status bar at the bottom left corner.*
 
-    <img src="./resources/images/status-bar.png" width="70%" />
+    <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/status-bar.png?raw=true" width="70%" />
 
 ---
 
