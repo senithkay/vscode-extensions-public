@@ -1,7 +1,7 @@
 {
     "name": "ballerina",
     "displayName": "Ballerina",
-    "description": "The Ballerina extension for Visual Studio Code provides Ballerina language support with intelliSense, debugging, formatting, navigation, graphical visualizing, AI-based data-mapping, and more. It supports both Ballerina Swan Lake and 1.2.x versions.",
+    "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more. Supports Ballerina Swan Lake and 1.2.x.",
     "version": "2.0.0",
     "publisher": "wso2",
     "repository": {
