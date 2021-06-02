@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Offers Ballerina language support with intelliSense, graphical visualizing, debugging, formatting, refactoring, navigation, diagnostics, data-mapping and more.",
-    "version": "1.0.0",
+    "version": "0.9.1",
     "publisher": "wso2",
     "repository": {
         "type": "git",
