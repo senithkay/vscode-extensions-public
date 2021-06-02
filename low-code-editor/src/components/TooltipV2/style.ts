@@ -37,7 +37,7 @@ const useStyles = makeStyles(() =>
         buttonLink: {
             color: "#5567D5",
             cursor: "pointer",
-            marginTop: "5px",
+            marginTop: 5,
             "&:hover": {
                 textDecoration: "underline"
             }
@@ -50,7 +50,7 @@ const useStyles = makeStyles(() =>
         },
         code: {
             color: "#2f3e9c",
-            fontSize: "12px"
+            fontSize: 12
         },
         exampleTag: {
             color: "#CBCEDB"
@@ -58,9 +58,9 @@ const useStyles = makeStyles(() =>
         codeExample: {
             backgroundColor: "#eff1f5",
             color: "#526acf",
-            fontSize: "12px",
-            marginLeft: "5px",
-            padding: "5px"
+            fontSize: 12,
+            marginLeft: 5,
+            padding: 5
         },
         divider: {
             margin: '5px 0px'
@@ -68,7 +68,7 @@ const useStyles = makeStyles(() =>
         editorLink: {
             color: "#5567D5",
             fontSize: 12,
-            marginTop: "10px",
+            marginTop: 10,
             cursor: 'pointer',
             transition: "all 0.2s",
             '&:hover': {
@@ -95,10 +95,10 @@ const useStyles = makeStyles(() =>
             fontWeight: 100
         },
         codeWrapper: {
-            padding: "5px",
+            padding: 5,
             backgroundColor: "#eff1f5",
-            marginTop: "6px",
-            borderRadius: "4px"
+            marginTop: 6,
+            borderRadius: 4
         }
     }),
 );
