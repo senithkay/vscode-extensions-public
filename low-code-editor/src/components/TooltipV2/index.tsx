@@ -19,8 +19,6 @@ import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import useStyles, {tooltipBaseStyles} from "./style";
 
-export { TooltipProps } from '@material-ui/core/Tooltip';
-
 interface TooltipPropsExtended extends TooltipProps {
     type: string,
     text?: {heading?: string, content?: string, example?: string, code?: string},
@@ -38,38 +36,48 @@ const codeRef = (ref: HTMLPreElement) => {
 
 export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const { children, title, text, action, disabled, onClick, type, ...restProps } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     let tooltipComp = (
         <div>
-            <h4 className={styles.heading}>{text.heading}</h4>
+            <h4 className={classes.heading}>{text.heading}</h4>
         </div>
     )
 
     switch (type){
+        // this type is used for tooltips which have code snippet and open with code view link
         case "diagram-code" :
             tooltipComp = DiagramCodeTooltip(props)
             break;
+        // this type is used when there are examples to displayed in the tooltip
         case "example" :
             tooltipComp = ExampleTooltip(props)
             break;
+        // this type is used when there is only heading or a title in the tooltip
         case "heading" :
             tooltipComp = HeadingTooltip(props)
             break;
+        // this type is used when there is a heading/title with a paragraph/content in the tooltip
         case "heading-content" :
             tooltipComp = HeadingContentTooltip(props)
             break;
+        // this type is similar to diagram-code[1] but this is used when there is no open in code view button and
+        // for short code snippets
         case "truncate-code" :
             tooltipComp = CodeTruncateTooltip(props)
             break;
+        // this type is used when there is an action link in the tooltip
         case "info" :
             tooltipComp = ActionTooltip(props)
             break;
+        // this type is used when we need to add the tooltip icon
         case "icon" :
             tooltipComp = TooltipIcon(props)
             break;
+        // this type is similar to example[2] but this type can have code snippets as well as examples
         case "example-code" :
             tooltipComp = ExampleCodeTooltip(props)
             break;
+        // this type is similar to example-code[3] but we have have code snippet, example as well as action link
         case "example-code-info" :
             tooltipComp = ExampleCodeInfoTooltip(props)
             break;
@@ -80,16 +88,16 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 }
 
 function TooltipIcon(props: Partial<TooltipPropsExtended>) {
-    const styles = useStyles();
+    const classes = useStyles();
     const { children } = props;
     const infoIcon = <img src="../../../../../../images/info.svg"  alt="info-icon"/>;
     let iconComponent = infoIcon;
     if (children) {
-        iconComponent = <><div>{children}</div> <div className={styles.iconWrapper}>{infoIcon}</div></>;
+        iconComponent = <><div>{children}</div> <div className={classes.iconWrapper}>{infoIcon}</div></>;
     }
 
     return (
-        <div className={styles.componentWrapper}>
+        <div className={classes.componentWrapper}>
             {iconComponent}
         </div>
     );
@@ -97,24 +105,24 @@ function TooltipIcon(props: Partial<TooltipPropsExtended>) {
 
 function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
     const { text, onClick } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     const Code = () => (
         <code
             ref={codeRef}
             data-lang="ballerina"
-            className={styles.code}
+            className={classes.code}
         >
             {text.code.trim()}
         </code>
     );
     const OpenInCodeLink = () => (
         <React.Fragment>
-            <Divider className={styles.divider} light={true}/>
-            <div className={styles.editorLink} onClick={onClick}>View in Code Editor</div>
+            <Divider className={classes.divider} light={true}/>
+            <div className={classes.editorLink} onClick={onClick}>View in Code Editor</div>
         </React.Fragment>
     )
     return (
-        <pre className={styles.pre}>
+        <pre className={classes.pre}>
             {text.code && <Code/>}
             {onClick && <OpenInCodeLink/>}
         </pre>
@@ -123,60 +131,60 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
 
 function ExampleTooltip(props: Partial<TooltipPropsExtended>) {
     const { text } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && <div className={styles.heading}>{text.heading}</div>}
-            {text.content && <div className={styles.subHeading}>{text.content}</div>}
-            {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
+            {text.heading && <div className={classes.heading}>{text.heading}</div>}
+            {text.content && <div className={classes.subHeading}>{text.content}</div>}
+            {(text.heading || text.content) && <Divider className={classes.divider} light={true}/>}
+            {text.example && <div className={classes.exampleContent}><span className={classes.exampleTag}>Eg: </span>{text.example}</div>}
         </div>
     )
 }
 
 function ActionTooltip(props: Partial<TooltipPropsExtended>) {
     const { text, action } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && (<div className={styles.heading}>{text.heading}</div>)}
-            {text.content && (<div className={styles.subHeading}>{text.content}</div>)}
-            {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
-            {action.text && (<div className={styles.buttonLink}> <a href={action.link} className={styles.buttonLink} target="_blank">{action.text}</a></div>)}
+            {text.heading && (<div className={classes.heading}>{text.heading}</div>)}
+            {text.content && (<div className={classes.subHeading}>{text.content}</div>)}
+            {(text.heading || text.content) && <Divider className={classes.divider} light={true}/>}
+            {text.example && <div className={classes.exampleContent}><span className={classes.exampleTag}>Eg: </span>{text.example}</div>}
+            {action.text && (<div className={classes.buttonLink}> <a href={action.link} className={classes.buttonLink} target="_blank">{action.text}</a></div>)}
         </div>
     )
 }
 
 function HeadingTooltip(props: Partial<TooltipPropsExtended>) {
     const { text } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && <div className={styles.heading}>{text.heading}</div>}
+            {text.heading && <div className={classes.heading}>{text.heading}</div>}
         </div>
     );
 }
 
 function HeadingContentTooltip(props: Partial<TooltipPropsExtended>) {
     const { text } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && <div className={styles.heading}>{text.heading}</div>}
-            {text.content && <div className={styles.subHeading}>{text.content}</div>}
+            {text.heading && <div className={classes.heading}>{text.heading}</div>}
+            {text.content && <div className={classes.subHeading}>{text.content}</div>}
         </div>
     );
 }
 
 function CodeTruncateTooltip(props: Partial<TooltipPropsExtended>) {
     const { text } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <code
             ref={codeRef}
             data-lang="ballerina"
-            className={styles.code}
+            className={classes.code}
         >
             {text.code.trim()}
         </code>
@@ -185,29 +193,29 @@ function CodeTruncateTooltip(props: Partial<TooltipPropsExtended>) {
 
 function ExampleCodeTooltip(props: Partial<TooltipPropsExtended>) {
     const { text } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && <div className={styles.heading}>{text.heading}</div>}
-            {text.content && <div className={styles.exampleContent}>{text.content}</div>}
-            {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
-            {text.code && <div className={`${styles.code} ${styles.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
+            {text.heading && <div className={classes.heading}>{text.heading}</div>}
+            {text.content && <div className={classes.exampleContent}>{text.content}</div>}
+            {(text.heading || text.content) && <Divider className={classes.divider} light={true}/>}
+            {text.example && <div className={classes.exampleContent}><span>Eg: </span>{text.example}</div>}
+            {text.code && <div className={`${classes.code} ${classes.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
         </div>
     )
 }
 
 function ExampleCodeInfoTooltip(props: Partial<TooltipPropsExtended>) {
     const { text, action } = props;
-    const styles = useStyles();
+    const classes = useStyles();
     return (
         <div>
-            {text.heading && <div className={styles.heading}>{text.heading}</div>}
-            {text.content && <div className={styles.exampleContent}>{text.content}</div>}
-            {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
-            {text.code && <div className={`${styles.code} ${styles.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
-            {action.text && (<div className={styles.buttonLink}> <a href={action.link} className={styles.buttonLink} target="_blank">{action.text}</a></div>)}
+            {text.heading && <div className={classes.heading}>{text.heading}</div>}
+            {text.content && <div className={classes.exampleContent}>{text.content}</div>}
+            {(text.heading || text.content) && <Divider className={classes.divider} light={true}/>}
+            {text.example && <div className={classes.exampleContent}><span>Eg: </span>{text.example}</div>}
+            {text.code && <div className={`${classes.code} ${classes.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
+            {action.text && (<div className={classes.buttonLink}> <a href={action.link} className={classes.buttonLink} target="_blank">{action.text}</a></div>)}
         </div>
     )
 }
