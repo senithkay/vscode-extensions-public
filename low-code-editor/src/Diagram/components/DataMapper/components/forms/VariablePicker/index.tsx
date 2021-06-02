@@ -27,20 +27,26 @@ import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/Pr
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { DataMapperConfig, DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
+import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
 export interface VariablePickerProps {
-    fieldWidth: number;
-    dataMapperConfig: DataMapperConfig
-    toggleVariablePicker: () => void;
 }
 
 export function VariablePicker(props: VariablePickerProps) {
-    const { state: { stSymbolInfo }, updateDataMapperConfig } = useContext(DiagramContext)
-    const { toggleVariablePicker, dataMapperConfig, fieldWidth } = props;
+    const { updateDataMapperConfig } = useContext(DiagramContext);
+    const {
+        state: {
+            stSymbolInfo,
+            dataMapperConfig,
+            maxFieldWidth,
+            // updateDataMapperConfig
+        },
+        toggleAddVariableForm: toggleVariablePicker
+    } = useContext(DataMapperViewContext);
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
 
-    const selectedVariables = dataMapperConfig ? dataMapperConfig.inputTypes.map(input => input.name) : [];
+    const selectedVariables = dataMapperConfig ? dataMapperConfig.inputTypes.map((input: any) => input.name) : [];
     const variables: DataMapperInputTypeInfo[] = [];
 
     const onSelectVariable = (evt: any, typeEntry: DataMapperInputTypeInfo) => {
@@ -75,7 +81,7 @@ export function VariablePicker(props: VariablePickerProps) {
 
     return (
         <>
-            <div style={{width: fieldWidth + 5}}>
+            <div style={{ width: maxFieldWidth + 5 }}>
                 <FormAutocomplete
                     itemList={variables}
                     onChange={onSelectVariable}
@@ -87,7 +93,7 @@ export function VariablePicker(props: VariablePickerProps) {
                         </React.Fragment>
                     )}
                 />
-                <div className={overlayClasses.buttonWrapper} style={{paddingTop: '0.5rem'}}>
+                <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
                     <PrimaryButton
                         disabled={false}

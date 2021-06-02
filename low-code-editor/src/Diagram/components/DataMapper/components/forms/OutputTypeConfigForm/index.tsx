@@ -36,13 +36,10 @@ import { FormTextInput } from '../../../../Portals/ConfigForm/Elements/TextField
 import { useStyles as formStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from '../../../../Portals/utils';
+import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { getDefaultValueForType } from '../../../util';
+
 interface OutputTypeConfigForm {
-    fieldWidth: number;
-    dataMapperConfig: DataMapperConfig
-    toggleVariablePicker: () => void;
-    onExistingVarOptionSelected: (status: boolean) => void;
-    onJsonRecordTypeSelected: (status: boolean) => void;
 }
 
 enum SelectedDataType {
@@ -57,17 +54,23 @@ export enum GenerationType {
 }
 
 export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
-    const { state: diagramState, updateDataMapperConfig } = useContext(DiagramContext)
-    const { onMutate, trackAddStatement, stSymbolInfo, currentApp, targetPosition } = diagramState;
+    const { state: diagramState } = useContext(DiagramContext);
+    const { currentApp, targetPosition } = diagramState;
+    const {
+        state: {
+            dataMapperConfig,
+            maxFieldWidth: fieldWidth,
+            stSymbolInfo,
+            dispatchMutations: onMutate,
+        },
+        toggleOutputConfigureForm: toggleVariablePicker,
+        toggleSelectExistingOutputForm: onExistingVarOptionSelected,
+        toggleJsonRecordTypeOutputForm: onJsonRecordTypeSelected,
+    } = useContext(DataMapperContext);
+
+
     const defaultVariableName = stSymbolInfo ?
         genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
-    const {
-        dataMapperConfig,
-        toggleVariablePicker,
-        fieldWidth,
-        onExistingVarOptionSelected,
-        onJsonRecordTypeSelected
-    } = props;
     const [config] = useState(dataMapperConfig);
     const [generationType, setGenerationType] = useState<GenerationType>(GenerationType.NEW);
     const [selectedDataType, setSelectedDataType] = useState<SelectedDataType>(SelectedDataType.DEFAULT);

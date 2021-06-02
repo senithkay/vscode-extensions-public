@@ -147,7 +147,7 @@ export function Diagram(props: DiagramProps) {
     }
 
     const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
-    // const child =  <DataMapper width={w} />;
+    // const child =  <MapperView width={w} />;
 
     let hasConfigurable = false;
     if (originalSyntaxTree){

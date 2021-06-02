@@ -12,14 +12,19 @@
  */
 import React from 'react';
 
-import { RecordTypeDesc, STNode, traversNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
+import { addTypeDescInfo } from '..';
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
+import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 import { DataMapperInitVisitor, VisitingType } from "./data-mapper-init-visitor";
+import { DataMapperMappingVisitor } from './data-mapper-mapping-visitor';
+import { DataMapperPositionVisitor } from './data-mapper-position-visitor';
+import { DataPointVisitor } from './data-point-visitor';
+import { DataMapperSizingVisitor } from './datamapper-sizing-visitor';
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -219,4 +224,338 @@ export function resetJsonValueToDefault(json: any) {
             // ignored
         }
     })
+}
+
+export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
+                                               showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+                                               updateDataMapperConfig: (config: DataMapperConfig) => void) {
+    // let inputHeight: number = 0;
+    // let outputHeight: number = 0;
+    let maxFieldWidth: number = 200;
+
+    const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
+    const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
+
+    if (inputSTNodes.length > 0) {
+        // inputHeight = 0; // reset height from default value
+
+        inputSTNodes.forEach((node: STNode) => {
+            if (STKindChecker.isLocalVarDecl(node)) {
+                const varSTNode: LocalVarDecl = node as LocalVarDecl;
+                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
+
+                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+                if (node.dataMapperTypeDescNode) {
+                    switch (node.dataMapperTypeDescNode.kind) {
+                        case 'RecordTypeDesc': {
+                            (node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+                            })
+                        }
+                    }
+                }
+            } else {
+                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+            }
+
+        });
+
+        inputSTNodes.forEach((node: STNode) => {
+            traversNode(node, dataMapperInputSizingVisitor);
+        });
+
+        // inputSTNodes.forEach((node: STNode, i: number) => {
+        //     inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
+        //     if (i < inputSTNodes.length - 1) {
+        //         inputHeight += 40 // todo: convert to constant
+        //     }
+        // });
+
+        inputSTNodes.forEach((node: STNode) => {
+            traversNode(node, positionVisitor);
+        });
+
+        maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+
+        dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+    }
+
+    if (outputSTNode) {
+        /*
+         * flow:
+         * Run init visitors and set defaults for everything
+         * Run sizing visitor and calculate height and width for input and output seperately
+         * Run position visitor and set the positions
+         * Run data point visitor extract out the data points in the diagram
+         * Run mapping visitor to identify connections between positions
+         */
+        // outputHeight = 0; // reset height from default value
+        // start: Initialization
+        addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
+        traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
+
+        if (outputSTNode.dataMapperTypeDescNode) {
+            switch (outputSTNode.dataMapperTypeDescNode.kind) {
+                case 'RecordTypeDesc': {
+                    (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
+                    })
+                }
+            }
+        }
+        // end: Initialization
+
+        // start: sizing visitor
+        const dataMapperOutputSizingVisitor = new DataMapperSizingVisitor();
+        traversNode(outputSTNode, dataMapperOutputSizingVisitor);
+
+        if (dataMapperInputSizingVisitor.getMaxWidth() < dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperOutputSizingVisitor.getMaxWidth();
+        } else if (dataMapperInputSizingVisitor.getMaxWidth() > dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        } else {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        }
+
+        dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        // outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
+        // end: sizing visitor
+
+        // selected node visit
+        positionVisitor.setHeight(15);
+        positionVisitor.setOffset(maxFieldWidth + 400);
+        traversNode(outputSTNode, positionVisitor);
+
+    }
+
+
+    // datapoint poisitions
+    const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
+
+    inputSTNodes.forEach((node: STNode) => {
+        traversNode(node, dataPointVisitor);
+    });
+
+    if (outputSTNode) {
+        traversNode(outputSTNode, dataPointVisitor);
+        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap)
+        traversNode(outputSTNode, mappingVisitor);
+        if (mappingVisitor.getMissingVarRefList().length > 0) {
+            stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
+                value.forEach((varNode: STNode) => {
+                    if (STKindChecker.isLocalVarDecl(varNode)) {
+                        const varName = (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                            .variableName.value;
+                        mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                            if (missingVarName === varName) {
+                                dataMapperConfig.inputTypes.push({
+                                    type: key,
+                                    name: varName,
+                                    // node: varNode
+                                });
+                            }
+                        })
+                    } else if (STKindChecker.isRequiredParam(varNode)) {
+                        const varName = varNode.paramName.value;
+                        mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                            if (missingVarName === varName) {
+                                dataMapperConfig.inputTypes.push({
+                                    type: key,
+                                    name: varName,
+                                    // node: varNode
+                                });
+                            }
+                        })
+                    }
+                })
+            })
+            updateDataMapperConfig(dataMapperConfig);
+        }
+    }
+
+    return {
+        // sizing data
+        // inputHeight,
+        // outputHeight,
+        maxFieldWidth,
+        // processed STs
+        inputSTNodes,
+        outputSTNode,
+    }
+}
+
+export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
+                                                          showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+                                                          updateDataMapperConfig: (config: DataMapperConfig) => void) {
+    let inputHeight: number = 0;
+    let outputHeight: number = 0;
+    let maxFieldWidth: number = 200;
+
+    const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
+    const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
+
+    if (inputSTNodes.length > 0) {
+        inputHeight = 0; // reset height from default value
+
+        inputSTNodes.forEach((node: STNode) => {
+            if (STKindChecker.isLocalVarDecl(node)) {
+                const varSTNode: LocalVarDecl = node as LocalVarDecl;
+                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
+
+                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+                if (node.dataMapperTypeDescNode) {
+                    switch (node.dataMapperTypeDescNode.kind) {
+                        case 'RecordTypeDesc': {
+                            (node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+                            })
+                        }
+                    }
+                }
+            } else {
+                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+            }
+
+        });
+
+        inputSTNodes.forEach((node: STNode) => {
+            traversNode(node, dataMapperInputSizingVisitor);
+        });
+
+        inputSTNodes.forEach((node: STNode, i: number) => {
+            inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
+            if (i < inputSTNodes.length - 1) {
+                inputHeight += 40 // todo: convert to constant
+            }
+        });
+
+        inputSTNodes.forEach((node: STNode) => {
+            traversNode(node, positionVisitor);
+        });
+
+        maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+
+        dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+    }
+
+    if (outputSTNode) {
+        /*
+        * flow:
+        * Run init visitors and set defaults for everything
+        * Run sizing visitor and calculate height and width for input and output seperately
+        * Run position visitor and set the positions
+        * Run data point visitor extract out the data points in the diagram
+        * Run mapping visitor to identify connections between positions
+        */
+        outputHeight = 0; // reset height from default value
+        // start: Initialization
+        addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
+        traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
+
+        if (outputSTNode.dataMapperTypeDescNode) {
+            switch (outputSTNode.dataMapperTypeDescNode.kind) {
+                case 'RecordTypeDesc': {
+                    (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
+                    })
+                }
+            }
+        }
+        // end: Initialization
+
+        // start: sizing visitor
+        const dataMapperOutputSizingVisitor = new DataMapperSizingVisitor();
+        traversNode(outputSTNode, dataMapperOutputSizingVisitor);
+
+        if (dataMapperInputSizingVisitor.getMaxWidth() < dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperOutputSizingVisitor.getMaxWidth();
+        } else if (dataMapperInputSizingVisitor.getMaxWidth() > dataMapperOutputSizingVisitor.getMaxWidth()) {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        } else {
+            maxFieldWidth = dataMapperInputSizingVisitor.getMaxWidth();
+        }
+
+        dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
+            viewstate.bBox.w = maxFieldWidth;
+        });
+
+        outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
+        // end: sizing visitor
+
+        // selected node visit
+        positionVisitor.setHeight(15);
+        positionVisitor.setOffset(maxFieldWidth + 400);
+        traversNode(outputSTNode, positionVisitor);
+
+    }
+
+
+    // datapoint poisitions
+    const dataPointVisitor = new DataPointVisitor(maxFieldWidth, maxFieldWidth + 400 - 25);
+
+    inputSTNodes.forEach((node: STNode) => {
+        traversNode(node, dataPointVisitor);
+    });
+
+    if (outputSTNode) {
+        traversNode(outputSTNode, dataPointVisitor);
+        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap)
+        traversNode(outputSTNode, mappingVisitor);
+        if (mappingVisitor.getMissingVarRefList().length > 0) {
+            stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
+                value.forEach((varNode: STNode) => {
+                    if (STKindChecker.isLocalVarDecl(varNode)) {
+                        const varName = (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                            .variableName.value;
+                        mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                            if (missingVarName === varName) {
+                                dataMapperConfig.inputTypes.push({
+                                    type: key,
+                                    name: varName,
+                                    // node: varNode
+                                });
+                            }
+                        })
+                    } else if (STKindChecker.isRequiredParam(varNode)) {
+                        const varName = varNode.paramName.value;
+                        mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                            if (missingVarName === varName) {
+                                dataMapperConfig.inputTypes.push({
+                                    type: key,
+                                    name: varName,
+                                    // node: varNode
+                                });
+                            }
+                        })
+                    }
+                })
+            })
+            updateDataMapperConfig(dataMapperConfig);
+        }
+    }
+
+    return {
+        // sizing data
+        inputHeight,
+        outputHeight,
+        maxFieldWidth,
+        // processed STs
+        inputSTNodes,
+        outputSTNode,
+    }
 }
