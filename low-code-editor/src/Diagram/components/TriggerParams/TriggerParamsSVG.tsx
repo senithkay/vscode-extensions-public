@@ -14,6 +14,7 @@
 import * as React from "react";
 
 import { TooltipCodeSnippet } from "../../../components/Tooltip";
+import TooltipV2 from "../../../components/TooltipV2";
 
 export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 110;
 export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 30;
@@ -22,9 +23,12 @@ export const TRIGGER_PARAMS_SVG_HEIGHT = 24;
 
 export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
     const { text, ...xyProps } = props;
+    const tooltipText = {
+        code: text
+    }
     return (
         <svg {...xyProps} width={TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW} height={TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW} >
-            <TooltipCodeSnippet content={text} placement="right" arrow={true}>
+            <TooltipV2 type={"truncate-code"} text={tooltipText} placement="right" arrow={true}>
                 <g id="Trigger-Params" transform="translate(3.5 2.5)">
                     <g id="Trigger-Params-wrapper" transform="translate(-1038.5 -145.5)">
                         <g id="Rectangle" transform="translate(1038.5 145.5)" fill="#fff" stroke="#ccd1f2" stroke-miterlimit="10" stroke-width="1">
@@ -36,7 +40,7 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
                         </text>
                     </g>
                 </g>
-            </TooltipCodeSnippet>
+            </TooltipV2>
         </svg>
     )
 }
