@@ -17,7 +17,7 @@ export const tooltipBaseStyles = {
         color: "#8d91a3",
         backgroundColor: "#fdfdfd",
         border: "1px solid #e6e7ec",
-        borderRadius: "6px",
+        borderRadius: 6,
         padding: "1rem"
     },
     arrow: {
