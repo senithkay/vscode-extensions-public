@@ -27,7 +27,6 @@ export const useGeneratorStyles = makeStyles((theme: Theme) =>
         lowCodeContainer: {
             backgroundColor: "transparent",
             height: "100%",
-            overflowX: "scroll"
         },
         loaderContainer: {
             marginRight: theme.spacing(1),
@@ -36,6 +35,9 @@ export const useGeneratorStyles = makeStyles((theme: Theme) =>
             justifyContent: "center",
             zIndex: 1000,
             height: "100vh",
+        },
+        errorMessageDialog: {
+            paddingLeft: "30px",
         }
     })
 );

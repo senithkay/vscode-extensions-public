@@ -23,6 +23,10 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
     for (const node of fnMembers) {
         if (STKindChecker.isFunctionDefinition(node) && node.functionName.position.startLine.toString() === startLine
              && node.functionName.position.startColumn.toString() === startColumn) {
+            if (STKindChecker.isExternalFunctionBody(node.functionBody)) {
+                responseST = node;
+                break;
+            }
             const fnDef = getLowCodeSTFnSelected(payload, node, true);
             const st: STNode = sizingAndPositioningST(fnDef);
             cleanAll();

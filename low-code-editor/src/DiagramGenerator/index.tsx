@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { FunctionDefinition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import Grid from "@material-ui/core/Grid";
 import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
@@ -34,8 +35,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
-    // tslint:disable-next-line:no-console
-    console.log("Diagram Generator render()");
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -50,11 +49,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
-                const vistedSyntaxTree = getLowcodeST(genSyntaxTree, startLine, startCharacter);
-                setSyntaxTree(vistedSyntaxTree);
-                if (!syntaxTree) {
+                const vistedSyntaxTree : STNode = getLowcodeST(genSyntaxTree, startLine, startCharacter);
+                if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
+                setSyntaxTree(vistedSyntaxTree);
             } catch (err) {
                 throw err;
             }
@@ -77,15 +76,22 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setZoomStatus(defaultZoomStatus);
     }
 
-    function onPanLocation(panX: number, panY: number, appId: number) {
+    function onPanLocation(appId: number, newPanX: number, newPanY: number) {
         const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.panX = panX;
-        newZoomStatus.panY = panY;
+        newZoomStatus.panX = newPanX;
+        newZoomStatus.panY = newPanY;
         setZoomStatus(newZoomStatus);
     }
 
     if (!syntaxTree){
         return (<div className={classes.loaderContainer}><CirclePreloader position="relative"/></div>);
+    }
+
+    if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
+        const vst : FunctionDefinition = syntaxTree as FunctionDefinition;
+        if (STKindChecker.isExternalFunctionBody(vst.functionBody)) {
+            return (<div className={classes.errorMessageDialog}><h4>Sorry...! External Function Body is not supported yet.</h4></div>);
+        }
     }
 
     return (
