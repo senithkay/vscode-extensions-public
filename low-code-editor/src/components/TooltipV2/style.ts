@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -90,7 +90,7 @@ const useStyles = makeStyles(() =>
         exampleContent: {
             fontSize: 12,
             color: '#40404B',
-            fontFamily: "'Gilmer', sans-serif",
+            fontFamily: "Gilmer",
             align: "left",
             fontWeight: 100
         },
