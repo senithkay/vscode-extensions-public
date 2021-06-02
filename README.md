@@ -11,7 +11,7 @@ The extension works across all Ballerina versions, and some of the supported fea
 2. [Install](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/quick-start/#installing-the-ballerina-extension) Ballerina VS Code Extension. Launch VS Code Quick Open (`Ctrl + P`), and paste following `ext install WSO2.ballerina`
 3. Open a Ballerina `.bal` file or a package directory to activate the extension.
 
-	***Info:** When the extension is activated, you can see the `Ballerina SDK: <version>` in the status bar at the bottom left corner.*
+	**Info:** When the extension is activated, you can see the `Ballerina SDK: <version>` in the status bar at the bottom left corner.
 
     <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/status-bar.png?raw=true" width="70%" />
 
@@ -49,7 +49,6 @@ The extension works across all Ballerina versions, and some of the supported fea
 
 	Each Ballerina source maps to a sequence diagram with its inherent mapping between the textual and graphical representations. The extension provides a graphical view that helps to visualize your Ballerina source.
 
-
 	For more details, see [Diagram View](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/diagram-editor/).
 
     <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/diagram-view.gif?raw=true" width="70%" />
@@ -58,7 +57,6 @@ The extension works across all Ballerina versions, and some of the supported fea
 *   **AI Data Mapping**
 
 	The extension is presented with easy data integration capabilities using machine learning (ML) approaches. It generates the mapping for Ballerina record types using a set of trained ML models. These models are trained with a collection of statistical features using rule-based and neural network methodologies.
-
 
 	For more details, see [Data Mapping](https://dev.ballerina.io/learn/tooling-guide/visual-studio-code-extension/language-support/#data-mapping).
 
