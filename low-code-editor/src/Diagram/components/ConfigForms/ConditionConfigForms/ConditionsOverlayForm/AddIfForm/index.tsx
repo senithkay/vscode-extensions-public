@@ -27,6 +27,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -75,7 +76,7 @@ export function AddIfForm(props: IfProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina: window.choreo_docs })
+        }, { learnBallerina: CHOREO_DOCS })
     };
 
     const expElementProps: FormElementProps = {

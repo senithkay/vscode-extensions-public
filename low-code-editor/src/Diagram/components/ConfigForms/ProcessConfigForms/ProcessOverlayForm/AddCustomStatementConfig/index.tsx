@@ -26,6 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CloseRounded } from "../../../../../../assets/icons";
+import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -84,7 +85,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina: window.choreo_docs })
+        }, { learnBallerina: CHOREO_DOCS })
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>

@@ -31,6 +31,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
+import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -198,7 +199,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina: window.choreo_docs })
+        }, { learnBallerina: CHOREO_DOCS })
     }
     };
 

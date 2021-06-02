@@ -41,6 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
+import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -144,7 +145,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
             defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
-        }, {learnChoreo: window.choreo_docs})
+        }, { learnChoreo: CHOREO_DOCS })
     }
     };
 
