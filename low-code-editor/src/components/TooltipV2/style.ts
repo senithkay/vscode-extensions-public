@@ -32,12 +32,12 @@ const useStyles = makeStyles(() =>
             justifyContent: "space-between",
         },
         iconWrapper: {
-            // marginRight: "0.5rem",
             alignSelf: "center"
         },
         buttonLink: {
-            color: "#526acf",
+            color: "#5567D5",
             cursor: "pointer",
+            marginTop: "5px",
             "&:hover": {
                 textDecoration: "underline"
             }
@@ -46,18 +46,14 @@ const useStyles = makeStyles(() =>
             margin: 0,
             overflowX: "auto",
             whiteSpace: "pre-wrap",
-            // whiteSpace: "-moz-pre-wrap",
-            // whiteSpace: "-pre-wrap",
-            // whiteSpace: "-o-pre-wrap",
             wordWrap: "break-word"
         },
         code: {
             color: "#2f3e9c",
             fontSize: "12px"
         },
-        exampleCodeWrap: {
-            display: "flex",
-            alignItems: "baseline"
+        exampleTag: {
+            color: "#CBCEDB"
         },
         codeExample: {
             backgroundColor: "#eff1f5",
@@ -70,13 +66,15 @@ const useStyles = makeStyles(() =>
             margin: '5px 0px'
         },
         editorLink: {
-            color: "#4183C4",
-            fontSize: 10,
+            color: "#5567D5",
+            fontSize: 12,
+            marginTop: "10px",
             cursor: 'pointer',
             transition: "all 0.2s",
             '&:hover': {
                 color: "#8190ef",
-            }
+            },
+            fontFamily: "'Gilmer', sans-serif"
         },
         heading: {
             fontSize: 13,
@@ -85,9 +83,22 @@ const useStyles = makeStyles(() =>
             marginBottom: '0.5rem'
         },
         subHeading: {
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 400,
             color: '#40404B'
+        },
+        exampleContent: {
+            fontSize: 12,
+            color: '#40404B',
+            fontFamily: "'Gilmer', sans-serif",
+            align: "left",
+            fontWeight: 100
+        },
+        codeWrapper: {
+            padding: "5px",
+            backgroundColor: "#eff1f5",
+            marginTop: "6px",
+            borderRadius: "4px"
         }
     }),
 );

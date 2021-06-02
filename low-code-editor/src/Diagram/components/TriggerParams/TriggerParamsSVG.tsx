@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import Tooltip from "../../../components/TooltipV3";
+import Tooltip from "../../../components/TooltipV2";
 
 export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 110;
 export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 30;
