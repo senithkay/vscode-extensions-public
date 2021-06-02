@@ -14,7 +14,7 @@
 import * as React from "react";
 
 import { TooltipCodeSnippet } from "../../../components/Tooltip";
-import TooltipV2 from "../../../components/TooltipV2";
+import TooltipV2 from "../../../components/TooltipV3";
 
 export const TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW = 110;
 export const TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW = 30;

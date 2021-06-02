@@ -96,7 +96,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
         <code
             ref={codeRef}
             data-lang="ballerina"
-            className={text.code ? styles.codeExample : styles.code}
+            className={styles.code}
         >
             {text.code.trim()}
         </code>

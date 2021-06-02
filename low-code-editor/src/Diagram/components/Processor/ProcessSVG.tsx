@@ -18,7 +18,7 @@ import { TooltipCodeSnippet } from "../../../components/Tooltip";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import "./style.scss";
-import TooltipV2 from "../../../components/TooltipV2";
+import TooltipV2 from "components/TooltipV3";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;
@@ -32,7 +32,9 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void, processType: string }) {
     const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
-
+    const tooltipText = {
+        code: sourceSnippet
+    }
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
             <defs>
@@ -56,7 +58,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                 </filter>
             </defs>
             <g>
-                <TooltipCodeSnippet openInCodeView={openInCodeView} content={sourceSnippet} placement="right" arrow={true}>
+                <TooltipV2 type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
                     <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
                         <g transform="matrix(1, 0, 0, 1, 222, 509)">
                             <g id="ProcessRect-2" transform="translate(5.5 4)">
@@ -82,7 +84,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                         }
 
                     </g>
-                </TooltipCodeSnippet>
+                </TooltipV2>
             </g>
         </svg>
     )
