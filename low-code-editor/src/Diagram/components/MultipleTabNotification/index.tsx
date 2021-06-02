@@ -12,10 +12,8 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
-import { connect } from "react-redux";
 
 import { Typography } from "@material-ui/core";
-import { PortalState } from "store/index";
 
 import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
 
@@ -29,7 +27,7 @@ function handleOnclickRestore() {
     location.reload()
 }
 
-export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
+export function MultipleTabNotification(props: MultipleTabNotificationProps) {
     const { isMultipleTabsOpen } = props;
     const classes = useStyles();
 
@@ -55,14 +53,5 @@ export function MultipleTabNotificationC(props: MultipleTabNotificationProps) {
     );
 
 }
-
-const mapStateToProps = ({ appInfo }: PortalState) => {
-    const { isMultipleTabsOpen } = appInfo;
-    return {
-        isMultipleTabsOpen
-    }
-};
-
-const MultipleTabNotification = connect(mapStateToProps, null)(MultipleTabNotificationC);
 
 export default MultipleTabNotification;
