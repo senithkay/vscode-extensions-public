@@ -1,12 +1,12 @@
 {
     "name": "ballerina",
     "displayName": "Ballerina",
-    "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.9.0",
+    "description": "The Ballerina extension for Visual Studio Code provides Ballerina language support with intelliSense, debugging, formatting, navigation, graphical visualizing, AI-based data-mapping, and more. It supports both Ballerina Swan Lake and 1.2.x versions.",
+    "version": "0.9.1",
     "publisher": "wso2",
     "repository": {
         "type": "git",
-        "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode"
+        "url": "https://github.com/wso2/ballerina-plugin-vscode"
     },
     "icon": "resources/images/ballerina.png",
     "galleryBanner": {
@@ -264,7 +264,7 @@
             },
             {
                 "command": "ballerina.show.diagram",
-                "title": "Show Diagram View",
+                "title": "Show Diagram",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
@@ -313,7 +313,7 @@
     "dependencies": {
         "@types/js-base64": "^2.3.1",
         "@types/vscode": "^1.54.0",
-        "@wso2-enterprise/low-code-editor": "^1.0.3",
+        "@wso2-enterprise/low-code-editor": "^1.0.4",
         "cross-env": "^5.2.0",
         "dom-parser": "^0.1.6",
         "file-uri-to-path": "^2.0.0",
