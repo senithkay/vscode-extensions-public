@@ -479,7 +479,7 @@ class InitVisitor implements Visitor {
                 });
                 if (resourceKeyword) {
                     const callerParam: RequiredParam = parent.functionSignature.parameters[0] as RequiredParam;
-                    callerParamName = callerParam.paramName.value;
+                    callerParamName = callerParam?.paramName?.value;
                 }
             }
             visibleEndpoints.forEach((ep: any) => {
