@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -31,7 +32,6 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
-import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;

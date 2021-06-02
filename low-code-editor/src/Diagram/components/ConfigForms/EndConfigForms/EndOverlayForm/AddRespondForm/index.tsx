@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
+import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 import { CloseRounded } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -27,7 +28,6 @@ import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/Expression
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
-import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -113,7 +113,7 @@ export function AddRespondForm(props: RespondFormProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina:CHOREO_DOCS })
+        }, { learnBallerina: CHOREO_DOCS })
     };
 
     const statusCodeComp: ReactNode = (
