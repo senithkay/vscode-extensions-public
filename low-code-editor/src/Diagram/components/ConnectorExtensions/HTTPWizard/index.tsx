@@ -159,8 +159,6 @@ export function HTTPWizard(props: WizardProps) {
         };
         diagramState.onEvent(event);
 
-        const headerField = connectorConfig.action.fields.find(field => field.name === "headers");
-
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             let actionInitializer: CheckAction;
@@ -175,19 +173,13 @@ export function HTTPWizard(props: WizardProps) {
 
             if (actionInitializer) {
                 const params: string[] = getParams(connectorConfig.action.fields);
-                let serviceCallParams: string = params.toString();
-
-                if (headerField?.value) {
-                    // updating headers
-                    serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
-                }
 
                 const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "http:Response",
                     connectorConfig.action.returnVariableName,
                     connectorConfig.name,
                     connectorConfig.action.name,
-                    [serviceCallParams],
+                    params,
                     model.position
                 );
                 modifications.push(addActionInvocation);
@@ -248,19 +240,13 @@ export function HTTPWizard(props: WizardProps) {
 
                     // Add an action invocation on the initialized client.
                     const params: string[] = getParams(connectorConfig.action.fields);
-                    let serviceCallParams = params.toString();
-
-                    // Header addition
-                    if (headerField?.value) {
-                        serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
-                    }
 
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "http:Response",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
                         connectorConfig.action.name,
-                        [serviceCallParams],
+                        params,
                         targetPosition
                     );
                     modifications.push(addActionInvocation);
