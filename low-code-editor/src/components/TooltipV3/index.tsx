@@ -36,7 +36,7 @@ const codeRef = (ref: HTMLPreElement) => {
     }
 }
 
-export default function TooltipV2(props: Partial<TooltipPropsExtended>) {
+export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const { children, title, text, action, disabled, onClick, type, ...restProps } = props;
     const styles = useStyles();
     let tooltipComp = (

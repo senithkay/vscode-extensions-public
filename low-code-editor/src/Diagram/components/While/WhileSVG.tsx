@@ -13,8 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "../../../components/Tooltip";
-import TooltipV2 from "components/TooltipV3";
+import Tooltip from "components/TooltipV3";
 
 export const WHILE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const WHILE_SVG_HEIGHT_WITH_SHADOW = 66.686;
@@ -49,7 +48,7 @@ export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => v
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <TooltipV2 type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
+            <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
                 <g id="While" className="while-group" transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)">
                         <g id="WhilePolygon" transform="translate(33.5, 3) rotate(45)">
@@ -76,7 +75,7 @@ export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => v
                         />
                     </g>
                 </g>
-            </TooltipV2>
+            </Tooltip>
         </svg>
     )
 }
