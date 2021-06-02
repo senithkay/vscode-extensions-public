@@ -191,7 +191,7 @@ function ExampleCodeTooltip(props: Partial<TooltipPropsExtended>) {
             {text.heading && <div className={styles.heading}>{text.heading}</div>}
             {text.content && <div className={styles.exampleContent}>{text.content}</div>}
             {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span>Eg: </span>{text.example}</div>}
+            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
             {text.code && <div className={`${styles.code} ${styles.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
         </div>
     )
@@ -205,7 +205,7 @@ function ExampleCodeInfoTooltip(props: Partial<TooltipPropsExtended>) {
             {text.heading && <div className={styles.heading}>{text.heading}</div>}
             {text.content && <div className={styles.exampleContent}>{text.content}</div>}
             {(text.heading || text.content) && <Divider className={styles.divider} light={true}/>}
-            {text.example && <div className={styles.exampleContent}><span>Eg: </span>{text.example}</div>}
+            {text.example && <div className={styles.exampleContent}><span className={styles.exampleTag}>Eg: </span>{text.example}</div>}
             {text.code && <div className={`${styles.code} ${styles.codeWrapper}`}><code ref={codeRef} data-lang="ballerina">{text.code.trim()}</code></div>}
             {action.text && (<div className={styles.buttonLink}> <a href={action.link} className={styles.buttonLink} target="_blank">{action.text}</a></div>)}
         </div>
