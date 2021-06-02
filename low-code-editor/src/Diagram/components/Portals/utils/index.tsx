@@ -212,10 +212,15 @@ export function getParams(formFields: FormField[]): string[] {
     formFields.forEach(formField => {
         let paramString: string = "";
         if (formField.isParam && !formField.noCodeGen) {
+            if (formField.isDefaultableParam && formField.value) {
+                paramString += `${formField.name} = `;
+            }
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
+            } else if (formField.type === "map" && formField.value) {
+                paramString += formField.value;
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
                 formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
