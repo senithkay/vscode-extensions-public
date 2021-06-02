@@ -323,6 +323,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 });
                                 if (varType === "string") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: 'Custom string template',
                                         kind: monaco.languages.CompletionItemKind.Keyword,
@@ -335,6 +336,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 }
                                 if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: 'true',
                                         kind: monaco.languages.CompletionItemKind.Keyword,
@@ -355,6 +357,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 }
                                 if (model.aiSuggestion) {
                                     const completionItemAI: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: model.aiSuggestion,
                                         kind: 1 as CompletionItemKind,
@@ -362,6 +365,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         sortText: '1'
                                     }
                                     completionItems.push(completionItemAI);
+                                }
+                                if (completionItems.length > 0) {
+                                    completionItems[0] = {...completionItems[0], preselect: true}
                                 }
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
@@ -575,7 +581,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
-            monacoEditor.trigger('exp_editor' + getRandomInt(100000), 'editor.action.triggerSuggest', {})
+            monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
     }
 
@@ -650,7 +656,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
 
             if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
-                monacoRef.current.editor.trigger('exp_editor' + getRandomInt(100000), 'editor.action.triggerSuggest', {})
+                monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
         }
     }
