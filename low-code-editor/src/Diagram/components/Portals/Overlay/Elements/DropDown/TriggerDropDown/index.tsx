@@ -66,6 +66,7 @@ export enum ConnectorType {
     SALESFORCE = "Salesforce",
     SLACK = "Slack",
     TWILIO = "Twilio",
+    ASB = "Azure Service Bus",
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
@@ -311,6 +312,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left"
                         ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.ASB,
+                            'azure_service_busLogoClient',
+                            "To trigger an application based on Azure Service Bus events.",
+                            "Azure SB",
+                            "left"
+                        ) }
                     </div>
                 </div>
             </DiagramOverlay>
