@@ -21,6 +21,7 @@ export interface DataMapperState {
     outputSTNode: STNode;
     maxFieldWidth: number;
     stSymbolInfo: any;
+    showAddJsonFieldForm: boolean;
     showAddVariableForm: boolean;
     showConfigureOutputForm: boolean;
     isExistingOutputSelected: boolean;
@@ -29,4 +30,9 @@ export interface DataMapperState {
     updateDataMapperConfig: (config: DataMapperConfig) => void;
     dataMapperStart: (config: DataMapperConfig) => void;
     dispatchMutations: (modifications: STModification[]) => void;
+}
+
+export enum FieldDraftType {
+    STRING,
+    OBJECT
 }

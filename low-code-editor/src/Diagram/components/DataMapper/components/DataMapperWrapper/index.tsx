@@ -11,8 +11,8 @@
  * associated services.
  */
 import React, { useContext, useEffect } from 'react';
-import { Context as DataMapperViewContext } from "../../context/DataMapperViewContext";
 
+import { Context as DataMapperViewContext } from "../../context/DataMapperViewContext";
 import { DataMapperState } from "../../util/types";
 import { MapperView } from "../MapperView";
 

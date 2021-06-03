@@ -12,6 +12,7 @@
  */
 
 import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, SpecificField, Visitor } from "@ballerina/syntax-tree";
+import { DraftFieldForm } from "../components/forms/DraftFieldForm";
 
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
@@ -56,17 +57,41 @@ export class DataMapperPositionVisitor implements Visitor {
         }
     }
 
+    endVisitAssignmentStatement(node: AssignmentStatement) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            if (viewState.draftViewState) {
+                this.height += DEFAULT_OFFSET;
+                viewState.draftViewState.bBox.x = this.offset + PADDING_OFFSET;
+                viewState.draftViewState.bBox.y = this.height + PADDING_OFFSET;
+            }
+
+            this.height += DEFAULT_OFFSET * 2;
+            this.offset = this.startOffset;
+            this.hasDataMapperTypeDesc = false;
+        }
+    }
+
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             viewState.bBox.x = this.offset + PADDING_OFFSET;
             viewState.bBox.y = this.height + PADDING_OFFSET;
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+
         }
     }
 
     endVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+
+            if (viewState.draftViewState) {
+                this.height += DEFAULT_OFFSET;
+                viewState.draftViewState.bBox.x = this.offset + PADDING_OFFSET;
+                viewState.draftViewState.bBox.y = this.height + PADDING_OFFSET;
+            }
+
             this.height += DEFAULT_OFFSET * 2;
             this.offset = this.startOffset;
             this.hasDataMapperTypeDesc = false;
@@ -105,10 +130,22 @@ export class DataMapperPositionVisitor implements Visitor {
     beginVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
             this.height += DEFAULT_OFFSET;
-            const viewstate = node.dataMapperViewState as DataMapperViewState;
-
+            const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.x = this.offset + PADDING_OFFSET;
             viewstate.bBox.y = this.height + PADDING_OFFSET;
+
+        }
+    }
+
+    endVisitSpecificField(node: SpecificField) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            if (viewstate.draftViewState) {
+                this.height += DEFAULT_OFFSET;
+                viewstate.draftViewState.bBox.x = this.offset + PADDING_OFFSET;
+                viewstate.draftViewState.bBox.y = this.height + PADDING_OFFSET;
+            }
         }
     }
 

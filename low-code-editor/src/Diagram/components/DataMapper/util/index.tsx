@@ -227,8 +227,8 @@ export function resetJsonValueToDefault(json: any) {
 }
 
 export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-                                               showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-                                               updateDataMapperConfig: (config: DataMapperConfig) => void) {
+    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+    updateDataMapperConfig: (config: DataMapperConfig) => void) {
     // let inputHeight: number = 0;
     // let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
@@ -394,8 +394,8 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
 }
 
 export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-                                                          showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-                                                          updateDataMapperConfig: (config: DataMapperConfig) => void) {
+    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+    updateDataMapperConfig: (config: DataMapperConfig) => void) {
     let inputHeight: number = 0;
     let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
@@ -492,6 +492,9 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
         dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
             viewstate.bBox.w = maxFieldWidth;
+            if ((viewstate as FieldViewState).draftViewState) {
+                (viewstate as FieldViewState).draftViewState.bBox.w = maxFieldWidth;
+            }
         });
 
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;

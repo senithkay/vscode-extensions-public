@@ -15,42 +15,93 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STNode } from '@ballerina/syntax-tree';
+import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { getDataMapperComponent } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
+import { FieldDraftType } from '../../../util/types';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
+import { DraftFieldViewstate } from '../../../viewstate/draft-field-viestate';
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
 
 interface JsonTypeProps {
-    model: STNode;
+    model?: STNode;
     isMain?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
+    onAddFieldButtonClick?: () => void;
     offSetCorrection: number;
+    draftFieldViewstate?: DraftFieldViewstate;
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model, isMain, onDataPointClick, offSetCorrection } = props;
-
-    const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
-    let name = viewState.name;
-    const type = viewState.type;
+    const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick } = props;
 
     const fields: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
+    const drafts: JSX.Element[] = [];
+
+    const handleAddFieldBtnClick = () => {
+        // viewState.test = true;
+        const draftVS = new DraftFieldViewstate();
+        // draftVS.name = '';
+        // draftVS.type = FieldDraftType.STRING;
+        let expression: MappingConstructor;
+
+        if (STKindChecker.isLocalVarDecl(model)) {
+            if (model.initializer && STKindChecker.isMappingConstructor(model.initializer)) {
+                expression = model.initializer;
+            }
+        } else if (STKindChecker.isAssignmentStatement(model)) {
+            // TODO: handle assignment type
+        } else if (STKindChecker.isSpecificField(model)) {
+            if (model.valueExpr && STKindChecker.isMappingConstructor(model.valueExpr)) {
+                expression = model.valueExpr;
+            }
+        }
+
+        if (expression) {
+            const closeBracePosition = expression.closeBrace.position;
+
+            if (expression.fields.length > 0) {
+                draftVS.precededByComma = STKindChecker.isCommaToken(expression.fields[expression.fields.length - 1]);
+            } else {
+                draftVS.precededByComma = true;
+            }
+            draftVS.draftInsertPosition = { line: undefined, column: undefined };
+            draftVS.draftInsertPosition.line = closeBracePosition.endLine;
+            draftVS.draftInsertPosition.column = closeBracePosition.endColumn - 1;
+        }
+
+        viewState.draftViewState = draftVS;
+
+        onAddFieldButtonClick();
+    }
+
+    const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
+    let name = viewState.name;
+    let type = viewState.type;
 
     switch (type) {
         case 'json':
-
             if (viewState.hasMappedConstructorInitializer) {
                 const initializer: MappingConstructor = (model as LocalVarDecl).initializer as MappingConstructor;
 
                 if (initializer) {
                     initializer.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
                         const fieldVS = field.dataMapperViewState;
-                        fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
+                        fields.push(
+                            getDataMapperComponent(
+                                fieldVS.type,
+                                {
+                                    model: field,
+                                    onDataPointClick,
+                                    offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
+                                    onAddFieldButtonClick
+                                }
+                            )
+                        );
                     });
                 }
             } else if (model.dataMapperTypeDescNode) {
@@ -59,6 +110,7 @@ export function JsonType(props: JsonTypeProps) {
             break;
         case 'mapconstructor':
             const fieldModel: MappingConstructor = (model as SpecificField).valueExpr as MappingConstructor;
+            type = 'json';
 
             const regexPattern = new RegExp(/^"(\w+)\"$/);
 
@@ -69,7 +121,17 @@ export function JsonType(props: JsonTypeProps) {
 
             fieldModel.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
                 const fieldVS = field.dataMapperViewState;
-                fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
+                fields.push(
+                    getDataMapperComponent(
+                        fieldVS.type,
+                        {
+                            model: field,
+                            onDataPointClick,
+                            offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
+                            onAddFieldButtonClick
+                        }
+                    )
+                );
             });
             break;
         default:
@@ -82,6 +144,16 @@ export function JsonType(props: JsonTypeProps) {
 
     if (viewState.targetPointViewState) {
         dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
+    }
+
+    if (viewState.draftViewState) {
+        drafts.push(getDataMapperComponent(
+            "draft",
+            {
+                offSetCorrection,
+                draftFieldViewState: viewState.draftViewState
+            }
+        ))
     }
 
     return (
@@ -114,14 +186,16 @@ export function JsonType(props: JsonTypeProps) {
             </g>
             <g render-order="1" >
                 <text
-                    x={viewState.bBox.x + viewState.bBox.w - 40}
+                    x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection}
                     y={viewState.bBox.y + DefaultConfig.dotGap + 5}
                     height="50"
+                    onClick={handleAddFieldBtnClick}
                 >
                     <tspan className="plus-symbol"> + </tspan>
                 </text>
             </g>
             {fields}
+            {drafts}
             {/* {dataPoints} */}
         </g>
     );

@@ -35,12 +35,13 @@ export function ValueType(props: ValueTypeProps) {
     const { model, isMain, onDataPointClick, offSetCorrection } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
 
+    const dataPoints: JSX.Element[] = [];
+
     let name: string = viewState.name;
     const type: string = viewState.type && viewState.type === PrimitiveBalType.Union ?
         viewState.unionType
         : viewState.type;
 
-    const dataPoints: JSX.Element[] = [];
     const regexPattern = new RegExp(/^"(\w+)\"$/);
 
     if (regexPattern.test(name)) {

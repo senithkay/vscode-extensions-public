@@ -71,6 +71,11 @@ export class DataMapperSizingVisitor implements Visitor {
                 }
             }
 
+            if (viewState.draftViewState) {
+                height += FIELD_HEIGHT;
+                viewState.draftViewState.bBox.h = FIELD_HEIGHT;
+            }
+
             viewState.bBox.h = height;
 
             // cleanup
@@ -137,6 +142,11 @@ export class DataMapperSizingVisitor implements Visitor {
                 }
             }
 
+            if (viewState.draftViewState) {
+                height += FIELD_HEIGHT;
+                viewState.draftViewState.bBox.h = FIELD_HEIGHT;
+            }
+
             viewState.bBox.h = height;
 
             // cleanup
@@ -181,6 +191,11 @@ export class DataMapperSizingVisitor implements Visitor {
                 }
             }
 
+            if (viewstate.draftViewState) {
+                height += FIELD_HEIGHT;
+                viewstate.draftViewState.bBox.h = FIELD_HEIGHT;
+            }
+
             viewstate.bBox.h += height;
 
             // cleanup
@@ -188,6 +203,7 @@ export class DataMapperSizingVisitor implements Visitor {
             if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 this.offSet -= FIELD_OFFSET;
             }
+
         }
     }
 

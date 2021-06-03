@@ -50,6 +50,8 @@ export function MapperView(props: MapperViewProps) {
             dispatchMutations,
             dataMapperConfig
         },
+        updateState,
+        dataMapperViewRedraw,
         toggleAddVariableForm,
         toggleOutputConfigureForm
     } = useContext(DataMapperViewContext);
@@ -83,7 +85,6 @@ export function MapperView(props: MapperViewProps) {
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
     }
-
 
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
         // current element is wrapped by a <g/> element
@@ -242,10 +243,14 @@ export function MapperView(props: MapperViewProps) {
     });
 
     if (outputSTNode) {
+        const onAddFieldButtonClick = () => {
+            dataMapperViewRedraw(outputSTNode);
+        }
+
         outputComponent.push(
             getDataMapperComponent(
                 outputSTNode.dataMapperViewState.type,
-                { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10 }
+                { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick }
             )
         );
     }
@@ -278,9 +283,9 @@ export function MapperView(props: MapperViewProps) {
                     id="Arrow-head"
                 />
             </g>
-            <DiagramOverlayContainer>
-                {
-                    expressionConfig && (
+            {
+                expressionConfig && (
+                    <DiagramOverlayContainer>
                         <DiagramOverlay
                             position={{
                                 x: expressionConfig.positionX - (PADDING_OFFSET * 2.4),
@@ -305,29 +310,34 @@ export function MapperView(props: MapperViewProps) {
                                 </div>
                             </div>
                         </DiagramOverlay>
-                    )
-                }
-                {
-                    // todo: revert
-                    showAddVariableForm && (
+
+                    </DiagramOverlayContainer >
+                )
+            }
+            {
+                // todo: revert
+                showAddVariableForm && (
+                    <DiagramOverlayContainer>
                         <DiagramOverlay
                             position={{ x: 105, y: 90 }}
                         >
                             <VariablePicker />
                         </DiagramOverlay>
-                    )
-                }
-                {
-                    showConfigureOutputForm && (
+                    </DiagramOverlayContainer>
+                )
+            }
+            {
+                showConfigureOutputForm && (
+                    <DiagramOverlayContainer>
                         <DiagramOverlay
                             position={{ x: maxFieldWidth + 400 + 60, y: 90 }}
 
                         >
                             <OutputTypeConfigForm />
                         </DiagramOverlay>
-                    )
-                }
-            </DiagramOverlayContainer >
+                    </DiagramOverlayContainer>
+                )
+            }
         </>
     )
 }

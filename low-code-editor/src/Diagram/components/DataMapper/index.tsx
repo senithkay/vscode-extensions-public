@@ -143,6 +143,7 @@ export function DataMapper(props: DataMapperProps) {
         showConfigureOutputForm: false,
         isExistingOutputSelected: false,
         isJsonRecordTypeSelected: false,
+        showAddJsonFieldForm: false,
         dataMapperConfig,
         maxFieldWidth,
         updateDataMapperConfig,

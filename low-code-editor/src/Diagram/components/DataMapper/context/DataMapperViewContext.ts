@@ -20,8 +20,18 @@ const reducer = (state: DataMapperState, action: any) => {
         case 'UPDATE_STATE':
             return { ...state, ...action.payload };
         case 'DATA_MAPPER_REDRAW':
-            const { inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig } = state;
-            const updatedValues = dataMapperSizingAndPositioningRecalculate(inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
+            const { inputSTNodes, stSymbolInfo,
+                    showAddVariableForm, dataMapperConfig, updateDataMapperConfig } = state;
+
+            const updatedValues = dataMapperSizingAndPositioningRecalculate(
+                inputSTNodes,
+                action.payload,
+                stSymbolInfo,
+                showAddVariableForm,
+                dataMapperConfig,
+                updateDataMapperConfig
+            );
+
             return {
                 ...state,
                 ...updatedValues
@@ -46,6 +56,11 @@ const reducer = (state: DataMapperState, action: any) => {
                 ...state,
                 isJsonRecordTypeSelected: !state.isJsonRecordTypeSelected
             }
+        case 'TOGGLE_ADD_JSON_FIELD_FORM':
+            return {
+                ...state,
+                showAddJsonFieldForm: !state.showAddJsonFieldForm
+            }
         default:
             return state;
     }
@@ -57,7 +72,7 @@ const actions = {
             dispatch({ type: 'UPDATE_STATE', payload });
         };
     },
-    dataMapperViewCleanDraw: (dispatch: any) => {
+    dataMapperViewRedraw: (dispatch: any) => {
         return (payload: any) => {
             dispatch({ type: 'DATA_MAPPER_REDRAW', payload })
         };
@@ -80,6 +95,11 @@ const actions = {
     toggleJsonRecordTypeOutputForm: (dispatch: any) => {
         return () => {
             dispatch({ type: 'TOGGLE_JSON_RECORD_TYPE_FORM' })
+        }
+    },
+    toggleAddJsonFieldForm: (dispatch: any) => {
+        return () => {
+            dispatch({ type: 'TOGGLE_ADD_JSON_FIELD_FORM' })
         }
     }
 }

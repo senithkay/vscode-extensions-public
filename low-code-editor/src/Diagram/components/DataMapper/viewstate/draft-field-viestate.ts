@@ -10,19 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DraftType } from './DraftType';
-import { JsonType } from './JsonType';
-import { RecordType } from './RecordType';
-import { ValueType } from './ValueType';
 
-export {
-    RecordType as record,
-    ValueType as string,
-    ValueType as int,
-    ValueType as boolean,
-    ValueType as float,
-    ValueType as union,
-    JsonType as json,
-    JsonType as mapconstructor,
-    DraftType as draft
+import { DraftInsertPosition } from "components/DiagramEditor";
+
+import { FieldDraftType } from "../util/types";
+
+import { DataMapperViewState } from ".";
+
+export class DraftFieldViewstate extends DataMapperViewState {
+    public draftInsertPosition: DraftInsertPosition;
+    public precededByComma: boolean;
 }

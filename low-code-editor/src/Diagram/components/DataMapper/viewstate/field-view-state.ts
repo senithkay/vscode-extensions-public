@@ -13,6 +13,7 @@
 import { TypeInfo } from "../../Portals/ConfigForm/types";
 
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from ".";
+import { DraftFieldViewstate } from "./draft-field-viestate";
 
 export class FieldViewState extends DataMapperViewState {
     public type: string;
@@ -23,4 +24,5 @@ export class FieldViewState extends DataMapperViewState {
     public hasInlineRecordDescription: boolean;
     public sourcePointViewState: SourcePointViewState;
     public targetPointViewState: TargetPointViewState;
+    public draftViewState: DraftFieldViewstate;
 }
