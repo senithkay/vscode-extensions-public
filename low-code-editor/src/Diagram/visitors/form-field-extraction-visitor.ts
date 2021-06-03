@@ -94,7 +94,7 @@ class FieldVisitor implements Visitor {
             viewState.optional = true;
             viewState.name = node.paramName.value;
             if (node.annotations.length > 0){
-                const annotateField = node.annotations.find((annotation: any)=> (annotation.annotReference as SimpleNameReference).name.value === "display")?.
+                const annotateField = node.annotations.find((annotation: any) => (annotation.annotReference as SimpleNameReference).name.value === "display")?.
                 annotValue?.fields.find((field: any) => STKindChecker.isSpecificField(field)) as SpecificField;
                 if (annotateField?.fieldName.value === "label"){
                     const labelField = annotateField.valueExpr as StringLiteral;

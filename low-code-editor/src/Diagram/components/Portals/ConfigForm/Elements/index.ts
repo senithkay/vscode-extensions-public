@@ -14,9 +14,9 @@ import ExpressionEditor from "./ExpressionEditor";
 import { ExpressionEditorArray } from "./ExpressionEditorArray";
 import { FormJson } from "./Json/FormJson"
 import { Record } from "./Record";
+import { RestParam } from "./RestParam";
 import { Union } from "./Union";
 import { XML } from "./XML";
-import { RestParam } from "./RestParam";
 
 export { ExpressionEditor as expression };
 export { ExpressionEditor as string };

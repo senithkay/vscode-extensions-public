@@ -12,18 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
+import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 import { useStyles } from "../../forms/style"
 import { FormElementProps } from "../../types";
+import { ButtonWithIcon } from "../Button/ButtonWithIcon";
 import { IconBtnWithText } from "../Button/IconBtnWithText";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
-import { FormHelperText } from "@material-ui/core";
-import { ButtonWithIcon } from "../Button/ButtonWithIcon";
-import CloseRounded from "@material-ui/icons/CloseRounded";
-import { FormattedMessage, useIntl } from "react-intl";
 
 export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
     const { model } = props;
