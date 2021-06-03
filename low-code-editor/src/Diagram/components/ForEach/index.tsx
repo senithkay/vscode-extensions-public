@@ -125,9 +125,7 @@ export function ForEach(props: ForeachProps) {
 
     const onForeachHeadClick = () => {
         // TODO: re enable this after the release
-
-        const varRef: CaptureBindingPattern = modelForeach.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-        const variable: string = varRef.variableName.value;
+        const variable: string = modelForeach?.typedBindingPattern?.bindingPattern?.source?.trim();
 
         const conditionExpression: ForeachConfig = {
             variable,
@@ -195,9 +193,9 @@ export function ForEach(props: ForeachProps) {
 
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
     const forEachModel = model as ForeachStatement
-    const variableName = ((((forEachModel.typedBindingPattern) as TypedBindingPattern).bindingPattern) as CaptureBindingPattern).variableName.value
+    const variableName = ((forEachModel.typedBindingPattern) as TypedBindingPattern)?.bindingPattern?.source?.trim();
     const keyWord = forEachModel.inKeyword.value
-    const forEachSource = forEachModel?.actionOrExpressionNode.source;
+    const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
 
     const unFoldedComponent = (
@@ -212,7 +210,7 @@ export function ForEach(props: ForeachProps) {
                 />
 
                 <ContitionAssignment
-                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
                     className="condition-assignment"
@@ -276,7 +274,7 @@ export function ForEach(props: ForeachProps) {
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
                 {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/> */}
                 <ContitionAssignment
-                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.dotGap * 3)}
+                    x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
                     className="condition-assignment"

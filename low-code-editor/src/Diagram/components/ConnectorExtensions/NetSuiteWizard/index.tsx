@@ -14,34 +14,27 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
-    createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
-    createRemoteServiceCall,
-    updateCheckedRemoteServiceCall,
-    updatePropertyStatement,
-    updateRemoteServiceCall
-} from "../../../utils/modification-util";
+    updatePropertyStatement} from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import {
-    checkErrorsReturnType,
     genVariableName,
+    getActionReturnType,
     getConnectorIcon,
-    getKeyFromConnection,
-    getOauthParamsFromConnection,
+    getInitReturnType,
     getParams,
     matchEndpointToFormField
 } from "../../Portals/utils";
@@ -73,7 +66,7 @@ enum FormStates {
 export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
@@ -130,7 +123,6 @@ export function NetSuiteWizard(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -161,7 +153,7 @@ export function NetSuiteWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updateConnectorInit = updatePropertyStatement(
@@ -211,9 +203,10 @@ export function NetSuiteWizard(props: WizardProps) {
 
     const showConnectionName = isManualConnection || !isNewConnection;
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updateConnectorInit = updatePropertyStatement(
@@ -222,23 +215,15 @@ export function NetSuiteWizard(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError) {
-                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+            if (actionReturnType.hasReturn) {
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -264,38 +249,19 @@ export function NetSuiteWizard(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                if (isActionReturnError) {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                if (actionReturnType.hasReturn) {
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 } else {
-                    const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 }
-
-                if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        config.responsePayloadMap.payloadVariableName,
-                        "var",
-                        config.action.returnVariableName,
-                        config.responsePayloadMap.payloadTypes.get(
-                            config.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                }
-
             }
         }
         onSave(modifications);
@@ -303,11 +269,18 @@ export function NetSuiteWizard(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
+    } else if (actionReturnType.hasReturn) {
         connectorInitFormFields = config.connectorInit;
-        config.action.returnVariableName =
-            (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
+            config.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
+        }
     }
+
+    config.action.name = selectedOperation;
 
     return (
         <div className={wizardClasses.fullWidth}>
@@ -348,6 +321,7 @@ export function NetSuiteWizard(props: WizardProps) {
                     isManualConnection={isManualConnection}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
                     connectionInfo={connectionDetails}
+                    hasReturn={actionReturnType.hasReturn}
                 />
             )}
             {(formState === FormStates.ExistingConnection && isNewConnectorInitWizard) && (

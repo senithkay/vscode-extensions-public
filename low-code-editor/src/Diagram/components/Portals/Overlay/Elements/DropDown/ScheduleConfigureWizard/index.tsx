@@ -24,11 +24,22 @@ import { addMinutes, format } from "date-fns";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { TooltipIcon } from "../../../../../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../../../../../Contexts/Diagram";
-import { TRIGGER_TYPE_SCHEDULE } from "../../../../../../models";
+import { Context } from "../../../../../../../Contexts/Diagram";
+import { DiagramContext } from "../../../../../../../providers/contexts";
+import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
+  TriggerType,
+  TRIGGER_SELECTED_INSIGHTS,
+  TRIGGER_TYPE_INTEGRATION_DRAFT,
+  TRIGGER_TYPE_SCHEDULE,
+  TRIGGER_TYPE_WEBHOOK,
+} from "../../../../../../models";
+import { createPropertyStatement } from "../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
+import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
 import { repeatRange, weekOptions } from "./ScheduleConstants";
@@ -38,9 +49,11 @@ import WeekOptions from "./WeekOptions";
 
 interface ScheduleConfigureWizardProps {
   position: DiagramOverlayPosition;
+  initialTriggerType: TriggerType;
   onWizardComplete: () => void;
   onClose: () => void;
   cron?: string,
+  schType?: string
 }
 
 export interface ConnectorEvents {
@@ -48,14 +61,13 @@ export interface ConnectorEvents {
 }
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
-  const { state } = useContext(DiagramContext);
+  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
+  const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
-    onModify: dispatchModifyTrigger,
-    trackTriggerSelection,
-    onMutate,
+    onEvent,
     originalSyntaxTree
   } = state;
 
@@ -63,28 +75,30 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
 
-  const { position, onWizardComplete, onClose, cron } = props;
+  const { position, onWizardComplete, onClose, cron, schType, initialTriggerType } = props;
   const classes = useStyles();
   const intl = useIntl();
   const toggleClasses = toggleStyles();
 
   const [currentCron, setCurrentCron] = useState<string>(cron || "");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const cronSplit = currentCron?.split(" ", 5);
 
   const [cronMinuteValue, setCronMinuteValue] = useState(cron ? cronSplit[0] : format(new Date(), 'm'));
-  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : format(new Date(), 'h'));
+  const [cronHourValue, setCronHourValue] = useState(cron ? cronSplit[1] : (new Date().getHours().toString()));
   const [cronDayValue, setCronDayValue] = useState(cron ? cronSplit[2] : format(new Date(), 'd'));
   const [cronMonthValue, setCronMonthValue] = useState(cron ? cronSplit[3] : format(new Date(), 'M'));
-  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[0]);
+  const [cronWeekValue, setCronWeekValue] = useState(cron ? cronSplit[4] : weekOptions[(new Date().getDay()) + 1]);
   const [checked, setChecked] = useState(true);
+  const [isDropdownChanged, setIsDropdownChanged] = useState(false)
 
   const modifyCronStartTime = new Date();
   modifyCronStartTime.setHours(Number(cronHourValue));
   modifyCronStartTime.setMinutes(Number(cronMinuteValue));
 
-  const [scheduledComp, setScheduledComp] = useState("Minute");
+  const [scheduledComp, setScheduledComp] = useState(schType ? schType : "Minute");
 
   const [validCron, setValidCron] = useState(false);
 
@@ -105,6 +119,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   function handleOnChangeCron(text: string) {
     setCurrentCron(text);
   }
+
+  const handleDialogOnCancel = () => {
+    setShowConfirmDialog(false);
+  };
 
   function validateCron(text: string) {
     if (isValidCron(text, { alias: true })) {
@@ -156,8 +174,29 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     setCronMonthValue(cronMonth);
   }
 
-  const minuteGenCron = cronMinuteValue === "0" ? "0" : "*/" + cronMinuteValue;
-  const hourGenCron = cronHourValue === "0" ? "0" : "*/" + cronHourValue;
+  let minuteGenCron = ""
+  let hourGenCron = ""
+
+  if (cronMinuteValue === "0")
+    minuteGenCron = "0"
+  else if (cronMinuteValue === "*")
+    minuteGenCron = "*"
+  else if (cronMinuteValue.substring(0, 2) === "*/")
+    minuteGenCron = cronMinuteValue
+  else
+    minuteGenCron = "*/" + cronMinuteValue
+
+  if (cronHourValue === "0")
+    hourGenCron = "0"
+  else if (cronHourValue === "*")
+    hourGenCron = "*"
+  else if (cronHourValue.substring(0, 2) === "*/")
+    hourGenCron = cronHourValue
+  else
+    hourGenCron = "*/" + cronHourValue
+
+  // let minuteGenCron = cronMinuteValue === "0" ? "0" : (cronMinuteValue.substring(0, 2) === "*/" ? cronMinuteValue :  "*/" + cronMinuteValue);
+  // const hourGenCron = cronHourValue === "0" ? "0" : (cronHourValue.substring(0, 2) === "*/" ? cronHourValue : "*/" + cronHourValue);
 
   const cronForSelectedType = () => {
     if (scheduledComp === "Minute") {
@@ -165,9 +204,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * *"
+      return cronMinuteValue + " " + cronHourValue + " * * *"
     } else if (scheduledComp === "Monthly") {
-      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " " + cronMonthValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
+    } else if (scheduledComp === "Weekly") {
+      return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
     }
@@ -203,9 +244,11 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     } else if (scheduledComp === "Hourly") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Daily") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " * *"
+      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *"
     } else if (scheduledComp === "Monthly") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " " + cronDateUTCValue + " " + cronMonthUTCValue + " " + cronWeekValue
+      return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
+    } else if (scheduledComp === "Weekly") {
+      return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
     }
@@ -225,18 +268,48 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     }
   }
 
-  const handleOnSave = () => {
-    const utcCron = UTCCronForSelectedType();
-    // dispatch and close the wizard
-    setTriggerChanged(true);
+  const createSchedule = () => {
     const saveSelectedCron = cronForSelectedType();
-    dispatchModifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
+    const utcCron = UTCCronForSelectedType();
+    modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
-      "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
-      "SYNTAX_TREE": originalSyntaxTree
+      "SCHEDULE_TYPE": scheduledComp
     });
-    trackTriggerSelection("Schedule");
+  };
+
+  const handleOnSave = () => {
+    const saveSelectedCron = cronForSelectedType();
+    const utcCron = UTCCronForSelectedType();
+    if ((initialTriggerType === TRIGGER_TYPE_SCHEDULE) || (initialTriggerType === TRIGGER_TYPE_INTEGRATION_DRAFT)) {
+      // dispatch and close the wizard
+      setTriggerChanged(true);
+      modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
+        "CRON": saveSelectedCron,
+        "UTCCRON": utcCron,
+        "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
+        "SYNTAX_TREE": originalSyntaxTree,
+        "SCHEDULE_TYPE": scheduledComp
+      });
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "Schedule"
+      };
+      onEvent(event);
+    } else if (initialTriggerType === TRIGGER_TYPE_WEBHOOK) {
+      setShowConfirmDialog(true);
+    } else {
+      modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
+        "CRON": saveSelectedCron,
+        "UTCCRON": utcCron,
+        "IS_TRIGGER_CHANGED": true
+      });
+      const commentModification = createPropertyStatement(
+        `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
+        { line: syntaxTree.position.startLine, column: 0 });
+      modifyDiagram([commentModification]);
+    }
   };
 
   const deafultMinute = cron ? cronMinuteValue.replace("*/", "") : cronMinuteValue;
@@ -245,7 +318,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteAndHourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startTime.title" defaultMessage="Start Time:"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startTime.title" defaultMessage="Start Time:" /></FormHelperText>
       <div className={toggleClasses.timeWrapper}>
         <TimePickerComp onTimeChange={handleTimeChange} defaultValue={modifyCronStartTime} />
       </div>
@@ -254,33 +327,33 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const minuteOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyMinute.title" defaultMessage="Every:"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyMinute.title" defaultMessage="Every:" /></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultMinute}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.minutes.title" defaultMessage="Minute(s):"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.minutes.title" defaultMessage="Minute(s):" /></FormHelperText>
     </div>
   );
 
   const hourOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyHour.title" defaultMessage="Every:"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.everyHour.title" defaultMessage="Every:" /></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultHour}
           onChange={handleChange}
         />
       </div>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.hours.title" defaultMessage="Hour(s)"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.hours.title" defaultMessage="Hour(s)" /></FormHelperText>
     </div>
   );
 
   const dayOptionComp: ReactNode = (
     <div className={toggleClasses.flexWrapper}>
-      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start Date:"/></FormHelperText>
+      <FormHelperText className={toggleClasses.titleLabel}><FormattedMessage id="lowcode.develop.scheduleConfigWizard.startDate.title" defaultMessage="Start Date:" /></FormHelperText>
       <div className={toggleClasses.timeOptionsWrapper}>
         <FormTextInput
           defaultValue={deafultDay}
@@ -290,72 +363,72 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     </div>
   );
   const repeatLabel = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.repeatLabel.text",
-  defaultMessage: "Repeat on the:"
-});
+    id: "lowcode.develop.scheduleConfigWizard.repeatLabel.text",
+    defaultMessage: "Repeat on the:"
+  });
 
   const repeatWeeklyLabel = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.repeatWeeklyLabel.text",
-  defaultMessage: "Repeat weekly"
-});
+    id: "lowcode.develop.scheduleConfigWizard.repeatWeeklyLabel.text",
+    defaultMessage: "Repeat weekly"
+  });
 
   const repeatMonthlyLabel = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.repeatMonthlyLabel.text",
-  defaultMessage: "Repeat monthly"
-});
+    id: "lowcode.develop.scheduleConfigWizard.repeatMonthlyLabel.text",
+    defaultMessage: "Repeat monthly"
+  });
 
   const cronExpressionTitle = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.cronExpression.title",
-  defaultMessage: "Cron Expression :"
-});
+    id: "lowcode.develop.scheduleConfigWizard.cronExpression.title",
+    defaultMessage: "Cron Expression :"
+  });
 
   const cronExpressionErrorMessage = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizard.cronExpressionErrorMessage.title",
-  defaultMessage: "Please enter a valid cron expression"
-});
+    id: "lowcode.develop.scheduleConfigWizard.cronExpressionErrorMessage.title",
+    defaultMessage: "Please enter a valid cron expression"
+  });
 
   const scheduleTriggerConfigTitle = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizar.Config.Title",
-  defaultMessage: "Configure Schedule Trigger"
-});
+    id: "lowcode.develop.scheduleConfigWizar.Config.Title",
+    defaultMessage: "Configure Schedule Trigger"
+  });
 
   const repeatScheduleDropDown = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
-  defaultMessage: "Schedule:"
-});
+    id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
+    defaultMessage: "Schedule:"
+  });
 
   const invalidValueErrorMessage = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizar.invalidValueErrorMessage.text",
-  defaultMessage: "Invalid value"
-});
+    id: "lowcode.develop.scheduleConfigWizar.invalidValueErrorMessage.text",
+    defaultMessage: "Invalid value"
+  });
 
   const saveScheduleButton = intl.formatMessage({
-  id: "lowcode.develop.scheduleConfigWizar.saveButton.text",
-  defaultMessage: "Save"
-});
+    id: "lowcode.develop.scheduleConfigWizar.saveButton.text",
+    defaultMessage: "Save"
+  });
 
   const scheduleTriggerTooltipMessages = {
-  scheduleConfig: {
-  title: intl.formatMessage({
-      id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.tooltip.title",
-      defaultMessage: "Set a schedule to run the integration."
-  })
-},
-  cronExpression: {
-  title: intl.formatMessage({
-    id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.title",
-    defaultMessage: "A cron expression is a string that contains subfields separated by white spaces. Each special character represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
-}),
-  actionText: intl.formatMessage({
-  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionText",
-  defaultMessage: "Read more"
-}),
-  actionLink: intl.formatMessage({
-  id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionLink",
-  defaultMessage: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
-})
-}
-}
+    scheduleConfig: {
+      title: intl.formatMessage({
+        id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.tooltip.title",
+        defaultMessage: "Set a schedule to run the integration."
+      })
+    },
+    cronExpression: {
+      title: intl.formatMessage({
+        id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.title",
+        defaultMessage: "A cron expression is a string that contains subfields separated by white spaces. Each special character represents Seconds, Minutes, Hours, Date, Month, and Day respectively."
+      }),
+      actionText: intl.formatMessage({
+        id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionText",
+        defaultMessage: "Read more"
+      }),
+      actionLink: intl.formatMessage({
+        id: "lowcode.develop.triggerDropDown.scheduleTriggerTooltips.cronExpression.tooltip.actionLink",
+        defaultMessage: "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/"
+      })
+    }
+  }
   const weekOptionComp: ReactNode = (
     <div>
       <WeekOptions
@@ -451,6 +524,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const handleSchedule = (selectedRepeatRange: string) => {
     setScheduledComp(selectedRepeatRange);
+    setIsDropdownChanged(true)
     if (selectedRepeatRange === "") {
       setScheduledComp("Minute");
     }
@@ -467,7 +541,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const weekComp: ReactNode = (
     <>
       {minuteAndHourOptionComp}
-      {repeatEveryWeek}
+      {/*{repeatEveryWeek}*/}
       {weekOptionComp}
     </>
   );
@@ -476,7 +550,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     <>
       {minuteAndHourOptionComp}
       {dayOptionComp}
-      {repeatEveryMonth}
+      {/*{repeatEveryMonth}*/}
       {weekOptionComp}
     </>
   );
@@ -536,6 +610,15 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
             disabled={!validCron}
           />
         </div>
+
+        {
+          showConfirmDialog && (
+            <SourceUpdateConfirmDialog
+              onConfirm={createSchedule}
+              onCancel={handleDialogOnCancel}
+            />
+          )
+        }
       </>
     </DiagramOverlay>
   );

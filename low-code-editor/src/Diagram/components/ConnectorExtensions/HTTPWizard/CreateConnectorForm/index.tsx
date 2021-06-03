@@ -17,8 +17,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
 
+import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
@@ -49,7 +50,7 @@ interface NameState {
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { onBackClick, onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled, onSave } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
     const [connectorInitFormFields] = useState(connectorConfigFormFields);
@@ -128,7 +129,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSave();
     };
 
-    const connectionNameLabel = intl.formatMessage({
+    const createConnectionNameLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.name.label",
         defaultMessage: "Connection Name"
     });
@@ -178,32 +179,56 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "DELETE"
     });
 
-    const HTTPCreateConnectionTooltipMessages = {
-        connectionName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.connectorForms.HTTP.createConnection.connectionName.tooltip.title",
-                defaultMessage: "Add a valid connection name"
-            })
-    }
-    };
+    const pathInstructionsBullet1 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint1",
+        defaultMessage: "Include spaces and special characters"
+      });
+
+    const pathInstructionsBullet2 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint2",
+        defaultMessage: "Start with a numerical character"
+      });
+
+    const pathInstructionsBullet3 = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint3",
+        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
+      });
+
+    const pathInstructions = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.tooltip",
+        defaultMessage: "A valid connection name should not:"
+      });
+    const title = (
+        <div>
+          <p>{pathInstructions}</p>
+          <ul>
+            <li>{pathInstructionsBullet1}</li>
+            <li>{pathInstructionsBullet2}</li>
+            <li>{pathInstructionsBullet3}</li>
+          </ul>
+        </div>
+      );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
+                    <Section
+                                title={createConnectionNameLabel}
+                                tooltip={{title}}
+                    >
                         <FormTextInput
                             customProps={{
                                 validate: validateNameValue,
-                                tooltipTitle: HTTPCreateConnectionTooltipMessages.connectionName.title,
                                 disabled: hasReference
                             }}
                             defaultValue={nameState.value}
                             onChange={onNameChange}
-                            label={connectionNameLabel}
                             errorMessage={connectorNameError}
                             placeholder={connectionNamePlaceholder}
                         />
+                    </Section>
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
                         </div>

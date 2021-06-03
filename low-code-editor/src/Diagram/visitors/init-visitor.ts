@@ -5,6 +5,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -13,6 +14,7 @@ import {
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -30,10 +32,13 @@ import {
     BlockViewState,
     CollapseViewState,
     CompilationUnitViewState,
+    DoViewState,
     ElseViewState,
+    EndpointViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    OnErrorViewState,
     PlusViewState,
     SimpleBBox,
     StatementViewState,
@@ -42,8 +47,10 @@ import {
 import { DraftStatementViewState } from "../view-state/draft";
 import { WhileViewState } from "../view-state/while";
 
+import { DefaultConfig } from "./default";
+
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
-let currentFnBody: FunctionBodyBlock;
+let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 const allDiagnostics: Diagnostic[] = [];
 
 class InitVisitor implements Visitor {
@@ -223,10 +230,18 @@ class InitVisitor implements Visitor {
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
+        node.viewState = new BlockViewState();
+        currentFnBody = node;
+        allEndpoints = new Map<string, Endpoint>();
+        // this.visitBlock(node, parent);
+        node.viewState.isEndComponentAvailable = true;
     }
 
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // todo: Check if this is the function to replace endVisitExpressionStatement
+        const blockViewState: BlockViewState = node.viewState;
+        blockViewState.connectors = allEndpoints;
+        currentFnBody = undefined;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
@@ -299,6 +314,45 @@ class InitVisitor implements Visitor {
             //     stmtViewState.action.actionName = expression.methodName.name.value;
             //     stmtViewState.action.endpointName = varRef.name.value;
             // }
+        }
+    }
+
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+        if (!node.viewState) {
+            node.viewState = new DoViewState();
+        }
+        const viewState = new BlockViewState();
+        if (node.viewState && node.viewState.isFirstInFunctionBody) {
+            const doViewState: DoViewState = node.viewState as DoViewState;
+            if (node.blockStatement) {
+                viewState.isDoBlock = true;
+            }
+
+            if (node.onFailClause) {
+                const onFailViewState: OnErrorViewState = new OnErrorViewState();
+                onFailViewState.isFirstInFunctionBody = true;
+                node.onFailClause.viewState = onFailViewState;
+            }
+        } else {
+            this.initStatement(node, parent);
+        }
+
+        if (node.blockStatement) {
+            node.blockStatement.viewState = viewState;
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        if (!node.viewState) {
+            node.viewState = new OnErrorViewState();
+        }
+        const viewState = new BlockViewState();
+        if (node.viewState && node.viewState.isFirstInFunctionBody && node.blockStatement) {
+            viewState.isOnErrorBlock = true;
+        }
+
+        if (node.blockStatement) {
+            node.blockStatement.viewState = viewState;
         }
     }
 
@@ -385,9 +439,13 @@ class InitVisitor implements Visitor {
         let collapseFrom: number = 0;
         let collapsed: boolean = false;
         let plusButtons: PlusViewState[] = [];
+        let isDoBlock: boolean = false;
+        let isOnErrorBlock: boolean = false;
         if (node.viewState) {
             const viewState: BlockViewState = node.viewState as BlockViewState;
             draft = viewState.draft;
+            isDoBlock = viewState.isDoBlock;
+            isOnErrorBlock = viewState.isOnErrorBlock;
             if (viewState.collapseView) {
                 collapseView = viewState.collapseView;
                 collapseFrom = viewState.collapsedFrom;
@@ -404,6 +462,8 @@ class InitVisitor implements Visitor {
         node.viewState.collapsedFrom = collapseFrom;
         node.viewState.collapsed = collapsed;
         node.viewState.plusButtons = plusButtons;
+        node.viewState.isDoBlock = isDoBlock;
+        node.viewState.isOnErrorBlock = isOnErrorBlock;
 
         if (node.VisibleEndpoints) {
             const visibleEndpoints = node.VisibleEndpoints;
@@ -419,7 +479,7 @@ class InitVisitor implements Visitor {
                 });
                 if (resourceKeyword) {
                     const callerParam: RequiredParam = parent.functionSignature.parameters[0] as RequiredParam;
-                    callerParamName = callerParam.paramName.value;
+                    callerParamName = callerParam?.paramName?.value;
                 }
             }
             visibleEndpoints.forEach((ep: any) => {
@@ -430,6 +490,17 @@ class InitVisitor implements Visitor {
                     actions
                 };
                 if (!allEndpoints.has(ep.typeName) && ep.name !== callerParamName) {
+                    // Update endpoint lifeline values.
+                    const endpointViewState: EndpointViewState = new EndpointViewState();
+                    endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
+                    endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
+                    endpointViewState.iconId = ep.moduleName + "_" + ep.typeName;
+
+                    // Update the endpoint sizing values in allEndpoint map.
+                    const visibleEndpoint: any = endpoint.visibleEndpoint;
+                    const mainEp = endpointViewState;
+                    mainEp.isUsed = endpoint.firstAction !== undefined;
+                    visibleEndpoint.viewState = mainEp;
                     allEndpoints.set(ep.name, endpoint);
                 }
             });
@@ -437,6 +508,17 @@ class InitVisitor implements Visitor {
         // evaluating return statement
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             node.viewState.isEndComponentAvailable = true;
+        }
+
+        if (STKindChecker.isFunctionDefinition(parent)) {
+            for (const statement of node.statements) {
+                if (STKindChecker.isDoStatement(statement)) {
+                    const viewState: DoViewState = new DoViewState();
+                    viewState.isFirstInFunctionBody = true;
+                    statement.viewState = viewState;
+                    break;
+                }
+            };
         }
     }
 

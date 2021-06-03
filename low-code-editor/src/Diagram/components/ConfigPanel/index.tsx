@@ -14,8 +14,7 @@
 import React, { ReactNode, useContext } from "react";
 import ReactDOM from "react-dom";
 
-import CloseIcon from '@material-ui/icons/Close';
-
+import { CloseIcon } from '../../../assets/icons';
 import { Context } from "../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
 import { ConfigForm } from "../Portals/ConfigForm";

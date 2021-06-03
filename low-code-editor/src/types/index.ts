@@ -15,6 +15,7 @@
 // Should move these to ../Definitions/*
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { LowcodeEvent } from "components/DiagramEditor";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
 import { AppInfo, ApplicationFile } from "../api/models";
@@ -109,6 +110,8 @@ export interface LowCodeEditorProps {
     oauthSessions?: OauthSessionState;
     dispatchFileChange?: (content: string) => Promise<void>;
     dispatchCodeChangeCommit?: () => Promise<void>;
+    onEvent?: (event: LowcodeEvent) => void;
+    hasConfigurables?: (templateST: ModulePart) => boolean;
 }
 
 export interface STSymbolInfo {

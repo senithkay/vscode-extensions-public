@@ -18,10 +18,12 @@ import cn from "classnames";
 import { EndpointViewState, StatementViewState } from '../../view-state';
 import { ActionInvocation } from '../ActionInvocation';
 import { Connector } from "../Connector";
+import { DoStatement } from '../DoStatement';
 import { DataProcessor } from '../Processor';
 import { Respond } from "../Respond";
 
 import "./style.scss";
+
 
 export interface StatementProps {
     model: STNode;
@@ -31,6 +33,8 @@ export function StatementC(props: StatementProps) {
     const { model } = props;
 
     const statements: React.ReactNode[] = [];
+    let doStatement: React.ReactNode = null;
+    let externalConnector: React.ReactNode = null;
     const classes = cn("statement");
 
     if (STKindChecker.isLocalVarDecl(model)
@@ -50,6 +54,18 @@ export function StatementC(props: StatementProps) {
                 statements.push(
                     <ActionInvocation model={clientInit} />
                 );
+
+                if (epViewState.isExternal) {
+                    externalConnector = (
+                        <Connector
+                            model={model}
+                            x={epViewState.lifeLine.cx}
+                            y={epViewState.lifeLine.cy}
+                            h={epViewState.lifeLine.h}
+                            connectorName={viewState.action.endpointName}
+                        />
+                    );
+                }
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
@@ -77,6 +93,8 @@ export function StatementC(props: StatementProps) {
                 <Respond model={model} />
             </g>
         );
+    } else if (STKindChecker.isDoStatement(model) && model.viewState.isFirstInFunctionBody) {
+        doStatement = <DoStatement model={model} />;
     } else {
         statements.push(
             <g>
@@ -86,8 +104,12 @@ export function StatementC(props: StatementProps) {
     }
 
     return (
-        <g className={classes}>
-            {statements}
+        <g>
+            {externalConnector}
+            <g className={classes}>
+                {statements}
+            </g>
+            {doStatement}
         </g>
     );
 }

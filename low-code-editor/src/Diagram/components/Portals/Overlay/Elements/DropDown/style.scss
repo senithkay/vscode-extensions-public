@@ -110,7 +110,7 @@
     .trigger-title-wrap {
         display: flex;
         justify-content: space-between;
-        margin: 22px 24px 19px;
+        margin: 22px 10px 19px;
     }
 
     .trigger-title-wrap p {
@@ -140,23 +140,27 @@
 
     .trigger-list {
         display: flex;
-        margin: 0 24px 16px 24px;
+        margin: 0 7px 16px 7px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
 
     .trigger-wrapper {
         cursor: pointer;
         font-size: 13px;
-        width: 145px;
+        width: 150px;
         border-radius: 4px;
-        padding: 0.25rem 0.54rem 0;
+        padding: 0 0.54rem 0;
         height: 40px;
+        display: flex;
+        align-items: center;
 
         .icon-wrapper {
             display: inline-block;
             width: 20px;
             height: 20px;
             vertical-align: sub;
-            padding-top: 5px;
             padding-left: 0.5px;
 
             img {
@@ -173,7 +177,6 @@
                 width: 20px;
                 height: 20px;
                 vertical-align: sub;
-                padding-top: 5px;
                 padding-left: 0.5px;
             }
         }

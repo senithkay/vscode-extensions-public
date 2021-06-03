@@ -16,14 +16,14 @@ import React, { useContext, useState } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
 import { getConditionConfig } from "../../utils/diagram-util";
 import { BlockViewState, EndViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { EndConfigForm } from "../ConfigForms/EndConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
-import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
+import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
 // import { ProcessConfig } from "../Portals/ConfigForm/types";
@@ -35,6 +35,7 @@ export interface EndProps {
     viewState?: EndViewState;
     model?: STNode;
     blockViewState?: BlockViewState;
+    isExpressionFunction?: boolean;
 }
 
 export function End(props: EndProps) {
@@ -53,10 +54,10 @@ export function End(props: EndProps) {
             isCodeEditorActive
         },
         diagramCleanDraw
-    } = useContext(DiagramContext);
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
-    const { viewState, model, blockViewState } = props;
+    const { viewState, model, blockViewState, isExpressionFunction } = props;
     const isDraftStatement: boolean = blockViewState
         && blockViewState.draft[1] instanceof DraftStatementViewState;
 
@@ -133,7 +134,7 @@ export function End(props: EndProps) {
                 {blockViewState || model ?
                     (<>
                         {
-                            (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                            (!isExpressionFunction && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                                 className="end-options-wrapper"
                                 height={STOP_SVG_HEIGHT_WITH_SHADOW}
                                 width={STOP_SVG_HEIGHT_WITH_SHADOW}

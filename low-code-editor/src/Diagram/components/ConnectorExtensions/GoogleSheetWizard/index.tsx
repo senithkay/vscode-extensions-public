@@ -14,18 +14,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
 
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../utils/mixins"
 import {
-    createCheckedRemoteServiceCall,
     createImportStatement,
     createPropertyStatement,
     createRemoteServiceCall,
@@ -43,9 +42,10 @@ import {PrimaryButton} from "../../Portals/ConfigForm/Elements/Button/PrimaryBut
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import {useStyles} from "../../Portals/ConfigForm/forms/style";
 import {
-    checkErrorsReturnType,
     genVariableName,
+    getActionReturnType,
     getConnectorIcon,
+    getInitReturnType,
     getKeyFromConnection,
     getOauthParamsFromConnection,
     getParams,
@@ -83,7 +83,7 @@ export function GoogleSheet(props: WizardProps) {
     const classes = useStyles();
     const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
@@ -143,7 +143,6 @@ export function GoogleSheet(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -201,7 +200,7 @@ export function GoogleSheet(props: WizardProps) {
     };
 
     const handleOauthConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -256,7 +255,7 @@ export function GoogleSheet(props: WizardProps) {
     };
 
     const handleManualConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -332,9 +331,10 @@ export function GoogleSheet(props: WizardProps) {
             .find(field => field.name === key).value || "";
     }
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -384,22 +384,16 @@ export function GoogleSheet(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                if (isActionReturnError) {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                if (actionReturnType.hasReturn) {
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 } else {
-                    const addActionInvocation: STModification = createRemoteServiceCall(
-                        "var",
-                        config.action.returnVariableName,
-                        config.name,
-                        config.action.name,
-                        getParams(config.action.fields), targetPosition
+                    const addActionInvocation = createPropertyStatement(
+                        `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
                     );
                     modifications.push(addActionInvocation);
                 }
@@ -418,23 +412,15 @@ export function GoogleSheet(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError) {
-                const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+            if (actionReturnType.hasReturn) {
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -445,7 +431,7 @@ export function GoogleSheet(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
+    } else if (actionReturnType.hasReturn) {
         connectorInitFormFields = config.connectorInit;
         config.action.returnVariableName =
             (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
@@ -460,6 +446,8 @@ export function GoogleSheet(props: WizardProps) {
         id: "lowcode.develop.connectorForms.GSheet.backButton.text",
         defaultMessage: "Back"
     });
+
+    config.action.name = selectedOperation;
 
     return (
         <div className={wizardClasses.fullWidth}>
@@ -560,6 +548,7 @@ export function GoogleSheet(props: WizardProps) {
                     mutationInProgress={isMutationProgress}
                     isManualConnection={isManualConnection}
                     connectionInfo={connectionDetails}
+                    hasReturnType={actionReturnType.hasReturn}
                 />
             )}
             {(formState === FormStates.ExistingConnection && isNewConnectorInitWizard) && (

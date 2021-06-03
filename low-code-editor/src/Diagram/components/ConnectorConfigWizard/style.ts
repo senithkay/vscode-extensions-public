@@ -84,11 +84,16 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             color: "#222228",
         },
         subTitle: {
-            height: 10,
-            color: "#686b73",
-            fontSize: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase"
+            color: "#1D2028",
+            fontSize: 15,
+            textTransform: "capitalize",
+            fontWeight: 500,
+        },
+        manualConnectionTitle: {
+            color: "#1D2028",
+            fontSize: 13,
+            textTransform: "capitalize",
+            fontWeight: 500,
         },
         connectorIconWrapper: {
             width: 32,
@@ -207,16 +212,17 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         box: {
-            width: "100%",
+            width: "auto",
             height: 45,
             borderRadius: 5,
-            padding: theme.spacing(1),
-            paddingLeft: theme.spacing(2.5),
             marginBottom: theme.spacing(1),
             borderColor: theme.palette.secondary.main,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            '& h6.MuiTypography-root.MuiTypography-subtitle2': {
+                paddingLeft: theme.spacing(2.5),
+            }
         },
         changeConnectionBtn: {
             padding: 3,

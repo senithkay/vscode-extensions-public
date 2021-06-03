@@ -11,16 +11,21 @@
  * associated services.
  */
 import ExpressionEditor from "./ExpressionEditor";
+import { ExpressionEditorArray } from "./ExpressionEditorArray";
 import { FormJson } from "./Json/FormJson"
 import { Record } from "./Record";
+import { Union } from "./Union";
 import { XML } from "./XML";
 
+export { ExpressionEditor as expression };
 export { ExpressionEditor as string };
 export { ExpressionEditor as int };
 export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
-export { ExpressionEditor as collection };
-export { ExpressionEditor as union };
+export { ExpressionEditorArray as collection };
+export { ExpressionEditor as map };
+export { ExpressionEditor as httpRequest };
+export { Union as union };
 export { Record as record };
 export { FormJson as json };
 export { XML as xml };

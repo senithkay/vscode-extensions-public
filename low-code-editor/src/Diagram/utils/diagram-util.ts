@@ -1,11 +1,11 @@
 
-import { STNode, traversNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
 import { ConditionConfig } from "../components/Portals/ConfigForm/types";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
-import { BlockViewState } from "../view-state";
+import { BlockViewState, FunctionViewState } from "../view-state";
 import { DraftInsertPosition } from "../view-state/draft";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positionVisitor } from "../visitors/positioning-visitor";
@@ -22,6 +22,12 @@ export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }
@@ -29,6 +35,11 @@ export function sizingAndPositioning(st: STNode): STNode {
 export function recalculateSizingAndPositioning(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
     const clone = { ...st };
     return clone;
 }

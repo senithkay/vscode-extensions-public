@@ -217,10 +217,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         subtitle: {
             marginTop: '1.25rem',
-            fontWeight: 500,
-            fontSize: 15,
-            color: '#222228',
+            fontSize: 14,
+            color: '#1D2028',
             letterSpacing: 0,
+            textTransform: 'capitalize'
         },
         mainTitleWrapper: {
             display: 'flex',
@@ -387,17 +387,17 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        addCheckWrapper: {
+        suggestionsWrapper: {
             display: 'flex',
             marginTop: '4px'
         },
-        addCheckIcon: {
+        suggestionsIcon: {
             marginRight: '6px',
             marginTop: '3px',
-            height: '16px',
-            width: '16px'
+            height: '20px',
+            width: '20px'
         },
-        addCheckText: {
+        suggestionsText: {
             fontSize: '13px !important',
             color: '#8d91a3 !important',
             marginTop: '0 !important',
@@ -405,8 +405,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        addCheckTextClickable: {
-            color: '#5567d5 !important',
+        suggestionsTextInfo: {
+            color: '#ea4c4d !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        suggestionsTextError: {
+            color: '#ea4c4d !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'
@@ -422,6 +429,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             justifyContent: "space-between",
             marginTop: '-1.5rem !important'
-        }
+        },
+        removeInnerMargin: {
+            margin: '0.5rem 0 0 0 !important',
+            "& div": {
+                margin: '0 !important',
+                "& div": {
+                    margin: '0 !important',
+                    "& div": {
+                        margin: '0 !important',
+                    }
+                }
+            }
+        },
     }),
 );

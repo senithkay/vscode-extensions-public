@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { ActionStatement, RemoteMethodCallAction, ReturnStatement, SimpleNameReference } from "@ballerina/syntax-tree";
+import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, SimpleNameReference, STKindChecker } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
@@ -33,6 +33,8 @@ interface EndOverlayFormProps {
 export function EndOverlayForm(props: EndOverlayFormProps) {
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
+    const isExpressionFunctionBody: boolean = config.model ?
+        STKindChecker.isExpressionFunctionBody(config.model) : false;
 
     if (formType === "Return") {
         config.expression = "";
@@ -51,9 +53,14 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
         const respondFormConfig: RespondConfig = config.expression as RespondConfig;
         respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
     } else if (config.wizardType === WizardType.EXISTING && formType === "Return") {
-        const returnStmt = config.model as ReturnStatement;
-        const simpleNameRef = returnStmt.expression as SimpleNameReference;
-        config.expression = simpleNameRef?.name.value;
+        if (isExpressionFunctionBody) {
+            const expressionEditor: ExpressionFunctionBody = config?.model as ExpressionFunctionBody;
+            config.expression = expressionEditor.expression?.source;
+        } else {
+            const returnStmt = config.model as ReturnStatement;
+            const returnExpression = returnStmt.expression;
+            config.expression = returnExpression?.source;
+        }
     }
 
     if (isLoading) {

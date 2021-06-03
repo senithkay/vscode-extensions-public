@@ -120,10 +120,6 @@ export function IfElseSVG(props: {
                     {icon}
                 </g>
             </TooltipCodeSnippet>
-            {/* <text id="getResponse" transform="translate(40 1)" className="then-text">
-                <tspan x="-40" y="62">then</tspan>
-            </text> */}
-            {/* </g> */}
         </svg>
     )
 }

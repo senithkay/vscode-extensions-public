@@ -12,13 +12,17 @@
  */
 import {
     BlockStatement,
+    DoStatement,
+    ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
     ModulePart,
     ObjectMethodDefinition,
+    OnFailClause,
     ResourceAccessorDefinition,
+    STKindChecker,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -33,11 +37,13 @@ import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX 
 import {
     BlockViewState,
     CompilationUnitViewState,
+    DoViewState,
     ElseViewState,
     EndpointViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    OnErrorViewState,
     PlusViewState,
     StatementViewState,
     WhileViewState
@@ -179,9 +185,24 @@ class PositioningVisitor implements Visitor {
             }
         }
 
-        updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
+        let widthOfOnFailClause = 0;
+        if (!STKindChecker.isExpressionFunctionBody(body) && body.statements.length > 0) {
+            for (const statement of body.statements) {
+                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
+                    if (statement.onFailClause) {
+                        const onFailBlockViewState = statement.onFailClause.blockStatement.viewState as BlockViewState;
+                        widthOfOnFailClause = onFailBlockViewState.bBox.w;
+                        const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
+                        onFailViewState.bBox.cx = viewState.end.bBox.cx + (DefaultConfig.startingOnErrorX * 2);
+                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2) + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2);
+                        viewState.onFail = statement.onFailClause;
+                    }
+                }
+            }
+        }
+        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -235,6 +256,12 @@ class PositioningVisitor implements Visitor {
         allEndpoints = blockViewState.connectors;
         epCount = 0;
         this.beginVisitBlockStatement(node);
+    }
+
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const blockViewState: BlockViewState = node.viewState;
+        allEndpoints = blockViewState.connectors;
+        epCount = 0;
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {
@@ -332,11 +359,28 @@ class PositioningVisitor implements Visitor {
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.action.endpointName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint as VisibleEndpoint;
                     const mainEp: EndpointViewState = visibleEndpoint.viewState;
+                    statementViewState.endpoint.typeName = visibleEndpoint.typeName;
 
                     // Set action trigger box cx point to match life line cx
                     // Set action trigger box cy point to match action invocation statement cy
                     statementViewState.action.trigger.cx = mainEp.lifeLine.cx;
                     statementViewState.action.trigger.cy = statementViewState.bBox.cy;
+
+                    if (endpoint.visibleEndpoint.isExternal && !endpoint.firstAction) {
+                        statementViewState.endpoint = mainEp;
+                        // Add endpoint in to the action view statement.
+                        const endpointViewState: EndpointViewState = statementViewState.endpoint;
+                        endpointViewState.typeName = visibleEndpoint.typeName;
+
+                        // to identify a connector init ( http:Client ep1 = new ("/context") )
+                        endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
+                            (endpointViewState.bBox.w / 2) + epGap + (epGap * epCount);
+                        endpointViewState.lifeLine.cy = statementViewState.bBox.cy - (DefaultConfig.connectorLine.gap);
+                        endpointViewState.isExternal = endpoint.visibleEndpoint.isExternal;
+                        visibleEndpoint.viewState = endpointViewState;
+
+                        epCount++;
+                    }
 
                     // to check whether the action is invoked for the first time
                     if (!endpoint.firstAction) {
@@ -504,6 +548,42 @@ class PositioningVisitor implements Visitor {
                 defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
             }
         }
+    }
+
+    public beginVisitDoStatement(node: DoStatement) {
+        const viewState = node.viewState as DoViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = viewState.bBox.cx;
+            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
+
+            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
+            viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
+        }
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const onFailViewState = node.viewState as OnErrorViewState;
+            const blockViewState = node.blockStatement.viewState as BlockViewState;
+            blockViewState.bBox.cx = onFailViewState.bBox.cx;
+            blockViewState.bBox.cy = onFailViewState.bBox.cy;
+            // blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
+        }
+    }
+
+    public endVisitOnFailClause(node: OnFailClause) {
+        const viewState = node.viewState as OnErrorViewState;
+        if (viewState.isFirstInFunctionBody) {
+            const onFailBlockViewState = node.blockStatement.viewState as BlockViewState;
+            viewState.header.cx = viewState.bBox.cx;
+            viewState.header.cy = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.x = viewState.bBox.cx;
+            viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
+            viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
+        }
+
     }
 
 }

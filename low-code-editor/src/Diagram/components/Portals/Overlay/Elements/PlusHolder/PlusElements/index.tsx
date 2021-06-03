@@ -22,6 +22,7 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
+import { API_TAB_SELECTION_INSIGHTS, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../../models";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { APIOptions } from "../PlusElementOptions/APIOptions";
@@ -50,16 +51,16 @@ export enum APIHeightStates {
 
 export const PLUS_HOLDER_WIDTH = 376;
 export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
-export const PLUS_HOLDER_API_HEIGHT = 490;
-export const EXISTING_PLUS_HOLDER_API_HEIGHT = 680;
+export const PLUS_HOLDER_API_HEIGHT = 625;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT = 806;
 export const EXISTING_PLUS_HOLDER_WIDTH = 286;
-export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 344;
-export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 525;
+export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 321;
+export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
     const { state, diagramRedraw } = useContext(Context);
-    const { isCodeEditorActive, stSymbolInfo, syntaxTree } = state;
+    const { isCodeEditorActive, stSymbolInfo, syntaxTree, onEvent } = state;
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
     const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
@@ -77,6 +78,11 @@ export function PlusElements(props: PlusElementsProps) {
         }
     };
     const handleAPIClick = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: API_TAB_SELECTION_INSIGHTS,
+        };
+        onEvent(event);
         setSelectedItem("APIS");
         if (onComponentClick) {
             onComponentClick("APIS");
@@ -136,32 +142,16 @@ export function PlusElements(props: PlusElementsProps) {
         statementsPlusHolder: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
-                defaultMessage: "A collection of code fragments that can be added to your application"
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionText",
-                defaultMessage: "Learn more about Statements."
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.actionTitle",
-                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/statements.md"
+                defaultMessage: "A collection of code fragments that can be added to your application."
             })
         },
         APIsPlusHolder: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-                defaultMessage: "A collection of API calls that helps you to integrate your application to external services"
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionText",
-                defaultMessage: "Learn more about Connections."
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.actionTitle",
-                defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/connector.md"
-            })
-        },
-    }
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
+            defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
+        })
+},
+}
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -176,10 +166,8 @@ export function PlusElements(props: PlusElementsProps) {
             <div className="holder-options">
                 <Tooltip
                     title={plusHolderUITooltipMessages.statementsPlusHolder.title}
-                    actionText={plusHolderUITooltipMessages.statementsPlusHolder.actionText}
-                    actionLink={plusHolderUITooltipMessages.statementsPlusHolder.actionLink}
                     interactive={true}
-                    placement="left"
+                    placement="bottom"
                     arrow={true}
                 >
                     <div className="options" onClick={handleStatementClick}>
@@ -192,10 +180,8 @@ export function PlusElements(props: PlusElementsProps) {
 
                     <Tooltip
                         title={plusHolderUITooltipMessages.APIsPlusHolder.title}
-                        actionText={plusHolderUITooltipMessages.APIsPlusHolder.actionText}
-                        actionLink={plusHolderUITooltipMessages.APIsPlusHolder.actionLink}
                         interactive={true}
-                        placement="right"
+                        placement="bottom"
                         arrow={true}
                     >
                         <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>

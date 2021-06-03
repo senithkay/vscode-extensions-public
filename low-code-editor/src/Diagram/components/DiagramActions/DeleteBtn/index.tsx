@@ -15,8 +15,9 @@ import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../providers/contexts";
 import { DefaultConfig } from "../../../visitors/default";
 import { DeleteConfirmDialog } from "../../Portals/Overlay/Elements";
 
@@ -34,7 +35,8 @@ export interface DeleteBtnProps {
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
-    const { state: { isReadOnly, onMutate: dispatchMutations } } = useContext(DiagramContext);
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { state: { isReadOnly } } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
 
@@ -79,7 +81,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
                 }
             }
             modifications.push(modification);
-            dispatchMutations(modifications);
+            modifyDiagram(modifications);
             closeConfirmDialog();
         } else if (onDraftDelete) {
             onDraftDelete();

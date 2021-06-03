@@ -17,7 +17,8 @@ import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { DiagramContext } from "../../../../providers/contexts";
+import { Context } from "../../../../Contexts/Diagram";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { STModification } from "../../../../Definitions";
@@ -34,6 +35,8 @@ import { DiagramOverlayPosition } from "../../Portals/Overlay";
 import { genVariableName } from "../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
+
 export interface AddEndFormProps {
     type: string;
     targetPosition: DraftInsertPosition;
@@ -46,9 +49,9 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { state } = useContext(DiagramContext);
-    const { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo, configOverlayFormStatus } = state;
-
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { state } = useContext(Context);
+    const { onEvent, stSymbolInfo, configOverlayFormStatus } = state;
 
     const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -87,10 +90,15 @@ export function EndConfigForm(props: any) {
                         modifications.push(updateRespond);
                         break;
                 }
-                dispatchMutations(modifications);
+                modifyDiagram(modifications);
             } else {
                 if (endConfig.type === "Return") {
-                    trackAddStatement(endConfig.type);
+                    const event: LowcodeEvent = {
+                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                        name: FINISH_STATEMENT_ADD_INSIGHTS,
+                        property: endConfig.type
+                    };
+                    onEvent(event);
                     const addReturnStatement: STModification = createReturnStatement(
                         endConfig.expression as string, formArgs?.targetPosition);
                     modifications.push(addReturnStatement);
@@ -131,7 +139,12 @@ export function EndConfigForm(props: any) {
                         modifications.push(addRespondWithCode);
 
                     } else {
-                        trackAddStatement(endConfig.type);
+                        const event: LowcodeEvent = {
+                            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                            name: FINISH_STATEMENT_ADD_INSIGHTS,
+                            property: endConfig.type
+                        };
+                        onEvent(event);
                         let respondExpression = "check $caller->respond($expression);";
                         respondExpression = respondExpression
                             .replace("$caller", respondConfig.caller)
@@ -143,7 +156,7 @@ export function EndConfigForm(props: any) {
                     }
                 }
             }
-            dispatchMutations(modifications);
+            modifyDiagram(modifications);
             onSave();
         }
     };

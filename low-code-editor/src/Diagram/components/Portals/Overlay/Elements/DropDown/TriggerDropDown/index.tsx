@@ -18,8 +18,17 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
-import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
-import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
+import { Context } from '../../../../../../../Contexts/Diagram';
+import {
+    TriggerType,
+    TRIGGER_TYPE_API,
+    TRIGGER_TYPE_INTEGRATION_DRAFT,
+    TRIGGER_TYPE_MANUAL,
+    TRIGGER_TYPE_SCHEDULE,
+    TRIGGER_TYPE_SERVICE_DRAFT,
+    TRIGGER_TYPE_WEBHOOK,
+    LowcodeEvent, EVENT_TYPE_AZURE_APP_INSIGHTS, TRIGGER_SELECTED_INSIGHTS
+} from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
@@ -30,6 +39,8 @@ import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from 'react-intl';
+import { getExistingConnectorIconSVG } from '../../../../utils';
+import { DiagramContext } from "../../../../../../../providers/contexts";
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -39,6 +50,7 @@ interface TriggerDropDownProps {
     // dispatchGoToNextTourStep: (nextStepId: string) => void;
     isEmptySource?: boolean;
     triggerType?: TriggerType;
+    activeConnectorType?: ConnectorType;
     configData?: any;
     isDropdownActive?: boolean;
     // createTrigger: (triggerType: TriggerType, model?: any, configObject?: any) => void; // todo: handle dispatch
@@ -46,19 +58,24 @@ interface TriggerDropDownProps {
 
 export enum ConnectorType {
     GITHUB = "GitHub",
+    GMAIL = "Gmail",
     G_CALENDAR = "Google Calendar",
     G_SHEET = "Google Sheet",
-    SALESFORCE = "Salesforce"
+    G_DRIVE = "Google Drive",
+    SALESFORCE = "Salesforce",
+    SLACK = "Slack",
+    TWILIO = "Twilio",
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, onModifyTrigger } = state;
-    const { onClose, onComplete, title = "Select Trigger",
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent } = state;
+    const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
-    const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
+    const [activeConnector, setActiveConnector] = useState<ConnectorType>(activeConnectorType);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
@@ -79,10 +96,20 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         //     dispatchGoToNextTourStep("SELECT_TRIGGER");
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
-            if (isEmptySource) {
-                // todo: handle dispatch
-                onModifyTrigger(newTrigger);
-            } else {
+            if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
+                modifyTrigger(newTrigger);
+                const event: LowcodeEvent = {
+                    type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                    name: TRIGGER_SELECTED_INSIGHTS,
+                    property: "Manual"
+                };
+                onEvent(event);
+            } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
+                modifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
+                    "SYNTAX_TREE": originalSyntaxTree,
+                    "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
+                });
+            } else if (triggerType !== TRIGGER_TYPE_MANUAL) {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
             }
@@ -91,7 +118,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModifyTrigger(selectedTrigger);
+        modifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
@@ -100,7 +127,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         onComplete(selectedTrigger);
     }
     function handleSubMenuClose() {
-        setSelectedTrigger(undefined);
+        setSelectedTrigger(triggerType);
         setActiveConnector(undefined);
     }
 
@@ -116,7 +143,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
+            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
         })
     }
     };
@@ -127,14 +154,6 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.title",
             defaultMessage: "To trigger an application according to a given schedule."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the schedule trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#3--schedule"
-        })
     }
     };
 
@@ -144,67 +163,40 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
             defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the manual trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#2-Manual"
-        })
     }
     };
 
-    const gitHubTriggerTooltipMessages = {
-        gitHubTrigger: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.title",
-            defaultMessage: "To trigger an application based on GitHub events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the GitHub trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.gitHubTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#5-GitHub"
-        })
-    }
-    };
+    const getConnectorTriggerButton = (connector: ConnectorType, iconId: string, tooltipTitle: string, label?: string, tooltipPlacement?: any) => {
+        const shortName = connector.replace(/ /gi, '').toLowerCase();
+        const placement = tooltipPlacement
+        const triggerTooltipMessages = {
+            title: intl.formatMessage({
+                id: `lowcode.develop.triggerDropDown.${shortName}Trigger.tooltip.title`,
+                defaultMessage: tooltipTitle
+            }),
+        };
 
-    const calendarTriggerTooltipMessages = {
-        calendarTrigger: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.title",
-            defaultMessage: "To trigger an application based on Google Calendar events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the calendar trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.calendarTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md#4-calendar"
-        })
+        return (
+            <Tooltip
+                title={triggerTooltipMessages.title}
+                interactive={true}
+                placement={placement}
+                arrow={true}
+            >
+                <div
+                    className={cn("trigger-wrapper", { "active": (activeConnector === connector) })}
+                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, connector)}
+                >
+                    <div className="icon-wrapper">
+                        <div className="trigger-selector-icon">
+                            {getExistingConnectorIconSVG(iconId)}
+                        </div>
+                    </div>
+                    <div className="trigger-label "><FormattedMessage id={`lowcode.develop.triggerDropDown.${shortName}.title`} defaultMessage={label || connector} /></div>
+                </div>
+            </Tooltip>
+        );
     }
-    };
-
-    const salesforceTriggerTooltipMessages = {
-        salesforceTrigger: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.title",
-            defaultMessage: "To trigger an application based on Salesforce events."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionText",
-            defaultMessage: "Learn about the Salesforce trigger."
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.triggerDropDown.salesforceTrigger.tooltip.actionTitle",
-            defaultMessage: "https://github.com/wso2/choreo-docs/blob/master/portal-docs/trigger.md"
-        })
-    }
-    };
 
     const integrationMenu = (
         <div>
@@ -229,112 +221,106 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     )}
                     <hr className={"trigger-title-underline"} />
                     <div className={"trigger-list"}>
-                        <div>
-                            <Tooltip
-                                title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
-                                actionText={scheduleTriggerTooltipMessages.scheduleTrigger.actionText}
-                                actionLink={scheduleTriggerTooltipMessages.scheduleTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
+                        <Tooltip
+                            title={scheduleTriggerTooltipMessages.scheduleTrigger.title}
+                            interactive={true}
+                            placement="left"
+                            arrow={true}
+                        >
+                            <div
+                                className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_SCHEDULE })}
+                                onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_SCHEDULE)}
                             >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_SCHEDULE })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_SCHEDULE)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <ScheduleIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.schedule.title" defaultMessage="Schedule"/></div>
+                                <div className="icon-wrapper">
+                                    <ScheduleIcon className="trigger-selector-icon" />
                                 </div>
-                            </Tooltip>
-                            {/* INFO:webhook trigger has been removed */}
-                            <Tooltip
-                                title={calendarTriggerTooltipMessages.calendarTrigger.title}
-                                actionText={calendarTriggerTooltipMessages.calendarTrigger.actionText}
-                                actionLink={calendarTriggerTooltipMessages.calendarTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.G_CALENDAR) })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.G_CALENDAR)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <CalendarIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.calendar.title" defaultMessage="Calendar"/></div>
-                                </div>
-                            </Tooltip>
+                                <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.schedule.title" defaultMessage="Schedule" /></div>
+                            </div>
+                        </Tooltip>
 
-                            <Tooltip
-                                title={salesforceTriggerTooltipMessages.salesforceTrigger.title}
-                                actionText={salesforceTriggerTooltipMessages.salesforceTrigger.actionText}
-                                actionLink={salesforceTriggerTooltipMessages.salesforceTrigger.actionLink}
-                                interactive={true}
-                                placement="left"
-                                arrow={true}
+                        <Tooltip
+                            title={manualTriggerTooltipMessages.manualTrigger.title}
+                            interactive={true}
+                            placement="right"
+                            arrow={true}
+                        >
+                            <div
+                                className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_MANUAL })}
+                                onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_MANUAL)}
                             >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.SALESFORCE) })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.SALESFORCE)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <SalesforceIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.salesforce.title" defaultMessage="Salesforce"/></div>
+                                <div className="icon-wrapper">
+                                    <ManualIcon className="trigger-selector-icon" />
                                 </div>
-                            </Tooltip>
-                        </div>
-                        <div>
-                            <Tooltip
-                                title={manualTriggerTooltipMessages.manualTrigger.title}
-                                actionText={manualTriggerTooltipMessages.manualTrigger.actionText}
-                                actionLink={manualTriggerTooltipMessages.manualTrigger.actionLink}
-                                interactive={true}
-                                placement="right"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": selectedTrigger === TRIGGER_TYPE_MANUAL })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_MANUAL)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <ManualIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.manual.title" defaultMessage="Manual"/></div>
-                                </div>
-                            </Tooltip>
+                                <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.manual.title" defaultMessage="Manual" /></div>
+                            </div>
+                        </Tooltip>
 
-                            <Tooltip
-                                title={gitHubTriggerTooltipMessages.gitHubTrigger.title}
-                                actionText={gitHubTriggerTooltipMessages.gitHubTrigger.actionText}
-                                actionLink={gitHubTriggerTooltipMessages.gitHubTrigger.actionLink}
-                                interactive={true}
-                                placement="right"
-                                arrow={true}
-                            >
-                                <div
-                                    className={cn("trigger-wrapper", { "active": (activeConnector === ConnectorType.GITHUB) })}
-                                    onClick={handleTriggerChange.bind(this, TRIGGER_TYPE_WEBHOOK, ConnectorType.GITHUB)}
-                                >
-                                    <div className="icon-wrapper">
-                                        <GitHubIcon className="trigger-selector-icon" />
-                                    </div>
-                                    <div className="trigger-label "><FormattedMessage id="lowcode.develop.triggerDropDown.GitHub.title" defaultMessage="GitHub"/></div>
-                                </div>
-                            </Tooltip>
-                        </div>
+                        { getConnectorTriggerButton(
+                            ConnectorType.GITHUB,
+                            'github_Client',
+                            "To trigger an application based on GitHub events.",
+                            "GitHub",
+                            "left",
+                        ) }
+
+                        {/* { getConnectorTriggerButton(
+                            ConnectorType.GMAIL,
+                            'googleapis_gmail_Client',
+                            "To trigger an application based on GMail events.",
+                            "Gmail",
+                            "right",
+                        ) } */}
+
+                        { getConnectorTriggerButton(
+                            ConnectorType.G_CALENDAR,
+                            'googleapis_calendar_Client',
+                            "To trigger an application based on Google Calendar events.",
+                            "Calendar",
+                            "left"
+                        ) }
+
+                        { getConnectorTriggerButton(
+                            ConnectorType.G_SHEET,
+                            'googleapis_sheets_Sheet',
+                            "To trigger an application based on Google Sheet events.",
+                            "Sheet",
+                            "right"
+                        ) }
+
+                        {/* { getConnectorTriggerButton(
+                            ConnectorType.G_DRIVE,
+                            'googleapis_drive_Client',
+                            "To trigger an application based on Google Drive events.",
+                            "Drive"
+                        ) } */}
+
+                        { getConnectorTriggerButton(
+                            ConnectorType.SALESFORCE,
+                            'sfdc_Client',
+                            "To trigger an application based on Salesforce events.",
+                            "Salesforce",
+                            "left"
+                        ) }
+
+                        { getConnectorTriggerButton(
+                            ConnectorType.SLACK,
+                            'slack_Client',
+                            "To trigger an application based on Slack events.",
+                            "Slack",
+                            "left"
+                        ) }
+
                     </div>
                 </div>
             </DiagramOverlay>
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
+                    initialTriggerType={triggerType}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
                     cron={configData?.cron}
+                    schType={configData?.schType}
                 />
             )}
             {selectedTrigger === TRIGGER_TYPE_WEBHOOK && activeConnector !== undefined && (
@@ -343,6 +329,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
+                    isWebhookTypeChanged={activeConnectorType !== activeConnector}
                 />
             )}
             {showConfirmDialog && (

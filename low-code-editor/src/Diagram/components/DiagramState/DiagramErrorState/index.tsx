@@ -14,6 +14,8 @@
 
 import * as React from "react";
 
+import "../style.scss"
+
 export function DiagramErrorState(props: {
    x: number,
    y: number,
@@ -41,10 +43,14 @@ export function DiagramErrorState(props: {
             </clipPath>
          </defs>
          <g id="Group_202" transform="translate(-146 -742)">
-            {isErrorMsgVisible && (<g id="TextWrapper">
+            {isErrorMsgVisible && (
+            <g id="TextWrapper">
                <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill="#fceded" />
-               <text id="Code_has_errors_fix" transform="translate(202 768)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular"><tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan></text>
-            </g>)}
+               <text id="Code_has_errors_fix" transform="translate(202 768)" className="code-errors">
+                  <tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan>
+               </text>
+            </g>)
+            }
             <g id="ErrorBtnandIcon" transform="translate(146 744)" onClick={onOpen} style={{ cursor: 'pointer' }}>
                <g id="Button_Pill_40_Default_Copy" clipPath="url(#clipPath)">
                   <g id="Purpose">
@@ -59,7 +65,7 @@ export function DiagramErrorState(props: {
                <g transform="matrix(1, 0, 0, 1, 146, 742)" filter="url(#Oval)">
                   <circle id="Oval-2" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke="#fe523c" strokeMiterlimit="10" strokeWidth="1" />
                </g>
-               <text id="_4" transform="translate(175 755)" fill="#40404b" font-size="12" font-family="GilmerRegular, Gilmer Regular">
+               <text id="_4" transform="translate(175 755)">
                   <tspan x="1" y="0">{text}</tspan></text>
             </g>
             {isErrorMsgVisible && (<g id="CloseBtn" transform="translate(539 755)" onClick={onClose} style={{ cursor: 'pointer' }}>

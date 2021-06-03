@@ -14,14 +14,20 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 
 import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent
+} from "../../../models";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -37,14 +43,12 @@ import {
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
 import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
-import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { genVariableName, getConnectorIcon, getParams, matchEndpointToFormField } from "../../Portals/utils";
+import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
-import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -73,7 +77,7 @@ export function HTTPWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
             model, selectedConnector, isAction } = props;
-    const { state: diagramState } = useContext(DiagramContext);
+    const { state: diagramState } = useContext(Context);
 
     const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -114,6 +118,12 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
@@ -142,11 +152,20 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleActionOnSave = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
+
+        const headerField = connectorConfig.action.fields.find(field => field.name === "headers");
+
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             let actionInitializer: CheckAction;
             switch (httpVar.initializer.kind) {
-                case 'TypeCastExpression':
+                case 'CheckAction':
                     // has response variable
                     actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
                     break;
@@ -155,182 +174,37 @@ export function HTTPWizard(props: WizardProps) {
             }
 
             if (actionInitializer) {
-                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
                 const params: string[] = getParams(connectorConfig.action.fields);
-                // only generates the request object name if there is no request object created for the connector
-                const requestNameGen: string = !headerObject[0]?.requestName ? genVariableName("request", getAllVariables(symbolInfo)) : headerObject[0]?.requestName;
-                let serviceCallParams: string;
-                if (message) {
-                    if (message.kind === 'SimpleNameReference') {
-                        let refName = (message as SimpleNameReference).name.value;
-                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
-                        if (headerObject.length > 0) {
-                            serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                                connectorConfig.action.fields[3]?.value
-                                : refName);
-                            serviceCallParams = params[0] + serviceCallParams;
-                        } else {
-                            serviceCallParams = params.toString();
-                        }
+                let serviceCallParams: string = params.toString();
 
-                        let firstCall = true;
-                        let startLine: number = 0;
-                        let startColumn: number = 0;
-                        let endLine: number = 0;
-                        let endColumn: number = 0;
-
-                        if (refCallStatements) {
-                            refCallStatements
-                                .forEach(callStatement => {
-                                    if (firstCall) {
-                                        startLine = callStatement.position.startLine;
-                                        startColumn = callStatement.position.startColumn;
-                                        firstCall = false;
-                                    }
-                                    endLine = callStatement.position.endLine;
-                                    endColumn = callStatement.position.endColumn;
-                                });
-                        } else {
-                            if (headerObject.length > 0) {
-                                startLine = model.position.startLine;
-                                endLine = model.position.startLine;
-                            }
-                        }
-
-                        if (previousAction === 'forward' && headerObject.length > 0) {
-                            // only creates the request object if there is no request object created for the connector
-                            if (!headerObject[0]?.requestName) {
-                                modifications.push(createPropertyStatement(
-                                    `http:Request ${requestNameGen} = new;\n`,
-                                    { line: startLine, column: 0 }
-                                ));
-                            }
-
-                            refName = requestNameGen;
-                            params[1] = requestNameGen;
-                            serviceCallParams = params.toString();
-                            setPreviousAction(connectorConfig.action.name);
-
-                        } else if (previousAction !== 'forward' && connectorConfig.action.name === 'forward' && headerObject.length > 0) {
-                            refName = connectorConfig.action.fields[3]?.value
-                        }
-
-                        if (headerObject.length > 0) {
-                            const updatePosition: DraftUpdateStatement = {
-                                startLine,
-                                startColumn,
-                                endColumn,
-                                endLine
-                            }
-
-                            if (connectorConfig.action.name !== "forward") {
-                                modifications.push(
-                                    updateHeaderObjectDeclaration(
-                                        headerObject,
-                                        refName,
-                                        connectorConfig.action.name,
-                                        connectorConfig.action.fields[1],
-                                        updatePosition
-                                    )
-                                )
-                            } else {
-                                modifications.push(
-                                    updateHeaderObjectDeclaration(
-                                        headerObject,
-                                        refName,
-                                        connectorConfig.action.name,
-                                        connectorConfig.action.fields[3],
-                                        updatePosition
-                                    )
-                                );
-                            }
-                        }
-                    } else {
-                        if (headerObject.length > 0) {
-                            serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                                connectorConfig.action.fields[3]?.value
-                                : requestNameGen);
-                            serviceCallParams = params[0] + serviceCallParams;
-                            if (connectorConfig.action.name === "forward") {
-                                createHeaderObjectDeclaration(
-                                    headerObject,
-                                    connectorConfig.action.fields[3]?.value,
-                                    connectorConfig.action.name,
-                                    connectorConfig.action.fields[3],
-                                    { line: model.position.startLine, column: 0 },
-                                    modifications
-                                );
-                            } else {
-                                createHeaderObjectDeclaration(
-                                    headerObject,
-                                    requestNameGen,
-                                    connectorConfig.action.name,
-                                    connectorConfig.action.fields[1],
-                                    { line: model.position.startLine, column: 0 },
-                                    modifications
-                                );
-                            }
-                        } else {
-                            serviceCallParams = params.toString();
-                        }
-                    }
-                } else {
-                    // when editing a request without payload
-                    if (headerObject.length > 0) {
-                        if (connectorConfig.action.name === "forward") {
-                            createHeaderObjectDeclaration(
-                                headerObject,
-                                connectorConfig.action.fields[3]?.value,
-                                connectorConfig.action.name,
-                                connectorConfig.action.fields[3],
-                                { line: model.position.startLine - 1, column: 0 },
-                                modifications
-                            );
-                        } else {
-                            createHeaderObjectDeclaration(
-                                headerObject,
-                                requestNameGen,
-                                connectorConfig.action.name,
-                                connectorConfig.action.fields[1],
-                                { line: model.position.startLine - 1, column: 0 },
-                                modifications
-                            );
-                        }
-                    }
-
-                    if (headerObject.length > 0) {
-                        serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                            connectorConfig.action.fields[3]?.value
-                            : requestNameGen);
-                        serviceCallParams = params[0] + serviceCallParams;
-                    } else {
-                        serviceCallParams = params.toString();
-                    }
+                if (headerField?.value) {
+                    // updating headers
+                    serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
                 }
 
+                const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                    "http:Response",
+                    connectorConfig.action.returnVariableName,
+                    connectorConfig.name,
+                    connectorConfig.action.name,
+                    [serviceCallParams],
+                    model.position
+                );
+                modifications.push(addActionInvocation);
+
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = updateServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
+                    // payload update
                     let responseModel: STNode;
                     symbolInfo.variables.forEach((value, key) => {
                         if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
                             value.forEach(val => {
-                                const varName = (((val as LocalVarDecl).typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.variableName.value
+                                const varName = (((val as LocalVarDecl).typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.variableName.value;
                                 if (varName === connectorConfig.responsePayloadMap.payloadVariableName) {
                                     responseModel = val;
                                 }
                             })
                         }
                     })
-
                     if (responseModel) {
                         const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
@@ -343,81 +217,46 @@ export function HTTPWizard(props: WizardProps) {
                     } else {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             { line: model.position.startLine + 1, column: 0 }
                         );
                         modifications.push(addPayload);
                     }
-                } else {
-                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
                 }
             }
         } else {
             if (targetPosition) {
-                // Add an http header.
-                const requestNameGen: string = genVariableName("request", getAllVariables(symbolInfo));
-                if (headerObject.length > 0) {
-                    if (connectorConfig.action.name === "forward") {
-                        createHeaderObjectDeclaration(
-                            headerObject,
-                            connectorConfig.action.fields[3]?.value,
-                            connectorConfig.action.name,
-                            connectorConfig.action.fields[3],
-                            targetPosition,
-                            modifications
+                if (targetPosition) {
+                    // Add an import.
+                    const addImport: STModification = createImportStatement(
+                        connector.org,
+                        connector.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    // Add an connector client initialization.
+                    if (!connectorConfig.isExistingConnection) {
+                        const addConnectorInit = createPropertyStatement(
+                            `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                            targetPosition
                         );
-                    } else {
-                        createHeaderObjectDeclaration(
-                            headerObject,
-                            requestNameGen,
-                            connectorConfig.action.name,
-                            connectorConfig.action.fields[1],
-                            targetPosition,
-                            modifications
-                        );
+                        modifications.push(addConnectorInit);
                     }
-                }
-                // Add an action invocation on the initialized client.
-                const params: string[] = getParams(connectorConfig.action.fields);
-                let serviceCallParams: string;
-                if (headerObject.length > 0) {
-                    serviceCallParams = ", " + (connectorConfig.action.name === "forward" ? connectorConfig.action.fields[3]?.value
-                        : requestNameGen);
-                    serviceCallParams = params[0] + serviceCallParams;
-                } else {
-                    serviceCallParams = params.toString();
-                }
-                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = createServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        connectorConfig.responsePayloadMap.payloadVariableName,
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                } else {
+
+                    // Add an action invocation on the initialized client.
+                    const params: string[] = getParams(connectorConfig.action.fields);
+                    let serviceCallParams = params.toString();
+
+                    // Header addition
+                    if (headerField?.value) {
+                        serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
+                    }
+
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
+                        "http:Response",
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
                         connectorConfig.action.name,
@@ -425,10 +264,30 @@ export function HTTPWizard(props: WizardProps) {
                         targetPosition
                     );
                     modifications.push(addActionInvocation);
+
+                    if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
+                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                            connectorConfig.responsePayloadMap.payloadVariableName,
+                            "var",
+                            connectorConfig.action.returnVariableName,
+                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
+                            targetPosition
+                        );
+                        modifications.push(addPayload);
+                    }
                 }
             }
         }
         onSave(modifications);
+    }
+
+    const getPayloadReturnType = () => {
+        switch (connectorConfig.responsePayloadMap.selectedPayloadType) {
+            case "Text":
+                return "string";
+            default:
+                return connectorConfig.responsePayloadMap.selectedPayloadType.toLowerCase();
+        }
     }
 
     const handleOnSave = () => {
@@ -632,7 +491,7 @@ export function HTTPWizard(props: WizardProps) {
                     if (responseModel) {
                         const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             responseModel.position
@@ -641,7 +500,7 @@ export function HTTPWizard(props: WizardProps) {
                     } else {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                            getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                             { line: model.position.startLine + 1, column: 0 }
@@ -724,7 +583,7 @@ export function HTTPWizard(props: WizardProps) {
                     modifications.push(addActionInvocation);
                     const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                         connectorConfig.responsePayloadMap.payloadVariableName,
-                        "var",
+                        getPayloadReturnType(),
                         connectorConfig.action.returnVariableName,
                         connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
                         targetPosition
@@ -776,7 +635,6 @@ export function HTTPWizard(props: WizardProps) {
                     <SelectInputOutputForm
                         functionDefinitions={functionDefinitions}
                         onSave={handleActionOnSave}
-                        headerObject={headerObject}
                         onConnectionChange={handleConnectionChange}
                         connectorConfig={connectorConfig}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}

@@ -203,7 +203,7 @@ export const tooltipMessages: Record<string, any> = {
         clientID : "Client ID of the connected app",
         clientSecret : "Client secret of the connected app",
         refreshToken : "Refresh token of the connected app",
-        refreshTokenURL : "Refreh token URL of the connected app"
+        refreshTokenURL : "Refresh token URL of the connected app"
     },
     postgreSQL : {
         title : "Connect your application with PostgreSQL API",
@@ -251,7 +251,7 @@ export const tooltipMessages: Record<string, any> = {
         password: "Password from your POP3 client configurations",
     },
     BalVersionLabel: {
-        title: "We are using Ballerina Swan Lake Alpha2",
+        title: "We are using Ballerina Swan Lake Alpha5",
         actionText: "Learn more at ballerina.io",
         actionLink: "https://ballerina.io/"
     },

@@ -20,7 +20,7 @@ import classNames from 'classnames';
 
 import { ConnectionDetails } from "../../../../../api/models";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from '../../../../../Contexts/Diagram';
+import { Context } from '../../../../../Contexts/Diagram';
 import { Gcalendar } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import {CirclePreloader} from "../../../../../PreLoader/CirclePreloader";
@@ -44,6 +44,7 @@ export interface OperationFormProps {
     isManualConnection: boolean;
     isNewConnectorInitWizard: boolean;
     connectionInfo: ConnectionDetails;
+    hasReturn: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
@@ -52,7 +53,7 @@ export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
             onOperationChange, mutationInProgress, isManualConnection, isNewConnectorInitWizard,
             connectionInfo } = props;
-    const { state } = useContext(DiagramContext);
+    const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo, currentApp, getGcalendarList } = state;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
@@ -165,12 +166,12 @@ export function OperationForm(props: OperationFormProps) {
 
     const chooseCalendarPlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GCalendar.operationForm.chooseCalendar.placeholder",
-        defaultMessage: "Choose Calendar"
+        defaultMessage: "Choose calendar"
     });
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.GCalendar.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -182,6 +183,15 @@ export function OperationForm(props: OperationFormProps) {
         id: "lowcode.develop.configForms.GCalendar.saveConnectionButton.text",
         defaultMessage: "Save"
     });
+
+    const GCalendarTooltipMessages = {
+        responseVariableName: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.GCalendar.responseVariableNametooltip.title",
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
+            }),
+    }
+    };
 
     return (
         <div>
@@ -265,7 +275,8 @@ export function OperationForm(props: OperationFormProps) {
 
                     <FormTextInput
                         customProps={{
-                            validate: validateNameValue
+                            validate: validateNameValue,
+                            tooltipTitle: GCalendarTooltipMessages.responseVariableName.title,
                         }}
                         defaultValue={defaultResponseVarName}
                         placeholder={addResponseVariablePlaceholder}

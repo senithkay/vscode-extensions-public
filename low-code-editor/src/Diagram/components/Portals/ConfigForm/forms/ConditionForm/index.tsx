@@ -15,8 +15,9 @@
 import React, { useContext } from "react";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
+import { DiagramContext } from "../../../../../../providers/contexts";
 import {
     createForeachStatement,
     createIfStatement, updateForEachCondition,
@@ -37,7 +38,8 @@ export interface ConditionFormProps {
 }
 
 export function ConditionFormC(props: ConditionFormProps) {
-    const { isReadOnly, onMutate: dispatchMutations } = useContext(DiagramContext).state;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { isReadOnly } = useContext(Context).state;
     const { type, targetPosition, wizardType, config, onCancel, scopeSymbols } = props;
     let conditionConfig: ConditionConfig;
 
@@ -94,7 +96,7 @@ export function ConditionFormC(props: ConditionFormProps) {
                 }
                 // modifications.push();
             }
-            dispatchMutations(modifications);
+            modifyDiagram(modifications);
         }
     };
 

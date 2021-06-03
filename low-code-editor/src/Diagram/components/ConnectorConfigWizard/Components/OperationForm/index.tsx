@@ -30,10 +30,11 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { tooltipMessages } from '../../../Portals/utils/constants';
 import { wizardStyles } from "../../style";
+import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
 
 export interface OperationFormProps {
-    operations: string[];
+    operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
     onSave: (sourceModifications?: STModification[]) => void;
@@ -41,6 +42,7 @@ export interface OperationFormProps {
     mutationInProgress: boolean;
     onConnectionChange: () => void;
     isNewConnectorInitWizard?: boolean;
+    hasReturn: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
 
@@ -49,7 +51,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, hasReturn } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -120,7 +122,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const addResponseVariablePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.addResponseVariable.placeholder",
-        defaultMessage: "Enter Response Variable Name"
+        defaultMessage: "Enter response variable name"
     });
 
     const addResponseVariableLabel = intl.formatMessage({
@@ -137,7 +139,7 @@ export function OperationForm(props: OperationFormProps) {
         responseVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
-                defaultMessage: "Enter a valid name for the response variable"
+                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
     }
     };
@@ -153,7 +155,7 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {selectedOperationState}
+                                        {operations.find(operation => operation.name === selectedOperationState)?.label || selectedOperationState}
                                     </Typography>
                                     <IconButton
                                         color="primary"
@@ -173,18 +175,20 @@ export function OperationForm(props: OperationFormProps) {
                                 }
                             </div>
 
-                            <FormTextInput
-                                customProps={{
-                                    validate: validateNameValue,
-                                    tooltipTitle: tooltipMessages.responseVariableName,
-                                    disabled: responseVariableHasReferences
-                                }}
-                                defaultValue={defaultResponseVarName}
-                                placeholder={"Enter Response Variable Name"}
-                                onChange={onNameChange}
-                                label={"Response Variable Name"}
-                                errorMessage={responseVarError}
-                            />
+                            { hasReturn && (
+                                <FormTextInput
+                                    customProps={ {
+                                        validate: validateNameValue,
+                                        tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
+                                        disabled: responseVariableHasReferences
+                                    } }
+                                    defaultValue={defaultResponseVarName}
+                                    placeholder={"Enter Response Variable Name"}
+                                    onChange={onNameChange}
+                                    label={"Response Variable Name"}
+                                    errorMessage={responseVarError}
+                                />
+                            ) }
                         </div>
                     </div>
                     <div className={classes.wizardBtnHolder}>
