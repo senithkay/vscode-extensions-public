@@ -55,9 +55,9 @@ export const MAIN_FUNCTION = "main";
 const findResourceIndex = (resourceMembers: any, targetResource: any) => {
     const index = resourceMembers.findIndex(
         (m: any) => {
-            const currentPath = m?.relativeResourcePath[0]?.value;
+            const currentPath = m.relativeResourcePath?.map((path: any) => path.value).join('');
             const currentMethodType = m?.functionName?.value;
-            const targetPath = targetResource?.relativeResourcePath[0]?.value;
+            const targetPath = targetResource?.relativeResourcePath?.map((path: any) => path.value).join('');
             const targetMethodType = targetResource?.functionName?.value;
 
             return currentPath === targetPath && currentMethodType === targetMethodType;
@@ -69,7 +69,7 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
     const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
     const targetMethod = tFunctionName?.value;
-    const targetPath = tRelativeResourcePath[0]?.value;
+    const targetPath = tRelativeResourcePath?.map((rPath: any) => rPath.value).join('');
 
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
@@ -77,7 +77,7 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
         const found = resources?.find((r: any) => {
             const { functionName, relativeResourcePath } = r;
             const method = functionName?.value;
-            const path = relativeResourcePath[0]?.value;
+            const path = relativeResourcePath?.map((rPath: any) => rPath.value).join('');
             return method === targetMethod && path === targetPath;
         });
         if (found) service = m;
@@ -88,6 +88,7 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
 
 export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null, fn: boolean = false) {
     // TODO: Simplify this code block.
+    //
 
     const modulePart: ModulePart = mp;
     let functionDefinition: FunctionDefinition;
