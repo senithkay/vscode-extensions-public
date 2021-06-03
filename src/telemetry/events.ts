@@ -44,3 +44,6 @@ export const TM_EVENT_STRING_SPLIT = "ballerina.string.split";
 // events for executor codelenses
 export const TM_EVENT_SOURCE_DEBUG_CODELENS = "execute.source.debug.codelens";
 export const TM_EVENT_TEST_DEBUG_CODELENS = "execute.test.debug.codelens";
+
+// event for executing paste JSON as Record command
+export const TM_EVENT_PASTE_AS_RECORD = "execute.pasteAsRecord";
