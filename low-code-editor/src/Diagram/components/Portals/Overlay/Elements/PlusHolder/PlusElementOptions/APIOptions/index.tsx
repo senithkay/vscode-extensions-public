@@ -17,7 +17,6 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
-import Tooltip from "../../../../../../../../components/Tooltip";
 import TooltipV2 from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
@@ -497,7 +496,7 @@ export function APIOptions(props: APIOptionsProps) {
             }
             else{
                 const component: ReactNode = (
-                    <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
+                    <TooltipV2 type="example" text={tolltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
                                 <div className="connector-icon">
@@ -508,7 +507,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 </div>
                             </div>
                         </div>
-                    </Tooltip>
+                    </TooltipV2>
                 );
                 const connectorComponent: ConnctorComponent = {
                     connectorInfo: connector,
