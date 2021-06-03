@@ -31,8 +31,10 @@ import {
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
     RequiredParam,
+    RestParam,
     SimpleNameReference,
     SpecificField,
+    STKindChecker,
     STNode,
     StreamTypeDesc,
     StreamTypeParams,
@@ -75,6 +77,25 @@ class FieldVisitor implements Visitor {
             if (node.annotations.length > 0){
                 const annotateField = node.annotations.find(field => (field.annotReference as SimpleNameReference).name.value === "display")?.
                     annotValue?.fields.find(field => field.kind === "SpecificField") as SpecificField;
+                if (annotateField?.fieldName.value === "label"){
+                    const labelField = annotateField.valueExpr as StringLiteral;
+                    viewState.label = labelField?.literalToken.value.replace(/\"/gi, '');
+                }
+            }
+
+            node.typeName.viewState = viewState;
+        }
+    }
+
+    beginVisitRestParam(node: RestParam) {
+        const viewState: FormField = node.viewState as FormField;
+        if (node.viewState && node.typeName) {
+            viewState.isRestParam = true;
+            viewState.optional = true;
+            viewState.name = node.paramName.value;
+            if (node.annotations.length > 0){
+                const annotateField = node.annotations.find((annotation: any)=> (annotation.annotReference as SimpleNameReference).name.value === "display")?.
+                annotValue?.fields.find((field: any) => STKindChecker.isSpecificField(field)) as SpecificField;
                 if (annotateField?.fieldName.value === "label"){
                     const labelField = annotateField.valueExpr as StringLiteral;
                     viewState.label = labelField?.literalToken.value.replace(/\"/gi, '');
@@ -432,8 +453,8 @@ class FieldVisitor implements Visitor {
             if (node.functionSignature.parameters.length > 0) {
                 node.functionSignature.parameters
                     .filter(paramElement =>
-                        (paramElement.kind === 'RequiredParam' || paramElement.kind === 'DefaultableParam'))
-                    .forEach((paramElement: RequiredParam | DefaultableParam) => {
+                        (paramElement.kind === 'RequiredParam' || paramElement.kind === 'DefaultableParam' || STKindChecker.isRestParam(paramElement)))
+                    .forEach((paramElement: RequiredParam | DefaultableParam | RestParam) => {
                         const params = functionDefinitionMap.get(node.functionName.value).parameters;
                         paramElement.viewState.description = parameterDescriptions.get(paramElement.paramName.value);
                         params.push(paramElement.viewState);
