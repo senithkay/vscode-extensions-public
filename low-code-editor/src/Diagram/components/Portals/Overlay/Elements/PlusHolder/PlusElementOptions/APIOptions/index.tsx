@@ -102,7 +102,8 @@ export function APIOptions(props: APIOptionsProps) {
         imapConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-                defaultMessage: "Setup an email client to use the IMAP protocol."
+                defaultMessage: "Setup an email client to use the IMAP protocol.\
+                NOTE : There can be vendor-specific security settings to be setup before using this connector."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
