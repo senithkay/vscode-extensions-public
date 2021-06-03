@@ -266,19 +266,17 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
+                    // TODO: update this tooltip assignment with source code documentation values
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.
                         find(fields => fields.name === "clientConfig").fields.
                             find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields.forEach(subFields => {
-                                if (subFields.name === "clientConfig"){;
-                                    subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
-                                    subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
-                                    subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
-                                    subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                                }
-                                if ((subFields.name === "baseUrl")) {
-                                    subFields.tooltip = tooltipMessages.salesforce.baseURL
-                                }
+                                if (subFields.name === "refreshUrl") subFields.tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                                if (subFields.name === "refreshToken") subFields.tooltip = tooltipMessages.salesforce.refreshToken;
+                                if (subFields.name === "clientId") subFields.tooltip = tooltipMessages.salesforce.clientID;
+                                if (subFields.name === "clientSecret") subFields.tooltip = tooltipMessages.salesforce.clientSecret;
                     });
+                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.
+                        find(fields => fields.name === "baseUrl").tooltip = tooltipMessages.salesforce.baseURL;
                 }
                 filteredFunctions.set(key, value);
             });
