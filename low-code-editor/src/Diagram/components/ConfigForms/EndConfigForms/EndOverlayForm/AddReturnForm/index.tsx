@@ -28,7 +28,7 @@ import { wizardStyles } from "../../../style";
 import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
-import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -79,8 +79,8 @@ export function AddReturnForm(props: ReturnFormProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina: CHOREO_DOCS })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.

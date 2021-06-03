@@ -30,7 +30,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
-import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -107,8 +107,8 @@ export function AddLogConfig(props: LogConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-        }, { learnBallerina: CHOREO_DOCS })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>

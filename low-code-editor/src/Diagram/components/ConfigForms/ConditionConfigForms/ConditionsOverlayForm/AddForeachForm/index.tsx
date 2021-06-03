@@ -32,7 +32,7 @@ import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Po
 import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
-import { CHOREO_DOCS } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface Iterations {
     start?: string;
@@ -137,8 +137,8 @@ export function AddForeachForm(props: ForeachProps) {
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "{learnBallerina}/references/ballerina-expression-syntax/"
-            }, { learnBallerina: CHOREO_DOCS })
+                defaultMessage: "{learnBallerina}"
+            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     },
         currentValueVariable: {
             title: intl.formatMessage({
