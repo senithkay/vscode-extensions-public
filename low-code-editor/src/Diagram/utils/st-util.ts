@@ -88,7 +88,6 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
 
 export function getLowCodeSTFnSelected(mp: ModulePart, fncOrResource: any = null, fn: boolean = false) {
     // TODO: Simplify this code block.
-    //
 
     const modulePart: ModulePart = mp;
     let functionDefinition: FunctionDefinition;
