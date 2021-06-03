@@ -23,7 +23,7 @@ import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 import { FormHelperText } from "@material-ui/core";
 import { ButtonWithIcon } from "../Button/ButtonWithIcon";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
     const { model } = props;
@@ -43,6 +43,12 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
         initialValue = [model.value];
     }
     const [values] = useState<string[]>(initialValue);
+
+    const intl = useIntl();
+    const addItemText = intl.formatMessage({
+        id: "lowcode.develop.elements.restParam.addItemText",
+        defaultMessage: "Add Item"
+    });
 
     const handleSubEditorValidation = (_field: string, isInvalid: boolean) => {
         if (subEditorValue === "") {
@@ -70,10 +76,10 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
-            displayName: "Item",
+            displayName: intl.formatMessage({ id: 'lowcode.develop.elements.restParam.itemText', defaultMessage: "Item" }),
             type: model.type,
             value: subEditorValue,
-            tooltip: "Add elements to Array",
+            tooltip: intl.formatMessage({ id: 'lowcode.develop.elements.restParam.tooltip', defaultMessage: "Add elements to field" }),
             optional: true
         },
         customProps: {
@@ -121,7 +127,7 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
                 <div className={classes.addElementButton}>
                     <IconBtnWithText
                         disabled={addButtonDisabled}
-                        text={"Add Item"}
+                        text={addItemText}
                         onClick={handleAddButtonClick}
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
@@ -131,7 +137,9 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
                         {values?.length > 0 ? (
                                 <div>
                                     <div className={classes.divider} />
-                                    <FormHelperText className={classes.inputLabelWrapper}><FormattedMessage id="lowcode.develop.elements.array.addedElements" defaultMessage="Added Items"/> </FormHelperText>
+                                    <FormHelperText className={classes.inputLabelWrapper}>
+                                        <FormattedMessage id="lowcode.develop.elements.restParam.addedElements" defaultMessage="Added Items"/>
+                                    </FormHelperText>
                                 </div>
                             )
                             : null
