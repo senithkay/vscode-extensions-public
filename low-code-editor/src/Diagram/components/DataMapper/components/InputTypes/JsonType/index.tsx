@@ -69,9 +69,11 @@ export function JsonType(props: JsonTypeProps) {
             } else {
                 draftVS.precededByComma = true;
             }
-            draftVS.draftInsertPosition = { line: undefined, column: undefined };
-            draftVS.draftInsertPosition.line = closeBracePosition.endLine;
-            draftVS.draftInsertPosition.column = closeBracePosition.endColumn - 1;
+            draftVS.draftInsertPosition = { startLine: undefined, endLine: undefined, startColumn: undefined, endColumn: undefined };
+            draftVS.draftInsertPosition.startLine = closeBracePosition.endLine;
+            draftVS.draftInsertPosition.startColumn = closeBracePosition.endColumn - 1;
+            draftVS.draftInsertPosition.endLine = closeBracePosition.endLine;
+            draftVS.draftInsertPosition.endColumn = closeBracePosition.endColumn - 1;
         }
 
         viewState.draftViewState = draftVS;
@@ -146,10 +148,16 @@ export function JsonType(props: JsonTypeProps) {
         dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
     }
 
+    const onDraftCancel = () => {
+        viewState.draftViewState = null;
+        onAddFieldButtonClick();
+    }
+
     if (viewState.draftViewState) {
         drafts.push(getDataMapperComponent(
             "draft",
             {
+                onDraftCancel,
                 offSetCorrection,
                 draftFieldViewState: viewState.draftViewState
             }

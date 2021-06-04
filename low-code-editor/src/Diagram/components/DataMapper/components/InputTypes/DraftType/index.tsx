@@ -11,12 +11,14 @@
  * associated services.
  */
 import React from 'react';
+import { STNode } from '@ballerina/syntax-tree';
 
 import { DraftFieldViewstate } from "../../../viewstate/draft-field-viestate";
 import { DraftFieldForm } from '../../forms/DraftFieldForm';
 import "../style.scss";
 
 interface DraftTypeProps {
+    onDraftCancel: () => void;
     draftFieldViewState: DraftFieldViewstate
     offSetCorrection: number;
 }

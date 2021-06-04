@@ -11,10 +11,11 @@
  * associated services.
  */
 
-import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, SpecificField, Visitor } from "@ballerina/syntax-tree";
-import { DraftFieldForm } from "../components/forms/DraftFieldForm";
+import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from "@ballerina/syntax-tree";
 
 import { DataMapperViewState, FieldViewState } from "../viewstate";
+
+import { ADD_FIELD_FORM_HEIGHT } from "./datamapper-sizing-visitor";
 
 export const PADDING_OFFSET = 100;
 export const DEFAULT_OFFSET = 40;
@@ -66,6 +67,24 @@ export class DataMapperPositionVisitor implements Visitor {
                 viewState.draftViewState.bBox.y = this.height + PADDING_OFFSET;
             }
 
+            let hasDraftViewstate: boolean = false;
+
+            if (node.expression && STKindChecker.isMappingConstructor(node.expression)) {
+                node.expression.fields
+                    .filter((field) => !STKindChecker.isCommaToken(field))
+                    .forEach((field) => {
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
+
+                        if (hasDraftViewstate) {
+                            fieldVS.bBox.y += ADD_FIELD_FORM_HEIGHT - DEFAULT_OFFSET;
+                        }
+
+                        if (fieldVS.draftViewState) {
+                            hasDraftViewstate = true;
+                        }
+                    });
+            }
+
             this.height += DEFAULT_OFFSET * 2;
             this.offset = this.startOffset;
             this.hasDataMapperTypeDesc = false;
@@ -90,6 +109,24 @@ export class DataMapperPositionVisitor implements Visitor {
                 this.height += DEFAULT_OFFSET;
                 viewState.draftViewState.bBox.x = this.offset + PADDING_OFFSET;
                 viewState.draftViewState.bBox.y = this.height + PADDING_OFFSET;
+            }
+
+            let hasDraftViewstate: boolean = false;
+
+            if (node.initializer && STKindChecker.isMappingConstructor(node.initializer)) {
+                node.initializer.fields
+                    .filter((field) => !STKindChecker.isCommaToken(field))
+                    .forEach((field) => {
+                        const fielVS = field.dataMapperViewState as FieldViewState;
+
+                        if (hasDraftViewstate) {
+                            fielVS.bBox.y += ADD_FIELD_FORM_HEIGHT - DEFAULT_OFFSET;
+                        }
+
+                        if (fielVS.draftViewState) {
+                            hasDraftViewstate = true;
+                        }
+                    });
             }
 
             this.height += DEFAULT_OFFSET * 2;
@@ -146,10 +183,31 @@ export class DataMapperPositionVisitor implements Visitor {
                 viewstate.draftViewState.bBox.x = this.offset + PADDING_OFFSET;
                 viewstate.draftViewState.bBox.y = this.height + PADDING_OFFSET;
             }
+
+
+            let hasDraftViewstate: boolean = false;
+
+            if (node.valueExpr && STKindChecker.isMappingConstructor(node.valueExpr)) {
+                node.valueExpr.fields
+                    .filter((field) => !STKindChecker.isCommaToken(field))
+                    .forEach((field) => {
+                        const fieldVS = field.dataMapperViewState as FieldViewState;
+
+                        if (hasDraftViewstate) {
+                            fieldVS.bBox.y += ADD_FIELD_FORM_HEIGHT - DEFAULT_OFFSET;
+                        }
+
+                        if (fieldVS.draftViewState) {
+                            hasDraftViewstate = true;
+                        }
+                    });
+            }
+
         }
     }
 
     endVisitMappingConstructor(node: MappingConstructor) {
         this.offset -= DEFAULT_OFFSET;
+
     }
 }

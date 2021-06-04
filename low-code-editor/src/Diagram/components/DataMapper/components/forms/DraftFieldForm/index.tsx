@@ -10,26 +10,102 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useContext, useState } from 'react';
 
+import { IconButton, TextField } from '@material-ui/core';
+import { Check, Close } from '@material-ui/icons';
+
+import { createPropertyStatement, updatePropertyStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
+import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { DraftFieldViewstate } from "../../../viewstate/draft-field-viestate";
 
+import { AttributeTypeSelectButton } from './buttons/AttributeTypeSelectButton';
+import { ObjectTypeSelectButton } from './buttons/ObjectTypeSelectButton';
+import './style.scss';
+
+export enum JsonFieldTypes {
+    OBJECT,
+    ATTRIBUTE
+}
 
 interface DraftFieldFormProps {
+    onDraftCancel: () => void;
     draftFieldViewState: DraftFieldViewstate;
     offSetCorrection: number;
 }
 
 export function DraftFieldForm(props: DraftFieldFormProps) {
-    const { draftFieldViewState, offSetCorrection } = props;
+    const { state: { dispatchMutations } } = useContext(DataMapperContext);
+    const { draftFieldViewState, onDraftCancel, offSetCorrection } = props;
+
+    const [selectedFieldType, setSelectedFieldType] = useState<JsonFieldTypes>(JsonFieldTypes.ATTRIBUTE);
+    const [fieldName, setFieldName] = useState<string>('');
+
+    const onFieldTypeBtnClick = (type: JsonFieldTypes) => {
+        setSelectedFieldType(type);
+    }
+
+    const onFieldNameChange = (evt: any) => {
+        setFieldName(evt.target.value);
+    }
+
+    const handleOnSave = () => {
+        let statementString: string = '';
+
+        if (!draftFieldViewState.precededByComma) {
+            statementString += ',';
+        }
+
+        statementString += fieldName;
+
+        switch (selectedFieldType) {
+            case JsonFieldTypes.ATTRIBUTE:
+                statementString += ': ""';
+                break;
+            case JsonFieldTypes.OBJECT:
+                statementString += ': {}'
+                break;
+            default:
+            // ignored
+        }
+
+        const modificationStatement = updatePropertyStatement(statementString, draftFieldViewState.draftInsertPosition);
+
+        dispatchMutations([modificationStatement]);
+    }
 
     return (
         <DiagramOverlayContainer>
             <DiagramOverlay
-                position={{ x: draftFieldViewState.bBox.x, y: draftFieldViewState.bBox.y }}
+                position={{ x: draftFieldViewState.bBox.x - offSetCorrection, y: draftFieldViewState.bBox.y - 10 }}
             >
-                <div>haha</div>
+                <div style={{ width: draftFieldViewState.bBox.w, padding: '0 5px 0 5px' }}>
+                    <div id="draft-field-form" className='draft-field-form'>
+                        <div className='draft-field-type-select' >
+                            <ObjectTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
+                            <AttributeTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
+                        </div>
+                        <div className='draft-field-input'>
+                            <TextField
+                                value={fieldName}
+                                variant="standard"
+                                placeholder="Field Name"
+                                helperText={""}
+                                autoFocus={true}
+                                onChange={onFieldNameChange}
+                            />
+                        </div>
+                    </div>
+                    <div className='draft-field-submit'>
+                        <IconButton size="small" disabled={fieldName.length === 0} onClick={handleOnSave} >
+                            <Check />
+                        </IconButton>
+                        <IconButton size="small" onClick={onDraftCancel} >
+                            <Close />
+                        </IconButton>
+                    </div>
+                </div>
             </DiagramOverlay>
         </DiagramOverlayContainer>
     );

@@ -15,7 +15,8 @@ import { expression } from 'joi';
 
 import { DataMapperViewState, FieldViewState } from '../viewstate';
 
-const FIELD_HEIGHT: number = 40
+const FIELD_HEIGHT: number = 40;
+export const ADD_FIELD_FORM_HEIGHT: number = 60;
 const FIELD_WIDTH: number = 200;
 const FIELD_OFFSET: number = 15;
 export class DataMapperSizingVisitor implements Visitor {
@@ -72,8 +73,8 @@ export class DataMapperSizingVisitor implements Visitor {
             }
 
             if (viewState.draftViewState) {
-                height += FIELD_HEIGHT;
-                viewState.draftViewState.bBox.h = FIELD_HEIGHT;
+                height += ADD_FIELD_FORM_HEIGHT;
+                viewState.draftViewState.bBox.h = ADD_FIELD_FORM_HEIGHT;
             }
 
             viewState.bBox.h = height;
@@ -143,8 +144,8 @@ export class DataMapperSizingVisitor implements Visitor {
             }
 
             if (viewState.draftViewState) {
-                height += FIELD_HEIGHT;
-                viewState.draftViewState.bBox.h = FIELD_HEIGHT;
+                height += ADD_FIELD_FORM_HEIGHT;
+                viewState.draftViewState.bBox.h = ADD_FIELD_FORM_HEIGHT;
             }
 
             viewState.bBox.h = height;
@@ -192,8 +193,8 @@ export class DataMapperSizingVisitor implements Visitor {
             }
 
             if (viewstate.draftViewState) {
-                height += FIELD_HEIGHT;
-                viewstate.draftViewState.bBox.h = FIELD_HEIGHT;
+                height += ADD_FIELD_FORM_HEIGHT;
+                viewstate.draftViewState.bBox.h = ADD_FIELD_FORM_HEIGHT;
             }
 
             viewstate.bBox.h += height;

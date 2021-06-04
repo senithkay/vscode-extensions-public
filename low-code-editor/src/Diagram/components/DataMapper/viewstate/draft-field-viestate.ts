@@ -10,14 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-import { DraftInsertPosition } from "components/DiagramEditor";
-
-import { FieldDraftType } from "../util/types";
+import { DraftUpdatePosition } from "../../../view-state/draft";
 
 import { DataMapperViewState } from ".";
 
 export class DraftFieldViewstate extends DataMapperViewState {
-    public draftInsertPosition: DraftInsertPosition;
+    public draftInsertPosition: DraftUpdatePosition;
     public precededByComma: boolean;
 }
