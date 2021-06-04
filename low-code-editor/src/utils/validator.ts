@@ -7,6 +7,14 @@ export function validatePath(text: string) {
             (text.charAt(text.length - 1) === "/") || (text.charAt(0) === "/")) {
             return false;
         }
+
+        const splitPath = text.split("/");
+        for (const word of splitPath) {
+            if (keywords.includes(word)) {
+                return false;
+            }
+        }
+
         if (text.includes("/") && text.includes("[") && text.includes("]")) {
             if (text.match(/\/\d/g)) return false;
             const paramArray = (text.match(/\[([^\[\]]*)\]/g));

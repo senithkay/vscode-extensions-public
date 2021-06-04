@@ -349,22 +349,22 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    if (!connector){
+    if (!connector) {
         return undefined;
     }
 
-    const { org, module, version, name, cacheVersion} = connector;
+    const { org, module, version, name, cacheVersion } = connector;
     const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
     try {
         await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
-        .then(response => response.json())
-        .then(data => {
-            if (data) {
-                for (const [key, fieldsInfo] of Object.entries(data)) {
-                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    for (const [key, fieldsInfo] of Object.entries(data)) {
+                        functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                    }
                 }
-            }
-        });
+            });
     } catch (error) {
         // IGNORE
     }
@@ -386,19 +386,19 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
     const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldJsonObject: any = {};
     fields.forEach((value, key) => {
-        formFieldJsonObject[ key ] = value;
+        formFieldJsonObject[key] = value;
     });
     formFieldDatabase.put(cacheId, formFieldJsonObject);
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    if (connector){
+    if (connector) {
         const { org, module: mod, version, name, cacheVersion } = connector;
         const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
         const formFieldCache = await formFieldDatabase.get(cacheId);
         if (formFieldCache) {
             const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-            for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
+            for (const [key, fieldsInfo] of Object.entries(formFieldCache)) {
                 functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
             }
             return functionDef.size > 0 ? functionDef : undefined;
@@ -462,7 +462,14 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
             const moduleName = remoteMethodCallAction.methodName.typeData?.symbol.moduleID.moduleName;
             const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
             const endPoint = stSymbolInfo.endpoints.get(endPointName);
-            const identifierName = ((endPoint as LocalVarDecl)?.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier.value;
+            let identifierName;
+            if (!endPoint) {
+                const endpointViewState: EndpointViewState = viewState.endpoint;
+                identifierName = endpointViewState.typeName;
+            } else {
+                identifierName = ((endPoint as LocalVarDecl)?.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier.value;
+            }
+
             if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
                     if (connectorInfo.module === moduleName) {

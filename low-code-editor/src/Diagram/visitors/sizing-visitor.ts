@@ -599,17 +599,6 @@ class SizingVisitor implements Visitor {
                 viewState.bBox.w = CLIENT_SVG_WIDTH;
                 viewState.bBox.r = CLIENT_RADIUS;
 
-                // Update endpoint lifeline values.
-                const endpointViewState: EndpointViewState = viewState.endpoint;
-                endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
-                endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
-
-                // Update the endpoint sizing values in allEndpoint map.
-                const endpoint: Endpoint = allEndpoints.get(viewState.endpoint.epName);
-                const visibleEndpoint: any = endpoint.visibleEndpoint;
-                const mainEp = endpointViewState;
-                mainEp.isUsed = endpoint.firstAction !== undefined;
-                visibleEndpoint.viewState = mainEp;
             }
         } else {
             if (viewState.isCallerAction) {

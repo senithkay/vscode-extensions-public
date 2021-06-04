@@ -19,7 +19,8 @@ import {STKindChecker} from "@ballerina/syntax-tree";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
-import { Context as DiagramContext } from "../../../../../../../../Contexts/Diagram";
+import {Context} from "../../../../../../../../Contexts/Diagram";
+import {DiagramContext} from "../../../../../../../../providers/contexts";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -29,6 +30,7 @@ import {
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
+import {SourceUpdateConfirmDialog} from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface SheetConfigureFormProps {
@@ -42,13 +44,14 @@ export interface ConnectorEvents {
 }
 
 export function SheetConfigureForm(props: SheetConfigureFormProps) {
-    const { state } = useContext(DiagramContext);
+    const {modifyTrigger} = useContext(DiagramContext).callbacks;
+    const {state} = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onModify: dispatchModifyTrigger,
-        onEvent    } = state;
+        onEvent
+    } = state;
     const { onComplete } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -56,6 +59,7 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
     const [ triggerChanged, setTriggerChanged ] = useState(false);
     const [ sheetId, setSheetId ] = useState<string>();
     const [ sheetEvent, setSheetEvent ] = useState<string>();
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     // HACK: hardcoded event list until get it form connector API
     const sheetEvents = [ 'onAppendRow', 'onUpdateRow' ];
@@ -78,15 +82,18 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createSheetTrigger();
         } else {
-            updateSheetTrigger();
+            setShowConfirmDialog(true);
         }
+    };
+    const handleDialogOnCancel = () => {
+        setShowConfirmDialog(false);
     };
 
     // handle trigger configure complete
     const createSheetTrigger = () => {
         setTriggerChanged(true);
         // dispatch and close the wizard
-        dispatchModifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gsheet",
             PORT: 8090,
             SPREADSHEET_ID: sheetId,
@@ -98,11 +105,6 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
             property: "Google Sheet"
         };
         onEvent(event);
-    };
-
-    // handle trigger update
-    const updateSheetTrigger = () => {
-        // TODO: need to implement update logic
     };
 
     const sheetIdPlaceholder = intl.formatMessage({
@@ -160,6 +162,13 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
                         />
                     </div>
                 ) }
+
+            {showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createSheetTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
+            )}
         </>
     );
 }

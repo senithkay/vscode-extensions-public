@@ -41,6 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
+import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -65,6 +66,7 @@ export enum ConnectorType {
     SALESFORCE = "Salesforce",
     SLACK = "Slack",
     TWILIO = "Twilio",
+    ASB = "Azure Service Bus",
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
@@ -143,8 +145,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
-        })
+            defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
+        }, { learnChoreo: CHOREO_DOCS })
     }
     };
 
@@ -302,7 +304,21 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left"
                         ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.SLACK,
+                            'slack_Client',
+                            "To trigger an application based on Slack events.",
+                            "Slack",
+                            "left"
+                        ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.ASB,
+                            'azure_service_busLogoClient',
+                            "To trigger an application based on Azure Service Bus events.",
+                            "Azure SB",
+                            "left"
+                        ) }
                     </div>
                 </div>
             </DiagramOverlay>

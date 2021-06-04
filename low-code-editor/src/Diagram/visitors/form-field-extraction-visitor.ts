@@ -96,6 +96,7 @@ class FieldVisitor implements Visitor {
             // viewState.typeName = undefined;
             node.typeName.viewState = viewState;
             viewState.optional = true;
+            viewState.isDefaultableParam = true;
         }
     }
 
