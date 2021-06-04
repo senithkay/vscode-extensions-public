@@ -210,9 +210,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             // set content type in sendMessage form
                             field.value = `"text/plain"`;
                         }
-                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
-                            field.hide = true;
-                            field.noCodeGen = true;
+                        if (field.name === "inlineImagePaths") {
+                            field.optional = true;
+                            field.displayName = 'Inline Image Paths'
+                        }
+                        if (field.name === "attachmentPaths") {
+                            field.optional = true;
+                            field.displayName = 'Attachment Paths'
                         }
                     });
                 }
