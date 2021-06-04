@@ -18,9 +18,9 @@
  */
 
 import {
-	CMP_JSON_TO_RECORD,
 	sendTelemetryEvent,
 	TM_EVENT_PASTE_AS_RECORD,
+	CMP_JSON_TO_RECORD,
 } from "../telemetry";
 import { commands } from "vscode";
 import { BallerinaExtension } from "../core";
