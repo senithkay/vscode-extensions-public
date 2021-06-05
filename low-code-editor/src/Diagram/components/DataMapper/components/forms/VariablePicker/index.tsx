@@ -22,11 +22,10 @@ import classNames from 'classnames';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
-import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
+import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
 export interface VariablePickerProps {
@@ -39,9 +38,11 @@ export function VariablePicker(props: VariablePickerProps) {
             stSymbolInfo,
             dataMapperConfig,
             maxFieldWidth,
+            outputSTNode
             // updateDataMapperConfig
         },
-        toggleAddVariableForm: toggleVariablePicker
+        toggleAddVariableForm: toggleVariablePicker,
+        dataMapperViewRedraw
     } = useContext(DataMapperViewContext);
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
@@ -56,6 +57,11 @@ export function VariablePicker(props: VariablePickerProps) {
     const onClickAdd = () => {
         updateDataMapperConfig(dataMapperConfig);
         toggleVariablePicker();
+    }
+
+    const handleCancelBtnClick = () => {
+        toggleVariablePicker();
+        dataMapperViewRedraw(outputSTNode);
     }
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
@@ -94,7 +100,7 @@ export function VariablePicker(props: VariablePickerProps) {
                     )}
                 />
                 <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleCancelBtnClick} />
                     <PrimaryButton
                         disabled={false}
                         dataTestId={"datamapper-save-btn"}

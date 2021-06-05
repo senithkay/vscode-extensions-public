@@ -65,6 +65,11 @@ export function MapperView(props: MapperViewProps) {
     const [isExpressionValid, setIsExpressionValid] = useState(true);
     const [expressionEditorText, setExpressionEditorText] = useState(undefined);
 
+    const handleAddVariableClick = () => {
+        toggleAddVariableForm();
+        dataMapperViewRedraw(outputSTNode);
+    }
+
     const handleSwitchBackToDiagram = () => {
         dataMapperStart(undefined);
     }
@@ -268,7 +273,7 @@ export function MapperView(props: MapperViewProps) {
             <g id="inputComponents">
                 <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
-                <AddVariableButton x={maxFieldWidth} y={70} onClick={toggleAddVariableForm} />
+                <AddVariableButton x={maxFieldWidth} y={70} onClick={handleAddVariableClick} />
                 {inputComponents}
             </g>
             <g>
