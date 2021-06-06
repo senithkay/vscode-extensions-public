@@ -69,7 +69,10 @@ export class DataMapperMappingVisitor implements Visitor {
                     );
                     dataPointRef.connections.push(connectionVS);
                 } else {
-                    this.missingVariableRefName.push(this.generateDataPointName(refArray));
+                    const name = this.generateDataPointName(refArray);
+                    if (this.missingVariableRefName.indexOf(name) === -1) {
+                        this.missingVariableRefName.push(name);
+                    }
                 }
             });
             this.nameParts.splice(this.nameParts.length - 1, 1);
@@ -109,9 +112,11 @@ export class DataMapperMappingVisitor implements Visitor {
                     );
                     dataPointRef.connections.push(connectionVS);
                 } else {
-                    this.missingVariableRefName.push(this.generateDataPointName(refArray));
+                    const name = this.generateDataPointName(refArray)
+                    if (this.missingVariableRefName.indexOf(name) === -1) {
+                        this.missingVariableRefName.push(name);
+                    }
                 }
-
             });
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
@@ -150,7 +155,10 @@ export class DataMapperMappingVisitor implements Visitor {
                     );
                     dataPointRef.connections.push(connectionVS);
                 } else {
-                    this.missingVariableRefName.push(this.generateDataPointName(refArray));
+                    const name = this.generateDataPointName(refArray);
+                    if (this.missingVariableRefName.indexOf(name) === -1) {
+                        this.missingVariableRefName.push(name);
+                    }
                 }
             });
 

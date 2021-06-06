@@ -562,3 +562,36 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
         outputSTNode,
     }
 }
+
+
+export function hasReferenceConnections(node: STNode): boolean {
+    if (node.dataMapperViewState) {
+        const viewstate = node.dataMapperViewState as FieldViewState;
+
+        if (viewstate.sourcePointViewState && viewstate.sourcePointViewState.connections) {
+            if (viewstate.sourcePointViewState.connections.length > 0) {
+                return true;
+            }
+        }
+    }
+
+    if (node.dataMapperTypeDescNode) {
+        if (STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+            const recordTypeDesc: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+
+            let result = false;
+
+            for (let i = 0; i < recordTypeDesc.fields.length - 1; i++) {
+                result = hasReferenceConnections(recordTypeDesc.fields[i]);
+
+                if (result) {
+                    break;
+                }
+            }
+
+            return result;
+        }
+    }
+
+    return false;
+}

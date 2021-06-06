@@ -15,13 +15,16 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: no-console
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { LocalVarDecl, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
-import { getDataMapperComponent } from '../../../util';
+import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
+import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
+import { getDataMapperComponent, hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
@@ -30,13 +33,20 @@ import "../style.scss";
 interface RecordTypeProps {
     model: STNode;
     isMain?: boolean;
+    isTarget?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
     offSetCorrection: number;
+    removeInputType?: (model: STNode) => void;
 }
 
 export function RecordType(props: RecordTypeProps) {
     const { state: { currentApp } } = useContext(DiagramContext);
-    const { model, isMain, onDataPointClick, offSetCorrection } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection, isTarget, removeInputType } = props;
+    const svgTextRef = useRef(null);
+    const hasConnections = hasReferenceConnections(model);
+
+    const [isMouseOver, setIsMouseOver] = useState(false);
+    const [textWidth, setTextWidth] = useState(0);
 
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const name = viewState.name;
@@ -80,16 +90,40 @@ export function RecordType(props: RecordTypeProps) {
     }
 
     if (viewState.sourcePointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />);
     }
 
     if (viewState.targetPointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
+        dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />);
+    }
+
+    useEffect(() => {
+        if (!isTarget && svgTextRef.current) {
+            setTextWidth(svgTextRef.current.getComputedTextLength())
+        }
+    }, []);
+
+    const handleOnRectangleHover = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(true);
+        }
+    }
+
+    const handleOnMouseOut = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(false)
+        }
+    }
+
+    const handleOnDeleteClick = (evt: any) => {
+        if (!hasConnections && !isTarget) {
+            removeInputType(model);
+        }
     }
 
     return (
 
-        <g id="RecodWrapper" className="my-class">
+        <g id="RecodWrapper" className="my-class" onMouseOver={handleOnRectangleHover} onMouseOut={handleOnMouseOut} >
             <rect
                 render-order="-1"
                 x={viewState.bBox.x - offSetCorrection}
@@ -101,23 +135,45 @@ export function RecordType(props: RecordTypeProps) {
             <g render-order="1" className="test">
                 {isMain ?
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + 10} height="50" >
-                            <tspan className="key-value"> {`${name}`} </tspan>
-                            {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
-                        </text>
+                        <>
+                            <text
+                                render-order="1"
+                                x={viewState.bBox.x}
+                                y={viewState.bBox.y + 10}
+                                height="50"
+                                ref={svgTextRef}
+                            >
+                                <tspan className="key-value"> {`${name}`} </tspan>
+                                {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
+                            </text>
+                            {!isTarget && (
+                                <g
+                                    className={classNames('delete-icon-show', { disable: hasConnections })}
+                                    style={{ display: isMouseOver ? 'block' : 'none' }}
+                                    onClick={handleOnDeleteClick}
+                                >
+                                    <DeleteSVG x={viewState.bBox.x + textWidth + 5} y={viewState.bBox.y - 5} />
+                                </g>
+                            )}
+                        </>
                     )
                     :
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + DefaultConfig.dotGap} height="50" >
+                        <text
+                            render-order="1"
+                            x={viewState.bBox.x}
+                            y={viewState.bBox.y + DefaultConfig.dotGap}
+                            height="50"
+                        >
                             <tspan className="value-para"> {`${name}`} </tspan>
                             {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
                         </text>
                     )
                 }
             </g>
-
             {fields}
             {fields.length === 0 && dataPoints}
         </g>
     );
 }
+

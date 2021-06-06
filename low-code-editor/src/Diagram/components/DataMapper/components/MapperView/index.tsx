@@ -13,7 +13,7 @@
 /* tslint:disable:jsx-no-multiline-js */
 import React, { useContext, useRef, useState } from 'react';
 
-import { STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
 import { STModification } from '../../../../../Definitions';
 import { updatePropertyStatement } from '../../../../utils/modification-util';
@@ -31,6 +31,7 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
+import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 
 interface MapperViewProps {
 
@@ -48,12 +49,13 @@ export function MapperView(props: MapperViewProps) {
             isJsonRecordTypeSelected,
             dataMapperStart,
             dispatchMutations,
-            dataMapperConfig
+            dataMapperConfig,
+            updateDataMapperConfig
         },
         updateState,
         dataMapperViewRedraw,
         toggleAddVariableForm,
-        toggleOutputConfigureForm
+        toggleOutputConfigureForm,
     } = useContext(DataMapperViewContext);
     const drawingLineRef = useRef(null);
     const overlayClasses = wizardStyles();
@@ -90,6 +92,19 @@ export function MapperView(props: MapperViewProps) {
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
     }
+
+    const removeInputType = (model: STNode) => {
+        if (STKindChecker.isLocalVarDecl(model)) {
+            const varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            const index = dataMapperConfig.inputTypes
+                .map((inputType: DataMapperInputTypeInfo) => inputType.name)
+                .indexOf(varName);
+
+            dataMapperConfig.inputTypes.splice(index, 1);
+            updateDataMapperConfig(dataMapperConfig);
+        }
+    }
+
 
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
         // current element is wrapped by a <g/> element
@@ -241,7 +256,7 @@ export function MapperView(props: MapperViewProps) {
             inputComponents.push(
                 getDataMapperComponent(
                     dataMapperViewState.type,
-                    { model: node, isMain: true, onDataPointClick, offSetCorrection: 10 }
+                    { model: node, isMain: true, onDataPointClick, offSetCorrection: 10, removeInputType }
                 )
             );
         }
@@ -255,7 +270,7 @@ export function MapperView(props: MapperViewProps) {
         outputComponent.push(
             getDataMapperComponent(
                 outputSTNode.dataMapperViewState.type,
-                { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick }
+                { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick, isTarget: true }
             )
         );
     }

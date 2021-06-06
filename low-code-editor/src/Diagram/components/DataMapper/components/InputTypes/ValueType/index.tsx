@@ -13,12 +13,15 @@
 // tslint:disable: no-empty
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
+import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
+import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
+import { hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
@@ -27,13 +30,20 @@ import "../style.scss";
 interface ValueTypeProps {
     model: STNode;
     isMain?: boolean;
+    isTarget?: boolean;
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
     offSetCorrection: number;
+    removeInputType?: (model: STNode) => void;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { model, isMain, onDataPointClick, offSetCorrection } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection, removeInputType, isTarget } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
+    const svgTextRef = useRef(null);
+
+    const [isMouseOver, setIsMouseOver] = useState(false);
+    const [textWidth, setTextWidth] = useState(0);
+    const hasConnections = hasReferenceConnections(model);
 
     const dataPoints: JSX.Element[] = [];
 
@@ -57,8 +67,32 @@ export function ValueType(props: ValueTypeProps) {
         dataPoints.push(<DataPoint dataPointViewState={viewState.targetPointViewState} onClick={onDataPointClick} />)
     }
 
+    const handleOnDeleteClick = (evt: any) => {
+        if (!hasConnections && !isTarget) {
+            removeInputType(model);
+        }
+    }
+
+    useEffect(() => {
+        if (!isTarget && svgTextRef.current) {
+            setTextWidth(svgTextRef.current.getComputedTextLength())
+        }
+    }, []);
+
+    const handleOnRectangleHover = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(true);
+        }
+    }
+
+    const handleOnMouseOut = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(false)
+        }
+    }
+
     return (
-        <g id="Value-wrapper">
+        <g id="Value-wrapper" onMouseOver={handleOnRectangleHover} onMouseOut={handleOnMouseOut}>
             <rect
                 render-order="-1"
                 x={viewState.bBox.x - offSetCorrection}
@@ -70,10 +104,27 @@ export function ValueType(props: ValueTypeProps) {
             <g render-order="1">
                 {isMain ?
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + 10} height="50" >
-                            <tspan className="key-value"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
-                        </text>
+                        <>
+                            <text
+                                render-order="1"
+                                x={viewState.bBox.x}
+                                y={viewState.bBox.y + 10}
+                                height="50"
+                                ref={svgTextRef}
+                            >
+                                <tspan className="key-value"> {`${name}:`} </tspan>
+                                <tspan className="value-para"> {`${type}`}  </tspan>
+                            </text>
+                            {!isTarget && (
+                                <g
+                                    className={classNames('delete-icon-show', { disable: hasConnections })}
+                                    style={{ display: isMouseOver ? 'block' : 'none' }}
+                                    onClick={handleOnDeleteClick}
+                                >
+                                    <DeleteSVG x={viewState.bBox.x + textWidth + 5} y={viewState.bBox.y - 5} />
+                                </g>
+                            )}
+                        </>
                     )
                     :
                     (

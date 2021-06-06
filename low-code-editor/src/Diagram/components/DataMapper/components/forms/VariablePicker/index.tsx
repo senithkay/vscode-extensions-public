@@ -39,11 +39,11 @@ export function VariablePicker(props: VariablePickerProps) {
             dataMapperConfig,
             maxFieldWidth,
             outputSTNode
-            // updateDataMapperConfig
         },
         toggleAddVariableForm: toggleVariablePicker,
         dataMapperViewRedraw
     } = useContext(DataMapperViewContext);
+
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
 

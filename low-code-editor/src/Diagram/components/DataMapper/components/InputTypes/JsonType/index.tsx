@@ -13,12 +13,14 @@
 // tslint:disable: no-empty
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
-import { getDataMapperComponent } from '../../../util';
+import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
+import { getDataMapperComponent, hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldDraftType } from '../../../util/types';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
@@ -33,10 +35,17 @@ interface JsonTypeProps {
     onAddFieldButtonClick?: () => void;
     offSetCorrection: number;
     draftFieldViewstate?: DraftFieldViewstate;
+    isTarget?: boolean;
+    removeInputType?: (model: STNode) => void;
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick, isTarget, removeInputType } = props;
+    const svgTextRef = useRef(null);
+    const hasConnections = hasReferenceConnections(model);
+
+    const [isMouseOver, setIsMouseOver] = useState(false);
+    const [textWidth, setTextWidth] = useState(0);
 
     const fields: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
@@ -69,7 +78,12 @@ export function JsonType(props: JsonTypeProps) {
             } else {
                 draftVS.precededByComma = true;
             }
-            draftVS.draftInsertPosition = { startLine: undefined, endLine: undefined, startColumn: undefined, endColumn: undefined };
+            draftVS.draftInsertPosition = {
+                startLine: undefined,
+                endLine: undefined,
+                startColumn: undefined,
+                endColumn: undefined
+            };
             draftVS.draftInsertPosition.startLine = closeBracePosition.endLine;
             draftVS.draftInsertPosition.startColumn = closeBracePosition.endColumn - 1;
             draftVS.draftInsertPosition.endLine = closeBracePosition.endLine;
@@ -164,9 +178,33 @@ export function JsonType(props: JsonTypeProps) {
         ))
     }
 
+    useEffect(() => {
+        if (!isTarget && svgTextRef.current) {
+            setTextWidth(svgTextRef.current.getComputedTextLength())
+        }
+    }, []);
+
+    const handleOnRectangleHover = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(true);
+        }
+    }
+
+    const handleOnMouseOut = (evt: any) => {
+        if (isMain) {
+            setIsMouseOver(false)
+        }
+    }
+
+    const handleOnDeleteClick = (evt: any) => {
+        if (!hasConnections && !isTarget) {
+            removeInputType(model);
+        }
+    }
+
     return (
 
-        <g id="JsonWrapper" >
+        <g id="JsonWrapper" onMouseOver={handleOnRectangleHover} onMouseOut={handleOnMouseOut} >
             <rect
                 render-order="-1"
                 x={viewState.bBox.x - offSetCorrection}
@@ -178,10 +216,27 @@ export function JsonType(props: JsonTypeProps) {
             <g render-order="1">
                 {isMain ?
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + 10} height="50" >
-                            <tspan className="key-value"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
-                        </text>
+                        <>
+                            <text
+                                render-order="1"
+                                x={viewState.bBox.x}
+                                y={viewState.bBox.y + 10}
+                                height="50"
+                                ref={svgTextRef}
+                            >
+                                <tspan className="key-value"> {`${name}:`} </tspan>
+                                <tspan className="value-para"> {`${type}`}  </tspan>
+                            </text>
+                            {!isTarget && (
+                                <g
+                                    className={classNames('delete-icon-show', { disable: hasConnections })}
+                                    style={{ display: isMouseOver ? 'block' : 'none' }}
+                                    onClick={handleOnDeleteClick}
+                                >
+                                    <DeleteSVG x={viewState.bBox.x + textWidth + 5} y={viewState.bBox.y - 5} />
+                                </g>
+                            )}
+                        </>
                     )
                     :
                     (
@@ -192,16 +247,18 @@ export function JsonType(props: JsonTypeProps) {
                     )
                 }
             </g>
-            <g render-order="1" >
-                <text
-                    x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection}
-                    y={viewState.bBox.y + DefaultConfig.dotGap + 5}
-                    height="50"
-                    onClick={handleAddFieldBtnClick}
-                >
-                    <tspan className="plus-symbol"> + </tspan>
-                </text>
-            </g>
+            {isTarget && (
+                <g render-order="1" >
+                    <text
+                        x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection}
+                        y={viewState.bBox.y + DefaultConfig.dotGap + 5}
+                        height="50"
+                        onClick={handleAddFieldBtnClick}
+                    >
+                        <tspan className="plus-symbol"> + </tspan>
+                    </text>
+                </g>
+            )}
             {fields}
             {drafts}
             {/* {dataPoints} */}
