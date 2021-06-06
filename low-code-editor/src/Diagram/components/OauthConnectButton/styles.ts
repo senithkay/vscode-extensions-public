@@ -47,18 +47,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 16,
         },
         radioBtnTitle: {
-            marginBottom: 2,
+            margin: 0,
             fontWeight: 400,
         },
         radioBtnSubtitle: {
             fontSize: "smaller",
-            color: "#8d91a3"
+            color: "#8d91a3",
+            margin: "-5px 0",
         },
         box: {
-            width: "100%",
+            width: "auto",
             borderRadius: 5,
-            padding: theme.spacing(1),
-            paddingLeft: theme.spacing(2.5),
             marginBottom: theme.spacing(1),
             borderColor: theme.palette.secondary.main,
             display: 'flex',
@@ -69,6 +68,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: "100%",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                paddingLeft: theme.spacing(2.5),
+                padding: "0.7rem"
             }
         },
         radio: {

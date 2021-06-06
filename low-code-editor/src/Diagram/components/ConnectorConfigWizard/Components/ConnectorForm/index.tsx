@@ -33,6 +33,12 @@ import { BallerinaConnectorsInfo, STModification } from "../../../../../Definiti
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { DiagramContext } from "../../../../../providers/contexts";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent
+} from "../../../../models";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
@@ -88,7 +94,7 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         stSymbolInfo,
@@ -96,7 +102,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         oauthProviderConfigs,
         userInfo,
         getAiSuggestions,
-        trackAddConnector,
+        onEvent,
         syntaxTree,
         getAllConnections
     } = state;
@@ -255,7 +261,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const moduleName = getFormattedModuleName(connectorInfo.module);
-        trackAddConnector(connectorInfo.displayName);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
 
         // check oauth flow and manual flow
         if (isOauthConnector && !isManualConnection && connection) {
@@ -326,7 +337,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         }
         if (modifications.length > 0) {
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onClose();
         }
     }
@@ -334,7 +345,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
-        trackAddConnector(connectorInfo.displayName);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (currentActionReturnType.hasReturn){
                 const updateActionInvocation = updatePropertyStatement(
@@ -380,7 +396,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
 
         }
-        onMutate(modifications);
+        modifyDiagram(modifications);
         onClose();
     }
 
@@ -440,10 +456,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const moduleName = getFormattedModuleName(connectorInfo.module);
-        trackAddConnector(connectorInfo.displayName);
         if (sourceModifications) {
             // Modifications for special Connectors
-            onMutate(sourceModifications);
+            modifyDiagram(sourceModifications);
             onClose();
         } else {
             // insert initialized connector logic
@@ -527,7 +542,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onClose();
         }
     };
@@ -570,7 +585,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         />
                         <div className={wizardClasses.titleWrapper}>
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
-                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="Connection" /></Typography>
+                            <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="&nbsp;Connection" /></Typography>
                         </div>
                     </div>
                     {(formState === FormStates.OauthConnect) && (

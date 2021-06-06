@@ -48,7 +48,7 @@ export interface StartButtonProps {
 export function StartButton(props: StartButtonProps) {
     const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
     const isMutationProgress = state.isMutationProgress || false;
-    const { syntaxTree, appInfo, originalSyntaxTree } = state;
+    const { syntaxTree, appInfo, originalSyntaxTree, currentAppType, isReadOnly } = state;
 
     const { currentApp } = appInfo || {};
     let displayType = currentApp ? currentApp.displayType : "";
@@ -75,8 +75,12 @@ export function StartButton(props: StartButtonProps) {
 
     if (STKindChecker.isFunctionDefinition(model)) {
         const tempModel: FunctionDefinition = model as FunctionDefinition;
-        const body: FunctionBodyBlock = tempModel.functionBody as FunctionBodyBlock;
-        emptySource = body.statements.length < 1 || body.statements === undefined;
+        if (STKindChecker.isExpressionFunctionBody(tempModel.functionBody)) {
+            emptySource = false;
+        } else {
+            const body: FunctionBodyBlock = tempModel.functionBody as FunctionBodyBlock;
+            emptySource = body.statements.length < 1 || body.statements === undefined;
+        }
     } else if (STKindChecker.isModulePart(model)) {
         emptySource = true;
     }
@@ -101,7 +105,7 @@ export function StartButton(props: StartButtonProps) {
         handleOnComplete(activeTriggerType);
     }
 
-    const getWebhookType = () : ConnectorType => {
+    const getWebhookType = (): ConnectorType => {
         const webHookSyntaxTree = originalSyntaxTree as ModulePart;
         const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
             STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
@@ -174,6 +178,10 @@ export function StartButton(props: StartButtonProps) {
         );
     }, []);
 
+    useEffect(() => {
+        if (isReadOnly && isReadOnly === true) setActiveTriggerType(currentAppType)
+    }, [])
+
     let block: FunctionBodyBlock;
     if (model as FunctionDefinition) {
         const funcModel = model as FunctionDefinition;
@@ -185,7 +193,8 @@ export function StartButton(props: StartButtonProps) {
         : activeTriggerType.toUpperCase();
 
     return (
-        <g className={triggerType === TRIGGER_TYPE_WEBHOOK ? "start-wrapper" : "start-wrapper-edit"}>
+        // hide edit button for triggers and expression bodied functions
+        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK) ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}

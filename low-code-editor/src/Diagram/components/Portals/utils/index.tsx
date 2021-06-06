@@ -20,7 +20,8 @@ import {
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, traversNode, TypeCastExpression} from "@ballerina/syntax-tree";
+    STNode, StringLiteral, traversNode, TypeCastExpression
+} from "@ballerina/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
@@ -142,7 +143,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                             const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
                             recordRes = receivedRecords.get(recordKey);
                             const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
-                            if (!recordRes){
+                            if (!recordRes) {
                                 recordRes = loadedRecords.get(recordKey);
                             }
                             if (!ignoredRecord && recordRes === undefined) {
@@ -183,12 +184,12 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                 recordRes.viewState = formField;
                                 traversNode(recordRes, FormFieldVisitor);
                                 if (formField.fields) {
-                                    if (depth < maxDepth){
+                                    if (depth < maxDepth) {
                                         await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
                                     }
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property?.length > 0) {
+                                        if (property.fields?.length > 0) {
                                             formField.fields = [...formField.fields, ...property.fields]
                                         }
                                     })
@@ -211,14 +212,19 @@ export function getParams(formFields: FormField[]): string[] {
     formFields.forEach(formField => {
         let paramString: string = "";
         if (formField.isParam && !formField.noCodeGen) {
+            if (formField.isDefaultableParam && formField.value) {
+                paramString += `${formField.name} = `;
+            }
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
+            } else if (formField.type === "map" && formField.value) {
+                paramString += formField.value;
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
                 formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
+            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
@@ -252,7 +258,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 return fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
-                                const params = getParams([ selectedField ]);
+                                const params = getParams([selectedField]);
                                 if (params && params.length > 0) {
                                     if (firstRecordField) {
                                         recordFieldsString += ", ";
@@ -261,7 +267,7 @@ export function getParams(formFields: FormField[]): string[] {
                                     }
                                     recordFieldsString += name + ": " + params;
                                 }
-                            } else if (field.value){
+                            } else if (field.value) {
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
                                 } else {
@@ -270,7 +276,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 recordFieldsString += name + ": " + field.value;
                             }
                         }
-                    } else if (field.type === "record" && !field.hide) {
+                    } else if (field.type === "record" && !field.hide && !field.isReference) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
                             const fieldArray: FormField[] = [
@@ -298,7 +304,7 @@ export function getParams(formFields: FormField[]): string[] {
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                 //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
                 //      here skip that RefreshTokenGrantConfig record form code string
-                if (paramString.includes("RefreshTokenGrantConfig")){
+                if (paramString.includes("RefreshTokenGrantConfig")) {
                     paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
             } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
@@ -427,25 +433,25 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     // if the assigned value is a record
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
-                        if (formField.type === "union"){
+                        if (formField.type === "union") {
                             formField.fields.forEach(subFormField => {
-                                if (subFormField.type === "record" && subFormField.fields){
+                                if (subFormField.type === "record" && subFormField.fields) {
                                     // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                                     //      it will generate empty formField. getParams() code-gen skip this empty FormField.
                                     //      here skip that empty FormFiled and use inside field array
                                     const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
                                         subFormField.fields[0]?.fields : subFormField.fields;
-                                    if (subFields){
+                                    if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
                                         const valueFilled = subFields.find(field => (field.optional === false && field.value));
-                                        if (valueFilled){
+                                        if (valueFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
                                         }
                                     }
                                 }
                             });
-                        }else{
+                        } else {
                             mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], formField.fields);
                         }
                     }
@@ -521,7 +527,7 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
     if (asts === undefined) {
         return [];
     }
-    return (asts as LocalVarDecl[]).map((item) => (item.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value);
+    return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
 export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
@@ -630,7 +636,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
         }
     });
     symbolInfo.actions.forEach((variableNodes: STNode, type: string) => {
-        if (variableNodes.kind === "LocalVarDecl"){
+        if (variableNodes.kind === "LocalVarDecl") {
             const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
             const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
                 CaptureBindingPattern;
@@ -687,7 +693,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         // get form fields from file cache
         functionDefInfo = await getFormFieldFromFileCache(connector);
         // save form fields in browser cache
-        if (functionDefInfo){
+        if (functionDefInfo) {
             await addToFormFieldCache(connector, functionDefInfo);
         }
     }
@@ -700,7 +706,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             const connectorResp = await langClient.getConnector(connector);
             connectorDef = connectorResp.ast;
         }
-        if (!connectorDef){
+        if (!connectorDef) {
             // handle error when connector loading form
             return null;
         }
@@ -797,8 +803,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             functionDefInfo.get("init").parameters
             : functionDefInfo.get("__init").parameters;
         const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
-        connectorConfig.initPosition = matchingEndPoint.position;
-        matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
+        if (matchingEndPoint) {
+            connectorConfig.initPosition = matchingEndPoint.position;
+            matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
+        }
     }
 
     connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.module) + ":" + connector.name);
@@ -886,7 +894,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
         hasReturn: false,
         returnType: "var",
     };
-    const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
+    const primitives = ["string", "int", "float", "boolean", "json", "xml"];
     const returnTypes: string[] = [];
 
     if (formField && formField?.isParam) {
@@ -913,7 +921,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                             return `${fullType}${type !== '?' ? '|' : ''}${type}`;
                         });
                     } else {
-                        response.returnType = returnTypes[ 0 ];
+                        response.returnType = returnTypes[0];
                         if (response.returnType === '?') {
                             response.hasReturn = false;
                         }
@@ -927,6 +935,11 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                }
+
+                if (response.returnType && formField?.isArray) {
+                    // set array type
+                    response.returnType = response.returnType.includes('|') ? `(${response.returnType})[]` : `${response.returnType}[]`;
                 }
                 break;
 
@@ -945,7 +958,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[0];
                 }
                 break;
 
@@ -1062,7 +1075,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
     switch (connectorName) {
         case "github": {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            if (!configurables?.get(githubAccessToken)){
+            if (!configurables?.get(githubAccessToken)) {
                 return `configurable string ${githubAccessToken} = ?;`;
             }
             break;
@@ -1076,16 +1089,16 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
             const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             let statement = '';
 
-            if (!configurables?.get(clientId)){
+            if (!configurables?.get(clientId)) {
                 statement += `configurable string ${clientId} = ?;\n`;
             }
-            if (!configurables?.get(clientSecret)){
+            if (!configurables?.get(clientSecret)) {
                 statement += `configurable string ${clientSecret} = ?;\n`;
             }
-            if (!configurables?.get(refreshUrl)){
+            if (!configurables?.get(refreshUrl)) {
                 statement += `configurable string ${refreshUrl} = ?;\n`;
             }
-            if (!configurables?.get(refreshToken)){
+            if (!configurables?.get(refreshToken)) {
                 statement += `configurable string ${refreshToken} = ?;\n`;
             }
 
@@ -1108,12 +1121,12 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
         case "googleapis.sheets":
             variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
                 fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
             break;
         case "googleapis.calendar": {
             variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
                 fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
             break;
         }
         default:
@@ -1121,7 +1134,7 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
     }
 
     allConnections.forEach(connection => {
-        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)){
+        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)) {
             activeConnection = connection;
         }
     });
@@ -1134,12 +1147,12 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
         // return type has an error
         return true;
     }
-    if (functionDefinitions.get(action)?.returnType?.typeInfo?.name === "Error"){
+    if (functionDefinitions.get(action)?.returnType?.typeInfo?.name === "Error") {
         // return type has an error
         return true;
     }
     if (functionDefinitions.get(action)?.returnType?.fields?.
-            find((param: any) => (param?.isErrorType || param?.type === "error" || param?.typeInfo?.name === "Error"))) {
+        find((param: any) => (param?.isErrorType || param?.type === "error" || param?.typeInfo?.name === "Error"))) {
         // return type has an error
         return true;
     }
@@ -1149,7 +1162,7 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
 
 export function getFormattedModuleName(moduleName: string): string {
     let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
-    if (keywords.includes(formattedModuleName)){
+    if (keywords.includes(formattedModuleName)) {
         formattedModuleName = `${formattedModuleName}0`;
     }
     return formattedModuleName;

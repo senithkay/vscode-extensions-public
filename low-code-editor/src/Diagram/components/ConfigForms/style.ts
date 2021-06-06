@@ -20,7 +20,7 @@ export const wizardStyles = makeStyles(() =>
             backgroundColor: "#fff",
             padding: '1.75rem',
             marginRight: 1,
-            width: '100%',
+            width: 'auto',
             height: "auto",
             marginBottom: '2rem',
             scrollBehavior: 'smooth',

@@ -34,6 +34,7 @@ import {
     CompilationUnitViewState,
     DoViewState,
     ElseViewState,
+    EndpointViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
@@ -46,8 +47,10 @@ import {
 import { DraftStatementViewState } from "../view-state/draft";
 import { WhileViewState } from "../view-state/while";
 
+import { DefaultConfig } from "./default";
+
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
-let currentFnBody: FunctionBodyBlock;
+let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 const allDiagnostics: Diagnostic[] = [];
 
 class InitVisitor implements Visitor {
@@ -227,10 +230,18 @@ class InitVisitor implements Visitor {
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
+        node.viewState = new BlockViewState();
+        currentFnBody = node;
+        allEndpoints = new Map<string, Endpoint>();
+        // this.visitBlock(node, parent);
+        node.viewState.isEndComponentAvailable = true;
     }
 
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // todo: Check if this is the function to replace endVisitExpressionStatement
+        const blockViewState: BlockViewState = node.viewState;
+        blockViewState.connectors = allEndpoints;
+        currentFnBody = undefined;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
@@ -468,7 +479,7 @@ class InitVisitor implements Visitor {
                 });
                 if (resourceKeyword) {
                     const callerParam: RequiredParam = parent.functionSignature.parameters[0] as RequiredParam;
-                    callerParamName = callerParam.paramName.value;
+                    callerParamName = callerParam?.paramName?.value;
                 }
             }
             visibleEndpoints.forEach((ep: any) => {
@@ -479,6 +490,17 @@ class InitVisitor implements Visitor {
                     actions
                 };
                 if (!allEndpoints.has(ep.typeName) && ep.name !== callerParamName) {
+                    // Update endpoint lifeline values.
+                    const endpointViewState: EndpointViewState = new EndpointViewState();
+                    endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
+                    endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
+                    endpointViewState.iconId = ep.moduleName + "_" + ep.typeName;
+
+                    // Update the endpoint sizing values in allEndpoint map.
+                    const visibleEndpoint: any = endpoint.visibleEndpoint;
+                    const mainEp = endpointViewState;
+                    mainEp.isUsed = endpoint.firstAction !== undefined;
+                    visibleEndpoint.viewState = mainEp;
                     allEndpoints.set(ep.name, endpoint);
                 }
             });

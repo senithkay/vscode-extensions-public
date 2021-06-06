@@ -17,11 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import {
     FunctionBodyBlock,
-    FunctionDefinition, LocalVarDecl, MappingConstructor,
+    FunctionDefinition,
+    LocalVarDecl,
+    MappingConstructor,
     ModulePart,
     ModuleVarDecl,
-    QualifiedNameReference, SpecificField,
-    STKindChecker, STNode
+    QualifiedNameReference,
+    SpecificField,
+    STKindChecker,
+    STNode
 } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
@@ -32,7 +36,12 @@ import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
@@ -53,17 +62,17 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        trackTriggerSelection,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
         originalSyntaxTree,
+        onEvent
     } = state;
     const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
@@ -161,7 +170,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gcalendar",
             PORT: 8090,
             CLIENT_ID: clientId,
@@ -171,7 +180,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             CALENDAR_ID: activeGcalendar.id,
             EVENT: calendarEvent,
         });
-        trackTriggerSelection("Google Calender");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Google Calender"
+        };
+        onEvent(event);
     };
 
     // handle calendar trigger update
@@ -236,7 +250,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                                       }`;
             modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
             modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
-            onMutate(modifications);
+            modifyDiagram(modifications);
             setTriggerChanged(true);
         }
     };

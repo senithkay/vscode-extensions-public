@@ -47,7 +47,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             boxShadow: "inset 0 0 0 1px #CBCEDB, 0 1px 2px -1px rgba(141,145,163,0.21)",
         },
         toggleTitle: {
-            marginTop: '1.25rem',
             fontWeight: 500,
             fontSize: 15,
             color: '#222228',
