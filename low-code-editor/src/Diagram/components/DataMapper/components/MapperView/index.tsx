@@ -11,7 +11,7 @@
  * associated services.
  */
 /* tslint:disable:jsx-no-multiline-js */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
@@ -32,6 +32,9 @@ import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
 import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
+import { MouseEventHub } from '../../util/mouse-event-hub';
+
+import { getEventHub } from '../../util/mouse-event-hub';
 
 interface MapperViewProps {
 
@@ -50,7 +53,8 @@ export function MapperView(props: MapperViewProps) {
             dataMapperStart,
             dispatchMutations,
             dataMapperConfig,
-            updateDataMapperConfig
+            updateDataMapperConfig,
+            mouseMoveEventHub
         },
         updateState,
         dataMapperViewRedraw,
@@ -195,6 +199,32 @@ export function MapperView(props: MapperViewProps) {
             }
         }
     }
+
+    // ToDo: Revisit
+    // useEffect(() => {
+    //     const parentSVG = (drawingLineRef.current as SVGGraphicsElement).parentElement.parentElement.parentElement;
+
+    //     if (parentSVG instanceof SVGSVGElement) {
+    //         const ctm = (parentSVG as SVGSVGElement).getScreenCTM();
+    //         const point = (parentSVG as SVGSVGElement).createSVGPoint();
+
+    //         const updatePositionMouseMove = (evt: MouseEvent) => {
+    //             point.x = evt.pageX;
+    //             point.y = evt.pageY;
+    //             const mappedPoint = point.matrixTransform(ctm.inverse());
+    //             // mouseMoveEventHub.updateCursorPosition({ x: mappedPoint.x, y: mappedPoint.y })
+    //             getEventHub().updateCursorPosition({ x: mappedPoint.x, y: mappedPoint.y });
+    //         }
+
+    //         eventListenerMap.positionListener = updatePositionMouseMove;
+    //         window.addEventListener('mousemove', eventListenerMap.positionListener);
+    //     }
+
+    //     return () => {
+    //         window.removeEventListener('mousemove', eventListenerMap.positionListener);
+    //         eventListenerMap.positionListener = undefined;
+    //     }
+    // }, []);
 
     const inputComponents: JSX.Element[] = [];
     const outputComponent: JSX.Element[] = [];

@@ -11,8 +11,9 @@
  * associated services.
  */
 
-import { SimpleBBox } from "../../../view-state";
 import { DraftUpdatePosition } from "../../../view-state/draft";
+
+import { SourcePointViewState, TargetPointViewState } from ".";
 
 export class ConnectionViewState {
     public x1: number;
@@ -20,12 +21,16 @@ export class ConnectionViewState {
     public y1: number;
     public y2: number;
     public targetPosition: DraftUpdatePosition;
+    public targetType: string;
+    public targetUnionType: string;
 
-    constructor(sourceBBox: SimpleBBox, targetBBox: SimpleBBox, targetPosition: DraftUpdatePosition) {
-        this.x1 = sourceBBox.x;
-        this.x2 = targetBBox.x;
-        this.y1 = sourceBBox.y;
-        this.y2 = targetBBox.y;
+    constructor(sourcePointVS: SourcePointViewState, targetPointVS: TargetPointViewState, targetPosition: DraftUpdatePosition) {
+        this.x1 = sourcePointVS.bBox.x;
+        this.x2 = targetPointVS.bBox.x;
+        this.y1 = sourcePointVS.bBox.y;
+        this.y2 = targetPointVS.bBox.y;
         this.targetPosition = targetPosition;
+        this.targetType = targetPointVS.type;
+        this.targetUnionType = targetPointVS.unionType;
     }
 }

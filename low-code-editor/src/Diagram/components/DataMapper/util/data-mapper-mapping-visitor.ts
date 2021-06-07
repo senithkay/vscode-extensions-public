@@ -195,8 +195,8 @@ export class DataMapperMappingVisitor implements Visitor {
 
         if (sourcePointVS && targetPointVS) {
             return new ConnectionViewState(
-                sourcePointVS.bBox,
-                targetPointVS.bBox,
+                sourcePointVS,
+                targetPointVS,
                 position
             );
         }

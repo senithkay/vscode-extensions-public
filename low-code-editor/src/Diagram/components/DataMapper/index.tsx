@@ -29,14 +29,9 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 import { DataMapperWrapper } from './components/DataMapperWrapper';
 import './components/InputTypes/style.scss';
 import { Provider as DataMapperViewProvider } from './context/DataMapperViewContext';
-import { dataMapperSizingAndPositioning, getDataMapperComponent } from './util';
+import { dataMapperSizingAndPositioning } from './util';
 import { DataMapperState } from './util/types';
-
-// import sampleConfig from './sample-config.json';
-// import sampleConfig from './sample-config.json';
-// import sampleConfigJsonOutput from './sample-config-json.json';
-// import sampleConfigAssignmentRecordOutput from './sample-assignment-record.json';
-// import sampleConfigJsonInline from './sample-config-json-inline.json';
+import { MouseEventHub } from './util/mouse-event-hub';
 
 interface DataMapperProps {
     width: number;
@@ -46,6 +41,7 @@ export function DataMapper(props: DataMapperProps) {
     const {
         state, dataMapperStart, updateDataMapperConfig
     } = useContext(DiagramContext);
+    const { width } = props;
 
     const {
         appInfo,
@@ -60,11 +56,6 @@ export function DataMapper(props: DataMapperProps) {
         onFitToScreen(appInfo?.currentApp?.id);
     }, []);
 
-    // const dataMapperConfig: any = sampleConfigJsonInline; // todo: remove
-    // const dataMapperConfig: any = sampleConfig; // todo: remove
-    // const dataMapperConfig: any = sampleConfigJsonOutput; // todo: remove
-    // const dataMapperConfig: any = sampleConfigAssignmentRecordOutput; // todo: remove
-    const { width } = props;
     const [showAddVariableForm, setShowAddVariableForm] = useState(false);
 
     let outputSTNode; //
@@ -148,7 +139,8 @@ export function DataMapper(props: DataMapperProps) {
         maxFieldWidth,
         updateDataMapperConfig,
         dataMapperStart,
-        dispatchMutations
+        dispatchMutations,
+        mouseMoveEventHub: new MouseEventHub()
     }
 
     return (

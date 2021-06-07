@@ -14,11 +14,13 @@
 import React from 'react';
 
 import { DefaultConfig } from '../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import { DeleteSVG } from '../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 import "../InputTypes/style.scss";
 
 import { ExpressionBoxSVG, EXPRESSION_BOX_SVG_HEIGHT } from './ExpressionBoxSVG';
+import { MappingArrow } from './MappingArrow';
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
@@ -34,21 +36,15 @@ export function DataPoint(props: DataPointProps) {
         onClick(dataPointViewState);
     }
 
+
     if (dataPointViewState instanceof SourcePointViewState) {
-        (dataPointViewState as SourcePointViewState).connections.forEach(connection => {
+        (dataPointViewState as SourcePointViewState).connections.forEach((connection, i) => {
+            const keyId = 'source-' + dataPointViewState.text.replace(/\./g, '-') + '-' + i;
             connections.push(
-                <g>
-                    <g>
-                        <line
-                            x1={connection.x1 + PADDING_OFFSET}
-                            x2={connection.x2 - (PADDING_OFFSET + 40)}
-                            y1={connection.y1}
-                            y2={connection.y2}
-                            className="connect-line"
-                            markerEnd="url(#arrowhead)"
-                        />
-                    </g>
-                </g>
+                <MappingArrow
+                    connectionViewstate={connection}
+                    keyId={keyId}
+                />
             );
         })
         dataPointElement.push((
