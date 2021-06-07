@@ -19,12 +19,17 @@ import "../style.scss"
 export function DiagramErrorState(props: {
    x: number,
    y: number,
-   text: string,
+   errorCount: number,
+   warningCount: number,
    onClose: () => void,
    onOpen: () => void,
    isErrorMsgVisible: boolean,
 }) {
-   const { text, isErrorMsgVisible, onClose, onOpen, ...xyProps } = props;
+   const { errorCount, warningCount, isErrorMsgVisible, onClose, onOpen, ...xyProps } = props;
+   const text = errorCount + warningCount;
+   const iconColor = (errorCount > 0) ? "#fe523c" : "#ede78a";
+   const messageAreaColor = (errorCount > 0) ? "#fceded" : "#fcfacf";
+   const message = (errorCount > 0) ? "Code has errors, fix them first to activate the diagram" : "Code has warnings, Please check them";
    return (
       <svg viewBox="0 0 500 45">
          <defs>
@@ -45,16 +50,16 @@ export function DiagramErrorState(props: {
          <g id="Group_202" transform="translate(-146 -742)">
             {isErrorMsgVisible && (
             <g id="TextWrapper">
-               <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill="#fceded" />
+               <rect id="Rectangle" width="422" height="40" rx="20" transform="translate(146 744)" fill={messageAreaColor} />
                <text id="Code_has_errors_fix" transform="translate(202 768)" className="code-errors">
-                  <tspan x="0" y="0">Code has errors, fix them first to activate the diagram</tspan>
+                  <tspan x="0" y="0">{message}</tspan>
                </text>
             </g>)
             }
             <g id="ErrorBtnandIcon" transform="translate(146 744)" onClick={onOpen} style={{ cursor: 'pointer' }}>
                <g id="Button_Pill_40_Default_Copy" clipPath="url(#clipPath)">
                   <g id="Purpose">
-                     <rect id="Purpose-2" width="40" height="40" fill="#fe523c" />
+                     <rect id="Purpose-2" width="40" height="40" fill={iconColor} />
                   </g>
                </g>
                <g id="Icon_Analytics_Alerts" transform="translate(12 12)">
@@ -63,7 +68,7 @@ export function DiagramErrorState(props: {
             </g>
             <g id="Counter">
                <g transform="matrix(1, 0, 0, 1, 146, 742)" filter="url(#Oval)">
-                  <circle id="Oval-2" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke="#fe523c" strokeMiterlimit="10" strokeWidth="1" />
+                  <circle id="Oval-2" cx="8" cy="8" r="8" transform="translate(25 1)" fill="#fff" stroke={iconColor} strokeMiterlimit="10" strokeWidth="1" />
                </g>
                <text id="_4" transform="translate(175 755)">
                   <tspan x="1" y="0">{text}</tspan></text>

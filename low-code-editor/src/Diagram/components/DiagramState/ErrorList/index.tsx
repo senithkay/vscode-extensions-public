@@ -36,6 +36,7 @@ export function ErrorList() {
 
     const { state: {
         diagnostics,
+        warnings,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
         currentApp,
@@ -129,7 +130,7 @@ export function ErrorList() {
 
     return (
         <div className={classes.diagramErrorMessageWrapper} >
-                {diagnostics.map((item: any, index: number) => <>
+                {diagnostics && diagnostics.map((item: any, index: number) => <>
                     <div className={classes.diagramErrorMessageItem}>
                         <div className={classes.diagramErrorMessageText}>{item.message}</div>
                         {codeActions[index] && codeActions[index].length > 0 && !isReadOnly && !isWaitingOnWorkspace &&
@@ -171,6 +172,13 @@ export function ErrorList() {
                         {/* <CloseIcon className={classes.closeIcon}/> */}
                     </div>
                     {index + 1 !== diagnostics.length && <div className={classes.diagramErrorItemDivider}/>}
+                </>)}
+                {warnings && warnings.map((item: any, index: number) => <>
+                    <div className={classes.diagramErrorMessageItem}>
+                        <div className={classes.diagramErrorMessageText}>{item.message}</div>
+                        {/* <CloseIcon className={classes.closeIcon}/> */}
+                    </div>
+                    {index + 1 !== warnings.length && <div className={classes.diagramErrorItemDivider}/>}
                 </>)}
             </div>
     );
