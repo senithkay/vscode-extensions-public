@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
-import { Typography } from "@material-ui/core";
+import {Divider, Drawer, Typography} from "@material-ui/core";
 import classNames from "classnames";
 
 import {
@@ -549,7 +549,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const manualConnectionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.button.label",
-        defaultMessage: "Manual Connection"
+        defaultMessage: "Manual Configuration"
     });
 
     const backButtonLabel = intl.formatMessage({
@@ -587,6 +587,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
                             <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="&nbsp;Connection" /></Typography>
                         </div>
+                        <Divider variant='fullWidth'/>
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
@@ -608,14 +609,23 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             )}
                             {!isAction &&
                                 (
-                                    <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                        <p className={wizardClasses.manualConnectionTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
-                                        <LinePrimaryButton
-                                            className={wizardClasses.fullWidth}
-                                            text={manualConnectionButtonLabel}
-                                            fullWidth={false}
-                                            onClick={onManualConnection}
-                                        />
+                                    <div>
+                                        <div className={classNames(wizardClasses.manualBtnWrapper)}>
+                                            <LinePrimaryButton
+                                                className={wizardClasses.fullWidth}
+                                                text={manualConnectionButtonLabel}
+                                                fullWidth={false}
+                                                onClick={onManualConnection}
+                                            />
+                                        </div>
+                                        <div className={wizardClasses.oauthConnectionAltTextWrapper}>
+                                            <p className={wizardClasses.oauthConnectionAltText}>
+                                                <FormattedMessage
+                                                    id="lowcode.develop.connectorForms.newConnectionAltText"
+                                                    defaultMessage={"You will be prompted to enter configuration details"}
+                                                />
+                                            </p>
+                                        </div>
                                     </div>
                                 )
                             }

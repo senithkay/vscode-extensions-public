@@ -16,7 +16,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         title: {
             marginBottom: 12,
             marginRight: 6,
-            fontSize: 13,
+            fontSize: 15,
             letterSpacing: 0,
             fontWeight: 500,
             color: "#222228",
@@ -88,5 +88,41 @@ export const useStyles = makeStyles((theme: Theme) =>
         changeConnectionBtn: {
             padding: 3,
         },
+        searchBox: {
+            height: 32,
+            width: "100%",
+            borderRadius: 6,
+            color: "#8D91A3",
+            fontFamily: "Gilmer",
+            fontSize: 13,
+            boxShadow: "inset 0 0 0 1px #dee0e7, inset 0 2px 1px 0 rgba(0, 0, 0, 0.07), 0 0 0 0 rgba(50, 50, 77, 0.07)",
+            padding: "0 1rem",
+            border: 0,
+            "&:focus": {
+                outline: "none",
+                border: "1px solid #5567d5"
+            }
+        },
+        searchWrapper: {
+            marginBottom: 5,
+        },
+        oauthConnectionText: {
+            fontSize: 15,
+            fontWeight: 500,
+        },
+        oauthConnectionTextWrapper: {
+            width: 244,
+            marginBottom: 10,
+            marginTop: 10
+        },
+        oauthConnectionAltTextWrapper: {
+            textAlign: "center",
+            marginTop: 3
+        },
+        oauthConnectionAltText: {
+            fontSize: 13,
+            fontWeight: 200,
+            color: "#8D91A3"
+        }
     }),
 );

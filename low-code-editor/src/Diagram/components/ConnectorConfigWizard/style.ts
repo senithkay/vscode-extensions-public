@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import color = Mocha.reporters.Base.color;
 
 export const wizardStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -43,13 +44,13 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         configTitle: {
-            marginBottom: '0.2rem !important',
+            marginBottom: '1.2rem !important',
             fontWeight: 500,
-            fontSize: 17,
+            fontSize: 13,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            padding: '0 0.5rem',
+            padding: '0.2rem 0.5rem',
             width: 350
         },
         deleteBtn: {
@@ -243,6 +244,17 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end",
             height: "auto",
             marginTop: "2.5rem",
+        },
+        oauthConnectionAltTextWrapper: {
+            textAlign: "center",
+            marginTop: 3,
+            marginRight: 17,
+            marginLeft: 17
+        },
+        oauthConnectionAltText: {
+            fontSize: 13,
+            fontWeight: 200,
+            color: "#8D91A3"
         }
     }),
 );

@@ -13,7 +13,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React from 'react';
+import React, {useState} from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Typography } from "@material-ui/core";
@@ -35,12 +35,21 @@ export interface ConnectionListProps {
     connectionList: ConnectionDetails[];
     onChangeConnection: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onInitConnection: () => void;
+    connectionName: string
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
-    const { activeConnection, connectionList, onChangeConnection, onInitConnection } = props;
+    const { activeConnection, connectionList, onChangeConnection, onInitConnection, connectionName } = props;
     const classes = useStyles();
     const intl = useIntl();
+    const [selectedConnection, setSelectedConnection] = useState("");
+    const searchPlaceholder = intl.formatMessage({
+        id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
+        defaultMessage: "Search"
+    })
+    const handleSearchChange = (evt: any) => {
+        setSelectedConnection(evt.target.value);
+    };
 
     const connectionListElements = connectionList.map((item) => (
         <Box border={1} borderRadius={5} className={classes.radioBox} key={item.handle}>
@@ -57,7 +66,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
 
     const connectAnotherAccountButtonText = intl.formatMessage({
         id: "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text",
-        defaultMessage: "Connect Another Account"
+        defaultMessage: "Your Account"
     });
 
     return (
@@ -68,14 +77,20 @@ export const ConnectionList = (props: ConnectionListProps) => {
                 arrow={true}
             >
                 <div className={classes.titleWrap}>
-                    <Typography variant="subtitle1" className={classes.title}><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.title" defaultMessage="Choose Account"/>
-
+                    <Typography variant="subtitle1" className={classes.title}>
+                        <FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.title" defaultMessage="Choose connection"/>
                     </Typography>
-                    <Link href="/user-settings/connections"><FormattedMessage id="lowcode.develop.OAuthConnect.ConnectionList.manage" defaultMessage="(Manage)"/>
-
-                    </Link>
                 </div>
             </TooltipIcon>
+            <div className={classes.searchWrapper}>
+                <input
+                    type="search"
+                    placeholder={searchPlaceholder}
+                    value={selectedConnection}
+                    onChange={handleSearchChange}
+                    className={classes.searchBox}
+                />
+            </div>
             <RadioGroup
                 aria-label="accounts"
                 name="account"
@@ -84,12 +99,27 @@ export const ConnectionList = (props: ConnectionListProps) => {
             >
                 {connectionListElements}
             </RadioGroup>
+            <div className={classes.oauthConnectionTextWrapper}>
+                <p className={classes.oauthConnectionText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionText"
+                        defaultMessage={"Or create a new connection to " + connectionName + " via"}
+                    />
+                </p>
+            </div>
             <PrimaryButtonSquare
                 text={connectAnotherAccountButtonText}
-                startIcon={<Add />}
                 onClick={onInitConnection}
                 className={classes.listConnectBtn}
             />
+            <div className={classes.oauthConnectionAltTextWrapper}>
+                <p className={classes.oauthConnectionAltText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        defaultMessage={"Connect via OAuth"}
+                    />
+                </p>
+            </div>
         </>
     );
 };

@@ -179,6 +179,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
       <ConnectionList
         activeConnection={activeConnection}
         connectionList={connectionList}
+        connectionName={connectorName}
         onChangeConnection={handleChangeConnectionSelection}
         onInitConnection={handleClickInitSession}
       />
