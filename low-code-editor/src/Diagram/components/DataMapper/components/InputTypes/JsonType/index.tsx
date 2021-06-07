@@ -13,16 +13,18 @@
 // tslint:disable: no-empty
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
+import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
+import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 import { getDataMapperComponent, hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
-import { FieldDraftType } from '../../../util/types';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
 import { DraftFieldViewstate } from '../../../viewstate/draft-field-viestate';
 import { DataPoint } from '../../DataPoint';
@@ -37,10 +39,13 @@ interface JsonTypeProps {
     draftFieldViewstate?: DraftFieldViewstate;
     isTarget?: boolean;
     removeInputType?: (model: STNode) => void;
+    commaPosition?: DraftUpdatePosition
 }
 
 export function JsonType(props: JsonTypeProps) {
-    const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick, isTarget, removeInputType } = props;
+    const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
+    const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
+            isTarget, removeInputType, commaPosition } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -105,19 +110,33 @@ export function JsonType(props: JsonTypeProps) {
                 const initializer: MappingConstructor = (model as LocalVarDecl).initializer as MappingConstructor;
 
                 if (initializer) {
-                    initializer.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
-                        const fieldVS = field.dataMapperViewState;
-                        fields.push(
-                            getDataMapperComponent(
-                                fieldVS.type,
-                                {
-                                    model: field,
-                                    onDataPointClick,
-                                    offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
-                                    onAddFieldButtonClick
+                    initializer.fields.forEach((field, i) => {
+                        if (!STKindChecker.isCommaToken(field)) {
+                            const fieldVS = field.dataMapperViewState;
+                            let commaPosition;
+
+                            if (i < initializer.fields.length - 2) {
+                                const adjascentElement = initializer.fields[i + 1];
+                                if (STKindChecker.isCommaToken(adjascentElement)) {
+                                    commaPosition = adjascentElement.position;
                                 }
-                            )
-                        );
+                            }
+
+                            fields.push(
+                                getDataMapperComponent(
+                                    fieldVS.type,
+                                    {
+                                        model: field,
+                                        onDataPointClick,
+                                        offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
+                                        onAddFieldButtonClick,
+                                        isTarget,
+                                        isJsonField: true,
+                                        commaPosition
+                                    }
+                                )
+                            );
+                        }
                     });
                 }
             } else if (model.dataMapperTypeDescNode) {
@@ -135,19 +154,33 @@ export function JsonType(props: JsonTypeProps) {
                 name = matchedVal[1];
             }
 
-            fieldModel.fields.filter(field => field.kind !== 'CommaToken').forEach(field => {
-                const fieldVS = field.dataMapperViewState;
-                fields.push(
-                    getDataMapperComponent(
-                        fieldVS.type,
-                        {
-                            model: field,
-                            onDataPointClick,
-                            offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
-                            onAddFieldButtonClick
+            fieldModel.fields.forEach((field, i) => {
+                if (!STKindChecker.isCommaToken(field)) {
+                    const fieldVS = field.dataMapperViewState;
+                    let commaPosition;
+
+                    if (i < fieldModel.fields.length - 2) {
+                        const adjascentElement = fieldModel.fields[i + 1];
+                        if (STKindChecker.isCommaToken(adjascentElement)) {
+                            commaPosition = adjascentElement.position;
                         }
-                    )
-                );
+                    }
+
+                    fields.push(
+                        getDataMapperComponent(
+                            fieldVS.type,
+                            {
+                                model: field,
+                                onDataPointClick,
+                                offSetCorrection: offSetCorrection + DEFAULT_OFFSET,
+                                onAddFieldButtonClick,
+                                isTarget,
+                                isJsonField: true,
+                                fieldModel
+                            }
+                        )
+                    );
+                }
             });
             break;
         default:
@@ -179,27 +212,40 @@ export function JsonType(props: JsonTypeProps) {
     }
 
     useEffect(() => {
-        if (!isTarget && svgTextRef.current) {
+        if (svgTextRef.current) {
             setTextWidth(svgTextRef.current.getComputedTextLength())
         }
     }, []);
 
     const handleOnRectangleHover = (evt: any) => {
-        if (isMain) {
-            setIsMouseOver(true);
-        }
+        // if (isMain) {
+        setIsMouseOver(true);
+        // }
     }
 
     const handleOnMouseOut = (evt: any) => {
-        if (isMain) {
-            setIsMouseOver(false)
-        }
+        // if (isMain) {
+        setIsMouseOver(false)
+        // }
     }
 
     const handleOnDeleteClick = (evt: any) => {
         if (!hasConnections && !isTarget) {
             removeInputType(model);
         }
+    }
+
+    const handleJsonFieldDelete = (evt: any) => {
+        const draftUpdatePosition: DraftUpdatePosition = {
+            startLine: model.position?.startLine,
+            endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
+            startColumn: model.position?.startColumn,
+            endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
+        }
+
+        const modificationStatement = removeStatement(draftUpdatePosition);
+
+        dispatchMutations([modificationStatement]);
     }
 
     return (
@@ -240,10 +286,27 @@ export function JsonType(props: JsonTypeProps) {
                     )
                     :
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + DefaultConfig.dotGap} height="50" >
-                            <tspan className="value-para"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
-                        </text>
+                        <>
+                            <text
+                                render-order="1"
+                                x={viewState.bBox.x}
+                                y={viewState.bBox.y + DefaultConfig.dotGap}
+                                height="50"
+                                ref={svgTextRef}
+                            >
+                                <tspan className="value-para"> {`${name}:`} </tspan>
+                                <tspan className="value-para"> {`${type}`}  </tspan>
+                            </text>
+                            {isTarget && (
+                                <g
+                                    className={classNames('delete-icon-show', { disable: hasConnections })}
+                                    style={{ display: isMouseOver ? 'block' : 'none' }}
+                                    onClick={handleJsonFieldDelete}
+                                >
+                                    <DeleteSVG x={viewState.bBox.x + textWidth + 5} y={viewState.bBox.y - 5} />
+                                </g>
+                            )}
+                        </>
                     )
                 }
             </g>

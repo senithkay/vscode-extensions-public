@@ -13,19 +13,22 @@
 // tslint:disable: no-empty
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
+import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
+import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { hasReferenceConnections } from '../../../util';
-import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
+
+import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 
 interface ValueTypeProps {
     model: STNode;
@@ -34,10 +37,13 @@ interface ValueTypeProps {
     onDataPointClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
     offSetCorrection: number;
     removeInputType?: (model: STNode) => void;
+    isJsonField?: boolean;
+    commaPosition?: DraftUpdatePosition;
 }
 
 export function ValueType(props: ValueTypeProps) {
-    const { model, isMain, onDataPointClick, offSetCorrection, removeInputType, isTarget } = props;
+    const { state: { dispatchMutations } } = useContext(DataMapperContext);
+    const { model, isMain, onDataPointClick, offSetCorrection, removeInputType, isTarget, isJsonField, commaPosition } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const svgTextRef = useRef(null);
 
@@ -74,21 +80,34 @@ export function ValueType(props: ValueTypeProps) {
     }
 
     useEffect(() => {
-        if (!isTarget && svgTextRef.current) {
+        if (svgTextRef.current) {
             setTextWidth(svgTextRef.current.getComputedTextLength())
         }
     }, []);
 
     const handleOnRectangleHover = (evt: any) => {
-        if (isMain) {
-            setIsMouseOver(true);
-        }
+        // if (isMain) {
+        setIsMouseOver(true);
+        // }
     }
 
     const handleOnMouseOut = (evt: any) => {
-        if (isMain) {
-            setIsMouseOver(false)
+        // if (isMain) {
+        setIsMouseOver(false)
+        // }
+    }
+
+    const handleJsonFieldDelete = (evt: any) => {
+        const draftUpdatePosition: DraftUpdatePosition = {
+            startLine: model.position?.startLine,
+            endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
+            startColumn: model.position?.startColumn,
+            endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
         }
+
+        const modificationStatement = removeStatement(draftUpdatePosition);
+
+        dispatchMutations([modificationStatement]);
     }
 
     return (
@@ -128,10 +147,27 @@ export function ValueType(props: ValueTypeProps) {
                     )
                     :
                     (
-                        <text render-order="1" x={viewState.bBox.x} y={viewState.bBox.y + DefaultConfig.dotGap} height="50" >
-                            <tspan className="value-para"> {`${name}:`} </tspan>
-                            <tspan className="value-para"> {`${type}`}  </tspan>
-                        </text>
+                        <>
+                            <text
+                                render-order="1"
+                                x={viewState.bBox.x}
+                                y={viewState.bBox.y + DefaultConfig.dotGap}
+                                height="50"
+                                ref={svgTextRef}
+                            >
+                                <tspan className="value-para"> {`${name}:`} </tspan>
+                                <tspan className="value-para"> {`${type}`}  </tspan>
+                            </text>
+                            {isTarget && isJsonField && (
+                                <g
+                                    className={classNames('delete-icon-show', { disable: hasConnections })}
+                                    style={{ display: isMouseOver ? 'block' : 'none' }}
+                                    onClick={handleJsonFieldDelete}
+                                >
+                                    <DeleteSVG x={viewState.bBox.x + textWidth + 5} y={viewState.bBox.y - 5} />
+                                </g>
+                            )}
+                        </>
                     )
                 }
             </g>
