@@ -39,13 +39,14 @@ interface JsonTypeProps {
     draftFieldViewstate?: DraftFieldViewstate;
     isTarget?: boolean;
     removeInputType?: (model: STNode) => void;
-    commaPosition?: DraftUpdatePosition
+    commaPosition?: DraftUpdatePosition;
+    isLastField?: boolean;
 }
 
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-            isTarget, removeInputType, commaPosition } = props;
+        isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -113,12 +114,17 @@ export function JsonType(props: JsonTypeProps) {
                     initializer.fields.forEach((field, i) => {
                         if (!STKindChecker.isCommaToken(field)) {
                             const fieldVS = field.dataMapperViewState;
-                            let commaPosition;
+                            let adjascentCommaPosition;
 
                             if (i < initializer.fields.length - 2) {
                                 const adjascentElement = initializer.fields[i + 1];
                                 if (STKindChecker.isCommaToken(adjascentElement)) {
-                                    commaPosition = adjascentElement.position;
+                                    adjascentCommaPosition = adjascentElement.position;
+                                }
+                            } else if (i === initializer.fields.length - 1 && i !== 0) {
+                                const adjascentElement = initializer.fields[i - 1];
+                                if (STKindChecker.isCommaToken(adjascentElement)) {
+                                    adjascentCommaPosition = adjascentElement.position;
                                 }
                             }
 
@@ -132,7 +138,8 @@ export function JsonType(props: JsonTypeProps) {
                                         onAddFieldButtonClick,
                                         isTarget,
                                         isJsonField: true,
-                                        commaPosition
+                                        commaPosition: adjascentCommaPosition,
+                                        isLastField: i === initializer.fields.length - 1
                                     }
                                 )
                             );
@@ -157,12 +164,17 @@ export function JsonType(props: JsonTypeProps) {
             fieldModel.fields.forEach((field, i) => {
                 if (!STKindChecker.isCommaToken(field)) {
                     const fieldVS = field.dataMapperViewState;
-                    let commaPosition;
+                    let adjascentCommaPosition;
 
                     if (i < fieldModel.fields.length - 2) {
                         const adjascentElement = fieldModel.fields[i + 1];
                         if (STKindChecker.isCommaToken(adjascentElement)) {
-                            commaPosition = adjascentElement.position;
+                            adjascentCommaPosition = adjascentElement.position;
+                        }
+                    } else if (i === fieldModel.fields.length - 1 && i !== 0) {
+                        const adjascentElement = fieldModel.fields[i - 1];
+                        if (STKindChecker.isCommaToken(adjascentElement)) {
+                            adjascentCommaPosition = adjascentElement.position;
                         }
                     }
 
@@ -176,7 +188,9 @@ export function JsonType(props: JsonTypeProps) {
                                 onAddFieldButtonClick,
                                 isTarget,
                                 isJsonField: true,
-                                fieldModel
+                                fieldModel,
+                                isLastField: i === fieldModel.fields.length - 1,
+                                commaPosition: adjascentCommaPosition
                             }
                         )
                     );
@@ -236,16 +250,30 @@ export function JsonType(props: JsonTypeProps) {
     }
 
     const handleJsonFieldDelete = (evt: any) => {
-        const draftUpdatePosition: DraftUpdatePosition = {
-            startLine: model.position?.startLine,
-            endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
-            startColumn: model.position?.startColumn,
-            endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
+        const modifications = []
+        if (isLastField) {
+            const draftUpdatePosition: DraftUpdatePosition = {
+                startLine: commaPosition ? commaPosition.startLine : model.position?.startLine,
+                endLine: model.position?.endLine,
+                startColumn: commaPosition ? commaPosition.startColumn : model.position?.startColumn,
+                endColumn: model.position?.endColumn
+            }
+
+            modifications.push(removeStatement(draftUpdatePosition));
+
+        } else {
+
+            const draftUpdatePosition: DraftUpdatePosition = {
+                startLine: model.position?.startLine,
+                endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
+                startColumn: model.position?.startColumn,
+                endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
+            }
+
+            modifications.push(removeStatement(draftUpdatePosition));
         }
 
-        const modificationStatement = removeStatement(draftUpdatePosition);
-
-        dispatchMutations([modificationStatement]);
+        dispatchMutations(modifications);
     }
 
     return (

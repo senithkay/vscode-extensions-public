@@ -39,11 +39,12 @@ interface ValueTypeProps {
     removeInputType?: (model: STNode) => void;
     isJsonField?: boolean;
     commaPosition?: DraftUpdatePosition;
+    isLastField?: boolean;
 }
 
 export function ValueType(props: ValueTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperContext);
-    const { model, isMain, onDataPointClick, offSetCorrection, removeInputType, isTarget, isJsonField, commaPosition } = props;
+    const { model, isMain, onDataPointClick, offSetCorrection, removeInputType, isTarget, isJsonField, commaPosition, isLastField } = props;
     const viewState: FieldViewState = model.dataMapperViewState as FieldViewState;
     const svgTextRef = useRef(null);
 
@@ -98,16 +99,30 @@ export function ValueType(props: ValueTypeProps) {
     }
 
     const handleJsonFieldDelete = (evt: any) => {
-        const draftUpdatePosition: DraftUpdatePosition = {
-            startLine: model.position?.startLine,
-            endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
-            startColumn: model.position?.startColumn,
-            endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
+        const modifications = []
+        if (isLastField) {
+            const draftUpdatePosition: DraftUpdatePosition = {
+                startLine: commaPosition ? commaPosition.startLine : model.position?.startLine,
+                endLine: model.position?.endLine,
+                startColumn: commaPosition ? commaPosition.startColumn : model.position?.startColumn,
+                endColumn: model.position?.endColumn
+            }
+
+            modifications.push(removeStatement(draftUpdatePosition)); 
+
+        } else {
+
+            const draftUpdatePosition: DraftUpdatePosition = {
+                startLine: model.position?.startLine,
+                endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
+                startColumn: model.position?.startColumn,
+                endColumn: commaPosition ? commaPosition.endColumn : model.position?.endColumn
+            }
+
+            modifications.push(removeStatement(draftUpdatePosition));
         }
 
-        const modificationStatement = removeStatement(draftUpdatePosition);
-
-        dispatchMutations([modificationStatement]);
+        dispatchMutations(modifications);
     }
 
     return (
