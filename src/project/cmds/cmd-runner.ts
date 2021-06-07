@@ -9,7 +9,8 @@ export enum PALETTE_COMMANDS {
     FOCUS_OVERVIEW = 'ballerinaPackageTreeView.focus',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
-    TEST = 'ballerina.project.test'
+    TEST = 'ballerina.project.test',
+    PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord'
 }
 
 export enum BALLERINA_COMMANDS {
@@ -28,7 +29,8 @@ export enum MESSAGES {
     NOT_SUPPORT = "Ballerina version is not supported by the VSCode plugin.",
     MODULE_NAME = "Enter module name.",
     SELECT_OPTION = "Select a build option.",
-    NOT_IN_PROJECT = "Current file does not belong to a ballerina project."
+    NOT_IN_PROJECT = "Current file does not belong to a ballerina project.",
+    INVALID_JSON = "Invalid JSON String"
 }
 
 export const BAL_TOML = "Ballerina.toml";

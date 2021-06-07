@@ -22,7 +22,7 @@ import * as rimraf from "rimraf";
 import * as http from 'http';
 import * as path from 'path';
 import { BallerinaProject } from "src/core";
-import { runCommand, BALLERINA_COMMANDS } from '../../src/project/cli-cmds/cmd-runner';
+import { runCommand, BALLERINA_COMMANDS } from '../../src/project/cmds/cmd-runner';
 import { getBallerinaHome, killPort } from '../test-util';
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
