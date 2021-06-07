@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import cn from "classnames";
+import { getPathOfResources } from "components/DiagramSelector/utils";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
@@ -97,7 +98,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (syntaxTree) {
       const { functionName, relativeResourcePath } = syntaxTree;
       const stMethod = functionName?.value;
-      const stPath = relativeResourcePath && relativeResourcePath?.map((rPath: any) => rPath.value || rPath.source).join('') || "";
+      const stPath = getPathOfResources(relativeResourcePath) || "";
 
       const resourceMembers = [];
       if (resources.length === 0) {

@@ -11,6 +11,7 @@
  * associated services.
  */
 import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { getPathOfResources } from 'components/DiagramSelector/utils';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -55,9 +56,9 @@ export const MAIN_FUNCTION = "main";
 const findResourceIndex = (resourceMembers: any, targetResource: any) => {
     const index = resourceMembers.findIndex(
         (m: any) => {
-            const currentPath = m.relativeResourcePath?.map((path: any) => path.value).join('');
+            const currentPath = getPathOfResources(m.relativeResourcePath);
             const currentMethodType = m?.functionName?.value;
-            const targetPath = targetResource?.relativeResourcePath?.map((path: any) => path.value).join('');
+            const targetPath = getPathOfResources(targetResource?.relativeResourcePath)
             const targetMethodType = targetResource?.functionName?.value;
 
             return currentPath === targetPath && currentMethodType === targetMethodType;
@@ -69,7 +70,7 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
     const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
     const targetMethod = tFunctionName?.value;
-    const targetPath = tRelativeResourcePath?.map((rPath: any) => rPath.value).join('');
+    const targetPath = getPathOfResources(tRelativeResourcePath);
 
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
@@ -77,7 +78,7 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
         const found = resources?.find((r: any) => {
             const { functionName, relativeResourcePath } = r;
             const method = functionName?.value;
-            const path = relativeResourcePath?.map((rPath: any) => rPath.value).join('');
+            const path = getPathOfResources(relativeResourcePath);
             return method === targetMethod && path === targetPath;
         });
         if (found) service = m;
