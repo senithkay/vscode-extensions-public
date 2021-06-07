@@ -18,7 +18,7 @@
  *
  */
 
-import { LanguageClient } from "vscode-languageclient";
+import { ClientCapabilities, LanguageClient } from "vscode-languageclient";
 import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
@@ -28,6 +28,10 @@ import {
 } from "@wso2-enterprise/low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
+
+export interface ExtendedClientCapabilities extends ClientCapabilities {
+    experimental: { introspection: boolean, showTextDocument: boolean };
+}
 
 export interface BallerinaSyntaxTree {
     kind: string;
