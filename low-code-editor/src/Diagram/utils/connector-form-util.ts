@@ -67,6 +67,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                             param.noCodeGen = true;
                             param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -77,6 +80,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = "\"/\"";
                         } else if (param.name === "message") {
                             param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -89,6 +95,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.displayName = "Request";
                             param.type = "httpRequest";
                             param.typeInfo = httpRequest;
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -97,9 +106,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
             // Set payload types.
             const payloadTypes: Map<string, string> = new Map();
-            payloadTypes.set("Text", "getTextPayload");
-            payloadTypes.set("XML", "getXmlPayload");
-            payloadTypes.set("JSON", "getJsonPayload");
+            payloadTypes.set("String", "string");
+            payloadTypes.set("XML", "xml");
+            payloadTypes.set("JSON", "json");
             const responsePayloadMap: ResponsePayloadMap = {
                 isPayloadSelected: false,
                 payloadTypes
@@ -210,9 +219,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             // set content type in sendMessage form
                             field.value = `"text/plain"`;
                         }
-                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
-                            field.hide = true;
-                            field.noCodeGen = true;
+                        if (field.name === "inlineImagePaths") {
+                            field.optional = true;
+                            field.displayName = 'Inline Image Paths'
+                        }
+                        if (field.name === "attachmentPaths") {
+                            field.optional = true;
+                            field.displayName = 'Attachment Paths'
                         }
                     });
                 }
