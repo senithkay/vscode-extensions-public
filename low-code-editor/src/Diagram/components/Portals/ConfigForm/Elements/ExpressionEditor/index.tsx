@@ -40,15 +40,11 @@ import {
     createSortText,
     diagnosticCheckerExp,
     getInitialValue,
+    getRandomInt,
     getTargetPosition,
     transformFormFieldTypeToString,
     typeCheckerExp
 } from "./utils";
-
-function getRandomInt(max: number) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
-
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {
@@ -173,7 +169,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
-    const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
+    const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
@@ -327,6 +323,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 });
                                 if (varType === "string") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: 'Custom string template',
                                         kind: monaco.languages.CompletionItemKind.Keyword,
@@ -339,6 +336,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 }
                                 if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: 'true',
                                         kind: monaco.languages.CompletionItemKind.Keyword,
@@ -359,6 +357,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 }
                                 if (model.aiSuggestion) {
                                     const completionItemAI: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
                                         label: model.aiSuggestion,
                                         kind: 1 as CompletionItemKind,
@@ -366,6 +365,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         sortText: '1'
                                     }
                                     completionItems.push(completionItemAI);
+                                }
+                                if (completionItems.length > 0) {
+                                    completionItems[0] = {...completionItems[0], preselect: true}
                                 }
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
@@ -756,8 +758,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         // Disabling certain key events
         monacoEditor.onKeyDown((event: monaco.IKeyboardEvent) => {
-            const {keyCode, ctrlKey} = event;
-            if ([36, 37].includes(keyCode) && ctrlKey){
+            const {keyCode, ctrlKey, metaKey} = event;
+            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)){
                 // Disabling ctrl/cmd + (f || g)
                 event.stopPropagation();
             }

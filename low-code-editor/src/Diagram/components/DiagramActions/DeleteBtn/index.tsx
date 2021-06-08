@@ -17,7 +17,9 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions/lang-client-extended";
+import { STSymbolInfo } from "../../../../Definitions/store";
 import { DiagramContext } from "../../../../providers/contexts";
+import { removeStatement } from "../../../utils/modification-util";
 import { DefaultConfig } from "../../../visitors/default";
 import { DeleteConfirmDialog } from "../../Portals/Overlay/Elements";
 
@@ -36,14 +38,14 @@ export interface DeleteBtnProps {
 
 export function DeleteBtn(props: DeleteBtnProps) {
     const { modifyDiagram } = useContext(DiagramContext).callbacks;
-    const { state: { isReadOnly } } = useContext(Context);
+    const { state: { isReadOnly, stSymbolInfo } } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
 
     const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
     const [, setBtnActive] = useState(false);
 
-    let modifications: STModification[] = [];
+    const modifications: STModification[] = [];
 
     const onMouseEnter = () => {
         setBtnActive(true);
@@ -69,18 +71,28 @@ export function DeleteBtn(props: DeleteBtnProps) {
     const onDeleteConfirm = () => {
         // delete logic
         if (model) {
-            const position = model.position;
-            const modification: STModification = {
-                type: "delete",
-                ...position
-            };
-            if (createModifications) {
-                const deleteModification: STModification[] = createModifications(model);
-                if (deleteModification) {
-                    modifications = deleteModification;
+            // used configurable
+            const configurables: Map<string, STNode> = stSymbolInfo.configurables;
+            const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
+            const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
+
+            // delete unused configurables
+            usedConfigurables.forEach(configurable => {
+                // check used configurables usages
+                if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1){
+                    const deleteConfig: STModification = removeStatement(
+                        configurables.get(configurable).position
+                    );
+                    modifications.push(deleteConfig);
                 }
-            }
-            modifications.push(modification);
+            });
+
+            // delete action
+            const deleteAction: STModification = removeStatement(
+                model.position
+            );
+            modifications.push(deleteAction);
+
             modifyDiagram(modifications);
             closeConfirmDialog();
         } else if (onDraftDelete) {

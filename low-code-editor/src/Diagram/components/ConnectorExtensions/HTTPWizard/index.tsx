@@ -103,6 +103,17 @@ export function HTTPWizard(props: WizardProps) {
             connectorConfig.isExistingConnection = true;
             setState(InitFormState.SelectInputOutput);
         }
+        const targetTypeValue = connectorConfig?.action?.fields?.find(field => field.name === "targetType")?.value;
+        if (targetTypeValue) {
+            connectorConfig.responsePayloadMap.isPayloadSelected = true;
+            if (targetTypeValue === "json") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = "JSON";
+            } else if (targetTypeValue === "xml") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = "XML";
+            } else if (targetTypeValue === "string") {
+                connectorConfig.responsePayloadMap.selectedPayloadType = "String";
+            }
+        }
     }, [isNewConnectorInitWizard, selectedConnector])
 
     const handleCreateConnectorOnSaveNext = () => {
@@ -159,8 +170,6 @@ export function HTTPWizard(props: WizardProps) {
         };
         diagramState.onEvent(event);
 
-        const headerField = connectorConfig.action.fields.find(field => field.name === "headers");
-
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             let actionInitializer: CheckAction;
@@ -175,55 +184,31 @@ export function HTTPWizard(props: WizardProps) {
 
             if (actionInitializer) {
                 const params: string[] = getParams(connectorConfig.action.fields);
-                let serviceCallParams: string = params.toString();
-
-                if (headerField?.value) {
-                    // updating headers
-                    serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
-                }
-
-                const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                    "http:Response",
-                    connectorConfig.action.returnVariableName,
-                    connectorConfig.name,
-                    connectorConfig.action.name,
-                    [serviceCallParams],
-                    model.position
-                );
-                modifications.push(addActionInvocation);
 
                 if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
                     // payload update
-                    let responseModel: STNode;
-                    symbolInfo.variables.forEach((value, key) => {
-                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                            value.forEach(val => {
-                                const varName = (((val as LocalVarDecl).typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.variableName.value;
-                                if (varName === connectorConfig.responsePayloadMap.payloadVariableName) {
-                                    responseModel = val;
-                                }
-                            })
-                        }
-                    })
-                    if (responseModel) {
-                        const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            responseModel.position
-                        );
-                        modifications.push(addPayload);
-                    } else {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            getPayloadReturnType(),
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            { line: model.position.startLine + 1, column: 0 }
-                        );
-                        modifications.push(addPayload);
-                    }
+                    const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
+                        connectorConfig.responsePayloadMap.selectedPayloadType);
+                    const paramString = `${params.join(",")}, targetType = ${payloadType}`;
+                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                        payloadType,
+                        connectorConfig.action.returnVariableName,
+                        connectorConfig.name,
+                        connectorConfig.action.name,
+                        [paramString],
+                        model.position
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
+                        "http:Response",
+                        connectorConfig.action.returnVariableName,
+                        connectorConfig.name,
+                        connectorConfig.action.name,
+                        params,
+                        model.position
+                    );
+                    modifications.push(addActionInvocation);
                 }
             }
         } else {
@@ -248,32 +233,31 @@ export function HTTPWizard(props: WizardProps) {
 
                     // Add an action invocation on the initialized client.
                     const params: string[] = getParams(connectorConfig.action.fields);
-                    let serviceCallParams = params.toString();
-
-                    // Header addition
-                    if (headerField?.value) {
-                        serviceCallParams = serviceCallParams + `, headers=${headerField.value}`;
-                    }
-
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "http:Response",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-
                     if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            "var",
+                        const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
+                            connectorConfig.responsePayloadMap.selectedPayloadType);
+                        // append targetType arg to params
+                        const paramString = `${params.join(",")}, targetType = ${payloadType}`;
+                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                            payloadType,
                             connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
+                            connectorConfig.name,
+                            connectorConfig.action.name,
+                            [paramString],
                             targetPosition
                         );
-                        modifications.push(addPayload);
+
+                        modifications.push(addActionInvocation);
+                    } else {
+                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
+                            "http:Response",
+                            connectorConfig.action.returnVariableName,
+                            connectorConfig.name,
+                            connectorConfig.action.name,
+                            params,
+                            targetPosition
+                        );
+                        modifications.push(addActionInvocation);
                     }
                 }
             }

@@ -189,7 +189,7 @@ export async function getRecordFields(formFields: any, records: object, langClie
                                     }
 
                                     formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property?.length > 0) {
+                                        if (property.fields?.length > 0) {
                                             formField.fields = [...formField.fields, ...property.fields]
                                         }
                                     })
@@ -212,14 +212,19 @@ export function getParams(formFields: FormField[]): string[] {
     formFields.forEach(formField => {
         let paramString: string = "";
         if (formField.isParam && !formField.noCodeGen) {
+            if (formField.isDefaultableParam && formField.value) {
+                paramString += `${formField.name} = `;
+            }
             if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
+            } else if (formField.type === "map" && formField.value) {
+                paramString += formField.value;
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
                 formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0) {
+            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
@@ -271,7 +276,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 recordFieldsString += name + ": " + field.value;
                             }
                         }
-                    } else if (field.type === "record" && !field.hide) {
+                    } else if (field.type === "record" && !field.hide && !field.isReference) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
                             const fieldArray: FormField[] = [
