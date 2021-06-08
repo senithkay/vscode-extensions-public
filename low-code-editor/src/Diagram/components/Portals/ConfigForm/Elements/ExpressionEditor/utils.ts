@@ -120,7 +120,7 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
 
 export function addQuotesChecker(diagnostics: Diagnostic[]) {
     if (!diagnostics) {
-        return false
+        return false;
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
