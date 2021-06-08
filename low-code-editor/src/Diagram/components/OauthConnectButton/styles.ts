@@ -31,8 +31,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 5,
             padding: theme.spacing(0.5),
             paddingLeft: theme.spacing(2.5),
-            marginBottom: theme.spacing(0.5),
-            borderColor: theme.palette.secondary.main,
+            // marginBottom: theme.spacing(0.5),
+            borderColor: "#ff000000",
+            border: "0px solid",
+            // borderColor: theme.palette.secondary.main,
             '& .MuiFormControlLabel-root': {
                 width: "100%",
             },
@@ -41,6 +43,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: "100%",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+            },
+            '&:hover': {
+                border: "0px solid",
+                borderColor: "#E6E7EC",
+                backgroundColor: "#F7F8FB"
             }
         },
         radioButton: {
@@ -51,8 +58,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontWeight: 400,
         },
         radioBtnSubtitle: {
-            fontSize: "smaller",
-            color: "#8d91a3",
+            fontSize: 13,
+            color: "#222228",
             margin: "-5px 0",
         },
         box: {
@@ -123,6 +130,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             fontWeight: 200,
             color: "#8D91A3"
-        }
+        },
+        divider: {
+            marginRight: 5,
+            marginLeft: 5,
+            backgroundColor: "#E6E7EC !important"
+        },
     }),
 );

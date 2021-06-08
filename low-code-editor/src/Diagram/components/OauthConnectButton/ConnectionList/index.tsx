@@ -18,6 +18,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
+import Divider from "@material-ui/core/Divider";
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Link from '@material-ui/core/Link';
 import Radio from '@material-ui/core/Radio';
@@ -50,18 +51,24 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const handleSearchChange = (evt: any) => {
         setSelectedConnection(evt.target.value);
     };
+    const handleConnectionChange = (evt: any) => {
+        console.log(evt)
+    }
 
     const connectionListElements = connectionList.map((item) => (
-        <Box border={1} borderRadius={5} className={classes.radioBox} key={item.handle}>
-            <FormControlLabel
-                value={item.handle}
-                control={<Radio className={classes.radio} />}
-                label={<div>
-                    <p className={classes.radioBtnTitle}>{item.displayName}</p>
-                    <p className={classes.radioBtnSubtitle}>{item.userAccountIdentifier}</p>
-                </div>}
-            />
-        </Box>
+        // tslint:disable-next-line:jsx-key
+        <div>
+            <Box border={1} borderRadius={5} className={classes.radioBox} key={item.handle}>
+                <FormControlLabel
+                    value={item.handle}
+                    control={<Radio className={classes.radio}/>}
+                    label={<div>
+                        <p className={classes.radioBtnSubtitle}>{item.userAccountIdentifier}</p>
+                    </div>}
+                />
+            </Box>
+            <Divider className={classes.divider}/>
+        </div>
     ));
 
     const connectAnotherAccountButtonText = intl.formatMessage({

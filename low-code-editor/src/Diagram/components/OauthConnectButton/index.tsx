@@ -77,6 +77,13 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   const isConnectionListEmpty = (!connectionList || (connectionList?.length === 0) || connectionList === undefined);
   const isOngoingFetching = (isAuthenticating || isTokenExchanging || isConnectionFetching);
 
+  // useEffect(() => {
+  //   if (!connectionList) {
+  //     dispatchFetchConnectionList(connectorName, session)
+  //     console.log(connectionList)
+  //   }
+  // })
+
   useEffect(() => {
     if (!activeConnection && !isOngoingFetching) {
       dispatchFetchConnectionList(connectorName, session);
@@ -168,12 +175,22 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
 
   function renderConnectedButton() {
     return (
-      <ConnectedButton
-        activeConnection={activeConnection}
-        onChangeConnection={handleClickChangeConnection}
-      />
+        <div>
+          <ConnectedButton
+              activeConnection={activeConnection}
+              onChangeConnection={handleClickChangeConnection}
+          />
+          {/*<ConnectionList*/}
+          {/*    activeConnection={activeConnection}*/}
+          {/*    connectionList={connectionList}*/}
+          {/*    connectionName={connectorName}*/}
+          {/*    onChangeConnection={handleChangeConnectionSelection}*/}
+          {/*    onInitConnection={handleClickInitSession}*/}
+          {/*/>*/}
+        </div>
     );
   }
+
   function renderConnectionList() {
     return (
       <ConnectionList
@@ -185,6 +202,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
       />
     );
   }
+
   function renderConnectButton() {
     return (
       <PrimaryButton
