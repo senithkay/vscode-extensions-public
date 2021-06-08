@@ -13,7 +13,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Typography } from "@material-ui/core";
@@ -35,7 +35,7 @@ export interface ConnectionListProps {
     connectionList: ConnectionDetails[];
     onChangeConnection: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onInitConnection: () => void;
-    connectionName: string
+    connectionName: string;
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
@@ -46,7 +46,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const searchPlaceholder = intl.formatMessage({
         id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
         defaultMessage: "Search"
-    })
+    });
     const handleSearchChange = (evt: any) => {
         setSelectedConnection(evt.target.value);
     };
