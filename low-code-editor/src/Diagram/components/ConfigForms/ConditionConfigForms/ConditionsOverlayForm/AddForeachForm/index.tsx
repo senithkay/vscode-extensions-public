@@ -32,6 +32,7 @@ import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Po
 import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface Iterations {
     start?: string;
@@ -83,19 +84,19 @@ export function AddForeachForm(props: ForeachProps) {
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$|^\[[a-zA-Z0-9_]*, *[a-zA-Z0-9_]*\]$");
 
     // const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
-            return nameRegex.test(value);
+            return value.match(nameRegex) !== null;
         }
         return true;
     };
 
     const onVariableNameChange = (value: string) => {
-        conditionExpression.variable = nameRegex.test(value) ? value : '';
+        conditionExpression.variable = value.match(nameRegex) !== null ? value : '';
     };
 
     if (!conditionExpression.variable || (conditionExpression.variable === '')) {
@@ -136,8 +137,8 @@ export function AddForeachForm(props: ForeachProps) {
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "https://ballerina.io/learn/by-example/"
-            })
+                defaultMessage: "{learnBallerina}"
+            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     },
         currentValueVariable: {
             title: intl.formatMessage({

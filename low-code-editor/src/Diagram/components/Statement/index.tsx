@@ -34,6 +34,7 @@ export function StatementC(props: StatementProps) {
 
     const statements: React.ReactNode[] = [];
     let doStatement: React.ReactNode = null;
+    let externalConnector: React.ReactNode = null;
     const classes = cn("statement");
 
     if (STKindChecker.isLocalVarDecl(model)
@@ -53,6 +54,18 @@ export function StatementC(props: StatementProps) {
                 statements.push(
                     <ActionInvocation model={clientInit} />
                 );
+
+                if (epViewState.isExternal) {
+                    externalConnector = (
+                        <Connector
+                            model={model}
+                            x={epViewState.lifeLine.cx}
+                            y={epViewState.lifeLine.cy}
+                            h={epViewState.lifeLine.h}
+                            connectorName={viewState.action.endpointName}
+                        />
+                    );
+                }
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {
@@ -92,6 +105,7 @@ export function StatementC(props: StatementProps) {
 
     return (
         <g>
+            {externalConnector}
             <g className={classes}>
                 {statements}
             </g>

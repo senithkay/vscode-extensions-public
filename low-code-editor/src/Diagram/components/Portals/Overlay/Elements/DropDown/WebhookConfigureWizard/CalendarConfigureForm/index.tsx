@@ -17,11 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import {
     FunctionBodyBlock,
-    FunctionDefinition, LocalVarDecl, MappingConstructor,
+    FunctionDefinition,
+    LocalVarDecl,
+    MappingConstructor,
     ModulePart,
     ModuleVarDecl,
-    QualifiedNameReference, SpecificField,
-    STKindChecker, STNode
+    QualifiedNameReference,
+    SpecificField,
+    STKindChecker,
+    STNode
 } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 
@@ -32,16 +36,23 @@ import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
-import { TRIGGER_TYPE_WEBHOOK } from "../../../../../../../models";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    TRIGGER_SELECTED_INSIGHTS,
+    TRIGGER_TYPE_WEBHOOK
+} from "../../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../../utils/modification-util";
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { getKeyFromConnection } from "../../../../../utils";
+import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
+    isTriggerTypeChanged: boolean;
     onComplete: () => void;
     currentConnection?: ConnectionDetails;
 }
@@ -51,19 +62,19 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        trackTriggerSelection,
         currentApp,
         getGcalendarList,
         stSymbolInfo,
         originalSyntaxTree,
+        onEvent
     } = state;
-    const { onComplete, currentConnection } = props;
+    const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -73,6 +84,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
     const [gcalenderList, setGcalenderList] = useState<Gcalendar[]>(undefined)
     const [calendarEvent, setCalendarEvent] = useState();
     const [isCalenderFetching, setIsCalenderFetching] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const Trigger = "Google Calendar";
 
     // HACK: hardcoded event list until get it form connector API
@@ -135,11 +147,17 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         return activeConnection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey;
     };
 
+    const handleDialogOnCancel = () => {
+        setShowConfirmDialog(false);
+    };
+
     const handleUserConfirm = () => {
         if (STKindChecker.isModulePart(syntaxTree)) {
             createCalendarTrigger();
-        } else {
+        } else if (!isTriggerTypeChanged) {
             updateCalendarTrigger();
+        } else {
+            setShowConfirmDialog(true);
         }
     };
 
@@ -152,7 +170,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
         setTriggerChanged(true);
         // dispatch and close the wizard
-        onModify(TRIGGER_TYPE_WEBHOOK, undefined, {
+        modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "gcalendar",
             PORT: 8090,
             CLIENT_ID: clientId,
@@ -162,7 +180,12 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             CALENDAR_ID: activeGcalendar.id,
             EVENT: calendarEvent,
         });
-        trackTriggerSelection("Google Calender");
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: TRIGGER_SELECTED_INSIGHTS,
+            property: "Google Calender"
+        };
+        onEvent(event);
     };
 
     // handle calendar trigger update
@@ -227,7 +250,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                                       }`;
             modifications.push(updatePropertyStatement(calConfigTemplate, oauthConfigValExprNode.position));
             modifications.push(updatePropertyStatement(`"${activeGcalendar.id}"`, calIdNode.position));
-            onMutate(modifications);
+            modifyDiagram(modifications);
             setTriggerChanged(true);
         }
     };
@@ -249,8 +272,9 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
     return (
         <>
+
             <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
+                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection" /></p>
                 <OauthConnectButton
                     connectorName={Trigger}
                     currentConnection={activeConnection}
@@ -259,39 +283,39 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     onFailure={handleError}
                 />
                 <p />
-                {activeConnection && isCalenderFetching && (
-                    <div className={classes.loader}>
-                        <CirclePreloader position="relative" />
-                        <Typography variant="subtitle2" className={classes.loaderTitle}>
-                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..."/>
-                        </Typography>
-                    </div>
-
-                )}
-                {activeConnection && !isCalenderFetching && gcalenderList && (
-                    <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar"/></p>
-                        <FormAutocomplete
-                            placeholder={chooseCalendarPlaceholder}
-                            itemList={gcalenderList}
-                            value={getActiveGcalendar()}
-                            getItemLabel={handleItemLabel}
-                            onChange={handleGcalendarChange}
-                        />
-                    </>
-                )}
-                {activeGcalendar && (
-                    <>
-                        <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event"/></p>
-                        <FormAutocomplete
-                            placeholder={chooseEventPlaceholder}
-                            itemList={calenderEvents}
-                            value={calendarEvent}
-                            onChange={handleCalendarEventChange}
-                        />
-                    </>
-                )}
             </div>
+            {activeConnection && isCalenderFetching && (
+                <div className={classes.loader}>
+                    <CirclePreloader position="relative" />
+                    <Typography variant="subtitle2" className={classes.loaderTitle}>
+                        <FormattedMessage id="lowcode.develop.GCalendarConfigWizard.fetchingCalendarsMessage.text" defaultMessage="Fetching calendars ..." />
+                    </Typography>
+                </div>
+
+            ) }
+            {activeConnection && !isCalenderFetching && gcalenderList && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendar.title.text" defaultMessage="Google Calendar" /></p>
+                    <FormAutocomplete
+                        placeholder={chooseCalendarPlaceholder}
+                        itemList={gcalenderList}
+                        value={getActiveGcalendar()}
+                        getItemLabel={handleItemLabel}
+                        onChange={handleGcalendarChange}
+                    />
+                </div>
+            ) }
+            {activeGcalendar && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event" /></p>
+                    <FormAutocomplete
+                        placeholder={chooseEventPlaceholder}
+                        itemList={calenderEvents}
+                        value={calendarEvent}
+                        onChange={handleCalendarEventChange}
+                    />
+                </div>
+            ) }
 
             { activeConnection && activeGcalendar && calendarEvent &&
                 (
@@ -303,6 +327,13 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         />
                     </div>
                 )}
+
+            { showConfirmDialog && (
+                <SourceUpdateConfirmDialog
+                    onConfirm={createCalendarTrigger}
+                    onCancel={handleDialogOnCancel}
+                />
+            )}
         </>
-    )
+    );
 }

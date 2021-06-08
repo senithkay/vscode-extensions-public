@@ -21,11 +21,10 @@
 
         .exp-editor {
             height: 32px;
-            width: 100%;
             border: 1px solid #5567d5;
             border-radius: 5px;
-            padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-            background: #f7f8fb;
+            padding: 0.25rem 0.25rem 0 0.5rem;
+            background: #fff;
             z-index: 300;
 
             .monaco-editor {
@@ -87,7 +86,7 @@ div[class^="exp-wrapper"] {
     .exp-container {
         .exp-absolute-wrapper {
             position: absolute;
-            width: 82% !important;
+            width: 79% !important;
         }
     }
 }

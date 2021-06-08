@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import classNames from "classnames";
@@ -30,9 +30,7 @@ import {
     createPropertyStatement,
     createRemoteServiceCall,
     updateCheckedRemoteServiceCall,
-    updatePropertyStatement,
-    updateRemoteServiceCall
-} from "../../../utils/modification-util";
+    updatePropertyStatement} from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
@@ -43,9 +41,10 @@ import { PrimaryButton } from "../../Portals/ConfigForm/Elements/Button/PrimaryB
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { useStyles } from "../../Portals/ConfigForm/forms/style";
 import {
-    checkErrorsReturnType,
     genVariableName,
+    getActionReturnType,
     getConnectorIcon,
+    getInitReturnType,
     getKeyFromConnection,
     getOauthParamsFromConnection,
     getParams,
@@ -144,7 +143,6 @@ export function GoogleCalender(props: WizardProps) {
     if (selectedOperation) {
         formFields = functionDefinitions.get(selectedOperation).parameters;
         config.action = new ActionConfig();
-        config.action.name = selectedOperation;
         config.action.fields = formFields;
     }
 
@@ -202,7 +200,7 @@ export function GoogleCalender(props: WizardProps) {
     };
 
     const handleOauthConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -259,7 +257,7 @@ export function GoogleCalender(props: WizardProps) {
     };
 
     const handleManualConnectorOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         const modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -335,9 +333,10 @@ export function GoogleCalender(props: WizardProps) {
             .find(field => field.name === key).value || "";
     }
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefinitions);
+
     const handleOnSave = () => {
-        const isInitReturnError = checkErrorsReturnType('init', functionDefinitions);
-        const isActionReturnError = checkErrorsReturnType(config.action.name, functionDefinitions);
+        const isInitReturnError = getInitReturnType(functionDefinitions);
         let modifications: STModification[] = [];
         if (isNewConnectorInitWizard) {
             if (targetPosition) {
@@ -388,7 +387,7 @@ export function GoogleCalender(props: WizardProps) {
                 }
 
                 // Add an action invocation on the initialized client.
-                if (isActionReturnError) {
+                if (actionReturnType.hasError) {
                     const addActionInvocation: STModification = createCheckedRemoteServiceCall(
                         "var",
                         config.action.returnVariableName,
@@ -422,7 +421,7 @@ export function GoogleCalender(props: WizardProps) {
             );
             modifications.push(updateConnectorInit);
 
-            if (isActionReturnError) {
+            if (actionReturnType.hasError) {
                 const updateActionInvocation: STModification = updateCheckedRemoteServiceCall(
                     "var",
                     config.action.returnVariableName,
@@ -433,12 +432,8 @@ export function GoogleCalender(props: WizardProps) {
                 );
                 modifications.push(updateActionInvocation);
             } else {
-                const updateActionInvocation: STModification = updateRemoteServiceCall(
-                    "var",
-                    config.action.returnVariableName,
-                    config.name,
-                    config.action.name,
-                    getParams(config.action.fields),
+                const updateActionInvocation = updatePropertyStatement(
+                    `${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
                 );
                 modifications.push(updateActionInvocation);
@@ -449,10 +444,15 @@ export function GoogleCalender(props: WizardProps) {
 
     if (isNewConnectorInitWizard) {
         config.connectorInit = connectorInitFormFields;
-    } else {
+    } else if (actionReturnType.hasReturn) {
         connectorInitFormFields = config.connectorInit;
-        config.action.returnVariableName =
-            (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as CaptureBindingPattern).variableName.value;
+        if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
+            config.action.returnVariableName =
+                (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
+                    CaptureBindingPattern).variableName.value;
+        } else {
+            config.action.returnVariableName = undefined;
+        }
     }
 
     const manualConnectionButtonText = intl.formatMessage({
@@ -568,6 +568,7 @@ export function GoogleCalender(props: WizardProps) {
                     onOperationChange={onOperationChange}
                     mutationInProgress={isMutationProgress}
                     isManualConnection={isManualConnection}
+                    hasReturn={actionReturnType.hasReturn}
                     isNewConnectorInitWizard={isNewConnectorInitWizard}
                     connectionInfo={connectionDetails}
                 />

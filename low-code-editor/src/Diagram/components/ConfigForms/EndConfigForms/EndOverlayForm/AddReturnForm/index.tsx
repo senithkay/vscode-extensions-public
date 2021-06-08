@@ -28,15 +28,13 @@ import { wizardStyles } from "../../../style";
 import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface ReturnFormProps {
     config: EndConfig;
     onCancel: () => void;
     onSave: () => void;
 }
-
-export const DEFINE_RETURN_EXR: string = "Define Return Expression";
-export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddReturnForm(props: ReturnFormProps) {
     const { state } = useContext(Context);
@@ -48,13 +46,19 @@ export function AddReturnForm(props: ReturnFormProps) {
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
+    const [returnExpression, setReturnExpression] = useState(config.expression);
     const onReturnValueChange = (value: any) => {
-        config.expression = value;
+        setReturnExpression(value);
     };
+
+    const onReturnExpressionSave = () => {
+        config.expression = returnExpression;
+        onSave();
+    }
 
     const [isValidValue, setIsValidValue] = useState(true);
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsValidValue(!isInvalid || (config.expression === ""));
+        setIsValidValue(!isInvalid || (returnExpression === ""));
     };
 
     const isButtonDisabled = isMutationInProgress || !isValidValue;
@@ -75,8 +79,8 @@ export function AddReturnForm(props: ReturnFormProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
@@ -103,23 +107,24 @@ export function AddReturnForm(props: ReturnFormProps) {
 
                             <div className={classes.formWrapper}>
                                 {
-                                    containsMainFunction ?
+                                    // containsMainFunction ?
                                         (
                                             <div className="exp-wrapper">
                                                 <ExpressionEditor
-                                                    model={{ name: "return expression", type: "error", value: config.expression }}
+                                                    model={{ name: "return expression", type: "var", value: config.expression }}
                                                     customProps={{
                                                         validate: validateExpression,
                                                         tooltipTitle: returnStatementTooltipMessages.title,
                                                         tooltipActionText: returnStatementTooltipMessages.actionText,
                                                         tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                                         interactive: true,
-                                                        statementType: 'error'
+                                                        statementType: 'var'
                                                     }}
                                                     onChange={onReturnValueChange}
                                                 />
                                             </div>
-                                        ) : null
+                                        )
+                                        // : null
                                 }
 
                             </div>
@@ -130,7 +135,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 text={saveReturnButtonLabel}
                                 disabled={isButtonDisabled}
                                 fullWidth={false}
-                                onClick={onSave}
+                                onClick={onReturnExpressionSave}
                             />
                         </div>
                     </div>

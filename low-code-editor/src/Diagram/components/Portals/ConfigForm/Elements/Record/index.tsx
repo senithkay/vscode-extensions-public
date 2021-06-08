@@ -71,7 +71,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         <div className={classes.marginTB}>
             <FormAccordion
                 title={model.label || model.name}
-                depth={1}
+                depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
             />

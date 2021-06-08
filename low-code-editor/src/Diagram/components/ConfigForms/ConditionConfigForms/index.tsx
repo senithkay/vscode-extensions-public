@@ -19,6 +19,7 @@ import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
 import { DiagramContext } from "../../../../providers/contexts";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
 import {
     createForeachStatement,
     createIfStatement, createWhileStatement, updateForEachCondition,
@@ -43,13 +44,13 @@ export interface ConditionConfigFormProps {
 }
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isReadOnly,
         configPanelStatus,
         syntaxTree,
-        trackAddStatement
+        onEvent
     } = state;
     const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
     let conditionConfig: ConditionConfig;
@@ -90,7 +91,12 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = ifConfig.conditionExpression as string;
                 if (wizardType === WizardType.NEW) {
-                    trackAddStatement(type);
+                    const event: LowcodeEvent = {
+                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                        name: FINISH_STATEMENT_ADD_INSIGHTS,
+                        property: type
+                    };
+                    onEvent(event);
                     modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateIfStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
@@ -99,7 +105,12 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
                 if (wizardType === WizardType.NEW) {
-                    trackAddStatement(type);
+                    const event: LowcodeEvent = {
+                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                        name: FINISH_STATEMENT_ADD_INSIGHTS,
+                        property: type
+                    };
+                    onEvent(event);
                     modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))
@@ -109,13 +120,18 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const whileConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = whileConfig.conditionExpression as string;
                 if (wizardType === WizardType.NEW) {
-                    trackAddStatement(type);
+                    const event: LowcodeEvent = {
+                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                        name: FINISH_STATEMENT_ADD_INSIGHTS,
+                        property: type
+                    };
+                    onEvent(event);
                     modifications.push(createWhileStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateWhileStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
                 }
             }
-            onMutate(modifications);
+            modifyDiagram(modifications);
             onSave();
         }
     };
