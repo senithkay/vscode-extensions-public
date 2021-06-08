@@ -198,7 +198,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validExpEditor();
         } else {
             validate(model.name, true);
-            setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic))
+            setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                     startLineNumber: 1,
