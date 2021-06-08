@@ -169,7 +169,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
-    const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
+    const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
@@ -758,8 +758,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         // Disabling certain key events
         monacoEditor.onKeyDown((event: monaco.IKeyboardEvent) => {
-            const {keyCode, ctrlKey} = event;
-            if ([36, 37].includes(keyCode) && ctrlKey){
+            const {keyCode, ctrlKey, metaKey} = event;
+            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)){
                 // Disabling ctrl/cmd + (f || g)
                 event.stopPropagation();
             }

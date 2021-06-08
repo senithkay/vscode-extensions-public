@@ -99,7 +99,7 @@ class SymbolFindingVisitor implements Visitor {
         const varType = node.typeData?.symbol?.kind;
         const varName = node.name?.value;
 
-        if (varType === 'VARIABLE') {
+        if (varType === "VARIABLE" || varType === "TYPE") {
             variableNameReferences.get(varName) ?
                 variableNameReferences.get(varName).push(node)
                 : variableNameReferences.set(varName, [node]);

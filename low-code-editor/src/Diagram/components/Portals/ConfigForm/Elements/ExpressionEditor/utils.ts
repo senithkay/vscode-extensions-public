@@ -125,7 +125,15 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
 export const transformFormFieldTypeToString = (model?: FormField): string => {
     if (model.type === "record" || model.typeInfo) {
         if (model.typeInfo){
-            return model.isArray ? model.typeInfo.modName + ":" + model.typeInfo.name + "[]" : model.typeInfo.modName + ":" + model.typeInfo.name;
+            let modName = model.typeInfo.modName;
+            if (modName.includes('.')){
+                modName = modName.split('.')[1];
+            }
+            if (model.isArray){
+                return modName + ":" + model.typeInfo.name + "[]"
+            }else{
+                return modName + ":" + model.typeInfo.name
+            }
         }
     } else if (model.type === "union"){
         if (model.fields) {
