@@ -144,7 +144,7 @@ export function RecordType(props: RecordTypeProps) {
                                 ref={svgTextRef}
                             >
                                 <tspan className="key-value"> {`${name}`} </tspan>
-                                {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
+                                {type && <tspan className="value-para"> {`: ${type}`}  </tspan>}
                             </text>
                             {!isTarget && (
                                 <g
@@ -166,7 +166,7 @@ export function RecordType(props: RecordTypeProps) {
                             height="50"
                         >
                             <tspan className="value-para"> {`${name}`} </tspan>
-                            {type && <tspan className="value-para"> {`:${type}`}  </tspan>}
+                            {type && <tspan className="value-para"> {`: ${type}`}  </tspan>}
                         </text>
                     )
                 }

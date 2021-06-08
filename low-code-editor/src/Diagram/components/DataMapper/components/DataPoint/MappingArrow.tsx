@@ -101,6 +101,17 @@ export function MappingArrow(props: MappingArrowProps) {
                 className="connect-line"
                 markerEnd="url(#arrowhead)"
             />
+            <line
+                x1={connection.x1 + PADDING_OFFSET}
+                x2={connection.x2 - (PADDING_OFFSET + 40)}
+                y1={connection.y1}
+                y2={connection.y2}
+                className="connect-line"
+                style={{
+                    strokeWidth: 25,
+                    opacity: 0
+                }}
+            />
             {isCursorInProximity && (
                 <g id='arrow-delete-icon' className={'delete-icon-show'} onClick={handleDeleteBtnClick} >
                     <DeleteSVG x={midPointX} y={midPointY - 10} />
