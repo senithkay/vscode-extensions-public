@@ -35,6 +35,7 @@ import {
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
+import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
@@ -74,8 +75,12 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const [ username, setUsername ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ showConfirmDialog, setShowConfirmDialog ] = useState(false);
+    const [ salesforceEvent, setSalesforceEvent ] = useState<string>();
 
     const Trigger = "Salesforce";
+
+    // HACK: hardcoded event list until get it from connector API
+    const events = ["onCreate", "onUpdate", "onDelete", "onRestore"];
 
     useEffect(() => {
         if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -92,6 +97,9 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     };
     const handlePasswordOnChange = (value: string) => {
         setPassword(value);
+    };
+    const handleEventChange = (event: object, value: string) => {
+        setSalesforceEvent(value);
     };
 
     // handle SFDC trigger update
@@ -125,16 +133,18 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         // dispatch and close the wizard
         modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "salesforce",
-            PUSH_TOPIC_NAME: topic,
+            CHANNEL_NAME: topic,
             USER_NAME: username,
             PASSWORD: password,
+            EVENT: salesforceEvent,
         });
-        const event: LowcodeEvent = {
+
+        const userEvent: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: TRIGGER_SELECTED_INSIGHTS,
             property: Trigger
         };
-        onEvent(event);
+        onEvent(userEvent);
     }
 
     // handle trigger configure complete
@@ -165,6 +175,11 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const topicPlaceholder = intl.formatMessage({
         id: "lowcode.develop.salesForceConfigWizard.topic.placeholder",
         defaultMessage: "Topic"
+    })
+
+    const eventPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.event.placeholder",
+        defaultMessage: "Event"
     })
 
     const saveConfigButton = intl.formatMessage({
@@ -219,8 +234,14 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                         tooltipTitle: salesforceConfigTooltips.salesforceTrigger.topic
                     }}
                 />
+                <FormAutocomplete
+                    placeholder={eventPlaceholder}
+                    itemList={events}
+                    value={salesforceEvent}
+                    onChange={handleEventChange}
+                />
             </div>
-            { topic && username && password &&
+            { topic && username && password && event &&
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton
