@@ -19,11 +19,11 @@
  */
 
 import assert = require('assert');
-// import { expect } from 'chai';
+import { expect } from 'chai';
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
-import { getBallerinaCmd } from "../test-util";
+import { getBallerinaCmd, getBBEPath } from "../test-util";
 import { commands, Uri } from "vscode";
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
@@ -55,62 +55,66 @@ suite("Language Server Tests", function () {
         });
     });
 
-    // test("Test getSyntaxTree", function (done): void {
-    //     const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
-    //     commands.executeCommand('vscode.open', uri).then(() => {
-    //         langClient.onReady().then(() => {
-    //             langClient.getSyntaxTree(uri).then((response) => {
-    //                 expect(response).to.contain.keys('syntaxTree', 'parseSuccess');
-    //                 done();
-    //             }, (reason) => {
-    //                 done(reason);
-    //             });
-    //         });
-    //     });
-    // });
+    test("Test getSyntaxTree", function (done): void {
+        const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                }).then((response) => {
+                    expect(response).to.contain.keys('syntaxTree', 'parseSuccess');
+                    done();
+                }, (reason) => {
+                    done(reason);
+                });
+            });
+        });
+    });
 
-    // test("Test getBallerinaProject - Ballerina project", (done) => {
-    //     const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-    //     const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
-    //     commands.executeCommand('vscode.open', uri).then(() => {
-    //         langClient.onReady().then(() => {
-    //             const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-    //             const documentIdentifier = {
-    //                 documentIdentifier: {
-    //                     uri: uri.toString()
-    //                 }
-    //             };
-    //             langClient.getBallerinaProject(documentIdentifier).then((response) => {
-    //                 assert.equal(response.packageName, 'helloproject', "Invalid package name.");
-    //                 process.platform !== 'win32' ? assert.equal(response.path, projectPath, 'Invalid project path') :
-    //                     assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
-    //                 assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
-    //                 done();
-    //             }, (reason) => {
-    //                 done(reason);
-    //             });
-    //         });
-    //     });
-    // });
+    test("Test getBallerinaProject - Ballerina project", (done) => {
+        const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+        const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+                const documentIdentifier = {
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                };
+                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                    assert.equal(response.packageName, 'helloproject', "Invalid package name.");
+                    process.platform !== 'win32' ? assert.equal(response.path, projectPath, 'Invalid project path') :
+                        assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
+                    assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
+                    done();
+                }, (reason) => {
+                    done(reason);
+                });
+            });
+        });
+    });
 
-    // test("Test getBallerinaProject - Single file", (done) => {
-    //     const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
-    //     commands.executeCommand('vscode.open', uri).then(() => {
-    //         langClient.onReady().then(() => {
-    //             const documentIdentifier = {
-    //                 documentIdentifier: {
-    //                     uri: uri.toString()
-    //                 }
-    //             };
-    //             langClient.getBallerinaProject(documentIdentifier).then((response) => {
-    //                 assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
-    //                 done();
-    //             }, (reason) => {
-    //                 done(reason);
-    //             });
-    //         });
-    //     });
-    // });
+    test("Test getBallerinaProject - Single file", (done) => {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                const documentIdentifier = {
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                };
+                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                    assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
+                    done();
+                }, (reason) => {
+                    done(reason);
+                });
+            });
+        });
+    });
 
     test("Test fetchExamples", (done) => {
         langClient.onReady().then(() => {
@@ -549,9 +553,9 @@ suite("Language Server Tests", function () {
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
                     assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, "Add type cast to assignment", 'Invalid type cast action.');
+                    assert.equal(response[0].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
                     assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
-                    assert.equal(response[1].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
+                    assert.equal(response[1].title, "Add type cast to assignment", 'Invalid type cast action.');
                     assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 1st.");
                     done();
                 });
@@ -681,6 +685,58 @@ suite("Language Server Tests", function () {
                     assert.equal(response[1].title, 'Document all', 'Invalid document all action.');
                     assert.equal(response[2].title, 'Update documentation', 'Invalid update documentation action.');
                     done();
+                });
+            });
+        });
+    });
+
+    test("Test BallerinaProjectComponents, SyntaxTreeNode, and ExecutorPositions", function (done): void {
+        const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(async () => {
+                await langClient.getBallerinaProjectComponents({
+                    documentIdentifiers: [{
+                        uri: uri.toString()
+                    }]
+                }).then((response) => {
+                    expect(response).to.contain.keys('packages');
+                    assert.equal(response!.packages![0].modules[0].functions[0].name, 'main',
+                        "Invalid project component function name.");
+                }, (reason) => {
+                    done(reason);
+                });
+                await langClient.getSyntaxTreeNode({
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    },
+                    range: {
+                        start: {
+                            line: 4,
+                            character: 20,
+                        },
+                        end: {
+                            line: 4,
+                            character: 22
+                        }
+                    }
+                }).then((response) => {
+                    expect(response).to.contain.keys('kind');
+                    assert.equal(response.kind, 'STRING_LITERAL', 'Invalid syntax tree node kind.');
+                }, (reason) => {
+                    done(reason);
+                });
+
+                await langClient.getExecutorPositions({
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                }).then((response) => {
+                    expect(response).to.contain.keys('executorPositions');
+                    assert.equal(response.executorPositions?.length, 1, "Invalid numer of executor positions");
+                    assert.equal(response.executorPositions![0].name, 'main', "Invalid executor position function name");
+                    done();
+                }, (reason) => {
+                    done(reason);
                 });
             });
         });
