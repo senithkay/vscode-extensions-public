@@ -40,6 +40,10 @@ export function activatePasteJsonAsRecord() {
     }
 
     commands.registerCommand(PALETTE_COMMANDS.PASTE_JSON_AS_RECORD, () => {
+        if (!window.activeTextEditor || window.activeTextEditor?.document.fileName.endsWith('.bal')) {
+            window.showErrorMessage("Target is not a Ballerina file!");
+            return;
+        }
         read().then(clipboardText => {
             ballerinaExtInstance.langClient!.getRecordsForJson(clipboardText)
             .then(response => {
