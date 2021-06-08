@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
-import {Divider, Drawer, Typography} from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 
 import {
@@ -587,7 +587,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connectorInfo.module}_${connectorInfo.name}`)}</div>
                             <Typography className={wizardClasses.configTitle} variant="h4">{connectorInfo.displayName}<FormattedMessage id="lowcode.develop.connectorForms.title" defaultMessage="&nbsp;Connection" /></Typography>
                         </div>
-                        <Divider variant='fullWidth'/>
+                        <Divider variant='fullWidth' />
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
