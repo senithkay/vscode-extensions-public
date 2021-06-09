@@ -33,6 +33,7 @@ import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants"
 import "./style.scss";
 import {
     addImportModuleToCode,
+    addQuotesChecker,
     addToTargetLine,
     addToTargetPosition,
     checkIfStringExist,
@@ -169,7 +170,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
-    const varName = "temp_" + (textLabel).replace(" ", "").replace("'", "");
+    const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
@@ -178,8 +179,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
+    const [ needQuotes, setNeedQuotes ] = useState(false);
 
     const validExpEditor = () => {
+        if (monacoRef.current?.editor?.getModel()?.getValue()) {
+            model.value = monacoRef.current?.editor?.getModel()?.getValue();
+        }
         validate(model.name, false);
         if (monacoRef.current) {
             monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
@@ -192,6 +197,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validExpEditor();
         } else {
             validate(model.name, true);
+            setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                     startLineNumber: 1,
@@ -758,8 +764,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         // Disabling certain key events
         monacoEditor.onKeyDown((event: monaco.IKeyboardEvent) => {
-            const {keyCode, ctrlKey} = event;
-            if ([36, 37].includes(keyCode) && ctrlKey){
+            const {keyCode, ctrlKey, metaKey} = event;
+            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)){
                 // Disabling ctrl/cmd + (f || g)
                 event.stopPropagation();
             }
@@ -780,7 +786,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (monacoRef.current) {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
-                editorModel.setValue("\"" + editorModel.getValue() + "\"");
+                const editorContent = editorModel.getValue();
+                const startQuote = editorContent.trim().startsWith("\"") ? "" : "\"";
+                const endQuote = editorContent.trim().endsWith("\"") ? "" : "\"";
+                editorModel.setValue(startQuote + editorContent + endQuote);
                 monacoRef.current.editor.focus();
             }
         }
@@ -844,7 +853,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
-                                    {stringCheck && (
+                                    {stringCheck && needQuotes && (
                                         <div className={formClasses.suggestionsWrapper} >
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                             <FormHelperText className={formClasses.suggestionsText}>

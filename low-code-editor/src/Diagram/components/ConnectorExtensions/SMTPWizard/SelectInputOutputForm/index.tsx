@@ -32,7 +32,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { FormattedMessage, useIntl } from "react-intl";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;

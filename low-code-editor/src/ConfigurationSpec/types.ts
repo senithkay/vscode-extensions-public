@@ -89,6 +89,7 @@ export interface FormField {
     tooltip?: string;
     isErrorType?: boolean;
     isDefaultableParam?: boolean;
+    isRestParam?: boolean;
 }
 export interface FormFieldReturnType {
     hasError: boolean;

@@ -64,7 +64,8 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         setChanged(!changed)
     }
 
-    const subEditorType: string = transformFormFieldTypeToString(model).replace("[]", "");
+    const mainEditorType: string = transformFormFieldTypeToString(model);
+    const subEditorType: string = mainEditorType.substring(0, mainEditorType.length - 2);
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
@@ -83,10 +84,9 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         onChange: handleSubEditorChange
     };
 
-    model.displayName = "Array Expression"
     return (
         <>
-            <ExpressionEditorLabel {...props} model={{...model, displayName: "To"}} />
+            <ExpressionEditorLabel {...props} model={{...model, displayName: model.name || model.displayName}} />
             <div className={classes.groupedForm}>
                 <ExpressionEditor {...elementPropsSubEditor} />
                 <div className="add-element-button">
