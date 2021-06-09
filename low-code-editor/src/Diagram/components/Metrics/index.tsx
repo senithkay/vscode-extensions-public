@@ -35,11 +35,11 @@ export function Metrics(props: MetricsProps) {
         startX: triggerSVGX + TRIGGER_SVG_WIDTH + (2 * DefaultConfig.textLine.padding),
         startY: triggerSVGY,
         endX: triggerSVGX + TRIGGER_SVG_WIDTH + (2 * DefaultConfig.textLine.padding),
-        endY: triggerSVGY + TRIGGER_RECT_SVG_HEIGHT 
+        endY: triggerSVGY + TRIGGER_RECT_SVG_HEIGHT
     }
     const responseTime = {
         x: doubleArrlowLine.startX + DefaultConfig.metrics.responseTimePadding,
-        y: doubleArrlowLine.startY + COUNTERLEFT_SVG_HEIGHT 
+        y: doubleArrlowLine.startY + COUNTERLEFT_SVG_HEIGHT
     };
 
     const getElement = () => {
