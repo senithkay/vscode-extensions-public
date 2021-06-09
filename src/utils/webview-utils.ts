@@ -2,12 +2,12 @@ import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vsco
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
-export function getWebViewResourceRoot(): string {
+function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
         'resources');
 }
 
-export function getNodeModulesRoot(): string {
+function getNodeModulesRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
         'node_modules');
 }
@@ -24,7 +24,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
     };
 }
 
-export function getVSCodeResourceURI(filePath: string): string {
+function getVSCodeResourceURI(filePath: string): string {
     return process.platform === 'win32' ? 'vscode-resource:/' + filePath : 'vscode-resource:' + filePath;
 }
 
@@ -47,7 +47,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         bodyCss
     } = options;
     const resourceRoot = getVSCodeResourceURI(getWebViewResourceRoot());
-    const nodeModulesRoot = getVSCodeResourceURI(getNodeModulesRoot());
     const externalScripts = jsFiles
         ? jsFiles.map(jsFile =>
             '<script charset="UTF-8" onload="loadedScript();" src="' + jsFile + '"></script>').join('\n')
@@ -111,7 +110,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 <script>
                     ${scripts}
                 </script>
-                <script charset="UTF-8" src="${nodeModulesRoot}/mousetrap/mousetrap.min.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/undo-redo.js"></script>
                 ${externalScripts}
@@ -120,17 +118,17 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         `;
 }
 
-export function getComposerURI(): string {
+function getComposerURI(): string {
     return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs'));
 }
 
-export function getComposerPath(): string {
+function getComposerPath(): string {
     return process.env.COMPOSER_DEBUG === "true"
         ? process.env.COMPOSER_DEV_HOST as string
         : getComposerURI();
 }
 
-export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
+function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
         join(getComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
@@ -138,7 +136,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     ];
 }
 
-export function getComposerCSSFiles(): string[] {
+function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
         join(getComposerURI(), 'font', 'font-ballerina.css')

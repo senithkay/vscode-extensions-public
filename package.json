@@ -321,7 +321,6 @@
         "js-base64": "^2.5.1",
         "lodash": "^4.17.21",
         "monaco-languageclient": "^0.13.0",
-        "mousetrap": "^1.6.3",
         "portfinder": "^1.0.21",
         "promise.any": "^2.0.1",
         "vscode-debugadapter": "^1.44.0",
