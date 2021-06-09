@@ -374,6 +374,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             variableName: undefined
         });
         connectorConfig.responsePayloadMap.selectedPayloadType = "";
+        connectorConfig.responsePayloadMap.isPayloadSelected = false;
     };
 
     const handleOperationChange = () => {
