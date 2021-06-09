@@ -41,7 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
+import { CHOREO_DOCS } from '../../../../../../../config';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
