@@ -182,6 +182,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [ needQuotes, setNeedQuotes ] = useState(false);
 
     const validExpEditor = () => {
+        if (monacoRef.current?.editor?.getModel()?.getValue()) {
+            model.value = monacoRef.current?.editor?.getModel()?.getValue();
+        }
         validate(model.name, false);
         if (monacoRef.current) {
             monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
