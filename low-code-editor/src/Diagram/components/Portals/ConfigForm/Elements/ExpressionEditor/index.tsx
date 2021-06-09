@@ -33,6 +33,7 @@ import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants"
 import "./style.scss";
 import {
     addImportModuleToCode,
+    addQuotesChecker,
     addToTargetLine,
     addToTargetPosition,
     checkIfStringExist,
@@ -178,6 +179,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
+    const [ needQuotes, setNeedQuotes ] = useState(false);
 
     const validExpEditor = () => {
         validate(model.name, false);
@@ -192,6 +194,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validExpEditor();
         } else {
             validate(model.name, true);
+            setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                     startLineNumber: 1,
@@ -780,7 +783,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (monacoRef.current) {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
-                editorModel.setValue("\"" + editorModel.getValue() + "\"");
+                const editorContent = editorModel.getValue();
+                const startQuote = editorContent.trim().startsWith("\"") ? "" : "\"";
+                const endQuote = editorContent.trim().endsWith("\"") ? "" : "\"";
+                editorModel.setValue(startQuote + editorContent + endQuote);
                 monacoRef.current.editor.focus();
             }
         }
@@ -844,7 +850,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
-                                    {stringCheck && (
+                                    {stringCheck && needQuotes && (
                                         <div className={formClasses.suggestionsWrapper} >
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                             <FormHelperText className={formClasses.suggestionsText}>
