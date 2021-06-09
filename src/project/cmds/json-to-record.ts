@@ -23,9 +23,8 @@
     TM_EVENT_PASTE_AS_RECORD,
     CMP_JSON_TO_RECORD,
 } from "../../telemetry";
-import { commands, window } from "vscode";
+import { commands, window, env } from "vscode";
 import { ballerinaExtInstance } from "../../core";
-import { read } from "clipboardy";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 
 export function activatePasteJsonAsRecord() {
@@ -44,7 +43,8 @@ export function activatePasteJsonAsRecord() {
             window.showErrorMessage("Target is not a Ballerina file!");
             return;
         }
-        read().then(clipboardText => {
+        env.clipboard.readText()
+        .then(clipboardText => {
             ballerinaExtInstance.langClient!.getRecordsForJson(clipboardText)
             .then(response => {
                 if (!response || response.codeBlock === "") {
@@ -65,7 +65,8 @@ export function activatePasteJsonAsRecord() {
                 window.showErrorMessage(error.message);
                 sendTelemetryException(ballerinaExtInstance, error, CMP_JSON_TO_RECORD);
             });
-        }).catch(error => {
+        },
+        error => {
             window.showErrorMessage(error.message);
             sendTelemetryException(ballerinaExtInstance, error, CMP_JSON_TO_RECORD);
         }); 
