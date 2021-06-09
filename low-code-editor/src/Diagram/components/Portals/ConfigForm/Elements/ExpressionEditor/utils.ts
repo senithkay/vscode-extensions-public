@@ -297,3 +297,12 @@ export function createSortText(index: number) : string {
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
+
+export function getDiagnosticMessage(diagnostics: any, varType: string) : string {
+    if (varType === 'string') {
+        const mainDiagnostic = diagnostics.find((diagnostic: any) => diagnostic.message === "missing double quote");
+        return mainDiagnostic ? mainDiagnostic.message : diagnostics[0]?.message;
+    } else {
+        return diagnostics[0]?.message;
+    }
+}

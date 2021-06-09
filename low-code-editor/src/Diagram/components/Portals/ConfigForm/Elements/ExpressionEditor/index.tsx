@@ -40,6 +40,7 @@ import {
     createContentWidget,
     createSortText,
     diagnosticCheckerExp,
+    getDiagnosticMessage,
     getInitialValue,
     getRandomInt,
     getTargetPosition,
@@ -227,7 +228,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(expressionEditorState.diagnostic[0].message);
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
                 }
             } else {
                 if (monacoRef.current) {
@@ -793,7 +794,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }
 
     const handleError = (mainDiagnosticsArray: any) => {
-        const errorMsg = mainDiagnosticsArray[0]?.message;
+        const errorMsg = getDiagnosticMessage(mainDiagnosticsArray, varType);
         if (errorMsg.length > 50)
             return errorMsg.slice(0, 50) + " ..."
         else
@@ -833,7 +834,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
+                            <TooltipCodeSnippet content={getDiagnosticMessage(mainDiagnostics, varType)} placement="right" arrow={true}>
                                 <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
@@ -844,10 +845,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                 <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
-                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                             (
                                 <>
-                                    <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
