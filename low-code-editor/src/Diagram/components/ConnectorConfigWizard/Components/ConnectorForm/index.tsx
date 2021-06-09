@@ -127,6 +127,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
+    const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
 
     useEffect(() => {
 
@@ -159,6 +160,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setIsLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (selectedActiveConnection) {
+            handleClientOnSave()
+        }
+    }, [selectedActiveConnection])
 
     useEffect(() => {
         if (selectedConnector) {
@@ -216,6 +223,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleOnConnection = (type: ConnectionType, connectionDetails: ConnectionDetails) => {
         setConnection(connectionDetails);
+        if (type === "UPDATED" || type === "NEW") {
+            setSelectedActiveConnection(connectionDetails)
+        }
     };
 
     const handleConnectionUpdate = () => {
@@ -338,7 +348,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
         if (modifications.length > 0) {
             modifyDiagram(modifications);
-            onClose();
+            // onClose();
         }
     }
 
@@ -629,14 +639,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                     </div>
                                 )
                             }
-                            <div className={wizardClasses.saveBtnWrapper}>
-                                <PrimaryButton
-                                    text="Save"
-                                    fullWidth={true}
-                                    disabled={connection === undefined}
-                                    onClick={handleClientOnSave}
-                                />
-                            </div>
                         </div>
                     )}
                     {(formState === FormStates.OperationForm) && (

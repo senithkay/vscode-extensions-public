@@ -12,11 +12,6 @@
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import color = Mocha.reporters.Base.color;
-import Box from "@material-ui/core/Box";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Radio from "@material-ui/core/Radio";
-import Divider from "@material-ui/core/Divider";
-import React from "react";
 
 export const wizardStyles = makeStyles((theme: Theme) =>
     createStyles({

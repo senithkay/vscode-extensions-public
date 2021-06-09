@@ -44,6 +44,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const classes = useStyles();
     const intl = useIntl();
     const [selectedConnection, setSelectedConnection] = useState("");
+    const [isConnectionListEmpty, setIsConnectionListEmpty] = useState(!connectionList);
     const searchPlaceholder = intl.formatMessage({
         id : "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
         defaultMessage: "Search"
@@ -51,9 +52,6 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const handleSearchChange = (evt: any) => {
         setSelectedConnection(evt.target.value);
     };
-    const handleConnectionChange = (evt: any) => {
-        console.log(evt)
-    }
 
     const connectionListElements = connectionList.map((item) => (
         // tslint:disable-next-line:jsx-key
@@ -104,7 +102,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                 value={activeConnection?.handle}
                 onChange={onChangeConnection}
             >
-                {connectionListElements}
+                {!isConnectionListEmpty  && connectionListElements}
             </RadioGroup>
             <div className={classes.oauthConnectionTextWrapper}>
                 <p className={classes.oauthConnectionText}>

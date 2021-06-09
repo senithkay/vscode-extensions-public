@@ -12,6 +12,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         titleWrap: {
             display: "flex",
+            marginTop: 8
         },
         title: {
             marginBottom: 12,
@@ -136,5 +137,35 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: 5,
             backgroundColor: "#E6E7EC !important"
         },
+        activeConnectionWrapper: {
+            display: "flex",
+            marginTop: -8,
+            marginBottom: 8
+        },
+        activeConnectionWrapperChild1: {
+            width: "63%",
+            float: "left"
+        },
+        activeConnectionWrapperChild2: {
+            width: "37%",
+            float: "right",
+        },
+        activeConnectionBox: {
+            width: "100%",
+            borderRadius: 5,
+            padding: theme.spacing(0.5),
+            paddingLeft: theme.spacing(2.5),
+            borderColor: "#ff000000",
+            border: "0px solid",
+            '& .MuiFormControlLabel-root': {
+                width: "100%",
+            },
+            '& span.MuiTypography-root.MuiFormControlLabel-label.MuiTypography-body1': {
+                whiteSpace: "nowrap",
+                width: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+            },
+        }
     }),
 );

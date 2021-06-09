@@ -77,13 +77,6 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   const isConnectionListEmpty = (!connectionList || (connectionList?.length === 0) || connectionList === undefined);
   const isOngoingFetching = (isAuthenticating || isTokenExchanging || isConnectionFetching);
 
-  // useEffect(() => {
-  //   if (!connectionList) {
-  //     dispatchFetchConnectionList(connectorName, session)
-  //     console.log(connectionList)
-  //   }
-  // })
-
   useEffect(() => {
     if (!activeConnection && !isOngoingFetching) {
       dispatchFetchConnectionList(connectorName, session);
@@ -104,6 +97,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     return () => {
       // clean up session
       dispatchDeleteOauthSession(session);
+      dispatchFetchConnectionList(connectorName, session);
     }
   }, [])
 
@@ -126,10 +120,10 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     // trigger onSelectConnection when changing activeConnection
     if (activeConnection) {
       const btnConnectionType = (currentConnection) ?
-        (activeConnection.handle === currentConnection.handle) ?
-          ConnectionType.NOT_CHANGED
-          : ConnectionType.UPDATED
-        : ConnectionType.NEW;
+          (activeConnection.handle === currentConnection.handle) ?
+              ConnectionType.NOT_CHANGED
+              : ConnectionType.UPDATED
+          : ConnectionType.NEW;
 
       onSelectConnection(btnConnectionType, activeConnection);
     }
@@ -175,22 +169,21 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
 
   function renderConnectedButton() {
     return (
-        <div>
+        <>
           <ConnectedButton
               activeConnection={activeConnection}
               onChangeConnection={handleClickChangeConnection}
           />
-          {/*<ConnectionList*/}
-          {/*    activeConnection={activeConnection}*/}
-          {/*    connectionList={connectionList}*/}
-          {/*    connectionName={connectorName}*/}
-          {/*    onChangeConnection={handleChangeConnectionSelection}*/}
-          {/*    onInitConnection={handleClickInitSession}*/}
-          {/*/>*/}
-        </div>
+          <ConnectionList
+              activeConnection={activeConnection}
+              connectionList={connectionList}
+              connectionName={connectorName}
+              onChangeConnection={handleChangeConnectionSelection}
+              onInitConnection={handleClickInitSession}
+          />
+        </>
     );
   }
-
   function renderConnectionList() {
     return (
       <ConnectionList
@@ -202,7 +195,6 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
       />
     );
   }
-
   function renderConnectButton() {
     return (
       <PrimaryButton

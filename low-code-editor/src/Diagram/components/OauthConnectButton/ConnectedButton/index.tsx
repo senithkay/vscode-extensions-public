@@ -20,6 +20,10 @@ import EditIcon from '@material-ui/icons/Edit';
 import { ConnectionDetails } from "../../../../api/models";
 
 import { useStyles } from "./../styles";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Radio from "@material-ui/core/Radio";
+import Divider from "@material-ui/core/Divider";
+import {Status} from "components/Status";
 
 export interface ConnectedButtonProps {
     activeConnection: ConnectionDetails;
@@ -32,23 +36,19 @@ export function ConnectedButton(props: ConnectedButtonProps) {
 
     return (
         <>
-            <Box border={1} borderRadius={5} className={classes.box} key={activeConnection?.handle}>
-                <Typography variant="subtitle2">
-                <div>
-                    <p className={classes.radioBtnTitle}>{activeConnection.displayName}</p>
-                    <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                        </Typography>
+                    </Box>
                 </div>
-                </Typography>
-                <IconButton
-                    color="primary"
-                    classes={ {
-                        root: classes.changeConnectionBtn
-                    } }
-                    onClick={onChangeConnection}
-                >
-                    <EditIcon />
-                </IconButton>
-            </Box>
+                <div className={classes.activeConnectionWrapperChild2}>
+                    <Status type={"connected"}/>
+                </div>
+            </div>
+            <Divider/>
         </>
     );
 }
