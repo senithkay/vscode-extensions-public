@@ -22,7 +22,7 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
-import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
 import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
@@ -116,6 +116,19 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
         }
     });
     return typeCheck;
+}
+
+export function addQuotesChecker(diagnostics: Diagnostic[]) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        // check if message contains incorrect string diagnostic code
+        if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostics[0].code).toString())) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
