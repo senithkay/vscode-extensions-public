@@ -469,8 +469,8 @@ export function APIOptions(props: APIOptionsProps) {
                 "example" : tooltipExample,
                 "content" : tooltipTitle
             }
-            if (connector.displayName == "IMAP"){
-                const tooltipAction ={
+            if (connector.displayName === "IMAP"){
+                const tooltipAction = {
                     "link": connectionsTooltipMessages.imapConnector.actionLink,
                     "text": connectionsTooltipMessages.imapConnector.actionText
                 }
@@ -518,7 +518,7 @@ export function APIOptions(props: APIOptionsProps) {
                     connectorInfo: connector,
                     component
                 }
-                
+
                 // filter connectors due to maintenance
                 const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'mongodb'];
                 if (!filletedConnectors.includes(connector.module)) {
