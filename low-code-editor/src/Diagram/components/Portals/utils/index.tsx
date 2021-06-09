@@ -1229,7 +1229,6 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
                         break;
 
                     default:
-                        // if (field.isParam) {
                             if(field.value !== undefined){
                             name = field.name
                             value = field.value           
