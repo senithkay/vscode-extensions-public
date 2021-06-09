@@ -50,7 +50,6 @@ import { FormElementProps } from "../ConfigForm/types";
 import * as OverlayElement from "../Overlay/Elements";
 
 import { keywords, symbolKind } from "./constants";
-import { config } from "cypress/types/bluebird";
 
 const receivedRecords: Map<string, STNode> = new Map();
 // in order to ignore classes, object and enum type references
@@ -1210,9 +1209,9 @@ export function checkVariableName(varName: string, text: string, existingText?: 
 export function getManualConnectionDetailsFromFormFields(formFields: FormField[]): ManualConfigType[] {
 
     let manualConfigurationsFromFields: ManualConfigType[] = []
-    let configs : ManualConfigType[] 
-    let name :string
-    let value :string
+    let configs : ManualConfigType[]
+    let name : string
+    let value : string
 
     if (formFields) {
         formFields.forEach(field => {
@@ -1220,19 +1219,19 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
                 switch (field.type) {
                     case "record":
                         configs = getManualConnectionDetailsFromFormFields(field.fields)
-                        manualConfigurationsFromFields=[...manualConfigurationsFromFields,...configs]
+                        manualConfigurationsFromFields = [...manualConfigurationsFromFields, ...configs]
 
                         break;
                     case "union":
                         configs = getManualConnectionDetailsFromFormFields(field.fields)
-                        manualConfigurationsFromFields=[...manualConfigurationsFromFields,...configs]
+                        manualConfigurationsFromFields = [...manualConfigurationsFromFields, ...configs]
                         break;
 
                     default:
-                            if(field.value !== undefined){
+                            if (field.value !== undefined){
                             name = field.name
-                            value = field.value           
-                            manualConfigurationsFromFields.push({name: name, value: value})
+                            value = field.value
+                            manualConfigurationsFromFields.push({name, value})
                             }
 
                 }
