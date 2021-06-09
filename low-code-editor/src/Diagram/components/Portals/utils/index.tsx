@@ -25,7 +25,7 @@ import {
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
-import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
@@ -50,6 +50,7 @@ import { FormElementProps } from "../ConfigForm/types";
 import * as OverlayElement from "../Overlay/Elements";
 
 import { keywords, symbolKind } from "./constants";
+import { config } from "cypress/types/bluebird";
 
 const receivedRecords: Map<string, STNode> = new Map();
 // in order to ignore classes, object and enum type references
@@ -1206,3 +1207,44 @@ export function checkVariableName(varName: string, text: string, existingText?: 
     }
     return response;
 }
+export function getManualConnectionDetailsFromFormFields(formFields: FormField[]): ManualConfigType[] {
+
+    let manualConfigurationsFromFields: ManualConfigType[] = []
+    let configs : ManualConfigType[] 
+    let name :string
+    let value :string
+
+    if (formFields) {
+        formFields.forEach(field => {
+            if (field.isParam && !field.optional && !field.isReference) {
+                switch (field.type) {
+                    case "record":
+                        configs = getManualConnectionDetailsFromFormFields(field.fields)
+                        manualConfigurationsFromFields=[...manualConfigurationsFromFields,...configs]
+
+                        break;
+                    case "union":
+                        configs = getManualConnectionDetailsFromFormFields(field.fields)
+                        manualConfigurationsFromFields=[...manualConfigurationsFromFields,...configs]
+                        break;
+
+                    default:
+                        // if (field.isParam) {
+                            if(field.value !== undefined){
+                            name = field.name
+                            value = field.value           
+                            manualConfigurationsFromFields.push({name: name, value: value})
+                            }
+
+                }
+            }
+
+
+        });
+    }
+
+
+    return manualConfigurationsFromFields
+
+}
+
