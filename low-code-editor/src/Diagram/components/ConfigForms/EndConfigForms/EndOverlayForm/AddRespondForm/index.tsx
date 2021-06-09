@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
 import { CloseRounded } from "../../../../../../assets/icons";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../config";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../configs";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";

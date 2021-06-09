@@ -27,7 +27,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../config";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../configs";
 
 interface WhileProps {
     condition: ConditionConfig;
