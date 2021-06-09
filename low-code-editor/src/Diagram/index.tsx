@@ -28,6 +28,7 @@ import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
 import { TriggerType } from "./models";
+import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
@@ -39,8 +40,6 @@ export interface DiagramProps {
     isLoadingAST: boolean;
     isWaitingOnWorkspace: boolean;
     error?: Error;
-    // onMutate?: (modifications: STModification[]) => void;
-    // onModify?: (triggerType: TriggerType, model?: any, configObject?: any) => void;
     isMutationInProgress: boolean;
     isCodeEditorActive: boolean;
     isConfigPanelOpen: boolean;

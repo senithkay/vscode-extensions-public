@@ -5,6 +5,8 @@
 export interface VisibleEndpoint {
   kind?: string;
   isCaller: boolean;
+  isExternal: boolean;
+  isModuleVar: boolean;
   moduleName: string;
   name: string;
   orgName: string;

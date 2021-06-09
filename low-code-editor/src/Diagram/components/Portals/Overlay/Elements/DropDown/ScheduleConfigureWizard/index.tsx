@@ -27,10 +27,13 @@ import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
+  EVENT_TYPE_AZURE_APP_INSIGHTS,
+  LowcodeEvent,
   TriggerType,
+  TRIGGER_SELECTED_INSIGHTS,
   TRIGGER_TYPE_INTEGRATION_DRAFT,
   TRIGGER_TYPE_SCHEDULE,
-  TRIGGER_TYPE_WEBHOOK
+  TRIGGER_TYPE_WEBHOOK,
 } from "../../../../../../models";
 import { createPropertyStatement } from "../../../../../../utils/modification-util";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
@@ -58,13 +61,13 @@ export interface ConnectorEvents {
 }
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
-  const { onModify, onMutate } = useContext(DiagramContext).callbacks;
+  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
-    trackTriggerSelection,
+    onEvent,
     originalSyntaxTree
   } = state;
 
@@ -268,7 +271,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const createSchedule = () => {
     const saveSelectedCron = cronForSelectedType();
     const utcCron = UTCCronForSelectedType();
-    onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+    modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
       "CRON": saveSelectedCron,
       "UTCCRON": utcCron,
       "SCHEDULE_TYPE": scheduledComp
@@ -281,26 +284,31 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
     if ((initialTriggerType === TRIGGER_TYPE_SCHEDULE) || (initialTriggerType === TRIGGER_TYPE_INTEGRATION_DRAFT)) {
       // dispatch and close the wizard
       setTriggerChanged(true);
-      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+      modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
         "CRON": saveSelectedCron,
         "UTCCRON": utcCron,
         "IS_EXISTING_CONFIG": !STKindChecker.isModulePart(syntaxTree),
         "SYNTAX_TREE": originalSyntaxTree,
         "SCHEDULE_TYPE": scheduledComp
       });
-      trackTriggerSelection("Schedule");
+      const event: LowcodeEvent = {
+        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+        name: TRIGGER_SELECTED_INSIGHTS,
+        property: "Schedule"
+      };
+      onEvent(event);
     } else if (initialTriggerType === TRIGGER_TYPE_WEBHOOK) {
       setShowConfirmDialog(true);
     } else {
-      onModify(TRIGGER_TYPE_SCHEDULE, undefined, {
+      modifyTrigger(TRIGGER_TYPE_SCHEDULE, undefined, {
         "CRON": saveSelectedCron,
         "UTCCRON": utcCron,
         "IS_TRIGGER_CHANGED": true
       });
       const commentModification = createPropertyStatement(
-          `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
-          {line: syntaxTree.position.startLine, column: 0});
-      onMutate([commentModification]);
+        `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
+        { line: syntaxTree.position.startLine, column: 0 });
+      modifyDiagram([commentModification]);
     }
   };
 
@@ -605,10 +613,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
         {
           showConfirmDialog && (
-              <SourceUpdateConfirmDialog
-                  onConfirm={createSchedule}
-                  onCancel={handleDialogOnCancel}
-              />
+            <SourceUpdateConfirmDialog
+              onConfirm={createSchedule}
+              onCancel={handleDialogOnCancel}
+            />
           )
         }
       </>

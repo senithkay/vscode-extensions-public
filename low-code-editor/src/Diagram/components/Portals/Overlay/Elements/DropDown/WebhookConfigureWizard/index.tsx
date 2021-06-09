@@ -19,11 +19,13 @@ import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { useStyles } from "../styles";
 import { ConnectorType } from "../TriggerDropDown";
 
+import { ASBConfigureForm } from "./ASBConfigureForm";
 import { CalendarConfigureForm } from "./CalendarConfigureForm";
 import { GitHubConfigureForm } from "./GitHubConfigureForm";
 import { GmailConfigureForm } from "./GmailConfigureForm";
 import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
 import { SheetConfigureForm } from "./SheetConfigureForm";
+import { SlackConfigureForm } from "./SlackConfigureForm";
 
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -89,6 +91,18 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
           onComplete={handleOnWizardComplete}
           isTriggerTypeChanged={isWebhookTypeChanged}
         />
+      ) }
+      { connector === ConnectorType.SLACK && (
+          <SlackConfigureForm
+              position={position}
+              onComplete={handleOnWizardComplete}
+          />
+      ) }
+      { connector === ConnectorType.ASB && (
+          <ASBConfigureForm
+              position={position}
+              onComplete={handleOnWizardComplete}
+          />
       ) }
     </DiagramOverlay>
   );

@@ -21,6 +21,7 @@ import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
 import { DiagramContext } from "../../../../providers/contexts";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
 import {
     createImportStatement,
     createLogStatement,
@@ -49,10 +50,9 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state } = useContext(Context);
-    const { onMutate } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { state: { trackAddStatement, onEvent, stSymbolInfo, currentApp } } = useContext(Context);
 
-    const { onMutate: dispatchMutations, trackAddStatement, stSymbolInfo, currentApp } = state;
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
@@ -154,10 +154,15 @@ export function ProcessConfigForm(props: any) {
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
                     modifications.push(addCustomStatement);
                 }
-                trackAddStatement(processConfig.type);
+                const event: LowcodeEvent = {
+                    type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                    name: FINISH_STATEMENT_ADD_INSIGHTS,
+                    property: processConfig.type
+                };
+                onEvent(event);
             }
         }
-        onMutate(modifications);
+        modifyDiagram(modifications);
         onSave()
     };
 

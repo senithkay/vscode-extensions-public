@@ -13,7 +13,16 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { AssignmentStatement, CallStatement, FunctionCall, LocalVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import {
+    AssignmentStatement,
+    CallStatement,
+    FunctionCall,
+    LocalVarDecl,
+    PositionalArg,
+    QualifiedNameReference,
+    STKindChecker,
+    STNode
+} from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
@@ -228,7 +237,13 @@ export function DataProcessor(props: ProcessorProps) {
 
     let assignmentText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
-        assignmentText = ((model as CallStatement)?.expression as FunctionCall)?.arguments[0]?.source;
+        if (STKindChecker.isFunctionCall(model.expression)) {
+            assignmentText = model.expression.arguments[0]?.source;
+        } else if (STKindChecker.isCheckExpression(model.expression)) {
+            if (STKindChecker.isFunctionCall(model.expression.expression)) {
+                assignmentText = model.expression.expression.source;
+            }
+        }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {

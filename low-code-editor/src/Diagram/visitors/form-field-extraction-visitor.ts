@@ -34,9 +34,12 @@ import {
     SimpleNameReference,
     SpecificField,
     STNode,
+    StreamTypeDesc,
+    StreamTypeParams,
     StringLiteral,
     StringTypeDesc,
     traversNode,
+    TupleTypeDesc,
     TypeDefinition,
     TypeParameter,
     TypeReference,
@@ -93,6 +96,7 @@ class FieldVisitor implements Visitor {
             // viewState.typeName = undefined;
             node.typeName.viewState = viewState;
             viewState.optional = true;
+            viewState.isDefaultableParam = true;
         }
     }
 
@@ -155,32 +159,19 @@ class FieldVisitor implements Visitor {
 
     beginVisitArrayTypeDesc(node: ArrayTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
-            const viewState: FormField | any = node.viewState as FormField;
+            const viewState: FormField = node.viewState as FormField;
             viewState.isArray = true;
             viewState.type = PrimitiveBalType.Collection;
 
-            switch (node.memberTypeDesc.kind) {
-                case 'StringTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.String;
-                    break;
-                case 'IntTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.Int
-                    break;
-                case 'FloatTypeDesc':
-                    viewState.collectionDataType = PrimitiveBalType.Float
-                    break;
-                case 'UnionTypeDesc':
-                    const fieldViewState: FormField = {
-                        isParam: viewState.isParam,
-                        isArray: true,
-                        type: PrimitiveBalType.Union
-                    }
-                    viewState.fields.push(fieldViewState);
-                    break;
-                case 'SimpleNameReference':
-                    node.memberTypeDesc.viewState = viewState;
-                    break;
+            if (node.memberTypeDesc) {
+                node.memberTypeDesc.viewState = { isParam: true };
             }
+        }
+    }
+
+    endVisitArrayTypeDesc(node: ArrayTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.viewState.collectionDataType = node.memberTypeDesc?.viewState || PrimitiveBalType.String;
         }
     }
 
@@ -199,6 +190,34 @@ class FieldVisitor implements Visitor {
     beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             node.typedesc.viewState = node.viewState;
+        }
+    }
+
+    beginVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState as FormField;
+            viewState.type = "tuple";
+
+            node.memberTypeDesc
+                .filter(param => param.kind !== 'CommaToken')
+                .forEach(param => {
+                    param.viewState = {
+                        isParam: true
+                    };
+                });
+        }
+    }
+
+    endVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState as FormField;
+            viewState.type = "tuple";
+            viewState.fields = [];
+
+            node.memberTypeDesc?.filter(field => field.kind !== 'CommaToken')
+                .forEach(field => {
+                    viewState.fields.push(field.viewState);
+                });
         }
     }
 
@@ -287,25 +306,6 @@ class FieldVisitor implements Visitor {
                             viewState.fields.push(element.viewState);
                         });
                     }
-                    // typeSymbol.signature.split('|').forEach((element: string) => {
-                    //     const fieldProperty: FormField = {
-                    //         type: element as balTypes,
-                    //         isParam: true,
-                    //     };
-
-                    //     if (element.endsWith('[]')) {
-                    //         const regExp = /(,*)\[]$/g;
-                    //         fieldProperty.collectionDataType = element.match(regExp)[1] as balTypes;
-                    //         fieldProperty.type = 'collection' as balTypes;
-                    //         fieldProperty.isArray = true;
-                    //     }
-
-                    //     this.addFieldToUnion(
-                    //         fieldProperty.isArray ? fieldProperty.collectionDataType : fieldProperty.type,
-                    //         fieldProperty,
-                    //         viewState
-                    //     );
-                    // });
                 } else {
                     viewState.typeName = node.name.value;
                     if (node.typeData.typeSymbol.kind !== 'CONSTANT' && typeSymbol.moduleID) {
@@ -321,20 +321,34 @@ class FieldVisitor implements Visitor {
         }
     }
 
-    // private addFieldToUnion(type: balTypes, fieldVS: FormField, viewState: FormField) {
-    //     switch (type) {
-    //         case "boolean":
-    //         case "float":
-    //         case "string":
-    //         case "int":
-    //         case "json":
-    //         case "xml":
-    //             viewState.fields.push(fieldVS);
-    //             break;
-    //         default:
-    //         // ignored types atm
-    //     }
-    // }
+    beginVisitStreamTypeDesc(node: StreamTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const typeParameter = node.typeData.typeSymbol.typeParameter;
+            const viewState: FormField = node.viewState;
+            viewState.typeName = typeParameter?.name;
+            viewState.isStream = true;
+
+            if (typeParameter?.moduleID) {
+                viewState.typeInfo = {
+                    modName: typeParameter.moduleID.moduleName,
+                    name: typeParameter?.name,
+                    orgName: typeParameter.moduleID.orgName,
+                    version: typeParameter.moduleID.version
+                };
+            }
+
+            node.streamTypeParamsNode.viewState = viewState;
+        }
+    }
+
+    beginVisitStreamTypeParams(node: StreamTypeParams) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState;
+            if (node.rightTypeDescNode){
+                node.rightTypeDescNode.viewState = viewState;
+            }
+        }
+    }
 
     beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (node.viewState && node.viewState.isParam) {

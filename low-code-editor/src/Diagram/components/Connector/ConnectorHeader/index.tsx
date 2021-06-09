@@ -16,13 +16,14 @@ import React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { BlockViewState, StatementViewState, ViewState } from "../../../view-state";
+import { BlockViewState, EndpointViewState, StatementViewState, ViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
 import { getConnectorIcon } from "../../Portals/utils";
 
 import {
     CLIENT_RADIUS,
     CLIENT_SHADOW_OFFSET,
+    CLIENT_SVG_HEIGHT,
     CLIENT_SVG_WIDTH_WITH_SHADOW,
     ConnectorSVG
 } from "./ConnectorClientSVG";
@@ -37,16 +38,18 @@ export interface ConnectorClientProps {
 export function ConnectorHeaderC(props: ConnectorClientProps) {
     const { model } = props
     const connectorClientViewState: StatementViewState = model.viewState as StatementViewState;
+    const epViewState: EndpointViewState = connectorClientViewState.endpoint as EndpointViewState;
+
 
     const x = connectorClientViewState.endpoint.lifeLine.cx - (CLIENT_SVG_WIDTH_WITH_SHADOW / 2);
-    const y = connectorClientViewState.bBox.cy - (CLIENT_SHADOW_OFFSET / 2);
+    const y = epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - (CLIENT_RADIUS * 2) - (CLIENT_SHADOW_OFFSET / 2) : connectorClientViewState.bBox.cy - (CLIENT_SHADOW_OFFSET / 2);
 
     const draftVS: any = connectorClientViewState as DraftStatementViewState;
     const connectorIconId = (model?.viewState as StatementViewState)?.endpoint?.iconId;
     const connectorWrapper = cn("main-connector-wrapper connector-client");
     const iconProps = {
         cx: connectorClientViewState.endpoint.lifeLine.cx,
-        cy: connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS
+        cy: epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS
     };
 
     const icon = getConnectorIcon(connectorIconId, iconProps);

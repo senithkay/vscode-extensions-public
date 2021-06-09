@@ -19,7 +19,16 @@ import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context } from '../../../../../../../Contexts/Diagram';
-import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
+import {
+    TriggerType,
+    TRIGGER_TYPE_API,
+    TRIGGER_TYPE_INTEGRATION_DRAFT,
+    TRIGGER_TYPE_MANUAL,
+    TRIGGER_TYPE_SCHEDULE,
+    TRIGGER_TYPE_SERVICE_DRAFT,
+    TRIGGER_TYPE_WEBHOOK,
+    LowcodeEvent, EVENT_TYPE_AZURE_APP_INSIGHTS, TRIGGER_SELECTED_INSIGHTS
+} from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
@@ -32,6 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
+import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -56,13 +66,14 @@ export enum ConnectorType {
     SALESFORCE = "Salesforce",
     SLACK = "Slack",
     TWILIO = "Twilio",
+    ASB = "Azure Service Bus",
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { onModify } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree } = state;
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
@@ -88,9 +99,15 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
             if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
-                onModify(newTrigger);
+                modifyTrigger(newTrigger);
+                const event: LowcodeEvent = {
+                    type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                    name: TRIGGER_SELECTED_INSIGHTS,
+                    property: "Manual"
+                };
+                onEvent(event);
             } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
-                onModify(TRIGGER_TYPE_MANUAL, undefined, {
+                modifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
                     "SYNTAX_TREE": originalSyntaxTree,
                     "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
                 });
@@ -103,7 +120,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModify(selectedTrigger);
+        modifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
@@ -128,8 +145,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
-        })
+            defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
+        }, { learnChoreo: CHOREO_DOCS })
     }
     };
 
@@ -287,7 +304,21 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left"
                         ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.SLACK,
+                            'slack_Client',
+                            "To trigger an application based on Slack events.",
+                            "Slack",
+                            "left"
+                        ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.ASB,
+                            'azure_service_busLogoClient',
+                            "To trigger an application based on Azure Service Bus events.",
+                            "Azure SB",
+                            "left"
+                        ) }
                     </div>
                 </div>
             </DiagramOverlay>

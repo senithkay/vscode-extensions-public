@@ -22,7 +22,7 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
-import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
 import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
@@ -95,20 +95,7 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
 
 export function getInitialValue(defaultValue: string, model: FormField): string {
     const initVal = defaultValue ? defaultValue : model.value;
-    // if (model.type === PrimitiveBalType.String && !model.optional) {
-    //     // if (initVal) {
-    //     //     return initVal;
-    //     // } else if (model.defaultValue) {
-    //     //     return model.defaultValue;
-    //     // } else {
-    //     //     model.defaultValue = "\"\"";
-    //     //     return model.defaultValue;
-    //     // }
-
-    //     return initVal ? initVal : "\"\"";
-    // } else {
     return initVal;
-    // }
 }
 
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
@@ -131,6 +118,19 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
     return typeCheck;
 }
 
+export function addQuotesChecker(diagnostics: Diagnostic[]) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        // check if message contains incorrect string diagnostic code
+        if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostics[0].code).toString())) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
@@ -138,7 +138,15 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
 export const transformFormFieldTypeToString = (model?: FormField): string => {
     if (model.type === "record" || model.typeInfo) {
         if (model.typeInfo){
-            return model.isArray ? model.typeInfo.modName + ":" + model.typeInfo.name + "[]" : model.typeInfo.modName + ":" + model.typeInfo.name;
+            let modName = model.typeInfo.modName;
+            if (modName.includes('.')){
+                modName = modName.split('.')[1];
+            }
+            if (model.isArray){
+                return modName + ":" + model.typeInfo.name + "[]"
+            }else{
+                return modName + ":" + model.typeInfo.name
+            }
         }
     } else if (model.type === "union"){
         if (model.fields) {
@@ -149,9 +157,11 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                     if (field.typeInfo){
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
+                } else if (field.type === "tuple") {
+                    type = transformFormFieldTypeToString(field);
                 } else if (field.type === "collection") {
-                    if (field.collectionDataType) {
-                        type = field.collectionDataType + "[]";
+                    if (field.collectionDataType?.type) {
+                        type = field.collectionDataType.type + "[]";
                     }
                 } else if (field.type) {
                     type = field.type;
@@ -163,11 +173,31 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             }
             return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
         }
+    } else if (model.type === "tuple") {
+        if (model.fields) {
+            const allTypes: string[] = [];
+            for (const field of model.fields) {
+                let type;
+                if (field.type === "record" && field.typeInfo) {
+                    type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                } else if (field.type) {
+                    type = field.type;
+                }
+                if (type && field.isParam && !field.noCodeGen) {
+                    allTypes.push(type.toString());
+                }
+            }
+            return "[" + allTypes.join(",") + "]";
+        }
     } else if (model.type === "collection") {
         if (model.typeInfo) {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
         } else if (model.collectionDataType) {
-            return model.collectionDataType + "[]";
+            const returnTypeString = transformFormFieldTypeToString(model.collectionDataType);
+            if (model?.isArray) {
+                return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
+            }
+            return returnTypeString;
         }
     } else if (model.type === "map") {
         if (model.fields) {
@@ -182,6 +212,15 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
         return model.type;
     }
     return PrimitiveBalType.Var.toString();
+}
+
+export function checkIfStringExist(varType: string) : boolean {
+    if (varType.endsWith(")[]")) {
+        // Check for union array
+        return false;
+    }
+    const types: string[] = varType.split("|");
+    return types.includes("string")
 }
 
 /**
@@ -253,4 +292,8 @@ export function createContentWidget(id: string) : monaco.editor.IContentWidget {
 export function createSortText(index: number) : string {
     const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
     return "z".repeat(Math.floor(index / 26)) + alpList[index]
+}
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
 }

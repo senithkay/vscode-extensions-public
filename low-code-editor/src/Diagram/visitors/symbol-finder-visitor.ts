@@ -11,9 +11,11 @@
  * associated services.
  */
 import {
+    ActionStatement,
     AssignmentStatement,
     CallStatement,
     CaptureBindingPattern,
+    CheckAction,
     ForeachStatement,
     FunctionDefinition,
     LocalVarDecl,
@@ -105,7 +107,7 @@ class SymbolFindingVisitor implements Visitor {
         const varType = node.typeData?.symbol?.kind;
         const varName = node.name?.value;
 
-        if (varType === 'VARIABLE') {
+        if (varType === "VARIABLE" || varType === "TYPE") {
             variableNameReferences.get(varName) ?
                 variableNameReferences.get(varName).push(node)
                 : variableNameReferences.set(varName, [node]);
@@ -151,6 +153,10 @@ class SymbolFindingVisitor implements Visitor {
         }
     }
 
+    public beginVisitActionStatement(node: ActionStatement) {
+        const actionName = (node.expression as CheckAction).expression.methodName.name.value;
+        actions.set(actionName, node);
+    }
 }
 
 function getType(typeNode: any): any {
@@ -184,6 +190,8 @@ function getType(typeNode: any): any {
         return "[" + tupleTypes.map((memType) => getType(memType)) + "]";
     } else if (STKindChecker.isParameterizedTypeDesc(typeNode)) {
         return "map<" + getType(typeNode.typeParameter.typeNode) + ">";
+    } else if (STKindChecker.isStreamTypeDesc(typeNode)) {
+        return "stream<" + getType(typeNode.streamTypeParamsNode.leftTypeDescNode) + ">";
     } else if (STKindChecker.isErrorTypeDesc(typeNode)) {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {

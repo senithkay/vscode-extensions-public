@@ -27,6 +27,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface WhileProps {
     condition: ConditionConfig;
@@ -70,10 +71,9 @@ export function AddWhileForm(props: WhileProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
-
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
