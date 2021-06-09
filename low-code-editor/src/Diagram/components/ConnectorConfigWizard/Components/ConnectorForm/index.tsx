@@ -316,7 +316,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
             // createManualConnection
 
-            const temp = getManualConnectionDetailsFromFormFields(config.connectorInit)
 
             // catch the response(new tokens and name of connection)
             if (isNewConnectorInitWizard && targetPosition) {
