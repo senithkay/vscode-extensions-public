@@ -4,9 +4,6 @@ declare module "react-draft-wysiwyg"
 declare module "draft-js"
 declare module "draftjs-to-html"
 
-export declare const CHOREO_DOCS: string;
-export declare const BALLERINA_EXPRESSION_SYNTAX_PATH: string;
-
 declare module 'react-flame-graph' {
   export class FlameGraph extends React.Component<RawData & any, any> {
   }
