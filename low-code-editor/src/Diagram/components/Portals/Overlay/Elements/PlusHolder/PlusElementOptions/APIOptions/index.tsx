@@ -17,7 +17,7 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
-import TooltipV2 from "../../../../../../../../components/TooltipV2";
+import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
@@ -475,7 +475,7 @@ export function APIOptions(props: APIOptionsProps) {
                     "text": connectionsTooltipMessages.imapConnector.actionText
                 }
                 const component: ReactNode = (
-                    <TooltipV2 type="info" text={tolltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                    <Tooltip type="info" text={tolltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
                                 <div className="connector-icon">
@@ -486,7 +486,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 </div>
                             </div>
                         </div>
-                    </TooltipV2>
+                    </Tooltip>
                 );
                 const connectorComponent: ConnctorComponent = {
                     connectorInfo: connector,
@@ -501,7 +501,7 @@ export function APIOptions(props: APIOptionsProps) {
             }
             else{
                 const component: ReactNode = (
-                    <TooltipV2 type="example" text={tolltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                    <Tooltip type="example" text={tolltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
                                 <div className="connector-icon">
@@ -512,7 +512,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 </div>
                             </div>
                         </div>
-                    </TooltipV2>
+                    </Tooltip>
                 );
                 const connectorComponent: ConnctorComponent = {
                     connectorInfo: connector,
