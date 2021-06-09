@@ -130,7 +130,6 @@ function getComposerPath(): string {
 
 function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        join(getComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -138,8 +137,7 @@ function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 
 function getComposerCSSFiles(): string[] {
     return [
-        join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getComposerURI(), 'font', 'font-ballerina.css')
+        join(getComposerPath(), 'themes', 'ballerina-default.min.css')
     ];
 }
 
