@@ -67,6 +67,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                             param.noCodeGen = true;
                             param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -77,6 +80,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = "\"/\"";
                         } else if (param.name === "message") {
                             param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -89,6 +95,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.displayName = "Request";
                             param.type = "httpRequest";
                             param.typeInfo = httpRequest;
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -97,9 +106,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
             // Set payload types.
             const payloadTypes: Map<string, string> = new Map();
-            payloadTypes.set("Text", "getTextPayload");
-            payloadTypes.set("XML", "getXmlPayload");
-            payloadTypes.set("JSON", "getJsonPayload");
+            payloadTypes.set("String", "string");
+            payloadTypes.set("XML", "xml");
+            payloadTypes.set("JSON", "json");
             const responsePayloadMap: ResponsePayloadMap = {
                 isPayloadSelected: false,
                 payloadTypes
@@ -210,9 +219,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             // set content type in sendMessage form
                             field.value = `"text/plain"`;
                         }
-                        if (field.name === "inlineImagePaths" || field.name === "attachmentPaths") {
-                            field.hide = true;
-                            field.noCodeGen = true;
+                        if (field.name === "inlineImagePaths") {
+                            field.optional = true;
+                            field.displayName = 'Inline Image Paths'
+                        }
+                        if (field.name === "attachmentPaths") {
+                            field.optional = true;
+                            field.displayName = 'Attachment Paths'
                         }
                     });
                 }
@@ -266,19 +279,17 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
+                    // TODO: update this tooltip assignment with source code documentation values
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.
                         find(fields => fields.name === "clientConfig").fields.
                             find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields.forEach(subFields => {
-                                if (subFields.name === "clientConfig"){;
-                                    subFields.fields.find(field => field.name === "refreshUrl").tooltip = tooltipMessages.salesforce.refreshTokenURL;
-                                    subFields.fields.find(field => field.name === "refreshToken").tooltip = tooltipMessages.salesforce.refreshToken;
-                                    subFields.fields.find(field => field.name === "clientId").tooltip = tooltipMessages.salesforce.clientID;
-                                    subFields.fields.find(field => field.name === "clientSecret").tooltip = tooltipMessages.salesforce.clientSecret;
-                                }
-                                if ((subFields.name === "baseUrl")) {
-                                    subFields.tooltip = tooltipMessages.salesforce.baseURL
-                                }
+                                if (subFields.name === "refreshUrl") subFields.tooltip = tooltipMessages.salesforce.refreshTokenURL;
+                                if (subFields.name === "refreshToken") subFields.tooltip = tooltipMessages.salesforce.refreshToken;
+                                if (subFields.name === "clientId") subFields.tooltip = tooltipMessages.salesforce.clientID;
+                                if (subFields.name === "clientSecret") subFields.tooltip = tooltipMessages.salesforce.clientSecret;
                     });
+                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.
+                        find(fields => fields.name === "baseUrl").tooltip = tooltipMessages.salesforce.baseURL;
                 }
                 filteredFunctions.set(key, value);
             });
@@ -295,6 +306,32 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     }
                 }
                 filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_slack_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // TODO: hide file upload operation until the Choreo support file upload feature
+                if (key !== "uploadFile") {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
+        case 'ballerinax_googleapis.drive_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // TODO: hide these operation until the Choreo support file upload feature
+                const hiddenActions: string[] = [
+                    "uploadFile",
+                    "uploadFileUsingByteArray",
+                    "watchFiles",
+                    "watchFilesById",
+                    "watchStop",
+                    "getAbout",
+                    "updateFileMetadataById",
+                    "listChanges"
+                ];
+                if (!hiddenActions.includes(key)) {
+                    filteredFunctions.set(key, value);
+                }
             });
             break;
         default:

@@ -88,6 +88,8 @@ export interface FormField {
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
     isErrorType?: boolean;
+    isDefaultableParam?: boolean;
+    isRestParam?: boolean;
 }
 export interface FormFieldReturnType {
     hasError: boolean;

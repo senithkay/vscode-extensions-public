@@ -362,7 +362,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             TRIGGER_NAME: 'github',
             ACCESS_TOKEN: accessTokenKey,
             SECRET_KEY: clientSecretKey,
-            WEBHOOK: '/',
+            WEBHOOK: '/subscriber',
             PORT: 8090,
             GH_REPO_URL: activeGithubRepo.url,
             RESOURCE_NAME: githubEvents[activeEvent].action[activeAction][0],
