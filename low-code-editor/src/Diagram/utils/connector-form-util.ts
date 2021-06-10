@@ -387,6 +387,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                     case 'init':
                     case 'sendMessage':
                         break;
+                    case 'send':
+                        break;
                     default:
                         value.parameters.forEach(fields => {
                             fields.noCodeGen = true;
