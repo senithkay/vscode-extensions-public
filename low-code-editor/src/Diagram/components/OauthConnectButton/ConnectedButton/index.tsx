@@ -15,15 +15,15 @@
 import React from 'react';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
+import Divider from "@material-ui/core/Divider";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Radio from "@material-ui/core/Radio";
 import EditIcon from '@material-ui/icons/Edit';
+import {Status} from "components/Status";
 
 import { ConnectionDetails } from "../../../../api/models";
 
 import { useStyles } from "./../styles";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Radio from "@material-ui/core/Radio";
-import Divider from "@material-ui/core/Divider";
-import {Status} from "components/Status";
 
 export interface ConnectedButtonProps {
     activeConnection: ConnectionDetails;
