@@ -48,6 +48,7 @@ task composerBuild {
             into './../resources/jslibs'
             include 'composer.js'
             include 'themes/**'
+            exclude 'themes/assets'
         }
     }
 }

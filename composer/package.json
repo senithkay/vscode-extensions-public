@@ -17,8 +17,7 @@
         "test": "npm run test --workspaces",
         "build": "npm run build --workspaces",
         "clean": "npm run clean",
-        "test-coverage": "npm run test-coverage && node scripts/create-coverage-report.js",
-        "update-version": "node ./scripts/update-version.js"
+        "test-coverage": "npm run test-coverage && node scripts/create-coverage-report.js"
     },
     "author": "ballerina.io",
     "license": "Apache-2.0",
