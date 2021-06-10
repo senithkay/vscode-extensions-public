@@ -65,6 +65,7 @@
         "redux": "^4.0.5",
         "rxjs": "^6.0.0-beta.0",
         "svelte": "^3.37.0",
+        "toposort": "1.0.0",
         "uuid": "^8.3.0",
         "vscode-ws-jsonrpc": "^0.1.1",
         "vue-jest": "^3.0.7"
