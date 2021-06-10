@@ -12,34 +12,29 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, {ReactNode, useContext, useEffect, useState} from 'react';
+import {FormattedMessage, useIntl} from 'react-intl';
 
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
-import { Divider, Typography } from "@material-ui/core";
+import {CaptureBindingPattern, LocalVarDecl, STKindChecker} from '@ballerina/syntax-tree';
+import {Divider, Typography} from "@material-ui/core";
 import classNames from "classnames";
 
-import {
-    AiSuggestionsReq,
-    AiSuggestionsRes,
-    ConnectionDetails,
-    OauthProviderConfig
-} from "../../../../../api/models";
-import { CloseRounded } from "../../../../../assets/icons";
-import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../../ConfigurationSpec/types";
-import { Context } from '../../../../../Contexts/Diagram';
-import { STSymbolInfo } from "../../../../../Definitions";
-import { BallerinaConnectorsInfo, STModification } from "../../../../../Definitions/lang-client-extended";
-import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { DiagramContext } from "../../../../../providers/contexts";
-import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
+import {AiSuggestionsReq, AiSuggestionsRes, ConnectionDetails, OauthProviderConfig} from "../../../../../api/models";
+import {CloseRounded} from "../../../../../assets/icons";
+import {ActionConfig, ConnectorConfig, FormField, WizardType} from "../../../../../ConfigurationSpec/types";
+import {Context} from '../../../../../Contexts/Diagram';
+import {STSymbolInfo} from "../../../../../Definitions";
+import {BallerinaConnectorsInfo, STModification} from "../../../../../Definitions/lang-client-extended";
+import {TextPreloaderVertical} from "../../../../../PreLoader/TextPreloaderVertical";
+import {DiagramContext} from "../../../../../providers/contexts";
+import {ConnectionType, OauthConnectButton} from "../../../../components/OauthConnectButton";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
     FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
     LowcodeEvent
 } from "../../../../models";
-import { getAllVariables } from "../../../../utils/mixins";
+import {getAllVariables} from "../../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
     createImportStatement,
@@ -47,20 +42,31 @@ import {
     createPropertyStatement,
     updatePropertyStatement,
 } from "../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../view-state/draft";
-import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
-import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
-    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getManualConnectionDetailsFromFormFields,
-    getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection,
-    getParams, matchEndpointToFormField } from '../../../Portals/utils';
-import { ConfigWizardState } from "../../index";
-import { wizardStyles } from "../../style";
+import {DraftInsertPosition} from "../../../../view-state/draft";
+import {ButtonWithIcon} from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import {LinePrimaryButton} from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import {
+    addAiSuggestion,
+    genVariableName,
+    getActionReturnType,
+    getAllVariablesForAi,
+    getConnectorComponent,
+    getConnectorIcon,
+    getFormattedModuleName,
+    getInitReturnType,
+    getMapTo,
+    getOauthConnectionConfigurables,
+    getOauthConnectionFromFormField,
+    getOauthParamsFromConnection,
+    getParams,
+    matchEndpointToFormField
+} from '../../../Portals/utils';
+import {ConfigWizardState} from "../../index";
+import {wizardStyles} from "../../style";
 import "../../style.scss";
-import { CreateConnectorForm } from "../CreateNewConnection";
-import { OperationForm } from "../OperationForm";
-import { SelectConnectionForm } from '../SelectExistingConnection';
+import {CreateConnectorForm} from "../CreateNewConnection";
+import {OperationForm} from "../OperationForm";
+import {SelectConnectionForm} from '../SelectExistingConnection';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -163,9 +169,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     useEffect(() => {
         if (selectedActiveConnection) {
-            handleClientOnSave()
+            handleClientOnSave();
         }
-    }, [selectedActiveConnection])
+    }, [selectedActiveConnection]);
 
     useEffect(() => {
         if (selectedConnector) {
@@ -223,8 +229,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleOnConnection = (type: ConnectionType, connectionDetails: ConnectionDetails) => {
         setConnection(connectionDetails);
-        if (type === "UPDATED" || type === "NEW") {
-            setSelectedActiveConnection(connectionDetails)
+        if (type === ConnectionType.UPDATED || type === ConnectionType.NEW) {
+            setSelectedActiveConnection(connectionDetails);
         }
     };
 
@@ -353,7 +359,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
         if (modifications.length > 0) {
             modifyDiagram(modifications);
-            // onClose();
+            onClose();
         }
     }
 

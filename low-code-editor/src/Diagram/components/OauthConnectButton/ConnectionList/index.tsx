@@ -65,7 +65,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     </div>}
                 />
             </Box>
-            <Divider className={classes.divider}/>
+            <Divider className={classes.divider} />
         </div>
     ));
 

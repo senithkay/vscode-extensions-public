@@ -32,10 +32,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 5,
             padding: theme.spacing(0.5),
             paddingLeft: theme.spacing(2.5),
-            // marginBottom: theme.spacing(0.5),
             borderColor: "#ff000000",
             border: "0px solid",
-            // borderColor: theme.palette.secondary.main,
             '& .MuiFormControlLabel-root': {
                 width: "100%",
             },

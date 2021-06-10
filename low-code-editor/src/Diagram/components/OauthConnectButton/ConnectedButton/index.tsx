@@ -19,7 +19,7 @@ import Divider from "@material-ui/core/Divider";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import EditIcon from '@material-ui/icons/Edit';
-import {Status} from "components/Status";
+import { Status } from "components/Status";
 
 import { ConnectionDetails } from "../../../../api/models";
 
@@ -45,10 +45,10 @@ export function ConnectedButton(props: ConnectedButtonProps) {
                     </Box>
                 </div>
                 <div className={classes.activeConnectionWrapperChild2}>
-                    <Status type={"connected"}/>
+                    <Status type={"Connected"} />
                 </div>
             </div>
-            <Divider/>
+            <Divider />
         </>
     );
 }
