@@ -22,6 +22,7 @@ import {
 
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
+import { STModification } from '../../../Definitions';
 import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
 import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
@@ -31,7 +32,7 @@ import './components/InputTypes/style.scss';
 import { Provider as DataMapperViewProvider } from './context/DataMapperViewContext';
 import { dataMapperSizingAndPositioning } from './util';
 import { DataMapperState } from './util/types';
-import { MouseEventHub } from './util/mouse-event-hub';
+import { FieldViewState } from './viewstate';
 
 interface DataMapperProps {
     width: number;
@@ -46,11 +47,16 @@ export function DataMapper(props: DataMapperProps) {
     const {
         appInfo,
         stSymbolInfo,
-        onMutate: dispatchMutations,
+        onMutate,
         dataMapperConfig,
         currentApp,
         onFitToScreen
     } = state;
+
+    // ToDo: Get the modifyDiagram from the proper context.
+    const dispatchMutations = (mutations: STModification[], options: any = {}) => {
+        onMutate('DIAGRAM', { mutations, ...options });
+    }
 
     useEffect(() => {
         onFitToScreen(appInfo?.currentApp?.id);
@@ -62,6 +68,7 @@ export function DataMapper(props: DataMapperProps) {
 
     let maxFieldWidth: number = 200;
     const inputSTNodes: STNode[] = [];
+    let constantMap: Map<string, FieldViewState> = new Map();
 
     if (dataMapperConfig) {
         const inputVariableInfo: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
@@ -122,6 +129,7 @@ export function DataMapper(props: DataMapperProps) {
         const sizingAndPositioningResult = dataMapperSizingAndPositioning(
             inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
 
+        constantMap = sizingAndPositioningResult.constantMap;
         maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
     }
 
@@ -140,7 +148,7 @@ export function DataMapper(props: DataMapperProps) {
         updateDataMapperConfig,
         dataMapperStart,
         dispatchMutations,
-        mouseMoveEventHub: new MouseEventHub()
+        constantMap
     }
 
     return (

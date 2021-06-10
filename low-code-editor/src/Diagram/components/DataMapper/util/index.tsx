@@ -16,15 +16,16 @@ import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STN
 
 import { addTypeDescInfo } from '..';
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
+import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
 import { DataMapperInitVisitor, VisitingType } from "./data-mapper-init-visitor";
 import { DataMapperMappingVisitor } from './data-mapper-mapping-visitor';
-import { DataMapperPositionVisitor } from './data-mapper-position-visitor';
+import { DataMapperPositionVisitor, DEFAULT_OFFSET, PADDING_OFFSET } from './data-mapper-position-visitor';
 import { DataPointVisitor } from './data-point-visitor';
-import { DataMapperSizingVisitor } from './datamapper-sizing-visitor';
+import { ConstantVisitor } from './datamapper-constant-visitor';
+import { DataMapperSizingVisitor, FIELD_HEIGHT } from './datamapper-sizing-visitor';
 
 export function getDataMapperComponent(type: string, args: any) {
     const DataMapperComponent = (DataMapperComponents as any)[type];
@@ -233,7 +234,37 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
     // let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
 
-    const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
+    const constantVisitor = new ConstantVisitor();
+    // output viewstate initialization and constant extraction
+    if (outputSTNode) {
+        // handle constant visitor
+        addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
+        traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
+
+        if (outputSTNode.dataMapperTypeDescNode) {
+            switch (outputSTNode.dataMapperTypeDescNode.kind) {
+                case 'RecordTypeDesc': {
+                    (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
+                    })
+                }
+            }
+        }
+
+        traversNode(outputSTNode, constantVisitor);
+    }
+
+    let constantHeight = showAddVariableForm ? 132 : 15;
+
+    constantVisitor.getConstantsMap().forEach(constantVS => {
+        constantVS.bBox.x = 15 + PADDING_OFFSET;
+        constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+        constantVS.bBox.h = FIELD_HEIGHT;
+
+        constantHeight += DEFAULT_OFFSET * 2;
+    })
+
+    const positionVisitor = new DataMapperPositionVisitor(constantHeight, 15);
     const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
 
     if (inputSTNodes.length > 0) {
@@ -280,6 +311,10 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
         dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
             viewstate.bBox.w = maxFieldWidth;
         });
+
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.w = maxFieldWidth;
+        });
     }
 
     if (outputSTNode) {
@@ -293,18 +328,6 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
          */
         // outputHeight = 0; // reset height from default value
         // start: Initialization
-        addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
-        traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
-
-        if (outputSTNode.dataMapperTypeDescNode) {
-            switch (outputSTNode.dataMapperTypeDescNode.kind) {
-                case 'RecordTypeDesc': {
-                    (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
-                    })
-                }
-            }
-        }
         // end: Initialization
 
         // start: sizing visitor
@@ -327,6 +350,10 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
             viewstate.bBox.w = maxFieldWidth;
         });
 
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.w = maxFieldWidth;
+        });
+
         // outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
         // end: sizing visitor
 
@@ -347,7 +374,7 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
 
     if (outputSTNode) {
         traversNode(outputSTNode, dataPointVisitor);
-        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap)
+        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap)
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
@@ -390,6 +417,7 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
         // processed STs
         inputSTNodes,
         outputSTNode,
+        constantMap: constantVisitor.getConstantsMap()
     }
 }
 
@@ -400,7 +428,24 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
     let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
 
-    const positionVisitor = new DataMapperPositionVisitor(showAddVariableForm ? 132 : 15, 15);
+    const constantVisitor = new ConstantVisitor();
+    // output viewstate initialization and constant extraction
+    if (outputSTNode) {
+        // handle constant visitor
+        traversNode(outputSTNode, constantVisitor);
+    }
+
+    let constantHeight = showAddVariableForm ? 132 : 15;
+
+    constantVisitor.getConstantsMap().forEach(constantVS => {
+        constantVS.bBox.x = 15 + PADDING_OFFSET;
+        constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+        constantVS.bBox.h = FIELD_HEIGHT;
+
+        constantHeight += DEFAULT_OFFSET * 2;
+    })
+
+    const positionVisitor = new DataMapperPositionVisitor(constantHeight, 15);
     const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
 
     if (inputSTNodes.length > 0) {
@@ -446,6 +491,10 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
         dataMapperInputSizingVisitor.getViewStateMap().forEach(viewstate => {
             viewstate.bBox.w = maxFieldWidth;
+        });
+
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.w = maxFieldWidth;
         });
     }
 
@@ -497,6 +546,10 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
             }
         });
 
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.w = maxFieldWidth;
+        });
+
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
         // end: sizing visitor
 
@@ -517,7 +570,7 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     if (outputSTNode) {
         traversNode(outputSTNode, dataPointVisitor);
-        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap)
+        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap);
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
@@ -554,12 +607,13 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     return {
         // sizing data
-        inputHeight,
-        outputHeight,
+        // inputHeight,
+        // outputHeight,
         maxFieldWidth,
         // processed STs
         inputSTNodes,
         outputSTNode,
+        constantMap: constantVisitor.getConstantsMap()
     }
 }
 

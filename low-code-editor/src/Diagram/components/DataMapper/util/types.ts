@@ -15,7 +15,7 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { STModification } from "../../../../Definitions";
 import { DataMapperConfig } from "../../Portals/ConfigForm/types";
-import { MouseEventHub } from "./mouse-event-hub";
+import { FieldViewState } from "../viewstate";
 
 export interface DataMapperState {
     inputSTNodes: STNode[];
@@ -28,10 +28,10 @@ export interface DataMapperState {
     isExistingOutputSelected: boolean;
     isJsonRecordTypeSelected: boolean;
     dataMapperConfig: DataMapperConfig;
-    mouseMoveEventHub: MouseEventHub;
     updateDataMapperConfig: (config: DataMapperConfig) => void;
     dataMapperStart: (config: DataMapperConfig) => void;
     dispatchMutations: (modifications: STModification[]) => void;
+    constantMap: Map<string, FieldViewState>;
 }
 
 export enum FieldDraftType {

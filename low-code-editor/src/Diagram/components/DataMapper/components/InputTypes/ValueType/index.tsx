@@ -87,15 +87,11 @@ export function ValueType(props: ValueTypeProps) {
     }, []);
 
     const handleOnRectangleHover = (evt: any) => {
-        // if (isMain) {
         setIsMouseOver(true);
-        // }
     }
 
     const handleOnMouseOut = (evt: any) => {
-        // if (isMain) {
         setIsMouseOver(false)
-        // }
     }
 
     const handleJsonFieldDelete = (evt: any) => {

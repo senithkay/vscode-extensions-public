@@ -17,6 +17,7 @@ import {
     LocalVarDecl,
     SimpleNameReference,
     SpecificField,
+    STKindChecker,
     Visitor
 } from "@ballerina/syntax-tree";
 
@@ -29,12 +30,16 @@ export class DataMapperMappingVisitor implements Visitor {
     private nameParts: string[] = [];
     private sourcePoints: Map<string, SourcePointViewState>;
     private targetPoints: Map<string, TargetPointViewState>;
+    private constantPoints: Map<string, SourcePointViewState>;
     private references: string[] = [];
     private missingVariableRefName: string[] = [];
 
-    constructor(sourcePoints: Map<string, SourcePointViewState>, targetPoints: Map<string, TargetPointViewState>) {
+    constructor(sourcePoints: Map<string, SourcePointViewState>,
+                targetPoints: Map<string, TargetPointViewState>,
+                constantPoints: Map<string, SourcePointViewState>) {
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
+        this.constantPoints = constantPoints;
     }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
@@ -75,6 +80,28 @@ export class DataMapperMappingVisitor implements Visitor {
                     }
                 }
             });
+
+            if (node.expression) {
+                if (STKindChecker.isStringLiteral(node.expression)
+                    || STKindChecker.isBooleanLiteral(node.expression)
+                    || STKindChecker.isNumericLiteral(node.expression)) {
+
+                    const sourcePointVS = this.constantPoints.get(node.expression.literalToken.value);
+                    const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+
+                    if (sourcePointVS && targetPointVS) {
+                        sourcePointVS.connections.push(
+                            new ConnectionViewState(
+                                sourcePointVS,
+                                targetPointVS,
+                                node.expression.position
+                            )
+                        );
+                    }
+
+                }
+            }
+
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
@@ -118,6 +145,28 @@ export class DataMapperMappingVisitor implements Visitor {
                     }
                 }
             });
+
+            if (node.initializer) {
+                if (STKindChecker.isStringLiteral(node.initializer)
+                    || STKindChecker.isBooleanLiteral(node.initializer)
+                    || STKindChecker.isNumericLiteral(node.initializer)) {
+
+                    const sourcePointVS = this.constantPoints.get(node.initializer.literalToken.value);
+                    const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+
+                    if (sourcePointVS && targetPointVS) {
+                        sourcePointVS.connections.push(
+                            new ConnectionViewState(
+                                sourcePointVS,
+                                targetPointVS,
+                                node.initializer.position
+                            )
+                        );
+                    }
+
+                }
+            }
+
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
@@ -161,6 +210,27 @@ export class DataMapperMappingVisitor implements Visitor {
                     }
                 }
             });
+
+            if (node.valueExpr) {
+                if (STKindChecker.isStringLiteral(node.valueExpr)
+                    || STKindChecker.isBooleanLiteral(node.valueExpr)
+                    || STKindChecker.isNumericLiteral(node.valueExpr)) {
+
+                    const sourcePointVS = this.constantPoints.get(node.valueExpr.literalToken.value);
+                    const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
+
+                    if (sourcePointVS && targetPointVS) {
+                        sourcePointVS.connections.push(
+                            new ConnectionViewState(
+                                sourcePointVS,
+                                targetPointVS,
+                                node.valueExpr.position
+                            )
+                        );
+                    }
+
+                }
+            }
 
             this.references = [];
             this.nameParts.splice(this.nameParts.length - 1, 1);

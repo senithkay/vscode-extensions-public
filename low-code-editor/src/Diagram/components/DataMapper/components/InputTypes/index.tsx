@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Constant } from './Constant';
 import { DraftType } from './DraftType';
 import { JsonType } from './JsonType';
 import { RecordType } from './RecordType';
@@ -24,5 +25,6 @@ export {
     ValueType as union,
     JsonType as json,
     JsonType as mapconstructor,
-    DraftType as draft
+    DraftType as draft,
+    Constant as constant
 }

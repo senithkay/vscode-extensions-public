@@ -25,4 +25,5 @@ export class FieldViewState extends DataMapperViewState {
     public sourcePointViewState: SourcePointViewState;
     public targetPointViewState: TargetPointViewState;
     public draftViewState: DraftFieldViewstate;
+    public value: string;
 }

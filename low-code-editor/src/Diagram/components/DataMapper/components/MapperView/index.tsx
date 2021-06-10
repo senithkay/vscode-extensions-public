@@ -21,20 +21,19 @@ import { wizardStyles } from '../../../ConfigForms/style';
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import ExpressionEditor from '../../../Portals/ConfigForm/Elements/ExpressionEditor';
+import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../Portals/Overlay';
 import { Context as DataMapperViewContext } from '../../context/DataMapperViewContext';
 import { getDataMapperComponent } from '../../util';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
-import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
+import { MouseEventHub } from '../../util/mouse-event-hub';
+import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
 import { OutputConfigureButton } from '../buttons/OutputConfigureButton';
 import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
-import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
-import { MouseEventHub } from '../../util/mouse-event-hub';
 
-import { getEventHub } from '../../util/mouse-event-hub';
 
 interface MapperViewProps {
 
@@ -45,6 +44,7 @@ export function MapperView(props: MapperViewProps) {
         state: {
             inputSTNodes,
             outputSTNode,
+            constantMap,
             maxFieldWidth,
             showAddVariableForm,
             showConfigureOutputForm,
@@ -234,16 +234,27 @@ export function MapperView(props: MapperViewProps) {
 
     inputSTNodes.forEach((node: STNode, i: number) => {
         inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
-        if (i < inputSTNodes.length - 1) {
+        if (i < inputSTNodes.length - 1 || inputSTNodes.length > 0) {
+            inputHeight += 40; // todo: convert to constant
+        }
+    });
+
+    let constantCount: number = 0;
+    constantMap.forEach((constantVS: FieldViewState) => {
+        inputHeight += constantVS.bBox.h;
+
+        if (constantCount < constantMap.size - 1) {
             inputHeight += 40 // todo: convert to constant
         }
+
+        constantCount++;
     });
 
     if (outputSTNode) {
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
     }
 
-    if (inputSTNodes.length > 0) {
+    if (inputSTNodes.length > 0 || constantMap.size > 0) {
         inputHeight += 65;
     } else {
         inputHeight += 40;
@@ -279,6 +290,15 @@ export function MapperView(props: MapperViewProps) {
             saveYPosition = dataMapperViewState.bBox.h + 100 + 15;
         }
     }
+
+    constantMap.forEach((constantVS: FieldViewState) => {
+        inputComponents.push(
+            getDataMapperComponent(
+                constantVS.type,
+                { viewState: constantVS, offSetCorrection: 10 }
+            )
+        );
+    })
 
     inputSTNodes.forEach((node: STNode) => {
         const { dataMapperViewState } = node;

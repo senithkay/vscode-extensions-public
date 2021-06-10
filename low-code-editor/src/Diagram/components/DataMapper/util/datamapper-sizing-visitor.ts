@@ -15,7 +15,7 @@ import { expression } from 'joi';
 
 import { DataMapperViewState, FieldViewState } from '../viewstate';
 
-const FIELD_HEIGHT: number = 40;
+export const FIELD_HEIGHT: number = 40;
 export const ADD_FIELD_FORM_HEIGHT: number = 60;
 const FIELD_WIDTH: number = 200;
 const FIELD_OFFSET: number = 15;

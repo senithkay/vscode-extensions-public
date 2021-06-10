@@ -36,6 +36,8 @@ import { expression } from 'joi';
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 
+import { CONSTANT_TYPE } from './datamapper-constant-visitor';
+
 export enum VisitingType {
     INPUT,
     OUTPUT
@@ -81,6 +83,17 @@ export class DataMapperInitVisitor implements Visitor {
                 viewState.targetPointViewState.value = node.expression.source;
                 viewState.targetPointViewState.type = viewState.type;
                 node.expression.dataMapperViewState = new DataMapperViewState();
+
+                const initializerVS = new FieldViewState();
+                if (STKindChecker.isStringLiteral(node.expression)
+                    || STKindChecker.isBooleanLiteral(node.expression)
+                    || STKindChecker.isNumericLiteral(node.expression)) {
+
+                    initializerVS.type = CONSTANT_TYPE;
+                    initializerVS.value = node.expression.literalToken.value;
+                    initializerVS.sourcePointViewState = new SourcePointViewState();
+                    node.expression.dataMapperViewState = initializerVS;
+                }
             }
         }
 
@@ -142,6 +155,17 @@ export class DataMapperInitVisitor implements Visitor {
                 viewState.targetPointViewState.value = node.initializer.source;
                 viewState.targetPointViewState.type = viewState.type;
                 node.initializer.dataMapperViewState = new DataMapperViewState();
+
+                const initializerVS = new FieldViewState();
+                if (STKindChecker.isStringLiteral(node.initializer)
+                    || STKindChecker.isBooleanLiteral(node.initializer)
+                    || STKindChecker.isNumericLiteral(node.initializer)) {
+
+                    initializerVS.type = CONSTANT_TYPE;
+                    initializerVS.value = node.initializer.literalToken.value;
+                    initializerVS.sourcePointViewState = new SourcePointViewState();
+                    node.initializer.dataMapperViewState = initializerVS;
+                }
             }
         }
 
@@ -238,13 +262,29 @@ export class DataMapperInitVisitor implements Visitor {
         }
 
         if (node.valueExpr) {
+            const valueExprVS = new FieldViewState();
             if (STKindChecker.isStringLiteral(node.valueExpr)) {
                 viewstate.type = 'string';
+                valueExprVS.type = CONSTANT_TYPE;
+                valueExprVS.value = node.valueExpr.literalToken.value;
+                if (this.visitType === VisitingType.OUTPUT) {
+                    valueExprVS.sourcePointViewState = new SourcePointViewState();
+                }
             } else if (STKindChecker.isBooleanLiteral(node.valueExpr)) {
                 viewstate.type = 'boolean';
+                valueExprVS.type = CONSTANT_TYPE;
+                valueExprVS.value = node.valueExpr.literalToken.value;
+                if (this.visitType === VisitingType.OUTPUT) {
+                    valueExprVS.sourcePointViewState = new SourcePointViewState();
+                }
             } else if (STKindChecker.isNumericLiteral(node.valueExpr)) {
                 viewstate.type = 'union';
                 viewstate.unionType = 'int|float';
+                valueExprVS.type = CONSTANT_TYPE;
+                valueExprVS.value = node.valueExpr.literalToken.value;
+                if (this.visitType === VisitingType.OUTPUT) {
+                    valueExprVS.sourcePointViewState = new SourcePointViewState();
+                }
             } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
                 viewstate.type = 'mapconstructor'; // TODO: check for the correct term
             } else if (STKindChecker.isSimpleNameReference(node.valueExpr)) {
@@ -307,7 +347,7 @@ export class DataMapperInitVisitor implements Visitor {
                 viewstate.targetPointViewState.position = node.valueExpr.position;
             }
 
-            node.valueExpr.dataMapperViewState = new DataMapperViewState();
+            node.valueExpr.dataMapperViewState = valueExprVS;
         }
 
         if (this.visitType === VisitingType.INPUT) {

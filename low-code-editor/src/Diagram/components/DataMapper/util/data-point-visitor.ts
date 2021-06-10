@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, LocalVarDecl, RecordField, SpecificField, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, SpecificField, StringLiteral, Visitor } from "@ballerina/syntax-tree";
 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
@@ -21,6 +21,7 @@ import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../v
 export class DataPointVisitor implements Visitor {
     private _sourcePointMap: Map<string, SourcePointViewState> = new Map();
     private _targetPointMap: Map<string, TargetPointViewState> = new Map();
+    private _constantPointMap: Map<string, SourcePointViewState> = new Map();
     private nameComponents: string[] = [];
     private outPutOffsetGap: number = 0;
     private readonly sourceTypeX: number = 0;
@@ -38,6 +39,10 @@ export class DataPointVisitor implements Visitor {
 
     get targetPointMap(): Map<string, TargetPointViewState> {
         return this._targetPointMap;
+    }
+
+    get constantPointMap(): Map<string, SourcePointViewState> {
+        return this._constantPointMap;
     }
 
     generateDataPointName(nameParts: string[]) {
@@ -160,6 +165,39 @@ export class DataPointVisitor implements Visitor {
     endVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
+        }
+    }
+
+    beginVisitStringLiteral(node: StringLiteral) {
+        const viewstate = node.dataMapperViewState;
+
+        if (viewstate && viewstate instanceof FieldViewState && viewstate.sourcePointViewState) {
+            viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+            viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+            viewstate.sourcePointViewState.text = viewstate.value;
+            this.constantPointMap.set(viewstate.value, viewstate.sourcePointViewState);
+        }
+    }
+
+    beginVisitBooleanLiteral(node: BooleanLiteral) {
+        const viewstate = node.dataMapperViewState;
+
+        if (viewstate && viewstate instanceof FieldViewState && viewstate.sourcePointViewState) {
+            viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+            viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+            viewstate.sourcePointViewState.text = viewstate.value;
+            this.constantPointMap.set(viewstate.value, viewstate.sourcePointViewState);
+        }
+    }
+
+    beginVisitNumericLiteral(node: NumericLiteral) {
+        const viewstate = node.dataMapperViewState;
+
+        if (viewstate && viewstate instanceof FieldViewState && viewstate.sourcePointViewState) {
+            viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+            viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+            viewstate.sourcePointViewState.text = viewstate.value;
+            this.constantPointMap.set(viewstate.value, viewstate.sourcePointViewState);
         }
     }
 }
