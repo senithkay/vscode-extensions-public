@@ -300,7 +300,7 @@ export function getRandomInt(max: number) {
 
 export function getDiagnosticMessage(diagnostics: any, varType: string) : string {
     if (varType === 'string') {
-        const mainDiagnostic = diagnostics.find((diagnostic: any) => diagnostic.message === "missing double quote");
+        const mainDiagnostic = diagnostics.find((diagnostic: any) => diagnostic.code === "BCE0411");
         return mainDiagnostic ? mainDiagnostic.message : diagnostics[0]?.message;
     } else {
         return diagnostics[0]?.message;
