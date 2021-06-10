@@ -52,12 +52,14 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
 
 export const MAIN_FUNCTION = "main";
 
+export const getPathOfResources = (resources: any[] = []) => resources?.map((path: any) => path?.value || path?.source).join('');
+
 const findResourceIndex = (resourceMembers: any, targetResource: any) => {
     const index = resourceMembers.findIndex(
         (m: any) => {
-            const currentPath = m?.relativeResourcePath[0]?.value;
+            const currentPath = getPathOfResources(m.relativeResourcePath);
             const currentMethodType = m?.functionName?.value;
-            const targetPath = targetResource?.relativeResourcePath[0]?.value;
+            const targetPath = getPathOfResources(targetResource?.relativeResourcePath)
             const targetMethodType = targetResource?.functionName?.value;
 
             return currentPath === targetPath && currentMethodType === targetMethodType;
@@ -69,7 +71,7 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
     const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath, position: tPosition } = targetResource;
     const targetMethod = tFunctionName?.value;
-    const targetPath = tRelativeResourcePath[0]?.value;
+    const targetPath = getPathOfResources(tRelativeResourcePath);
     const targetStartLine = tPosition?.startLine.toString();
 
     let service = serviceMembers[0];
@@ -78,10 +80,11 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
         const found = resources?.find((r: any) => {
             const { functionName, relativeResourcePath, position } = r;
             const method = functionName?.value;
-            const path = relativeResourcePath[0]?.value;
+            const path = getPathOfResources(relativeResourcePath);
             const startLine = position?.startLine.toString();
             const lineCheck = (targetStartLine && startLine) ? (targetStartLine === startLine) : true;
-            return method === targetMethod && path === targetPath && lineCheck ;
+            return method === targetMethod && path === targetPath;
+
         });
         if (found) service = m;
     });

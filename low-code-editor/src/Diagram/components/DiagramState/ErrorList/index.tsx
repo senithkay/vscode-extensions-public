@@ -105,7 +105,15 @@ export function ErrorList() {
             for (const docChange of action.edit.documentChanges){
                 const docEdit = docChange as TextDocumentEdit;
                 if (docEdit.edits){
-                    monacoModel.applyEdits(docEdit.edits.map(edit => ({range: edit.range as any, text: edit.newText})));
+                    monacoModel.applyEdits(docEdit.edits.map(({range: {start, end}, newText: text}) => {
+                        const range: any = {
+                            startLineNumber: start.line + 1,
+                            startColumn: start.character + 1,
+                            endLineNumber: end.line + 1,
+                            endColumn: end.character + 1,
+                        };
+                        return {range,  text};
+                    }));
                 }
             }
             const updatedModelValue = monacoModel.getValue();
