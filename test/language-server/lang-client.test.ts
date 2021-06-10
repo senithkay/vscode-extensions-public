@@ -23,7 +23,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
-import { getBallerinaCmd, getBBEPath } from "../test-util";
+import { getBallerinaCmd } from "../test-util";
 import { commands, Uri } from "vscode";
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
@@ -56,7 +56,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getSyntaxTree", function (done): void {
-        const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 langClient.getSyntaxTree({
@@ -691,7 +691,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test BallerinaProjectComponents, SyntaxTreeNode, and ExecutorPositions", function (done): void {
-        const uri = Uri.file(path.join(getBBEPath(), 'hello_world.bal').toString());
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(async () => {
                 await langClient.getBallerinaProjectComponents({

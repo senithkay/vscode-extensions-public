@@ -24,7 +24,6 @@ configurations {
 }
 
 task composerBuild {
-    dependsOn 'updateVersion'
     PatternSet patternSet = new PatternSet();
 	patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/packages/**/build/**");

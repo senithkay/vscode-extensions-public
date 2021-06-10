@@ -210,3 +210,4 @@ coverage/
 ## VS_CODE
 #################
 .vscode
+.npmrc
