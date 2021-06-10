@@ -60,7 +60,7 @@ export interface WhileProps {
 export function While(props: WhileProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context);
     const { syntaxTree, isReadOnly, isMutationProgress, currentApp, isWaitingOnWorkspace, isCodeEditorActive,
-            maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight } = state;
+            maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight, handleRightPanelContent } = state;
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -92,6 +92,7 @@ export function While(props: WhileProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 

@@ -58,6 +58,7 @@ export function DataProcessor(props: ProcessorProps) {
         dispactchConfigOverlayForm: openNewProcessorConfig,
         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
         maximize: maximizeCodeView,
+        handleRightPanelContent,
         setCodeLocationToHighlight: setCodeToHighlight,
         currentApp,
         isCodeEditorActive
@@ -204,6 +205,7 @@ export function DataProcessor(props: ProcessorProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 

@@ -61,7 +61,7 @@ export interface ForeachProps {
 export function ForEach(props: ForeachProps) {
     const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
     const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace, maximize: maximizeCodeView,
-            currentApp, setCodeLocationToHighlight: setCodeToHighlight, isCodeEditorActive } = state;
+            currentApp, setCodeLocationToHighlight: setCodeToHighlight, isCodeEditorActive, handleRightPanelContent } = state;
 
     const { model } = props;
 
@@ -188,6 +188,7 @@ export function ForEach(props: ForeachProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 

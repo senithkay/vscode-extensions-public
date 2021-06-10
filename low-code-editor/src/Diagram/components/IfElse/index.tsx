@@ -71,6 +71,7 @@ export function IfElse(props: IfElseProps) {
         stSymbolInfo,
         isReadOnly,
         setCodeLocationToHighlight: setCodeToHighlight,
+        handleRightPanelContent,
         maximize: maximizeCodeView,
         isCodeEditorActive,
         currentApp,
@@ -121,6 +122,7 @@ export function IfElse(props: IfElseProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 

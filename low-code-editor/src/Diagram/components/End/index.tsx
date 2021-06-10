@@ -47,6 +47,7 @@ export function End(props: EndProps) {
             stSymbolInfo,
             isReadOnly,
             setCodeLocationToHighlight: setCodeToHighlight,
+            handleRightPanelContent,
             maximize: maximizeCodeView,
             closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
             dispactchConfigOverlayForm: openNewReturnConfigForm,
@@ -116,6 +117,7 @@ export function End(props: EndProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
