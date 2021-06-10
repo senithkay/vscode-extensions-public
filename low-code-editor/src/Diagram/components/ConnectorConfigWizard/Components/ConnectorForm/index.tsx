@@ -52,9 +52,9 @@ import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/Butt
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
-    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getMapTo,
-    getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getParams,
-    matchEndpointToFormField } from '../../../Portals/utils';
+    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getManualConnectionDetailsFromFormFields,
+    getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection,
+    getParams, matchEndpointToFormField } from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -323,6 +323,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             // manual flow
+
+            // createManualConnection
+
+
+            // catch the response(new tokens and name of connection)
             if (isNewConnectorInitWizard && targetPosition) {
                 // new connector client initialization
                 const addImport: STModification = createImportStatement(

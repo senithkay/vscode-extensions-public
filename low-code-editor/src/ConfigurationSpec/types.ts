@@ -182,3 +182,8 @@ export function getType(type: string): PrimitiveBalType {
     }
     return typeString;
 }
+
+export interface ManualConfigType {
+    name: string,
+    value: string
+}
