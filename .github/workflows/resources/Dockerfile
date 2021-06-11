@@ -32,7 +32,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 RUN export JAVA_HOME
 
 # Install node
-ENV NODE_VERSION=12.18.4
+ENV NODE_VERSION=16.3.0
 RUN apt install -y curl
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 ENV NVM_DIR=/root/.nvm

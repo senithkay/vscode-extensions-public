@@ -32,7 +32,7 @@ jobs:
       - name: Build project
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 16
       - name: Install java 11
         uses: actions/setup-java@v1
         with:
@@ -60,23 +60,13 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           directory: ./coverage/
-      - name: Create release draft
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_PAT }}
-        with:
-          tag_name: ${{ github.event.inputs.tag }}
-          release_name: Release ${{ github.event.inputs.vsix_version }}
-          draft: true
-          prerelease: true
-      - name: Upload release asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_PAT }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ballerina-${{ github.event.inputs.plugin_version }}.vsix
-          asset_name: ballerina-${{ github.event.inputs.vsix_version }}.vsix
-          asset_content_type: application/octet-stream
+      - name: Create a release draft
+        run: |
+           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
+           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"${{ github.event.inputs.tag }}", \
+           "draft":true, "name": "Release ${{ github.event.inputs.vsix_version }}", "prerelease":true}' \
+           https://api.github.com/repos/prabushi/ballerina-plugin-vscode/releases` \
+            && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
+            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
+             --data-binary @ballerina-${{ github.event.inputs.vsix_version }}.vsix \
+             https://uploads.github.com/repos/prabushi/ballerina-plugin-vscode/releases/$id/assets?name=ballerina-${{ github.event.inputs.vsix_version }}.vsix`
