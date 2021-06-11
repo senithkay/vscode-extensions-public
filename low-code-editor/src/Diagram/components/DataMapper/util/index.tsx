@@ -228,8 +228,8 @@ export function resetJsonValueToDefault(json: any) {
 }
 
 export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-    updateDataMapperConfig: (config: DataMapperConfig) => void) {
+                                               showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+                                               updateDataMapperConfig: (config: DataMapperConfig) => void) {
     // let inputHeight: number = 0;
     // let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
@@ -422,16 +422,29 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
 }
 
 export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-    updateDataMapperConfig: (config: DataMapperConfig) => void) {
-    let inputHeight: number = 0;
-    let outputHeight: number = 0;
+                                                          showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+                                                          updateDataMapperConfig: (config: DataMapperConfig) => void) {
+    // let inputHeight: number = 0;
+    // let outputHeight: number = 0;
     let maxFieldWidth: number = 200;
 
     const constantVisitor = new ConstantVisitor();
     // output viewstate initialization and constant extraction
     if (outputSTNode) {
         // handle constant visitor
+        // addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
+        // traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
+
+        // if (outputSTNode.dataMapperTypeDescNode) {
+        //     switch (outputSTNode.dataMapperTypeDescNode.kind) {
+        //         case 'RecordTypeDesc': {
+        //             (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+        //                 completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
+        //             })
+        //         }
+        //     }
+        // }
+
         traversNode(outputSTNode, constantVisitor);
     }
 
@@ -443,45 +456,49 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
         constantVS.bBox.h = FIELD_HEIGHT;
 
         constantHeight += DEFAULT_OFFSET * 2;
+
+        // if (constantVS.sourcePointViewState) {
+        //     constantVS.sourcePointViewState.connections = [];
+        // }
     })
 
     const positionVisitor = new DataMapperPositionVisitor(constantHeight, 15);
     const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
 
     if (inputSTNodes.length > 0) {
-        inputHeight = 0; // reset height from default value
+        // inputHeight = 0; // reset height from default value
 
-        inputSTNodes.forEach((node: STNode) => {
-            if (STKindChecker.isLocalVarDecl(node)) {
-                const varSTNode: LocalVarDecl = node as LocalVarDecl;
-                addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
+        // inputSTNodes.forEach((node: STNode) => {
+        //     if (STKindChecker.isLocalVarDecl(node)) {
+        //         const varSTNode: LocalVarDecl = node as LocalVarDecl;
+        //         addTypeDescInfo(varSTNode, stSymbolInfo.recordTypeDescriptions);
 
-                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
-                if (node.dataMapperTypeDescNode) {
-                    switch (node.dataMapperTypeDescNode.kind) {
-                        case 'RecordTypeDesc': {
-                            (node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                                completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
-                            })
-                        }
-                    }
-                }
-            } else {
-                traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
-            }
+        //         traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+        //         if (node.dataMapperTypeDescNode) {
+        //             switch (node.dataMapperTypeDescNode.kind) {
+        //                 case 'RecordTypeDesc': {
+        //                     (node.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
+        //                         completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.INPUT);
+        //                     })
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         traversNode(node, new DataMapperInitVisitor(VisitingType.INPUT));
+        //     }
 
-        });
+        // });
 
         inputSTNodes.forEach((node: STNode) => {
             traversNode(node, dataMapperInputSizingVisitor);
         });
 
-        inputSTNodes.forEach((node: STNode, i: number) => {
-            inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
-            if (i < inputSTNodes.length - 1) {
-                inputHeight += 40 // todo: convert to constant
-            }
-        });
+        // inputSTNodes.forEach((node: STNode, i: number) => {
+        //     inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
+        //     if (i < inputSTNodes.length - 1) {
+        //         inputHeight += 40 // todo: convert to constant
+        //     }
+        // });
 
         inputSTNodes.forEach((node: STNode) => {
             traversNode(node, positionVisitor);
@@ -500,27 +517,15 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     if (outputSTNode) {
         /*
-        * flow:
-        * Run init visitors and set defaults for everything
-        * Run sizing visitor and calculate height and width for input and output seperately
-        * Run position visitor and set the positions
-        * Run data point visitor extract out the data points in the diagram
-        * Run mapping visitor to identify connections between positions
-        */
-        outputHeight = 0; // reset height from default value
+         * flow:
+         * Run init visitors and set defaults for everything
+         * Run sizing visitor and calculate height and width for input and output seperately
+         * Run position visitor and set the positions
+         * Run data point visitor extract out the data points in the diagram
+         * Run mapping visitor to identify connections between positions
+         */
+        // outputHeight = 0; // reset height from default value
         // start: Initialization
-        addTypeDescInfo(outputSTNode, stSymbolInfo.recordTypeDescriptions);
-        traversNode(outputSTNode, new DataMapperInitVisitor(VisitingType.OUTPUT));
-
-        if (outputSTNode.dataMapperTypeDescNode) {
-            switch (outputSTNode.dataMapperTypeDescNode.kind) {
-                case 'RecordTypeDesc': {
-                    (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.forEach((field: any) => {
-                        completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT);
-                    })
-                }
-            }
-        }
         // end: Initialization
 
         // start: sizing visitor
@@ -541,16 +546,13 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
         dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
             viewstate.bBox.w = maxFieldWidth;
-            if ((viewstate as FieldViewState).draftViewState) {
-                (viewstate as FieldViewState).draftViewState.bBox.w = maxFieldWidth;
-            }
         });
 
         constantVisitor.getConstantsMap().forEach(constantVS => {
             constantVS.bBox.w = maxFieldWidth;
         });
 
-        outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
+        // outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
         // end: sizing visitor
 
         // selected node visit
@@ -570,7 +572,7 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     if (outputSTNode) {
         traversNode(outputSTNode, dataPointVisitor);
-        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap);
+        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap)
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
