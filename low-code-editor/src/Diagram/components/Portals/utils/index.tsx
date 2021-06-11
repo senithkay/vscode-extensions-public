@@ -436,11 +436,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         if (formField.type === "union") {
                             formField.fields.forEach(subFormField => {
                                 if (subFormField.type === "record" && subFormField.fields) {
-                                    // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
-                                    //      it will generate empty formField. getParams() code-gen skip this empty FormField.
-                                    //      here skip that empty FormFiled and use inside field array
-                                    const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
-                                        subFormField.fields[0]?.fields : subFormField.fields;
+                                    const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
