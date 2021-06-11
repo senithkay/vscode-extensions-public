@@ -980,7 +980,15 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                         // remove error return
                         response.hasError = false;
                     }
-                    if (type === "" && formField.type && primitives.includes(formField.type)) {
+                    if (type === "" && !formField.typeInfo && primitives.includes(formField.type) &&
+                        formField?.isStream && formField.isErrorType) {
+                        // set stream record type with error
+                        type = `${formField.type},error`;
+                        response.hasReturn = true;
+                        // remove error return
+                        response.hasError = false;
+                    }
+                    if (type === "" && !formField.isStream && formField.type && primitives.includes(formField.type)) {
                         // set primitive types
                         type = formField.type;
                         response.hasReturn = true;
