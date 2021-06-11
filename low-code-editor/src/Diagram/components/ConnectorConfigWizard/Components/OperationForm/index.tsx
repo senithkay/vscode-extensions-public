@@ -27,7 +27,7 @@ import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/Prima
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { checkVariableName, genVariableName } from "../../../Portals/utils";
+import { checkVariableName, genVariableName, getActionReturnType } from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
@@ -41,7 +41,6 @@ export interface OperationFormProps {
     mutationInProgress: boolean;
     onConnectionChange: () => void;
     isNewConnectorInitWizard?: boolean;
-    hasReturn: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
 }
 
@@ -50,7 +49,7 @@ export function OperationForm(props: OperationFormProps) {
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, hasReturn } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -58,6 +57,9 @@ export function OperationForm(props: OperationFormProps) {
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const frmFields: FormField[] = connectionDetails?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
+
+    const operationReturnType = getActionReturnType(selectedOperationState, functionDefInfo);
+
     const handleOnSave = () => {
         const config = connectionDetails;
         onSave();
@@ -174,7 +176,7 @@ export function OperationForm(props: OperationFormProps) {
                                 }
                             </div>
 
-                            { hasReturn && (
+                            { operationReturnType?.hasReturn && (
                                 <FormTextInput
                                     customProps={ {
                                         validate: validateNameValue,

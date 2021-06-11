@@ -128,7 +128,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [ isManualConnection, setIsManualConnection ] = useState(false);
     const [ isNewConnection, setIsNewConnection ] = useState(isNewConnectorInitWizard);
     const [ isLoading, setIsLoading ] = useState(true);
-    const [ selectedOperation, setSelectedOperation ] = useState(connectorConfig?.action?.name);
+    const [ selectedOperation, setSelectedOperation ] = useState(config?.action?.name);
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -435,7 +435,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if (existingEndpointName !== undefined){
+                if (!existingEndpointName){
                     // new connector client initialization
                     const addImport: STModification = createImportStatement(
                         connectorInfo.org,
@@ -704,12 +704,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             functionDefInfo={functionDefInfo}
                             connectionDetails={config}
                             showConnectionName={showConnectionName}
-                            selectedOperation={config.action?.name}
+                            selectedOperation={selectedOperation}
                             onSave={handleActionOnSave}
                             onConnectionChange={onConnectionNameChange}
                             mutationInProgress={isMutationProgress}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
-                            hasReturn={actionReturnType.hasReturn}
                             operations={operations}
                         />
                     ) }
