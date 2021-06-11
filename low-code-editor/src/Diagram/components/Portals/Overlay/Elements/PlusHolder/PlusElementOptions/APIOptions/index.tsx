@@ -520,7 +520,7 @@ export function APIOptions(props: APIOptionsProps) {
                 }
 
                 // filter connectors due to maintenance
-                const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'mongodb'];
+                const filletedConnectors = ['azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
                 if (!filletedConnectors.includes(connector.module)) {
                     connectorComponents.push(connectorComponent);
                 }
@@ -588,7 +588,7 @@ export function APIOptions(props: APIOptionsProps) {
         allCnts.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });
@@ -596,7 +596,7 @@ export function APIOptions(props: APIOptionsProps) {
         connectorComponents.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });
