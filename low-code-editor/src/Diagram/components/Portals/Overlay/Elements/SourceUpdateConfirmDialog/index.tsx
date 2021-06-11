@@ -11,12 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
 
 import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
+import { Context } from '../../../../../../../../low-code-editor/src/Contexts/Diagram';
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { ButtonWithIcon } from "../../../ConfigForm/Elements/Button/ButtonWithIcon";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../index";
@@ -36,7 +37,7 @@ export const overlayPosition: DiagramOverlayPosition = {
 }
 
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
-
+    const { state } = useContext(Context);
     const intl = useIntl();
     const { onConfirm, onCancel, title, subTitle } = props;
 
@@ -44,6 +45,11 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
         id: "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text",
         defaultMessage: "Updating a trigger removes your current source code."
     });
+
+    const handleOnConfirm = () => {
+        state.triggerUpdated = true;
+        onConfirm();
+    }
 
     return (
         <div>
@@ -76,7 +82,7 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
                         <Button
                             variant="contained"
                             className={"updateBtn"}
-                            onClick={onConfirm}
+                            onClick={handleOnConfirm}
                         >
                             Update
                         </Button>
