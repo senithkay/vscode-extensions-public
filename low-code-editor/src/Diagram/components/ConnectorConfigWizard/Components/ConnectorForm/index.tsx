@@ -314,8 +314,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         } else {
             // manual flow
 
-            // createManualConnection
-
+            if (connectorConfig?.connectionName) {
+                // createManualConnection
+            }
 
             // catch the response(new tokens and name of connection)
             if (isNewConnectorInitWizard && targetPosition) {
