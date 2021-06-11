@@ -10,7 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { getPathOfResources } from 'components/DiagramSelector/utils';
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -21,6 +22,7 @@ import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Defin
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
@@ -54,9 +56,9 @@ export const MAIN_FUNCTION = "main";
 const findResourceIndex = (resourceMembers: any, targetResource: any) => {
     const index = resourceMembers.findIndex(
         (m: any) => {
-            const currentPath = m?.relativeResourcePath[0]?.value;
+            const currentPath = getPathOfResources(m.relativeResourcePath);
             const currentMethodType = m?.functionName?.value;
-            const targetPath = targetResource?.relativeResourcePath[0]?.value;
+            const targetPath = getPathOfResources(targetResource?.relativeResourcePath)
             const targetMethodType = targetResource?.functionName?.value;
 
             return currentPath === targetPath && currentMethodType === targetMethodType;
@@ -68,7 +70,7 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
     const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
     const targetMethod = tFunctionName?.value;
-    const targetPath = tRelativeResourcePath[0]?.value;
+    const targetPath = getPathOfResources(tRelativeResourcePath);
 
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
@@ -76,7 +78,7 @@ const findServiceForGivenResource = (serviceMembers: any, targetResource: any) =
         const found = resources?.find((r: any) => {
             const { functionName, relativeResourcePath } = r;
             const method = functionName?.value;
-            const path = relativeResourcePath[0]?.value;
+            const path = getPathOfResources(relativeResourcePath);
             return method === targetMethod && path === targetPath;
         });
         if (found) service = m;
@@ -348,18 +350,22 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module, version, name, cacheVersion} = connector;
+    if (!connector) {
+        return undefined;
+    }
+
+    const { org, module, version, name, cacheVersion } = connector;
     const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
     try {
         await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
-        .then(response => response.json())
-        .then(data => {
-            if (data) {
-                for (const [key, fieldsInfo] of Object.entries(data)) {
-                    functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    for (const [key, fieldsInfo] of Object.entries(data)) {
+                        functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+                    }
                 }
-            }
-        });
+            });
     } catch (error) {
         // IGNORE
     }
@@ -381,21 +387,23 @@ export async function addToFormFieldCache(connector: Connector, fields: Map<stri
     const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
     const formFieldJsonObject: any = {};
     fields.forEach((value, key) => {
-        formFieldJsonObject[ key ] = value;
+        formFieldJsonObject[key] = value;
     });
     formFieldDatabase.put(cacheId, formFieldJsonObject);
 }
 
 export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    const { org, module: mod, version, name, cacheVersion } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-    const formFieldCache = await formFieldDatabase.get(cacheId);
-    if (formFieldCache) {
-        const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-        for (const [ key, fieldsInfo ] of Object.entries(formFieldCache)) {
-            functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+    if (connector) {
+        const { org, module: mod, version, name, cacheVersion } = connector;
+        const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
+        const formFieldCache = await formFieldDatabase.get(cacheId);
+        if (formFieldCache) {
+            const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+            for (const [key, fieldsInfo] of Object.entries(formFieldCache)) {
+                functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+            }
+            return functionDef.size > 0 ? functionDef : undefined;
         }
-        return functionDef.size > 0 ? functionDef : undefined;
     }
     return undefined;
 }
@@ -413,81 +421,95 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: LocalVarDecl, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
+export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
     let connector: BallerinaConnectorsInfo;
-    const variable: LocalVarDecl = actionInvo;
+    const variable = actionInvo as LocalVarDecl;
     const viewState: StatementViewState = variable.viewState as StatementViewState;
+    let actionVariable: RemoteMethodCallAction;
+    let remoteMethodCallAction: RemoteMethodCallAction;
+    let matchModule: boolean = false;
+    let matchName: boolean = false;
 
-    if (variable.initializer) {
-        if (viewState.isAction) {
-            let actionVariable: RemoteMethodCallAction;
-            switch (variable.initializer.kind) {
-                case 'TypeCastExpression':
-                    const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
-                    actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                    break;
-                case 'RemoteMethodCallAction':
-                    actionVariable = variable.initializer as RemoteMethodCallAction;
-                    break;
-                default:
-                    actionVariable = (variable.initializer as CheckAction).expression;
+    if (viewState.isAction) {
+        switch (actionInvo.kind) {
+            case "LocalVarDecl":
+                switch (variable.initializer.kind) {
+                    case 'TypeCastExpression':
+                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
+                        actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                        break;
+                    case 'RemoteMethodCallAction':
+                        actionVariable = variable.initializer as RemoteMethodCallAction;
+                        break;
+                    default:
+                        actionVariable = (variable.initializer as CheckAction).expression;
+                }
+                break;
+
+            case "ActionStatement":
+                const statement = actionInvo as ActionStatement;
+                actionVariable = (statement.expression as CheckAction).expression;
+                break;
+
+            default:
+                // TODO: need to handle this flow
+                return undefined;
+        }
+
+        remoteMethodCallAction = isSTActionInvocation(actionVariable);
+
+        if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
+            remoteMethodCallAction.methodName.typeData) {
+            const moduleName = remoteMethodCallAction.methodName.typeData?.symbol.moduleID.moduleName;
+            const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
+            const endPoint = stSymbolInfo.endpoints.get(endPointName);
+            let identifierName;
+            if (!endPoint) {
+                const endpointViewState: EndpointViewState = viewState.endpoint;
+                identifierName = endpointViewState.typeName;
+            } else {
+                identifierName = ((endPoint as LocalVarDecl)?.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier.value;
             }
 
-            const remoteMethodCallAction: RemoteMethodCallAction = isSTActionInvocation(actionVariable);
-            let matchModule: boolean = false;
-            let matchName: boolean = false;
+            if (moduleName && identifierName) {
+                for (const connectorInfo of connectors) {
+                    if (connectorInfo.module === moduleName) {
+                        matchModule = true;
+                    }
+                    if (connectorInfo.name === identifierName) {
+                        matchName = true;
+                    }
 
-            if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
-                remoteMethodCallAction.methodName.typeData) {
-                const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
-                const endPoint = stSymbolInfo.endpoints.get(endPointName);
-                const typeData: any = remoteMethodCallAction.methodName.typeData;
-                if (typeData?.symbol?.moduleID) {
-                    const moduleId: any = typeData?.symbol?.moduleID;
-                    for (const connectorInfo of connectors) {
-                        if (connectorInfo.module === moduleId.moduleName) {
-                            matchModule = true;
-                        }
-                        if (connectorInfo.name ===
-                            ((endPoint as LocalVarDecl).typedBindingPattern.typeDescriptor as QualifiedNameReference)
-                                .identifier.value) {
-                            matchName = true;
-                        }
-
-                        if (matchModule && matchName) {
-                            connector = connectorInfo;
-                            break;
-                        }
+                    if (matchModule && matchName) {
+                        connector = connectorInfo;
+                        break;
                     }
                 }
             }
-        } else if (viewState.isEndpoint) {
-            let matchModule: boolean = false;
-            let matchName: boolean = false;
-            if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-                const moduleID: any =  variable?.typedBindingPattern?.typeDescriptor?.typeData?.symbol?.moduleID?.moduleName;
-                const moduleName: any = (variable?.typedBindingPattern?.typeDescriptor as QualifiedNameReference).
-                    modulePrefix.value;
-                if (moduleName) {
-                    for (const connectorInfo of connectors) {
-                        if (connectorInfo?.module === moduleName || connectorInfo.module === moduleID) {
-                            matchModule = true;
-                        }
-                        if (connectorInfo?.name ===
-                            ((variable as LocalVarDecl)?.typedBindingPattern?.typeDescriptor as QualifiedNameReference)
-                                .identifier.value) {
-                            matchName = true;
-                        }
+        }
+    } else if (viewState.isEndpoint) {
+        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+            const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+            const moduleName = nameReference?.modulePrefix.value;
+            const identifierName = nameReference?.identifier.value;
+            if (moduleName && identifierName) {
+                for (const connectorInfo of connectors) {
+                    if (getFormattedModuleName(connectorInfo.module) === moduleName) {
+                        matchModule = true;
+                    }
+                    if (connectorInfo.name === identifierName) {
+                        matchName = true;
+                    }
 
-                        if (matchModule && matchName) {
-                            connector = connectorInfo;
-                            break;
-                        }
+                    if (matchModule && matchName) {
+                        connector = connectorInfo;
+                        break;
                     }
                 }
             }
         }
     }
+
     return connector;
 }
 

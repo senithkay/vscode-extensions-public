@@ -17,10 +17,16 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
-import Tooltip from "../../../../../../../../components/Tooltip";
+import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    START_CONNECTOR_ADD_INSIGHTS,
+    START_EXISTING_CONNECTOR_ADD_INSIGHTS
+} from "../../../../../../../models";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
@@ -53,7 +59,7 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(Context);
-    const { connectors, stSymbolInfo, targetPosition, viewState } = state;
+    const { connectors, stSymbolInfo, targetPosition, viewState, onEvent } = state;
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const intl = useIntl();
@@ -96,11 +102,20 @@ export function APIOptions(props: APIOptionsProps) {
         imapConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-                defaultMessage: "Setup an email client to use the IMAP protocol."
+                defaultMessage: "Setup an email client to use the IMAP protocol.\
+                NOTE : There can be vendor-specific security settings to be setup before using this connector."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
                 defaultMessage: "Receive email messages"
+            }),
+            actionText: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.actionText",
+                defaultMessage: "Learn more..."
+            }),
+            actionLink: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.actionLink",
+                defaultMessage: "https://wso2.com/choreo/docs/"
             }),
             placement: 'right'
         },
@@ -422,6 +437,26 @@ export function APIOptions(props: APIOptionsProps) {
         }
     }
 
+    const onSelectConnector = (connector: BallerinaConnectorsInfo) => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: START_CONNECTOR_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        onEvent(event);
+        onSelect(connector, undefined);
+    }
+
+    const onSelectExistingConnector = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: START_EXISTING_CONNECTOR_ADD_INSIGHTS,
+            property: connector.displayName
+        };
+        onEvent(event);
+        onSelect(connector, selectedConnector);
+    }
+
     const exsitingConnectorComponents: ExisitingConnctorComponent[] = [];
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
@@ -429,29 +464,66 @@ export function APIOptions(props: APIOptionsProps) {
             const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
-            const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
-                    <div className="connect-option" key={connector.displayName} onClick={onSelect.bind(this, connector, undefined)} data-testid={connector.displayName.toLowerCase()}>
-                        <div className="connector-details product-tour-add-http">
-                            <div className="connector-icon">
-                                {getConnectorIconSVG(connector)}
-                            </div>
-                            <div className="connector-name">
-                                {connector.displayName}
+            const tooltipText = {
+                "heading" : connector.displayName,
+                "example" : tooltipExample,
+                "content" : tooltipTitle
+            }
+            if (connector.displayName === "IMAP"){
+                const tooltipAction = {
+                    "link": connectionsTooltipMessages.imapConnector.actionLink,
+                    "text": connectionsTooltipMessages.imapConnector.actionText
+                }
+                const component: ReactNode = (
+                    <Tooltip type="info" text={tooltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                        <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
+                            <div className="connector-details product-tour-add-http">
+                                <div className="connector-icon">
+                                    {getConnectorIconSVG(connector)}
+                                </div>
+                                <div className="connector-name">
+                                    {connector.displayName}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </Tooltip>
-            );
-            const connectorComponent: ConnctorComponent = {
-                connectorInfo: connector,
-                component
-            }
+                    </Tooltip>
+                );
+                const connectorComponent: ConnctorComponent = {
+                    connectorInfo: connector,
+                    component
+                }
 
-            // filter connectors due to maintenance
-            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'mongodb'];
-            if (!filletedConnectors.includes(connector.module)) {
-                connectorComponents.push(connectorComponent);
+                // filter connectors due to maintenance
+                const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
+                if (!filletedConnectors.includes(connector.module)) {
+                    connectorComponents.push(connectorComponent);
+                }
+            }
+            else{
+                const component: ReactNode = (
+                    <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                        <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
+                            <div className="connector-details product-tour-add-http">
+                                <div className="connector-icon">
+                                    {getConnectorIconSVG(connector)}
+                                </div>
+                                <div className="connector-name">
+                                    {connector.displayName}
+                                </div>
+                            </div>
+                        </div>
+                    </Tooltip>
+                );
+                const connectorComponent: ConnctorComponent = {
+                    connectorInfo: connector,
+                    component
+                }
+
+                // filter connectors due to maintenance
+                const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
+                if (!filletedConnectors.includes(connector.module)) {
+                    connectorComponents.push(connectorComponent);
+                }
             }
         });
 
@@ -474,7 +546,7 @@ export function APIOptions(props: APIOptionsProps) {
             const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
             const existConnector = getConnector(moduleName, name);
             const component: ReactNode = (
-                <div className="existing-connect-option" key={key} onClick={onSelect.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
                     <div className="existing-connector-details product-tour-add-http">
                         <div className="existing-connector-icon">
                             {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}

@@ -32,7 +32,6 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { FormattedMessage, useIntl } from "react-intl";
-import { tooltipMessages } from "../../../Portals/utils/constants";
 
 interface SelectInputOutputFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -40,6 +39,7 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
+    hasReturn: boolean;
 }
 
 interface ReturnNameState {
@@ -291,11 +291,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         </Typography>
                         {selectedOperationParams}
                         <FormTextInput
-                            customProps={{
+                            customProps={ {
                                 validate: validateNameValue,
                                 tooltipTitle: SMTPInputOutputTooltipMessages.responseVariableName.title,
                                 disabled: returnVariableName
-                            }}
+                            } }
                             defaultValue={defaultResponseVariableName}
                             placeholder={addResponseVariablePlaceholder}
                             onChange={onNameChange}

@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Typography } from '@material-ui/core';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -37,6 +37,10 @@ export function SwitchToggle(props: SwitchToggleProps) {
     setChecked((prev) => !prev);
     onChange(checked);
   };
+
+  useEffect(() => {
+    setChecked(initSwitch);
+  }, [initSwitch]);
 
   return (
     <FormGroup className={classes.switchWrapper}>

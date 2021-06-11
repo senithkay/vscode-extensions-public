@@ -65,7 +65,7 @@ export interface FormField {
     name?: string;
     label?: string;
     displayName?: string;
-    collectionDataType?: PrimitiveBalType;
+    collectionDataType?: FormField;
     selectedDataType?: string;
     typeName?: string;
     description?: string;
@@ -80,6 +80,7 @@ export interface FormField {
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
+    isStream?: boolean;
     typeInfo?: NonPrimitiveBal;
     hide?: boolean;
     aiSuggestion?: string;
@@ -87,6 +88,13 @@ export interface FormField {
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
     isErrorType?: boolean;
+    isDefaultableParam?: boolean;
+    isRestParam?: boolean;
+}
+export interface FormFieldReturnType {
+    hasError: boolean;
+    hasReturn: boolean;
+    returnType: string;
 }
 
 // tslint:disable-next-line: max-classes-per-file

@@ -36,6 +36,7 @@ export interface OperationFormProps {
     onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
+    hasReturn: boolean;
     onConnectionChange: () => void;
     onOperationChange: () => void;
 }
