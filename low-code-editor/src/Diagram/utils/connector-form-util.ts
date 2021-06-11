@@ -326,7 +326,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     "watchFilesById",
                     "watchStop",
                     "getAbout",
-                    "updateFileMetadataById",
                     "listChanges"
                 ];
                 if (!hiddenActions.includes(key)) {
