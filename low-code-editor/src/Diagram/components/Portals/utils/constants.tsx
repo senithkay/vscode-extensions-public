@@ -76,3 +76,9 @@ export const tooltipMessages: Record<string, any> = {
         savaNextButton: "Configure connector invocation"
     }
 }
+
+export const connectorCategories = {
+    GENERIC_CONNECTORS: "generic-connectors",
+    SERVICE_CONNECTORS: "service-connectors",
+    CHOREO_CONNECTORS: "choreo-connectors"
+}

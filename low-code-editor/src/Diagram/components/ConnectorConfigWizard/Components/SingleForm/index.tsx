@@ -39,14 +39,13 @@ export interface SingleFormProps {
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     selectedOperation?: string;
     onSave: (sourceModifications?: STModification[]) => void;
-    onConnectionChange: () => void;
 }
 
 export function SingleForm(props: SingleFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
+    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
@@ -61,32 +60,30 @@ export function SingleForm(props: SingleFormProps) {
 
     const operationReturnType = getActionReturnType(activeOperation, functionDefInfo);
 
-    useEffect(() => {
-        if (!activeOperation) {
-            functionDefInfo.forEach((field, operation) => {
-                if (operation !== "init" && !activeOperation) {
-                    // set first operation as active operation
-                    // single forms will only show one operation
-                    setActiveOperation(operation);
-                    if (!formFields) {
-                        // set new action
-                        const actionInfo = new ActionConfig();
-                        actionInfo.name = operation;
-                        actionInfo.fields = field.parameters;
-                        connectionDetails.action = actionInfo;
-                        // update form field list
-                        setFormFields(field.parameters);
-                        if (!defaultResponseVarName) {
-                            // setup response variable
-                            const varName = genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo));
-                            setDefaultResponseVarName(varName);
-                        }
+    if (!activeOperation) {
+        functionDefInfo.forEach((field, operation) => {
+            if (operation !== "init" && !activeOperation) {
+                // set first operation as active operation
+                // single forms will only show one operation
+                setActiveOperation(operation);
+                if (!formFields || formFields?.length === 0) {
+                    // set new action
+                    const actionInfo = new ActionConfig();
+                    actionInfo.name = operation;
+                    actionInfo.fields = field.parameters;
+                    connectionDetails.action = actionInfo;
+                    // update form field list
+                    setFormFields(field.parameters);
+                    if (!defaultResponseVarName) {
+                        // setup response variable
+                        const varName = genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo));
+                        setDefaultResponseVarName(varName);
                     }
-                    return;
                 }
-            });
-        }
-    }, [ selectedOperation ]);
+                return;
+            }
+        });
+    }
 
     useEffect(() => {
         if (connectionDetails.action) {

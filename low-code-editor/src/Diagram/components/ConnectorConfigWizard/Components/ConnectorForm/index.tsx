@@ -57,6 +57,7 @@ import {
     getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getParams,
     matchEndpointToFormField
 } from '../../../Portals/utils';
+import { connectorCategories } from '../../../Portals/utils/constants';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -135,7 +136,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setFormState(FormStates.OauthConnect);
             setIsLoading(false);
             return;
-        } else if (connectorInfo.category === "choreo-connectors") {
+        } else if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
             setFormState(FormStates.SingleForm);
             setIsLoading(false);
         } else if (isAction) {
@@ -248,9 +249,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onSelectExisting = (value: any) => {
-        setConfigName(value);
-        setIsNewConnection(false);
-        setFormState(FormStates.OperationForm);
+        if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS){
+            setIsNewConnection(true);
+            setFormState(FormStates.SingleForm);
+        }else{
+            setConfigName(value);
+            setIsNewConnection(false);
+            setFormState(FormStates.OperationForm);
+        }
     };
 
     const handleCreateConnectorSaveNext = () => {
@@ -475,6 +481,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setFormState(FormStates.CreateNewConnection);
         } else if (isNewConnection && isOauthConnector && !isManualConnection) {
             setFormState(FormStates.OauthConnect);
+        } else if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
+            setFormState(FormStates.SingleForm);
         } else {
             setFormState(FormStates.ExistingConnection);
         }
@@ -489,7 +497,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
-    if (!isNewConnectorInitWizard && actionReturnType.hasReturn) {
+    if (!isNewConnectorInitWizard && actionReturnType?.hasReturn) {
         if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
             config.action.returnVariableName =
                 (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
@@ -541,7 +549,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(updateConnectorInit);
 
-                if (actionReturnType.hasReturn) {
+                if (actionReturnType?.hasReturn) {
                     const updateActionInvocation = updatePropertyStatement(
                         `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
@@ -584,7 +592,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
 
                     // Add an action invocation on the initialized client.
-                    if (actionReturnType.hasReturn) {
+                    if (actionReturnType?.hasReturn) {
                         const addActionInvocation = createPropertyStatement(
                             `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -754,7 +762,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             operations={operations}
                             onSave={handleSingleFormOnSave}
-                            onConnectionChange={onConnectionNameChange}
                         />
                     ) }
                 </div>
