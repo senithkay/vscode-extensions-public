@@ -103,14 +103,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW);
         ballerinaExtInstance.onReady()
             .then(() => {
-                const { experimental } = langClient.initializeResult!.capabilities;
-                const serverProvidesExamples = experimental && experimental.examplesProvider;
-
-                if (!serverProvidesExamples) {
-                    ballerinaExtInstance.showMessageServerMissingCapability();
-                    return;
-                }
-
                 showExamples(context, langClient);
             })
             .catch((e) => {
