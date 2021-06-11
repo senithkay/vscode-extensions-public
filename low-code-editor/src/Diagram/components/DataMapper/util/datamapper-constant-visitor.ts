@@ -18,9 +18,11 @@ export const CONSTANT_TYPE = 'constant';
 
 export class ConstantVisitor implements Visitor {
     private constantsMap: Map<string, FieldViewState>;
+    private constantList: FieldViewState[];
 
     constructor() {
         this.constantsMap = new Map();
+        this.constantList = [];
     }
 
     beginVisitStringLiteral(node: StringLiteral) {
@@ -29,6 +31,7 @@ export class ConstantVisitor implements Visitor {
 
             if (viewstate.type === CONSTANT_TYPE) {
                 this.addConstantToMap(viewstate);
+                this.constantList.push(viewstate);
             }
         }
     }
@@ -39,6 +42,7 @@ export class ConstantVisitor implements Visitor {
 
             if (viewstate.type === CONSTANT_TYPE) {
                 this.addConstantToMap(viewstate);
+                this.constantList.push(viewstate);
             }
         }
     }
@@ -49,6 +53,7 @@ export class ConstantVisitor implements Visitor {
 
             if (viewstate.type === CONSTANT_TYPE) {
                 this.addConstantToMap(viewstate);
+                this.constantList.push(viewstate);
             }
         }
     }
@@ -61,5 +66,9 @@ export class ConstantVisitor implements Visitor {
 
     public getConstantsMap(): Map<string, FieldViewState> {
         return this.constantsMap;
+    }
+
+    public getConstantList(): FieldViewState[] {
+        return this.constantList;
     }
 }

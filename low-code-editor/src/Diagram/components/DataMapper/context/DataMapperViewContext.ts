@@ -20,8 +20,14 @@ const reducer = (state: DataMapperState, action: any) => {
         case 'UPDATE_STATE':
             return { ...state, ...action.payload };
         case 'DATA_MAPPER_REDRAW':
-            const { inputSTNodes, stSymbolInfo,
-                    showAddVariableForm, dataMapperConfig, updateDataMapperConfig } = state;
+            const {
+                inputSTNodes,
+                stSymbolInfo,
+                showAddVariableForm,
+                dataMapperConfig,
+                updateDataMapperConfig,
+                squashConstants
+            } = state;
 
             const updatedValues = dataMapperSizingAndPositioningRecalculate(
                 inputSTNodes,
@@ -29,7 +35,8 @@ const reducer = (state: DataMapperState, action: any) => {
                 stSymbolInfo,
                 showAddVariableForm,
                 dataMapperConfig,
-                updateDataMapperConfig
+                updateDataMapperConfig,
+                squashConstants
             );
 
             return {

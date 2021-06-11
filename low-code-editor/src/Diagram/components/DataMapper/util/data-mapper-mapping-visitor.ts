@@ -33,13 +33,16 @@ export class DataMapperMappingVisitor implements Visitor {
     private constantPoints: Map<string, SourcePointViewState>;
     private references: string[] = [];
     private missingVariableRefName: string[] = [];
+    private squashConstants: boolean;
 
     constructor(sourcePoints: Map<string, SourcePointViewState>,
-                targetPoints: Map<string, TargetPointViewState>,
-                constantPoints: Map<string, SourcePointViewState>) {
+        targetPoints: Map<string, TargetPointViewState>,
+        constantPoints: Map<string, SourcePointViewState>,
+        squashConstants?: boolean) {
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
         this.constantPoints = constantPoints;
+        this.squashConstants = squashConstants;
     }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
@@ -86,19 +89,29 @@ export class DataMapperMappingVisitor implements Visitor {
                     || STKindChecker.isBooleanLiteral(node.expression)
                     || STKindChecker.isNumericLiteral(node.expression)) {
 
-                    const sourcePointVS = this.constantPoints.get(node.expression.literalToken.value);
                     const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
 
-                    if (sourcePointVS && targetPointVS) {
-                        sourcePointVS.connections.push(
+                    if (this.squashConstants) {
+                        const sourcePointVS = this.constantPoints.get(node.expression.literalToken.value);
+
+                        if (sourcePointVS && targetPointVS) {
+                            sourcePointVS.connections.push(
+                                new ConnectionViewState(
+                                    sourcePointVS,
+                                    targetPointVS,
+                                    node.expression.position
+                                )
+                            );
+                        }
+                    } else {
+                        (node.expression.dataMapperViewState as FieldViewState).sourcePointViewState.connections.push(
                             new ConnectionViewState(
-                                sourcePointVS,
+                                (node.expression.dataMapperViewState as FieldViewState).sourcePointViewState,
                                 targetPointVS,
                                 node.expression.position
                             )
-                        );
+                        )
                     }
-
                 }
             }
 
@@ -151,17 +164,28 @@ export class DataMapperMappingVisitor implements Visitor {
                     || STKindChecker.isBooleanLiteral(node.initializer)
                     || STKindChecker.isNumericLiteral(node.initializer)) {
 
-                    const sourcePointVS = this.constantPoints.get(node.initializer.literalToken.value);
                     const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
 
-                    if (sourcePointVS && targetPointVS) {
-                        sourcePointVS.connections.push(
+                    if (this.squashConstants) {
+                        const sourcePointVS = this.constantPoints.get(node.initializer.literalToken.value);
+
+                        if (sourcePointVS && targetPointVS) {
+                            sourcePointVS.connections.push(
+                                new ConnectionViewState(
+                                    sourcePointVS,
+                                    targetPointVS,
+                                    node.initializer.position
+                                )
+                            );
+                        }
+                    } else {
+                        (node.initializer.dataMapperViewState as FieldViewState).sourcePointViewState.connections.push(
                             new ConnectionViewState(
-                                sourcePointVS,
+                                (node.initializer.dataMapperViewState as FieldViewState).sourcePointViewState,
                                 targetPointVS,
                                 node.initializer.position
                             )
-                        );
+                        )
                     }
 
                 }
@@ -216,19 +240,29 @@ export class DataMapperMappingVisitor implements Visitor {
                     || STKindChecker.isBooleanLiteral(node.valueExpr)
                     || STKindChecker.isNumericLiteral(node.valueExpr)) {
 
-                    const sourcePointVS = this.constantPoints.get(node.valueExpr.literalToken.value);
                     const targetPointVS = this.targetPoints.get(this.generateDataPointName(this.nameParts));
 
-                    if (sourcePointVS && targetPointVS) {
-                        sourcePointVS.connections.push(
+                    if (this.squashConstants) {
+                        const sourcePointVS = this.constantPoints.get(node.valueExpr.literalToken.value);
+
+                        if (sourcePointVS && targetPointVS) {
+                            sourcePointVS.connections.push(
+                                new ConnectionViewState(
+                                    sourcePointVS,
+                                    targetPointVS,
+                                    node.valueExpr.position
+                                )
+                            );
+                        }
+                    } else {
+                        (node.valueExpr.dataMapperViewState as FieldViewState).sourcePointViewState.connections.push(
                             new ConnectionViewState(
-                                sourcePointVS,
+                                (node.valueExpr.dataMapperViewState as FieldViewState).sourcePointViewState,
                                 targetPointVS,
                                 node.valueExpr.position
                             )
-                        );
+                        )
                     }
-
                 }
             }
 

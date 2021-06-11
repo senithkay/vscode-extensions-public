@@ -227,9 +227,12 @@ export function resetJsonValueToDefault(json: any) {
     })
 }
 
-export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-                                               showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-                                               updateDataMapperConfig: (config: DataMapperConfig) => void) {
+export function dataMapperSizingAndPositioning(
+    inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
+    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+    updateDataMapperConfig: (config: DataMapperConfig) => void,
+    squashConstants?: boolean) {
+
     let maxFieldWidth: number = 200;
 
     const constantVisitor = new ConstantVisitor();
@@ -254,13 +257,23 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
 
     let constantHeight = showAddVariableForm ? 132 : 15;
 
-    constantVisitor.getConstantsMap().forEach(constantVS => {
-        constantVS.bBox.x = 15 + PADDING_OFFSET;
-        constantVS.bBox.y = constantHeight + PADDING_OFFSET;
-        constantVS.bBox.h = FIELD_HEIGHT;
+    if (squashConstants) {
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.x = 15 + PADDING_OFFSET;
+            constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+            constantVS.bBox.h = FIELD_HEIGHT;
 
-        constantHeight += DEFAULT_OFFSET * 2;
-    })
+            constantHeight += DEFAULT_OFFSET * 2;
+        });
+    } else {
+        constantVisitor.getConstantList().forEach(constantVS => {
+            constantVS.bBox.x = 15 + PADDING_OFFSET;
+            constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+            constantVS.bBox.h = FIELD_HEIGHT;
+
+            constantHeight += DEFAULT_OFFSET * 2;
+        })
+    }
 
     const positionVisitor = new DataMapperPositionVisitor(constantHeight, 15);
     const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
@@ -337,9 +350,15 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
             viewstate.bBox.w = maxFieldWidth;
         });
 
-        constantVisitor.getConstantsMap().forEach(constantVS => {
-            constantVS.bBox.w = maxFieldWidth;
-        });
+        if (squashConstants) {
+            constantVisitor.getConstantsMap().forEach(constantVS => {
+                constantVS.bBox.w = maxFieldWidth;
+            });
+        } else {
+            constantVisitor.getConstantList().forEach(constantVS => {
+                constantVS.bBox.w = maxFieldWidth;
+            });
+        }
 
         // outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
         // end: sizing visitor
@@ -361,7 +380,13 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
 
     if (outputSTNode) {
         traversNode(outputSTNode, dataPointVisitor);
-        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap)
+        const mappingVisitor = new DataMapperMappingVisitor(
+            dataPointVisitor.sourcePointMap,
+            dataPointVisitor.targetPointMap,
+            dataPointVisitor.constantPointMap,
+            squashConstants
+        );
+
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
@@ -402,13 +427,17 @@ export function dataMapperSizingAndPositioning(inputSTNodes: STNode[], outputSTN
         // processed STs
         inputSTNodes,
         outputSTNode,
-        constantMap: constantVisitor.getConstantsMap()
+        constantMap: constantVisitor.getConstantsMap(),
+        constantList: constantVisitor.getConstantList()
     }
 }
 
-export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
-                                                          showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
-                                                          updateDataMapperConfig: (config: DataMapperConfig) => void) {
+export function dataMapperSizingAndPositioningRecalculate(
+    inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
+    showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
+    updateDataMapperConfig: (config: DataMapperConfig) => void,
+    squashConstants?: boolean) {
+
     let maxFieldWidth: number = 200;
 
     const constantVisitor = new ConstantVisitor();
@@ -419,13 +448,23 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     let constantHeight = showAddVariableForm ? 132 : 15;
 
-    constantVisitor.getConstantsMap().forEach(constantVS => {
-        constantVS.bBox.x = 15 + PADDING_OFFSET;
-        constantVS.bBox.y = constantHeight + PADDING_OFFSET;
-        constantVS.bBox.h = FIELD_HEIGHT;
+    if (squashConstants) {
+        constantVisitor.getConstantsMap().forEach(constantVS => {
+            constantVS.bBox.x = 15 + PADDING_OFFSET;
+            constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+            constantVS.bBox.h = FIELD_HEIGHT;
 
-        constantHeight += DEFAULT_OFFSET * 2;
-    })
+            constantHeight += DEFAULT_OFFSET * 2;
+        });
+    } else {
+        constantVisitor.getConstantList().forEach(constantVS => {
+            constantVS.bBox.x = 15 + PADDING_OFFSET;
+            constantVS.bBox.y = constantHeight + PADDING_OFFSET;
+            constantVS.bBox.h = FIELD_HEIGHT;
+
+            constantHeight += DEFAULT_OFFSET * 2;
+        })
+    }
 
     const positionVisitor = new DataMapperPositionVisitor(constantHeight, 15);
     const dataMapperInputSizingVisitor = new DataMapperSizingVisitor();
@@ -446,9 +485,15 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
             viewstate.bBox.w = maxFieldWidth;
         });
 
-        constantVisitor.getConstantsMap().forEach(constantVS => {
-            constantVS.bBox.w = maxFieldWidth;
-        });
+        if (squashConstants) {
+            constantVisitor.getConstantsMap().forEach(constantVS => {
+                constantVS.bBox.w = maxFieldWidth;
+            });
+        } else {
+            constantVisitor.getConstantList().forEach(constantVS => {
+                constantVS.bBox.w = maxFieldWidth;
+            });
+        }
     }
 
     if (outputSTNode) {
@@ -504,7 +549,12 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
 
     if (outputSTNode) {
         traversNode(outputSTNode, dataPointVisitor);
-        const mappingVisitor = new DataMapperMappingVisitor(dataPointVisitor.sourcePointMap, dataPointVisitor.targetPointMap, dataPointVisitor.constantPointMap)
+        const mappingVisitor = new DataMapperMappingVisitor(
+            dataPointVisitor.sourcePointMap,
+            dataPointVisitor.targetPointMap,
+            dataPointVisitor.constantPointMap,
+            squashConstants
+        );
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
@@ -545,7 +595,8 @@ export function dataMapperSizingAndPositioningRecalculate(inputSTNodes: STNode[]
         // processed STs
         inputSTNodes,
         outputSTNode,
-        constantMap: constantVisitor.getConstantsMap()
+        constantMap: constantVisitor.getConstantsMap(),
+        constantList: constantVisitor.getConstantList()
     }
 }
 

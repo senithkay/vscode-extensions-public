@@ -63,12 +63,14 @@ export function DataMapper(props: DataMapperProps) {
     }, []);
 
     const [showAddVariableForm, setShowAddVariableForm] = useState(false);
+    const squashConstants = false;
 
     let outputSTNode; //
 
     let maxFieldWidth: number = 200;
     const inputSTNodes: STNode[] = [];
     let constantMap: Map<string, FieldViewState> = new Map();
+    let constantList: FieldViewState[] = [];
 
     if (dataMapperConfig) {
         const inputVariableInfo: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;
@@ -130,6 +132,7 @@ export function DataMapper(props: DataMapperProps) {
             inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
 
         constantMap = sizingAndPositioningResult.constantMap;
+        constantList = sizingAndPositioningResult.constantList;
         maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
     }
 
@@ -148,7 +151,9 @@ export function DataMapper(props: DataMapperProps) {
         updateDataMapperConfig,
         dataMapperStart,
         dispatchMutations,
-        constantMap
+        constantMap,
+        constantList,
+        squashConstants
     }
 
     return (

@@ -32,6 +32,7 @@ export interface DataMapperState {
     dataMapperStart: (config: DataMapperConfig) => void;
     dispatchMutations: (modifications: STModification[]) => void;
     constantMap: Map<string, FieldViewState>;
+    squashConstants?: boolean
 }
 
 export enum FieldDraftType {

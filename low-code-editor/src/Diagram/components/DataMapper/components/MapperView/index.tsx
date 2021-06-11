@@ -54,7 +54,9 @@ export function MapperView(props: MapperViewProps) {
             dispatchMutations,
             dataMapperConfig,
             updateDataMapperConfig,
-            mouseMoveEventHub
+            mouseMoveEventHub,
+            constantList,
+            squashConstants
         },
         updateState,
         dataMapperViewRedraw,
@@ -240,15 +242,28 @@ export function MapperView(props: MapperViewProps) {
     });
 
     let constantCount: number = 0;
-    constantMap.forEach((constantVS: FieldViewState) => {
-        inputHeight += constantVS.bBox.h;
 
-        if (constantCount < constantMap.size - 1) {
-            inputHeight += 40 // todo: convert to constant
-        }
+    if (squashConstants) {
+        constantMap.forEach((constantVS: FieldViewState) => {
+            inputHeight += constantVS.bBox.h;
 
-        constantCount++;
-    });
+            if (constantCount < constantMap.size - 1) {
+                inputHeight += 40 // todo: convert to constant
+            }
+
+            constantCount++;
+        });
+    } else {
+        constantList.forEach((constantVS: FieldViewState) => {
+            inputHeight += constantVS.bBox.h;
+
+            if (constantCount < constantList.length - 1) {
+                inputHeight += 40 // todo: convert to constant
+            }
+
+            constantCount++;
+        });
+    }
 
     if (outputSTNode) {
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
@@ -291,14 +306,25 @@ export function MapperView(props: MapperViewProps) {
         }
     }
 
-    constantMap.forEach((constantVS: FieldViewState) => {
-        inputComponents.push(
-            getDataMapperComponent(
-                constantVS.type,
-                { viewState: constantVS, offSetCorrection: 10 }
-            )
-        );
-    })
+    if (squashConstants) {
+        constantMap.forEach((constantVS: FieldViewState) => {
+            inputComponents.push(
+                getDataMapperComponent(
+                    constantVS.type,
+                    { viewState: constantVS, offSetCorrection: 10 }
+                )
+            );
+        });
+    } else {
+        constantList.forEach((constantVS: FieldViewState) => {
+            inputComponents.push(
+                getDataMapperComponent(
+                    constantVS.type,
+                    { viewState: constantVS, offSetCorrection: 10 }
+                )
+            );
+        });
+    }
 
     inputSTNodes.forEach((node: STNode) => {
         const { dataMapperViewState } = node;
