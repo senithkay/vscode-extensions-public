@@ -27,7 +27,7 @@ export function Canvas(props: CanvasProps) {
                 data-testid="diagram-canvas"
                 className="diagram-canvas"
                 preserveAspectRatio={"xMinYMin"}
-                width={'100vw'} // todo: revert
+                width={w}
                 height={h}
             >
                 <defs>

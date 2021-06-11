@@ -145,11 +145,10 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
-    const child = isDataMapperShown ? <DataMapper width={w} /> : getSTComponent(syntaxTree);
-    // const child =  <MapperView width={w} />;
+    const child = getSTComponent(syntaxTree);
 
     let hasConfigurable = false;
-    if (originalSyntaxTree){
+    if (originalSyntaxTree) {
         hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
     }
 
@@ -177,9 +176,14 @@ export function Diagram(props: DiagramProps) {
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    <Canvas h={h} w={w} >
-                        {child}
-                    </Canvas>
+                    {isDataMapperShown && (
+                        <DataMapper width={w} />
+                    )}
+                    {!isDataMapperShown && (
+                        <Canvas h={h} w={w} >
+                            {child}
+                        </Canvas>
+                    )}
                     {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}

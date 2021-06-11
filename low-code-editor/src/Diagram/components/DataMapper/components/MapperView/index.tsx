@@ -33,6 +33,7 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
+import { Canvas } from '../../../Canvas';
 
 
 interface MapperViewProps {
@@ -276,7 +277,7 @@ export function MapperView(props: MapperViewProps) {
     }
 
     if (outputSTNode) {
-        outputHeight += 65 + 55; //  + save button height
+        outputHeight += 65 // + 55; //  + save button height
     } else {
         outputHeight += 40;
     }
@@ -351,14 +352,25 @@ export function MapperView(props: MapperViewProps) {
         );
     }
 
+    let maxHeight = (inputHeight >= outputHeight ? inputHeight : outputHeight) + 65;
+    const maxWidth = maxFieldWidth * 2 + 100 + 400
+
+    if (maxHeight < window.innerHeight) {
+        // correction if the diagram is smaller than the window height
+        // required for the diagram scrolling
+        maxHeight = maxHeight + (window.innerHeight - maxHeight);
+    }
+
     return (
-        <>
-            {!outputSTNode && <g><text x="45" y="30" onClick={handleSwitchBackToDiagram}>←  Back to the Diagram</text></g>}
+        <Canvas h={maxHeight} w={maxWidth} >
+            <g id='datamapper-diagram-switch'>
+                <text x="45" y="30" onClick={handleSwitchBackToDiagram}>←  Back to the Diagram</text>
+            </g>
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
-                {!outputSTNode && <OutputConfigureButton x={(maxFieldWidth * 2) + 400} y={70} onClick={toggleOutputConfigureForm} />}
-                {outputSTNode && <SaveButton x={(maxFieldWidth * 2) + 400 + 32} y={saveYPosition} onClick={handleSwitchBackToDiagram} />}
+                <OutputConfigureButton x={(maxFieldWidth * 2) + 400} y={70} onClick={toggleOutputConfigureForm} />
+                {/* {outputSTNode && <SaveButton x={(maxFieldWidth * 2) + 400 + 32} y={saveYPosition} onClick={handleSwitchBackToDiagram} />} */}
                 {outputComponent}
             </g>
             <g id="inputComponents">
@@ -434,6 +446,6 @@ export function MapperView(props: MapperViewProps) {
                     </DiagramOverlayContainer>
                 )
             }
-        </>
+        </Canvas>
     )
 }
