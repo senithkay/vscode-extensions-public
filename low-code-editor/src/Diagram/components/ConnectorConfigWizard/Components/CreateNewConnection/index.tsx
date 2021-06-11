@@ -62,10 +62,18 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
+    const initialConnectionNameState: NameState = {
+        value: connectorConfig.connectionName,
+        isValidName:  !!connectorConfig.connectionName,
+        isNameProvided: nameRegex.test(connectorConfig.connectionName)
+    };
+
     const [nameState, setNameState] = useState<NameState>(initialNameState);
+    const [connectionNameState, setConnectionNameState] = useState<NameState>(initialConnectionNameState);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [defaultConnectorName] = useState<string>(connectorConfig.name);
     const [connectorNameError, setConnectorNameError] = useState('');
+    const [connectionNameError, setConnectionNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
@@ -95,6 +103,33 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         return true;
     };
 
+    const connectionNameHelpText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.connectionName.help.text",
+        defaultMessage: "Unique name to identify the manual connection"
+    });
+
+    const connectionNameCharValidation = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.connectionName.char.validation.error.message",
+        defaultMessage: "Connection Name must be at least 2 characters"
+    });
+
+    const validateConnectionNameValue = (value: string) => {
+        if (value?.length === 1) {
+            setConnectionNameError(connectionNameCharValidation);
+            return false;
+        }
+        return true;
+    };
+
+    const onConnectionNameChange = (text: string) => {
+        connectorConfig.connectionName = text;
+        setConnectionNameState({
+            value: text,
+            isNameProvided: text !== '',
+            isValidName: validateConnectionNameValue(text)
+        });
+    };
+
     const onNameChange = (text: string) => {
         setNameState({
             value: text,
@@ -119,6 +154,16 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const createConnectionPlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.placeholder",
         defaultMessage: "Enter connection name"
+    });
+
+    const createEndpointNameLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createEndpoint.name.label",
+        defaultMessage: "Endpoint Name"
+    });
+
+    const createEndpointPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createEndpoint.placeholder",
+        defaultMessage: "Enter endpoint name"
     });
 
     const backButtonLabel = intl.formatMessage({
@@ -168,26 +213,50 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         onSaveNext();
     };
 
+    const connectionNameSection = (
+        <Section
+            title={createConnectionNameLabel}
+            tooltip={<div><p>{connectionNameHelpText}</p></div>}
+        >
+            <FormTextInput
+                customProps={{
+                    validate: validateConnectionNameValue,
+                }}
+                defaultValue={connectionNameState.value}
+                onChange={onConnectionNameChange}
+                errorMessage={connectionNameError}
+                placeholder={createConnectionPlaceholder}
+            />
+        </Section>
+    );
+
+    const connectorModuleName = initFields[0]?.typeInfo?.modName;
+    const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
+        connectorModuleName === "googleapis.calendar" || connectorModuleName === "googleapis.drive";
+    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
+    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
-                    <Section
-                                title={createConnectionNameLabel}
-                                tooltip={{title}}
-                    >
-                        <FormTextInput
-                            customProps={{
-                                validate: validateNameValue,
-                                disabled: hasReference
-                            }}
-                            defaultValue={nameState.value}
-                            onChange={onNameChange}
-                            errorMessage={connectorNameError}
-                            placeholder={createConnectionPlaceholder}
-                        />
-                    </Section>
+                        {showConnectionNameField && connectionNameSection}
+                        <Section
+                            title={createEndpointNameLabel}
+                            tooltip={{title}}
+                        >
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    disabled: hasReference
+                                }}
+                                defaultValue={nameState.value}
+                                onChange={onNameChange}
+                                errorMessage={connectorNameError}
+                                placeholder={createEndpointPlaceholder}
+                            />
+                        </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>
@@ -201,7 +270,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <PrimaryButton
                             text="Save"
                             fullWidth={false}
-                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            disabled={!(showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid)}
                             onClick={handleOnSave}
                         />
                     </div>

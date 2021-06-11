@@ -115,6 +115,7 @@ export class ActionConfig {
 
 // tslint:disable-next-line: max-classes-per-file
 export class ConnectorConfig {
+    public connectionName?: string = "";
     public name?: string = "";
     public connectorInit: FormField[] = [];
     public action: ActionConfig;
