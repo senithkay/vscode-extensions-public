@@ -110,6 +110,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end",
             marginTop: "0.5rem",
         },
+        addElementButton: {
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 10
+        },
         wizardBtnHolder: {
             display: "flex",
             justifyContent: "flex-end",
@@ -305,10 +310,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: '1px solid #dee0e7',
             borderRadius: 5,
         },
+        componentGap: {
+            marginBottom: 4,
+        },
         textlabel: {
             fontSize: '13px !important',
             width: '215px !important',
-            padding: 8
+            padding: 8,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
         },
         deleteBtn: {
             backgroundColor: '#fff !important',
