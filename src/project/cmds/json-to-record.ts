@@ -38,6 +38,25 @@ export function activatePasteJsonAsRecord() {
         return;
     }
 
+    // This command is only available since Swan Lake Beta 2
+    // Check the version before registering the command
+    if(
+        ballerinaExtInstance.isSwanLake 
+        && !ballerinaExtInstance.ballerinaVersion.includes("Alpha")
+        && !ballerinaExtInstance.ballerinaVersion.includes("Preview")
+    ) {
+        // check if SL Beta version >= 2
+        const digits = ballerinaExtInstance.ballerinaVersion.replace(/[^0-9]/g, "");
+        const versionNumber = +digits;
+        if (versionNumber < 2) {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    
+
     commands.registerCommand(PALETTE_COMMANDS.PASTE_JSON_AS_RECORD, () => {
         if (!window.activeTextEditor || window.activeTextEditor?.document.fileName.endsWith('.bal')) {
             window.showErrorMessage("Target is not a Ballerina file!");
