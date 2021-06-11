@@ -320,6 +320,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     return {
                                         range: null,
                                         label: completionResponse.label,
+                                        detail: completionResponse.detail,
                                         kind: completionResponse.kind as CompletionItemKind,
                                         insertText: completionResponse.insertText,
                                         insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
