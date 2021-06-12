@@ -83,10 +83,6 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
             >
                 <div style={{ width: draftFieldViewState.bBox.w - offSetCorrection, padding: '0 5px 0 5px' }}>
                     <div id="draft-field-form" className='draft-field-form'>
-                        {/* <div className='draft-field-type-select' >
-                            <ObjectTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
-                            <AttributeTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
-                        </div> */}
                         <div className='draft-field-input'>
                             <TextField
                                 value={fieldName}
