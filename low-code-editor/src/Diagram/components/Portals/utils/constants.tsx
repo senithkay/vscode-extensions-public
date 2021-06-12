@@ -74,5 +74,11 @@ export const tooltipMessages: Record<string, any> = {
     connectorButtons: {
         savaButton: "Save connector initialization",
         savaNextButton: "Configure connector invocation"
+    },
+    salesforce: {
+        clientID: "Client ID of the connected app",
+        clientSecret: "Client secret of the connected app",
+        refreshToken: "Refresh token of the connected app",
+        refreshTokenURL: "Refresh token URL of the connected app"
     }
 }
