@@ -184,6 +184,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
             model.value = monacoRef.current?.editor?.getModel()?.getValue();
+            if (onChange) {
+                onChange(monacoRef.current?.editor?.getModel()?.getValue());
+            }
         }
         validate(model.name, false);
         if (monacoRef.current) {
