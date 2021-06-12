@@ -51,10 +51,13 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
-    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getManualConnectionDetailsFromFormFields,
+import {
+    addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
+    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getManualConnectionConfigurables, getManualConnectionDetailsFromFormFields,
+    getManualConnectionTypeFromFormFields,
     getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection,
-    getParams, matchEndpointToFormField } from '../../../Portals/utils';
+    getParams, matchEndpointToFormField
+} from '../../../Portals/utils';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -129,7 +132,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
     //TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supportd
-    const connectorTypes = ["Google Sheets","Google Calendar","Gmail","Google Drive","GitHub"];
+    const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "Google Drive", "GitHub"];
 
     useEffect(() => {
 
@@ -195,7 +198,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     if (functionDefInfo && isAction) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
-                operations.push({name: key, label: value.label});
+                operations.push({ name: key, label: value.label });
             }
         });
     }
@@ -326,42 +329,86 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         } else {
             // manual flow
 
-            if (connectorConfig?.connectionName && (connectorTypes.includes(connectorInfo.displayName) )) {
-                // createManualConnection
-              
+            if (connectorConfig?.connectionName && (connectorTypes.includes(connectorInfo.displayName))) {
+                let connectorConfigurables;
+                let configSource;
+                let selectedType = getManualConnectionTypeFromFormFields(config.connectorInit)
+                const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit)
+                if (manualConnectionFormFieldValues.selectedFields.length > 0) {
+                    // TODO:This is a mock API response. 
+                    const mockedAPIResponse = {
+                        "id": "8",
+                        "handle": "624f836c-ca82-11eb-9382-0242ac11000b",
+                        "displayName": "Google calender connection 12",
+                        "connectorName": "Google Calendar",
+                        "userAccountIdentifier": "yashodperera",
+                        "codeVariableKeys": [
+                            {
+                                "name": "invocationUrlKey",
+                                "codeVariableKey": "CHOREO_APP_INVOCATION_URL"
+                            },
+                            {
+                                "name": "tokenKey",
+                                "codeVariableKey": "TOKEN_624F836C_CA82_11EB_9382_0242AC11000B"
+                            }
+                        ],
+                        "type": "manual"
+                    }
+                    configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, selectedType)
+                    connectorConfigurables = getManualConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, symbolInfo.configurables, selectedType);
+                    if (isNewConnectorInitWizard && targetPosition) {
+                        // new connector client initialization
+                        const addImport: STModification = createImportStatement(
+                            connectorInfo.org,
+                            connectorInfo.module,
+                            targetPosition
+                        );
+                        modifications.push(addImport);
 
-            // catch the response(new tokens and name of connection)
+                        const addConnectorInit: STModification = createPropertyStatement(
+                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                            targetPosition
+                        );
+                        modifications.push(addConnectorInit);
+                    } else {
+                        // update connector client initialization
+                        const updateConnectorInit = updatePropertyStatement(
+                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                            connectorConfig.initPosition
+                        );
+                        modifications.push(updateConnectorInit);
+                    }
+                }
+            }
+            else {
+                if (isNewConnectorInitWizard && targetPosition) {
+                    // new connector client initialization
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
 
-        }
-        else{
-            if (isNewConnectorInitWizard && targetPosition) {
-                // new connector client initialization
-                const addImport: STModification = createImportStatement(
-                    connectorInfo.org,
-                    connectorInfo.module,
-                    targetPosition
-                );
-                modifications.push(addImport);
-
-                const addConnectorInit: STModification = createPropertyStatement(
-                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                    targetPosition
-                );
-                modifications.push(addConnectorInit);
-            } else {
-                // update connector client initialization
-                const updateConnectorInit = updatePropertyStatement(
-                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                    connectorConfig.initPosition
-                );
-                modifications.push(updateConnectorInit);
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                } else {
+                    // update connector client initialization
+                    const updateConnectorInit = updatePropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        connectorConfig.initPosition
+                    );
+                    modifications.push(updateConnectorInit);
+                }
+            }
+            if (modifications.length > 0) {
+                modifyDiagram(modifications);
+                onClose();
             }
         }
-        if (modifications.length > 0) {
-            modifyDiagram(modifications);
-            onClose();
-        }
-    }
     }
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
@@ -373,7 +420,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         };
         onEvent(event);
         if (!isNewConnectorInitWizard) {
-            if (currentActionReturnType.hasReturn){
+            if (currentActionReturnType.hasReturn) {
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -389,7 +436,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         } else {
             if (targetPosition) {
                 // Add an action invocation on the initialized client.
-                if (currentActionReturnType.hasReturn){
+                if (currentActionReturnType.hasReturn) {
                     const addActionInvocation = createPropertyStatement(
                         `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         targetPosition
@@ -492,7 +539,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(updateConnectorInit);
 
-                if (actionReturnType.hasReturn){
+                if (actionReturnType.hasReturn) {
                     const updateActionInvocation = updatePropertyStatement(
                         `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
@@ -535,7 +582,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
 
                     // Add an action invocation on the initialized client.
-                    if (actionReturnType.hasReturn){
+                    if (actionReturnType.hasReturn) {
                         const addActionInvocation = createPropertyStatement(
                             `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -612,7 +659,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
-                            { isOauthConnector && !isManualConnection && !isAction && (
+                            {isOauthConnector && !isManualConnection && !isAction && (
                                 <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
                                     <div className={wizardClasses.fullWidth}>
                                         <div className={wizardClasses.mainOauthBtnWrapper}>
