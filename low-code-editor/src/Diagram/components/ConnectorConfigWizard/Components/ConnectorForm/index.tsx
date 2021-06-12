@@ -128,6 +128,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
+    //TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supportd
+    const connectorTypes = ["Google Sheets","Google Calendar","Gmail","Google Drive","GitHub"];
 
     useEffect(() => {
 
@@ -324,11 +326,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         } else {
             // manual flow
 
-            if (connectorConfig?.connectionName) {
+            if (connectorConfig?.connectionName && (connectorTypes.includes(connectorInfo.displayName) )) {
                 // createManualConnection
-            }
+              
 
             // catch the response(new tokens and name of connection)
+
+        }
+        else{
             if (isNewConnectorInitWizard && targetPosition) {
                 // new connector client initialization
                 const addImport: STModification = createImportStatement(
@@ -357,7 +362,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             onClose();
         }
     }
-
+    }
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
