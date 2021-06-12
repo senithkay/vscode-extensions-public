@@ -821,56 +821,42 @@ export const getKeyFromConnection = (connection: ConnectionDetails, key: string)
     return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key).codeVariableKey || "";
 };
 
-export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails): any {
+export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails, type?: string): any {
+    let tokenObjectName = "oauthClientConfig";
     switch (connectorName) {
         case "github": {
-            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             return [`{
-                accessToken: ${githubAccessToken}
-            }`];
-        }
-        case "google sheets": {
-            const sheetClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
-            const sheetClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            const sheetRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-            const sheetRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            return [`{
-                oauthClientConfig: {
-                    clientId: ${sheetClientId},
-                    clientSecret: ${sheetClientSecret},
-                    refreshToken: ${sheetRefreshToken},
-                    refreshUrl: ${sheetRefreshUrl}
-                }
-             }`];
+                accessToken: ${getKeyFromConnection(connectionDetail, 'accessTokenKey')}}`];
         }
         case "google calendar": {
-            const calendarClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
-            const calendarClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            const calendarRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-            const calendarRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            return [`{
-                oauth2Config: {
-                    clientId: ${calendarClientId},
-                    clientSecret: ${calendarClientSecret},
-                    refreshToken: ${calendarRefreshToken},
-                    refreshUrl: ${calendarRefreshUrl}
-                }
-             }`];
+            tokenObjectName = "oauth2Config";
+            break;
         }
-        case "gmail": {
-            const gmailClientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
-            const gmailClientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            const gmailRefreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-            const gmailRefreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            return [`{
-                oauthClientConfig: {
-                    clientId: ${gmailClientId},
-                    clientSecret: ${gmailClientSecret},
-                    refreshToken: ${gmailRefreshToken},
-                    refreshUrl: ${gmailRefreshUrl}
-                }
-             }`];
+        case "google drive": {
+            tokenObjectName = "clientConfig";
+            break;
         }
+        case "gmail":
+        case "google sheets": {
+            tokenObjectName = "oauthClientConfig";
+            break;
+        }
+    }
+    if (type === "OAuth2RefreshTokenGrantConfig") {
+        return [`{
+            ${tokenObjectName}: {
+                clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
+                clientSecret: ${getKeyFromConnection(connectionDetail, 'clientSecretKey')},
+                refreshToken: ${getKeyFromConnection(connectionDetail, 'refreshTokenKey')},
+                refreshUrl: ${getKeyFromConnection(connectionDetail, 'tokenEpKey')}
+            }
+         }`];
+    } else if (type === "BearerTokenConfig") {
+        return [`{
+            ${tokenObjectName}: {
+                token: ${getKeyFromConnection(connectionDetail, 'tokenKey')}
+            }
+         }`];
     }
 }
 
@@ -1234,4 +1220,91 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
     }
     return selectedFields;
 }
+export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
+    let selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
+    return selectedType
+}
 
+export function getManualConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>, selectedDataType?: string,): any {
+    if (selectedDataType && selectedDataType == "BearerTokenConfig") {
+        switch (connectorName) {
+            case "google sheets": {
+                const gsheetAccessToken = getKeyFromConnection(connectionDetail, 'tokenKey');
+                if (!configurables?.get(gsheetAccessToken)) {
+                    return `configurable string ${gsheetAccessToken} = ?;`;
+                }
+                break;
+            }
+            case "google calendar": {
+                {
+                    const gcalendarAccessToken = getKeyFromConnection(connectionDetail, 'tokenKey');
+                    if (!configurables?.get(gcalendarAccessToken)) {
+                        return `configurable string ${gcalendarAccessToken} = ?;`;
+                    }
+                    break;
+                }
+            }
+
+            case "gmail": {
+                {
+                    const gmailAccessToken = getKeyFromConnection(connectionDetail, 'tokenKey');
+                    if (!configurables?.get(gmailAccessToken)) {
+                        return `configurable string ${gmailAccessToken} = ?;`;
+                    }
+                    break;
+                }
+            }
+
+            case "google drive": {
+                {
+                    const googledriveAccessToken = getKeyFromConnection(connectionDetail, 'tokenKey');
+                    if (!configurables?.get(googledriveAccessToken)) {
+                        return `configurable string ${googledriveAccessToken} = ?;`;
+                    }
+                    break;
+                }
+            }
+
+        }
+    }
+    else if (selectedDataType && selectedDataType == "OAuth2RefreshTokenGrantConfig") {
+        switch (connectorName) {
+            case "google sheets":
+            case "google calendar":
+            case "google drive":
+            case "gmail": {
+                const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
+                const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
+                const refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
+                const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
+                let statement = '';
+
+                if (!configurables?.get(clientId)) {
+                    statement += `configurable string ${clientId} = ?;\n`;
+                }
+                if (!configurables?.get(clientSecret)) {
+                    statement += `configurable string ${clientSecret} = ?;\n`;
+                }
+                if (!configurables?.get(refreshUrl)) {
+                    statement += `configurable string ${refreshUrl} = ?;\n`;
+                }
+                if (!configurables?.get(refreshToken)) {
+                    statement += `configurable string ${refreshToken} = ?;\n`;
+                }
+
+                return statement !== '' ? statement : null;
+            }
+        }
+    }
+    else {
+        if (connectorName == "github") {
+            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
+            if (!configurables?.get(githubAccessToken)) {
+                return `configurable string ${githubAccessToken} = ?;`;
+            }
+
+        }
+    }
+
+    return null;
+}
