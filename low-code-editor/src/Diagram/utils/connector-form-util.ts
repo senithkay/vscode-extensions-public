@@ -26,6 +26,23 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                                          connectorConfig: ConnectorConfig, state?: any): Map<string, FunctionDefinitionInfo> {
     let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
+
+    // TODO: Remove when optional field BE support is given
+    const hideOptionalFields = (value: FunctionDefinitionInfo, connectorType: string, oauthConfigName: string) => {
+        const allFields = value?.parameters?.find(field => field.name === connectorType).fields;
+        const mandatoryFields = allFields.find(field => field.name === oauthConfigName);
+        const optionalFields = allFields.find(field => field.name !== oauthConfigName)
+        optionalFields.hide = true;
+
+        mandatoryFields?.fields?.forEach((subField) => {
+            subField?.fields?.forEach(item => {
+                if (item.optional) {
+                    item.hide = true;
+                }
+            });
+        });
+    }
+
     switch (connectorName) {
         case "ballerina_http_Client":
             fieldsForFunctions.forEach((value, key) => {
@@ -229,7 +246,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         }
                     });
                 }
+
                 // hide optional fields from gmail forms
+                // TODO: Remove when optional field BE support is given
+                if (key === "init"){
+                    hideOptionalFields(value, "gmailConfig", "oauthClientConfig");
+                }
+
                 if (key === "readMessage") {
                     value.parameters.find(fields => fields.name === "format").hide = true;
                     value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
@@ -237,6 +260,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === "listMessages") {
                     value.parameters.find(fields => fields.name === "filter").hide = true;
                 }
+
                 // set default value to userId field
                 const userIdField = value.parameters.find(field => field.name === "userId");
                 if (userIdField && !(userIdField?.value)) {
@@ -245,8 +269,35 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
+        case 'ballerinax_googleapis.sheets_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from google sheets forms
+                // TODO: Remove when optional field BE support is given
+                if (key === "init"){
+                    hideOptionalFields(value, "spreadsheetConfig", "oauthClientConfig");
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_github_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from github forms
+                // TODO: Remove when optional field BE support is given
+                if (key === "init"){
+                    hideOptionalFields(value, "config", "accessToken");
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case "ballerinax_googleapis.calendar_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+
+                // hide optional fields from google calendar forms
+                // TODO: Remove when optional field BE support is given
+                if (key === "init"){
+                    hideOptionalFields(value, "calendarConfig", "oauth2Config");
+                }
+
                 if (key === "createEvent" || key === "updateEvent") {
                     value.parameters.find(field => field.name === "event").fields.forEach((field) => {
                         if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
@@ -318,6 +369,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_googleapis.drive_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from google drive forms
+                // TODO: Remove when optional field BE support is given
+                if (key === "init"){
+                    hideOptionalFields(value, "driveConfig", "clientConfig");
+                }
+
                 // TODO: hide these operation until the Choreo support file upload feature
                 const hiddenActions: string[] = [
                     "uploadFile",
