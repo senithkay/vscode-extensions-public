@@ -436,11 +436,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         if (formField.type === "union") {
                             formField.fields.forEach(subFormField => {
                                 if (subFormField.type === "record" && subFormField.fields) {
-                                    // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
-                                    //      it will generate empty formField. getParams() code-gen skip this empty FormField.
-                                    //      here skip that empty FormFiled and use inside field array
-                                    const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
-                                        subFormField.fields[0]?.fields : subFormField.fields;
+                                    const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
@@ -1208,10 +1204,10 @@ export function checkVariableName(varName: string, text: string, existingText?: 
 }
 export function getManualConnectionDetailsFromFormFields(formFields: FormField[]): ManualConfigType[] {
 
-    let manualConfigurationsFromFields: ManualConfigType[] = []
-    let configs : ManualConfigType[]
-    let name : string
-    let value : string
+    let selectedFields: any[] = []
+    let configs: any
+    let name: string
+    let value: string
 
     if (formFields) {
         formFields.forEach(field => {
@@ -1219,30 +1215,23 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
                 switch (field.type) {
                     case "record":
                         configs = getManualConnectionDetailsFromFormFields(field.fields)
-                        manualConfigurationsFromFields = [...manualConfigurationsFromFields, ...configs]
-
+                        selectedFields = [...selectedFields, ...configs.selectedFields]
                         break;
                     case "union":
                         configs = getManualConnectionDetailsFromFormFields(field.fields)
-                        manualConfigurationsFromFields = [...manualConfigurationsFromFields, ...configs]
+                        selectedFields = [...selectedFields, ...configs.selectedFields]
                         break;
 
                     default:
-                            if (field.value !== undefined){
+                        if (field.value !== undefined) {
                             name = field.name
                             value = field.value
-                            manualConfigurationsFromFields.push({name, value})
-                            }
-
+                            selectedFields.push({ name, value })
+                        }
                 }
             }
-
-
         });
     }
-
-
-    return manualConfigurationsFromFields
-
+    return selectedFields;
 }
 
