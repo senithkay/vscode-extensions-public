@@ -16,7 +16,8 @@ import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
-import { DraftUpdateStatement } from "../../../../view-state/draft";
+import { DraftUpdatePosition } from "../../../../view-state/draft";
+import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
     model?: FormField | any;
@@ -54,7 +55,7 @@ export interface ConditionConfig {
     type: string;
     conditionExpression?: string | ForeachConfig;
     scopeSymbols?: string[];
-    conditionPosition?: DraftUpdateStatement;
+    conditionPosition?: DraftUpdatePosition;
 }
 
 export interface ForeachConfig {
@@ -65,7 +66,7 @@ export interface ForeachConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -86,6 +87,45 @@ export interface RespondConfig {
     respondExpression: string;
     variable: string;
     responseCode?: string;
+}
+
+export interface TypeInfo {
+    name: string;
+    orgName: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface DataMapperInputTypeInfo {
+    type: string;
+    name: string;
+    node?: STNode;
+}
+
+export interface DataMapperOutputTypeInfo {
+    variableName?: string;
+    type: string;
+    node?: STNode;
+    generationType?: GenerationType;
+    typeInfo?: TypeInfo;
+    startLine?: number;
+    fields?: DataMapperOutputField[];
+    sampleStructure?: string;
+    fieldsGenerated?: boolean;
+}
+
+export interface DataMapperConfig {
+    inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
+    outputType: DataMapperOutputTypeInfo;
+    wizardType: WizardType;
+}
+
+export interface DataMapperOutputField {
+    name: string;
+    type: string;
+    fields?: DataMapperOutputField[];
+    value?: string;
+    isChanged: boolean;
 }
 
 export interface EndConfig {

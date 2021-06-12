@@ -25,3 +25,4 @@ export { default as ScheduleIcon } from "./Schedule";
 export { default as SalesforceIcon } from "./Salesforce";
 export { default as WebhookIcon } from "./Webhook";
 export { default as CustomStatementIcon } from "./CustomStatement";
+export { default as DataMapperIcon } from "./DataMapper";

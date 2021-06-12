@@ -21,6 +21,7 @@ import {
     LocalVarDecl,
     MethodCall, ModuleVarDecl, NumericLiteral,
     QualifiedNameReference,
+    RecordTypeDesc,
     RequiredParam,
     SimpleNameReference,
     STKindChecker,
@@ -38,6 +39,7 @@ const configurables: Map<string, STNode> = new Map();
 const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
+const recordTypeDescriptions: Map<string, STNode> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -85,9 +87,15 @@ class SymbolFindingVisitor implements Visitor {
             node.varRef?.typeData?.symbol?.kind
             : node.typeData?.symbol?.kind;
 
-        const varName = STKindChecker.isNumericLiteral(node.expression) ?
-            (node.expression as NumericLiteral).literalToken.value
-            : node.typeData?.symbol?.name;
+        // TODO : Remove if not necessary
+        // const varName = STKindChecker.isNumericLiteral(node.expression) ?
+        //     (node.expression as NumericLiteral).literalToken.value
+        //     : node.typeData?.symbol?.name;
+        let varName;
+
+        if (STKindChecker.isSimpleNameReference(node.varRef)) {
+            varName = (node.varRef as SimpleNameReference).name.value;
+        }
 
         if (varName === undefined || varName === null || varType !== "VARIABLE") {
             return;
@@ -129,6 +137,14 @@ class SymbolFindingVisitor implements Visitor {
         });
     }
 
+    public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
+        const typeData = node.typeData;
+        const typeSymbol = typeData.typeSymbol;
+        if (typeSymbol.moduleID) {
+            const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
+            recordTypeDescriptions.set(recordMapKey, node);
+        }
+    }
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
             node.qualifiers.find(token => token.value === "configurable")) {
@@ -156,6 +172,9 @@ function getType(typeNode: any): any {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";
         return packageName + nameRef.identifier.value;
+    } else if (STKindChecker.isSimpleNameReference(typeNode)) {
+        const nameRef: SimpleNameReference = typeNode as SimpleNameReference;
+        return nameRef.name.value;
     } else if (STKindChecker.isArrayTypeDesc(typeNode)) {
         return getType(typeNode.memberTypeDesc) + "[]";
     } else if (STKindChecker.isUnionTypeDesc(typeNode)) {
@@ -177,6 +196,8 @@ function getType(typeNode: any): any {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {
         return "var";
+    } else if (STKindChecker.isRecordTypeDesc(typeNode)) {
+        return 'record';
     } else if (STKindChecker.isSimpleNameReference(typeNode)) {
         return typeNode?.name?.value;
     }
@@ -190,6 +211,7 @@ export function cleanAll() {
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
+    recordTypeDescriptions.clear();
 }
 
 export function getSymbolInfo(): STSymbolInfo {
@@ -200,7 +222,8 @@ export function getSymbolInfo(): STSymbolInfo {
         configurables,
         callStatement,
         variableNameReferences,
-        assignmentStatement
+        assignmentStatement,
+        recordTypeDescriptions
     }
 }
 

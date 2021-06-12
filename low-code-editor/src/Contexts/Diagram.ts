@@ -11,19 +11,11 @@
  * associated services.
  */
 import { STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
-import { ExpressionEditorState } from "../Definitions";
+import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
 
 import createContext from "./createContext";
-
-const defaultExprEditorState: ExpressionEditorState = {
-    content: undefined,
-    name: undefined,
-    uri: undefined,
-    diagnostic: []
-};
 
 const reducer = (state: any, action: any) => {
     switch (action.type) {
@@ -48,6 +40,23 @@ const reducer = (state: any, action: any) => {
             return {
                 ...state,
                 targetPosition: action.payload
+            }
+        case 'SWITCH_TO_DATAMAPPER':
+            return {
+                ...state,
+                isDataMapperShown: !state.isDataMapperShown,
+                dataMapperConfig: action.payload
+            }
+        case 'TOGGLE_DIAGRAM_OVERLAY':
+            return {
+                ...state,
+                isConfigOverlayFormOpen: !state.isConfigOverlayFormOpen,
+                dataMapperConfig: undefined
+            }
+        case 'UPDATE_DATAMAPPER_CONFIG':
+            return {
+                ...state,
+                dataMapperConfig: action.payload
             }
         default:
             return state;
@@ -78,6 +87,21 @@ const actions = {
     editorComponentStart: (dispatch: any) => {
         return (payload: STNode) => {
             dispatch({ type: 'EDITOR_COMPONENT_START', payload })
+        }
+    },
+    dataMapperStart: (dispatch: any) => {
+        return (dataMapperConfig: DataMapperConfig) => {
+            dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
+        }
+    },
+    toggleDiagramOverlay: (dispatch: any) => {
+        return () => {
+            dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
+        }
+    },
+    updateDataMapperConfig: (dispatch: any) => {
+        return (dataMapperConfig: DataMapperConfig) => {
+            dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
         }
     }
 };

@@ -48,15 +48,13 @@ export interface ProcessorProps {
 }
 
 export function DataProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw } = useContext(Context);
+    const { state, diagramCleanDraw, dataMapperStart, toggleDiagramOverlay } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,
         isMutationProgress,
         isWaitingOnWorkspace,
         isReadOnly,
-        dispactchConfigOverlayForm: openNewProcessorConfig,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
         maximize: maximizeCodeView,
         setCodeLocationToHighlight: setCodeToHighlight,
         currentApp,
@@ -129,11 +127,19 @@ export function DataProcessor(props: ProcessorProps) {
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
+
+            if (STKindChecker.isMappingConstructor(model.initializer)) {
+                processType = 'DataMapper';
+            }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
+            }
+
+            if (STKindChecker.isMappingConstructor(model.expression)) {
+                processType = 'DataMapper';
             }
         } else {
             processType = "Custom";
@@ -153,12 +159,10 @@ export function DataProcessor(props: ProcessorProps) {
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
-            dispatchCloseConfigOverlayForm();
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
             updateConfigOverlayFormState(overlayFormConfig);
-            openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
-                WizardType.NEW, blockViewState, undefined, stSymbolInfo);
+            toggleDiagramOverlay();
         }
     }, []);
 
@@ -166,7 +170,7 @@ export function DataProcessor(props: ProcessorProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            dispatchCloseConfigOverlayForm();
+            toggleDiagramOverlay();
         }
     };
 
@@ -176,12 +180,12 @@ export function DataProcessor(props: ProcessorProps) {
             diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     // let exsitingWizard: ReactNode = null;
@@ -198,7 +202,7 @@ export function DataProcessor(props: ProcessorProps) {
                 blockViewState, undefined, stSymbolInfo, model);
             updateConfigOverlayFormState(overlayFormConfig);
             setConfigWizardOpen(true);
-            openNewProcessorConfig(processType, position, WizardType.EXISTING, model.viewState, config, stSymbolInfo, model);
+            toggleDiagramOverlay();
         }
     };
 
@@ -321,7 +325,6 @@ export function DataProcessor(props: ProcessorProps) {
                                             rx="7"
                                             className="process-rect"
                                         />
-
                                         {editAndDeleteButtons}
                                     </>
                                 )}
