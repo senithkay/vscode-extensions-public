@@ -26,7 +26,13 @@ export function Constant(props: ConstantProps) {
     const dataPoints: JSX.Element[] = [];
 
     if (viewState.sourcePointViewState) {
-        dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={() => {}} />)
+        dataPoints.push(
+            <DataPoint
+                dataPointViewState={viewState.sourcePointViewState}
+                onClick={() => { }}
+                disableEdit={true}
+            />
+        );
     }
 
     return (
