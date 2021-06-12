@@ -891,6 +891,9 @@ export function getInitReturnType(functionDefinitions: Map<string, FunctionDefin
 }
 
 export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): FormFieldReturnType {
+    if (!action){
+        return undefined;
+    }
     const returnTypeField = functionDefinitions.get(action)?.returnType;
     return getFormFieldReturnType(returnTypeField);
 }

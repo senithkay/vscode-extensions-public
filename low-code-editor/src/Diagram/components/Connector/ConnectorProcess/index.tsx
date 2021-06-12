@@ -26,6 +26,7 @@ import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
+import { connectorCategories } from "../../Portals/utils/constants";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";
@@ -74,9 +75,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftVS.connector);
 
     const toggleSelection = () => {
-        const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, connectors, stSymbolInfo);
-        setConnector(matchedConnector);
         setIsConnectorEdit(!isEditConnector);
     };
 
@@ -107,7 +105,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     };
 
     let isReferencedVariable = false;
+
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
+
     if (isLocalVariableDecl) {
         const localVarDecl = model as LocalVarDecl;
         const captureBingingPattern = localVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -117,6 +117,15 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
 
+    if (!connector && connectors){
+        const connectorInit: LocalVarDecl = model as LocalVarDecl;
+        const matchedConnector = getMatchingConnector(connectorInit, connectors, stSymbolInfo);
+        if (matchedConnector){
+            setConnector(matchedConnector);
+        }
+    }
+
+    const isSingleFormConnector =  connector && connector.category === connectorCategories.CHOREO_CONNECTORS;
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
     return (
@@ -148,7 +157,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                     createModifications={connectorDefDeleteMutation}
                                 />
                             </g>
-                            <g className={!isLocalVariableDecl ? "disable" : ""}>
+                            <g className={(!isLocalVariableDecl || isSingleFormConnector) ? "disable" : ""}>
                                 <EditBtn
                                     onHandleEdit={toggleSelection}
                                     model={model}
@@ -158,7 +167,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                 />
                             </g>
                             <g>
-                                {((model === null || isEditConnector)) && (
+                                {((model === null || isEditConnector)) && !isSingleFormConnector && (
                                     <ConnectorConfigWizard
                                         connectorInfo={connector}
                                         position={{

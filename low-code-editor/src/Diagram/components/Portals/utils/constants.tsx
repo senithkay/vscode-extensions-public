@@ -82,3 +82,9 @@ export const tooltipMessages: Record<string, any> = {
         refreshTokenURL: "Refresh token URL of the connected app"
     }
 }
+
+export const connectorCategories = {
+    GENERIC_CONNECTORS: "generic-connectors",
+    SERVICE_CONNECTORS: "service-connectors",
+    CHOREO_CONNECTORS: "choreo-connectors"
+}
