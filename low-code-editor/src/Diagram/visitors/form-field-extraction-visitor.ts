@@ -149,6 +149,13 @@ class FieldVisitor implements Visitor {
         }
     }
 
+    beginVisitDecimalTypeDesc(node: FloatTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            const viewState: FormField = node.viewState;
+            viewState.type = PrimitiveBalType.Float;
+        }
+    }
+
     beginVisitBooleanTypeDesc(node: BooleanTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState;
