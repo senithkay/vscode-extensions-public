@@ -195,6 +195,11 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
         } else if (model.collectionDataType) {
             const returnTypeString = transformFormFieldTypeToString(model.collectionDataType);
             if (model?.isArray) {
+                // check end with array
+                // eg: (int|string)[][]
+                if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]"){
+                    return `${returnTypeString}[]`;
+                }
                 return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
             }
             return returnTypeString;
