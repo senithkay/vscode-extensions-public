@@ -11,25 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
 import { updatePropertyStatement } from '../../../../utils/modification-util';
 import { DeleteSVG } from '../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../context/DataMapperViewContext';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
-import { CursorPosition, getEventHub } from '../../util/mouse-event-hub';
 import { ConnectionViewState } from '../../viewstate';
 
 interface MappingArrowProps {
     connectionViewstate: ConnectionViewState;
     keyId: string;
     mouseEventHub?: any;
+    disableEdit?: boolean
 }
 
 export function MappingArrow(props: MappingArrowProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperContext);
-    const { connectionViewstate: connection, keyId } = props;
+    const { connectionViewstate: connection, keyId, disableEdit } = props;
     const [isCursorInProximity, setIsCursorInProximity] = useState<boolean>(false);
 
     const x1 = connection.x1 + PADDING_OFFSET;
@@ -108,11 +108,11 @@ export function MappingArrow(props: MappingArrowProps) {
                 y2={connection.y2}
                 className="connect-line"
                 style={{
-                    strokeWidth: 25,
+                    strokeWidth: 10,
                     opacity: 0
                 }}
             />
-            {isCursorInProximity && (
+            {!disableEdit && isCursorInProximity && (
                 <g id='arrow-delete-icon' className={'delete-icon-show'} onClick={handleDeleteBtnClick} >
                     <DeleteSVG x={midPointX} y={midPointY - 10} />
                 </g>
