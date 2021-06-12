@@ -1188,7 +1188,7 @@ export function checkVariableName(varName: string, text: string, existingText?: 
     }
     return response;
 }
-export function getManualConnectionDetailsFromFormFields(formFields: FormField[]): ManualConfigType[] {
+export function getManualConnectionDetailsFromFormFields(formFields: FormField[]): any {
 
     let selectedFields: any[] = []
     let configs: any
@@ -1218,7 +1218,7 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
             }
         });
     }
-    return selectedFields;
+    return {selectedFields}
 }
 export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
     let selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
