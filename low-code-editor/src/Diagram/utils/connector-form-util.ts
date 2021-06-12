@@ -22,6 +22,17 @@ import {
 import { Connector } from "../../Definitions/lang-client-extended";
 import { tooltipMessages } from "../components/Portals/utils/constants";
 
+const INIT = "init";
+const SPREAD_SHEET_CONFIG = "spreadsheetConfig";
+const GMAIL_CONFIG = "gmailConfig";
+const OAUTH_CLIENT_CONFIG = "oauthClientConfig";
+const CALENDAR_CONFIG = "calendarConfig";
+const OAUTH2_CONFIG = "oauth2Config";
+const CONFIG = "config";
+const ACCESS_TOKEN = "accessToken";
+const DRIVE_CONFIG = "driveConfig";
+const CLIENT_CONFIG = "clientConfig";
+
 export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FunctionDefinitionInfo>,
                                          connectorConfig: ConnectorConfig, state?: any): Map<string, FunctionDefinitionInfo> {
     let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
@@ -31,7 +42,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
     const hideOptionalFields = (value: FunctionDefinitionInfo, connectorType: string, oauthConfigName: string) => {
         const allFields = value?.parameters?.find(field => field.name === connectorType).fields;
         const mandatoryFields = allFields.find(field => field.name === oauthConfigName);
-        const optionalFields = allFields.find(field => field.name !== oauthConfigName)
+        const optionalFields = allFields.find(field => field.name !== oauthConfigName);
         optionalFields.hide = true;
 
         mandatoryFields?.fields?.forEach((subField) => {
@@ -46,7 +57,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
     switch (connectorName) {
         case "ballerina_http_Client":
             fieldsForFunctions.forEach((value, key) => {
-                if (key === "init") {
+                if (key === INIT) {
                     value.parameters.forEach((param) => {
                         if (param.name === "url") {
                             param.displayName = "URL";
@@ -168,8 +179,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters[0].fields = formField;
                     filteredFunctions.set(key, value);
                 }
-                else if (key === "init") {
-                    if (value.parameters[3].name === "clientConfig") {
+                else if (key === INIT) {
+                    if (value.parameters[3].name === CLIENT_CONFIG) {
                         value.parameters[3].fields.forEach((param) => {
                             if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
@@ -194,9 +205,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters.find(field => field.name === "clientConfig").hide = true;
-                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                if (key === INIT) {
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
                     if (value.parameters[0].name === "host"){
                         value.parameters[0].tooltip = tooltipMessages.IMAP.host
                     }
@@ -212,9 +223,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case "ballerina_email_PopClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
-                    value.parameters.find(field => field.name === "clientConfig").hide = true;
-                    value.parameters.find(field => field.name === "clientConfig").noCodeGen = true;
+                if (key === INIT) {
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
                     if (value.parameters[0].name === "host"){
                         value.parameters[0].tooltip = tooltipMessages.POP3.host
                     }
@@ -249,8 +260,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
                 // hide optional fields from gmail forms
                 // TODO: Remove when optional field BE support is given
-                if (key === "init"){
-                    hideOptionalFields(value, "gmailConfig", "oauthClientConfig");
+                if (key === INIT){
+                    hideOptionalFields(value, GMAIL_CONFIG, OAUTH_CLIENT_CONFIG);
                 }
 
                 if (key === "readMessage") {
@@ -273,8 +284,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from google sheets forms
                 // TODO: Remove when optional field BE support is given
-                if (key === "init"){
-                    hideOptionalFields(value, "spreadsheetConfig", "oauthClientConfig");
+                if (key === INIT){
+                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
                 }
                 filteredFunctions.set(key, value);
             });
@@ -283,8 +294,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from github forms
                 // TODO: Remove when optional field BE support is given
-                if (key === "init"){
-                    hideOptionalFields(value, "config", "accessToken");
+                if (key === INIT){
+                    hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
                 }
                 filteredFunctions.set(key, value);
             });
@@ -294,8 +305,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
                 // hide optional fields from google calendar forms
                 // TODO: Remove when optional field BE support is given
-                if (key === "init"){
-                    hideOptionalFields(value, "calendarConfig", "oauth2Config");
+                if (key === INIT){
+                    hideOptionalFields(value, CALENDAR_CONFIG, OAUTH2_CONFIG);
                 }
 
                 if (key === "createEvent" || key === "updateEvent") {
@@ -329,10 +340,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === "init") {
+                if (key === INIT) {
                     // TODO: update this tooltip assignment with source code documentation values
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.
-                        find(fields => fields.name === "clientConfig").fields.
+                        find(fields => fields.name === CLIENT_CONFIG).fields.
                             find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields.forEach(subFields => {
                                 if (subFields.name === "refreshUrl") subFields.tooltip = tooltipMessages.salesforce.refreshTokenURL;
                                 if (subFields.name === "refreshToken") subFields.tooltip = tooltipMessages.salesforce.refreshToken;
@@ -371,8 +382,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from google drive forms
                 // TODO: Remove when optional field BE support is given
-                if (key === "init"){
-                    hideOptionalFields(value, "driveConfig", "clientConfig");
+                if (key === INIT){
+                    hideOptionalFields(value, DRIVE_CONFIG, CLIENT_CONFIG);
                 }
 
                 // TODO: hide these operation until the Choreo support file upload feature
@@ -406,7 +417,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
         case 'ballerina_http_Client':
             functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
-                    case 'init':
+                    case INIT:
                         value.parameters.forEach((param) => {
                             if (param.name === "config") {
                                 param.noCodeGen = true;
@@ -441,7 +452,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
         case 'ballerina_email_SmtpClient':
             functionDefInfoMap.forEach((value, key) => {
                 switch (key) {
-                    case 'init':
+                    case INIT:
                     case 'sendMessage':
                         break;
                     case 'send':
@@ -469,8 +480,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerina_email_ImapClient':
             functionDefInfoMap.forEach((value, key) => {
-                if (key === 'init') {
-                    value.parameters.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
+                if (key === INIT) {
+                    value.parameters.filter(field => field.name === CLIENT_CONFIG)[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
@@ -480,8 +491,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerina_email_PopClient':
             functionDefInfoMap.forEach((value, key) => {
-                if (key === 'init') {
-                    value.parameters.filter(field => field.name === 'clientConfig')[0].fields.forEach(subField => {
+                if (key === INIT) {
+                    value.parameters.filter(field => field.name === CLIENT_CONFIG)[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
@@ -494,7 +505,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                 switch (key) {
                     case 'init':
                         value.parameters.forEach(field => {
-                            if (field.name === 'spreadsheetConfig') {
+                            if (field.name === SPREAD_SHEET_CONFIG) {
                                 field.fields.forEach(subField => {
                                     switch (subField.name) {
                                         case 'secureSocketConfig':
