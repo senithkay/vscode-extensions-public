@@ -132,6 +132,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
                             param.type = "collection";
+                            param.isArray = true;
                             param.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
                             param.isUnion = false;
                             param.fields = [];
@@ -326,7 +327,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     "watchFilesById",
                     "watchStop",
                     "getAbout",
-                    "updateFileMetadataById",
                     "listChanges"
                 ];
                 if (!hiddenActions.includes(key)) {
@@ -386,6 +386,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                 switch (key) {
                     case 'init':
                     case 'sendMessage':
+                        break;
+                    case 'send':
                         break;
                     default:
                         value.parameters.forEach(fields => {

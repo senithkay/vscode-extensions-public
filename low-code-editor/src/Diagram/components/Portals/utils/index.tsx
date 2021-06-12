@@ -468,6 +468,16 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     });
 }
 
+export function getRestParamFieldValue (remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
+    const varArgValues: string[] = [];
+    for (let i = currentFieldIndex; i < remoteMethodCallArguments.length; i++) {
+        const varArgs: PositionalArg = remoteMethodCallArguments[i] as PositionalArg;
+        const literalExpression: any = varArgs.expression;
+        varArgValues.push(literalExpression.literalToken.value);
+    }
+    return varArgValues.join(",");
+}
+
 export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formFields: FormField[]) {
     const remoteMethodCallArguments = remoteCall.arguments.filter(arg => arg.kind !== 'CommaToken');
     let nextValueIndex = 0;
@@ -487,15 +497,16 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
             const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
             if (formField.type === "string" || formField.type === "int" || formField.type === "boolean"
                 || formField.type === "float" || formField.type === "httpRequest") {
-                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                    const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
-                    formField.value = stringLiteral.literalToken.value;
-                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = numericLiteral.literalToken.value;
-                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                    const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = booleanLiteral.literalToken.value;
+                if (STKindChecker.isStringLiteral(positionalArg.expression) ||
+                    STKindChecker.isNumericLiteral(positionalArg.expression) ||
+                    STKindChecker.isBooleanLiteral(positionalArg.expression)) {
+                    if (formField.isRestParam) {
+                        formField.value = getRestParamFieldValue(remoteMethodCallArguments as PositionalArg[],
+                            nextValueIndex);
+                    } else {
+                        const literalExpression = positionalArg.expression;
+                        formField.value = literalExpression.literalToken.value;
+                    }
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
@@ -980,7 +991,15 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                         // remove error return
                         response.hasError = false;
                     }
-                    if (type === "" && formField.type && primitives.includes(formField.type)) {
+                    if (type === "" && !formField.typeInfo && primitives.includes(formField.type) &&
+                        formField?.isStream && formField.isErrorType) {
+                        // set stream record type with error
+                        type = `${formField.type},error`;
+                        response.hasReturn = true;
+                        // remove error return
+                        response.hasError = false;
+                    }
+                    if (type === "" && !formField.isStream && formField.type && primitives.includes(formField.type)) {
                         // set primitive types
                         type = formField.type;
                         response.hasReturn = true;
