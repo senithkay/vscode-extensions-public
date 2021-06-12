@@ -237,7 +237,7 @@ export function MapperView(props: MapperViewProps) {
 
     inputSTNodes.forEach((node: STNode, i: number) => {
         inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
-        if (i < inputSTNodes.length - 1 || inputSTNodes.length > 0) {
+        if (i < inputSTNodes.length - 1) {
             inputHeight += 40; // todo: convert to constant
         }
     });
@@ -266,11 +266,21 @@ export function MapperView(props: MapperViewProps) {
         });
     }
 
+    // gap between constant types and variables
+    if ((constantList.size > 0 || constantList.length > 0) && inputSTNodes.length > 0) {
+        inputHeight += 40;
+    }
+
+    // space for add variable button
+    if ((inputSTNodes.length > 0 || constantMap.size > 0 || constantList.length > 0)) {
+        inputHeight += 40;
+    }
+
     if (outputSTNode) {
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
     }
 
-    if (inputSTNodes.length > 0 || constantMap.size > 0) {
+    if (inputSTNodes.length > 0 || constantMap.size > 0 || constantList.length > 0) {
         inputHeight += 65;
     } else {
         inputHeight += 40;
@@ -283,7 +293,7 @@ export function MapperView(props: MapperViewProps) {
     }
 
     if (showAddVariableForm) {
-        inputHeight += 117
+        inputHeight += 117; // remove the space left for button if form is open
     }
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
@@ -362,8 +372,8 @@ export function MapperView(props: MapperViewProps) {
     }
 
     const addVariableButtonPosition: { x: number, y: number } = {
-        x: maxFieldWidth,
-        y: inputSTNodes.length > 0 ? 70 : inputHeight - 117
+        x: inputSTNodes.length > 0 ? maxFieldWidth / 2 + 40 + 10 : maxFieldWidth, // leftOffset + padding = 40
+        y: inputSTNodes.length > 0 ? inputHeight + 15 : 70
     }
 
     return (
@@ -381,9 +391,8 @@ export function MapperView(props: MapperViewProps) {
             <g id="inputComponents">
                 <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
-                {!showAddVariableForm && (
-                    <AddVariableButton {...addVariableButtonPosition} onClick={handleAddVariableClick} />
-                )}
+                {!showAddVariableForm &&
+                    <AddVariableButton {...addVariableButtonPosition} onClick={handleAddVariableClick} />}
 
                 {inputComponents}
             </g>
