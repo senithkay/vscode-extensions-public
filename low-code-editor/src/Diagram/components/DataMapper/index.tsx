@@ -142,7 +142,7 @@ export function DataMapper(props: DataMapperProps) {
         outputSTNode,
         stSymbolInfo,
         showAddVariableForm: false,
-        showConfigureOutputForm: false,
+        showConfigureOutputForm: outputSTNode === undefined,
         isExistingOutputSelected: false,
         isJsonRecordTypeSelected: false,
         showAddJsonFieldForm: false,

@@ -255,7 +255,7 @@ export function dataMapperSizingAndPositioning(
         traversNode(outputSTNode, constantVisitor);
     }
 
-    let constantHeight = showAddVariableForm ? 132 : 15;
+    let constantHeight = 15;
 
     if (squashConstants) {
         constantVisitor.getConstantsMap().forEach(constantVS => {
@@ -446,7 +446,7 @@ export function dataMapperSizingAndPositioningRecalculate(
         traversNode(outputSTNode, constantVisitor);
     }
 
-    let constantHeight = showAddVariableForm ? 132 : 15;
+    let constantHeight = 15;
 
     if (squashConstants) {
         constantVisitor.getConstantsMap().forEach(constantVS => {

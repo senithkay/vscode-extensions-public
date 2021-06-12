@@ -361,6 +361,11 @@ export function MapperView(props: MapperViewProps) {
         maxHeight = maxHeight + (window.innerHeight - maxHeight);
     }
 
+    const addVariableButtonPosition: { x: number, y: number } = {
+        x: maxFieldWidth,
+        y: inputSTNodes.length > 0 ? 70 : inputHeight - 117
+    }
+
     return (
         <Canvas h={maxHeight} w={maxWidth} >
             <g id='datamapper-diagram-switch'>
@@ -376,7 +381,10 @@ export function MapperView(props: MapperViewProps) {
             <g id="inputComponents">
                 <rect className="main-wrapper" width={maxFieldWidth + 50} height={inputHeight} rx="6" x="80" y="60" />
                 <text x="105" y="85" className="main-title-text"> Input</text>
-                <AddVariableButton x={maxFieldWidth} y={70} onClick={handleAddVariableClick} />
+                {!showAddVariableForm && (
+                    <AddVariableButton {...addVariableButtonPosition} onClick={handleAddVariableClick} />
+                )}
+
                 {inputComponents}
             </g>
             <g>
@@ -391,7 +399,7 @@ export function MapperView(props: MapperViewProps) {
                     id="Arrow-head"
                 />
             </g>
-            {
+            {/* {
                 expressionConfig && (
                     <DiagramOverlayContainer>
                         <DiagramOverlay
@@ -421,8 +429,8 @@ export function MapperView(props: MapperViewProps) {
 
                     </DiagramOverlayContainer >
                 )
-            }
-            {
+            } */}
+            {/* {
                 // todo: revert
                 showAddVariableForm && (
                     <DiagramOverlayContainer>
@@ -433,19 +441,59 @@ export function MapperView(props: MapperViewProps) {
                         </DiagramOverlay>
                     </DiagramOverlayContainer>
                 )
-            }
-            {
-                showConfigureOutputForm && (
-                    <DiagramOverlayContainer>
-                        <DiagramOverlay
-                            position={{ x: maxFieldWidth + 400 + 60, y: 90 }}
-
-                        >
-                            <OutputTypeConfigForm />
-                        </DiagramOverlay>
-                    </DiagramOverlayContainer>
+            } */}
+            <DiagramOverlayContainer>
+                {showConfigureOutputForm && (
+                    <DiagramOverlay
+                        position={{ x: maxFieldWidth + 400 + 60, y: 90 }}
+                        stylePosition="absolute"
+                    >
+                        <OutputTypeConfigForm />
+                    </DiagramOverlay>
                 )
-            }
+                }
+                {
+                    // todo: revert
+                    showAddVariableForm && (
+                        <DiagramOverlay
+                            position={{ x: 105, y: inputSTNodes.length > 0 ? inputHeight - 117 : 90 }}
+                            stylePosition="absolute"
+                        >
+                            <VariablePicker />
+                        </DiagramOverlay>
+                    )
+                }
+                {
+                    expressionConfig && (
+                        <DiagramOverlay
+                            position={{
+                                x: expressionConfig.positionX - (PADDING_OFFSET * 2.4),
+                                y: expressionConfig.positionY - (PADDING_OFFSET / 2)
+                            }}
+                            stylePosition="absolute"
+                        >
+                            <div className='expression-wrapper'>
+                                <ExpressionEditor {...expressionConfig.config} />
+                                <div className={overlayClasses.buttonWrapper}>
+                                    <SecondaryButton
+                                        text="Cancel"
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnCancel}
+                                    />
+                                    <PrimaryButton
+                                        disabled={isExpressionValid}
+                                        dataTestId={"datamapper-save-btn"}
+                                        text={"Save"}
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnSave}
+                                    />
+                                </div>
+                            </div>
+                        </DiagramOverlay>
+                    )
+
+                }
+            </DiagramOverlayContainer>
         </Canvas>
     )
 }
