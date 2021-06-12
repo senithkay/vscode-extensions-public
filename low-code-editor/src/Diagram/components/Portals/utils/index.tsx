@@ -1221,12 +1221,12 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
     return {selectedFields}
 }
 export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
-    let selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
+    const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
     return selectedType
 }
 
-export function getManualConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>, selectedDataType?: string,): any {
-    if (selectedDataType && selectedDataType == "BearerTokenConfig") {
+export function getManualConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>, selectedDataType?: string): any {
+    if (selectedDataType && selectedDataType === "BearerTokenConfig") {
         switch (connectorName) {
             case "google sheets": {
                 const gsheetAccessToken = getKeyFromConnection(connectionDetail, 'tokenKey');
@@ -1267,7 +1267,7 @@ export function getManualConnectionConfigurables(connectorName: string, connecti
 
         }
     }
-    else if (selectedDataType && selectedDataType == "OAuth2RefreshTokenGrantConfig") {
+    else if (selectedDataType && selectedDataType === "OAuth2RefreshTokenGrantConfig") {
         switch (connectorName) {
             case "google sheets":
             case "google calendar":
@@ -1297,7 +1297,7 @@ export function getManualConnectionConfigurables(connectorName: string, connecti
         }
     }
     else {
-        if (connectorName == "github") {
+        if (connectorName === "github") {
             const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
             if (!configurables?.get(githubAccessToken)) {
                 return `configurable string ${githubAccessToken} = ?;`;

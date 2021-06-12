@@ -131,7 +131,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
-    //TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supportd
+    // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "Google Drive", "GitHub"];
 
     useEffect(() => {
@@ -332,15 +332,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (connectorConfig?.connectionName && (connectorTypes.includes(connectorInfo.displayName))) {
                 let connectorConfigurables;
                 let configSource;
-                let selectedType = getManualConnectionTypeFromFormFields(config.connectorInit)
+                const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit)
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit)
                 if (manualConnectionFormFieldValues.selectedFields.length > 0) {
-                    // TODO:This is a mock API response. 
-                    const mockedAPIResponse = {
-                        "id": "8",
-                        "handle": "624f836c-ca82-11eb-9382-0242ac11000b",
-                        "displayName": "Google calender connection 12",
-                        "connectorName": "Google Calendar",
+                    // TODO:This is a mock API response.
+                    const mockedAPIResponse =
+                    {
+                        "id": "9",
+                        "handle": "8735fb96-ca82-11eb-9382-0242ac11000b",
+                        "displayName": "Github connection 12",
+                        "connectorName": "GitHub",
                         "userAccountIdentifier": "yashodperera",
                         "codeVariableKeys": [
                             {
@@ -348,8 +349,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 "codeVariableKey": "CHOREO_APP_INVOCATION_URL"
                             },
                             {
-                                "name": "tokenKey",
-                                "codeVariableKey": "TOKEN_624F836C_CA82_11EB_9382_0242AC11000B"
+                                "name": "accessTokenKey",
+                                "codeVariableKey":
+                                    "ACCESS_TOKEN_8735FB96_CA82_11EB_9382_0242AC11000B"
                             }
                         ],
                         "type": "manual"
