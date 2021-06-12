@@ -11,10 +11,12 @@
  * associated services.
  */
 import { DraftUpdatePosition } from "../../../view-state/draft";
+import { JsonFieldTypes } from "../components/forms/DraftFieldForm";
 
 import { DataMapperViewState } from ".";
 
 export class DraftFieldViewstate extends DataMapperViewState {
     public draftInsertPosition: DraftUpdatePosition;
     public precededByComma: boolean;
+    public fieldType: JsonFieldTypes;
 }

@@ -131,6 +131,14 @@
     }
 }
 
+.json-add-field-btn {
+    fill: #CBCEDB;
+    pointer-events: all;
+    &:hover {
+        fill: #5567D5
+    }
+}
+
 .delete-icon-show.disable {
     opacity: 0.5;
 }

@@ -523,6 +523,9 @@ export function dataMapperSizingAndPositioningRecalculate(
 
         dataMapperOutputSizingVisitor.getViewStateMap().forEach(viewstate => {
             viewstate.bBox.w = maxFieldWidth;
+            if ((viewstate as FieldViewState).draftViewState) {
+                (viewstate as FieldViewState).draftViewState.bBox.w = maxFieldWidth;
+            }
         });
 
         constantVisitor.getConstantsMap().forEach(constantVS => {
@@ -599,7 +602,6 @@ export function dataMapperSizingAndPositioningRecalculate(
         constantList: constantVisitor.getConstantList()
     }
 }
-
 
 export function hasReferenceConnections(node: STNode): boolean {
     if (node.dataMapperViewState) {

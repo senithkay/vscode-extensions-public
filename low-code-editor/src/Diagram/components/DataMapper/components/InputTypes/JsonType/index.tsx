@@ -27,7 +27,10 @@ import { getDataMapperComponent, hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';
 import { DraftFieldViewstate } from '../../../viewstate/draft-field-viestate';
+import { AttributeTypeDraftButton } from '../../buttons/AttributeTypeDraftButton';
+import { ObjectTypeDraftButton } from '../../buttons/ObjectTypeDraftButton';
 import { DataPoint } from '../../DataPoint';
+import { JsonFieldTypes } from '../../forms/DraftFieldForm';
 import "../style.scss";
 
 interface JsonTypeProps {
@@ -46,7 +49,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-        isTarget, removeInputType, commaPosition, isLastField } = props;
+            isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -57,9 +60,10 @@ export function JsonType(props: JsonTypeProps) {
     const dataPoints: JSX.Element[] = [];
     const drafts: JSX.Element[] = [];
 
-    const handleAddFieldBtnClick = () => {
+    const handleAddFieldBtnClick = (fieldType: JsonFieldTypes) => {
         // viewState.test = true;
         const draftVS = new DraftFieldViewstate();
+        draftVS.fieldType = fieldType;
         // draftVS.name = '';
         // draftVS.type = FieldDraftType.STRING;
         let expression: MappingConstructor;
@@ -70,6 +74,9 @@ export function JsonType(props: JsonTypeProps) {
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             // TODO: handle assignment type
+            if (model.expression && STKindChecker.isMappingConstructor(model.expression)) {
+                expression = model.expression;
+            }
         } else if (STKindChecker.isSpecificField(model)) {
             if (model.valueExpr && STKindChecker.isMappingConstructor(model.valueExpr)) {
                 expression = model.valueExpr;
@@ -340,14 +347,16 @@ export function JsonType(props: JsonTypeProps) {
             </g>
             {isTarget && (
                 <g render-order="1" >
-                    <text
-                        x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection}
-                        y={viewState.bBox.y + DefaultConfig.dotGap + 5}
-                        height="50"
-                        onClick={handleAddFieldBtnClick}
-                    >
-                        <tspan className="plus-symbol"> + </tspan>
-                    </text>
+                    <AttributeTypeDraftButton
+                        x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection - 2}
+                        y={viewState.bBox.y + DefaultConfig.dotGap + 5 - 14}
+                        handleClick={handleAddFieldBtnClick}
+                    />
+                    <ObjectTypeDraftButton
+                        x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection + 18}
+                        y={viewState.bBox.y + DefaultConfig.dotGap + 5 - 14}
+                        handleClick={handleAddFieldBtnClick}
+                    />
                 </g>
             )}
             {fields}

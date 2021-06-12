@@ -372,8 +372,10 @@ export function MapperView(props: MapperViewProps) {
     }
 
     const addVariableButtonPosition: { x: number, y: number } = {
-        x: inputSTNodes.length > 0 ? maxFieldWidth / 2 + 40 + 10 : maxFieldWidth, // leftOffset + padding = 40
-        y: inputSTNodes.length > 0 ? inputHeight + 15 : 70
+        x: inputSTNodes.length > 0 || constantList.length > 0 || constantMap.size > 0 ?
+            maxFieldWidth / 2 + 40 + 10 : maxFieldWidth, // leftOffset + padding = 40
+        y: inputSTNodes.length > 0 || constantList.length > 0 || constantMap.size > 0 ?
+            inputHeight + 15 : 70
     }
 
     return (
@@ -408,49 +410,6 @@ export function MapperView(props: MapperViewProps) {
                     id="Arrow-head"
                 />
             </g>
-            {/* {
-                expressionConfig && (
-                    <DiagramOverlayContainer>
-                        <DiagramOverlay
-                            position={{
-                                x: expressionConfig.positionX - (PADDING_OFFSET * 2.4),
-                                y: expressionConfig.positionY - (PADDING_OFFSET / 2)
-                            }}
-                        >
-                            <div className='expression-wrapper'>
-                                <ExpressionEditor {...expressionConfig.config} />
-                                <div className={overlayClasses.buttonWrapper}>
-                                    <SecondaryButton
-                                        text="Cancel"
-                                        fullWidth={false}
-                                        onClick={expressionEditorOnCancel}
-                                    />
-                                    <PrimaryButton
-                                        disabled={isExpressionValid}
-                                        dataTestId={"datamapper-save-btn"}
-                                        text={"Save"}
-                                        fullWidth={false}
-                                        onClick={expressionEditorOnSave}
-                                    />
-                                </div>
-                            </div>
-                        </DiagramOverlay>
-
-                    </DiagramOverlayContainer >
-                )
-            } */}
-            {/* {
-                // todo: revert
-                showAddVariableForm && (
-                    <DiagramOverlayContainer>
-                        <DiagramOverlay
-                            position={{ x: 105, y: 90 }}
-                        >
-                            <VariablePicker />
-                        </DiagramOverlay>
-                    </DiagramOverlayContainer>
-                )
-            } */}
             <DiagramOverlayContainer>
                 {showConfigureOutputForm && (
                     <DiagramOverlay

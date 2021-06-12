@@ -39,11 +39,11 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperContext);
     const { draftFieldViewState, onDraftCancel, offSetCorrection } = props;
 
-    const [selectedFieldType, setSelectedFieldType] = useState<JsonFieldTypes>(JsonFieldTypes.ATTRIBUTE);
+    // const [selectedFieldType, setSelectedFieldType] = useState<JsonFieldTypes>(JsonFieldTypes.ATTRIBUTE);
     const [fieldName, setFieldName] = useState<string>('');
 
     const onFieldTypeBtnClick = (type: JsonFieldTypes) => {
-        setSelectedFieldType(type);
+        // setSelectedFieldType(type);
     }
 
     const onFieldNameChange = (evt: any) => {
@@ -59,7 +59,7 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
 
         statementString += fieldName;
 
-        switch (selectedFieldType) {
+        switch (draftFieldViewState.fieldType) {
             case JsonFieldTypes.ATTRIBUTE:
                 statementString += ': ""';
                 break;
@@ -78,14 +78,15 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
     return (
         <DiagramOverlayContainer>
             <DiagramOverlay
-                position={{ x: draftFieldViewState.bBox.x - offSetCorrection, y: draftFieldViewState.bBox.y - 10 }}
+                position={{ x: draftFieldViewState.bBox.x, y: draftFieldViewState.bBox.y - 10 }}
+                stylePosition='absolute'
             >
-                <div style={{ width: draftFieldViewState.bBox.w, padding: '0 5px 0 5px' }}>
+                <div style={{ width: draftFieldViewState.bBox.w - offSetCorrection, padding: '0 5px 0 5px' }}>
                     <div id="draft-field-form" className='draft-field-form'>
-                        <div className='draft-field-type-select' >
+                        {/* <div className='draft-field-type-select' >
                             <ObjectTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
                             <AttributeTypeSelectButton selectedFieldType={selectedFieldType} onClick={onFieldTypeBtnClick} />
-                        </div>
+                        </div> */}
                         <div className='draft-field-input'>
                             <TextField
                                 value={fieldName}
