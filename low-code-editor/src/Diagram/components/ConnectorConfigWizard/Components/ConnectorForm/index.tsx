@@ -53,7 +53,8 @@ import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/L
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import {
     addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
-    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getManualConnectionConfigurables, getManualConnectionDetailsFromFormFields,
+    getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType,
+    getManualConnectionDetailsFromFormFields,
     getManualConnectionTypeFromFormFields,
     getMapTo, getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection,
     getParams, matchEndpointToFormField
@@ -328,90 +329,76 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             // manual flow
+            let connectorConfigurables;
+            let configSource = getParams(config.connectorInit).join();
 
-            if (connectorConfig?.connectionName && (connectorTypes.includes(connectorInfo.displayName))) {
-                let connectorConfigurables;
-                let configSource;
+            if ((connectorTypes.includes(connectorInfo.displayName))) {
                 const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit)
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit)
-                if (manualConnectionFormFieldValues.selectedFields.length > 0) {
-                    // TODO:This is a mock API response.
-                    const mockedAPIResponse =
-                    {
-                        "id": "9",
-                        "handle": "8735fb96-ca82-11eb-9382-0242ac11000b",
-                        "displayName": "Github connection 12",
-                        "connectorName": "GitHub",
-                        "userAccountIdentifier": "yashodperera",
-                        "codeVariableKeys": [
-                            {
-                                "name": "invocationUrlKey",
-                                "codeVariableKey": "CHOREO_APP_INVOCATION_URL"
-                            },
-                            {
-                                "name": "accessTokenKey",
-                                "codeVariableKey":
-                                    "ACCESS_TOKEN_8735FB96_CA82_11EB_9382_0242AC11000B"
-                            }
-                        ],
-                        "type": "manual"
-                    }
-                    configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, selectedType)
-                    connectorConfigurables = getManualConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, symbolInfo.configurables, selectedType);
-                    if (isNewConnectorInitWizard && targetPosition) {
-                        // new connector client initialization
-                        const addImport: STModification = createImportStatement(
-                            connectorInfo.org,
-                            connectorInfo.module,
-                            targetPosition
-                        );
-                        modifications.push(addImport);
-
-                        const addConnectorInit: STModification = createPropertyStatement(
-                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                            targetPosition
-                        );
-                        modifications.push(addConnectorInit);
-                    } else {
-                        // update connector client initialization
-                        const updateConnectorInit = updatePropertyStatement(
-                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                            connectorConfig.initPosition
-                        );
-                        modifications.push(updateConnectorInit);
-                    }
+                // TODO: make request and get configurables
+                // TODO:This is a mock API response.
+                const mockedAPIResponse =
+                {
+                    "id": "9",
+                    "handle": "8735fb96-ca82-11eb-9382-0242ac11000b",
+                    "displayName": "Github connection 12",
+                    "connectorName": "google drive",
+                    "userAccountIdentifier": "yashodperera",
+                    "codeVariableKeys": [
+                        {
+                            "name": "invocationUrlKey",
+                            "codeVariableKey": "CHOREO_APP_INVOCATION_URL"
+                        },
+                        {
+                            "name": "tokenKey",
+                            "codeVariableKey":
+                                "ACCESS_TOKEN_8735FB96_CA82_11EB_9382_0242AC11000B"
+                        }
+                    ],
+                    "type": "manual"
                 }
+                configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, selectedType)
+                connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, symbolInfo.configurables, selectedType);
             }
-            else {
-                if (isNewConnectorInitWizard && targetPosition) {
-                    // new connector client initialization
-                    const addImport: STModification = createImportStatement(
-                        connectorInfo.org,
-                        connectorInfo.module,
-                        targetPosition
-                    );
-                    modifications.push(addImport);
 
-                    const addConnectorInit: STModification = createPropertyStatement(
-                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                        targetPosition
+            if (isNewConnectorInitWizard && targetPosition) {
+                // new connector client initialization
+                const addImport: STModification = createImportStatement(
+                    connectorInfo.org,
+                    connectorInfo.module,
+                    targetPosition
+                );
+                modifications.push(addImport);
+
+                if (connectorConfigurables) {
+                    const addConfigurableVars = createPropertyStatement(
+                        connectorConfigurables,
+                        { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
                     );
-                    modifications.push(addConnectorInit);
-                } else {
-                    // update connector client initialization
-                    const updateConnectorInit = updatePropertyStatement(
-                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                        connectorConfig.initPosition
-                    );
-                    modifications.push(updateConnectorInit);
+                    modifications.push(addConfigurableVars);
                 }
+
+                const addConnectorInit: STModification = createPropertyStatement(
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                    targetPosition
+                );
+                modifications.push(addConnectorInit);
+            } else {
+                // update connector client initialization
+                const updateConnectorInit = updatePropertyStatement(
+                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                    connectorConfig.initPosition
+                );
+                modifications.push(updateConnectorInit);
             }
+
             if (modifications.length > 0) {
                 modifyDiagram(modifications);
                 onClose();
             }
         }
     }
+
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
