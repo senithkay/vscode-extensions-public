@@ -23,6 +23,7 @@ export {
     ValueType as boolean,
     ValueType as float,
     ValueType as union,
+    ValueType as var,
     JsonType as json,
     JsonType as mapconstructor,
     DraftType as draft,

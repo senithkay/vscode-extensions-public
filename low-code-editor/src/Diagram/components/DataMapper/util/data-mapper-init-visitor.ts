@@ -115,7 +115,9 @@ export class DataMapperInitVisitor implements Visitor {
         const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
         const typeDescriptor = typedBindingPattern.typeDescriptor;
 
-        if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
+        if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
+            viewState.type = PrimitiveBalType.Var;
+        } else if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
             viewState.type = PrimitiveBalType.String;
         } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
             viewState.type = PrimitiveBalType.Int;
