@@ -338,10 +338,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     // TODO:This is a mock API response.
                     const mockedAPIResponse =
                     {
-                        "id": "9",
-                        "handle": "8735fb96-ca82-11eb-9382-0242ac11000b",
-                        "displayName": "Github connection 12",
-                        "connectorName": "GitHub",
+                        "id": "8",
+                        "handle": "624f836c-ca82-11eb-9382-0242ac11000b",
+                        "displayName": "Google calender connection 12",
+                        "connectorName": "Google Calendar",
                         "userAccountIdentifier": "yashodperera",
                         "codeVariableKeys": [
                             {
@@ -349,13 +349,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 "codeVariableKey": "CHOREO_APP_INVOCATION_URL"
                             },
                             {
-                                "name": "accessTokenKey",
-                                "codeVariableKey":
-                                    "ACCESS_TOKEN_8735FB96_CA82_11EB_9382_0242AC11000B"
+                                "name": "tokenKey",
+                                "codeVariableKey": "TOKEN_624F836C_CA82_11EB_9382_0242AC11000B"
                             }
                         ],
                         "type": "manual"
-                    }
+                     }
+                     
                     configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, selectedType)
                     connectorConfigurables = getManualConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), mockedAPIResponse, symbolInfo.configurables, selectedType);
                     if (isNewConnectorInitWizard && targetPosition) {
@@ -366,6 +366,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addImport);
+                        if (connectorConfigurables) {
+                            const addConfigurableVars = createPropertyStatement(
+                                connectorConfigurables,
+                                { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                            );
+                            modifications.push(addConfigurableVars);
+                        }
 
                         const addConnectorInit: STModification = createPropertyStatement(
                             `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
