@@ -255,6 +255,9 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             fontWeight: 200,
             color: "#8D91A3"
+        },
+        section: {
+            marginBottom: theme.spacing(2)
         }
     }),
 );
