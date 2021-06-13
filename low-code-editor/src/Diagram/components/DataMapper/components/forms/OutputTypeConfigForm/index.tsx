@@ -13,17 +13,19 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
+// tslint:disable: no-unused-expression
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
-import { Box, FormControl, Typography } from '@material-ui/core';
+import { Box, FormControl, Select, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
+import { FormField, PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { getAllVariables } from '../../../../../utils/mixins';
-import { createPropertyStatement } from '../../../../../utils/modification-util';
+import { createPropertyStatement, updatePropertyStatement } from '../../../../../utils/modification-util';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
 import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
@@ -42,12 +44,6 @@ import { getDefaultValueForType } from '../../../util';
 interface OutputTypeConfigForm {
 }
 
-enum SelectedDataType {
-    RECORD,
-    JSON,
-    DEFAULT
-}
-
 export enum GenerationType {
     ASSIGNMENT,
     NEW
@@ -62,28 +58,87 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
             maxFieldWidth: fieldWidth,
             stSymbolInfo,
             dispatchMutations: onMutate,
+            updateDataMapperConfig,
+            outputSTNode,
+            isExistingOutputSelected,
+            isJsonRecordTypeSelected
         },
-        toggleOutputConfigureForm: toggleVariablePicker,
-        toggleSelectExistingOutputForm: onExistingVarOptionSelected,
-        toggleJsonRecordTypeOutputForm: onJsonRecordTypeSelected,
+        dataMapperViewRedraw,
+        toggleOutputConfigureForm,
+        toggleSelectExistingOutputForm,
+        toggleJsonRecordTypeOutputForm,
     } = useContext(DataMapperContext);
 
+    const [isSaved] = useState(dataMapperConfig.outputType?.saved);
+    let defaultVariableName;
 
-    const defaultVariableName = stSymbolInfo ?
-        genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
+    if (dataMapperConfig.outputType
+        && (isSaved || dataMapperConfig.outputType.wizardType === WizardType.EXISTING)) {
+        defaultVariableName = (dataMapperConfig as DataMapperConfig).outputType.variableName;
+    } else {
+        defaultVariableName = stSymbolInfo ?
+            genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
+    }
+
+    const defaultGenerationType = (dataMapperConfig as DataMapperConfig).outputType?.generationType ?
+        (dataMapperConfig as DataMapperConfig).outputType.generationType : GenerationType.NEW;
+
+    let defaultDataType = 'string';
+    let defaultJsonValue = '{}';
+
+
+    if ((dataMapperConfig as DataMapperConfig).outputType?.type) {
+        switch ((dataMapperConfig as DataMapperConfig).outputType?.type) {
+            case 'json':
+                defaultDataType = (dataMapperConfig as DataMapperConfig).outputType?.type;
+                if (dataMapperConfig.outputType.saved && outputSTNode) {
+                    if (STKindChecker.isAssignmentStatement(outputSTNode)
+                        && STKindChecker.isMappingConstructor(outputSTNode.expression)) {
+                        dataMapperConfig.outputType.sampleStructure = outputSTNode.expression.source;
+                    } else if (STKindChecker.isLocalVarDecl(outputSTNode)
+                        && STKindChecker.isMappingConstructor(outputSTNode.initializer)) {
+                        dataMapperConfig.outputType.sampleStructure = outputSTNode.initializer.source;
+                    }
+
+                    defaultJsonValue = getDefaultValueForType(dataMapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "")
+                }
+                break;
+            case 'record':
+                defaultDataType = (dataMapperConfig as DataMapperConfig).outputType?.type;
+                break;
+            default:
+                defaultDataType = (dataMapperConfig as DataMapperConfig).outputType?.type;
+        }
+    }
+
     const [config] = useState(dataMapperConfig);
-    const [generationType, setGenerationType] = useState<GenerationType>(GenerationType.NEW);
-    const [selectedDataType, setSelectedDataType] = useState<SelectedDataType>(SelectedDataType.DEFAULT);
+    const [generationType, setGenerationType] = useState<GenerationType>(defaultGenerationType);
+    const [selectedDataType, setSelectedDataType] = useState<string>(defaultDataType);
     const [variableName, setVariableName] = useState<string>(defaultVariableName);
-    const [variableNameError, setVariableNameError] = useState('');
-    const [variableNameValidity, setvariableNameValidity] = useState(false);
+    const [variableNameError, setVariableNameError] = useState(defaultJsonValue);
     const [jsonValue, setJsonValue] = useState('');
     const [jsonValueValidity, setJsonValueValidity] = useState(false);
+    const [variableNameValidity, setvariableNameValidity] = useState(false);
+
     const formClasses = formStyles();
     const overlayClasses = wizardStyles();
 
+    useEffect(() => {
+        if (isSaved) {
+            if (generationType === GenerationType.ASSIGNMENT) {
+                toggleSelectExistingOutputForm();
+            }
+
+            if (defaultDataType === PrimitiveBalType.Json || defaultDataType === PrimitiveBalType.Record) {
+                toggleJsonRecordTypeOutputForm();
+            }
+
+            dataMapperViewRedraw(outputSTNode);
+        }
+    }, []);
+
     const variables: DataMapperInputTypeInfo[] = [];
-    const jsonFormField = { isParam: true, type: 'json' } // form field model for json type form
+    const jsonFormField: FormField = { isParam: true, type: 'json', value: defaultJsonValue } // form field model for json type form
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars
@@ -119,27 +174,49 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const handleOnTypeChange = (value: string) => {
         switch (value.toLocaleLowerCase()) {
             case 'record':
-                setSelectedDataType(SelectedDataType.RECORD);
-                onJsonRecordTypeSelected(true);
+                if (!isJsonRecordTypeSelected) {
+                    toggleJsonRecordTypeOutputForm();
+                };
+                dataMapperViewRedraw(outputSTNode);
+                setSelectedDataType(PrimitiveBalType.Record);
                 break;
             case 'json':
-                setSelectedDataType(SelectedDataType.JSON);
-                onJsonRecordTypeSelected(true);
                 config.outputType = {
                     type: value.toLocaleLowerCase(),
                     generationType,
                     variableName
                 }
+                if (!isJsonRecordTypeSelected) {
+                    toggleJsonRecordTypeOutputForm();
+                };
+                dataMapperViewRedraw(outputSTNode);
+                setSelectedDataType(PrimitiveBalType.Json);
                 break;
             default:
-                setSelectedDataType(SelectedDataType.DEFAULT);
-                onJsonRecordTypeSelected(false);
                 config.outputType = {
                     type: value.toLocaleLowerCase(),
                     generationType,
                     variableName
                 }
+                if (isJsonRecordTypeSelected) {
+                    toggleJsonRecordTypeOutputForm();
+                };
+                setSelectedDataType(value.toLocaleLowerCase());
         }
+        dataMapperViewRedraw(outputSTNode);
+    }
+
+    const handleOnCancelBtnClick = () => {
+        if (isJsonRecordTypeSelected) {
+            toggleJsonRecordTypeOutputForm();
+        }
+
+        if (isExistingOutputSelected) {
+            toggleSelectExistingOutputForm();
+        }
+
+        toggleOutputConfigureForm();
+        dataMapperViewRedraw(outputSTNode);
     }
 
     const handleOnVariableSelect = (evt: any, variableOption: DataMapperInputTypeInfo) => {
@@ -173,11 +250,14 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
     const handleOutputConfigTypeChange = () => {
         if (generationType === GenerationType.NEW) {
             setGenerationType(GenerationType.ASSIGNMENT);
-            onExistingVarOptionSelected(true);
+            toggleSelectExistingOutputForm(true);
         } else {
             setGenerationType(GenerationType.NEW);
-            onExistingVarOptionSelected(false);
+            isExistingOutputSelected && toggleSelectExistingOutputForm();
+            isJsonRecordTypeSelected && toggleJsonRecordTypeOutputForm(false);
+
         }
+        dataMapperViewRedraw(outputSTNode);
     }
 
     const validateNameValue = (value: string) => {
@@ -205,39 +285,73 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
 
     const handleSave = () => {
         const modifications: STModification[] = [];
-        config.outputType.startLine = targetPosition.line;
-        const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
-        let outputType = '';
+        if (isSaved) {
+            config.outputType.startLine = targetPosition.line;
+            const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
-        switch (config.outputType.type) {
-            case 'json':
-                outputType = 'json';
-                // config.outputType.type = 'record'; // todo: handle conversion to json
-                // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
-                // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
-                break;
-            case 'record':
-                const outputTypeInfo = config.outputType?.typeInfo;
-                outputType = outputTypeInfo.moduleName === currentApp.name ?
-                    outputTypeInfo.name
-                    : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
-                break;
-            default:
-                outputType = config.outputType.type;
+            let outputType = '';
+
+            switch (config.outputType.type) {
+                case 'json':
+                    outputType = 'json';
+                    // config.outputType.type = 'record'; // todo: handle conversion to json
+                    // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
+                    // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
+                    break;
+                case 'record':
+                    const outputTypeInfo = config.outputType?.typeInfo;
+                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                        outputTypeInfo.name
+                        : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                    break;
+                default:
+                    outputType = config.outputType.type;
+            }
+
+            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
+
+            const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
+            modifications.push(dataMapperFunction);
+        } else {
+            config.outputType.startLine = targetPosition.line;
+            const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
+
+            let outputType = '';
+
+            switch (config.outputType.type) {
+                case 'json':
+                    outputType = 'json';
+                    // config.outputType.sampleStructure = defaultReturn;
+                    // config.outputType.type = 'record'; // todo: handle conversion to json
+                    // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
+                    // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
+                    break;
+                case 'record':
+                    const outputTypeInfo = config.outputType?.typeInfo;
+                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                        outputTypeInfo.name
+                        : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                    break;
+                default:
+                    outputType = config.outputType.type;
+            }
+
+            // config.outputType.sampleStructure = defaultReturn;
+            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
+
+            const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
+            modifications.push(dataMapperFunction);
         }
 
-
-        const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
-
-        const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
-        modifications.push(dataMapperFunction);
-
+        toggleOutputConfigureForm();
         onMutate(modifications);
-        toggleVariablePicker();
+        config.outputType.saved = true;
+        updateDataMapperConfig(config);
+
     }
 
-    const returnTypes: string[] = ['String', 'Int', 'Float', 'Boolean', 'Json', 'Record'];
+    const returnTypes: string[] = ['string', 'int', 'float', 'boolean', 'json', 'record'];
     const recordTypeArray: DataMapperOutputTypeInfo[] = [];
 
     stSymbolInfo.recordTypeDescriptions.forEach((node: STNode) => {
@@ -271,7 +385,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                 placeholder={"Enter Variable Name"}
             />
             <SelectDropdownWithButton
-                defaultValue={'String'} // todo: get the initial default value from parent
+                defaultValue={selectedDataType} // todo: get the initial default value from parent
                 onChange={handleOnTypeChange}
                 customProps={{
                     disableCreateNew: true,
@@ -280,7 +394,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                 placeholder="Select Type"
                 label="Select Variable Type"
             />
-            {selectedDataType === SelectedDataType.RECORD &&
+            {selectedDataType === PrimitiveBalType.Record &&
                 <FormAutocomplete
                     itemList={recordTypeArray}
                     onChange={handleUpdateRecordType}
@@ -294,7 +408,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                     )}
                 />
             }
-            {selectedDataType === SelectedDataType.JSON &&
+            {selectedDataType === PrimitiveBalType.Json &&
                 <FormJson
                     model={jsonFormField}
                     onChange={handleOnJsonValueChange}
@@ -334,7 +448,7 @@ export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
                 {generationType === GenerationType.NEW && createNewVariableComponent}
                 {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
                 <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }} >
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={toggleVariablePicker} />
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleOnCancelBtnClick} />
                     <PrimaryButton
                         disabled={false}
                         dataTestId={"datamapper-save-btn"}

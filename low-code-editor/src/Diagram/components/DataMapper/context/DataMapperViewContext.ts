@@ -26,7 +26,10 @@ const reducer = (state: DataMapperState, action: any) => {
                 showAddVariableForm,
                 dataMapperConfig,
                 updateDataMapperConfig,
-                squashConstants
+                squashConstants,
+                showConfigureOutputForm,
+                isExistingOutputSelected,
+                isJsonRecordTypeSelected
             } = state;
 
             const updatedValues = dataMapperSizingAndPositioningRecalculate(
@@ -36,6 +39,9 @@ const reducer = (state: DataMapperState, action: any) => {
                 showAddVariableForm,
                 dataMapperConfig,
                 updateDataMapperConfig,
+                showConfigureOutputForm,
+                isJsonRecordTypeSelected,
+                isExistingOutputSelected,
                 squashConstants
             );
 

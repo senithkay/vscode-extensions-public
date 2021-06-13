@@ -112,6 +112,7 @@ export interface DataMapperOutputTypeInfo {
     fields?: DataMapperOutputField[];
     sampleStructure?: string;
     fieldsGenerated?: boolean;
+    saved?: boolean
 }
 
 export interface DataMapperConfig {

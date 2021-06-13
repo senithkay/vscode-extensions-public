@@ -231,7 +231,8 @@ export function dataMapperSizingAndPositioning(
     inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
     showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
     updateDataMapperConfig: (config: DataMapperConfig) => void,
-    squashConstants?: boolean) {
+    squashConstants?: boolean
+) {
 
     let maxFieldWidth: number = 200;
 
@@ -436,7 +437,11 @@ export function dataMapperSizingAndPositioningRecalculate(
     inputSTNodes: STNode[], outputSTNode: STNode, stSymbolInfo: any,
     showAddVariableForm: boolean, dataMapperConfig: DataMapperConfig,
     updateDataMapperConfig: (config: DataMapperConfig) => void,
-    squashConstants?: boolean) {
+    showConfigureOutputForm: boolean,
+    isJsonRecordTypeSelected: boolean,
+    isExistingOutputSelected: boolean,
+    squashConstants?: boolean
+) {
 
     let maxFieldWidth: number = 200;
 
@@ -536,7 +541,20 @@ export function dataMapperSizingAndPositioningRecalculate(
         // end: sizing visitor
 
         // selected node visit
-        positionVisitor.setHeight(15);
+        let outputStartHeight = 15;
+        if (showConfigureOutputForm && !isExistingOutputSelected) {
+            if (isJsonRecordTypeSelected) {
+                outputStartHeight += 332;
+            } else {
+                outputStartHeight += 265;
+            }
+        }
+
+        if (showConfigureOutputForm && isExistingOutputSelected) {
+            outputStartHeight += 172;
+        }
+
+        positionVisitor.setHeight(outputStartHeight);
         positionVisitor.setOffset(maxFieldWidth + 400);
         traversNode(outputSTNode, positionVisitor);
 

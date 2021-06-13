@@ -79,6 +79,11 @@ export function MapperView(props: MapperViewProps) {
         dataMapperViewRedraw(outputSTNode);
     }
 
+    const handleOutputConfigureBtnClick = () => {
+        toggleOutputConfigureForm();
+        dataMapperViewRedraw(outputSTNode);
+    };
+
     const handleSwitchBackToDiagram = () => {
         dataMapperStart(undefined);
     }
@@ -386,7 +391,13 @@ export function MapperView(props: MapperViewProps) {
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
                 <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
-                <OutputConfigureButton x={(maxFieldWidth * 2) + 400} y={70} onClick={toggleOutputConfigureForm} />
+                {!showConfigureOutputForm && (
+                    <OutputConfigureButton
+                        x={(maxFieldWidth * 2) + 400}
+                        y={70}
+                        onClick={handleOutputConfigureBtnClick}
+                    />
+                )}
                 {/* {outputSTNode && <SaveButton x={(maxFieldWidth * 2) + 400 + 32} y={saveYPosition} onClick={handleSwitchBackToDiagram} />} */}
                 {outputComponent}
             </g>
@@ -395,7 +406,6 @@ export function MapperView(props: MapperViewProps) {
                 <text x="105" y="85" className="main-title-text"> Input</text>
                 {!showAddVariableForm &&
                     <AddVariableButton {...addVariableButtonPosition} onClick={handleAddVariableClick} />}
-
                 {inputComponents}
             </g>
             <g>
