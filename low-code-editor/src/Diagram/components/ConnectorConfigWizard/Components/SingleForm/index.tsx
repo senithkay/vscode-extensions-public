@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,14 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, { useContext, useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
 
-import { Box, IconButton, Typography } from "@material-ui/core";
-import EditIcon from '@material-ui/icons/Edit';
+import { Box, Typography } from "@material-ui/core";
 import classNames from 'classnames';
 
-import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
@@ -30,67 +29,79 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
-import { OperationDropdown } from '../OperationDropdown';
 
-export interface OperationFormProps {
+export interface SingleFormProps {
     operations: ConnectorOperation[];
-    selectedOperation: string;
     showConnectionName: boolean;
-    onSave: (sourceModifications?: STModification[]) => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
-    onConnectionChange: () => void;
     isNewConnectorInitWizard?: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
+    selectedOperation?: string;
+    onSave: (sourceModifications?: STModification[]) => void;
 }
 
-export function OperationForm(props: OperationFormProps) {
+export function SingleForm(props: SingleFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
+    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
 
-    const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
-    const frmFields: FormField[] = connectionDetails?.action?.fields;
-    const [formFields, setFormFields] = useState(frmFields);
+    const [ activeOperation, setActiveOperation ] = useState(selectedOperation);
+    const [ formFields, setFormFields ] = useState<FormField[]>(connectionDetails.action?.fields);
+    const [ validForm, setValidForm ] = useState(false);
+    const [ validName, setValidName ] = useState(true);
+    const [ defaultResponseVarName, setDefaultResponseVarName ] = useState<string>(connectionDetails.action?.returnVariableName);
+    const [ responseVarError, setResponseVarError ] = useState("");
 
-    const operationReturnType = getActionReturnType(selectedOperationState, functionDefInfo);
+    const operationReturnType = getActionReturnType(activeOperation, functionDefInfo);
 
-    const handleOnSave = () => {
-        const config = connectionDetails;
-        onSave();
-    };
-
-    const handleOperationChange = (operation: string) => {
-        setSelectedOperationState(operation);
-        if (operation) {
-            const derivedFormFields = functionDefInfo.get(operation).parameters;
-            connectionDetails.action.name = operation;
-            connectionDetails.action.fields = derivedFormFields;
-            setFormFields(derivedFormFields);
-        }
+    if (!activeOperation) {
+        functionDefInfo.forEach((field, operation) => {
+            if (operation !== "init" && !activeOperation) {
+                // set first operation as active operation
+                // single forms will only show one operation
+                setActiveOperation(operation);
+                if (!formFields || formFields?.length === 0) {
+                    // set new action
+                    const actionInfo = new ActionConfig();
+                    actionInfo.name = operation;
+                    actionInfo.fields = field.parameters;
+                    connectionDetails.action = actionInfo;
+                    // update form field list
+                    setFormFields(field.parameters);
+                    if (!defaultResponseVarName) {
+                        // setup response variable
+                        const varName = genVariableName(connectionDetails.action.name + "Response", getAllVariables(symbolInfo));
+                        setDefaultResponseVarName(varName);
+                    }
+                }
+                return;
+            }
+        });
     }
 
-    const onOperationChange = () => {
-        setSelectedOperationState(undefined);
-    };
+    useEffect(() => {
+        if (connectionDetails.action) {
+            connectionDetails.action.returnVariableName = defaultResponseVarName;
+        }
+    }, [ defaultResponseVarName ]);
 
-    const [validForm, setValidForm] = useState(false);
-    const [validName, setValidName] = useState(true);
-    const [defaultResponseVarName, setDefaultResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName ||
-        genVariableName(connectionDetails?.action?.name + "Response", getAllVariables(symbolInfo)));
-    const [responseVarError, setResponseVarError] = useState("");
+    const handleOnSave = () => {
+        // const config = connectionDetails;
+        onSave();
+    };
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
         setValidName((text !== '') && nameRegex.test(text));
         setDefaultResponseVarName(text);
-        connectionDetails.action.returnVariableName = text;
     };
+
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, state);
@@ -108,8 +119,6 @@ export function OperationForm(props: OperationFormProps) {
         const symbolRefArray = symbolInfo.variableNameReferences.get(connectionDetails.action.returnVariableName);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
-
-    connectionDetails.action.returnVariableName = defaultResponseVarName
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -142,13 +151,12 @@ export function OperationForm(props: OperationFormProps) {
                 id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
                 defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
-    }
+        }
     };
 
     return (
         <div>
-            {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
-            {(selectedOperationState && (
+            { (activeOperation && (
                 <div>
                     <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                         <div className={classes.fullWidth}>
@@ -156,26 +164,16 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {operations.find(operation => operation.name === selectedOperationState)?.label || selectedOperationState}
+                                        {operations.find(operation => operation.name === activeOperation)?.label || activeOperation}
                                     </Typography>
-                                    <IconButton
-                                        color="primary"
-                                        classes={{
-                                            root: wizardClasses.changeConnectionBtn
-                                        }}
-                                        onClick={onOperationChange}
-                                    >
-                                        <EditIcon />
-                                    </IconButton>
                                 </Box>
                             </>
                             <div className={wizardClasses.formWrapper}>
-                                {formFields && formFields.length > 0 ? (
+                                { formFields && formFields.length > 0 ? (
                                     <Form fields={formFields} onValidate={validateForm} />
                                 ) : null
                                 }
                             </div>
-
                             { operationReturnType?.hasReturn && (
                                 <FormTextInput
                                     customProps={ {
@@ -184,9 +182,9 @@ export function OperationForm(props: OperationFormProps) {
                                         disabled: responseVariableHasReferences
                                     } }
                                     defaultValue={defaultResponseVarName}
-                                    placeholder={"Enter Response Variable Name"}
+                                    placeholder={addResponseVariablePlaceholder}
                                     onChange={onNameChange}
-                                    label={"Response Variable Name"}
+                                    label={addResponseVariableLabel}
                                     errorMessage={responseVarError}
                                 />
                             ) }
@@ -195,16 +193,14 @@ export function OperationForm(props: OperationFormProps) {
                     <div className={classes.wizardBtnHolder}>
                         <PrimaryButton
                             className={wizardClasses.buttonSm}
-                            text="Save"
+                            text={saveConnectionButtonText}
                             fullWidth={false}
                             disabled={isSaveButtonDisabled}
                             onClick={handleOnSave}
                         />
                     </div>
                 </div>
-            )
-            )
-            }
+            )) }
         </div>
     );
 }

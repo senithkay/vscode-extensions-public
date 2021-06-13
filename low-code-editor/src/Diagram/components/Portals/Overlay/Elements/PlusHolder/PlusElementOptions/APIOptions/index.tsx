@@ -464,7 +464,7 @@ export function APIOptions(props: APIOptionsProps) {
             const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
-            const tolltipText = {
+            const tooltipText = {
                 "heading" : connector.displayName,
                 "example" : tooltipExample,
                 "content" : tooltipTitle
@@ -475,7 +475,7 @@ export function APIOptions(props: APIOptionsProps) {
                     "text": connectionsTooltipMessages.imapConnector.actionText
                 }
                 const component: ReactNode = (
-                    <Tooltip type="info" text={tolltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                    <Tooltip type="info" text={tooltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
                                 <div className="connector-icon">
@@ -501,7 +501,7 @@ export function APIOptions(props: APIOptionsProps) {
             }
             else{
                 const component: ReactNode = (
-                    <Tooltip type="example" text={tolltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                    <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
                                 <div className="connector-icon">
@@ -520,7 +520,7 @@ export function APIOptions(props: APIOptionsProps) {
                 }
 
                 // filter connectors due to maintenance
-                const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'mongodb'];
+                const filletedConnectors = ['azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
                 if (!filletedConnectors.includes(connector.module)) {
                     connectorComponents.push(connectorComponent);
                 }
@@ -588,7 +588,7 @@ export function APIOptions(props: APIOptionsProps) {
         allCnts.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });
@@ -596,7 +596,7 @@ export function APIOptions(props: APIOptionsProps) {
         connectorComponents.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });
