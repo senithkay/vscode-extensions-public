@@ -859,7 +859,7 @@ export function getOauthParamsFromConnection(connectorName: string, connectionDe
                 clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
                 clientSecret: ${getKeyFromConnection(connectionDetail, 'clientSecretKey')},
                 refreshToken: ${getKeyFromConnection(connectionDetail, 'refreshTokenKey')},
-                refreshUrl: ${getKeyFromConnection(connectionDetail, 'tokenEpKey')}
+                refreshUrl: ${getKeyFromConnection(connectionDetail, 'refreshUrlKey')}
             }
          }`];
     } else if (type === "BearerTokenConfig") {
@@ -1090,7 +1090,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
         case "gmail": {
             const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            const refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+            const refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
             const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             const token = getKeyFromConnection(connectionDetail, 'tokenKey');
             let statement = '';
