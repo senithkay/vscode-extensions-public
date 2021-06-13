@@ -434,7 +434,11 @@ export function MapperView(props: MapperViewProps) {
                     // todo: revert
                     showAddVariableForm && (
                         <DiagramOverlay
-                            position={{ x: 105, y: inputSTNodes.length > 0 ? inputHeight - 117 : 90 }}
+                            position={{
+                                x: 105,
+                                y: inputSTNodes.length > 0 || constantList.length > 0 || constantMap.size > 0 ?
+                                    inputHeight - 117 : 90
+                            }}
                             stylePosition="absolute"
                         >
                             <VariablePicker />
