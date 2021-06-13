@@ -19,6 +19,7 @@ import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/s
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 
+import { createManualConnection } from '../../../../../../../../src/api/connector';
 import {
     AiSuggestionsReq,
     AiSuggestionsRes,
@@ -67,7 +68,6 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from '../SelectExistingConnection';
 import { SingleForm } from "../SingleForm";
-import { createManualConnection } from '../../../../../../../../src/api/connector';
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -346,7 +346,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                 (async () => {
-                    response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,config.name, userInfo.user.email, manualConnectionFormFieldValues.selectedFields, selectedType);
+                    response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.name, userInfo.user.email, manualConnectionFormFieldValues.selectedFields, selectedType);
                     configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
                     connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
                     if (isNewConnectorInitWizard && targetPosition) {
