@@ -1132,13 +1132,11 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
         case "googleapis.gmail":
         case "googleapis.sheets":
             variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         case "googleapis.calendar": {
             variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         }
         default:
