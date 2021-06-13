@@ -41,6 +41,10 @@ export function DataPoint(props: DataPointProps) {
         onClick(dataPointViewState);
     }
 
+    const onHover = (evt: any) => {
+        evt.stopPropagation();
+    }
+
 
     if (dataPointViewState instanceof SourcePointViewState) {
         (dataPointViewState as SourcePointViewState).connections.forEach((connection, i) => {
@@ -81,7 +85,7 @@ export function DataPoint(props: DataPointProps) {
         ))
     } else if (dataPointViewState instanceof TargetPointViewState) {
         dataPointElement.push((
-            <>
+            <g onMouseOver={onHover} >
                 <rect
                     className="connector-wrapper"
                     x={dataPointViewState.bBox.x - 143}
@@ -167,7 +171,7 @@ export function DataPoint(props: DataPointProps) {
                         fill="#5567d5"
                     />
                 </g>
-            </>
+            </g>
         ))
     }
 

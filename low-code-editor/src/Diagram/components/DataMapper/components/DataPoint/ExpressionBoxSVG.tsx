@@ -12,15 +12,19 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
-import { SourcePointViewState } from "../../viewstate";
 
 export const EXPRESSION_BOX_SVG_HEIGHT = 29;
 export const EXPRESSION_BOX_SVG_WIDTH = 29;
 
 export function ExpressionBoxSVG(props: { x: number, y: number, onClick: () => void }) {
     const { onClick, ...xyProps } = props;
+
+    const onHover = (evt: any) => {
+        evt.stopPropagation();
+    }
+
     return (
-        <svg {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} onClick={onClick} >
+        <svg {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} onClick={onClick} onMouseOver={onHover} >
             <g id="Button_Primary_Square_Click" transform="translate(2.5 2.5)">
                 <g id="State">
                     <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />
