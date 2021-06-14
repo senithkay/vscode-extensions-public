@@ -20,19 +20,14 @@ jobs:
       - name: Build project
         uses: actions/setup-node@v1
         with:
-          node-version: 12
-      - run: npm ci
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+          node-version: 16
+      - run: npm install -g vsce
       - name: Build repository with tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
           run: ./gradlew clean build -x test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+      - run: vsce package
       - name: Publish the extension
-        uses: lannonbr/vsce-action@master
-        with:
-          args: publish -p $VSCE_TOKEN --packagePath ./ballerina-${{ github.event.inputs.plugin_version }}.vsix
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ballerina-${{ github.event.inputs.vsix_version }}.vsix

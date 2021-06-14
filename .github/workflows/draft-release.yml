@@ -37,19 +37,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: "11"
-      - name: Download ballerina distribution
-        uses: wei/wget@v1
-        with:
-          args: http://dist-dev.ballerina.io/downloads/${{ github.event.inputs.bal_dist_version }}/ballerina-${{ github.event.inputs.bal_dist_version }}.zip
       - run: mkdir extractedDistribution
-      - name: Unzip ballerina distribution
-        uses: TonyBogdanov/zip@1.0
-        with:
-          args: unzip -qq ./ballerina-${{ github.event.inputs.bal_dist_version }}.zip -d ./extractedDistribution
+      - run: sudo apt-get install unzip
+      - name: Download ballerina distribution
+        run: curl http://dist-dev.ballerina.io/downloads/${{ github.event.inputs.bal_dist_version }}/ballerina-${{ github.event.inputs.bal_dist_version }}.zip --output ballerina-${{ github.event.inputs.bal_dist_version }}.zip
+      - run: unzip -qq ./ballerina-${{ github.event.inputs.bal_dist_version }}.zip -d ./extractedDistribution
       - run: rm ballerina-${{ github.event.inputs.bal_dist_version }}.zip
-      - run: npm ci
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Build repository with tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
