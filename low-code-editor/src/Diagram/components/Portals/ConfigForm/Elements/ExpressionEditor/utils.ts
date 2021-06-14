@@ -22,7 +22,13 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
-import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
+import {
+    COLLAPSE_WIDGET_ID,
+    DOUBLE_QUOTE_ERR_CODE,
+    EXPAND_WIDGET_ID,
+    INCORRECT_STR_DIAGNOSTICS,
+    UNDEFINED_SYMBOL_ERR_CODE
+} from "./constants";
 import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
@@ -300,8 +306,8 @@ export function getRandomInt(max: number) {
 
 export function getDiagnosticMessage(diagnostics: any, varType: string) : string {
     if (varType === 'string') {
-        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === "BCE0411");
-        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === "BCE2010");
+        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
         return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : diagnostics[0]?.message;
     } else {
         return diagnostics[0]?.message;
