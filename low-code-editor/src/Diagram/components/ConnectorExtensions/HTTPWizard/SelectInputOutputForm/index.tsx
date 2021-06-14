@@ -460,24 +460,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     </FormControl>
                 )
             )}
-            {/* <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_PAYLOAD_CLICK'
-            />
-            <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_JSON_PAYLOAD'
-            />
-            <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_SAVE_AND_DONE'
-            /> */}
         </div>
     );
 }
