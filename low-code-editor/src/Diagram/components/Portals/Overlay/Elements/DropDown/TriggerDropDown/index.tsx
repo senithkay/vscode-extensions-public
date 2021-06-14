@@ -314,7 +314,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
                         { getConnectorTriggerButton(
                             ConnectorType.ASB,
-                            'azure_service_busLogoClient',
+                            'azure_service_bus_AsbClient',
                             "To trigger an application based on Azure Service Bus events.",
                             "Azure SB",
                             "left"

@@ -184,6 +184,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
             model.value = monacoRef.current?.editor?.getModel()?.getValue();
+            if (onChange) {
+                onChange(monacoRef.current?.editor?.getModel()?.getValue());
+            }
         }
         validate(model.name, false);
         if (monacoRef.current) {
@@ -372,6 +375,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         sortText: '1'
                                     }
                                     completionItems.push(completionItemAI);
+                                }
+                                if (model?.customAutoComplete) {
+                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string) => {
+                                        return {
+                                            range: null,
+                                            label: customCompletion,
+                                            kind: monaco.languages.CompletionItemKind.Enum,
+                                            insertText: customCompletion,
+                                            sortText: '0'
+                                        }
+                                    })
+                                    completionItems.push(...completionItemCustom);
                                 }
                                 if (completionItems.length > 0) {
                                     completionItems[0] = { ...completionItems[0], preselect: true }

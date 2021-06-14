@@ -243,6 +243,16 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "map" && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        // HACK:    current map type will render by expression-editor component.
+                        //          expression-editor component will set value property directly.
+                        //          need to implement fetch inner field's values of map object.
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -891,6 +901,9 @@ export function getInitReturnType(functionDefinitions: Map<string, FunctionDefin
 }
 
 export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): FormFieldReturnType {
+    if (!action){
+        return undefined;
+    }
     const returnTypeField = functionDefinitions.get(action)?.returnType;
     return getFormFieldReturnType(returnTypeField);
 }
@@ -1135,13 +1148,11 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
         case "googleapis.gmail":
         case "googleapis.sheets":
             variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         case "googleapis.calendar": {
             variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         }
         default:
