@@ -29,7 +29,6 @@ export function Constant(props: ConstantProps) {
         dataPoints.push(
             <DataPoint
                 dataPointViewState={viewState.sourcePointViewState}
-                onClick={() => { }}
                 disableEdit={true}
             />
         );

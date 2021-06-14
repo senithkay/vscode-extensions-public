@@ -86,11 +86,10 @@ export function JsonType(props: JsonTypeProps) {
         if (expression) {
             const closeBracePosition = expression.closeBrace.position;
 
-            if (expression.fields.length > 0) {
-                draftVS.precededByComma = STKindChecker.isCommaToken(expression.fields[expression.fields.length - 1]);
-            } else {
-                draftVS.precededByComma = true;
-            }
+            draftVS.precededByComma = expression.fields.length > 0 ?
+                STKindChecker.isCommaToken(expression.fields[expression.fields.length - 1]) :
+                true
+
             draftVS.draftInsertPosition = {
                 startLine: undefined,
                 endLine: undefined,

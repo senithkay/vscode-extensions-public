@@ -24,7 +24,7 @@ import { MappingArrow } from './MappingArrow';
 
 interface DataPointProps {
     dataPointViewState: SourcePointViewState | TargetPointViewState;
-    onClick: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
+    onClick?: (dataPointVS: SourcePointViewState | TargetPointViewState) => void;
     disableEdit?: boolean;
 }
 

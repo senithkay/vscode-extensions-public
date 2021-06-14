@@ -23,6 +23,8 @@ import { LogIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
+import { DataMapperInitVisitor, VisitingType } from '../../../../DataMapper/util/data-mapper-init-visitor';
+import { DataMapperMappingVisitor } from '../../../../DataMapper/util/data-mapper-mapping-visitor';
 import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
@@ -33,8 +35,6 @@ import { wizardStyles } from "../../../style";
 
 import { GenerationType, OutputTypeSelector } from './OutputTypeSelector';
 import { ParameterSelector } from './ParameterSelector';
-import { DataMapperInitVisitor, VisitingType } from '../../../../DataMapper/util/data-mapper-init-visitor';
-import { DataMapperMappingVisitor } from '../../../../DataMapper/util/data-mapper-mapping-visitor';
 
 
 interface AddDataMappingConfigProps {

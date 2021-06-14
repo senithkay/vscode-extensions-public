@@ -28,10 +28,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
-export interface VariablePickerProps {
-}
-
-export function VariablePicker(props: VariablePickerProps) {
+export function VariablePicker() {
     const { updateDataMapperConfig } = useContext(DiagramContext);
     const {
         state: {

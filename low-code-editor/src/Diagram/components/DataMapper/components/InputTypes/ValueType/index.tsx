@@ -23,12 +23,11 @@ import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
+import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { hasReferenceConnections } from '../../../util';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
-
-import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 
 interface ValueTypeProps {
     model: STNode;
@@ -104,7 +103,7 @@ export function ValueType(props: ValueTypeProps) {
                 endColumn: model.position?.endColumn
             }
 
-            modifications.push(removeStatement(draftUpdatePosition)); 
+            modifications.push(removeStatement(draftUpdatePosition));
 
         } else {
 

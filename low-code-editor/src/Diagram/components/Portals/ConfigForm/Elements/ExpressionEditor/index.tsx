@@ -46,7 +46,6 @@ import {
     transformFormFieldTypeToString,
     typeCheckerExp
 } from "./utils";
-import { DraftUpdatePosition } from "tools/low-code-editor/src/Diagram/view-state/draft";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {

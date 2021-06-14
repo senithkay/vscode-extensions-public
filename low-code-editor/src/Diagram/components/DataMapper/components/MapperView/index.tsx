@@ -17,6 +17,7 @@ import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-
 
 import { STModification } from '../../../../../Definitions';
 import { updatePropertyStatement } from '../../../../utils/modification-util';
+import { Canvas } from '../../../Canvas';
 import { wizardStyles } from '../../../ConfigForms/style';
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
@@ -33,14 +34,9 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
-import { Canvas } from '../../../Canvas';
 
 
-interface MapperViewProps {
-
-}
-
-export function MapperView(props: MapperViewProps) {
+export function MapperView() {
     const {
         state: {
             inputSTNodes,

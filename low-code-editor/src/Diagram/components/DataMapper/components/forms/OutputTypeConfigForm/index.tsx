@@ -41,15 +41,12 @@ import { checkVariableName, genVariableName } from '../../../../Portals/utils';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { getDefaultValueForType } from '../../../util';
 
-interface OutputTypeConfigForm {
-}
-
 export enum GenerationType {
     ASSIGNMENT,
     NEW
 }
 
-export function OutputTypeConfigForm(props: OutputTypeConfigForm) {
+export function OutputTypeConfigForm() {
     const { state: diagramState } = useContext(DiagramContext);
     const { currentApp, targetPosition } = diagramState;
     const {
