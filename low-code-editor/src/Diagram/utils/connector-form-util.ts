@@ -277,6 +277,16 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_googleapis.sheets_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: hide duplicate sheet operations. this will fixed in next sheet connector release. #5338
+                const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
+                    "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
+                if (!filteredOperations.includes(key)) {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
