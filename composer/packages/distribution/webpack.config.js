@@ -63,7 +63,7 @@ module.exports = {
     },
     plugins: [
         new CopyWebpackPlugin([
-            { context: path.resolve(__dirname, 'node_modules', '@ballerina', 'theme'), from: 'lib', to: 'themes' }
+            { context: path.resolve(__dirname, '..', '..', 'node_modules', '@ballerina', 'theme'), from: 'lib', to: 'themes' }
         ])
     ],
     devtool: 'source-map',
