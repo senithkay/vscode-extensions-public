@@ -124,9 +124,14 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
-        if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostics[0].code).toString())) {
-            return true;
-        }
+        let typeCheck = false;
+        Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
+            if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostic.code).toString())) {
+                typeCheck = true;
+                return
+            }
+        });
+        return typeCheck;
     }
     return false;
 }
