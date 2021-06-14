@@ -49,7 +49,7 @@ interface NameState {
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
-    const { stSymbolInfo : symbolInfo } = state;
+    const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
@@ -58,7 +58,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name,
-        isValidName:  !!connectorConfig.name,
+        isValidName: !!connectorConfig.name,
         isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
@@ -74,8 +74,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
-    if (hasReference === undefined){
-        if (!symbolRefArray){
+    if (hasReference === undefined) {
+        if (!symbolRefArray) {
             setHasReference(false);
         } else if (isNewConnectorInitWizard) {
             setHasReference(symbolRefArray.length > 0);
@@ -87,7 +87,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("connector name", value, defaultConnectorName, state);
-            if (varValidationResponse?.error){
+            if (varValidationResponse?.error) {
                 setConnectorNameError(varValidationResponse.message);
                 return false;
             }
@@ -107,8 +107,16 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const handleOnSave = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
+        // connectorConfig.connectorInit = configForm;
         connectorConfig.connectorInit = configForm;
         onSave();
+    };
+
+    const handleOnSaveNext = () => {
+        // update config connector name, when user click next button
+        connectorConfig.name = nameState.value;
+        connectorConfig.connectorInit = configForm;
+        onSaveNext();
     };
 
     const createConnectionNameLabel = intl.formatMessage({
@@ -134,60 +142,53 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const pathInstructionsBullet1 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint1",
         defaultMessage: "Include spaces and special characters"
-      });
+    });
 
     const pathInstructionsBullet2 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint2",
         defaultMessage: "Start with a numerical character"
-      });
+    });
 
     const pathInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint3",
         defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
-      });
+    });
 
     const pathInstructions = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.tooltip",
         defaultMessage: "A valid connection name should not:"
-      });
+    });
     const title = (
         <div>
-          <p>{pathInstructions}</p>
-          <ul>
-            <li>{pathInstructionsBullet1}</li>
-            <li>{pathInstructionsBullet2}</li>
-            <li>{pathInstructionsBullet3}</li>
-          </ul>
+            <p>{pathInstructions}</p>
+            <ul>
+                <li>{pathInstructionsBullet1}</li>
+                <li>{pathInstructionsBullet2}</li>
+                <li>{pathInstructionsBullet3}</li>
+            </ul>
         </div>
-      );
-
-    const handleOnSaveNext = () => {
-        // update config connector name, when user click next button
-        connectorConfig.name = nameState.value;
-        connectorConfig.connectorInit = configForm;
-        onSaveNext();
-    };
+    );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
-                    <Section
-                                title={createConnectionNameLabel}
-                                tooltip={{title}}
-                    >
-                        <FormTextInput
-                            customProps={{
-                                validate: validateNameValue,
-                                disabled: hasReference
-                            }}
-                            defaultValue={nameState.value}
-                            onChange={onNameChange}
-                            errorMessage={connectorNameError}
-                            placeholder={createConnectionPlaceholder}
-                        />
-                    </Section>
+                        <Section
+                            title={createConnectionNameLabel}
+                            tooltip={{ title }}
+                        >
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    disabled: hasReference
+                                }}
+                                defaultValue={nameState.value}
+                                onChange={onNameChange}
+                                errorMessage={connectorNameError}
+                                placeholder={createConnectionPlaceholder}
+                            />
+                        </Section>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>
@@ -195,14 +196,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 </div>
                 <div className={classes.wizardBtnHolder}>
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
-                        <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
+                        <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick} />
                     )}
                     <div className={classes.saveBtnHolder}>
                         <PrimaryButton
-                            text="Save"
+                            text="Save and Use"
                             fullWidth={false}
                             disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                             onClick={handleOnSave}
+                        />
+                        <PrimaryButton
+                            text="Save and Use"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSaveNext}
                         />
                     </div>
                 </div>
