@@ -428,6 +428,7 @@ export function OutputTypeConfigForm() {
     const useExistingVariableComponent = (
         <>
             <FormAutocomplete
+                dataTestId={'datamapper-output-exisiting-variable-select'}
                 itemList={variables}
                 label={'Select Output Variable'}
                 onChange={handleOnVariableSelect}

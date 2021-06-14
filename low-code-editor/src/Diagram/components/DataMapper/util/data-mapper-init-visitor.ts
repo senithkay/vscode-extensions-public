@@ -19,7 +19,6 @@ import {
     FieldAccess,
     IdentifierToken,
     LocalVarDecl,
-    MappingConstructor,
     MethodCall,
     RecordField,
     RecordTypeDesc,
@@ -30,8 +29,6 @@ import {
     TypedBindingPattern,
     Visitor,
 } from '@ballerina/syntax-tree';
-import { Method } from 'axios';
-import { expression } from 'joi';
 
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
