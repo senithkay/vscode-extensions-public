@@ -217,7 +217,9 @@ export function OutputTypeConfigForm() {
     }
 
     const handleOnVariableSelect = (evt: any, variableOption: DataMapperInputTypeInfo) => {
-        const localVarDecl: LocalVarDecl = variableOption.node as LocalVarDecl;
+        const nodeList: STNode[] = stSymbolInfo.variables.get(variableOption.type);
+        const localVarDecl: LocalVarDecl = nodeList && nodeList.length > 0 ? nodeList[0] as LocalVarDecl : undefined;
+
         let typeInfo;
 
         if (localVarDecl) {
