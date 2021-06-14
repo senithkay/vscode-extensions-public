@@ -28,12 +28,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: theme.spacing(2)
         },
         radioBox: {
+            height: theme.spacing(6),
+            display: "flex",
             width: "100%",
             borderRadius: 5,
             padding: theme.spacing(0.5),
             paddingLeft: theme.spacing(2.5),
             borderColor: "#ff000000",
-            border: "0px solid",
+            border: "1px solid",
             '& .MuiFormControlLabel-root': {
                 width: "100%",
             },
@@ -44,8 +46,9 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textOverflow: "ellipsis",
             },
             '&:hover': {
-                border: "0px solid",
-                borderColor: "#E6E7EC",
+                boxSizing: "border-box",
+                border: "1px solid #E6E7EC",
+                borderRadius: theme.spacing(0.5),
                 backgroundColor: "#F7F8FB"
             }
         },
@@ -79,9 +82,30 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         radio: {
+            display: "none",
             '&$checked': {
                 color: theme.palette.primary.main,
             },
+        },
+        radioContainer: {
+            overflowY: "scroll",
+            overflowX: "hidden",
+            marginBottom: theme.spacing(3.5),
+            scrollBehavior: 'smooth',
+            maxHeight: theme.spacing(18.375),
+            '&::-webkit-scrollbar': {
+                width: 4
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: "#e6e7ec",
+                borderRadius: 4
+            },
+            '&::-webkit-scrollbar-track': {
+                backgroundColor: "transparent"
+            }
+        },
+        radioGroup: {
+            zIndex: 200
         },
         mainConnectBtn: {
             width: "100%",
@@ -118,12 +142,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         oauthConnectionTextWrapper: {
             width: 244,
-            marginBottom: 10,
+            marginBottom: 18,
             marginTop: 10
         },
         oauthConnectionAltTextWrapper: {
             textAlign: "center",
-            marginTop: 3
+            marginTop: 3,
+            marginBottom: theme.spacing(1)
         },
         oauthConnectionAltText: {
             fontSize: 13,
@@ -152,7 +177,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
             borderRadius: 5,
             padding: theme.spacing(0.5),
-            paddingLeft: theme.spacing(2.5),
             borderColor: "#ff000000",
             border: "0px solid",
             '& .MuiFormControlLabel-root': {
@@ -163,7 +187,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: "100%",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-            },
+            }
+        },
+        connectionContainer: {
+            marginTop: theme.spacing(2.5)
         }
     }),
 );
