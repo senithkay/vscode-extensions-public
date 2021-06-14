@@ -31,7 +31,7 @@ export function AttributeTypeSelectButton(props: FieldTypeSelectorButtonProps) {
     }
 
     return (
-        <IconButton size="small" onClick={handleOnClick} >
+        <IconButton data-testid={'datamapper-json-draft-attribute-type-btn'} size="small" onClick={handleOnClick} >
             <svg width="12px" height="14px" viewBox="0 0 12 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                 <title>10020D0D-68FF-4121-920F-8E3B097CAFB0</title>
                 <g id="Data-mapping" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

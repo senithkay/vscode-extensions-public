@@ -61,6 +61,7 @@ export function DataPoint(props: DataPointProps) {
             <>
                 <g>
                     <circle
+                        data-testid={'datamapper-source-mapping-circle1'}
                         id="Oval-test"
                         cx={dataPointViewState.bBox.x + 100}
                         cy={dataPointViewState.bBox.y}
@@ -72,6 +73,7 @@ export function DataPoint(props: DataPointProps) {
                         onClick={onDataPointClick}
                     />
                     <circle
+                        data-testid={'datamapper-source-mapping-circle2'}
                         id="Oval-2"
                         data-name="Oval"
                         cx={dataPointViewState.bBox.x + 100}
@@ -123,6 +125,7 @@ export function DataPoint(props: DataPointProps) {
                 />
                 <g>
                     <circle
+                        data-testid={'datamapper-target-mapping-circle1'}
                         id="Oval-test2"
                         cx={dataPointViewState.bBox.x - 125}
                         cy={dataPointViewState.bBox.y}
@@ -134,6 +137,7 @@ export function DataPoint(props: DataPointProps) {
                         onClick={onDataPointClick}
                     />
                     <circle
+                        data-testid={'datamapper-target-mapping-circle2'}
                         id="Oval-2"
                         data-name="Oval"
                         cx={dataPointViewState.bBox.x - 125}

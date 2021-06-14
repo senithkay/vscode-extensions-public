@@ -81,10 +81,11 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
                 position={{ x: draftFieldViewState.bBox.x, y: draftFieldViewState.bBox.y - 10 }}
                 stylePosition='absolute'
             >
-                <div style={{ width: draftFieldViewState.bBox.w - offSetCorrection, padding: '0 5px 0 5px' }}>
-                    <div id="draft-field-form" className='draft-field-form'>
-                        <div className='draft-field-input'>
+                <div data-testid={'datamapper-json-draft-field-form-wrapper'} style={{ width: draftFieldViewState.bBox.w - offSetCorrection, padding: '0 5px 0 5px' }}>
+                    <div data-testid={'datamapper-json-draft-field-form'} id="draft-field-form" className='draft-field-form'>
+                        <div data-testid={'datamapper-json-draft-field-form-input-wrapper'} className='draft-field-input'>
                             <TextField
+                                data-testid={'datamapper-json-draft-field-form-txt'}
                                 value={fieldName}
                                 variant="standard"
                                 placeholder="Field Name"
@@ -95,10 +96,10 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
                         </div>
                     </div>
                     <div className='draft-field-submit'>
-                        <IconButton size="small" disabled={fieldName.length === 0} onClick={handleOnSave} >
+                        <IconButton data-testid={'datamapper-json-draft-field-check-btn'} size="small" disabled={fieldName.length === 0} onClick={handleOnSave} >
                             <Check />
                         </IconButton>
-                        <IconButton size="small" onClick={onDraftCancel} >
+                        <IconButton data-testid={'datamapper-json-draft-field-cancel-btn'} size="small" onClick={onDraftCancel} >
                             <Close />
                         </IconButton>
                     </div>

@@ -51,17 +51,6 @@ export function MappingArrow(props: MappingArrowProps) {
         setIsCursorInProximity(false);
     }
 
-    // ToDo: Revisit proximity logic
-    // const proximityCallBack = (mousePosistion: CursorPosition) => {
-    //     const { x, y } = mousePosistion;
-
-    // }
-
-    // useEffect(() => {
-    //     getEventHub().registerCallback(keyId, proximityCallBack)
-    //     return () => { getEventHub().unregisterCallback(keyId) };
-    // }, []);
-
     const handleDeleteBtnClick = () => {
         let statement = '';
 
@@ -92,7 +81,7 @@ export function MappingArrow(props: MappingArrowProps) {
     }
 
     return (
-        <g onMouseOver={handleOnMouseOverArrow} onMouseLeave={handleOnMouseExitArrow} >
+        <g data-testid={'datamapper-mapping-arrow'} onMouseOver={handleOnMouseOverArrow} onMouseLeave={handleOnMouseExitArrow} >
             <line
                 x1={connection.x1 + PADDING_OFFSET}
                 x2={connection.x2 - (PADDING_OFFSET + 40)}
@@ -113,7 +102,7 @@ export function MappingArrow(props: MappingArrowProps) {
                 }}
             />
             {!disableEdit && isCursorInProximity && (
-                <g id='arrow-delete-icon' className={'delete-icon-show'} onClick={handleDeleteBtnClick} >
+                <g data-testid={'datamapper-mapping-arrow-delete-btn'} id='arrow-delete-icon' className={'delete-icon-show'} onClick={handleDeleteBtnClick} >
                     <DeleteSVG x={midPointX} y={midPointY - 10} />
                 </g>
             )}

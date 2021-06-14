@@ -24,7 +24,7 @@ export function ExpressionBoxSVG(props: { x: number, y: number, onClick: () => v
     }
 
     return (
-        <svg {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} onClick={onClick} onMouseOver={onHover} >
+        <svg data-testid={'datamapper-expression-box'} {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} onClick={onClick} onMouseOver={onHover} >
             <g id="Button_Primary_Square_Click" transform="translate(2.5 2.5)">
                 <g id="State">
                     <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />

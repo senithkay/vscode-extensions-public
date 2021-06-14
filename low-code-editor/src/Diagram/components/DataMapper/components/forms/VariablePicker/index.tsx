@@ -86,6 +86,7 @@ export function VariablePicker() {
         <>
             <div style={{ width: maxFieldWidth + 5 }}>
                 <FormAutocomplete
+                    dataTestId={'datamapper-input-var-select'}
                     itemList={variables}
                     onChange={onSelectVariable}
                     label={'Select Input type'}
@@ -97,10 +98,15 @@ export function VariablePicker() {
                     )}
                 />
                 <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleCancelBtnClick} />
+                    <SecondaryButton
+                        dataTestId={"datamapper-input-var-cancel-btn"}
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={handleCancelBtnClick}
+                    />
                     <PrimaryButton
                         disabled={false}
-                        dataTestId={"datamapper-save-btn"}
+                        dataTestId={"datamapper-input-var-save-btn"}
                         text={"Add"}
                         fullWidth={false}
                         onClick={onClickAdd}

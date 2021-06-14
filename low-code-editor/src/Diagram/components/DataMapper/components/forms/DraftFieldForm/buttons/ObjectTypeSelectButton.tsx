@@ -28,7 +28,7 @@ export function ObjectTypeSelectButton(props: FieldTypeSelectorButtonProps) {
     }
 
     return (
-        <IconButton size="small" onClick={handleOnClick} >
+        <IconButton data-testid={'datamapper-json-draft-object-type-btn'} size="small" onClick={handleOnClick} >
             <svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                 <title>2C278FA5-3BEE-48E0-80AE-5DF58C8F8340</title>
                 <g id="Data-mapping" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

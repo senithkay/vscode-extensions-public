@@ -16,14 +16,15 @@ export interface SaveButtonProps {
     x: number,
     y: number,
     disabled?: boolean,
-    onClick?: () => void
+    onClick?: () => void,
+    dataTestId?: string
 }
 
 export function SaveButton(props: SaveButtonProps) {
-    const { disabled, ...xyProps } = props;
+    const { disabled, dataTestId, ...xyProps } = props;
 
     return (
-        <svg {...xyProps} width="64px" height="35px" viewBox={'0 0 84 52'} version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg data-testid={dataTestId} {...xyProps} width="64px" height="35px" viewBox={'0 0 84 52'} version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <defs>
                 <rect id="dm-savebtn-path-1" x="0" y="0" width="80" height="48" rx="5" />
                 <filter x="-4.4%" y="-5.2%" width="108.8%" height="114.6%" filterUnits="objectBoundingBox" id="dm-savebtn-filter-2">

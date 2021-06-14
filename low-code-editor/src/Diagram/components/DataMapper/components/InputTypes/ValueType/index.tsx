@@ -121,8 +121,14 @@ export function ValueType(props: ValueTypeProps) {
     }
 
     return (
-        <g id="Value-wrapper" onMouseOver={handleOnRectangleHover} onMouseOut={handleOnMouseOut}>
+        <g
+            data-testid={'datamapper-variable-wrapper'}
+            id="Value-wrapper"
+            onMouseOver={handleOnRectangleHover}
+            onMouseOut={handleOnMouseOut}
+        >
             <rect
+                data-testid={'datamapper-variable-rect'}
                 render-order="-1"
                 x={viewState.bBox.x - offSetCorrection}
                 y={viewState.bBox.y - 15}
@@ -146,6 +152,7 @@ export function ValueType(props: ValueTypeProps) {
                             </text>
                             {!isTarget && (
                                 <g
+                                    data-testid={'datamapper-input-variable-remove-btn'}
                                     className={classNames('delete-icon-show', { disable: hasConnections })}
                                     style={{ display: isMouseOver ? 'block' : 'none' }}
                                     onClick={handleOnDeleteClick}

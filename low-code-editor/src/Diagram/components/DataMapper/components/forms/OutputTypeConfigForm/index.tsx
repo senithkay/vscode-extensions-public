@@ -18,8 +18,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
-import { Box, FormControl, Select, Typography } from '@material-ui/core';
-import { CloseRounded } from '@material-ui/icons';
 
 import { FormField, PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
@@ -28,7 +26,6 @@ import { getAllVariables } from '../../../../../utils/mixins';
 import { createPropertyStatement, updatePropertyStatement } from '../../../../../utils/modification-util';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
-import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
 import { SelectDropdownWithButton } from '../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
@@ -336,7 +333,8 @@ export function OutputTypeConfigForm() {
             }
 
             // config.outputType.sampleStructure = defaultReturn;
-            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
+            const variableDefString
+                = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
 
             const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
             modifications.push(dataMapperFunction);
@@ -383,6 +381,7 @@ export function OutputTypeConfigForm() {
                 placeholder={"Enter Variable Name"}
             />
             <SelectDropdownWithButton
+                dataTestId={'datamapper-output-variable-type-dropdown'}
                 defaultValue={selectedDataType} // todo: get the initial default value from parent
                 onChange={handleOnTypeChange}
                 customProps={{
@@ -394,6 +393,7 @@ export function OutputTypeConfigForm() {
             />
             {selectedDataType === PrimitiveBalType.Record &&
                 <FormAutocomplete
+                    dataTestId={'datamapper-output-record-type-selector'}
                     value={
                         dataMapperConfig.outputType ?
                             {
@@ -446,6 +446,7 @@ export function OutputTypeConfigForm() {
         <>
             <div style={{ width: fieldWidth + 40 }}>
                 <SwitchToggle
+                    dataTestId={'use-existing-var-toggle'}
                     text="Use Existing Variable"
                     onChange={handleOutputConfigTypeChange}
                     initSwitch={generationType === GenerationType.ASSIGNMENT}
@@ -453,10 +454,15 @@ export function OutputTypeConfigForm() {
                 {generationType === GenerationType.NEW && createNewVariableComponent}
                 {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
                 <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }} >
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleOnCancelBtnClick} />
+                    <SecondaryButton
+                        dataTestId={"datamapper-output-config-cancel-btn"}
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={handleOnCancelBtnClick}
+                    />
                     <PrimaryButton
+                        dataTestId={"datamapper-output-config-save-btn"}
                         disabled={false}
-                        dataTestId={"datamapper-save-btn"}
                         text={"Save"}
                         fullWidth={false}
                         onClick={handleSave}

@@ -23,7 +23,7 @@ export function AddVariableButton(props: AddVariableButtonProps) {
     const { disabled, ...xyProps } = props;
 
     return (
-        <svg {...xyProps} width="110px" height="18px" viewBox="0 0 110px 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg data-testid={'datamapper-json-input-configure-btn'} {...xyProps} width="110px" height="18px" viewBox="0 0 110px 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             {/* <title>AD26148C-0FD3-4B56-9178-150E90F65543</title> */}
             <g id="add-variable-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="datamaping-start" transform="translate(-356.000000, -131.000000)" stroke="#5567D5" stroke-width="1.5">

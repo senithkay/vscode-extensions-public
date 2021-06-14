@@ -49,7 +49,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-            isTarget, removeInputType, commaPosition, isLastField } = props;
+        isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -284,8 +284,14 @@ export function JsonType(props: JsonTypeProps) {
 
     return (
 
-        <g id="JsonWrapper" onMouseOver={handleOnRectangleHover} onMouseOut={handleOnMouseOut} >
+        <g
+            data-testid={'datamapper-variable-wrapper'}
+            id="JsonWrapper"
+            onMouseOver={handleOnRectangleHover}
+            onMouseOut={handleOnMouseOut}
+        >
             <rect
+                data-testid={'datamapper-variable-rect'}
                 render-order="-1"
                 x={viewState.bBox.x - offSetCorrection}
                 y={viewState.bBox.y - 15}
@@ -309,6 +315,7 @@ export function JsonType(props: JsonTypeProps) {
                             </text>
                             {!isTarget && (
                                 <g
+                                    data-testid={'datamapper-input-variable-remove-btn'}
                                     className={classNames('delete-icon-show', { disable: hasConnections })}
                                     style={{ display: isMouseOver ? 'block' : 'none' }}
                                     onClick={handleOnDeleteClick}

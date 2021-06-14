@@ -27,10 +27,11 @@ export interface AutocompleteProps {
     getItemLabel?: (item: any) => string;
     renderItem?: (item: any) => ReactNode;
     onChange: (event: object, value: any, reason: string) => void;
+    dataTestId?: string;
 }
 
 export function FormAutocomplete(props: AutocompleteProps) {
-    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange } = props;
+    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange, dataTestId } = props;
     const classes = useStyles();
 
     function renderInnerTextField(params: (JSX.IntrinsicAttributes & StandardTextFieldProps) | (JSX.IntrinsicAttributes & FilledTextFieldProps) | (JSX.IntrinsicAttributes & OutlinedTextFieldProps)) {
@@ -57,6 +58,7 @@ export function FormAutocomplete(props: AutocompleteProps) {
             <FormHelperText className={classes.titleLabelRequired}>*</FormHelperText>
 
             <Autocomplete
+                data-testid={dataTestId}
                 id="combo-box-demo"
                 options={itemList}
                 getOptionLabel={getItemLabel}
