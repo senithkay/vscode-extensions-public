@@ -93,24 +93,6 @@ export function DataProcessor(props: ProcessorProps) {
                 processType = "Call";
                 processName = processType;
             }
-            // todo : uncomment
-            // const expressionStmt = ASTUtil.genSource(model).replace(";", "");
-            // if (expressionStmt.includes("log")) {
-            //     processType = "Log";
-            // }
-            //
-            // if (expressionStmt === "") {
-            //     const stmt: ExpressionStatement = model as ExpressionStatement;
-            //     const expr: Invocation = stmt.expression as Invocation;
-            //     if (expr.definition) {
-            //         for (const def of expr.definition) {
-            //             if (def[0] === "log") {
-            //                 processType = "Log";
-            //                 break;
-            //             }
-            //         }
-            //     }
-            // }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
             const typedBindingPattern = model?.typedBindingPattern;

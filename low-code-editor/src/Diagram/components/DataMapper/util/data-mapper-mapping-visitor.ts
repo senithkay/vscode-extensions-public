@@ -36,9 +36,9 @@ export class DataMapperMappingVisitor implements Visitor {
     private squashConstants: boolean;
 
     constructor(sourcePoints: Map<string, SourcePointViewState>,
-        targetPoints: Map<string, TargetPointViewState>,
-        constantPoints: Map<string, SourcePointViewState>,
-        squashConstants?: boolean) {
+                targetPoints: Map<string, TargetPointViewState>,
+                constantPoints: Map<string, SourcePointViewState>,
+                squashConstants?: boolean) {
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
         this.constantPoints = constantPoints;
@@ -50,8 +50,10 @@ export class DataMapperMappingVisitor implements Visitor {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
-            targetPoint.position = node.expression.position;
-            targetPoint.value = node.expression.source;
+            if (targetPoint) {
+                targetPoint.position = node.expression.position;
+                targetPoint.value = node.expression.source;
+            }
         }
     }
 
@@ -125,8 +127,10 @@ export class DataMapperMappingVisitor implements Visitor {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
-            targetPoint.position = node.initializer.position;
-            targetPoint.value = node.initializer.source;
+            if (targetPoint) {
+                targetPoint.position = node.initializer.position;
+                targetPoint.value = node.initializer.source;
+            }
         }
     }
 
@@ -201,8 +205,10 @@ export class DataMapperMappingVisitor implements Visitor {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
-            targetPoint.position = node.valueExpr.position;
-            targetPoint.value = node.valueExpr.source;
+            if (targetPoint) {
+                targetPoint.position = node.valueExpr.position;
+                targetPoint.value = node.valueExpr.source;
+            }
         }
     }
 
