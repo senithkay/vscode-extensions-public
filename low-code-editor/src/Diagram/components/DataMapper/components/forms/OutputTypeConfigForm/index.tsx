@@ -94,7 +94,8 @@ export function OutputTypeConfigForm() {
                         dataMapperConfig.outputType.sampleStructure = outputSTNode.initializer.source;
                     }
 
-                    defaultJsonValue = getDefaultValueForType(dataMapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "")
+                    defaultJsonValue = getDefaultValueForType(dataMapperConfig.outputType, 
+                        stSymbolInfo.recordTypeDescriptions, "")
                 }
                 break;
             case 'record':
@@ -111,8 +112,8 @@ export function OutputTypeConfigForm() {
     const [variableName, setVariableName] = useState<string>(defaultVariableName);
     const [variableNameError, setVariableNameError] = useState(defaultJsonValue);
     const [jsonValue, setJsonValue] = useState('');
-    const [jsonValueValidity, setJsonValueValidity] = useState(false);
-    const [variableNameValidity, setvariableNameValidity] = useState(false);
+    const [isJsonValid, setIsJsonValid] = useState(false);
+    const [variableNameValid, setVariableNameValid] = useState(false);
 
     const formClasses = formStyles();
     const overlayClasses = wizardStyles();
@@ -132,7 +133,9 @@ export function OutputTypeConfigForm() {
     }, []);
 
     const variables: DataMapperInputTypeInfo[] = [];
-    const jsonFormField: FormField = { isParam: true, type: 'json', value: defaultJsonValue } // form field model for json type form
+
+    // form field model for json type form
+    const jsonFormField: FormField = { isParam: true, type: 'json', value: defaultJsonValue };
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars
@@ -262,20 +265,21 @@ export function OutputTypeConfigForm() {
                 variableName, diagramState);
             if (varValidationResponse?.error) {
                 setVariableNameError(varValidationResponse.message);
-                setvariableNameValidity(false);
+                setVariableNameValid(false);
                 return false;
             }
         }
-        setvariableNameValidity(true);
+
+        setVariableNameValid(true);
         return true;
     };
 
     const validateJsonExpression = (fieldName: string, isInvalid: boolean) => {
         if (!isInvalid) {
             config.outputType.sampleStructure = jsonValue;
-            setJsonValueValidity(true);
+            setIsJsonValid(true);
         } else {
-            setJsonValueValidity(false);
+            setIsJsonValid(false);
         }
     }
 
@@ -376,7 +380,7 @@ export function OutputTypeConfigForm() {
                     validate: validateNameValue
                 }}
                 onChange={setVariableName}
-                defaultValue={variableName}
+                defaultValue={defaultVariableName}
                 errorMessage={variableNameError}
                 placeholder={"Enter Variable Name"}
             />
@@ -463,7 +467,7 @@ export function OutputTypeConfigForm() {
                     />
                     <PrimaryButton
                         dataTestId={"datamapper-output-config-save-btn"}
-                        disabled={false}
+                        disabled={!variableNameValid || (selectedDataType === PrimitiveBalType.Json && !isJsonValid)}
                         text={"Save"}
                         fullWidth={false}
                         onClick={handleSave}

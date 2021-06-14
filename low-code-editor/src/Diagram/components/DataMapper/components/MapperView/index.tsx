@@ -303,6 +303,8 @@ export function MapperView() {
         } else {
             outputHeight += 265;
         }
+
+        outputHeight += 35 // compensation incase of some error is displayed through a text field
     }
 
     if (showConfigureOutputForm && isExistingOutputSelected) {

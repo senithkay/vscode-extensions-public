@@ -154,7 +154,11 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
         } else {
             dataMapperStart({
                 inputTypes: [],
-                outputType: undefined,
+                outputType: {
+                    variableName: genVariableName('mappedValue', getAllVariables(stSymbolInfo)),
+                    generationType: GenerationType.NEW,
+                    type: PrimitiveBalType.String
+                },
                 wizardType: processConfig.wizardType
             });
         }
