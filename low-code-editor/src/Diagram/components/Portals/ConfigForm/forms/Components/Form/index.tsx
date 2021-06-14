@@ -71,6 +71,8 @@ export function Form(props: FormProps) {
                         type = "expression";
                     }
                 });
+            } else if (field.isRestParam) {
+                type = "restParam"
             }
             const element = getFormElement(elementProps, type);
 
