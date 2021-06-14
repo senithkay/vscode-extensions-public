@@ -97,7 +97,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
                     const typeSymbol = outputST.typeData.typeSymbol;
                     const moduleID = typeSymbol.moduleID;
-                    outputVarType = typeSymbol.name;
+                    outputVarType = 'record';
                     if (moduleID) {
                         outputTypeInfo = {
                             name: (typeDescriptor as SimpleNameReference).name.value,

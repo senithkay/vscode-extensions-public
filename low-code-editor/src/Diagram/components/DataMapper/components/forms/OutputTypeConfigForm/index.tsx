@@ -66,11 +66,11 @@ export function OutputTypeConfigForm() {
         toggleJsonRecordTypeOutputForm,
     } = useContext(DataMapperContext);
 
-    const [isSaved] = useState(dataMapperConfig.outputType?.saved);
+    const [isSaved] = useState(dataMapperConfig.outputType?.saved
+        || dataMapperConfig.wizardType === WizardType.EXISTING);
     let defaultVariableName;
 
-    if (dataMapperConfig.outputType
-        && (isSaved || dataMapperConfig.outputType.wizardType === WizardType.EXISTING)) {
+    if (dataMapperConfig.outputType && isSaved) {
         defaultVariableName = (dataMapperConfig as DataMapperConfig).outputType.variableName;
     } else {
         defaultVariableName = stSymbolInfo ?
@@ -393,6 +393,13 @@ export function OutputTypeConfigForm() {
             />
             {selectedDataType === PrimitiveBalType.Record &&
                 <FormAutocomplete
+                    value={
+                        dataMapperConfig.outputType ?
+                            {
+                                ...dataMapperConfig.outputType
+                            }
+                            : null
+                    }
                     itemList={recordTypeArray}
                     onChange={handleUpdateRecordType}
                     label={'Select output type'}
