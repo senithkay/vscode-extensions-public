@@ -284,7 +284,7 @@ export function OutputTypeConfigForm() {
         const modifications: STModification[] = [];
 
         if (isSaved) {
-            config.outputType.startLine = targetPosition.line;
+            config.outputType.startLine = outputSTNode ? outputSTNode.position.startLine : targetPosition.line;
             const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
             let outputType = '';
@@ -307,7 +307,6 @@ export function OutputTypeConfigForm() {
             }
 
             const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
-
             const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
             modifications.push(dataMapperFunction);
         } else {
