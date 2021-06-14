@@ -56,7 +56,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
 
     const connectionListElements = filteredList.map((item) => (
         // tslint:disable-next-line:jsx-key
-        <div key={item.displayName}>
+        <div key={item.handle}>
             <Box border={1} borderRadius={5} className={classes.radioBox}>
                 <FormControlLabel
                     value={item.handle}
@@ -74,8 +74,8 @@ export const ConnectionList = (props: ConnectionListProps) => {
 
     const connectionListComponents: ReactNode[] = [];
     if (selectedConnection !== "") {
-        const allCnts: ReactNode[] = connectionListElements.filter(el =>
-            el.key.toString().toLowerCase().includes(selectedConnection.toLowerCase()));
+        const allCnts: ReactNode[] = connectionListElements.filter(el => filteredList.find(item =>
+            item.handle === el.key).displayName.toLowerCase().includes(selectedConnection.toLowerCase()));
 
         allCnts.forEach((allCnt) => {
             connectionListComponents.push(allCnt);
