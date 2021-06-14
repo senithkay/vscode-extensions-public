@@ -163,11 +163,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                     model={model}
                                     cx={viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET}
                                     cy={viewState.bBox.cy + (CONNECTOR_PROCESS_SVG_HEIGHT / 4)}
-                                    isButtonDisabled={!isLocalVariableDecl}
+                                    isButtonDisabled={!isLocalVariableDecl || isSingleFormConnector}
                                 />
                             </g>
                             <g>
-                                {((model === null || isEditConnector)) && !isSingleFormConnector && (
+                                {((model === null || isEditConnector)) && (
                                     <ConnectorConfigWizard
                                         connectorInfo={connector}
                                         position={{

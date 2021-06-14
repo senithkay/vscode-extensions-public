@@ -243,6 +243,16 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "map" && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        // HACK:    current map type will render by expression-editor component.
+                        //          expression-editor component will set value property directly.
+                        //          need to implement fetch inner field's values of map object.
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
