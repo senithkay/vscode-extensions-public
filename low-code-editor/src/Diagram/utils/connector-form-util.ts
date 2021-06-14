@@ -317,6 +317,23 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_twilio_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "makeVoiceCall") {
+                    value.parameters.find(field => field.name === "voiceCallInput").fields.forEach(field => {
+                        if (field.name === "userInputType") {
+                            // HACK: add ENUM types to expression-editor auto suggestion list
+                            //      need to remove this once add ENUM support to Choreo
+                            field.customAutoComplete = [
+                                "twilio:TWIML_URL",
+                                "twilio:MESSAGE_IN_TEXT"
+                            ];
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_googleapis.drive_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // TODO: hide these operation until the Choreo support file upload feature
