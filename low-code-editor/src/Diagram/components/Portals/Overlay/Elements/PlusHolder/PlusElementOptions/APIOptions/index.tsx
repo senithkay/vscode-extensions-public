@@ -461,6 +461,12 @@ export function APIOptions(props: APIOptionsProps) {
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
+            // filter connectors due to maintenance
+            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "asb", "choreo.sendwhatsapp"];
+            if (filteredConnectors.includes(connector.module)) {
+                return;
+            }
+
             const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
@@ -492,12 +498,7 @@ export function APIOptions(props: APIOptionsProps) {
                     connectorInfo: connector,
                     component
                 }
-
-                // filter connectors due to maintenance
-                const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
-                if (!filletedConnectors.includes(connector.module)) {
-                    connectorComponents.push(connectorComponent);
-                }
+                connectorComponents.push(connectorComponent);
             }
             else{
                 const component: ReactNode = (
@@ -518,12 +519,7 @@ export function APIOptions(props: APIOptionsProps) {
                     connectorInfo: connector,
                     component
                 }
-
-                // filter connectors due to maintenance
-                const filletedConnectors = ['azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
-                if (!filletedConnectors.includes(connector.module)) {
-                    connectorComponents.push(connectorComponent);
-                }
+                connectorComponents.push(connectorComponent);
             }
         });
 
