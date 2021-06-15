@@ -122,7 +122,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const onConnectionNameChange = (text: string) => {
-        connectorConfig.connectionName = text;
+        // connectorConfig.connectionName = text;
         setConnectionNameState({
             value: text,
             isNameProvided: text !== '',
@@ -143,6 +143,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
+        connectorConfig.connectionName = connectionNameState.value;
         onSave();
     };
 
@@ -233,6 +234,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     onChange={onConnectionNameChange}
                     errorMessage={connectionNameError}
                     placeholder={createConnectionPlaceholder}
+                    disabled={connectorConfig.connectorInit.length > 0}
                 />
             </Section>
         </div>
@@ -240,8 +242,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const connectorModuleName = initFields[0]?.typeInfo?.modName;
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
-        connectorModuleName === "googleapis.calendar";
-    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
+        connectorModuleName === "googleapis.calendar" || connectorModuleName === "googleapis.drive";
+    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName
+        && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName
 
     return (

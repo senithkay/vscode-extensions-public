@@ -161,6 +161,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         if (activeConnection.type === MANUAL_TYPE) {
                             setIsManualConnection(true);
                             setFormState(FormStates.CreateNewConnection);
+                            connectorConfig.connectionName = activeConnection.displayName;
                         } else {
                             setIsManualConnection(false);
                             setFormState(FormStates.OauthConnect);
@@ -396,9 +397,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   });
                               }
                           });
-                          if (updatedFields.length > 0) {
+                          if (updatedFields.length > 0 && config.connectionName) {
                               response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                                  config.name, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
+                                  config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response, selectedType);
                               onClose();
