@@ -331,7 +331,7 @@ export function APIOptions(props: APIOptionsProps) {
         mailByChoreo: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.title",
-                defaultMessage: "Pre-configured connector that provides the capability to send an email."
+                defaultMessage: "Send an email using a pre-configured mail server."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.content",
@@ -342,7 +342,7 @@ export function APIOptions(props: APIOptionsProps) {
         smsByChoreo: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.title",
-                defaultMessage: "Pre-configured connector that provides the capability to send an SMS."
+                defaultMessage: "Send an SMS using a pre-configured SMS gateway."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.content",
@@ -353,33 +353,33 @@ export function APIOptions(props: APIOptionsProps) {
         covid19Api: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.title",
-                defaultMessage: "Connect with Covid 19 Open API to get latest status."
+                defaultMessage: "Connect with Covid 19 Open API to get the latest status."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
-                defaultMessage: "Global Status, \nCountry Status"
+                defaultMessage: "Global status, \nCountry status"
             }),
             placement: 'left'
         },
         weatherApi: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.title",
-                defaultMessage: "Connect with Open Weather Map API to access current weather data for any location on Earth"
+                defaultMessage: " Connect with Open Weather Map API to access the current weather data for any location."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.content",
-                defaultMessage: "Get Current Weather Data, \nGet Weather Forecast"
+                defaultMessage: "Get current weather data, \nGet weather forecast"
             }),
             placement: 'right'
         },
         worldBankApi: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.title",
-                defaultMessage: "Connect with World Bank Open API to access global data bank."
+                defaultMessage: "Connect with World Bank Open API to access global development data."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
-                defaultMessage: "Country Population, \nGDP By Country"
+                defaultMessage: "Country population, \nGDP by country"
             }),
             placement: 'left'
         },
