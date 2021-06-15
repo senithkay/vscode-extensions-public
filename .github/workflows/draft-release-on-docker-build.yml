@@ -32,6 +32,9 @@ jobs:
           platforms: linux/amd64
           push: false
           tags: vscode/build:latest
+          build-args: |
+            USERNAME=choreo-cicd
+            TOKEN=${{ secrets.PUBLISH_PAT }}
 
   test_build:
     needs: build_docker
@@ -52,8 +55,8 @@ jobs:
           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"${{ github.event.inputs.tag }}", \
           "draft":true, "name": "Release ${{ github.event.inputs.vsix_version }}", "prerelease":true}' \
-          https://api.github.com/repos/prabushi/ballerina-plugin-vscode/releases` \
+          https://api.github.com/repos/wso2-enterprise/ballerina-plugin-vscode/releases` \
            && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
             --data-binary @ballerina-${{ github.event.inputs.vsix_version }}.vsix \
-            https://uploads.github.com/repos/prabushi/ballerina-plugin-vscode/releases/$id/assets?name=ballerina-${{ github.event.inputs.vsix_version }}.vsix`
+            https://uploads.github.com/repos/wso2-enterprise/ballerina-plugin-vscode/releases/$id/assets?name=ballerina-${{ github.event.inputs.vsix_version }}.vsix`
