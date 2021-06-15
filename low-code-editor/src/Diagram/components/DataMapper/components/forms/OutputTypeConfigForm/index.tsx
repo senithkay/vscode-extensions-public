@@ -94,7 +94,7 @@ export function OutputTypeConfigForm() {
                         dataMapperConfig.outputType.sampleStructure = outputSTNode.initializer.source;
                     }
 
-                    defaultJsonValue = getDefaultValueForType(dataMapperConfig.outputType, 
+                    defaultJsonValue = getDefaultValueForType(dataMapperConfig.outputType,
                         stSymbolInfo.recordTypeDescriptions, "")
                 }
                 break;

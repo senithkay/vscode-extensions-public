@@ -317,7 +317,7 @@ export class DataMapperInitVisitor implements Visitor {
                             case 'int':
                             case 'float':
                                 viewstate.type = 'union';
-                                viewstate.unionType = 'int|float';;
+                                viewstate.unionType = 'int|float'; ;
                                 break;
                             default:
                                 viewstate.type = typeSymbol.typeKind;
@@ -333,7 +333,7 @@ export class DataMapperInitVisitor implements Visitor {
                             case 'int':
                             case 'float':
                                 viewstate.type = 'union';
-                                viewstate.unionType = 'int|float';;
+                                viewstate.unionType = 'int|float'; ;
                                 break;
                             default:
                                 viewstate.type = typeSymbol.typeKind;
