@@ -19,7 +19,7 @@ import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/s
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 
-import {createManualConnection, updateManualConnection} from '../../../../../../../../src/api/connector';
+import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
     AiSuggestionsReq,
     AiSuggestionsRes,
@@ -136,7 +136,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
-    const [activeConnectionHandler, setActiveConnectionHandler] = useState("")
+    const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -158,9 +158,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     if (activeConnection) {
                         setConnection(activeConnection);
                         setActiveConnectionHandler(activeConnection.handle);
-                        if (activeConnection.type === "manual") {
+                        if (activeConnection.type === MANUAL_TYPE) {
                             setIsManualConnection(true);
-                            setFormState(FormStates.CreateNewConnection)
+                            setFormState(FormStates.CreateNewConnection);
                         } else {
                             setIsManualConnection(false);
                             setFormState(FormStates.OauthConnect);
@@ -347,12 +347,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             let connectorConfigurables;
             let configSource = getParams(config.connectorInit).join();
             let response;
-
             if ((connectorTypes.includes(connectorInfo.displayName))) {
                 const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                 (async () => {
-
                     if (isNewConnectorInitWizard && targetPosition) {
                         response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, manualConnectionFormFieldValues.selectedFields, selectedType);
                         configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
@@ -364,7 +362,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addImport);
-
                         if (connectorConfigurables) {
                             const addConfigurableVars = createPropertyStatement(
                                 connectorConfigurables,
@@ -378,6 +375,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
+
                     } else {
                         // update connector client initialization
                           const updatedFields: { name: string; value: string; }[] = [];
@@ -386,7 +384,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   updatedFields.push({
                                       name: item.name,
                                       value: item.value.substring(1, (item.value.length - 1))
-                                  })
+                                  });
                               }
                           });
                           if (updatedFields.length > 0) {
@@ -395,6 +393,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response, selectedType)
                               onClose();
+                          } else {
+                              const updateConnectorInit = updatePropertyStatement(
+                                  `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                  connectorConfig.initPosition
+                              );
+                              modifications.push(updateConnectorInit);
                           }
                     }
                     if (modifications.length > 0) {
