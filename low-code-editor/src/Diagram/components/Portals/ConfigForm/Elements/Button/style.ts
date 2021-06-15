@@ -118,7 +118,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         square: {
-            height: 48,
+            height: 35,
             borderRadius: 5,
             boxShadow: "0 1px 2px 0 rgba(47, 50, 127, 0.26)",
             "&:hover": {

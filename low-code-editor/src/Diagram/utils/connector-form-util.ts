@@ -45,13 +45,41 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         const optionalFields = allFields.find(field => field.name !== oauthConfigName);
         optionalFields.hide = true;
 
-        mandatoryFields?.fields?.forEach((subField) => {
-            subField?.fields?.forEach(item => {
-                if (item.optional) {
-                    item.hide = true;
-                }
-            });
-        });
+        if (oauthConfigName !== ACCESS_TOKEN)
+        {
+            // Set mandatory fields of OAuth2RefreshTokenGrantConfig
+            mandatoryFields.fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = [
+                {
+                    "isParam": true,
+                    "name": "refreshUrl",
+                    "optional": false,
+                    "type": "string"
+                },
+                {
+                    "isParam": true,
+                    "name": "refreshToken",
+                    "optional": false,
+                    "type": "string"
+                },
+                {
+                    "isParam": true,
+                    "name": "clientId",
+                    "optional": false,
+                    "type": "string"
+                },
+                {
+                    "isParam": true,
+                    "name": "clientSecret",
+                    "optional": false,
+                    "type": "string"
+                },
+            ]
+        }
+
+        // Remove JwtIssuerConfig related fields
+        if (connectorType === CALENDAR_CONFIG){
+            mandatoryFields.fields = mandatoryFields.fields.filter(fields => fields.typeInfo?.name !== "JwtIssuerConfig");
+        }
     }
 
     switch (connectorName) {
@@ -261,9 +289,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
                 // hide optional fields from gmail forms
                 // TODO: Remove when optional field BE support is given
-                // if (key === INIT){
-                //     hideOptionalFields(value, GMAIL_CONFIG, OAUTH_CLIENT_CONFIG);
-                // }
+                if (key === INIT){
+                    hideOptionalFields(value, GMAIL_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
 
                 if (key === "readMessage") {
                     value.parameters.find(fields => fields.name === "format").hide = true;
@@ -285,9 +313,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from google sheets forms
                 // TODO: Remove when optional field BE support is given
-                // if (key === INIT){
-                //     hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
-                // }
+                if (key === INIT){
+                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
                 filteredFunctions.set(key, value);
             });
             break;
@@ -295,9 +323,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from github forms
                 // TODO: Remove when optional field BE support is given
-                // if (key === INIT){
-                //     hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
-                // }
+                if (key === INIT){
+                    hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
+                }
                 filteredFunctions.set(key, value);
             });
             break;
@@ -306,9 +334,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
                 // hide optional fields from google calendar forms
                 // TODO: Remove when optional field BE support is given
-                // if (key === INIT){
-                //     hideOptionalFields(value, CALENDAR_CONFIG, OAUTH2_CONFIG);
-                // }
+                if (key === INIT){
+                    hideOptionalFields(value, CALENDAR_CONFIG, OAUTH2_CONFIG);
+                }
 
                 if (key === "createEvent" || key === "updateEvent") {
                     value.parameters.find(field => field.name === "event").fields.forEach((field) => {
@@ -383,9 +411,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from google drive forms
                 // TODO: Remove when optional field BE support is given
-                // if (key === INIT){
-                //     hideOptionalFields(value, DRIVE_CONFIG, CLIENT_CONFIG);
-                // }
+                if (key === INIT){
+                    hideOptionalFields(value, DRIVE_CONFIG, CLIENT_CONFIG);
+                }
 
                 // TODO: hide these operation until the Choreo support file upload feature
                 const hiddenActions: string[] = [
