@@ -284,6 +284,11 @@ export interface ConnectionRequest {
     }
 }
 
+export const CONNECTION_TYPE_MANUAL = "manual";
+export const CONNECTION_TYPE_SSO = "sso";
+
+export type CONNECTION_TYPE = typeof CONNECTION_TYPE_MANUAL | typeof CONNECTION_TYPE_SSO;
+
 // connection api response
 export interface ConnectionDetails {
     handle: string;
