@@ -544,7 +544,7 @@ export function dataMapperSizingAndPositioningRecalculate(
         let outputStartHeight = 15;
         if (showConfigureOutputForm && !isExistingOutputSelected) {
             if (isJsonRecordTypeSelected) {
-                outputStartHeight += 332;
+                outputStartHeight += 332 + 15;
             } else {
                 outputStartHeight += 265;
             }

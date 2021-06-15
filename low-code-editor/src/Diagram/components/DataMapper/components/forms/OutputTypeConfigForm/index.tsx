@@ -254,7 +254,7 @@ export function OutputTypeConfigForm() {
             setGenerationType(GenerationType.NEW);
             isExistingOutputSelected && toggleSelectExistingOutputForm();
             isJsonRecordTypeSelected && toggleJsonRecordTypeOutputForm(false);
-
+            setSelectedDataType(PrimitiveBalType.String);
         }
         dataMapperViewRedraw(outputSTNode);
     }
@@ -411,8 +411,7 @@ export function OutputTypeConfigForm() {
                     getItemLabel={(option) => option.typeInfo?.name}
                     renderItem={(option) => (
                         <React.Fragment>
-                            <span>{option.typeInfo?.name}</span>
-                            {option.typeInfo?.moduleName}
+                            <span><b>{option.typeInfo?.name}</b> {option.typeInfo?.moduleName}</span>
                         </React.Fragment>
                     )}
                 />
@@ -438,8 +437,7 @@ export function OutputTypeConfigForm() {
                 onChange={handleOnVariableSelect}
                 renderItem={(option) => (
                     <React.Fragment>
-                        <span>{option.name}</span>
-                        {option.type}
+                        <span><b>{option.name}</b>: {option.type}</span>
                     </React.Fragment>
                 )}
                 getItemLabel={(option) => option.name}
