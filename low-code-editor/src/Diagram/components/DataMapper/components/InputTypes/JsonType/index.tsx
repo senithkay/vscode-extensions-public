@@ -15,7 +15,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
@@ -49,7 +49,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-            isTarget, removeInputType, commaPosition, isLastField } = props;
+        isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -114,21 +114,27 @@ export function JsonType(props: JsonTypeProps) {
     switch (type) {
         case 'json':
             if (viewState.hasMappedConstructorInitializer) {
-                const initializer: MappingConstructor = (model as LocalVarDecl).initializer as MappingConstructor;
+                let mappingConstructorNode: MappingConstructor;
 
-                if (initializer) {
-                    initializer.fields.forEach((field, i) => {
+                if (STKindChecker.isLocalVarDecl(model)) {
+                    mappingConstructorNode = model.initializer as MappingConstructor;
+                } else if (STKindChecker.isAssignmentStatement(model)) {
+                    mappingConstructorNode = model.expression as MappingConstructor;
+                }
+
+                if (mappingConstructorNode) {
+                    mappingConstructorNode.fields.forEach((field, i) => {
                         if (!STKindChecker.isCommaToken(field)) {
                             const fieldVS = field.dataMapperViewState;
                             let adjascentCommaPosition;
 
-                            if (i < initializer.fields.length - 2) {
-                                const adjascentElement = initializer.fields[i + 1];
+                            if (i < mappingConstructorNode.fields.length - 2) {
+                                const adjascentElement = mappingConstructorNode.fields[i + 1];
                                 if (STKindChecker.isCommaToken(adjascentElement)) {
                                     adjascentCommaPosition = adjascentElement.position;
                                 }
-                            } else if (i === initializer.fields.length - 1 && i !== 0) {
-                                const adjascentElement = initializer.fields[i - 1];
+                            } else if (i === mappingConstructorNode.fields.length - 1 && i !== 0) {
+                                const adjascentElement = mappingConstructorNode.fields[i - 1];
                                 if (STKindChecker.isCommaToken(adjascentElement)) {
                                     adjascentCommaPosition = adjascentElement.position;
                                 }
@@ -145,7 +151,7 @@ export function JsonType(props: JsonTypeProps) {
                                         isTarget,
                                         isJsonField: true,
                                         commaPosition: adjascentCommaPosition,
-                                        isLastField: i === initializer.fields.length - 1
+                                        isLastField: i === mappingConstructorNode.fields.length - 1
                                     }
                                 )
                             );
