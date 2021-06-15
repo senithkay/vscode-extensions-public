@@ -102,7 +102,9 @@ export function VariablePicker() {
                     getItemLabel={(option) => option.name}
                     renderItem={(option) => (
                         <React.Fragment>
-                            {option.name} {option.type}
+                            <span>
+                                <b>{option.name}</b> {option.type}
+                            </span>
                         </React.Fragment>
                     )}
                 />
