@@ -122,7 +122,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const onConnectionNameChange = (text: string) => {
-        // connectorConfig.connectionName = text;
         setConnectionNameState({
             value: text,
             isNameProvided: text !== '',
