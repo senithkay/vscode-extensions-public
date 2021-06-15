@@ -409,11 +409,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_googleapis.drive_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                // hide optional fields from google drive forms
-                // TODO: Remove when optional field BE support is given
-                if (key === INIT){
-                    hideOptionalFields(value, DRIVE_CONFIG, CLIENT_CONFIG);
-                }
 
                 // TODO: hide these operation until the Choreo support file upload feature
                 const hiddenActions: string[] = [
