@@ -283,6 +283,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
                     "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
                 if (!filteredOperations.includes(key)) {
+                    if (key === "addRowsBeforeBySheetName") {
+                        value.label = "Add Rows Before"
+                    }
                     filteredFunctions.set(key, value);
                 }
             });
