@@ -68,7 +68,17 @@ export function OutputTypeConfigForm() {
     let defaultVariableName;
 
     if (dataMapperConfig.outputType && isSaved) {
-        defaultVariableName = (dataMapperConfig as DataMapperConfig).outputType.variableName;
+        if (outputSTNode) {
+            if (STKindChecker.isLocalVarDecl(outputSTNode)) {
+                const captureBindingPattern: CaptureBindingPattern
+                    = outputSTNode.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+                defaultVariableName = captureBindingPattern.variableName.value;
+            } else {
+                defaultVariableName = (dataMapperConfig as DataMapperConfig).outputType.variableName;
+            }
+        } else {
+            defaultVariableName = (dataMapperConfig as DataMapperConfig).outputType.variableName;
+        }
     } else {
         defaultVariableName = stSymbolInfo ?
             genVariableName('mappedValue', getAllVariables(stSymbolInfo)) : 'mappedValue';
@@ -155,6 +165,11 @@ export function OutputTypeConfigForm() {
                 }
             });
     });
+
+    const handleVariableNameChange = (value: string) => {
+        config.outputType.variableName = value;
+        setVariableName(value);
+    }
 
     const handleOnJsonValueChange = (value: string) => {
         setJsonValue(value);
