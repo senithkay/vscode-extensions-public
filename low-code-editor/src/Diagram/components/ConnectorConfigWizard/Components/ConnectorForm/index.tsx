@@ -434,13 +434,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     );
                     modifications.push(updateConnectorInit);
                 }
-
-                if (modifications.length > 0) {
-                    modifyDiagram(modifications);
-                    onClose();
-                }
             }
-
+        }
+        if (modifications.length > 0) {
+            modifyDiagram(modifications);
+            onClose();
         }
     };
 

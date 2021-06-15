@@ -280,7 +280,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <PrimaryButton
                             text="Save"
                             fullWidth={false}
-                            disabled={!(showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid)}
+                            disabled={!(isFieldsValid)}
                             onClick={handleOnSave}
                         />
                     </div>
