@@ -306,7 +306,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name){
                 OAuthtype = "BearerTokenConfig"
             }
-            else if (connection.codeVariableKeys.find(field => field?.name === "refreshUrlKey")?.name){
+            else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name){
                 OAuthtype = "OAuth2RefreshTokenGrantConfig"
             }
             const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);

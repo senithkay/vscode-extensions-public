@@ -854,12 +854,17 @@ export function getOauthParamsFromConnection(connectorName: string, connectionDe
         }
     }
     if (type && type === "OAuth2RefreshTokenGrantConfig") {
+        let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey')
+            if(refreshUrl === ""){
+                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+        }
+                
         return [`{
             ${tokenObjectName}: {
                 clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
                 clientSecret: ${getKeyFromConnection(connectionDetail, 'clientSecretKey')},
                 refreshToken: ${getKeyFromConnection(connectionDetail, 'refreshTokenKey')},
-                refreshUrl: ${getKeyFromConnection(connectionDetail, 'refreshUrlKey')}
+                refreshUrl : ${refreshUrl}
             }
          }`];
     } else if (type && type === "BearerTokenConfig") {
@@ -1090,7 +1095,10 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
         case "gmail": {
             const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            const refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
+            let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
+            if(refreshUrl === ""){
+                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
+            }
             const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
             const token = getKeyFromConnection(connectionDetail, 'tokenKey');
             let statement = '';
