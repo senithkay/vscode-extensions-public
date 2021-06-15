@@ -20,6 +20,7 @@ import {
     IdentifierToken,
     LocalVarDecl,
     MethodCall,
+    QualifiedNameReference,
     RecordField,
     RecordTypeDesc,
     SimpleNameReference,
@@ -145,6 +146,19 @@ export class DataMapperInitVisitor implements Visitor {
         } else if (STKindChecker.isRecordTypeDesc(typeDescriptor)) {
             viewState.type = PrimitiveBalType.Record;
             viewState.hasInlineRecordDescription = true;
+        } else if (STKindChecker.isQualifiedNameReference(typeDescriptor)) {
+            const typeSymbol = node.typeData.typeSymbol;
+            const moduleID = typeSymbol.moduleID;
+            viewState.type = `${typeDescriptor.modulePrefix.value}:${typeDescriptor.identifier.value}`;
+
+            if (moduleID) {
+                viewState.typeInfo = {
+                    name: typeDescriptor.identifier.value,
+                    orgName: moduleID.orgName,
+                    moduleName: moduleID.moduleName,
+                    version: moduleID.version
+                }
+            }
         }
 
         viewState.name = bindingPattern.variableName.value;
@@ -317,7 +331,7 @@ export class DataMapperInitVisitor implements Visitor {
                             case 'int':
                             case 'float':
                                 viewstate.type = 'union';
-                                viewstate.unionType = 'int|float'; ;
+                                viewstate.unionType = 'int|float';;
                                 break;
                             default:
                                 viewstate.type = typeSymbol.typeKind;
@@ -333,7 +347,7 @@ export class DataMapperInitVisitor implements Visitor {
                             case 'int':
                             case 'float':
                                 viewstate.type = 'union';
-                                viewstate.unionType = 'int|float'; ;
+                                viewstate.unionType = 'int|float';;
                                 break;
                             default:
                                 viewstate.type = typeSymbol.typeKind;

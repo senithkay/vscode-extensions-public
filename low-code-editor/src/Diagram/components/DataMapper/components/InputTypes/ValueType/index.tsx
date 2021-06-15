@@ -148,7 +148,9 @@ export function ValueType(props: ValueTypeProps) {
                                 ref={svgTextRef}
                             >
                                 <tspan className="key-value"> {`${name}:`} </tspan>
-                                <tspan className="value-para"> {`${type}`}  </tspan>
+                                <tspan className="value-para">
+                                    {`${name}: ${type}`.length > 19 ? '...' : `${type}`}
+                                </tspan>
                             </text>
                             {!isTarget && (
                                 <g

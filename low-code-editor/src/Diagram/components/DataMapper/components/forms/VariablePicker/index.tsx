@@ -65,6 +65,7 @@ export function VariablePicker() {
         definedVars
             .filter((el: STNode) => {
                 let varName: string;
+
                 if (STKindChecker.isLocalVarDecl(el)) {
                     varName = (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
                 } else if (STKindChecker.isRequiredParam(el)) {

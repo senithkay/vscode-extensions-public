@@ -28,8 +28,13 @@ import { ConstantVisitor } from './datamapper-constant-visitor';
 import { DataMapperSizingVisitor, FIELD_HEIGHT } from './datamapper-sizing-visitor';
 
 export function getDataMapperComponent(type: string, args: any) {
-    const DataMapperComponent = (DataMapperComponents as any)[type];
-    return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
+    let DataMapperComponent = (DataMapperComponents as any)[type];
+    if (DataMapperComponent) {
+        return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
+    } else {
+        DataMapperComponent = (DataMapperComponents as any)['var'];
+        return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
+    }
 }
 
 export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap: Map<string, STNode>, returnString: string) {
