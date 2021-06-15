@@ -42,7 +42,6 @@ export function DataMapper(props: DataMapperProps) {
     const {
         state, dataMapperStart, updateDataMapperConfig
     } = useContext(DiagramContext);
-    const { width } = props;
 
     const {
         appInfo,
@@ -136,13 +135,12 @@ export function DataMapper(props: DataMapperProps) {
         maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
     }
 
-
     const initialState: DataMapperState = {
         inputSTNodes,
         outputSTNode,
         stSymbolInfo,
         showAddVariableForm: false,
-        showConfigureOutputForm: outputSTNode === undefined,
+        showConfigureOutputForm: state.isMutationProgress ? false : outputSTNode === undefined,
         isExistingOutputSelected: false,
         isJsonRecordTypeSelected: false,
         showAddJsonFieldForm: false,
