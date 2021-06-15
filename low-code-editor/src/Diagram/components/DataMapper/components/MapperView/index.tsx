@@ -383,8 +383,8 @@ export function MapperView() {
 
     return (
         <Canvas h={maxHeight} w={maxWidth} >
-            <g id='datamapper-diagram-switch'>
-                <text x="45" y="30" onClick={handleSwitchBackToDiagram}>←  Back to the Diagram</text>
+            <g id='datamapper-diagram-switch' onClick={handleSwitchBackToDiagram}>
+                <text data-testid="datamapper-diagram-switch" x="45" y="30" >←  Back to the Diagram</text>
             </g>
             <g id="outputComponent">
                 <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
