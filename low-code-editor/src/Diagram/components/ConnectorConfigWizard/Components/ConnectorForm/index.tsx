@@ -300,8 +300,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onEvent(event);
 
         // check oauth flow and manual flow
+
         if (isOauthConnector && !isManualConnection && connection) {
-            const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
+            let OAuthtype ;
+            if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name){
+                OAuthtype = "BearerTokenConfig"
+            }
+            else if (connection.codeVariableKeys.find(field => field?.name === "refreshUrlKey")?.name){
+                OAuthtype = "OAuth2RefreshTokenGrantConfig"
+            }
+            const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);
+
             // oauth flow
             if (isNewConnectorInitWizard && targetPosition) {
                 // new connector client initialization
@@ -322,7 +331,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 const addConnectorInit: STModification = createPropertyStatement(
                     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection, OAuthtype)});`,
                     targetPosition
                 );
                 modifications.push(addConnectorInit);
@@ -337,7 +346,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 // update connector client initialization
                 const updateConnectorInit = updatePropertyStatement(
                     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                        ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection, OAuthtype)});`,
                     config.initPosition
                 );
                 modifications.push(updateConnectorInit);
@@ -439,6 +448,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     modifications.push(updateConnectorInit);
                 }
             }
+
+
         }
         if (modifications.length > 0) {
             modifyDiagram(modifications);

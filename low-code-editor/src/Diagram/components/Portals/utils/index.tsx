@@ -464,7 +464,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     });
 }
 
-export function getRestParamFieldValue (remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
+export function getRestParamFieldValue(remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
     const varArgValues: string[] = [];
     for (let i = currentFieldIndex; i < remoteMethodCallArguments.length; i++) {
         const varArgs: PositionalArg = remoteMethodCallArguments[i] as PositionalArg;
@@ -853,7 +853,7 @@ export function getOauthParamsFromConnection(connectorName: string, connectionDe
             break;
         }
     }
-    if (type === "OAuth2RefreshTokenGrantConfig") {
+    if (type && type === "OAuth2RefreshTokenGrantConfig") {
         return [`{
             ${tokenObjectName}: {
                 clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
@@ -862,7 +862,7 @@ export function getOauthParamsFromConnection(connectorName: string, connectionDe
                 refreshUrl: ${getKeyFromConnection(connectionDetail, 'refreshUrlKey')}
             }
          }`];
-    } else if (type === "BearerTokenConfig") {
+    } else if (type && type === "BearerTokenConfig") {
         return [`{
             ${tokenObjectName}: {
                 token: ${getKeyFromConnection(connectionDetail, 'tokenKey')}
@@ -877,7 +877,7 @@ export function getInitReturnType(functionDefinitions: Map<string, FunctionDefin
 }
 
 export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): FormFieldReturnType {
-    if (!action){
+    if (!action) {
         return undefined;
     }
     const returnTypeField = functionDefinitions.get(action)?.returnType;
@@ -1095,7 +1095,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
             const token = getKeyFromConnection(connectionDetail, 'tokenKey');
             let statement = '';
 
-            if (type === "OAuth2RefreshTokenGrantConfig") {
+            if (type && type === "OAuth2RefreshTokenGrantConfig") {
                 if (!configurables?.get(clientId)) {
                     statement += `configurable string ${clientId} = ?;\n`;
                 }
@@ -1108,7 +1108,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
                 if (!configurables?.get(refreshToken)) {
                     statement += `configurable string ${refreshToken} = ?;\n`;
                 }
-            } else if (type === "BearerTokenConfig") {
+            } else if (type && type === "BearerTokenConfig") {
                 if (!configurables?.get(token)) {
                     statement += `configurable string ${token} = ?;\n`;
                 }
@@ -1135,7 +1135,7 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
                 fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             if (!variableKey) {
                 variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
+                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
             }
             break;
         case "googleapis.calendar": {
@@ -1143,7 +1143,7 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
                 fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             if (!variableKey) {
                 variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
+                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
             }
             break;
         }
@@ -1254,7 +1254,7 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
             }
         });
     }
-    return {selectedFields}
+    return { selectedFields }
 }
 export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
     const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
