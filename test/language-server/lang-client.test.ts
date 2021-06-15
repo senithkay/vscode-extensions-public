@@ -690,7 +690,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test BallerinaProjectComponents, SyntaxTreeNode, and ExecutorPositions", function (done): void {
+    test("Test BallerinaProjectComponents, and ExecutorPositions", function (done): void {
         const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(async () => {
@@ -702,43 +702,52 @@ suite("Language Server Tests", function () {
                     expect(response).to.contain.keys('packages');
                     assert.equal(response!.packages![0].modules[0].functions[0].name, 'main',
                         "Invalid project component function name.");
-                }, (reason) => {
-                    done(reason);
-                });
-                await langClient.getSyntaxTreeNode({
-                    documentIdentifier: {
-                        uri: uri.toString()
-                    },
-                    range: {
-                        start: {
-                            line: 4,
-                            character: 20,
-                        },
-                        end: {
-                            line: 4,
-                            character: 22
-                        }
-                    }
-                }).then((response) => {
-                    expect(response).to.contain.keys('kind');
-                    assert.equal(response.kind, 'STRING_LITERAL', 'Invalid syntax tree node kind.');
-                }, (reason) => {
-                    done(reason);
-                });
-
-                await langClient.getExecutorPositions({
-                    documentIdentifier: {
-                        uri: uri.toString()
-                    }
-                }).then((response) => {
-                    expect(response).to.contain.keys('executorPositions');
-                    assert.equal(response.executorPositions?.length, 1, "Invalid numer of executor positions");
-                    assert.equal(response.executorPositions![0].name, 'main', "Invalid executor position function name");
                     done();
                 }, (reason) => {
                     done(reason);
                 });
             });
+        });
+    });
+
+    test("Test SyntaxTreeNode", function (done): void {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        langClient.getSyntaxTreeNode({
+            documentIdentifier: {
+                uri: uri.toString()
+            },
+            range: {
+                start: {
+                    line: 11,
+                    character: 20,
+                },
+                end: {
+                    line: 11,
+                    character: 22
+                }
+            }
+        }).then((response) => {
+            expect(response).to.contain.keys('kind');
+            assert.equal(response.kind, 'STRING_LITERAL', 'Invalid syntax tree node kind.');
+            done();
+        }, (reason) => {
+            done(reason);
+        });
+    });
+
+    test("Test ExecutorPositions", function (done): void {
+        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        langClient.getExecutorPositions({
+            documentIdentifier: {
+                uri: uri.toString()
+            }
+        }).then((response) => {
+            expect(response).to.contain.keys('executorPositions');
+            assert.equal(response.executorPositions?.length, 1, "Invalid numer of executor positions");
+            assert.equal(response.executorPositions![0].name, 'main', "Invalid executor position function name");
+            done();
+        }, (reason) => {
+            done(reason);
         });
     });
 

@@ -32,9 +32,7 @@ jobs:
       - run: unzip -qq ./ballerina-${{ github.event.inputs.bal_dist_version }}.zip -d ./extractedDistribution
       - run: rm ballerina-${{ github.event.inputs.bal_dist_version }}.zip
       - name: Build repository with tests
-        uses: GabrielBB/xvfb-action@v1.0
-        with:
-          run: ./gradlew clean build
+        run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Publish codecov report
