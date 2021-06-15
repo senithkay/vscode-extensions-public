@@ -855,10 +855,10 @@ export function getOauthParamsFromConnection(connectorName: string, connectionDe
     }
     if (type && type === "OAuth2RefreshTokenGrantConfig") {
         let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey')
-            if(refreshUrl === ""){
+        if (refreshUrl === ""){
                 refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
         }
-                
+
         return [`{
             ${tokenObjectName}: {
                 clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
@@ -1096,7 +1096,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
             const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
             const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
             let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
-            if(refreshUrl === ""){
+            if (refreshUrl === ""){
                 refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
             }
             const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
