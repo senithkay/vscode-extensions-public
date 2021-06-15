@@ -309,7 +309,7 @@ export function OutputTypeConfigForm() {
                     outputType = config.outputType.type;
             }
 
-            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
+            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${variableName} = ${defaultReturn};`
             const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
             modifications.push(dataMapperFunction);
         } else {
@@ -338,7 +338,7 @@ export function OutputTypeConfigForm() {
 
             // config.outputType.sampleStructure = defaultReturn;
             const variableDefString
-                = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${config.outputType.variableName} = ${defaultReturn};`
+                = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${variableName} = ${defaultReturn};`
 
             const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
             modifications.push(dataMapperFunction);
