@@ -159,7 +159,7 @@ export function OperationForm(props: OperationFormProps) {
                                 <p className={wizardClasses.subTitle}>Operation</p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
-                                        {(operationLabel.length > operationLabelMaxLength ? operationLabel.slice(0, operationLabelMaxLength) + "..." : operationLabel)
+                                        {(operationLabel?.length > operationLabelMaxLength ? operationLabel?.slice(0, operationLabelMaxLength) + "..." : operationLabel)
                                             || (selectedOperationState.length > operationLabelMaxLength ? selectedOperationState.slice(0, operationLabelMaxLength) + "..." : selectedOperationState)}
                                     </Typography>
                                     <IconButton
