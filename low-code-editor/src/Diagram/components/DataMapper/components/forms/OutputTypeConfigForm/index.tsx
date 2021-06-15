@@ -151,11 +151,13 @@ export function OutputTypeConfigForm() {
         definedVars
             .forEach((el: STNode) => {
                 if (STKindChecker.isLocalVarDecl(el)) {
-                    variables.push({
-                        name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
-                        type,
-                        // node: el
-                    })
+                    if (type !== 'var') {
+                        variables.push({
+                            name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
+                            type,
+                            // node: el
+                        });
+                    }
                 } else if (STKindChecker.isRequiredParam(el)) {
                     variables.push({
                         name: el.paramName.value,
@@ -259,6 +261,7 @@ export function OutputTypeConfigForm() {
             typeInfo,
             variableName: variableOption.name
         }
+        setVariableName(variableOption.name);
     }
 
     const handleOutputConfigTypeChange = () => {
