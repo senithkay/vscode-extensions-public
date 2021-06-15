@@ -74,12 +74,20 @@ export function VariablePicker() {
 
                 return selectedVariables.indexOf(varName) === -1;
             })
-            .forEach((el: LocalVarDecl) => {
-                variables.push({
-                    name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
-                    type,
-                    node: el
-                })
+            .forEach((el: STNode) => {
+                if (STKindChecker.isLocalVarDecl(el)) {
+                    variables.push({
+                        name: (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value,
+                        type,
+                        node: el
+                    })
+                } else if (STKindChecker.isRequiredParam(el)) {
+                    variables.push({
+                        name: el.paramName.value,
+                        type,
+                        node: el
+                    })
+                }
             });
     });
 
