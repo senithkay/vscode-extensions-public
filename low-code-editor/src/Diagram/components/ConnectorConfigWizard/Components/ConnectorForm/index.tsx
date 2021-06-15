@@ -391,7 +391,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                               response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config.name, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                  response, selectedType)
+                                  response, selectedType);
                               onClose();
                           } else {
                               const updateConnectorInit = updatePropertyStatement(
