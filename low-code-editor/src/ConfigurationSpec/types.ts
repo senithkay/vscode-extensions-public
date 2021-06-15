@@ -90,6 +90,7 @@ export interface FormField {
     isErrorType?: boolean;
     isDefaultableParam?: boolean;
     isRestParam?: boolean;
+    customAutoComplete?: string[];
 }
 export interface FormFieldReturnType {
     hasError: boolean;
