@@ -141,7 +141,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
     const successMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
-        defaultMessage: "Successfully updated connection configurations"
+        defaultMessage: "Successfully updated the connection configuration."
     });
     const errorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
