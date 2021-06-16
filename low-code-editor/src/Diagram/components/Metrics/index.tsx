@@ -50,7 +50,6 @@ export function Metrics(props: MetricsProps) {
                     <DoubleArrowHeadLine className={"arrow-line"} direction={"vertical"} {...doubleArrlowLine} />
                     <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} errorMsg={errorMsg} {...successText} />
                     <ResponseTimer responseTime={duration} {...responseTime} />
-                    
                 </g>
             );
         }else if (metrics?.totalCount){
