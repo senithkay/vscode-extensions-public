@@ -258,6 +258,9 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         section: {
             marginBottom: theme.spacing(2)
+        },
+        manualBtnSquare: {
+            height: "48px !important"
         }
     }),
 );
