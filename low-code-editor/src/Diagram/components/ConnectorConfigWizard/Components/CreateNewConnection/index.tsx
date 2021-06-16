@@ -198,11 +198,17 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )}
                     <div className={classes.saveBtnHolder}>
-                        <PrimaryButton
-                            text="Save"
+                        <SecondaryButton
+                            text="Save Connector"
                             fullWidth={false}
                             disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                             onClick={handleOnSave}
+                        />
+                        <PrimaryButton
+                            text="Continue to invoke API"
+                            fullWidth={false}
+                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                            onClick={handleOnSaveNext}
                         />
                     </div>
                 </div>

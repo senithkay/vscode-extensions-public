@@ -121,15 +121,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     });
 
-    const [ config ] = useState(connectorConfig ? connectorConfig : new ConnectorConfig());
+    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig());
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
-    const [ formState, setFormState ] = useState<FormStates>(FormStates.CreateNewConnection);
-    const [ connection, setConnection ] = useState<ConnectionDetails>();
-    const [ isManualConnection, setIsManualConnection ] = useState(false);
-    const [ isNewConnection, setIsNewConnection ] = useState(isNewConnectorInitWizard);
-    const [ isLoading, setIsLoading ] = useState(true);
-    const [ selectedOperation, setSelectedOperation ] = useState(config?.action?.name);
+    const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
+    const [connection, setConnection] = useState<ConnectionDetails>();
+    const [isManualConnection, setIsManualConnection] = useState(false);
+    const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedOperation, setSelectedOperation] = useState(config?.action?.name);
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -147,7 +147,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (connectorConfig?.connectorInit?.length > 0) {
                 (async () => {
                     const allConnections = await getAllConnections(userInfo?.selectedOrgHandle) as ConnectionDetails[];
-                    const activeConnection = getOauthConnectionFromFormField(connectorConfig.connectorInit[ 0 ], allConnections);
+                    const activeConnection = getOauthConnectionFromFormField(connectorConfig.connectorInit[0], allConnections);
                     if (activeConnection) {
                         setConnection(activeConnection);
                         setIsManualConnection(false);
@@ -173,7 +173,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             config.isExistingConnection = (connectorNameValue !== undefined);
             onSelectExisting(connectorNameValue);
         }
-    }, [ selectedConnector ]);
+    }, [selectedConnector]);
 
     const connectorInitFormFields: FormField[] = functionDefInfo?.get("init") ?
         functionDefInfo?.get("init").parameters : functionDefInfo?.get("__init").parameters;
@@ -182,20 +182,20 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     config.name = (isNewConnectorInitWizard && !config.name) ?
         genVariableName(getFormattedModuleName(connectorInfo.module) + "Endpoint", getAllVariables(symbolInfo))
         : config.name;
-    const [ configName, setConfigName ] = useState(config.name);
+    const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
     };
 
     const operations: ConnectorOperation[] = [];
-    if (functionDefInfo && isAction) {
+    if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push({ name: key, label: value.label });
             }
         });
     }
-    if (!config.action && isAction) {
+    if (!config.action) {
         config.action = new ActionConfig();
     }
 
@@ -249,10 +249,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onSelectExisting = (value: any) => {
-        if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS){
+        if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
             setIsNewConnection(true);
             setFormState(FormStates.SingleForm);
-        }else{
+        } else {
             setConfigName(value);
             setIsNewConnection(false);
             setFormState(FormStates.OperationForm);
@@ -260,11 +260,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const handleCreateConnectorSaveNext = () => {
-        if (isNewConnection) {
-            setFormState(FormStates.OperationDropdown);
-        } else {
-            setFormState(FormStates.OperationForm);
-        }
+        setFormState(FormStates.OperationForm);
     };
 
     const handleClientOnSave = () => {
@@ -355,6 +351,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        const isInitReturnError = getInitReturnType(functionDefInfo);
+        const moduleName = getFormattedModuleName(connectorInfo.module);
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -377,6 +375,18 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
+                // const addImport: STModification = createImportStatement(
+                //     connectorInfo.org,
+                //     connectorInfo.module,
+                //     targetPosition
+                // );
+                // modifications.push(addImport);
+
+                // const addConnectorInit: STModification = createPropertyStatement(
+                //     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                //     targetPosition
+                // );
+                // modifications.push(addConnectorInit);
                 // Add an action invocation on the initialized client.
                 if (currentActionReturnType.hasReturn) {
                     const addActionInvocation = createPropertyStatement(
@@ -441,7 +451,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if (!existingEndpointName){
+                if (!existingEndpointName) {
                     // new connector client initialization
                     const addImport: STModification = createImportStatement(
                         connectorInfo.org,
@@ -510,26 +520,26 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const showConnectionName = !isOauthConnector || isManualConnection || !isNewConnection;
 
     useEffect(() => {
-        const varAi: { [ key: string ]: any; } = getAllVariablesForAi(symbolInfo);
+        const varAi: { [key: string]: any; } = getAllVariablesForAi(symbolInfo);
         let allFormFields: FormField[] = [];
         Array.from(functionDefInfo.keys()).forEach((key: string) => {
             allFormFields = allFormFields.concat(functionDefInfo.get(key).parameters);
         });
         const aiSuggestionsReq: AiSuggestionsReq = {
             userID: userInfo?.user?.email,
-            mapFrom: [ varAi ],
-            mapTo: [ getMapTo(allFormFields, model ? model.position : targetPosition) ]
+            mapFrom: [varAi],
+            mapTo: [getMapTo(allFormFields, model ? model.position : targetPosition)]
         };
         getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
             res.suggestedMappings.forEach((schema: string) => {
                 const varMap = JSON.parse(schema);
                 const varKeys = Object.keys(varMap);
                 varKeys.forEach((variable: string) => {
-                    addAiSuggestion(variable, varMap[ variable ], allFormFields);
+                    addAiSuggestion(variable, varMap[variable], allFormFields);
                 });
             });
         });
-    }, [ functionDefInfo ]);
+    }, [functionDefInfo]);
 
     const onSave = (sourceModifications: STModification[]) => {
         const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -683,7 +693,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                         </div>
                                     </div>
                                 </div>
-                            ) }
+                            )}
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
@@ -706,7 +716,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 />
                             </div>
                         </div>
-                    ) }
+                    )}
                     {(formState === FormStates.OperationForm) && (
                         <OperationForm
                             functionDefInfo={functionDefInfo}
@@ -719,7 +729,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             operations={operations}
                         />
-                    ) }
+                    )}
                     {(formState === FormStates.ExistingConnection) && isNewConnectorInitWizard && (
                         <SelectConnectionForm
                             onCreateNew={onCreateNew}
@@ -727,7 +737,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             connector={connectorInfo}
                             onSelectExisting={onSelectExisting}
                         />
-                    ) }
+                    )}
                     {(formState === FormStates.ExistingConnection) && !isNewConnectorInitWizard && (
                         <CreateConnectorForm
                             initFields={connectorInitFormFields}
@@ -739,7 +749,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
                         />
-                    ) }
+                    )}
                     {(formState === FormStates.CreateNewConnection) && (
                         <CreateConnectorForm
                             initFields={connectorInitFormFields}
@@ -752,7 +762,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
                         />
-                    ) }
+                    )}
                     {(formState === FormStates.SingleForm) && (
                         <SingleForm
                             functionDefInfo={functionDefInfo}
@@ -763,7 +773,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             operations={operations}
                             onSave={handleSingleFormOnSave}
                         />
-                    ) }
+                    )}
                 </div>
             );
         }
@@ -773,10 +783,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         <>
             {isLoading && (<div className={wizardClasses.loaderWrapper}>
                 <TextPreloaderVertical position='relative' />
-            </div>) }
+            </div>)}
             {!isLoading && (<div className={wizardClasses.mainApiWrapper}>
                 {connectorComponent}
-            </div>) }
+            </div>)}
         </>
     );
 }

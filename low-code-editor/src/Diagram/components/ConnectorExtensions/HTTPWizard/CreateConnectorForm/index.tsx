@@ -243,13 +243,21 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             placement="top"
                             arrow={true}
                         > */}
-                            <PrimaryButton
-                                dataTestId={"http-save-next"}
-                                text="Save"
+                            <SecondaryButton
+                                dataTestId={"http-save"}
+                                text="Save Connector"
                                 className="product-tour-next"
                                 disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 fullWidth={false}
                                 onClick={handleOnSave}
+                            />
+                            <PrimaryButton
+                                dataTestId={"http-save-next"}
+                                text="Continue to invoke API"
+                                className="product-tour-next"
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                fullWidth={false}
+                                onClick={handleOnSaveNext}
                             />
                         {/* </Tooltip> */}
                     </div>
