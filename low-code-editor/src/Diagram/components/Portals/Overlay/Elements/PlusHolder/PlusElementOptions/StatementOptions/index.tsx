@@ -26,6 +26,12 @@ import Tooltip from "../../../../../../../../components/Tooltip";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
+import {
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    LowcodeEvent,
+    START_CONNECTOR_ADD_INSIGHTS,
+    START_STATEMENT_ADD_INSIGHTS
+} from "../../../../../../../models";
 
 export const PROCESS_TYPES = [""];
 
@@ -48,7 +54,7 @@ export interface Statements {
 export function StatementOptions(props: StatementOptionsProps) {
     const { state } = useContext(Context);
     const intl = useIntl();
-    const { syntaxTree } = state;
+    const { syntaxTree, onEvent } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
     const { onSelect, viewState } = props;
 
@@ -56,7 +62,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         logStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement  logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the Run and Test  console. If the event has occured, you can view ithe logs from the Observability page."
+                defaultMessage: "A log statement logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the 'Run & Test' console . If the event has occured, you can view the logs from the Observability page."
             })},
         variableStatement: {
         title: intl.formatMessage({
@@ -66,7 +72,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         ifStatement: {
         title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
-                defaultMessage: "An IF statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
+                defaultMessage: "An if statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
         })},
         foreachStatement: {
             title: intl.formatMessage({
@@ -96,6 +102,16 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     }
 
+    const onSelectStatement = (type: string) => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: START_STATEMENT_ADD_INSIGHTS,
+            property: type
+        };
+        onEvent(event);
+        onSelect(type);
+    }
+
     const logStm: StatementComponent = {
         name: "log",
         category: 'process',
@@ -107,7 +123,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     arrow={true}
                     interactive={true}
                 >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelect.bind(undefined, "Log")}>
+                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Log")}>
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
@@ -126,7 +142,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 arrow={true}
                 interactive={true}
             >
-                <div className="sub-option enabled" data-testid="addVariable" onClick={onSelect.bind(undefined, "Variable")}>
+                <div className="sub-option enabled" data-testid="addVariable" onClick={onSelectStatement.bind(undefined, "Variable")}>
                     <div className="icon-wrapper">
                         <PropertyIcon />
                     </div>
@@ -145,7 +161,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 arrow={true}
                 interactive={true}
             >
-                <div className="sub-option enabled" data-testid="addIf" onClick={onSelect.bind(undefined, "If")}>
+                <div className="sub-option enabled" data-testid="addIf" onClick={onSelectStatement.bind(undefined, "If")}>
                     <div className="icon-wrapper">
                         <IfIcon />
                     </div>
@@ -164,7 +180,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 arrow={true}
                 interactive={true}
             >
-                <div className="sub-option enabled" data-testid="addForeach" onClick={onSelect.bind(undefined, "ForEach")} >
+                <div className="sub-option enabled" data-testid="addForeach" onClick={onSelectStatement.bind(undefined, "ForEach")} >
                     <div className="icon-wrapper">
                         <ForEachIcon />
                     </div>
@@ -183,7 +199,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 arrow={true}
                 interactive={true}
             >
-                <div className="sub-option enabled" data-testid="addWhile" onClick={onSelect.bind(undefined, "While")} >
+                <div className="sub-option enabled" data-testid="addWhile" onClick={onSelectStatement.bind(undefined, "While")} >
                     <div className="icon-wrapper">
                         <While />
                     </div>
@@ -207,7 +223,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     data-testid="addReturn"
                     className={cn("sub-option", { enabled: !isResource && viewState.isLast })}
-                    onClick={!isResource && viewState.isLast ? onSelect.bind(undefined, 'Return') : null}
+                    onClick={!isResource && viewState.isLast ? onSelectStatement.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
                         <ReturnIcon />
@@ -231,7 +247,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource })}
                     data-testid="addrespond"
-                    onClick={isResource ? onSelect.bind(undefined, 'Respond') : null}
+                    onClick={isResource ? onSelectStatement.bind(undefined, 'Respond') : null}
                 >
                     <div className="icon-wrapper">
                         <RespondIcon />
@@ -254,7 +270,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     className={cn("sub-option enabled", {height: 'unset'})}
                     data-testid="addcustom"
-                    onClick={onSelect.bind(undefined, "Custom")}
+                    onClick={onSelectStatement.bind(undefined, "Custom")}
                 >
                     <div className="icon-wrapper">
                         <CustomStatementIcon />

@@ -1,10 +1,27 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { AwsS3Logo } from "./AwsS3Logo";
 import { AwsSQSLogo } from "./AwsSQSLogo";
 import { AzureBlobServiceLogo } from "./AzureBlobServiceLogo";
 import { AzureCosmosDBLogo } from "./AzureCosmosDBLogo";
 import { AzureEventhubLogo } from "./AzureEventhub";
 import { AzureFileServiceLogo } from "./AzureFileService";
+import { AzureServiceBusLogo } from "./AzureServiceBusLogo";
 import { BulkJobLogo } from "./BulkJobLogo";
+import { ChoreoMailLogo } from "./ChoreoMailLogo";
+import { ChoreoSMSLogo } from "./ChoreoSMSLogo";
+import { ChoreoWhatsAppLogo } from "./ChoreoWhatsAppLogo";
+import { Covid19Logo } from "./Covid19Logo";
 import { DefaultLogo } from "./DefaultLogo";
 // import { GenaricMailLogo } from "./GenaricMailLogo";
 import { GitHubLogo } from "./GitHubLogo";
@@ -27,6 +44,8 @@ import { SMTPLogo } from "./SMTPLogo";
 import { SObjectClientLogo } from "./SObjectClientLogo";
 import { TwilioLogo } from "./TwilioLogo";
 import { TwitterLogo } from "./TwitterLogo";
+import { WeatherLogo } from "./WeatherLogo";
+import { WorldBankAPILogo } from "./WorldBankAPILogo";
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
@@ -52,8 +71,15 @@ export { GooglePeopleAPILogo as googleapis_people_Client};
 export { AwsS3Logo as aws_s3_Client};
 export { AwsSQSLogo as aws_sqs_Client};
 export { AzureEventhubLogo as azure_eventhub_Client};
-export { AzureCosmosDBLogo as azure_cosmosdb_Client};
+export { AzureCosmosDBLogo as azure_cosmosdb_DataPlaneClient};
 export { AzureFileServiceLogo as azure_storage_service_files_FileClient};
 export { AzureBlobServiceLogo as azure_storage_service_blobs_BlobClient};
+export { AzureServiceBusLogo as azure_service_bus_AsbClient};
 export { MongoDBLogo as mongodb_Client};
 export { RedisLogo as redis_Client};
+export { WeatherLogo as openweathermap_Client};
+export { Covid19Logo as covid19_Client};
+export { WorldBankAPILogo as worldbank_Client};
+export { ChoreoMailLogo as choreo_sendemail_Client };
+export { ChoreoSMSLogo as choreo_sendsms_Client };
+export { ChoreoWhatsAppLogo as choreo_sendwhatsapp_Client };

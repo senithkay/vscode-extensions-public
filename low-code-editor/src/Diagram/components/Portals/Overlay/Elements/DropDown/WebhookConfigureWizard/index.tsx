@@ -19,15 +19,18 @@ import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { useStyles } from "../styles";
 import { ConnectorType } from "../TriggerDropDown";
 
+import { ASBConfigureForm } from "./ASBConfigureForm";
 import { CalendarConfigureForm } from "./CalendarConfigureForm";
 import { GitHubConfigureForm } from "./GitHubConfigureForm";
 import { GmailConfigureForm } from "./GmailConfigureForm";
 import { SalesforceConfigureForm } from "./SalesforceConfigureForm";
 import { SheetConfigureForm } from "./SheetConfigureForm";
+import { SlackConfigureForm } from "./SlackConfigureForm";
 
 interface WebhookConfigureWizardProps {
   position: DiagramOverlayPosition;
   connector: ConnectorType;
+  isWebhookTypeChanged: boolean;
   onWizardComplete: () => void;
   onClose: () => void;
 }
@@ -38,7 +41,7 @@ export interface ConnectorEvents {
 
 export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
 
-  const { position, connector, onWizardComplete, onClose } = props;
+  const { position, connector, onWizardComplete, onClose, isWebhookTypeChanged } = props;
   const classes = useStyles();
 
   function handleOnWizardComplete() {
@@ -60,6 +63,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <GitHubConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.GMAIL && (
@@ -72,6 +76,7 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <CalendarConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
       ) }
       { connector === ConnectorType.G_SHEET && (
@@ -84,7 +89,20 @@ export function WebhookConfigureWizardC(props: WebhookConfigureWizardProps) {
         <SalesforceConfigureForm
           position={position}
           onComplete={handleOnWizardComplete}
+          isTriggerTypeChanged={isWebhookTypeChanged}
         />
+      ) }
+      { connector === ConnectorType.SLACK && (
+          <SlackConfigureForm
+              position={position}
+              onComplete={handleOnWizardComplete}
+          />
+      ) }
+      { connector === ConnectorType.ASB && (
+          <ASBConfigureForm
+              position={position}
+              onComplete={handleOnWizardComplete}
+          />
       ) }
     </DiagramOverlay>
   );

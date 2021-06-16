@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -197,8 +198,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
     };
 
@@ -271,6 +272,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         model={{ name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType }}
                                         customProps={{
                                             validate: validateExpression,
+                                            expandDefault: (selectedType === "other"),
                                             tooltipTitle: variableTooltipMessages.expressionEditor.title,
                                             tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
                                             tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
