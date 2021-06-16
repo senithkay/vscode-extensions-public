@@ -17,7 +17,7 @@ import { DataMapperViewState, FieldViewState } from '../viewstate';
 
 export const FIELD_HEIGHT: number = 40;
 export const ADD_FIELD_FORM_HEIGHT: number = 60;
-const FIELD_WIDTH: number = 200;
+export const DEFAULT_FIELD_WIDTH: number = 250;
 const FIELD_OFFSET: number = 15;
 export class DataMapperSizingVisitor implements Visitor {
     private hasTypeDescNode: boolean = false;
@@ -34,7 +34,7 @@ export class DataMapperSizingVisitor implements Visitor {
             this.nameparts.push(viewstate.name);
 
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
-            viewstate.bBox.w = FIELD_WIDTH
+            viewstate.bBox.w = DEFAULT_FIELD_WIDTH
 
             if (viewstate.bBox.w > this.maxWidth) {
                 this.maxWidth = viewstate.bBox.w;
@@ -96,7 +96,7 @@ export class DataMapperSizingVisitor implements Visitor {
             this.nameparts.push(viewstate.name);
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
 
-            viewstate.bBox.w = FIELD_WIDTH
+            viewstate.bBox.w = DEFAULT_FIELD_WIDTH
 
             if (viewstate.bBox.w > this.maxWidth) {
                 this.maxWidth = viewstate.bBox.w;
@@ -162,7 +162,7 @@ export class DataMapperSizingVisitor implements Visitor {
         if (node.dataMapperViewState && !(this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.h = FIELD_HEIGHT;
-            viewstate.bBox.w = this.offSet + FIELD_WIDTH;
+            viewstate.bBox.w = this.offSet + DEFAULT_FIELD_WIDTH;
             this.nameparts.push(viewstate.name);
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
 
@@ -212,7 +212,7 @@ export class DataMapperSizingVisitor implements Visitor {
         if (node.dataMapperViewState && (this.hasTypeDescNode || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.h = FIELD_HEIGHT;
-            viewstate.bBox.w = this.offSet + FIELD_WIDTH;
+            viewstate.bBox.w = this.offSet + DEFAULT_FIELD_WIDTH;
 
             if (viewstate.bBox.w > this.maxWidth) {
                 this.maxWidth = viewstate.bBox.w;

@@ -30,7 +30,7 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 import { DataMapperWrapper } from './components/DataMapperWrapper';
 import './components/InputTypes/style.scss';
 import { Provider as DataMapperViewProvider } from './context/DataMapperViewContext';
-import { dataMapperSizingAndPositioning } from './util';
+// import { dataMapperSizingAndPositioning } from './util';
 import { DataMapperState } from './util/types';
 import { FieldViewState } from './viewstate';
 
@@ -49,7 +49,9 @@ export function DataMapper(props: DataMapperProps) {
         onMutate,
         dataMapperConfig,
         currentApp,
-        onFitToScreen
+        onFitToScreen,
+        langServerURL,
+        getDiagramEditorLangClient
     } = state;
 
     // ToDo: Get the modifyDiagram from the proper context.
@@ -127,12 +129,12 @@ export function DataMapper(props: DataMapperProps) {
             }
         }
 
-        const sizingAndPositioningResult = dataMapperSizingAndPositioning(
-            inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
+        // const sizingAndPositioningResult = dataMapperSizingAndPositioning(
+        //     inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
 
-        constantMap = sizingAndPositioningResult.constantMap;
-        constantList = sizingAndPositioningResult.constantList;
-        maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
+        // constantMap = sizingAndPositioningResult.constantMap;
+        // constantList = sizingAndPositioningResult.constantList;
+        // maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
     }
 
     const initialState: DataMapperState = {
@@ -151,7 +153,10 @@ export function DataMapper(props: DataMapperProps) {
         dispatchMutations,
         constantMap,
         constantList,
-        squashConstants
+        squashConstants,
+        isInitializationInProgress: true,
+        langServerURL,
+        getDiagramEditorLangClient
     }
 
     return (
@@ -162,39 +167,4 @@ export function DataMapper(props: DataMapperProps) {
         </>
     )
 
-}
-
-export function addTypeDescInfo(node: STNode, recordMap: Map<string, STNode>) {
-    let varTypeSymbol;
-
-    if (STKindChecker.isLocalVarDecl(node) && node.initializer) {
-        varTypeSymbol = node.initializer.typeData.typeSymbol;
-    } else if (STKindChecker.isAssignmentStatement(node)) {
-        if (STKindChecker.isSimpleNameReference(node.varRef)) {
-            varTypeSymbol = node.varRef.typeData.typeSymbol;
-        }
-    }
-
-    if (varTypeSymbol) {
-        switch (varTypeSymbol.typeKind) {
-            case PrimitiveBalType.String:
-            case PrimitiveBalType.Int:
-            case PrimitiveBalType.Boolean:
-            case PrimitiveBalType.Float:
-            case PrimitiveBalType.Json:
-                break;
-            default:
-                if (varTypeSymbol.moduleID) {
-                    const moduleId = varTypeSymbol.moduleID;
-                    const qualifiedKey = `${moduleId.orgName}/${moduleId.moduleName}:${moduleId.version}:${varTypeSymbol.name}`;
-                    // const recordMap: Map<string, STNode> = stSymbolInfo.recordTypeDescriptions;
-
-                    if (recordMap.has(qualifiedKey)) {
-                        node.dataMapperTypeDescNode = JSON.parse(JSON.stringify(recordMap.get(qualifiedKey)));
-                    } else {
-                        // todo: fetch record/object ST
-                    }
-                }
-        }
-    }
 }

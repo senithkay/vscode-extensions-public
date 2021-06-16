@@ -74,6 +74,11 @@ const reducer = (state: DataMapperState, action: any) => {
                 ...state,
                 showAddJsonFieldForm: !state.showAddJsonFieldForm
             }
+        case 'NOTIFY_INITIALIZATION_IN_PROGRESS':
+            return {
+                ...state,
+                isInitializationInProgress: action.payload
+            }
         default:
             return state;
     }
@@ -114,6 +119,11 @@ const actions = {
         return () => {
             dispatch({ type: 'TOGGLE_ADD_JSON_FIELD_FORM' })
         }
+    },
+    notifyInitializationInProgress: (dispatch: any) => {
+        return (payload: any) => {
+            dispatch({ type: 'NOTIFY_INITIALIZATION_IN_PROGRESS', payload });
+        };
     }
 }
 

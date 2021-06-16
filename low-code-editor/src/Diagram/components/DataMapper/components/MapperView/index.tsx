@@ -25,7 +25,7 @@ import ExpressionEditor from '../../../Portals/ConfigForm/Elements/ExpressionEdi
 import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../Portals/Overlay';
 import { Context as DataMapperViewContext } from '../../context/DataMapperViewContext';
-import { getDataMapperComponent } from '../../util';
+import { getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { MouseEventHub } from '../../util/mouse-event-hub';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
@@ -53,7 +53,8 @@ export function MapperView() {
             updateDataMapperConfig,
             mouseMoveEventHub,
             constantList,
-            squashConstants
+            squashConstants,
+            isInitializationInProgress
         },
         updateState,
         dataMapperViewRedraw,
@@ -237,9 +238,11 @@ export function MapperView() {
     let outputHeight: number = 0;
 
     inputSTNodes.forEach((node: STNode, i: number) => {
-        inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
-        if (i < inputSTNodes.length - 1) {
-            inputHeight += 40; // todo: convert to constant
+        if (node.dataMapperViewState) {
+            inputHeight += (node.dataMapperViewState as DataMapperViewState).bBox.h;
+            if (i < inputSTNodes.length - 1) {
+                inputHeight += 40; // todo: convert to constant
+            }
         }
     });
 
@@ -277,7 +280,7 @@ export function MapperView() {
         inputHeight += 40;
     }
 
-    if (outputSTNode) {
+    if (outputSTNode && outputSTNode.dataMapperViewState) {
         outputHeight = ((outputSTNode as STNode).dataMapperViewState as DataMapperViewState).bBox.h;
     }
 
@@ -312,13 +315,13 @@ export function MapperView() {
     }
 
     // save button x position
-    let saveYPosition = outputHeight;
-    if (outputSTNode) {
-        const dataMapperViewState: DataMapperViewState = (outputSTNode as STNode).dataMapperViewState;
-        if (dataMapperViewState) {
-            saveYPosition = dataMapperViewState.bBox.h + 100 + 15;
-        }
-    }
+    // let saveYPosition = outputHeight;
+    // if (outputSTNode) {
+    //     const dataMapperViewState: DataMapperViewState = (outputSTNode as STNode).dataMapperViewState;
+    //     if (dataMapperViewState) {
+    //         saveYPosition = dataMapperViewState.bBox.h + 100 + 15;
+    //     }
+    // }
 
     if (squashConstants) {
         constantMap.forEach((constantVS: FieldViewState) => {
@@ -353,20 +356,21 @@ export function MapperView() {
     });
 
     if (outputSTNode) {
-        const onAddFieldButtonClick = () => {
-            dataMapperViewRedraw(outputSTNode);
+        if (outputSTNode.dataMapperViewState) {
+            const onAddFieldButtonClick = () => {
+                dataMapperViewRedraw(outputSTNode);
+            }
+
+            outputComponent.push(
+                getDataMapperComponent(
+                    outputSTNode.dataMapperViewState.type,
+                    { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick, isTarget: true }
+                )
+            );
         }
-
-        outputComponent.push(
-            getDataMapperComponent(
-                outputSTNode.dataMapperViewState.type,
-                { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick, isTarget: true }
-            )
-        );
     }
-
     let maxHeight = (inputHeight >= outputHeight ? inputHeight : outputHeight) + 65;
-    const maxWidth = maxFieldWidth * 2 + 100 + 400
+    const maxWidth = maxFieldWidth * 2 + 100 + INPUT_OUTPUT_GAP
 
     if (maxHeight < window.innerHeight) {
         // correction if the diagram is smaller than the window height
@@ -387,11 +391,11 @@ export function MapperView() {
                 <text data-testid="datamapper-diagram-switch" x="45" y="30" >←  Back to the Diagram</text>
             </g>
             <g id="outputComponent">
-                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + 400 + 40} y="60" />
-                <text className="main-title-text" x={maxFieldWidth + 400 + 60} y="85"> Output</text>
+                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + INPUT_OUTPUT_GAP + 40} y="60" />
+                <text className="main-title-text" x={maxFieldWidth + INPUT_OUTPUT_GAP + 60} y="85"> Output</text>
                 {!showConfigureOutputForm && (
                     <OutputConfigureButton
-                        x={(maxFieldWidth * 2) + 400}
+                        x={(maxFieldWidth * 2) + INPUT_OUTPUT_GAP}
                         y={70}
                         onClick={handleOutputConfigureBtnClick}
                     />
@@ -421,7 +425,7 @@ export function MapperView() {
             <DiagramOverlayContainer>
                 {showConfigureOutputForm && (
                     <DiagramOverlay
-                        position={{ x: maxFieldWidth + 400 + 60, y: 90 }}
+                        position={{ x: maxFieldWidth + INPUT_OUTPUT_GAP + 60, y: 90 }}
                         stylePosition="absolute"
                     >
                         <OutputTypeConfigForm />

@@ -13,13 +13,16 @@
 import React, { useContext, useEffect } from 'react';
 
 import { Context as DataMapperViewContext } from "../../context/DataMapperViewContext";
+import { initializeNodesAndUpdate } from '../../util';
 import { DataMapperState } from "../../util/types";
 import { MapperView } from "../MapperView";
 
 export function DataMapperWrapper(props: DataMapperState) {
     const {
-        updateState
+        updateState,
+        notifyInitializationInProgress
     } = useContext(DataMapperViewContext);
+
     const {
         inputSTNodes,
         outputSTNode,
@@ -27,9 +30,15 @@ export function DataMapperWrapper(props: DataMapperState) {
         ...restProps
     } = props;
 
-
     useEffect(() => {
-        updateState(props);
+        // todo: add overlay until the initialization is complete
+        // notifyInitializationInProgress(true);
+        updateState({
+            ...props,
+        });
+        (async () => {
+            await initializeNodesAndUpdate(props, updateState);
+        })()
     }, [inputSTNodes, outputSTNode, stSymbolInfo])
 
     return (

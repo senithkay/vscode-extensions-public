@@ -149,7 +149,7 @@ export function ValueType(props: ValueTypeProps) {
                             >
                                 <tspan className="key-value"> {`${name}:`} </tspan>
                                 <tspan className="value-para">
-                                    {`${name}: ${type}`.length > 19 ? '...' : `${type}`}
+                                    {`${type}`}
                                 </tspan>
                             </text>
                             {!isTarget && (

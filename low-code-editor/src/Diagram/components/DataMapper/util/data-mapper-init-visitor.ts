@@ -119,6 +119,8 @@ export class DataMapperInitVisitor implements Visitor {
 
         if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
             viewState.type = PrimitiveBalType.Var;
+        } else if (STKindChecker.isDecimalTypeDesc(typeDescriptor)) {
+            viewState.type = 'decimal';
         } else if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
             viewState.type = PrimitiveBalType.String;
         } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
@@ -213,6 +215,8 @@ export class DataMapperInitVisitor implements Visitor {
             viewState.type = PrimitiveBalType.String;
         } else if (STKindChecker.isIntTypeDesc(typeName)) {
             viewState.type = PrimitiveBalType.Int;
+        } else if (STKindChecker.isDecimalTypeDesc(typeName)) {
+            viewState.type = 'decimal';
         } else if (STKindChecker.isFloatTypeDesc(typeName)) {
             viewState.type = PrimitiveBalType.Float;
         } else if (STKindChecker.isBooleanTypeDesc(typeName)) {

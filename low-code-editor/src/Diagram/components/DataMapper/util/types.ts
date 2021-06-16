@@ -33,7 +33,10 @@ export interface DataMapperState {
     dispatchMutations: (modifications: STModification[]) => void;
     constantMap: Map<string, FieldViewState>;
     constantList: FieldViewState[];
-    squashConstants?: boolean
+    squashConstants?: boolean;
+    isInitializationInProgress: boolean;
+    getDiagramEditorLangClient: any;
+    langServerURL: any
 }
 
 export enum FieldDraftType {
