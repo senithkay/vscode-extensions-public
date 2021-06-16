@@ -145,7 +145,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     });
     const errorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
-        defaultMessage: "Error on updating the configuration. Please try again."
+        defaultMessage: "An error occurred while updating the connection configurations. Please try again."
     });
 
     useEffect(() => {
