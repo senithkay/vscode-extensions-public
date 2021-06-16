@@ -18,6 +18,8 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import {triggerErrorNotification, triggerSuccessNotification} from "store/actions";
+import {store} from "store/index";
 
 import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
@@ -289,6 +291,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
+    const showNotification = (data: ConnectionDetails, status: number) => {
+        if (status === 200) {
+            store.dispatch(triggerSuccessNotification(data.displayName + ' connection details updated'));
+        } else if (status !== 200) {
+            store.dispatch(triggerSuccessNotification('Error while updating ' + data.displayName));
+        }
+    }
+
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -401,7 +411,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                               response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                  response, selectedType);
+                                  response.data, selectedType);
+                              showNotification(response.data, response.status);
                               onClose();
                           } else {
                               const updateConnectorInit = updatePropertyStatement(
