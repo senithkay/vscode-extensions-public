@@ -293,7 +293,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const showNotification = (data: ConnectionDetails, status: number) => {
         if (status === 200) {
-            store.dispatch(triggerSuccessNotification(data.displayName + ' connection details updated'));
+            store.dispatch(triggerSuccessNotification(data.displayName + ' connection configurations updated'));
         } else if (status !== 200) {
             store.dispatch(triggerSuccessNotification('Error while updating ' + data.displayName));
         }
