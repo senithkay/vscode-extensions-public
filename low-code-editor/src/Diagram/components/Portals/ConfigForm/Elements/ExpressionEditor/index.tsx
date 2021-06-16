@@ -794,7 +794,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }
 
     const handleError = (mainDiagnosticsArray: any) => {
-        const errorMsg = getDiagnosticMessage(mainDiagnosticsArray, varType);
+        const errorMsg = mainDiagnosticsArray[0]?.message;
         if (errorMsg.length > 50)
             return errorMsg.slice(0, 50) + " ..."
         else
@@ -834,7 +834,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={getDiagnosticMessage(mainDiagnostics, varType)} placement="right" arrow={true}>
+                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                                 <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
