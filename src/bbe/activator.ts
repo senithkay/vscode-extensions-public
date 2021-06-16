@@ -18,7 +18,7 @@
  */
 
 import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, workspace } from 'vscode';
-import * as path from 'path';
+import { join } from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
@@ -74,8 +74,9 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                 const url = args[0];
                 const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
                 if (ballerinaHome) {
-                    const folderPath = path.join(ballerinaHome, 'examples', url);
-                    const filePath = path.join(folderPath, exampleMaps.has(url) ? exampleMaps.get(url)! : `${url.replace(/-/g, '_')}.bal`);
+                    const folderPath = join(ballerinaHome, 'examples', url);
+                    const filePath = join(folderPath, exampleMaps.has(url) ? exampleMaps.get(url)!
+                        : `${url.replace(/-/g, '_')}.bal`);
                     workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                         window.showTextDocument(doc);
                     }, (err: Error) => {

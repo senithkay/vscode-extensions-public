@@ -34,7 +34,8 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
                     }
                     const langClient = getLangClient();
                     function renderSamples() {
-                        ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, langClient.getExamples, () => {});
+                        ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample,
+                        langClient.getExamples, () => {});
                     }
                     renderSamples();
             }

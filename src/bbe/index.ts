@@ -17,4 +17,4 @@
  *
  */
 
-export * from './activator';
+export { activate } from './activator';

@@ -49,7 +49,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             }
         });
     }
-    private _onDidChangeTreeData: EventEmitter<PackageTreeItem | undefined> = new EventEmitter<PackageTreeItem | undefined>();
+    private _onDidChangeTreeData: EventEmitter<PackageTreeItem | undefined> = new EventEmitter<PackageTreeItem
+        | undefined>();
     readonly onDidChangeTreeData: Event<PackageTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     refresh(): void {
@@ -132,8 +133,9 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             if (mainFunctionNodes.length > 0) {
                 mainFunctionNodes.forEach(fn => {
                     components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
-                        CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
-                            fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+                        CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() :
+                        join(parent.getFilePath(), fn.filePath), this.extensionPath, true, parent, {}, fn.startLine,
+                        fn.startColumn));
                 });
             }
         }
@@ -185,7 +187,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         return components;
     }
 
-    private createPackageData(projectPackage: Package, isSingleFile: boolean, documentName: string = ''): PackageTreeItem[] {
+    private createPackageData(projectPackage: Package, isSingleFile: boolean, documentName: string):
+        PackageTreeItem[] {
         let moduleItems: PackageTreeItem[] = [];
         if (!window.activeTextEditor && documentName === '') {
             return moduleItems;
@@ -211,7 +214,10 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                 return !module.name;
             });
             if (defaultModules.length === 1) {
-                parent.setChildrenData({ functions: defaultModules[0].functions, services: defaultModules[0].services });
+                parent.setChildrenData({
+                    functions: defaultModules[0].functions, services:
+                        defaultModules[0].services
+                });
             }
 
             const nonDefaultModules: Module[] = modules.filter(module => {

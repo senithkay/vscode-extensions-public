@@ -23,10 +23,10 @@ export enum CMP_KIND {
     PACKAGE = "package",
     DEFAULT_MODULE = "default_module",
     MODULE = "module",
-    FUNCTION = "function",
+    FUNCTION = "Function",
     MAIN_FUNCTION = "main_function",
     SERVICE = "service",
-    RESOURCE = "resource"
+    RESOURCE = "Resource"
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
@@ -50,7 +50,6 @@ export class PackageTreeItem extends TreeItem {
         super(label, collapsibleState);
         this.tooltip = `${this.label} ${kind}`;
         this.description = this.version;
-        this.kind = kind;
         this.filePath = filePath;
         this.extensionPath = extensionPath;
         this.childrenData = childrenData;
@@ -67,6 +66,7 @@ export class PackageTreeItem extends TreeItem {
             };
         }
 
+        this.kind = kind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : kind;
         this.command = {
             command: TREE_ELEMENT_EXECUTE_COMMAND,
             title: "Execute Tree Command",

@@ -83,11 +83,16 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 	DiagramPanel.create();
 }
 
-export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider: PackageOverviewDataProvider) {
+export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider:
+	PackageOverviewDataProvider) {
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
+
+	ballerinaExtInstance.onEditorChanged(change => {
+		refreshDiagramForEditorChange(change);
+	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		if (!ballerinaExtInstance.isSwanLake()) {
@@ -144,8 +149,7 @@ async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem 
 		if (child.getKind() === CMP_KIND.SERVICE) {
 			return await getNextChild(child);
 		}
-		if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.MAIN_FUNCTION ||
-			child.getKind() === CMP_KIND.RESOURCE) {
+		if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
 			return child;
 		}
 	}
@@ -179,7 +183,8 @@ class DiagramPanel {
 
 		panel.iconPath = {
 			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
-			dark: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view-inverse.svg'))
+			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
+				'resources/images/icons/design-view-inverse.svg'))
 		};
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
@@ -199,6 +204,7 @@ class DiagramPanel {
 		if (diagramElement) {
 			this.webviewPanel.webview.html = render(diagramElement?.fileUri!, diagramElement?.startLine!,
 				diagramElement?.startColumn!, diagramElement?.kind!, diagramElement?.name!);
+			callUpdateDiagramMethod();
 		}
 	}
 }
@@ -277,28 +283,26 @@ export async function refreshDiagramForEditorChange(change: Change) {
 	if (!diagramElement!.isDiagram) {
 		return;
 	}
-
-	let elementKind = diagramElement!.kind;
-	elementKind = elementKind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : elementKind;
-	elementKind = elementKind!.charAt(0).toUpperCase() + elementKind!.slice(1);
-
-	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
-	if (isWindows()) {
-		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
-	}
-
-	const args = [{
-		filePath: ballerinaFilePath,
-		startLine: diagramElement!.startLine,
-		startColumn: diagramElement!.startColumn,
-		name: diagramElement!.name,
-		kind: elementKind
-	}];
-	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+	callUpdateDiagramMethod();
 }
 
 function isWithinRange(member: Member, change: Change) {
 	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
 		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
 			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
+}
+
+function callUpdateDiagramMethod() {
+	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
+	if (isWindows()) {
+		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
+	}
+	const args = [{
+		filePath: ballerinaFilePath,
+		startLine: diagramElement!.startLine,
+		startColumn: diagramElement!.startColumn,
+		name: diagramElement!.name,
+		kind: diagramElement!.kind
+	}];
+	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }

@@ -31,7 +31,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         ballerinaExtInstance));
 
     if (ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }], new ExecutorCodeLensProvider(ballerinaExtInstance));
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+            new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
     // Create a read only file provider

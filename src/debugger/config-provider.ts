@@ -138,7 +138,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
+    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
+        Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const cwd = this.getCurrentWorkingDir();
         let args: string[] = [];
@@ -147,7 +148,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         if (!ballerinaExtInstance.isSwanLake()) {
             const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/1.2/learn/setting-up-visual-studio-code/run-and-debug/";
             const showDetails: string = 'Learn More';
-            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
+            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known" +
+                " limitations and workarounds.",
                 showDetails).then((selection) => {
                     if (showDetails === selection) {
                         commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));

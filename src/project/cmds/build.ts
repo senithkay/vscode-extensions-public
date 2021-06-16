@@ -22,7 +22,8 @@ import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_BUILD, CMP_PROJECT_BUILD, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS }
+    from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile }
     from "../../utils/project-utils";
 
@@ -40,8 +41,8 @@ export function activateBuildCommand() {
                     runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
                         currentProject.path!);
                 } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
-                        getCurrentBallerinaFile());
+                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
+                        BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
                 }
             } else {
                 const currentProject = await getCurrentBallerinaProject();
@@ -74,8 +75,8 @@ export function activateBuildCommand() {
                     }
 
                 } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
-                        getCurrentBallerinaFile());
+                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
+                        BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
                 }
             }
 

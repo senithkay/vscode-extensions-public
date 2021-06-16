@@ -24,17 +24,19 @@ import {
     Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
-    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT, OLD_PLUGIN_INSTALLED
+    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
+    NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
+    OLD_PLUGIN_INSTALLED
 } from "./messages";
-import * as path from 'path';
+import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
-import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
+import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME }
+    from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
     createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
@@ -99,7 +101,10 @@ export class BallerinaExtension {
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
-            documentSelector: [{ scheme: 'file', language: LANGUAGE.BALLERINA }, { scheme: 'file', language: LANGUAGE.TOML }],
+            documentSelector: [{ scheme: 'file', language: LANGUAGE.BALLERINA }, {
+                scheme: 'file', language:
+                    LANGUAGE.TOML
+            }],
             synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
@@ -265,7 +270,7 @@ export class BallerinaExtension {
         }
         let distPath = "";
         if (overrideBallerinaHome) {
-            distPath = path.join(ballerinaHome, "bin") + path.sep;
+            distPath = join(ballerinaHome, "bin") + sep;
         }
         let exeExtension = "";
         if (isWindows()) {
@@ -287,7 +292,8 @@ export class BallerinaExtension {
                     return;
                 }
 
-                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) ||
+                    stdout.includes(COMMAND_NOT_FOUND)) {
                     reject(stdout);
                     return;
                 }
@@ -311,7 +317,8 @@ export class BallerinaExtension {
                     return;
                 }
 
-                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) ||
+                    stdout.includes(COMMAND_NOT_FOUND)) {
                     reject(stdout);
                     return;
                 }

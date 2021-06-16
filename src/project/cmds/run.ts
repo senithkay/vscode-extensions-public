@@ -58,7 +58,8 @@ function activateRunCommand() {
 }
 
 function runCurrentFile() {
-    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN, getCurrentBallerinaFile());
+    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
+        getCurrentBallerinaFile());
 }
 
 export { activateRunCommand };

@@ -20,7 +20,6 @@
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, isWindows } from '../utils';
 import { sep } from "path";
-import { CMP_KIND } from '../tree-view';
 
 export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
     return renderDiagram(filePath, startLine, startColumn, kind, name);
@@ -74,9 +73,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             line-height: 25px;
         }
     `;
-
-    kind = kind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : kind;
-    kind = kind.charAt(0).toUpperCase() + kind.slice(1);
 
     let ballerinaFilePath = filePath.fsPath;
     if (isWindows()) {

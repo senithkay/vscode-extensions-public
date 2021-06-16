@@ -85,7 +85,8 @@ export function activateCloudCommand() {
             const currentProject = await getCurrentBallerinaProject();
             if (!ballerinaExtInstance.isSwanLake()) {
                 const message = `Ballerina version doesn't support Cloud.toml creation.`;
-                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD, message);
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD,
+                    message);
                 window.showErrorMessage(message);
                 return;
             }

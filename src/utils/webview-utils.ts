@@ -139,7 +139,8 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
 }
 
 function getComposerURI(): string {
-    return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs'));
+    return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources',
+        'jslibs'));
 }
 
 function getComposerPath(): string {

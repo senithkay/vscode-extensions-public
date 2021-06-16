@@ -42,7 +42,8 @@ function activateDocCommand() {
                     window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                     return;
                 }
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.DOC, currentProject.path!);
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.DOC,
+                    currentProject.path!);
 
             } else {
                 if (currentProject.path) {

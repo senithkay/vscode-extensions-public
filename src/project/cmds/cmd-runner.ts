@@ -57,7 +57,8 @@ export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 
 let terminal: Terminal;
-export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args: string[]) {
+export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args:
+    string[]) {
     if (terminal) {
         terminal.dispose();
     }
