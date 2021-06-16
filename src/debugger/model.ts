@@ -1,3 +1,22 @@
+/**
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 import { DebugProtocol } from "vscode-debugprotocol";
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments {
@@ -17,48 +36,4 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     networkLogsPort: number;
     port: number;
     env: Map<string, string>;
-}
-
-export interface RunningInfo {
-    sourceRoot?: string;
-    ballerinaPackage?: string;
-}
-
-export interface ProjectConfig {
-    version: string;
-    'org-name': string;
-}
-
-export interface Thread {
-    id: number;
-    name: string;
-    serverThreadId: string;
-    frameIds: number[];
-}
-
-export interface Frame {
-    threadId: number;
-    id: number;
-    scopes: Scope[];
-    fileName: string;
-    frameName: string;
-    line: number;
-}
-
-interface Scope {
-    name: string;
-    variablesReference: number;
-    expensive: boolean;
-}
-
-export interface VariableRef {
-    threadId: number;
-    variables: Array<Variable>; // TODO fix any type
-}
-
-interface Variable {
-    name: string;
-    type: string;
-    value: any;
-    variablesReference: number;
 }

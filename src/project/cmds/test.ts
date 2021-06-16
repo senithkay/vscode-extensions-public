@@ -1,8 +1,26 @@
+/**
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import {
-    TM_EVENT_PROJECT_TEST, TM_EVENT_ERROR_EXECUTE_PROJECT_TEST, CMP_PROJECT_TEST, sendTelemetryEvent,
-    sendTelemetryException
+    TM_EVENT_PROJECT_TEST, CMP_PROJECT_TEST, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
@@ -19,7 +37,7 @@ export function activateTestRunner() {
             }
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
-            if (ballerinaExtInstance.isSwanLake) {
+            if (ballerinaExtInstance.isSwanLake()) {
                 if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                     runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
                         ...args, currentProject.path!);
@@ -28,7 +46,7 @@ export function activateTestRunner() {
                         ...args, getCurrentBallerinaFile());
                 }
 
-            } else if (ballerinaExtInstance.is12x) {
+            } else {
                 if (currentProject.path) {
                     const docOptions = [{
                         description: "ballerina build <module-name>",
@@ -60,11 +78,6 @@ export function activateTestRunner() {
                     runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
                         getCurrentBallerinaFile());
                 }
-
-            } else {
-                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_TEST, CMP_PROJECT_TEST,
-                    MESSAGES.NOT_SUPPORT);
-                window.showErrorMessage(MESSAGES.NOT_SUPPORT);
             }
         } catch (error) {
             sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_TEST);

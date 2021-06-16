@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
@@ -64,7 +65,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake) {
+        if (!this.ballerinaExtension.isSwanLake()) {
             window.showErrorMessage("Ballerina package overview is only supported in Swan Lake.");
             return;
         }

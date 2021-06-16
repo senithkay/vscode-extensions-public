@@ -25,6 +25,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { killPortProcess } from 'kill-port-process';
+import { isWindows } from './utils';
 
 const TEST_RESOURCES = path.join(__dirname, '..', '..', 'extractedDistribution').toString();
 const PLATFORM_PREFIX = /jballerina-tools-/;
@@ -53,7 +54,7 @@ export function getBallerinaHome(): string {
 export function getBallerinaCmd(): string {
     const ballerinaDistribution = TEST_RESOURCES + path.sep + findBallerinaDistribution();
     const prefix = path.join(fs.realpathSync(ballerinaDistribution), "bin") + path.sep;
-    return prefix + (process.platform === 'win32' ? 'bal.bat' : 'bal');
+    return prefix + (isWindows() ? 'bal.bat' : 'bal');
 }
 
 export function getBallerinaVersion() {
@@ -69,7 +70,7 @@ export function delay(ms: number) {
 }
 
 export function killPort(port: number) {
-    if (process.platform !== 'win32') {
+    if (!isWindows()) {
         (async () => {
             await killPortProcess(port);
         })();

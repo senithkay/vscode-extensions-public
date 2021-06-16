@@ -16,12 +16,13 @@
  * under the License.
  *
  */
+
 import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension, Change } from '../core';
-import { getCommonWebViewOptions, WebViewRPCHandler } from '../utils';
+import { getCommonWebViewOptions, isWindows, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
@@ -30,71 +31,30 @@ import {
 import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
+import { DiagramOptions, Member, SyntaxTree } from './model';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
-interface DiagramOptions {
-	name?: string;
-	kind?: string;
-	startLine?: number;
-	startColumn?: number;
-	filePath?: string;
-	isDiagram: boolean;
-	fileUri?: Uri;
-}
-
-interface SyntaxTree {
-	members: Member[];
-}
-
-interface Member {
-	kind: string;
-	position: Position;
-	functionName?: {
-		value: string;
-		position: Position;
-	};
-	members: Member[];
-	relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-	startLine: number;
-	startColumn: number;
-	endLine: number;
-	endColumn: number;
-}
-
-interface ResourcePath {
-	value: string;
-}
-
 let langClient: ExtendedLangClient;
-let packageOverviewDataProvider: PackageOverviewDataProvider;
+let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
-let extensionPath: string;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 
 export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
 	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
 
-	ballerinaExtInstance.resetLastChange();
 	const editor = window.activeTextEditor;
-	let treeItemPath: Uri;
-	if (filePath === '') {
+	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
 			window.showErrorMessage(message);
 			return;
 		}
-		treeItemPath = editor!.document.uri;
-	} else {
-		treeItemPath = Uri.file(filePath);
 	}
 
-	if (isCommand && editor && langClient && packageOverviewDataProvider) {
+	if (isCommand && editor && langClient && overviewDataProvider) {
 		const diagramOptions: DiagramOptions = await getFirstViewElement();
 		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
@@ -111,7 +71,7 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 		};
 	} else {
 		diagramElement = {
-			fileUri: treeItemPath!,
+			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 			startLine,
 			startColumn,
 			kind,
@@ -123,15 +83,14 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 	DiagramPanel.create();
 }
 
-export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataProvider: PackageOverviewDataProvider) {
+export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider: PackageOverviewDataProvider) {
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-	packageOverviewDataProvider = overviewDataProvider;
-	extensionPath = context.extensionPath;
+	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		if (!ballerinaExtInstance.isSwanLake) {
+		if (!ballerinaExtInstance.isSwanLake()) {
 			ballerinaExtInstance.showMessageOldBallerina();
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,
 				"Diagram Editor is not supported for the ballerina version.");
@@ -152,7 +111,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 }
 
 export async function getFirstViewElement(): Promise<DiagramOptions> {
-	const packageItems: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren();
+	const packageItems: PackageTreeItem[] | undefined | null = await overviewDataProvider.getChildren();
 	if (!packageItems) {
 		return { isDiagram: false };
 	}
@@ -175,7 +134,7 @@ export async function getFirstViewElement(): Promise<DiagramOptions> {
 }
 
 async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
-	const children: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren(treeItem);
+	const children: PackageTreeItem[] | undefined | null = await overviewDataProvider.getChildren(treeItem);
 	if (!children || children.length === 0) {
 		return;
 	}
@@ -219,8 +178,8 @@ class DiagramPanel {
 		);
 
 		panel.iconPath = {
-			light: Uri.file(join(extensionPath, 'resources/images/icons/design-view.svg')),
-			dark: Uri.file(join(extensionPath, 'resources/images/icons/design-view-inverse.svg'))
+			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
+			dark: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view-inverse.svg'))
 		};
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
@@ -297,12 +256,11 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 	return { isDiagram: false };
 }
 
-export async function refreshDiagram() {
+export async function refreshDiagramForEditorChange(change: Change) {
 	if (!webviewRPCHandler || !diagramElement) {
 		return;
 	}
 
-	const change: Change | undefined = ballerinaExtension.getLastChange();
 	if (change && langClient) {
 		await langClient.getSyntaxTree({
 			documentIdentifier: {
@@ -325,7 +283,7 @@ export async function refreshDiagram() {
 	elementKind = elementKind!.charAt(0).toUpperCase() + elementKind!.slice(1);
 
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
-	if (process.platform === 'win32') {
+	if (isWindows()) {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
 	}
 

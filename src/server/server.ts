@@ -17,13 +17,15 @@
  * under the License.
  *
  */
+
 import { delimiter, join, sep } from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
+import { isWindows } from '../utils';
 
 export function getServerOptions(ballerinaCmd: string): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
-    let cmd = process.platform === 'win32' ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
+    let cmd = isWindows() ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
     let args = ["start-language-server"];
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);

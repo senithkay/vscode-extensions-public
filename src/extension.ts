@@ -17,12 +17,11 @@
  * under the License.
  *
  */
+
 import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance } from './core';
-// import { activate as activateAPIEditor } from './api-editor';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
-// import { activate as activateTraceLogs } from './trace-logs';
 import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
@@ -66,17 +65,13 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateDiagram(ballerinaExtInstance, packageOverviewDataProvider);
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
-        // Enable Network logs
-        // activateTraceLogs(ballerinaExtInstance);
         // Enable Ballerina Debug Config Provider
         activateDebugConfigProvider(ballerinaExtInstance);
-        // Enable Ballerina API Designer
-        // activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
 
-        if (ballerinaExtInstance.isSwanLake) {
+        if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);
         }
@@ -112,7 +107,6 @@ export function activate(context: ExtensionContext): Promise<any> {
                                 }
                             }
                         });
-
                 });
             });
         }

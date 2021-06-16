@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 // tslint:disable-next-line:no-submodule-imports
 import { DiagramEditorLangClientInterface } from "@wso2-enterprise/low-code-editor";
 // tslint:disable-next-line:no-submodule-imports
@@ -26,14 +27,7 @@ import { Header } from "semantic-ui-react";
 
 export interface DiagramProps {
     target: HTMLElement;
-    editorProps: {
-        langClient: DiagramEditorLangClientInterface,
-        filePath: string,
-        startLine: number,
-        startColumn: number,
-        kind: string,
-        name: string
-    };
+    editorProps: DiagramStates;
 }
 
 export interface DiagramStates {
@@ -76,7 +70,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
                 <DiagramGenErrorBoundary>
                     <DiagramGenerator diagramLangClient={this.languageClient} filePath={this.state.filePath}
                         startLine={this.state.startLine.toString()} updated={this.updated}
-                        startCharacter={this.state.startColumn.toString()} panX="-30" panY="0" scale="0.9"/>
+                        startCharacter={this.state.startColumn.toString()} panX="-30" panY="0" scale="0.9" />
                 </DiagramGenErrorBoundary>
             </div>
         );

@@ -25,6 +25,7 @@ import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd } from "../test-util";
 import { commands, Uri } from "vscode";
+import { isWindows } from 'src/utils';
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -86,7 +87,7 @@ suite("Language Server Tests", function () {
                 };
                 langClient.getBallerinaProject(documentIdentifier).then((response) => {
                     assert.equal(response.packageName, 'helloproject', "Invalid package name.");
-                    process.platform !== 'win32' ? assert.equal(response.path, projectPath, 'Invalid project path') :
+                    !isWindows() ? assert.equal(response.path, projectPath, 'Invalid project path') :
                         assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
                     assert.equal(response.kind, 'BUILD_PROJECT', 'Invalid project kind.');
                     done();
@@ -196,8 +197,8 @@ suite("Language Server Tests", function () {
             langClient.sendRequest('textDocument/definition', definitionParam).then((response: any) => {
                 const gotoDefFilePath = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello',
                     'hello_service.bal').toString());
-                assert.equal(response[0].uri, process.platform === 'win32' ? gotoDefFilePath.toString().replace('%3A', ':') : gotoDefFilePath,
-                    'Invalid goto definitopn file uri.');
+                assert.equal(response[0].uri, isWindows() ? gotoDefFilePath.toString().replace('%3A', ':') :
+                    gotoDefFilePath, 'Invalid goto definitopn file uri.');
                 assert.equal(response[0].range.start.line, 15, 'Invalid goto def start line.');
                 assert.equal(response[0].range.start.character, 16, 'Invalid goto def start character.');
                 assert.equal(response[0].range.end.line, 15, 'Invalid goto def end line.');
@@ -219,7 +220,7 @@ suite("Language Server Tests", function () {
                 }
             };
             langClient.sendRequest('textDocument/definition', definitionParam).then((response: any) => {
-                assert.equal(response[0].uri, process.platform !== 'win32' ? uri : uri.toString().replace('%3A', ':'),
+                assert.equal(response[0].uri, !isWindows() ? uri : uri.toString().replace('%3A', ':'),
                     'Invalid goto definitopn file uri.');
                 assert.equal(response[0].range.start.line, 10, 'Invalid goto def start line.');
                 assert.equal(response[0].range.start.character, 16, 'Invalid goto def start character.');
