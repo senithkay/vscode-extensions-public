@@ -360,11 +360,46 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if ((connectorTypes.includes(connectorInfo.displayName))) {
                 const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
+                const updatedSelectedFields: { name: string; value: string; }[] = [];
+                manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
+                    if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
+                        updatedSelectedFields.push({
+                            name: item.name,
+                            value: item.value.substring(1, (item.value.length - 1))
+                        });
+                    }
+                });
+
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
-                        response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, manualConnectionFormFieldValues.selectedFields, selectedType);
-                        configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
-                        connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
+                        if(updatedSelectedFields.length>0){
+                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, updatedSelectedFields, selectedType);
+                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
+                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
+    
+                        }
+                        else{
+                            const addImport: STModification = createImportStatement(
+                                connectorInfo.org,
+                                connectorInfo.module,
+                                targetPosition
+                            );
+                            modifications.push(addImport);
+        
+                            if (connectorConfigurables) {
+                                const addConfigurableVars = createPropertyStatement(
+                                    connectorConfigurables,
+                                    { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                                );
+                                modifications.push(addConfigurableVars);
+                            }
+        
+                            const addConnectorInit: STModification = createPropertyStatement(
+                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                targetPosition
+                            );
+                            modifications.push(addConnectorInit);
+                        }
                         // new connector client initialization
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
