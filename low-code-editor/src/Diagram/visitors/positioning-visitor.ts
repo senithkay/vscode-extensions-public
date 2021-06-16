@@ -13,6 +13,7 @@
 import {
     BlockStatement,
     DoStatement,
+    ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -185,7 +186,7 @@ class PositioningVisitor implements Visitor {
         }
 
         let widthOfOnFailClause = 0;
-        if (body.statements.length > 0) {
+        if (!STKindChecker.isExpressionFunctionBody(body) && body.statements.length > 0) {
             for (const statement of body.statements) {
                 if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
                     if (statement.onFailClause) {
@@ -255,6 +256,12 @@ class PositioningVisitor implements Visitor {
         allEndpoints = blockViewState.connectors;
         epCount = 0;
         this.beginVisitBlockStatement(node);
+    }
+
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const blockViewState: BlockViewState = node.viewState;
+        allEndpoints = blockViewState.connectors;
+        epCount = 0;
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {
@@ -352,11 +359,28 @@ class PositioningVisitor implements Visitor {
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.action.endpointName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint as VisibleEndpoint;
                     const mainEp: EndpointViewState = visibleEndpoint.viewState;
+                    statementViewState.endpoint.typeName = visibleEndpoint.typeName;
 
                     // Set action trigger box cx point to match life line cx
                     // Set action trigger box cy point to match action invocation statement cy
                     statementViewState.action.trigger.cx = mainEp.lifeLine.cx;
                     statementViewState.action.trigger.cy = statementViewState.bBox.cy;
+
+                    if (endpoint.visibleEndpoint.isExternal && !endpoint.firstAction) {
+                        statementViewState.endpoint = mainEp;
+                        // Add endpoint in to the action view statement.
+                        const endpointViewState: EndpointViewState = statementViewState.endpoint;
+                        endpointViewState.typeName = visibleEndpoint.typeName;
+
+                        // to identify a connector init ( http:Client ep1 = new ("/context") )
+                        endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
+                            (endpointViewState.bBox.w / 2) + epGap + (epGap * epCount);
+                        endpointViewState.lifeLine.cy = statementViewState.bBox.cy - (DefaultConfig.connectorLine.gap);
+                        endpointViewState.isExternal = endpoint.visibleEndpoint.isExternal;
+                        visibleEndpoint.viewState = endpointViewState;
+
+                        epCount++;
+                    }
 
                     // to check whether the action is invoked for the first time
                     if (!endpoint.firstAction) {

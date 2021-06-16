@@ -26,6 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CloseRounded } from "../../../../../../assets/icons";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -83,8 +84,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "https://ballerina.io/learn/by-example/"
-        })
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
     return (
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
@@ -101,7 +102,12 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <img src="../../../../../../images/Logo_Circle.svg" />
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>Other Statement</Box>
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.customStatement.title"
+                                                defaultMessage="Other"
+                                            />
+                                        </Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -141,3 +147,4 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         </FormControl>
     );
 }
+

@@ -19,7 +19,16 @@ import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import { Context } from '../../../../../../../Contexts/Diagram';
-import { TriggerType, TRIGGER_TYPE_API, TRIGGER_TYPE_INTEGRATION_DRAFT, TRIGGER_TYPE_MANUAL, TRIGGER_TYPE_SCHEDULE, TRIGGER_TYPE_SERVICE_DRAFT, TRIGGER_TYPE_WEBHOOK } from '../../../../../../models';
+import {
+    TriggerType,
+    TRIGGER_TYPE_API,
+    TRIGGER_TYPE_INTEGRATION_DRAFT,
+    TRIGGER_TYPE_MANUAL,
+    TRIGGER_TYPE_SCHEDULE,
+    TRIGGER_TYPE_SERVICE_DRAFT,
+    TRIGGER_TYPE_WEBHOOK,
+    LowcodeEvent, EVENT_TYPE_AZURE_APP_INSIGHTS, TRIGGER_SELECTED_INSIGHTS
+} from '../../../../../../models';
 import { OverlayBackground } from '../../../../../OverlayBackground';
 import Tooltip, { TooltipIcon } from '../../../../../../../components/Tooltip';
 import { SourceUpdateConfirmDialog } from '../../SourceUpdateConfirmDialog';
@@ -32,6 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
+import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -41,6 +51,7 @@ interface TriggerDropDownProps {
     // dispatchGoToNextTourStep: (nextStepId: string) => void;
     isEmptySource?: boolean;
     triggerType?: TriggerType;
+    activeConnectorType?: ConnectorType;
     configData?: any;
     isDropdownActive?: boolean;
     // createTrigger: (triggerType: TriggerType, model?: any, configObject?: any) => void; // todo: handle dispatch
@@ -55,17 +66,18 @@ export enum ConnectorType {
     SALESFORCE = "Salesforce",
     SLACK = "Slack",
     TWILIO = "Twilio",
+    ASB = "Azure Service Bus",
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { onModify } = useContext(DiagramContext).callbacks;
+    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved } = state;
-    const { onClose, onComplete, title = "Select Trigger",
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent } = state;
+    const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
-    const [activeConnector, setActiveConnector] = useState<ConnectorType>(undefined);
+    const [activeConnector, setActiveConnector] = useState<ConnectorType>(activeConnectorType);
     const [selectedTrigger, setSelectedTrigger] = useState<TriggerType>(triggerType);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [triggerChanged, setTriggerChanged] = useState(false);
@@ -86,10 +98,20 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         //     dispatchGoToNextTourStep("SELECT_TRIGGER");
         // }
         if (newTrigger === TRIGGER_TYPE_MANUAL) {
-            if (isEmptySource) {
-                // todo: handle dispatch
-                onModify(newTrigger);
-            } else {
+            if (triggerType === TRIGGER_TYPE_INTEGRATION_DRAFT) {
+                modifyTrigger(newTrigger);
+                const event: LowcodeEvent = {
+                    type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+                    name: TRIGGER_SELECTED_INSIGHTS,
+                    property: "Manual"
+                };
+                onEvent(event);
+            } else if (triggerType === TRIGGER_TYPE_SCHEDULE) {
+                modifyTrigger(TRIGGER_TYPE_MANUAL, undefined, {
+                    "SYNTAX_TREE": originalSyntaxTree,
+                    "PREV_TRIGGER_TYPE": TRIGGER_TYPE_SCHEDULE
+                });
+            } else if (triggerType !== TRIGGER_TYPE_MANUAL) {
                 // get user confirmation if code there
                 setShowConfirmDialog(true);
             }
@@ -98,7 +120,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
     const handleDialogOnUpdate = () => {
         // todo: handle dispatch
-        onModify(selectedTrigger);
+        modifyTrigger(selectedTrigger);
     };
     const handleDialogOnCancel = () => {
         setShowConfirmDialog(false);
@@ -123,8 +145,8 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.selectTrigger.tooltip.actionTitle",
-            defaultMessage: "https://wso2.com/choreo/docs/integrations/integration-concepts/#trigger"
-        })
+            defaultMessage: "{learnChoreo}/integrations/integration-concepts/#trigger"
+        }, { learnChoreo: CHOREO_DOCS })
     }
     };
 
@@ -243,13 +265,13 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left",
                         ) }
 
-                        { getConnectorTriggerButton(
+                        {/* { getConnectorTriggerButton(
                             ConnectorType.GMAIL,
                             'googleapis_gmail_Client',
                             "To trigger an application based on GMail events.",
                             "Gmail",
                             "right",
-                        ) }
+                        ) } */}
 
                         { getConnectorTriggerButton(
                             ConnectorType.G_CALENDAR,
@@ -282,16 +304,32 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             "left"
                         ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.SLACK,
+                            'slack_Client',
+                            "To trigger an application based on Slack events.",
+                            "Slack",
+                            "left"
+                        ) }
 
+                        { getConnectorTriggerButton(
+                            ConnectorType.ASB,
+                            'azure_service_bus_AsbClient',
+                            "To trigger an application based on Azure Service Bus events.",
+                            "Azure SB",
+                            "left"
+                        ) }
                     </div>
                 </div>
             </DiagramOverlay>
             {selectedTrigger === TRIGGER_TYPE_SCHEDULE && (
                 <ScheduleConfigureWizard
                     position={{ x: position.x, y: position.y + 10 }}
+                    initialTriggerType={triggerType}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
                     cron={configData?.cron}
+                    schType={configData?.schType}
                 />
             )}
             {selectedTrigger === TRIGGER_TYPE_WEBHOOK && activeConnector !== undefined && (
@@ -300,6 +338,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                     connector={activeConnector}
                     onWizardComplete={handleTriggerComplete}
                     onClose={handleSubMenuClose}
+                    isWebhookTypeChanged={activeConnectorType !== activeConnector}
                 />
             )}
             {showConfirmDialog && (

@@ -48,7 +48,7 @@ export function Form(props: FormProps) {
     };
 
     fields.map((field, index) => {
-        if (!field.hide && (field.type === "string" || field.type === "record" || field.type === "int"
+        if (!field.hide && (field.type === "string" || (field.type === 'record' && !field.isReference) || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
             || field.type === "map" || field.type === "union" || field.type === "json" ||
             field.type === "httpRequest")) {
@@ -71,6 +71,8 @@ export function Form(props: FormProps) {
                         type = "expression";
                     }
                 });
+            } else if (field.isRestParam) {
+                type = "restParam"
             }
             const element = getFormElement(elementProps, type);
 

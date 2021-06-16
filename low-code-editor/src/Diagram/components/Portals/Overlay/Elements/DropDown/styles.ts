@@ -46,23 +46,22 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: 24,
             marginRight: 24,
             marginBottom: 11,
-            marginTop: theme.spacing(2),
             display: "flex",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
+            alignItems: "center"
         },
         title: {
             marginBottom: 12,
-            fontSize: 13,
+            fontSize: 14.5,
             letterSpacing: 0,
             fontWeight: 500,
             color: "#222228",
         },
         subTitle: {
-            height: 10,
-            color: "#686b73",
-            fontSize: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase"
+            color: "#1D2028",
+            fontSize: 14,
+            textTransform: "capitalize",
+            fontWeight: 500,
         },
         textFieldLabel: {
             padding: 0,
