@@ -26,6 +26,7 @@ import {
     SimpleNameReference,
     SpecificField,
     STKindChecker,
+    STNode,
     StringLiteral,
     TypedBindingPattern,
     Visitor,
@@ -117,51 +118,7 @@ export class DataMapperInitVisitor implements Visitor {
         const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
         const typeDescriptor = typedBindingPattern.typeDescriptor;
 
-        if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Var;
-        } else if (STKindChecker.isDecimalTypeDesc(typeDescriptor)) {
-            viewState.type = 'decimal';
-        } else if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.String;
-        } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Int;
-        } else if (STKindChecker.isFloatTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Float;
-        } else if (STKindChecker.isBooleanTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Boolean;
-        } else if (STKindChecker.isJsonTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Json;
-        } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Xml;
-        } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
-            const typeSymbol = node.typeData.typeSymbol;
-            const moduleID = typeSymbol.moduleID;
-
-            if (moduleID) {
-                viewState.typeInfo = {
-                    name: (typeDescriptor as SimpleNameReference).name.value,
-                    orgName: moduleID.orgName,
-                    moduleName: moduleID.moduleName,
-                    version: moduleID.version
-                }
-            }
-        } else if (STKindChecker.isRecordTypeDesc(typeDescriptor)) {
-            viewState.type = PrimitiveBalType.Record;
-            viewState.hasInlineRecordDescription = true;
-        } else if (STKindChecker.isQualifiedNameReference(typeDescriptor)) {
-            const typeSymbol = node.typeData.typeSymbol;
-            const moduleID = typeSymbol.moduleID;
-            viewState.type = `${typeDescriptor.modulePrefix.value}:${typeDescriptor.identifier.value}`;
-
-            if (moduleID) {
-                viewState.typeInfo = {
-                    name: typeDescriptor.identifier.value,
-                    orgName: moduleID.orgName,
-                    moduleName: moduleID.moduleName,
-                    version: moduleID.version
-                }
-            }
-        }
+        setViewStateTypeInformation(viewState, typeDescriptor, node);
 
         viewState.name = bindingPattern.variableName.value;
 
@@ -211,42 +168,14 @@ export class DataMapperInitVisitor implements Visitor {
         const typeName = node.typeName;
         viewState.name = node.fieldName.value;
 
-        if (STKindChecker.isStringTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.String;
-        } else if (STKindChecker.isIntTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Int;
-        } else if (STKindChecker.isDecimalTypeDesc(typeName)) {
-            viewState.type = 'decimal';
-        } else if (STKindChecker.isFloatTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Float;
-        } else if (STKindChecker.isBooleanTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Boolean;
-        } else if (STKindChecker.isJsonTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Json;
-        } else if (STKindChecker.isXmlTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Xml;
-        } else if (STKindChecker.isSimpleNameReference(typeName)) {
-            const typeSymbol = node.typeData.typeSymbol;
-            const moduleID = typeSymbol.moduleID;
-
-            if (moduleID) {
-                viewState.typeInfo = {
-                    name: (typeName as SimpleNameReference).name.value,
-                    orgName: moduleID.orgName,
-                    moduleName: moduleID.moduleName,
-                    version: moduleID.version
-                }
-            }
-        } else if (STKindChecker.isUnionTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Union;
-            viewState.unionType = typeName.source.trim();
-        } else if (STKindChecker.isRecordTypeDesc(typeName)) {
-            viewState.type = PrimitiveBalType.Record;
-            viewState.hasInlineRecordDescription = true;
-        }
+        setViewStateTypeInformation(viewState, typeName, node);
 
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
+        }
+
+        if (node.questionMarkToken) {
+            viewState.isOptionalType = true;
         }
 
         if (this.visitType === VisitingType.INPUT) {
@@ -399,5 +328,57 @@ export class DataMapperInitVisitor implements Visitor {
         }
 
         node.expression.dataMapperViewState = new DataMapperViewState();
+    }
+}
+
+function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: STNode, parentNode: STNode) {
+    if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Var;
+    } else if (STKindChecker.isDecimalTypeDesc(typeDescriptor)) {
+        viewState.type = 'decimal';
+    } else if (STKindChecker.isStringTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.String;
+    } else if (STKindChecker.isIntTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Int;
+    } else if (STKindChecker.isFloatTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Float;
+    } else if (STKindChecker.isBooleanTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Boolean;
+    } else if (STKindChecker.isJsonTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Json;
+    } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Xml;
+    } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
+        const typeSymbol = parentNode.typeData.typeSymbol;
+        const moduleID = typeSymbol.moduleID;
+
+        if (moduleID) {
+            viewState.typeInfo = {
+                name: (typeDescriptor as SimpleNameReference).name.value,
+                orgName: moduleID.orgName,
+                moduleName: moduleID.moduleName,
+                version: moduleID.version
+            }
+        }
+    } else if (STKindChecker.isRecordTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Record;
+        viewState.hasInlineRecordDescription = true;
+    } else if (STKindChecker.isQualifiedNameReference(typeDescriptor)) {
+        const typeSymbol = parentNode.typeData.typeSymbol;
+        const moduleID = typeSymbol.moduleID;
+        viewState.type = `${typeDescriptor.modulePrefix.value}:${typeDescriptor.identifier.value}`;
+
+        if (moduleID) {
+            viewState.typeInfo = {
+                name: typeDescriptor.identifier.value,
+                orgName: moduleID.orgName,
+                moduleName: moduleID.moduleName,
+                version: moduleID.version
+            }
+        }
+    } else if (STKindChecker.isOptionalTypeDesc(typeDescriptor)) {
+        const realTypeDescNode = typeDescriptor.typeDescriptor;
+        viewState.isOptionalType = true;
+        setViewStateTypeInformation(viewState, realTypeDescNode, parentNode);
     }
 }

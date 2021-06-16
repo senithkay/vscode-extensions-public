@@ -185,7 +185,9 @@ export function MapperView() {
                         model: {
                             name: 'expression',
                             displayName: 'expression',
-                            type: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type
+                            type: dataPointVS.type === 'union' ? dataPointVS.unionType
+                                : dataPointVS.isOptionalType ?
+                                    `${dataPointVS.type}?` : dataPointVS.type
                         },
                         customProps: {
                             validate: validateFunction,
@@ -193,7 +195,9 @@ export function MapperView() {
                             tooltipActionText: '',
                             tooltipActionLink: '',
                             interactive: true,
-                            statementType: dataPointVS.type === 'union' ? dataPointVS.unionType : dataPointVS.type,
+                            statementType: dataPointVS.type === 'union' ? dataPointVS.unionType
+                                : dataPointVS.isOptionalType ?
+                                    `${dataPointVS.type}?` : dataPointVS.type,
                             editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
                         },
                         onChange,

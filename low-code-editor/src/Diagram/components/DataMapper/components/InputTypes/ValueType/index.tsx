@@ -149,7 +149,7 @@ export function ValueType(props: ValueTypeProps) {
                             >
                                 <tspan className="key-value"> {`${name}:`} </tspan>
                                 <tspan className="value-para">
-                                    {`${type}`}
+                                    {`${type}${viewState.isOptionalType ? '?' : ''}`}
                                 </tspan>
                             </text>
                             {!isTarget && (
@@ -175,7 +175,7 @@ export function ValueType(props: ValueTypeProps) {
                                 ref={svgTextRef}
                             >
                                 <tspan className="value-para"> {`${name}:`} </tspan>
-                                <tspan className="value-para"> {`${type}`}  </tspan>
+                                <tspan className="value-para"> {`${type}${viewState.isOptionalType ? '?' : ''}`}  </tspan>
                             </text>
                             {isTarget && isJsonField && (
                                 <g

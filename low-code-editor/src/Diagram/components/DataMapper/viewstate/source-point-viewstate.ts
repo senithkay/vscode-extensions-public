@@ -18,10 +18,12 @@ export class SourcePointViewState extends DataMapperViewState {
     public text: string;
     public connections: ConnectionViewState[] = [];
     public isJsonField: boolean;
+    public isOptionalType: boolean;
 
     constructor() {
         super();
         this.text = '';
         this.isJsonField = false;
+        this.isOptionalType = false;
     }
 }

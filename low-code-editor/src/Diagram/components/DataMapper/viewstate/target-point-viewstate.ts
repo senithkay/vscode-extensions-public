@@ -20,4 +20,5 @@ export class TargetPointViewState extends DataMapperViewState {
     public value: string;
     public type: string;
     public unionType: string;
+    public isOptionalType: boolean;
 }

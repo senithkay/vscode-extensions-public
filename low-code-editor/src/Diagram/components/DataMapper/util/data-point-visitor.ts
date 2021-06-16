@@ -59,6 +59,10 @@ export class DataPointVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewState.name);
+            if (viewState.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = `${this.nameComponents[this.nameComponents.length - 2]}?`
+            }
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
 
             if (viewState.sourcePointViewState) {
@@ -80,6 +84,14 @@ export class DataPointVisitor implements Visitor {
 
     endVisitAssignmentStatement(node: AssignmentStatement) {
         if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+
+            if (viewState.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = this.nameComponents[this.nameComponents.length - 2]
+                        .substring(0, this.nameComponents[this.nameComponents.length - 2].length - 1);
+            }
+
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
             this.hasDataMapperTypeDesc = false;
         }
@@ -89,6 +101,12 @@ export class DataPointVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = `${this.nameComponents[this.nameComponents.length - 2]}?`
+            }
+
             this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
             this.hasInlineTypeDesc = viewstate.hasInlineRecordDescription;
 
@@ -96,6 +114,7 @@ export class DataPointVisitor implements Visitor {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.sourcePointViewState.connections = [];
+                viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
                 viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
@@ -104,6 +123,7 @@ export class DataPointVisitor implements Visitor {
                 viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.targetPointViewState.type = viewstate.type;
+                viewstate.targetPointViewState.isOptionalType = viewstate.isOptionalType;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
         }
@@ -111,6 +131,14 @@ export class DataPointVisitor implements Visitor {
 
     endVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = this.nameComponents[this.nameComponents.length - 2]
+                        .substring(0, this.nameComponents[this.nameComponents.length - 2].length - 1);
+            }
+
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
             this.hasDataMapperTypeDesc = false;
         }
@@ -121,10 +149,16 @@ export class DataPointVisitor implements Visitor {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = `${this.nameComponents[this.nameComponents.length - 2]}?`
+            }
+
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.sourcePointViewState.connections = [];
+                viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
                 viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
@@ -133,6 +167,7 @@ export class DataPointVisitor implements Visitor {
                 viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
                 viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.targetPointViewState.type = viewstate.type;
+                viewstate.targetPointViewState.isOptionalType = viewstate.isOptionalType;
                 this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
             }
         }
@@ -140,6 +175,14 @@ export class DataPointVisitor implements Visitor {
 
     endVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = this.nameComponents[this.nameComponents.length - 2]
+                        .substring(0, this.nameComponents[this.nameComponents.length - 2].length - 1);
+            }
+
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
         }
     }
@@ -148,6 +191,11 @@ export class DataPointVisitor implements Visitor {
         if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = `${this.nameComponents[this.nameComponents.length - 2]}?`
+            }
 
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
@@ -168,6 +216,13 @@ export class DataPointVisitor implements Visitor {
 
     endVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = this.nameComponents[this.nameComponents.length - 2]
+                        .substring(0, this.nameComponents[this.nameComponents.length - 2].length - 1);
+            }
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
         }
     }

@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     FieldAccess,
     LocalVarDecl,
+    OptionalFieldAccess,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
@@ -35,10 +36,12 @@ export class DataMapperMappingVisitor implements Visitor {
     private missingVariableRefName: string[] = [];
     private squashConstants: boolean;
 
-    constructor(sourcePoints: Map<string, SourcePointViewState>,
-                targetPoints: Map<string, TargetPointViewState>,
-                constantPoints: Map<string, SourcePointViewState>,
-                squashConstants?: boolean) {
+    constructor(
+        sourcePoints: Map<string, SourcePointViewState>,
+        targetPoints: Map<string, TargetPointViewState>,
+        constantPoints: Map<string, SourcePointViewState>,
+        squashConstants?: boolean) {
+
         this.sourcePoints = sourcePoints;
         this.targetPoints = targetPoints;
         this.constantPoints = constantPoints;
@@ -49,6 +52,11 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+
+            if (viewState.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = `${this.nameParts[this.nameParts.length - 2]}?`
+            }
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
             if (targetPoint) {
                 targetPoint.position = node.expression.position;
@@ -68,6 +76,12 @@ export class DataMapperMappingVisitor implements Visitor {
                     dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
                     if (dataPointRef === undefined && refArray.length > 1) {
                         refArray.splice(refArray.length - 1, 1);
+
+                        if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
+                            refArray[refArray.length - 1]
+                            = refArray[refArray.length - 1]
+                                .substring(0, refArray[refArray.length - 1].length - 1);
+                        }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
 
@@ -117,6 +131,12 @@ export class DataMapperMappingVisitor implements Visitor {
                 }
             }
 
+            if (viewstate.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = this.nameParts[this.nameParts.length - 2]
+                        .substring(0, this.nameParts[this.nameParts.length - 2].length - 1);
+            }
+
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
@@ -126,6 +146,10 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+            if (viewState.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = `${this.nameParts[this.nameParts.length - 2]}?`
+            }
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
             if (targetPoint) {
                 targetPoint.position = node.initializer.position;
@@ -145,6 +169,12 @@ export class DataMapperMappingVisitor implements Visitor {
                     dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
                     if (dataPointRef === undefined && refArray.length > 1) {
                         refArray.splice(refArray.length - 1, 1);
+
+                        if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
+                            refArray[refArray.length - 1]
+                            = refArray[refArray.length - 1]
+                                .substring(0, refArray[refArray.length - 1].length - 1);
+                        }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
 
@@ -195,6 +225,12 @@ export class DataMapperMappingVisitor implements Visitor {
                 }
             }
 
+            if (viewstate.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = this.nameParts[this.nameParts.length - 2]
+                        .substring(0, this.nameParts[this.nameParts.length - 2].length - 1);
+            }
+
             this.nameParts.splice(this.nameParts.length - 1, 1);
             this.references = [];
         }
@@ -204,6 +240,10 @@ export class DataMapperMappingVisitor implements Visitor {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
             this.nameParts.push(viewState.name);
+            if (viewState.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = `${this.nameParts[this.nameParts.length - 2]}?`
+            }
             const targetPoint = this.targetPoints.get(this.generateDataPointName(this.nameParts));
             if (targetPoint) {
                 targetPoint.position = node.valueExpr.position;
@@ -223,6 +263,12 @@ export class DataMapperMappingVisitor implements Visitor {
                     dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
                     if (dataPointRef === undefined && refArray.length > 1) {
                         refArray.splice(refArray.length - 1, 1);
+
+                        if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
+                            refArray[refArray.length - 1]
+                            = refArray[refArray.length - 1]
+                                .substring(0, refArray[refArray.length - 1].length - 1);
+                        }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
 
@@ -273,11 +319,22 @@ export class DataMapperMappingVisitor implements Visitor {
             }
 
             this.references = [];
+            if (viewstate.isOptionalType && this.nameParts.length > 1) {
+                this.nameParts[this.nameParts.length - 2]
+                    = this.nameParts[this.nameParts.length - 2]
+                        .substring(0, this.nameParts[this.nameParts.length - 2].length - 1);
+            }
             this.nameParts.splice(this.nameParts.length - 1, 1);
         }
     }
 
     beginVisitSimpleNameReference(node: SimpleNameReference) {
+        if (node.dataMapperViewState) {
+            this.references.push(node.source.trim());
+        }
+    }
+
+    beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
         if (node.dataMapperViewState) {
             this.references.push(node.source.trim());
         }

@@ -934,13 +934,14 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
 
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
+            const inputVarNameList =dataMapperConfig.inputTypes.map(inputType => inputType.name);
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
                 value.forEach((varNode: STNode) => {
                     if (STKindChecker.isLocalVarDecl(varNode)) {
                         const varName = (varNode.typedBindingPattern.bindingPattern as CaptureBindingPattern)
                             .variableName.value;
                         mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
-                            if (missingVarName === varName) {
+                            if (missingVarName === varName && inputVarNameList.indexOf(varName) === -1) {
                                 dataMapperConfig.inputTypes.push({
                                     type: key,
                                     name: varName,
@@ -951,7 +952,7 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
                     } else if (STKindChecker.isRequiredParam(varNode)) {
                         const varName = varNode.paramName.value;
                         mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
-                            if (missingVarName === varName) {
+                            if (missingVarName === varName && inputVarNameList.indexOf(varName) === -1) {
                                 dataMapperConfig.inputTypes.push({
                                     type: key,
                                     name: varName,

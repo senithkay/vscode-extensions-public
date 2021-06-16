@@ -124,6 +124,7 @@ export function OutputTypeConfigForm() {
     const [jsonValue, setJsonValue] = useState('');
     const [isJsonValid, setIsJsonValid] = useState(false);
     const [variableNameValid, setVariableNameValid] = useState(false);
+    const [isVariableOptional, setIsVariableOptional] = useState(false);
 
     const formClasses = formStyles();
     const overlayClasses = wizardStyles();
@@ -167,6 +168,10 @@ export function OutputTypeConfigForm() {
                 }
             });
     });
+
+    const handleOptionalToggleChange = () => {
+        setIsVariableOptional(true);
+    }
 
     const handleVariableNameChange = (value: string) => {
         config.outputType.variableName = value;
@@ -327,7 +332,7 @@ export function OutputTypeConfigForm() {
                     outputType = config.outputType.type;
             }
 
-            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${variableName} = ${defaultReturn};`
+            const variableDefString = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''}${isVariableOptional ? '?' : ''} ${variableName} = ${defaultReturn};`
             const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
             modifications.push(dataMapperFunction);
         } else {
@@ -356,7 +361,7 @@ export function OutputTypeConfigForm() {
 
             // config.outputType.sampleStructure = defaultReturn;
             const variableDefString
-                = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''} ${variableName} = ${defaultReturn};`
+                = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''}${isVariableOptional ? '?' : ''} ${variableName} = ${defaultReturn};`
 
             const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
             modifications.push(dataMapperFunction);
@@ -391,6 +396,12 @@ export function OutputTypeConfigForm() {
 
     const createNewVariableComponent = (
         <div>
+            <SwitchToggle
+                dataTestId={'create-optional-var-toggle'}
+                text="Create Optional Variable"
+                onChange={handleOptionalToggleChange}
+                initSwitch={isVariableOptional}
+            />
             <FormTextInput
                 dataTestId="datamapper-variable-name"
                 label={"Variable Name"}

@@ -195,7 +195,8 @@ function getType(typeNode: any): any {
     } else if (STKindChecker.isErrorTypeDesc(typeNode)) {
         return "error";
     } else if (STKindChecker.isOptionalTypeDesc(typeNode)) {
-        return "var";
+        // return "var";
+        return getType(typeNode.typeDescriptor);
     } else if (STKindChecker.isRecordTypeDesc(typeNode)) {
         return 'record';
     } else if (STKindChecker.isSimpleNameReference(typeNode)) {
