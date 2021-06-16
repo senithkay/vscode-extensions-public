@@ -150,7 +150,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     });
     const updateConfigErrorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
-        defaultMessage: "An error occurred while updating the connection configurations. Please try again."
+        defaultMessage: "An error occurred while updating the connection configuration. Please try again."
     });
     const createConfigSuccessMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.createConfig.success",
@@ -158,7 +158,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     });
     const createConfigErrorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.create Config.error",
-        defaultMessage: "An error occurred while saving the connection configurations. Please try again."
+        defaultMessage: "An error occurred while saving the connection configuration. Please try again."
     });
 
     useEffect(() => {
