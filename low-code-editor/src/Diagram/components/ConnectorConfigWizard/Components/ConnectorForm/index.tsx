@@ -139,11 +139,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
-    const successMessage = intl.formatMessage({
+    const updateConfigSuccessMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
         defaultMessage: "Successfully updated the connection configuration."
     });
-    const errorMessage = intl.formatMessage({
+    const updateConfigErrorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
         defaultMessage: "An error occurred while updating the connection configurations. Please try again."
     });
@@ -301,9 +301,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const showNotification = (status: number) => {
         if (status === 200) {
-            store.dispatch(triggerSuccessNotification(successMessage));
+            store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
         } else if (status !== 200) {
-            store.dispatch(triggerErrorNotification(errorMessage));
+            store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
         }
     }
 
