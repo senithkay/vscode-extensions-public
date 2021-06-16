@@ -90,6 +90,11 @@ enum FormStates {
     SingleForm,
 }
 
+enum ConnectionAction {
+    create,
+    update
+}
+
 export interface ConnectorConfigWizardProps {
     connectorInfo: BallerinaConnectorsInfo;
     targetPosition: DraftInsertPosition;
@@ -146,6 +151,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const updateConfigErrorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
         defaultMessage: "An error occurred while updating the connection configurations. Please try again."
+    });
+    const createConfigSuccessMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.createConfig.success",
+        defaultMessage: "Successfully saved the connection configuration."
+    });
+    const createConfigErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.create Config.error",
+        defaultMessage: "An error occurred while saving the connection configurations. Please try again."
     });
 
     useEffect(() => {
@@ -299,11 +312,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
-    const showNotification = (status: number) => {
-        if (status === 200) {
-            store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
-        } else if (status !== 200) {
-            store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
+    const showNotification = (status: number, action: ConnectionAction) => {
+        if (action === ConnectionAction.create) {
+            if (status === 200) {
+                store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
+            } else if (status !== 200) {
+                store.dispatch(triggerErrorNotification(createConfigErrorMessage));
+            }
+        } else if (action === ConnectionAction.update) {
+            if (status === 200) {
+                store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
+            } else if (status !== 200) {
+                store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
+            }
         }
     }
 
@@ -391,9 +412,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     if (isNewConnectorInitWizard && targetPosition) {
                         if (formattedFieldValues.length > 0) {
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
-                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
-                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
-
+                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response.data, selectedType);
+                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response.data, symbolInfo.configurables, selectedType);
+                            showNotification(response.status, ConnectionAction.create);
                         }
                         else {
                             // tslint:disable-next-line: no-shadowed-variable
@@ -451,12 +472,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                               }
                           });
                           if (updatedFields.length > 0 && config.connectionName) {
+                              onClose();
                               response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response.data, selectedType);
-                              showNotification(response.status);
-                              onClose();
+                              showNotification(response.status, ConnectionAction.update);
                           } else {
                               const updateConnectorInit = updatePropertyStatement(
                                   `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
