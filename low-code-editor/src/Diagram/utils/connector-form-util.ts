@@ -327,6 +327,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_worldbank_Client':
+            // HACK: update default response format as a JSON
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (value.parameters.find(field => field.name === "format")){
+                    value.parameters.find(field => field.name === "format").value = `"json"`;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_twilio_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "makeVoiceCall") {

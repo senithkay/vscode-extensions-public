@@ -207,7 +207,7 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
-export function getParams(formFields: FormField[]): string[] {
+export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
         let paramString: string = "";
@@ -268,7 +268,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 return fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
-                                const params = getParams([selectedField]);
+                                const params = getParams([selectedField], ++depth);
                                 if (params && params.length > 0) {
                                     if (firstRecordField) {
                                         recordFieldsString += ", ";
@@ -296,7 +296,7 @@ export function getParams(formFields: FormField[]): string[] {
                                     fields: field.fields
                                 }
                             ]
-                            const params = getParams(fieldArray);
+                            const params = getParams(fieldArray, ++depth);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
@@ -308,8 +308,10 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                     }
                 });
-                if (recordFieldsString !== "" && recordFieldsString !== undefined) {
+                if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }else if (recordFieldsString === "" && !formField.optional && depth < 3){
+                    paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                 //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig

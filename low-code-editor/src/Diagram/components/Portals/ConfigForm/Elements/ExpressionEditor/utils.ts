@@ -22,7 +22,13 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
-import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
+import {
+    COLLAPSE_WIDGET_ID,
+    DOUBLE_QUOTE_ERR_CODE,
+    EXPAND_WIDGET_ID,
+    INCORRECT_STR_DIAGNOSTICS,
+    UNDEFINED_SYMBOL_ERR_CODE
+} from "./constants";
 import "./style.scss";
 
 // return true if there is any diagnostic of severity === 1
@@ -124,9 +130,7 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
-        if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostics[0].code).toString())) {
-            return true;
-        }
+        return Array.from(diagnostics).some((diagnostic: Diagnostic) => INCORRECT_STR_DIAGNOSTICS.includes((diagnostic.code).toString()));
     }
     return false;
 }
@@ -301,4 +305,14 @@ export function createSortText(index: number) : string {
 
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+export function getDiagnosticMessage(diagnostics: any, varType: string) : string {
+    if (varType === 'string') {
+        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
+        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : diagnostics[0]?.message;
+    } else {
+        return diagnostics[0]?.message;
+    }
 }

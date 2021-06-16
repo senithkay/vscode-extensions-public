@@ -172,9 +172,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const validateResponseNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, diagramState);
+            const varValidationResponse = checkVariableName("response name", value,
+                defaultResponseVarName, diagramState);
+            setResponseVarError(varValidationResponse.message);
             if (varValidationResponse?.error) {
-                setResponseVarError(varValidationResponse.message);
                 return false;
             }
         }
@@ -298,7 +299,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const isPayloadValid = (connectorConfig.responsePayloadMap.isPayloadSelected &&
         connectorConfig.responsePayloadMap.selectedPayloadType ||
         !connectorConfig.responsePayloadMap.isPayloadSelected);
-    const isSaveDisabled: boolean = isMutationProgress
+    const isSaveDisabled: boolean = isMutationProgress || !(responseVarError === "" || responseVarError === undefined)
         || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
             && isPayloadValid);
 
@@ -460,24 +461,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     </FormControl>
                 )
             )}
-            {/* <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_PAYLOAD_CLICK'
-            />
-            <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_JSON_PAYLOAD'
-            />
-            <ProductTourStep
-                startCondition={true}
-
-                waitBeforeShow={500}
-                step='CONFIG_SAVE_AND_DONE'
-            /> */}
         </div>
     );
 }
