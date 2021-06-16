@@ -139,6 +139,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
+    const successMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
+        defaultMessage: "Successfully updated connection configurations"
+    });
+    const errorMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
+        defaultMessage: "Error on updating the configuration. Please try again"
+    });
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -291,11 +299,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
-    const showNotification = (data: ConnectionDetails, status: number) => {
+    const showNotification = (status: number) => {
         if (status === 200) {
-            store.dispatch(triggerSuccessNotification(data.displayName + ' connection configurations updated'));
+            store.dispatch(triggerSuccessNotification(successMessage));
         } else if (status !== 200) {
-            store.dispatch(triggerErrorNotification('Error while updating ' + data.displayName));
+            store.dispatch(triggerErrorNotification(errorMessage));
         }
     }
 
@@ -412,7 +420,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response.data, selectedType);
-                              showNotification(response.data, response.status);
+                              showNotification(response.status);
                               onClose();
                           } else {
                               const updateConnectorInit = updatePropertyStatement(
