@@ -172,9 +172,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const validateResponseNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, diagramState);
+            const varValidationResponse = checkVariableName("response name", value,
+                defaultResponseVarName, diagramState);
+            setResponseVarError(varValidationResponse.message);
             if (varValidationResponse?.error) {
-                setResponseVarError(varValidationResponse.message);
                 return false;
             }
         }
@@ -298,7 +299,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const isPayloadValid = (connectorConfig.responsePayloadMap.isPayloadSelected &&
         connectorConfig.responsePayloadMap.selectedPayloadType ||
         !connectorConfig.responsePayloadMap.isPayloadSelected);
-    const isSaveDisabled: boolean = isMutationProgress
+    const isSaveDisabled: boolean = isMutationProgress || !(responseVarError === "" || responseVarError === undefined)
         || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
             && isPayloadValid);
 

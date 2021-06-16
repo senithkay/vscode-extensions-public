@@ -207,7 +207,7 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
-export function getParams(formFields: FormField[]): string[] {
+export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
         let paramString: string = "";
@@ -243,6 +243,16 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "map" && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        // HACK:    current map type will render by expression-editor component.
+                        //          expression-editor component will set value property directly.
+                        //          need to implement fetch inner field's values of map object.
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -258,7 +268,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 return fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
-                                const params = getParams([selectedField]);
+                                const params = getParams([selectedField], ++depth);
                                 if (params && params.length > 0) {
                                     if (firstRecordField) {
                                         recordFieldsString += ", ";
@@ -286,7 +296,7 @@ export function getParams(formFields: FormField[]): string[] {
                                     fields: field.fields
                                 }
                             ]
-                            const params = getParams(fieldArray);
+                            const params = getParams(fieldArray, ++depth);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
@@ -298,8 +308,10 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                     }
                 });
-                if (recordFieldsString !== "" && recordFieldsString !== undefined) {
+                if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }else if (recordFieldsString === "" && !formField.optional && depth < 3){
+                    paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                 //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
