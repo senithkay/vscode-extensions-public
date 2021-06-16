@@ -22,3 +22,5 @@ export const COLLAPSE_WIDGET_ID = "collapse-widget";
 
 // 0411 = Missing quotes, 2010 = Undefined symbol, 0012 = Missing plus token
 export const INCORRECT_STR_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012"];
+
+export const EDITOR_MAXIMUM_CHARACTERS = 25;

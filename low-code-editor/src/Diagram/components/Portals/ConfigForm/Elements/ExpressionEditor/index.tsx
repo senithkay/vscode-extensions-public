@@ -29,7 +29,7 @@ import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -679,6 +679,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
+            }
+
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+                setExpand(true);
             }
         }
     }
