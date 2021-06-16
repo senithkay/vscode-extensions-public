@@ -350,8 +350,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
-        const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         const isInitReturnError = getInitReturnType(functionDefInfo);
+        const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         const moduleName = getFormattedModuleName(connectorInfo.module);
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -375,18 +375,21 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                // const addImport: STModification = createImportStatement(
-                //     connectorInfo.org,
-                //     connectorInfo.module,
-                //     targetPosition
-                // );
-                // modifications.push(addImport);
+                if (config.connectorInit.length > 0){
+                    // save action with client path
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
 
-                // const addConnectorInit: STModification = createPropertyStatement(
-                //     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                //     targetPosition
-                // );
-                // modifications.push(addConnectorInit);
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
                 // Add an action invocation on the initialized client.
                 if (currentActionReturnType.hasReturn) {
                     const addActionInvocation = createPropertyStatement(
