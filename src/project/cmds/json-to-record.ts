@@ -40,7 +40,7 @@ export function activatePasteJsonAsRecord() {
 
     // This command is only available since Swan Lake Beta 2
     // Check the version before registering the command
-    if(
+    if (
         ballerinaExtInstance.isSwanLake 
         && !ballerinaExtInstance.ballerinaVersion.includes("Alpha")
         && !ballerinaExtInstance.ballerinaVersion.includes("Preview")
@@ -64,6 +64,10 @@ export function activatePasteJsonAsRecord() {
         }
         env.clipboard.readText()
         .then(clipboardText => {
+            if (!ballerinaExtInstance.langClient) {
+                window.showErrorMessage("Ballerina language client not found.");
+                return;
+            }
             ballerinaExtInstance.langClient!.getRecordsForJson(clipboardText)
             .then(response => {
                 if (!response || response.codeBlock === "") {
