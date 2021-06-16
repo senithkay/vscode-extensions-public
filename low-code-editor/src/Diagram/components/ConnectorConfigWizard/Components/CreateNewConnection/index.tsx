@@ -195,9 +195,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
+                    // todo Add the back button if needed
+                    {/* {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
-                    )}
+                    )} */}
                     <div className={classes.saveConnectorBtnHolder}>
                         { !isNewConnectorInitWizard && (
                             <PrimaryButton

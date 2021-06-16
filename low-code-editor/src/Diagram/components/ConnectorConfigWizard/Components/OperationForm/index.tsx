@@ -204,7 +204,7 @@ export function OperationForm(props: OperationFormProps) {
                             ) }
                         </div>
                     </div>
-                    <div className={classes.wizardBtnHolder}>
+                    <div className={classes.saveConnectorBtnHolder}>
                         <PrimaryButton
                             className={wizardClasses.buttonSm}
                             text={saveConnectionButtonText}
