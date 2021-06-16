@@ -268,24 +268,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         )}
                     </div>
                 </div>
-                {/* <ProductTourStep
-                    startCondition={true}
-
-                    waitBeforeShow={2000}
-                    step='DIAGRAM_CONFIG_HTTP_URL'
-                />
-                <ProductTourStep
-                    startCondition={true}
-
-                    waitBeforeShow={500}
-                    step='DIAGRAM_CONFIG_HTTP_METHOD'
-                />
-                <ProductTourStep
-                    startCondition={true}
-
-                    waitBeforeShow={500}
-                    step='DIAGRAM_CONFIG_HTTP_NEXT'
-                /> */}
             </FormControl >
         </div >
     );
