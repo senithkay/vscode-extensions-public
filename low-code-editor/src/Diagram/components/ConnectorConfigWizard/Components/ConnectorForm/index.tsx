@@ -796,7 +796,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                     <div>
                                         <div className={classNames(wizardClasses.manualBtnWrapper)}>
                                             <LinePrimaryButton
-                                                className={wizardClasses.fullWidth}
+                                                className={classNames(wizardClasses.fullWidth, wizardClasses.manualBtnSquare)}
                                                 text={manualConnectionButtonLabel}
                                                 fullWidth={false}
                                                 onClick={onManualConnection}
