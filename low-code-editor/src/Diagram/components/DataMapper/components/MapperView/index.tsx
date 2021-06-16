@@ -34,6 +34,7 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
+import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
 
 
 export function MapperView() {
@@ -155,7 +156,10 @@ export function MapperView() {
                 drawingLineRef.current.setAttribute('y1', -5);
                 drawingLineRef.current.setAttribute('y2', -5);
                 drawingLineRef.current.setAttribute('style', 'display: none;')
-                onSave([updatePropertyStatement(selectedDataPoint.text, dataPointVS.position)])
+                onSave([
+                    updatePropertyStatement(generateDirectMappingStatement(selectedDataPoint, dataPointVS), 
+                    dataPointVS.position)
+                ]);
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
                 eventListenerMap.keyup = escapeListener
@@ -484,4 +488,31 @@ export function MapperView() {
             </DiagramOverlayContainer>
         </Canvas>
     )
+}
+
+export function generateDirectMappingStatement(
+    sourcePointViewState: SourcePointViewState, targetPointViewState: TargetPointViewState): string {
+    let statement = '';
+
+    if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
+        // add a ternary statement with default value
+        statement += `${sourcePointViewState.text} ?: `
+        switch (targetPointViewState.type) {
+            case PrimitiveBalType.String:
+                statement += '""';
+                break
+            case PrimitiveBalType.Int:
+            case PrimitiveBalType.Float:
+            case 'decimal':
+                statement += '0';
+                break
+            case PrimitiveBalType.Boolean:
+                statement += 'false';
+                break
+        }
+    } else {
+        statement = sourcePointViewState.text;
+    }
+
+    return statement;
 }

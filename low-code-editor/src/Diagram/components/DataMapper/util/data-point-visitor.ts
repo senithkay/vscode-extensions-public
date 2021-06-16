@@ -217,7 +217,7 @@ export class DataPointVisitor implements Visitor {
     endVisitSpecificField(node: SpecificField) {
         if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
             const viewstate = node.dataMapperViewState as FieldViewState;
-            
+
             if (viewstate.isOptionalType && this.nameComponents.length > 1) {
                 this.nameComponents[this.nameComponents.length - 2]
                     = this.nameComponents[this.nameComponents.length - 2]
