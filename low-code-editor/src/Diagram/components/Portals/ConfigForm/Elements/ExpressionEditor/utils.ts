@@ -25,20 +25,16 @@ import {
 import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
 import "./style.scss";
 
+/** Messages to be ignored when displaying diagnostics in expression editor */
+const ignoredDiagnosticMessages: string[] = [`invalid token ';'`];
+
 // return true if there is any diagnostic of severity === 1
 export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
     if (!diagnostics) {
         return false
     }
-    // check for severity level == 1
-    let isInvalid = false;
-    Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
-        if (diagnostic.severity === 1) {
-            isInvalid = true;
-            return
-        }
-    });
-    return isInvalid;
+    // ignore certain codes and check if there are any diagnostics with severity of level 1
+    return getFilteredDiagnostics(diagnostics).some(diagnostic => diagnostic.severity === 1)
 }
 
 export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
@@ -301,4 +297,43 @@ export function createSortText(index: number) : string {
 
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+export const getFilteredDiagnostics = (diagnostics: Diagnostic[]) =>
+    diagnostics.filter(diagnostic => !ignoredDiagnosticMessages.includes(diagnostic.message.toString()))
+
+export const getDiagnosticMsg = (diagnostics: Diagnostic[]) => {
+    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
+    return filteredDiagnostics[0]?.message;
+}
+
+export const truncateDiagnosticMsg = (diagnostics: Diagnostic[]) => {
+    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
+    const errorMsg = filteredDiagnostics[0]?.message;
+    if (errorMsg && errorMsg.length > 50)
+        return errorMsg.slice(0, 50) + " ..."
+    else
+        return errorMsg
+}
+
+export const getValueWithoutSemiColon = (currentContent: string, isCustomTemplate: boolean) => {
+    if (currentContent.endsWith(';')){
+        let semiColonCount = 0;
+        // Loop through content and remove if multiple semicolons exist
+        for (let i = currentContent.length; i > 0; i--) {
+            if (currentContent.charAt(i - 1) === ';'){
+                semiColonCount--;
+            }else{
+                break;
+            }
+        }
+        // Skip the removal of last semicolon for custom statements
+        if (isCustomTemplate){
+            semiColonCount++;
+        }
+        if (semiColonCount < 0){
+            return currentContent.slice(0, semiColonCount);
+        }
+    }
+    return currentContent;
 }
