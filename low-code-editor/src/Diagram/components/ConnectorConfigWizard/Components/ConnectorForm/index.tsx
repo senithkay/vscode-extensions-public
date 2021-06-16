@@ -372,11 +372,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
-                        if(updatedSelectedFields.length>0){
+                        if (updatedSelectedFields.length > 0){
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, updatedSelectedFields, selectedType);
                             configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
                             connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
-    
+
                         }
                         else{
                             const addImport: STModification = createImportStatement(
@@ -385,7 +385,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 targetPosition
                             );
                             modifications.push(addImport);
-        
+
                             if (connectorConfigurables) {
                                 const addConfigurableVars = createPropertyStatement(
                                     connectorConfigurables,
@@ -393,7 +393,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 );
                                 modifications.push(addConfigurableVars);
                             }
-        
+
                             const addConnectorInit: STModification = createPropertyStatement(
                                 `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
                                 targetPosition
