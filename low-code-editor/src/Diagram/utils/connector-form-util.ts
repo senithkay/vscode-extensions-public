@@ -309,16 +309,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_googleapis.sheets_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                // hide optional fields from google sheets forms
-                // TODO: Remove when optional field BE support is given
-                if (key === INIT){
-                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from github forms
@@ -367,6 +357,22 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_googleapis.sheets_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from google sheets forms
+                // TODO: Remove when optional field BE support is given
+                if (key === INIT){
+                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
+
+                // HACK: hide duplicate sheet operations. this will fixed in next sheet connector release. #5338
+                const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
+                    "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
+                if (!filteredOperations.includes(key)) {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
@@ -405,6 +411,32 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key !== "uploadFile") {
                     filteredFunctions.set(key, value);
                 }
+            });
+            break;
+        case 'ballerinax_worldbank_Client':
+            // HACK: update default response format as a JSON
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (value.parameters.find(field => field.name === "format")){
+                    value.parameters.find(field => field.name === "format").value = `"json"`;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_twilio_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "makeVoiceCall") {
+                    value.parameters.find(field => field.name === "voiceCallInput").fields.forEach(field => {
+                        if (field.name === "userInputType") {
+                            // HACK: add ENUM types to expression-editor auto suggestion list
+                            //      need to remove this once add ENUM support to Choreo
+                            field.customAutoComplete = [
+                                "twilio:TWIML_URL",
+                                "twilio:MESSAGE_IN_TEXT"
+                            ];
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
             });
             break;
         case 'ballerinax_googleapis.drive_Client':
