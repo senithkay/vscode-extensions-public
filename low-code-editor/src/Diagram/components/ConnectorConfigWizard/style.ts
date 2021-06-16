@@ -105,7 +105,8 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         buttonSm: {
-            height: "35px !important"
+            height: "35px !important",
+            marginTop: "1rem"
         },
 
         userDetailWrapper: {
@@ -261,6 +262,13 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         manualBtnSquare: {
             height: "48px !important"
-        }
+        },
+        saveConnectorBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 80,
+            flexDirection: 'column',
+            justifyContent: "space-between"
+        },
     }),
 );

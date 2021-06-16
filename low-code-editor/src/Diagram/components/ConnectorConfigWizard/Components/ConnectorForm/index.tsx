@@ -139,7 +139,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
+    const [selectedOperation, setSelectedOperation] = useState(config?.action?.name);
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
@@ -230,14 +230,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const operations: ConnectorOperation[] = [];
-    if (functionDefInfo && isAction) {
+    if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
                 operations.push({ name: key, label: value.label });
             }
         });
     }
-    if (!config.action && isAction) {
+    if (!config.action) {
         config.action = new ActionConfig();
     }
 
@@ -305,11 +305,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const handleCreateConnectorSaveNext = () => {
-        if (isNewConnection) {
-            setFormState(FormStates.OperationDropdown);
-        } else {
-            setFormState(FormStates.OperationForm);
-        }
+        setFormState(FormStates.OperationForm);
     };
 
     const showNotification = (status: number, action: ConnectionAction) => {
@@ -535,7 +531,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
+        const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        const moduleName = getFormattedModuleName(connectorInfo.module);
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -558,6 +556,21 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
+                if (config.connectorInit.length > 0){
+                    // save action with client path
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
                 // Add an action invocation on the initialized client.
                 if (currentActionReturnType.hasReturn) {
                     const addActionInvocation = createPropertyStatement(
