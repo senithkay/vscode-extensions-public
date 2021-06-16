@@ -48,7 +48,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
 
-    let initialModelType: string = 'var';
+    let initialModelType: string = 'json';
     let modelType = initialModelType;
     let variableName: string = '';
 
@@ -68,7 +68,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
     } else {
-        variableName = stSymbolInfo ? genVariableName("variable", getAllVariables(stSymbolInfo)) : "";
+        variableName = stSymbolInfo ? null : "";
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
@@ -262,6 +262,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}
+                                    currentValue={varName}
                                     onChange={handleNameOnChange}
                                     label={addVariableNameLabel}
                                     errorMessage={varNameError}
