@@ -309,16 +309,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_googleapis.sheets_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                // hide optional fields from google sheets forms
-                // TODO: Remove when optional field BE support is given
-                if (key === INIT){
-                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // hide optional fields from github forms
@@ -369,6 +359,12 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_googleapis.sheets_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from google sheets forms
+                // TODO: Remove when optional field BE support is given
+                if (key === INIT){
+                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
+
                 // HACK: hide duplicate sheet operations. this will fixed in next sheet connector release. #5338
                 const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
                     "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
