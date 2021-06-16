@@ -303,11 +303,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         // check oauth flow and manual flow
 
         if (isOauthConnector && !isManualConnection && connection) {
-            let OAuthtype ;
-            if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name){
+            let OAuthtype;
+            if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name) {
                 OAuthtype = "BearerTokenConfig"
             }
-            else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name){
+            else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name) {
                 OAuthtype = "OAuth2RefreshTokenGrantConfig"
             }
             const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);
@@ -362,23 +362,23 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                 const updatedSelectedFields: { name: string; value: string; }[] = [];
                 manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
-                    if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
+                    if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
                         updatedSelectedFields.push({
                             name: item.name,
                             value: item.value.substring(1, (item.value.length - 1))
                         });
                     }
                 });
-
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
-                        if (updatedSelectedFields.length > 0){
+                        if (updatedSelectedFields.length > 0) {
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, updatedSelectedFields, selectedType);
                             configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
                             connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
 
                         }
-                        else{
+                        else {
+                            // tslint:disable-next-line: no-shadowed-variable
                             const addImport: STModification = createImportStatement(
                                 connectorInfo.org,
                                 connectorInfo.module,
@@ -393,7 +393,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 );
                                 modifications.push(addConfigurableVars);
                             }
-
+                            // tslint:disable-next-line: no-shadowed-variable
                             const addConnectorInit: STModification = createPropertyStatement(
                                 `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
                                 targetPosition
@@ -423,28 +423,28 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                     } else {
                         // update connector client initialization
-                          const updatedFields: { name: string; value: string; }[] = [];
-                          manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
-                              if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
-                                  updatedFields.push({
-                                      name: item.name,
-                                      value: item.value.substring(1, (item.value.length - 1))
-                                  });
-                              }
-                          });
-                          if (updatedFields.length > 0 && config.connectionName) {
-                              response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                                  config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
-                              configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                  response, selectedType);
-                              onClose();
-                          } else {
-                              const updateConnectorInit = updatePropertyStatement(
-                                  `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                                  connectorConfig.initPosition
-                              );
-                              modifications.push(updateConnectorInit);
-                          }
+                        const updatedFields: { name: string; value: string; }[] = [];
+                        manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
+                            if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
+                                updatedFields.push({
+                                    name: item.name,
+                                    value: item.value.substring(1, (item.value.length - 1))
+                                });
+                            }
+                        });
+                        if (updatedFields.length > 0 && config.connectionName) {
+                            response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                                config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
+                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                response, selectedType);
+                            onClose();
+                        } else {
+                            const updateConnectorInit = updatePropertyStatement(
+                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                connectorConfig.initPosition
+                            );
+                            modifications.push(updateConnectorInit);
+                        }
                     }
                     if (modifications.length > 0) {
                         modifyDiagram(modifications);
