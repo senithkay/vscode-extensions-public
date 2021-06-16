@@ -22,7 +22,13 @@ import {
     NonPrimitiveBal,
     PrimitiveBalType
 } from "../../../../../../ConfigurationSpec/types";
-import { COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID, INCORRECT_STR_DIAGNOSTICS } from "./constants";
+import {
+    COLLAPSE_WIDGET_ID,
+    DOUBLE_QUOTE_ERR_CODE,
+    EXPAND_WIDGET_ID,
+    INCORRECT_STR_DIAGNOSTICS,
+    UNDEFINED_SYMBOL_ERR_CODE
+} from "./constants";
 import "./style.scss";
 
 /** Messages to be ignored when displaying diagnostics in expression editor */
@@ -120,9 +126,7 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
-        if (INCORRECT_STR_DIAGNOSTICS.includes((diagnostics[0].code).toString())) {
-            return true;
-        }
+        return Array.from(diagnostics).some((diagnostic: Diagnostic) => INCORRECT_STR_DIAGNOSTICS.includes((diagnostic.code).toString()));
     }
     return false;
 }
@@ -133,24 +137,24 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
  */
 export const transformFormFieldTypeToString = (model?: FormField): string => {
     if (model.type === "record" || model.typeInfo) {
-        if (model.typeInfo){
+        if (model.typeInfo) {
             let modName = model.typeInfo.modName;
-            if (modName.includes('.')){
+            if (modName.includes('.')) {
                 modName = modName.split('.')[1];
             }
-            if (model.isArray){
+            if (model.isArray) {
                 return modName + ":" + model.typeInfo.name + "[]"
-            }else{
+            } else {
                 return modName + ":" + model.typeInfo.name
             }
         }
-    } else if (model.type === "union"){
+    } else if (model.type === "union") {
         if (model.fields) {
             const allTypes: string[] = [];
             for (const field of model.fields) {
                 let type;
                 if (field.type === "record" || field.typeInfo) {
-                    if (field.typeInfo){
+                    if (field.typeInfo) {
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.type === "tuple") {
@@ -163,7 +167,7 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
                     type = field.type;
                 }
 
-                if (type && !field.noCodeGen && !allTypes.includes(type.toString())){
+                if (type && !field.noCodeGen && !allTypes.includes(type.toString())) {
                     allTypes.push(type.toString());
                 }
             }
@@ -193,7 +197,7 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
             if (model?.isArray) {
                 // check end with array
                 // eg: (int|string)[][]
-                if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]"){
+                if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]") {
                     return `${returnTypeString}[]`;
                 }
                 return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
@@ -215,7 +219,7 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
     return PrimitiveBalType.Var.toString();
 }
 
-export function checkIfStringExist(varType: string) : boolean {
+export function checkIfStringExist(varType: string): boolean {
     if (varType.endsWith(")[]")) {
         // Check for union array
         return false;
@@ -233,24 +237,24 @@ export function checkIfStringExist(varType: string) : boolean {
 export const addImportModuleToCode = (codeSnipet: string, model: FormField): string => {
     let code = codeSnipet;
     if (model.type === "record" || model.typeInfo) {
-        if (model.typeInfo){
+        if (model.typeInfo) {
             const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
             const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
             const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
-            if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
+            if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
                 // Add import only if its already not imported
                 code = addToZerothLine(code, `${importSnippet}`);
             }
         }
-    } else if (model.type === "union"){
+    } else if (model.type === "union") {
         if (model.fields) {
             for (const field of model.fields) {
                 if (field.type === "record" || model.typeInfo) {
-                    if (field.typeInfo){
+                    if (field.typeInfo) {
                         const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
                         const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
                         const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
-                        if (!code.includes(importSnippet) && code.includes(typeDeclarion)){
+                        if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
                             // Add import only if its already not imported
                             code = addToZerothLine(code, `${importSnippet}`);
                         }
@@ -262,7 +266,7 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
     return code;
 }
 
-export function createContentWidget(id: string) : monaco.editor.IContentWidget {
+export function createContentWidget(id: string): monaco.editor.IContentWidget {
     return {
         allowEditorOverflow: true,
         getId() {
@@ -290,7 +294,7 @@ export function createContentWidget(id: string) : monaco.editor.IContentWidget {
     }
 }
 
-export function createSortText(index: number) : string {
+export function createSortText(index: number): string {
     const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
     return "z".repeat(Math.floor(index / 26)) + alpList[index]
 }
@@ -302,11 +306,6 @@ export function getRandomInt(max: number) {
 export const getFilteredDiagnostics = (diagnostics: Diagnostic[]) =>
     diagnostics.filter(diagnostic => !ignoredDiagnosticMessages.includes(diagnostic.message.toString()))
 
-export const getDiagnosticMsg = (diagnostics: Diagnostic[]) => {
-    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
-    return filteredDiagnostics[0]?.message;
-}
-
 export const truncateDiagnosticMsg = (diagnostics: Diagnostic[]) => {
     const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
     const errorMsg = filteredDiagnostics[0]?.message;
@@ -317,23 +316,34 @@ export const truncateDiagnosticMsg = (diagnostics: Diagnostic[]) => {
 }
 
 export const getValueWithoutSemiColon = (currentContent: string, isCustomTemplate: boolean) => {
-    if (currentContent.endsWith(';')){
+    if (currentContent.endsWith(';')) {
         let semiColonCount = 0;
         // Loop through content and remove if multiple semicolons exist
         for (let i = currentContent.length; i > 0; i--) {
-            if (currentContent.charAt(i - 1) === ';'){
+            if (currentContent.charAt(i - 1) === ';') {
                 semiColonCount--;
-            }else{
+            } else {
                 break;
             }
         }
         // Skip the removal of last semicolon for custom statements
-        if (isCustomTemplate){
+        if (isCustomTemplate) {
             semiColonCount++;
         }
-        if (semiColonCount < 0){
+        if (semiColonCount < 0) {
             return currentContent.slice(0, semiColonCount);
         }
     }
     return currentContent;
+}
+
+export function getDiagnosticMessage(diagnostics: any, varType: string): string {
+    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
+    if (varType === 'string') {
+        const quotesError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
+        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : filteredDiagnostics[0]?.message;
+    } else {
+        return filteredDiagnostics[0]?.message;
+    }
 }

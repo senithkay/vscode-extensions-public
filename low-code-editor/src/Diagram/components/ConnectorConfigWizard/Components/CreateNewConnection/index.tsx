@@ -21,6 +21,7 @@ import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
+import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -51,7 +52,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -108,6 +109,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
+        state.onAPIClient(nameState.value, connector);
         onSave();
     };
 
@@ -194,16 +196,35 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
-                    {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
+                    {/* todo Add the back button if needed */}
+                    {/* {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
-                    )}
-                    <div className={classes.saveBtnHolder}>
-                        <PrimaryButton
-                            text="Save"
-                            fullWidth={false}
-                            disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                            onClick={handleOnSave}
-                        />
+                    )} */}
+                    <div className={classes.saveConnectorBtnHolder}>
+                        { !isNewConnectorInitWizard && (
+                            <PrimaryButton
+                                text="Save Connector"
+                                fullWidth={false}
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                onClick={handleOnSave}
+                            />
+                        ) }
+                        { isNewConnectorInitWizard && (
+                            <>
+                                <LinePrimaryButton
+                                    text="Save Connector"
+                                    fullWidth={false}
+                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    onClick={handleOnSave}
+                                />
+                                <PrimaryButton
+                                    text="Continue to invoke API"
+                                    fullWidth={false}
+                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    onClick={handleOnSaveNext}
+                                />
+                            </>
+                        ) }
                     </div>
                 </div>
             </FormControl>

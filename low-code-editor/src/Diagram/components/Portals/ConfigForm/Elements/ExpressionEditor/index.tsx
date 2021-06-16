@@ -29,7 +29,7 @@ import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -40,7 +40,7 @@ import {
     createContentWidget,
     createSortText,
     diagnosticCheckerExp,
-    getDiagnosticMsg,
+    getDiagnosticMessage,
     getInitialValue,
     getRandomInt,
     getTargetPosition,
@@ -236,7 +236,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(expressionEditorState.diagnostic[0].message);
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
                 }
             } else {
                 if (monacoRef.current) {
@@ -683,6 +683,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
+
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+                setExpand(true);
+            }
         }
     }
     const debouncedContentChange = debounce(handleContentChange, 500);
@@ -866,7 +870,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={getDiagnosticMsg(mainDiagnostics)} placement="right" arrow={true}>
+                            <TooltipCodeSnippet content={getDiagnosticMessage(mainDiagnostics, varType)} placement="right" arrow={true}>
                                 <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
@@ -877,10 +881,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                 <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
-                        ) : expressionEditorState.name === model?.name && diagnosticCheckerExp(expressionEditorState.diagnostic) ?
-                            (
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                        (
                                 <>
-                                    <TooltipCodeSnippet content={getDiagnosticMsg(expressionEditorState.diagnostic)} placement="right" arrow={true}>
+                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
