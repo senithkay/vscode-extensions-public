@@ -20,5 +20,5 @@ export const acceptedKind: CompletionItemKind[] = [
 export const EXPAND_WIDGET_ID = "expand-widget";
 export const COLLAPSE_WIDGET_ID = "collapse-widget";
 
-// 0411 = Missing quotes, 2010 = Undefined symbol, 0012 = Missing plus token, 0400 = missing identifier
-export const INCORRECT_STR_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012", "BCE0400"];
+// 0411 = Missing quotes, 2010 = Undefined symbol, 0012 = Missing plus token, 2066 = missing identifier, 0sd0 =  incompatible types
+export const INCORRECT_STR_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012", "BCE0400", "BCE2066"];
