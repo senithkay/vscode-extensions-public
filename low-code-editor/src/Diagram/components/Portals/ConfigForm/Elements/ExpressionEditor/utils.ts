@@ -306,9 +306,8 @@ export function getRandomInt(max: number) {
 export const getFilteredDiagnostics = (diagnostics: Diagnostic[]) =>
     diagnostics.filter(diagnostic => !ignoredDiagnosticMessages.includes(diagnostic.message.toString()))
 
-export const truncateDiagnosticMsg = (diagnostics: Diagnostic[]) => {
-    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
-    const errorMsg = filteredDiagnostics[0]?.message;
+export const truncateDiagnosticMsg = (diagnostics: Diagnostic[], varType: string) => {
+    const errorMsg = getDiagnosticMessage(diagnostics, varType);
     if (errorMsg && errorMsg.length > 50)
         return errorMsg.slice(0, 50) + " ..."
     else

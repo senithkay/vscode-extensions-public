@@ -871,7 +871,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     (
                         <>
                             <TooltipCodeSnippet content={getDiagnosticMessage(mainDiagnostics, varType)} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics)}</FormHelperText>
+                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics, varType)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
@@ -885,7 +885,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                                 <>
                                     <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic)}</FormHelperText>
+                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic, varType)}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
                                         <div className={formClasses.suggestionsWrapper} >
