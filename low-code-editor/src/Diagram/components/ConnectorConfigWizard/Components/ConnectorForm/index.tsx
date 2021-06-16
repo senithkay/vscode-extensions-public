@@ -18,8 +18,8 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
-import {triggerErrorNotification, triggerSuccessNotification} from "store/actions";
-import {store} from "store/index";
+import { triggerErrorNotification, triggerSuccessNotification } from "store/actions";
+import { store } from "store/index";
 
 import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
@@ -295,7 +295,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (status === 200) {
             store.dispatch(triggerSuccessNotification(data.displayName + ' connection configurations updated'));
         } else if (status !== 200) {
-            store.dispatch(triggerSuccessNotification('Error while updating ' + data.displayName));
+            store.dispatch(triggerErrorNotification('Error while updating ' + data.displayName));
         }
     }
 
