@@ -23,6 +23,7 @@ import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
+import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -70,8 +71,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [hasReference, setHasReference] = useState<boolean>(undefined);
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
-    if (hasReference === undefined){
-        if (!symbolRefArray){
+    if (hasReference === undefined) {
+        if (!symbolRefArray) {
             setHasReference(false);
         } else if (isNewConnectorInitWizard) {
             setHasReference(symbolRefArray.length > 0);
@@ -97,7 +98,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("connector name", value, nameState.value, state);
-            if (varValidationResponse?.error){
+            if (varValidationResponse?.error) {
                 setConnectorNameError(varValidationResponse.message);
                 return false;
             }
@@ -182,53 +183,53 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const pathInstructionsBullet1 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint1",
         defaultMessage: "Include spaces and special characters"
-      });
+    });
 
     const pathInstructionsBullet2 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint2",
         defaultMessage: "Start with a numerical character"
-      });
+    });
 
     const pathInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.bulletPoint3",
         defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
-      });
+    });
 
     const pathInstructions = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.tooltip.instructions.tooltip",
         defaultMessage: "A valid connection name should not:"
-      });
+    });
     const title = (
         <div>
-          <p>{pathInstructions}</p>
-          <ul>
-            <li>{pathInstructionsBullet1}</li>
-            <li>{pathInstructionsBullet2}</li>
-            <li>{pathInstructionsBullet3}</li>
-          </ul>
+            <p>{pathInstructions}</p>
+            <ul>
+                <li>{pathInstructionsBullet1}</li>
+                <li>{pathInstructionsBullet2}</li>
+                <li>{pathInstructionsBullet3}</li>
+            </ul>
         </div>
-      );
+    );
 
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
                 <div className={wizardClasses.configWizardAPIContainer}>
                     <div className={classes.fullWidth}>
-                    <Section
-                                title={createConnectionNameLabel}
-                                tooltip={{title}}
-                    >
-                        <FormTextInput
-                            customProps={{
-                                validate: validateNameValue,
-                                disabled: hasReference
-                            }}
-                            defaultValue={nameState.value}
-                            onChange={onNameChange}
-                            errorMessage={connectorNameError}
-                            placeholder={connectionNamePlaceholder}
-                        />
-                    </Section>
+                        <Section
+                            title={createConnectionNameLabel}
+                            tooltip={{ title }}
+                        >
+                            <FormTextInput
+                                customProps={{
+                                    validate: validateNameValue,
+                                    disabled: hasReference
+                                }}
+                                defaultValue={nameState.value}
+                                onChange={onNameChange}
+                                errorMessage={connectorNameError}
+                                placeholder={connectionNamePlaceholder}
+                            />
+                        </Section>
                         <div className={classNames("product-tour-url")}>
                             <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
                         </div>
@@ -236,30 +237,35 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 </div>
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={classes.wizardBtnHolder}>
-                    <div className={classes.saveBtnHolder}>
-                        {/* <Tooltip
-                            title={tooltipMessages.connectorButtons.savaButton}
-                            interactive={true}
-                            placement="top"
-                            arrow={true}
-                        > */}
-                            <SecondaryButton
-                                dataTestId={"http-save"}
+                    <div className={classes.saveConnectorBtnHolder}>
+                        {!isNewConnectorInitWizard && (
+                            <PrimaryButton
                                 text="Save Connector"
-                                className="product-tour-next"
-                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 fullWidth={false}
+                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 onClick={handleOnSave}
                             />
-                            <PrimaryButton
-                                dataTestId={"http-save-next"}
-                                text="Continue to invoke API"
-                                className="product-tour-next"
-                                disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
-                                fullWidth={false}
-                                onClick={handleOnSaveNext}
-                            />
-                        {/* </Tooltip> */}
+                        )}
+                        {isNewConnectorInitWizard && (
+                            <>
+                                <LinePrimaryButton
+                                    dataTestId={"http-save"}
+                                    text="Save Connector"
+                                    className="product-tour-next"
+                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    fullWidth={false}
+                                    onClick={handleOnSave}
+                                />
+                                <PrimaryButton
+                                    dataTestId={"http-save-next"}
+                                    text="Continue to invoke API"
+                                    className="product-tour-next"
+                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    fullWidth={false}
+                                    onClick={handleOnSaveNext}
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
                 {/* <ProductTourStep

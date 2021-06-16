@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { formCreateSvg  } from "../../../../../assets";
+import { formCreateSvg } from "../../../../../assets";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -129,6 +129,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         saveBtnHolder: {
             display: "flex",
+        },
+        saveConnectorBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 80,
+            flexDirection: 'column',
+            justifyContent: "space-between"
         },
         formCreate: {
             width: 191.2,

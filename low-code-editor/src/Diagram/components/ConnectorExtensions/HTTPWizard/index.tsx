@@ -131,7 +131,7 @@ export function HTTPWizard(props: WizardProps) {
     }, [isNewConnectorInitWizard, selectedConnector])
 
     const handleCreateConnectorOnSaveNext = () => {
-        setState(isNewConnectorInitWizard ? InitFormState.OperationDropdown : InitFormState.SelectInputOutput);
+        setState(InitFormState.SelectInputOutput);
     };
 
     const handleConnectionChange = () => {
@@ -643,13 +643,6 @@ export function HTTPWizard(props: WizardProps) {
                         connectorConfig={connectorConfig}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}
                         model={model}
-                    />
-                )}
-                {(state === InitFormState.OperationDropdown) && (
-                    <OperationDropdown
-                        operations={operations}
-                        onOperationSelect={onOperationSelect}
-                        selectedValue={selectedOperation}
                     />
                 )}
             </>

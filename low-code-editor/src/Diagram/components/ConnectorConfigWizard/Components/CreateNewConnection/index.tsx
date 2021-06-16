@@ -21,6 +21,7 @@ import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
+import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -197,7 +198,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     {(isNewConnectorInitWizard && (connectorConfig.existingConnections || isOauthConnector)) && (
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )}
-                    <div className={classes.saveBtnHolder}>
+                    <div className={classes.saveConnectorBtnHolder}>
                         { !isNewConnectorInitWizard && (
                             <PrimaryButton
                                 text="Save Connector"
@@ -208,7 +209,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         ) }
                         { isNewConnectorInitWizard && (
                             <>
-                                <SecondaryButton
+                                <LinePrimaryButton
                                     text="Save Connector"
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}

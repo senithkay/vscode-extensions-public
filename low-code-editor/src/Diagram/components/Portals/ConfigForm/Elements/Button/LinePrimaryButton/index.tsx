@@ -32,11 +32,12 @@ export interface ButtonProps {
     fullWidth?: boolean;
     disabled?: boolean;
     testId?: string;
+    dataTestId?: string;
 }
 
 export function LinePrimaryButton(props: ButtonProps) {
     const classes = useStyles();
-    const {text, startIcon, onClick, fullWidth, disabled, className, testId} = props;
+    const { text, startIcon, onClick, fullWidth, disabled, className, testId, dataTestId } = props;
     return (
         <Button
             data-testid={testId}
