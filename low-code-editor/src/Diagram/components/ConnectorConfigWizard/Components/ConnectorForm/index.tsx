@@ -18,6 +18,8 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import { triggerErrorNotification, triggerSuccessNotification } from "store/actions";
+import { store } from "store/index";
 
 import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
@@ -137,6 +139,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
+    const updateConfigSuccessMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
+        defaultMessage: "Successfully updated the connection configuration."
+    });
+    const updateConfigErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.updateConfig.error",
+        defaultMessage: "An error occurred while updating the connection configurations. Please try again."
+    });
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -289,6 +299,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
+    const showNotification = (status: number) => {
+        if (status === 200) {
+            store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
+        } else if (status !== 200) {
+            store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
+        }
+    }
+
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -423,28 +441,29 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                     } else {
                         // update connector client initialization
-                        const updatedFields: { name: string; value: string; }[] = [];
-                        manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
-                            if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
-                                updatedFields.push({
-                                    name: item.name,
-                                    value: item.value.substring(1, (item.value.length - 1))
-                                });
-                            }
-                        });
-                        if (updatedFields.length > 0 && config.connectionName) {
-                            response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                                config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
-                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                response, selectedType);
-                            onClose();
-                        } else {
-                            const updateConnectorInit = updatePropertyStatement(
-                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                                connectorConfig.initPosition
-                            );
-                            modifications.push(updateConnectorInit);
-                        }
+                          const updatedFields: { name: string; value: string; }[] = [];
+                          manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
+                              if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
+                                  updatedFields.push({
+                                      name: item.name,
+                                      value: item.value.substring(1, (item.value.length - 1))
+                                  });
+                              }
+                          });
+                          if (updatedFields.length > 0 && config.connectionName) {
+                              response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                                  config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
+                              configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                  response.data, selectedType);
+                              showNotification(response.status);
+                              onClose();
+                          } else {
+                              const updateConnectorInit = updatePropertyStatement(
+                                  `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                  connectorConfig.initPosition
+                              );
+                              modifications.push(updateConnectorInit);
+                          }
                     }
                     if (modifications.length > 0) {
                         modifyDiagram(modifications);
