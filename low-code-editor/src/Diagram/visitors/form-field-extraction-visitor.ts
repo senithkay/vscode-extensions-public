@@ -118,6 +118,15 @@ class FieldVisitor implements Visitor {
             node.typeName.viewState = viewState;
             viewState.optional = true;
             viewState.isDefaultableParam = true;
+
+            if (node.annotations.length > 0){
+                const annotateField = node.annotations.find((annotation: any) => (annotation.annotReference as SimpleNameReference).name.value === "display")?.
+                annotValue?.fields.find((field: any) => STKindChecker.isSpecificField(field)) as SpecificField;
+                if (annotateField?.fieldName.value === "label"){
+                    const labelField = annotateField.valueExpr as StringLiteral;
+                    viewState.label = labelField?.literalToken.value.replace(/\"/gi, '');
+                }
+            }
         }
     }
 
