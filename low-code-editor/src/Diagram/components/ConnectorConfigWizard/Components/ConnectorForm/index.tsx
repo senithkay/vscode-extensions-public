@@ -378,10 +378,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if ((connectorTypes.includes(connectorInfo.displayName))) {
                 const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                 const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
-                const updatedSelectedFields: { name: string; value: string; }[] = [];
+                const formattedFieldValues: { name: string; value: string; }[] = [];
                 manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
                     if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
-                        updatedSelectedFields.push({
+                        formattedFieldValues.push({
                             name: item.name,
                             value: item.value.substring(1, (item.value.length - 1))
                         });
@@ -389,8 +389,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 });
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
-                        if (updatedSelectedFields.length > 0) {
-                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, updatedSelectedFields, selectedType);
+                        if (formattedFieldValues.length > 0) {
+                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
                             configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response, selectedType);
                             connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response, symbolInfo.configurables, selectedType);
 
