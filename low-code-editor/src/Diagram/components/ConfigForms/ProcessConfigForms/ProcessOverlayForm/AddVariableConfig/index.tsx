@@ -208,7 +208,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const validForm: boolean = (isValidVarName && validExpresssionValue);
 
     // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "other"];
+    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "any", "anydata", "other"];
 
     return (
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
