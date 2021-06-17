@@ -217,6 +217,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
+        connectorConfig.connectionName = connectionNameState.value;
         onSaveNext();
     };
 
