@@ -262,7 +262,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}
-                                    currentValue={varName}
                                     onChange={handleNameOnChange}
                                     label={addVariableNameLabel}
                                     errorMessage={varNameError}
