@@ -43,7 +43,7 @@ export interface OauthConnectButtonProps {
   onSelectConnection: (type: ConnectionType, connection: ConnectionDetails) => void;
   onDeselectConnection: () => void;
   onFailure: (error: Error) => void;
-  selectedConnectionType: ConnectionType;
+  selectedConnectionType?: ConnectionType;
   onSave: () => void;
   onClickManualConnection: () => void;
 }

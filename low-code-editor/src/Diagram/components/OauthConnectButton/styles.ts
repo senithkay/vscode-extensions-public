@@ -199,7 +199,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "auto",
             marginTop: "2.5rem",
         },
-        manualBtnWrapper: {
+        manualConfigBtnWrapper: {
             display: "flex",
             flexDirection: "column",
             marginTop: '1rem',
@@ -211,7 +211,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             }
         },
-        manualBtnSquare: {
+        manualConfigBtnSquare: {
             height: "48px !important"
         },
     }),

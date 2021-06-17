@@ -177,9 +177,9 @@ export const ConnectionList = (props: ConnectionListProps) => {
                 </p>
             </div>
             <div>
-                <div className={classNames(classes.manualBtnWrapper)}>
+                <div className={classNames(classes.manualConfigBtnWrapper)}>
                     <LinePrimaryButton
-                        className={classNames(classes.fullWidth, classes.manualBtnSquare)}
+                        className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
                         text={manualConnectionButtonLabel}
                         fullWidth={false}
                         onClick={onClickManualConnection}
