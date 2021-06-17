@@ -23,6 +23,10 @@ import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
 import { useStyles } from "./styles";
+import {Box, IconButton, Typography} from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import Divider from "@material-ui/core/Divider";
+import {Status} from "components/Status";
 
 export enum ConnectionType {
   NEW = "NEW",
@@ -39,6 +43,9 @@ export interface OauthConnectButtonProps {
   onSelectConnection: (type: ConnectionType, connection: ConnectionDetails) => void;
   onDeselectConnection: () => void;
   onFailure: (error: Error) => void;
+  selectedConnectionType: ConnectionType;
+  onSave: () => void;
+  onClickManualConnection: () => void;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
@@ -61,6 +68,9 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     onDeselectConnection,
     onFailure,
     className,
+    selectedConnectionType,
+    onSave,
+    onClickManualConnection
   } = props;
   const classes = useStyles();
   const session = sessionId || camelCase(connectorName);
@@ -166,6 +176,23 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   };
 
   // render elements
+  const activeConnectionLabel = () => (
+      <>
+        <div className={classes.activeConnectionWrapper}>
+          <div className={classes.activeConnectionWrapperChild1}>
+            <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+              <Typography variant="subtitle2">
+                <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+              </Typography>
+            </Box>
+          </div>
+          <div className={classes.activeConnectionWrapperChild2}>
+            <Status type={"Connected"} />
+          </div>
+        </div>
+        <Divider />
+      </>
+  );
 
   function renderConnectedButton() {
     return (
@@ -174,25 +201,30 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
               activeConnection={activeConnection}
               onChangeConnection={handleClickChangeConnection}
           />
+          <div className={classes.saveBtnWrapper}>
+            <PrimaryButton
+                text="Save"
+                fullWidth={true}
+                // disabled={connection === undefined}
+                onClick={onSave}
+            />
+          </div>
+        </>
+    );
+  }
+  function renderConnectionList() {
+    return (
+        <>
+          {activeConnection && activeConnectionLabel()}
           <ConnectionList
               activeConnection={activeConnection}
               connectionList={connectionList}
               connectionName={connectorName}
               onChangeConnection={handleChangeConnectionSelection}
               onInitConnection={handleClickInitSession}
+              onClickManualConnection={onClickManualConnection}
           />
         </>
-    );
-  }
-  function renderConnectionList() {
-    return (
-      <ConnectionList
-        activeConnection={activeConnection}
-        connectionList={connectionList}
-        connectionName={connectorName}
-        onChangeConnection={handleChangeConnectionSelection}
-        onInitConnection={handleClickInitSession}
-      />
     );
   }
   function renderConnectButton() {
@@ -208,7 +240,8 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   return (
     <div className={classes.root}>
       {isOngoingFetching && <CustomPreloader sessionState={sessionState} />}
-      {!isOngoingFetching && activeConnection && renderConnectedButton()}
+      {!isOngoingFetching && activeConnection && (selectedConnectionType === ConnectionType.NEW || selectedConnectionType === ConnectionType.UPDATED) && renderConnectedButton()}
+      {!isOngoingFetching && activeConnection && (selectedConnectionType === ConnectionType.NOT_CHANGED) && renderConnectionList()}
       {!isOngoingFetching && !activeConnection && (!isConnectionListEmpty ? renderConnectionList() : renderConnectButton())}
     </div>
   );

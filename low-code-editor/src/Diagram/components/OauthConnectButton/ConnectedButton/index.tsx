@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -14,16 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Box, IconButton, Typography } from "@material-ui/core";
+import {Box, IconButton, Typography} from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Radio from "@material-ui/core/Radio";
 import EditIcon from '@material-ui/icons/Edit';
-import { Status } from "components/Status";
+import {Status} from "components/Status";
 
-import { ConnectionDetails } from "../../../../api/models";
+import {ConnectionDetails} from "../../../../api/models";
 
-import { useStyles } from "./../styles";
+import {ConnectionType} from "../index";
+import {useStyles} from "../styles";
 
 export interface ConnectedButtonProps {
     activeConnection: ConnectionDetails;
@@ -44,11 +42,16 @@ export function ConnectedButton(props: ConnectedButtonProps) {
                         </Typography>
                     </Box>
                 </div>
-                <div className={classes.activeConnectionWrapperChild2}>
-                    <Status type={"Connected"} />
-                </div>
+                <IconButton
+                    color="primary"
+                    classes={ {
+                        root: classes.changeConnectionBtn
+                    } }
+                    onClick={onChangeConnection}
+                >
+                    <EditIcon />
+                </IconButton>
             </div>
-            <Divider />
         </>
     );
 }

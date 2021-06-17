@@ -27,6 +27,8 @@ import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/model
 import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 
+import classNames from "classnames";
+import {LinePrimaryButton} from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { useStyles } from "./../styles";
 
 export interface ConnectionListProps {
@@ -35,10 +37,11 @@ export interface ConnectionListProps {
     onChangeConnection: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onInitConnection: () => void;
     connectionName: string;
+    onClickManualConnection: () => void;
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
-    const { activeConnection, connectionList, onChangeConnection, onInitConnection, connectionName } = props;
+    const { activeConnection, connectionList, onChangeConnection, onInitConnection, onClickManualConnection } = props;
     const classes = useStyles();
     const intl = useIntl();
     const [selectedConnection, setSelectedConnection] = useState("");
@@ -99,6 +102,11 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const chooseAnotherConnectionText = intl.formatMessage({
         id: "lowcode.develop.OAuthConnect.ConnectionList.another.connection.title",
         defaultMessage: "Choose another connection"
+    });
+
+    const manualConnectionButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.button.label",
+        defaultMessage: "Manual Configuration"
     });
 
     return (
@@ -167,6 +175,24 @@ export const ConnectionList = (props: ConnectionListProps) => {
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
+            </div>
+            <div>
+                <div className={classNames(classes.manualBtnWrapper)}>
+                    <LinePrimaryButton
+                        className={classNames(classes.fullWidth, classes.manualBtnSquare)}
+                        text={manualConnectionButtonLabel}
+                        fullWidth={false}
+                        onClick={onClickManualConnection}
+                    />
+                </div>
+                <div className={classes.oauthConnectionAltTextWrapper}>
+                    <p className={classes.oauthConnectionAltText}>
+                        <FormattedMessage
+                            id="lowcode.develop.connectorForms.newConnectionAltText"
+                            defaultMessage={"You will be prompted to enter configuration details"}
+                        />
+                    </p>
+                </div>
             </div>
         </div>
     );

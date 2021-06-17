@@ -141,6 +141,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOperation, setSelectedOperation] = useState(config?.action?.name);
     const [selectedActiveConnection, setSelectedActiveConnection] = useState<ConnectionDetails>();
+    const [selectedConnectionType, setSelectedConnectionType] = useState<ConnectionType>();
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
@@ -204,7 +205,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     useEffect(() => {
         if (selectedActiveConnection) {
-            handleClientOnSave();
+            // handleClientOnSave();
         }
     }, [selectedActiveConnection]);
 
@@ -267,6 +268,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (type === ConnectionType.UPDATED || type === ConnectionType.NEW) {
             setSelectedActiveConnection(connectionDetails);
         }
+        setSelectedConnectionType(type)
     };
 
     const handleConnectionUpdate = () => {
@@ -905,33 +907,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                                 onSelectConnection={handleOnConnection}
                                                 onFailure={handleOnFailure}
                                                 onDeselectConnection={handleConnectionUpdate}
+                                                selectedConnectionType={selectedConnectionType}
+                                                onSave={handleClientOnSave}
+                                                onClickManualConnection={onManualConnection}
                                             />
                                         </div>
                                     </div>
                                 </div>
                             )}
-                            {!isAction &&
-                                (
-                                    <div>
-                                        <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                            <LinePrimaryButton
-                                                className={classNames(wizardClasses.fullWidth, wizardClasses.manualBtnSquare)}
-                                                text={manualConnectionButtonLabel}
-                                                fullWidth={false}
-                                                onClick={onManualConnection}
-                                            />
-                                        </div>
-                                        <div className={wizardClasses.oauthConnectionAltTextWrapper}>
-                                            <p className={wizardClasses.oauthConnectionAltText}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.connectorForms.newConnectionAltText"
-                                                    defaultMessage={"You will be prompted to enter configuration details"}
-                                                />
-                                            </p>
-                                        </div>
-                                    </div>
-                                )
-                            }
                         </div>
                     )}
                     {(formState === FormStates.OperationForm) && (

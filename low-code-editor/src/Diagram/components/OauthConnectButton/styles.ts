@@ -191,6 +191,27 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         connectionContainer: {
             marginTop: theme.spacing(2.5)
-        }
+        },
+        saveBtnWrapper: {
+            display: "flex",
+            justifyContent: "flex-end",
+            height: "auto",
+            marginTop: "2.5rem",
+        },
+        manualBtnWrapper: {
+            display: "flex",
+            flexDirection: "column",
+            marginTop: '1rem',
+            position: "relative"
+        },
+        fullWidth: {
+            width: "100%",
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            }
+        },
+        manualBtnSquare: {
+            height: "48px !important"
+        },
     }),
 );

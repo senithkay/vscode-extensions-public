@@ -154,12 +154,6 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "column"
         },
-        manualBtnWrapper: {
-            display: "flex",
-            flexDirection: "column",
-            marginTop: '1rem',
-            position: "relative"
-        },
         connectBackBtn: {
             display: "flex",
             height: "auto",
@@ -246,22 +240,8 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             height: "auto",
             marginTop: "2.5rem",
         },
-        oauthConnectionAltTextWrapper: {
-            textAlign: "center",
-            marginTop: 3,
-            marginRight: 17,
-            marginLeft: 17
-        },
-        oauthConnectionAltText: {
-            fontSize: 13,
-            fontWeight: 200,
-            color: "#8D91A3"
-        },
         section: {
             marginBottom: theme.spacing(2)
-        },
-        manualBtnSquare: {
-            height: "48px !important"
         },
         saveConnectorBtnHolder: {
             display: "flex",
