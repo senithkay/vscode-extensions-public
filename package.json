@@ -270,6 +270,11 @@
                     "light": "./resources/images/icons/design-view.svg"
                 },
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.pasteAsRecord",
+                "title": "Paste JSON as Record",
+                "category": "Ballerina"
             }
         ],
         "views": {

@@ -1,11 +1,12 @@
-import { activateTestRunner } from "./cli-cmds/test";
-import { activateBuildCommand } from "./cli-cmds/build";
-import { activateCloudCommand } from "./cli-cmds/cloud";
-import { activateRunCommand } from "./cli-cmds/run";
-import { activateDocCommand } from "./cli-cmds/doc";
-import { activateAddCommand } from "./cli-cmds/add";
+import { activateTestRunner } from "./cmds/test";
+import { activateBuildCommand } from "./cmds/build";
+import { activateCloudCommand } from "./cmds/cloud";
+import { activateRunCommand } from "./cmds/run";
+import { activateDocCommand } from "./cmds/doc";
+import { activateAddCommand } from "./cmds/add";
+import { activatePasteJsonAsRecord } from "./cmds/json-to-record";
 
-export * from "./cli-cmds/cmd-runner";
+export * from "./cmds/cmd-runner";
 
 export function activate() {
     // activate ballerina test command
@@ -25,4 +26,7 @@ export function activate() {
 
     // activate the add module command
     activateAddCommand();
+
+    // activate the pasteJsonAsRecord command
+    activatePasteJsonAsRecord();
 }

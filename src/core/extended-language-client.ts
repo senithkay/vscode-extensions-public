@@ -82,6 +82,14 @@ export interface SyntaxTreeNodeResponse {
     kind: string;
 }
 
+export interface JsonToRecordRequestParams {
+    jsonString: string;
+}
+
+export interface JsonToRecordResponse {
+    codeBlock: string;
+}
+
 export interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
 }
@@ -224,5 +232,12 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
 
     getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
         return this.sendRequest("ballerinaDocument/executorPositions", params);
+    }
+
+    getRecordsForJson(json: string): Thenable<JsonToRecordResponse> {
+        const params: JsonToRecordRequestParams = {
+            jsonString: json
+        };
+        return this.sendRequest("LSExtensions/convertJsonToBalRecord", params);
     }
 }
