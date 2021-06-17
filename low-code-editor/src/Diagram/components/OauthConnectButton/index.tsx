@@ -206,7 +206,6 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
             <PrimaryButton
                 text="Save"
                 fullWidth={true}
-                // disabled={connection === undefined}
                 onClick={onSave}
             />
           </div>
