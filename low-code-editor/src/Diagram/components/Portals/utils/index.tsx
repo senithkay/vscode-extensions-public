@@ -310,7 +310,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
-                }else if (recordFieldsString === "" && !formField.optional && depth < 3){
+                }else if (recordFieldsString === "" && !formField.optional && depth === 1){
                     paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
