@@ -12,6 +12,7 @@
  */
 
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import camelCase from "lodash.camelcase";
 
@@ -63,6 +64,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     className,
   } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const session = sessionId || camelCase(connectorName);
 
   // active connection in button
@@ -195,13 +197,37 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
       />
     );
   }
+
+  const connectYourAccountButtonText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text",
+    defaultMessage: "Your Account"
+  });
+
   function renderConnectButton() {
     return (
-      <PrimaryButton
-        text={`Connect to ${connectorName}`}
-        onClick={handleClickInitSession}
-        className={className ? className : classes.mainConnectBtn}
-      />
+      <div>
+        <div className={classes.oauthConnectionTextWrapper}>
+                <p className={classes.oauthConnectionText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionText.noConnections"
+                        defaultMessage={"Create a new connection via"}
+                    />
+                </p>
+            </div>
+            <PrimaryButton
+                text={connectYourAccountButtonText}
+                onClick={handleClickInitSession}
+                className={classes.mainConnectBtn}
+            />
+            <div className={classes.oauthConnectionAltTextWrapper}>
+                <p className={classes.oauthConnectionAltText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        defaultMessage={"Connect via OAuth"}
+                    />
+                </p>
+            </div>
+      </div>
     );
   }
 
