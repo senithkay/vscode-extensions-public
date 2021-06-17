@@ -67,7 +67,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                     });
                 }
                 this.setState({
-                    samples,
+                    samples
                 });
             }
         }, 500).bind(this);
@@ -103,9 +103,18 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
         const columns: BallerinaExampleCategory[][] = [];
         const { samples } = this.state;
         if (samples) {
+            let sum = 0;
+            samples.forEach((sample) => sum += sample.samples.length);
+            let count: number = 0;
+            let index: number = 0;
             samples.forEach((sample: BallerinaExampleCategory) => {
-                columns[sample.column] = columns[sample.column] || [];
-                columns[sample.column].push(sample);
+                columns[index] = columns[index] || [];
+                columns[index].push(sample);
+                count += sample.samples.length;
+                if (count > sum / 4) {
+                    count = 0;
+                    index++;
+                }
             });
         }
         return columns;

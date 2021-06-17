@@ -61,7 +61,7 @@ export function getBallerinaVersion() {
 }
 
 export function getBBEPath(): any {
-    return path.join(__dirname, '..', '..', 'resources', 'templates');
+    return path.join(__dirname, '..', 'data');
 }
 
 export function delay(ms: number) {

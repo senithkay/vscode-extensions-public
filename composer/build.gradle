@@ -21,12 +21,9 @@ apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
     composer
-    fonts
 }
 
 task composerBuild {
-    dependsOn 'updateVersion'
-    dependsOn 'updateLernaVersion'
     PatternSet patternSet = new PatternSet();
 	patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/packages/**/build/**");
@@ -37,7 +34,6 @@ task composerBuild {
     inputs.files(src.matching(patternSet))
 
     outputs.dir("packages/distribution/build")
-    outputs.dir("packages/font/build")
     outputs.cacheIf { true }
     doFirst {
         exec {
@@ -52,32 +48,7 @@ task composerBuild {
             into './../resources/jslibs'
             include 'composer.js'
             include 'themes/**'
-        }
-        copy {
-            from './packages/font/build'
-            into './../resources/jslibs'
-            include '*.js'
-            include 'codepoints.json'
-            include 'font/'
-        }
-    }
-}
-
-task updateLernaVersion(type: Exec) {
-    inputs.file("package.json")
-
-    PatternSet patternSet = new PatternSet()
-    patternSet.include("lerna.json")
-    patternSet.include("packages/**/package.json")
-    FileTree src = files('.').asFileTree
-    outputs.files(src.matching(patternSet))
-
-    doFirst {
-        println "update lerna version to " + project.version + " in " + project.path
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npx', 'lerna', 'version', project.version, '--yes', '--no-git-tag-version', '--no-push'
-        } else {
-            commandLine 'npx', 'lerna', 'version', project.version, '--yes', '--no-git-tag-version', '--no-push'
+            exclude 'themes/assets'
         }
     }
 }
@@ -98,7 +69,6 @@ task testComposer() {
 }
 
 artifacts.add('composer', file("packages/distribution/build/"))
-artifacts.add('fonts', file("packages/font/build/"))
 
 check {
     dependsOn testComposer
