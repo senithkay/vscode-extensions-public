@@ -67,7 +67,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             "&:active": {
                 backgroundColor: theme.palette.primary.main,
                 color: theme.palette.common.white
-            }
+            },
+            "&:disabled": {
+                color: "#FFFFFF !important",
+                backgroundColor: '#D5D8F0 !important'
+            },
         },
         linePrimaryBtn: {
             textTransform: "capitalize",
@@ -81,7 +85,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             border: "1px solid #5667d5",
             "&:hover": {
-                backgroundColor: "#d7ddff24" ,
+                backgroundColor: "#d7ddff24",
                 color: theme.palette.primary.main,
                 cursor: "pointer",
                 boxShadow: "none"
@@ -94,7 +98,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             "&:active": {
                 backgroundColor: theme.palette.primary.main,
                 color: theme.palette.common.white
-            }
+            },
+            "&:disabled": {
+                color: "#00000030 !important",
+                backgroundColor: '#fff !important',
+                border: "1px solid #0000001f"
+            },
         },
         secondaryBtn: {
             textTransform: "capitalize",
@@ -115,7 +124,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: theme.palette.secondary.light,
                 background: "linear-gradient(180deg, rgba(0,0,0,0.07) 0%, rgba(0,0,0,0) 100%)",
                 boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.08), 0 0 0 0 rgba(0,0,0,0.07)",
-            }
+            },
+            "&:disabled": {
+                color: "#d8d8d8 !important",
+                backgroundColor: '#f1f1f1 !important',
+            },
         },
         square: {
             height: 35,

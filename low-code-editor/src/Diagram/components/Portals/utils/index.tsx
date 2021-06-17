@@ -207,7 +207,7 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
-export function getParams(formFields: FormField[]): string[] {
+export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
         let paramString: string = "";
@@ -268,7 +268,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 return fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
-                                const params = getParams([selectedField]);
+                                const params = getParams([selectedField], depth + 1);
                                 if (params && params.length > 0) {
                                     if (firstRecordField) {
                                         recordFieldsString += ", ";
@@ -296,7 +296,7 @@ export function getParams(formFields: FormField[]): string[] {
                                     fields: field.fields
                                 }
                             ]
-                            const params = getParams(fieldArray);
+                            const params = getParams(fieldArray, depth + 1);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
@@ -308,8 +308,10 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                     }
                 });
-                if (recordFieldsString !== "" && recordFieldsString !== undefined) {
+                if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }else if (recordFieldsString === "" && !formField.optional && depth === 1){
+                    paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                 //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
@@ -908,13 +910,13 @@ export function getActionReturnType(action: string, functionDefinitions: Map<str
     return getFormFieldReturnType(returnTypeField);
 }
 
-function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
+function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
     const response: FormFieldReturnType = {
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
         returnType: "var",
     };
-    const primitives = ["string", "int", "float", "boolean", "json", "xml"];
+    const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
     const returnTypes: string[] = [];
 
     if (formField && formField?.isParam) {
@@ -922,7 +924,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
             case "union":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -941,7 +943,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                             return `${fullType}${type !== '?' ? '|' : ''}${type}`;
                         });
                     } else {
-                        response.returnType = returnTypes[0];
+                        response.returnType = returnTypes[ 0 ];
                         if (response.returnType === '?') {
                             response.hasReturn = false;
                         }
@@ -951,7 +953,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
 
             case "collection":
                 if (formField?.isParam && formField?.collectionDataType) {
-                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType);
+                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType, depth + 1);
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -966,7 +968,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
             case "tuple":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -978,7 +980,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[0];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
                 }
                 break;
 
@@ -986,6 +988,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 if (formField.isParam) {
                     let type = "";
                     if (formField.type === "error" || formField.isErrorType) {
+                        formField.isErrorType = true;
                         response.hasError = true;
                     }
                     if (type === "" && formField.typeInfo && !formField.isErrorType) {
