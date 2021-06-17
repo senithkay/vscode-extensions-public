@@ -10,10 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, SimpleNameReference, STKindChecker } from "@ballerina/syntax-tree";
+import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
+import { Context } from "../../../../../..//src/Contexts/Diagram";
+import { DefaultConfig } from "../../../../../../src/Diagram/visitors/default";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
@@ -35,6 +39,17 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { isLoading, error, formType } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
         STKindChecker.isExpressionFunctionBody(config.model) : false;
+    const { state } = useContext(Context);
+    const { onFitToScreen, appInfo } = state;
+
+    const dispatch = useDispatch();
+    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
+    const currentAppid = appInfo?.currentApp?.id;
+
+    React.useEffect(() => {
+        onFitToScreen(currentAppid);
+        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+    }, []);
 
     if (formType === "Return") {
         config.expression = "";

@@ -354,6 +354,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
                     "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
                 if (!filteredOperations.includes(key)) {
+                    if (key === "addRowsBeforeBySheetName") {
+                        value.label = "Add Rows Before"
+                    }
                     filteredFunctions.set(key, value);
                 }
             });
@@ -505,6 +508,13 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
+                if (key === 'init') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'clientConfig') {
+                            field.optional = true;
+                        }
+                    })
+                }
                 if (key === 'getRepository') {
                     value.parameters.forEach(field => {
                         if (field.name === 'repoIdentifier') {
