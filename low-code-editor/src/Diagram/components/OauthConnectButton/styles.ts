@@ -108,6 +108,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 200
         },
         mainConnectBtn: {
+            height: theme.spacing(6),
             width: "100%",
             padding: theme.spacing(2)
         },
