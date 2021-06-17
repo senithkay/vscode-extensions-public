@@ -375,6 +375,30 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
+                if (isOauthConnector && connection) {
+                    const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    if (connectorConfigurables) {
+                        const addConfigurableVars = createPropertyStatement(
+                            connectorConfigurables,
+                            { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                        );
+                        modifications.push(addConfigurableVars);
+                    }
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                            ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
                 if (config.connectorInit.length > 0) {
                     // save action with client path
                     const addImport: STModification = createImportStatement(
