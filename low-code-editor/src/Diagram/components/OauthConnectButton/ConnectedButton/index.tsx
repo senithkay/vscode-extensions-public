@@ -13,15 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import {Box, IconButton, Typography} from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
+import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
-import {Status} from "components/Status";
 
-import {ConnectionDetails} from "../../../../api/models";
-
-import {ConnectionType} from "../index";
-import {useStyles} from "../styles";
+import { ConnectionDetails } from "../../../../api/models";
+import { useStyles } from "../styles";
 
 export interface ConnectedButtonProps {
     activeConnection: ConnectionDetails;

@@ -52,8 +52,6 @@ import {
 } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
-import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
 import {
     addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
     getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType,
@@ -202,12 +200,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setIsLoading(false);
         }
     }, []);
-
-    useEffect(() => {
-        if (selectedActiveConnection) {
-            // handleClientOnSave();
-        }
-    }, [selectedActiveConnection]);
 
     useEffect(() => {
         if (selectedConnector) {

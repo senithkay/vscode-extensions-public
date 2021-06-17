@@ -22,13 +22,13 @@ import Divider from "@material-ui/core/Divider";
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import classNames from "classnames";
 
 import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
 import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
+import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 
-import classNames from "classnames";
-import {LinePrimaryButton} from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { useStyles } from "./../styles";
 
 export interface ConnectionListProps {

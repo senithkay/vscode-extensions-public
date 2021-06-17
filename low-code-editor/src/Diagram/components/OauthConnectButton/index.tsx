@@ -13,6 +13,9 @@
 
 import React, { useContext, useEffect, useState } from "react";
 
+import { Box, IconButton, Typography } from "@material-ui/core";
+import Divider from "@material-ui/core/Divider";
+import { Status } from "components/Status";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
@@ -23,10 +26,6 @@ import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
 import { useStyles } from "./styles";
-import {Box, IconButton, Typography} from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
-import Divider from "@material-ui/core/Divider";
-import {Status} from "components/Status";
 
 export enum ConnectionType {
   NEW = "NEW",
