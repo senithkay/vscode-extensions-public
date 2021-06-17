@@ -361,6 +361,15 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_github_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === 'init') {
+                    value.parameters.find(fields => fields.name === "config").fields
+                        .find(fields => fields.name === "clientConfig").optional = true;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
@@ -508,13 +517,6 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
-                if (key === 'init') {
-                    value.parameters.forEach(field => {
-                        if (field.name === 'clientConfig') {
-                            field.optional = true;
-                        }
-                    })
-                }
                 if (key === 'getRepository') {
                     value.parameters.forEach(field => {
                         if (field.name === 'repoIdentifier') {
