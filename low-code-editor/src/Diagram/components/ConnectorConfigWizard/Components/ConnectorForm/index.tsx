@@ -375,7 +375,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if (config.connectorInit.length > 0){
+                if (config.connectorInit.length > 0) {
                     // save action with client path
                     const addImport: STModification = createImportStatement(
                         connectorInfo.org,
@@ -681,7 +681,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
-                            { isOauthConnector && !isManualConnection && !isAction && (
+                            {isOauthConnector && !isManualConnection && !isAction && (
                                 <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
                                     <div className={wizardClasses.fullWidth}>
                                         <div className={wizardClasses.mainOauthBtnWrapper}>
@@ -700,7 +700,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                        <p className={wizardClasses.manualConnectionTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                                        <p className={wizardClasses.manualConnectionTitle}>
+                                            <FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" />
+                                        </p>
                                         <LinePrimaryButton
                                             className={wizardClasses.fullWidth}
                                             text={manualConnectionButtonLabel}
@@ -710,13 +712,31 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                     </div>
                                 )
                             }
-                            <div className={wizardClasses.saveBtnWrapper}>
-                                <PrimaryButton
-                                    text="Save"
-                                    fullWidth={true}
-                                    disabled={connection === undefined}
-                                    onClick={handleClientOnSave}
-                                />
+                            <div className={wizardClasses.authBtnHolder}>
+                                {!isNewConnectorInitWizard && (
+                                    <PrimaryButton
+                                        text="Save Connection"
+                                        fullWidth={true}
+                                        disabled={connection === undefined}
+                                        onClick={handleClientOnSave}
+                                    />
+                                )}
+                                {isNewConnectorInitWizard && (
+                                    <>
+                                        <LinePrimaryButton
+                                            text="Save Connection"
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleClientOnSave}
+                                        />
+                                        <PrimaryButton
+                                            text="Continue to invoke API"
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleCreateConnectorSaveNext}
+                                        />
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}

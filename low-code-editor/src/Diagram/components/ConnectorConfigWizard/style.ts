@@ -252,5 +252,13 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column',
             justifyContent: "space-between"
         },
+        authBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 100,
+            flexDirection: 'column',
+            justifyContent: "space-between",
+            paddingTop: theme.spacing(2.5)
+        }
     }),
 );
