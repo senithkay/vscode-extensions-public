@@ -111,7 +111,6 @@ export function MapperView() {
         ]);
 
         setShowTypeConfirmationDialog(false);
-        setIsDataPointSelected(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
         // updateState({ draftArrows: [] })
@@ -119,7 +118,6 @@ export function MapperView() {
 
     const handleTypeConversionCancel = () => {
         setShowTypeConfirmationDialog(false);
-        setIsDataPointSelected(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
         // updateState({ draftArrows: [] })
@@ -155,7 +153,6 @@ export function MapperView() {
         setDefaultInputConfig(undefined);
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
-        setIsDataPointSelected(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
         // updateState({ draftArrows: [] })
@@ -205,7 +202,7 @@ export function MapperView() {
             }
 
             if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
-                // setIsDataPointSelected(false);
+                setIsDataPointSelected(false);
                 // setSelectedDataPoint(undefined);
                 window.removeEventListener("mousemove", eventListenerMap.mousemove);
                 eventListenerMap.mousemove = undefined;
