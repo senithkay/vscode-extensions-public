@@ -202,7 +202,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     <div className={classes.saveConnectorBtnHolder}>
                         { !isNewConnectorInitWizard && (
                             <PrimaryButton
-                                text="Save Connector"
+                                text="Save Connection"
                                 fullWidth={false}
                                 disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 onClick={handleOnSave}
@@ -211,7 +211,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         { isNewConnectorInitWizard && (
                             <>
                                 <LinePrimaryButton
-                                    text="Save Connector"
+                                    text="Save Connection"
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     onClick={handleOnSave}
