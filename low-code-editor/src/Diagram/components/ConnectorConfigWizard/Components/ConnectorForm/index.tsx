@@ -260,7 +260,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (type === ConnectionType.UPDATED || type === ConnectionType.NEW) {
             setSelectedActiveConnection(connectionDetails);
         }
-        setSelectedConnectionType(type)
+        setSelectedConnectionType(type);
     };
 
     const handleConnectionUpdate = () => {
