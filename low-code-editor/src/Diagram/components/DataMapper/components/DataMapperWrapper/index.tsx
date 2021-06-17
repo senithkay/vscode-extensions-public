@@ -30,12 +30,13 @@ export function DataMapperWrapper(props: DataMapperState) {
     } = props;
 
     useEffect(() => {
-        updateState({
-            ...props,
-        });
+        // updateState({
+        //     ...props,
+        // });
         (async () => {
             await initializeNodesAndUpdate(props, updateState);
         })()
+        // initializeNodesAndUpdate(props, updateState);
     }, [inputSTNodes, outputSTNode, stSymbolInfo])
 
     return (
