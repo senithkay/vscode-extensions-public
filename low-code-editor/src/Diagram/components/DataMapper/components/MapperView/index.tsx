@@ -120,7 +120,7 @@ export function MapperView() {
         setShowTypeConfirmationDialog(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
-        // updateState({ draftArrows: [] })
+        updateState({ draftArrows: [] })
     };
 
     const expressionEditorOnCancel = () => {
@@ -146,7 +146,6 @@ export function MapperView() {
         setIsExpressionValid(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
-        // updateState({ draftArrows: [] })
     }
 
     const defaultInputConfigOnCancel = () => {
@@ -155,7 +154,7 @@ export function MapperView() {
         setIsExpressionValid(false);
         setSelectedDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
-        // updateState({ draftArrows: [] })
+        updateState({ draftArrows: [] })
     }
 
     const removeInputType = (model: STNode) => {
@@ -269,6 +268,13 @@ export function MapperView() {
         sourcePointViewState: SourcePointViewState, targetPointViewState: TargetPointViewState) => {
         let statement = '';
 
+        addDraftArrow({
+            x1: sourcePointViewState.bBox.x,
+            x2: targetPointViewState.bBox.x,
+            y1: sourcePointViewState.bBox.y,
+            y2: targetPointViewState.bBox.y
+        });
+
         if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
             const validateFunction = (name: string, validity: boolean) => {
                 setIsExpressionValid(validity);
@@ -308,12 +314,6 @@ export function MapperView() {
             })
 
         } else if (!sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
-            addDraftArrow({
-                x1: sourcePointViewState.bBox.x + 100,
-                x2: targetPointViewState.bBox.x - 140,
-                y1: sourcePointViewState.bBox.y,
-                y2: targetPointViewState.bBox.y
-            });
             if ((targetPointViewState.type === PrimitiveBalType.Int
                 || targetPointViewState.type === PrimitiveBalType.Float
                 || targetPointViewState.type === 'decimal') && sourcePointViewState.type === PrimitiveBalType.String) {
@@ -332,12 +332,6 @@ export function MapperView() {
             }
         } else {
             statement = sourcePointViewState.text;
-            addDraftArrow({
-                x1: sourcePointViewState.bBox.x + 100,
-                x2: targetPointViewState.bBox.x - 140,
-                y1: sourcePointViewState.bBox.y,
-                y2: targetPointViewState.bBox.y
-            });
 
             onSave([
                 updatePropertyStatement(statement, targetPointViewState.position)
@@ -682,7 +676,7 @@ export function MapperView() {
                                     <PrimaryButton
                                         disabled={false}
                                         dataTestId={"datamapper-save-btn"}
-                                        text={"Save"}
+                                        text={"Proceed"}
                                         fullWidth={false}
                                         onClick={handleTypeConversionConfirmation}
                                     />
