@@ -17,7 +17,7 @@
 // tslint:disable: no-console
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
@@ -61,33 +61,72 @@ export function RecordType(props: RecordTypeProps) {
     const dataPoints: JSX.Element[] = [];
     const OffestValue = 10;
 
-    if (model.dataMapperTypeDescNode) {
-        const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
-        typeDescNode.fields.forEach((field: any) => {
-            const fieldVS = field.dataMapperViewState
-            fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
-        })
-    } else if (viewState.hasInlineRecordDescription) {
-        if (STKindChecker.isLocalVarDecl(model)) {
-            const typedBindingPattern = (model as LocalVarDecl).typedBindingPattern;
-            const typeDescNode = typedBindingPattern.typeDescriptor;
+    let hasMappinConstructor = false;
 
-            if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
-                typeDescNode.fields.forEach((field: any) => {
-                    const fieldVS = field.dataMapperViewState
-                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
-                });
-            }
-        } else if (STKindChecker.isRecordField(model)) {
-            const typeName = model.typeName;
-            if (STKindChecker.isRecordTypeDesc(typeName)) {
-                typeName.fields.forEach((field: any) => {
-                    const fieldVS = field.dataMapperViewState
-                    fields.push(getDataMapperComponent(fieldVS.type, { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
-                });
+    if (STKindChecker.isLocalVarDecl(model)) {
+        hasMappinConstructor = STKindChecker.isMappingConstructor(model.initializer);
+    } else if (STKindChecker.isAssignmentStatement(model)) {
+        hasMappinConstructor = STKindChecker.isMappingConstructor(model.expression);
+    } else if (STKindChecker.isSpecificField(model)) {
+        hasMappinConstructor = STKindChecker.isMappingConstructor(model.valueExpr);
+    }
+
+    if (hasMappinConstructor) {
+        let mappingConstructorNode: MappingConstructor;
+        if (STKindChecker.isLocalVarDecl(model)) {
+            mappingConstructorNode = model.initializer as MappingConstructor;
+        } else if (STKindChecker.isAssignmentStatement(model)) {
+            mappingConstructorNode = model.expression as MappingConstructor;
+        } else if (STKindChecker.isSpecificField(model)) {
+            mappingConstructorNode = model.valueExpr as MappingConstructor;
+        }
+
+        mappingConstructorNode.fields
+            .filter(field => !STKindChecker.isCommaToken(field))
+            .forEach(field => {
+                const fieldVS = field.dataMapperViewState
+                fields.push(getDataMapperComponent(
+                    fieldVS.type,
+                    { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }
+                ));
+            });
+    } else {
+        if (model.dataMapperTypeDescNode) {
+            const typeDescNode = model.dataMapperTypeDescNode as RecordTypeDesc;
+            typeDescNode.fields.forEach((field: any) => {
+                const fieldVS = field.dataMapperViewState
+                fields.push(getDataMapperComponent(fieldVS.type,
+                    { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }));
+            })
+        } else if (viewState.hasInlineRecordDescription) {
+            if (STKindChecker.isLocalVarDecl(model)) {
+                const typedBindingPattern = (model as LocalVarDecl).typedBindingPattern;
+                const typeDescNode = typedBindingPattern.typeDescriptor;
+
+                if (STKindChecker.isRecordTypeDesc(typeDescNode)) {
+                    typeDescNode.fields.forEach((field: any) => {
+                        const fieldVS = field.dataMapperViewState
+                        fields.push(getDataMapperComponent(
+                            fieldVS.type,
+                            { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }
+                        ));
+                    });
+                }
+            } else if (STKindChecker.isRecordField(model)) {
+                const typeName = model.typeName;
+                if (STKindChecker.isRecordTypeDesc(typeName)) {
+                    typeName.fields.forEach((field: any) => {
+                        const fieldVS = field.dataMapperViewState
+                        fields.push(getDataMapperComponent(
+                            fieldVS.type,
+                            { model: field, onDataPointClick, offSetCorrection: offSetCorrection + DEFAULT_OFFSET }
+                        ));
+                    });
+                }
             }
         }
     }
+
 
     if (viewState.sourcePointViewState) {
         dataPoints.push(<DataPoint dataPointViewState={viewState.sourcePointViewState} onClick={onDataPointClick} />);

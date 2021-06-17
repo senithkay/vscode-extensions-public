@@ -31,6 +31,7 @@ import {
     TypedBindingPattern,
     Visitor,
 } from '@ballerina/syntax-tree';
+import { types } from 'joi';
 
 import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
@@ -211,81 +212,33 @@ export class DataMapperInitVisitor implements Visitor {
             // ignored
         }
 
+        if (node.typeData) {
+            const typeSymbol = node.typeData.typeSymbol;
+            if (typeSymbol) {
+                setTypeFromTypeSymbol(viewstate, typeSymbol);
+            }
+        }
+
         if (node.valueExpr) {
             const valueExprVS = new FieldViewState();
+
             if (STKindChecker.isStringLiteral(node.valueExpr)) {
-                viewstate.type = 'string';
                 valueExprVS.type = CONSTANT_TYPE;
                 valueExprVS.value = node.valueExpr.literalToken.value;
                 if (this.visitType === VisitingType.OUTPUT) {
                     valueExprVS.sourcePointViewState = new SourcePointViewState();
                 }
             } else if (STKindChecker.isBooleanLiteral(node.valueExpr)) {
-                viewstate.type = 'boolean';
                 valueExprVS.type = CONSTANT_TYPE;
                 valueExprVS.value = node.valueExpr.literalToken.value;
                 if (this.visitType === VisitingType.OUTPUT) {
                     valueExprVS.sourcePointViewState = new SourcePointViewState();
                 }
             } else if (STKindChecker.isNumericLiteral(node.valueExpr)) {
-                viewstate.type = 'union';
-                viewstate.unionType = 'int|float';
                 valueExprVS.type = CONSTANT_TYPE;
                 valueExprVS.value = node.valueExpr.literalToken.value;
                 if (this.visitType === VisitingType.OUTPUT) {
                     valueExprVS.sourcePointViewState = new SourcePointViewState();
-                }
-            } else if (STKindChecker.isMappingConstructor(node.valueExpr)) {
-                viewstate.type = 'mapconstructor'; // TODO: check for the correct term
-            } else if (STKindChecker.isSimpleNameReference(node.valueExpr)) {
-                const simpleNameRefNode = node.valueExpr as SimpleNameReference;
-                if (simpleNameRefNode.typeData) {
-                    const typeSymbol = simpleNameRefNode.typeData.typeSymbol;
-                    if (typeSymbol) {
-                        viewstate.type = typeSymbol.typeKind;
-                    }
-                }
-            } else if (STKindChecker.isMethodCall(node.valueExpr)) {
-                const methodCallNode: MethodCall = node.valueExpr as MethodCall;
-                methodCallNode.expression.dataMapperViewState = new DataMapperViewState();
-
-                if (methodCallNode.typeData) {
-                    const typeSymbol = methodCallNode.typeData.typeSymbol;
-                    if (typeSymbol) {
-                        viewstate.type = typeSymbol.typeKind;
-                    }
-                }
-            } else if (STKindChecker.isFieldAccess(node.valueExpr)) {
-                const fieldAccessNode: FieldAccess = node.valueExpr as FieldAccess;
-                if (fieldAccessNode.typeData) {
-                    const typeSymbol = fieldAccessNode.typeData.typeSymbol;
-                    if (typeSymbol) {
-                        switch (typeSymbol.typeKind) {
-                            case 'int':
-                            case 'float':
-                                viewstate.type = 'union';
-                                viewstate.unionType = 'int|float';;
-                                break;
-                            default:
-                                viewstate.type = typeSymbol.typeKind;
-                        }
-                    }
-                }
-            } else if (STKindChecker.isBinaryExpression(node.valueExpr)) {
-                const binaryExp: BinaryExpression = node.valueExpr as BinaryExpression;
-                if (binaryExp.typeData) {
-                    const typeSymbol = binaryExp.typeData.typeSymbol;
-                    if (typeSymbol) {
-                        switch (typeSymbol.typeKind) {
-                            case 'int':
-                            case 'float':
-                                viewstate.type = 'union';
-                                viewstate.unionType = 'int|float';;
-                                break;
-                            default:
-                                viewstate.type = typeSymbol.typeKind;
-                        }
-                    }
                 }
             }
 
@@ -299,6 +252,7 @@ export class DataMapperInitVisitor implements Visitor {
 
             node.valueExpr.dataMapperViewState = valueExprVS;
         }
+
 
         if (this.visitType === VisitingType.INPUT) {
             viewstate.sourcePointViewState = new SourcePointViewState();
@@ -329,6 +283,48 @@ export class DataMapperInitVisitor implements Visitor {
 
         node.expression.dataMapperViewState = new DataMapperViewState();
     }
+    
+
+}
+
+function setTypeFromTypeSymbol(viewstate: FieldViewState, typeSymbol: any) {
+    switch (typeSymbol.typeKind) {
+        case PrimitiveBalType.String:
+            viewstate.type = PrimitiveBalType.String;
+            break;
+        case PrimitiveBalType.Int:
+            viewstate.type = PrimitiveBalType.Int;
+            break;
+        case PrimitiveBalType.Float:
+            viewstate.type = PrimitiveBalType.Float;
+            break;
+        case PrimitiveBalType.Boolean:
+            viewstate.type = PrimitiveBalType.Boolean;
+            break;
+        case PrimitiveBalType.Json:
+            viewstate.type = PrimitiveBalType.Json;
+            break;
+        case PrimitiveBalType.Union:
+            viewstate.type = PrimitiveBalType.Union;
+            viewstate.unionType = typeSymbol.signature;
+            break;
+        case 'typeReference':
+            const moduleID = typeSymbol?.moduleID;
+
+            viewstate.type = 'record';
+
+            if (moduleID) {
+                viewstate.typeInfo = {
+                    name: typeSymbol.name,
+                    orgName: moduleID.orgName,
+                    moduleName: moduleID.moduleName,
+                    version: moduleID.version
+                }
+            }
+            break;
+        default:
+        // TODO: check if applicable
+    }
 }
 
 function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: STNode, parentNode: STNode) {
@@ -348,6 +344,9 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         viewState.type = PrimitiveBalType.Json;
     } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
         viewState.type = PrimitiveBalType.Xml;
+    } else if (STKindChecker.isUnionTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Union;
+        viewState.unionType = typeDescriptor.source.trim();
     } else if (STKindChecker.isSimpleNameReference(typeDescriptor)) {
         const typeSymbol = parentNode.typeData.typeSymbol;
         const moduleID = typeSymbol.moduleID;
@@ -381,4 +380,5 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         viewState.isOptionalType = true;
         setViewStateTypeInformation(viewState, realTypeDescNode, parentNode);
     }
+
 }

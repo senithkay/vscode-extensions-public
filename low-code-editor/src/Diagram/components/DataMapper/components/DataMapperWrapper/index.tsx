@@ -20,7 +20,6 @@ import { MapperView } from "../MapperView";
 export function DataMapperWrapper(props: DataMapperState) {
     const {
         updateState,
-        notifyInitializationInProgress
     } = useContext(DataMapperViewContext);
 
     const {
@@ -31,8 +30,6 @@ export function DataMapperWrapper(props: DataMapperState) {
     } = props;
 
     useEffect(() => {
-        // todo: add overlay until the initialization is complete
-        // notifyInitializationInProgress(true);
         updateState({
             ...props,
         });

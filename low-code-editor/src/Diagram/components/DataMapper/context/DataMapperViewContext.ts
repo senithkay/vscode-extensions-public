@@ -79,6 +79,11 @@ const reducer = (state: DataMapperState, action: any) => {
                 ...state,
                 isInitializationInProgress: action.payload
             }
+        case 'ADD_DRAFT_ARROW':
+            return {
+                ...state,
+                draftArrows: [...state.draftArrows, action.payload]
+            }
         default:
             return state;
     }
@@ -123,6 +128,11 @@ const actions = {
     notifyInitializationInProgress: (dispatch: any) => {
         return (payload: any) => {
             dispatch({ type: 'NOTIFY_INITIALIZATION_IN_PROGRESS', payload });
+        };
+    },
+    addDraftArrow: (dispatch: any) => {
+        return (payload: any) => {
+            dispatch({ type: 'ADD_DRAFT_ARROW', payload });
         };
     }
 }

@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
+import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
 import { STModification } from '../../../../../Definitions';
 import { updatePropertyStatement } from '../../../../utils/modification-util';
 import { Canvas } from '../../../Canvas';
@@ -34,8 +35,7 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
-import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
-
+import Typography from '@material-ui/core/Typography';
 
 export function MapperView() {
     const {
@@ -52,22 +52,26 @@ export function MapperView() {
             dispatchMutations,
             dataMapperConfig,
             updateDataMapperConfig,
-            mouseMoveEventHub,
             constantList,
             squashConstants,
-            isInitializationInProgress
+            isInitializationInProgress, // todo: handle animation during initialization
+            draftArrows
         },
         updateState,
         dataMapperViewRedraw,
         toggleAddVariableForm,
         toggleOutputConfigureForm,
+        addDraftArrow
     } = useContext(DataMapperViewContext);
     const drawingLineRef = useRef(null);
     const overlayClasses = wizardStyles();
 
     const [isDataPointSelected, setIsDataPointSelected] = useState(false);
     const [selectedDataPoint, setSelectedDataPoint] = useState(undefined);
+    const [selectedTargetDataPoint, setSelectedTargetDataPoint] = useState(undefined);
+    const [showTypeConviertConfirmationDialog, setShowTypeConfirmationDialog] = useState(false);
     const [expressionConfig, setExpressionConfig] = useState(undefined);
+    const [defaultInputConfig, setDefaultInputConfig] = useState(undefined);
     const [eventListenerMap] = useState<any>({});
     const [isExpressionValid, setIsExpressionValid] = useState(true);
     const [expressionEditorText, setExpressionEditorText] = useState(undefined);
@@ -147,8 +151,8 @@ export function MapperView() {
             }
 
             if (isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
-                setIsDataPointSelected(false);
-                setSelectedDataPoint(undefined);
+                // setIsDataPointSelected(false);
+                // setSelectedDataPoint(undefined);
                 window.removeEventListener("mousemove", eventListenerMap.mousemove);
                 eventListenerMap.mousemove = undefined;
                 drawingLineRef.current.setAttribute('x1', -5);
@@ -156,10 +160,7 @@ export function MapperView() {
                 drawingLineRef.current.setAttribute('y1', -5);
                 drawingLineRef.current.setAttribute('y2', -5);
                 drawingLineRef.current.setAttribute('style', 'display: none;')
-                onSave([
-                    updatePropertyStatement(generateDirectMappingStatement(selectedDataPoint, dataPointVS), 
-                    dataPointVS.position)
-                ]);
+                updateMappingStatement(selectedDataPoint, dataPointVS);
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
                 eventListenerMap.keyup = escapeListener
@@ -212,6 +213,84 @@ export function MapperView() {
             }
         }
     }
+
+    const updateMappingStatement = (
+        sourcePointViewState: SourcePointViewState, targetPointViewState: TargetPointViewState) => {
+        let statement = '';
+
+        if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
+            // add a ternary statement with default value
+            statement += `${sourcePointViewState.text} ?: `
+            switch (targetPointViewState.type) {
+                case PrimitiveBalType.String:
+                    statement += '""';
+                    break
+                case PrimitiveBalType.Int:
+                case PrimitiveBalType.Float:
+                case 'decimal':
+                    statement += '0';
+                    break
+                case PrimitiveBalType.Boolean:
+                    statement += 'false';
+                    break
+                case PrimitiveBalType.Json:
+                    statement += 'false';
+                    break;
+                case PrimitiveBalType.Union:
+                    if (targetPointViewState.unionType) {
+                        if (targetPointViewState.unionType.includes('string')) {
+                            return '""';
+                        } else if (targetPointViewState.unionType.includes('int')
+                            || targetPointViewState.unionType.includes('float')
+                            || targetPointViewState.unionType.includes('decimal')) {
+                            return '0';
+                        } else if (targetPointViewState.unionType.includes('boolean')) {
+                            return 'false';
+                        } else if (targetPointViewState.unionType.includes('json')) {
+                            return '{}';
+                        }
+                    }
+                    break
+            }
+        } else if (!sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
+            addDraftArrow({
+                x1: sourcePointViewState.bBox.x + 100,
+                x2: targetPointViewState.bBox.x - 140,
+                y1: sourcePointViewState.bBox.y,
+                y2: targetPointViewState.bBox.y
+            });
+            if ((targetPointViewState.type === PrimitiveBalType.Int
+                || targetPointViewState.type === PrimitiveBalType.Float
+                || targetPointViewState.type === 'decimal') && sourcePointViewState.type === PrimitiveBalType.String) {
+                setSelectedTargetDataPoint(targetPointViewState);
+                setShowTypeConfirmationDialog(true);
+            } else if ((sourcePointViewState.type === PrimitiveBalType.Int
+                || sourcePointViewState.type === PrimitiveBalType.Float
+                || sourcePointViewState.type === 'decimal') && targetPointViewState.type === PrimitiveBalType.String) {
+                setSelectedTargetDataPoint(targetPointViewState);
+                setShowTypeConfirmationDialog(true);
+            } else {
+                statement = sourcePointViewState.text;
+                onSave([
+                    updatePropertyStatement(statement, targetPointViewState.position)
+                ]);
+            }
+        } else {
+            statement = sourcePointViewState.text;
+            addDraftArrow({
+                x1: sourcePointViewState.bBox.x + 100,
+                x2: targetPointViewState.bBox.x - 140,
+                y1: sourcePointViewState.bBox.y,
+                y2: targetPointViewState.bBox.y
+            });
+
+            onSave([
+                updatePropertyStatement(statement, targetPointViewState.position)
+            ]);
+        }
+    }
+
+
 
     // ToDo: Revisit
     // useEffect(() => {
@@ -310,26 +389,17 @@ export function MapperView() {
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
         if (isJsonRecordTypeSelected) {
-            outputHeight += 332;
+            outputHeight += 332 + 64;
         } else {
-            outputHeight += 265;
+            outputHeight += 265 + 64;
         }
 
         outputHeight += 35 // compensation incase of some error is displayed through a text field
     }
 
     if (showConfigureOutputForm && isExistingOutputSelected) {
-        outputHeight += 172;
+        outputHeight += 172 + 64;
     }
-
-    // save button x position
-    // let saveYPosition = outputHeight;
-    // if (outputSTNode) {
-    //     const dataMapperViewState: DataMapperViewState = (outputSTNode as STNode).dataMapperViewState;
-    //     if (dataMapperViewState) {
-    //         saveYPosition = dataMapperViewState.bBox.h + 100 + 15;
-    //     }
-    // }
 
     if (squashConstants) {
         constantMap.forEach((constantVS: FieldViewState) => {
@@ -393,6 +463,22 @@ export function MapperView() {
             inputHeight + 15 : 70
     }
 
+    const draftArrowsElements: JSX.Element[] = [];
+    if (draftArrows) {
+        draftArrows.forEach((arrowPositions: any) => {
+            draftArrowsElements.push((
+                <line
+                    x1={arrowPositions.x1 + 100}
+                    x2={arrowPositions.x2 - 140}
+                    y1={arrowPositions.y1}
+                    y2={arrowPositions.y2}
+                    className="connect-line"
+                    markerEnd="url(#arrowhead)"
+                    id="Arrow-head"
+                />
+            ))
+        });
+    }
     return (
         <Canvas h={maxHeight} w={maxWidth} >
             <g id='datamapper-diagram-switch' onClick={handleSwitchBackToDiagram}>
@@ -429,6 +515,7 @@ export function MapperView() {
                     markerEnd="url(#arrowhead)"
                     id="Arrow-head"
                 />
+                {draftArrowsElements}
             </g>
             <DiagramOverlayContainer>
                 {showConfigureOutputForm && (
@@ -483,36 +570,70 @@ export function MapperView() {
                             </div>
                         </DiagramOverlay>
                     )
-
+                }
+                {
+                    defaultInputConfig && (
+                        <DiagramOverlay
+                            position={{
+                                x: defaultInputConfig.positionX - (PADDING_OFFSET * 2.4),
+                                y: defaultInputConfig.positionY - (PADDING_OFFSET / 2)
+                            }}
+                            stylePosition="absolute"
+                        >
+                            <div className='expression-wrapper'>
+                                <ExpressionEditor {...defaultInputConfig.config} />
+                                <div className={overlayClasses.buttonWrapper}>
+                                    <SecondaryButton
+                                        text="Cancel"
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnCancel}
+                                    />
+                                    <PrimaryButton
+                                        disabled={isExpressionValid}
+                                        dataTestId={"datamapper-save-btn"}
+                                        text={"Save"}
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnSave}
+                                    />
+                                </div>
+                            </div>
+                        </DiagramOverlay>
+                    )
+                }
+                {
+                    showTypeConviertConfirmationDialog && (
+                        <DiagramOverlay
+                            position={{
+                                x: selectedTargetDataPoint.bBox.x - (PADDING_OFFSET * 2.4),
+                                y: selectedTargetDataPoint.bBox.y - (PADDING_OFFSET / 2)
+                            }}
+                            stylePosition="absolute"
+                        >
+                            <div className='expression-wrapper'>
+                                <Typography variant="h5">
+                                    {`Mismatch type in mapping, expected ${selectedTargetDataPoint.type}
+                                     found ${selectedDataPoint.type},
+                                    convert to ${selectedTargetDataPoint.type}?`}
+                                </Typography>
+                                <div className={overlayClasses.buttonWrapper}>
+                                    <SecondaryButton
+                                        text="Cancel"
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnCancel}
+                                    />
+                                    <PrimaryButton
+                                        disabled={isExpressionValid}
+                                        dataTestId={"datamapper-save-btn"}
+                                        text={"Save"}
+                                        fullWidth={false}
+                                        onClick={expressionEditorOnSave}
+                                    />
+                                </div>
+                            </div>
+                        </DiagramOverlay>
+                    )
                 }
             </DiagramOverlayContainer>
         </Canvas>
     )
-}
-
-export function generateDirectMappingStatement(
-    sourcePointViewState: SourcePointViewState, targetPointViewState: TargetPointViewState): string {
-    let statement = '';
-
-    if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
-        // add a ternary statement with default value
-        statement += `${sourcePointViewState.text} ?: `
-        switch (targetPointViewState.type) {
-            case PrimitiveBalType.String:
-                statement += '""';
-                break
-            case PrimitiveBalType.Int:
-            case PrimitiveBalType.Float:
-            case 'decimal':
-                statement += '0';
-                break
-            case PrimitiveBalType.Boolean:
-                statement += 'false';
-                break
-        }
-    } else {
-        statement = sourcePointViewState.text;
-    }
-
-    return statement;
 }

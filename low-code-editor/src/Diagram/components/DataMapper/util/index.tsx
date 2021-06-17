@@ -52,6 +52,23 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
             return '0';
         case PrimitiveBalType.Float:
             return '0';
+        case 'decimal':
+            return '0';
+        case PrimitiveBalType.Union:
+            const vs = type as FieldViewState;
+            if (vs.unionType) {
+                if (vs.unionType.includes('string')) {
+                    return '""';
+                } else if (vs.unionType.includes('int')
+                    || vs.unionType.includes('float') || vs.unionType.includes('decimal')) {
+                    return '0';
+                } else if (vs.unionType.includes('boolean')) {
+                    return 'false';
+                } else if (vs.unionType.includes('json')) {
+                    return '{}';
+                }
+            }
+            return '';
         case PrimitiveBalType.Json:
             // todo: look into default json type
             if (type.sampleStructure) {
@@ -581,14 +598,14 @@ export function dataMapperSizingAndPositioningRecalculate(
         let outputStartHeight = 15;
         if (showConfigureOutputForm && !isExistingOutputSelected) {
             if (isJsonRecordTypeSelected) {
-                outputStartHeight += 332 + 15;
+                outputStartHeight += 332 + 64 + 15;
             } else {
-                outputStartHeight += 265;
+                outputStartHeight += 265 + 64;
             }
         }
 
         if (showConfigureOutputForm && isExistingOutputSelected) {
-            outputStartHeight += 172;
+            outputStartHeight += 172 + 64;
         }
 
         positionVisitor.setHeight(outputStartHeight);
@@ -934,7 +951,7 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
 
         traversNode(outputSTNode, mappingVisitor);
         if (mappingVisitor.getMissingVarRefList().length > 0) {
-            const inputVarNameList =dataMapperConfig.inputTypes.map(inputType => inputType.name);
+            const inputVarNameList = dataMapperConfig.inputTypes.map(inputType => inputType.name);
             stSymbolInfo.variables.forEach((value: STNode[], key: string) => {
                 value.forEach((varNode: STNode) => {
                     if (STKindChecker.isLocalVarDecl(varNode)) {
@@ -970,6 +987,8 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
     updateState({
         inputSTNodes,
         outputSTNode,
+        stSymbolInfo,
+        draftArrows: [],
         constantMap: constantVisitor.getConstantsMap(),
         constantList: constantVisitor.getConstantList(),
         maxFieldWidth,

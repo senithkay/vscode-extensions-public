@@ -156,7 +156,8 @@ export function DataMapper(props: DataMapperProps) {
         squashConstants,
         isInitializationInProgress: true,
         langServerURL,
-        getDiagramEditorLangClient
+        getDiagramEditorLangClient,
+        // draftArrows: []
     }
 
     return (

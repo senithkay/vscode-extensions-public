@@ -49,7 +49,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-        isTarget, removeInputType, commaPosition, isLastField } = props;
+            isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -288,6 +288,16 @@ export function JsonType(props: JsonTypeProps) {
         dispatchMutations(modifications);
     }
 
+    let hasMappingConstructor: boolean = false;
+
+    if (STKindChecker.isLocalVarDecl(model) && STKindChecker.isMappingConstructor(model.initializer) ) {
+        hasMappingConstructor = true;
+    } else if (STKindChecker.isAssignmentStatement(model) && STKindChecker.isMappingConstructor(model.expression)) {
+        hasMappingConstructor = true;
+    } else if (STKindChecker.isSpecificField(model) && STKindChecker.isMappingConstructor(model.valueExpr)) {
+        hasMappingConstructor = true;
+    }
+
     return (
 
         <g
@@ -357,7 +367,7 @@ export function JsonType(props: JsonTypeProps) {
                     )
                 }
             </g>
-            {isTarget && (
+            {isTarget && hasMappingConstructor && (
                 <g render-order="1" >
                     <AttributeTypeDraftButton
                         x={viewState.bBox.x + viewState.bBox.w - 40 - offSetCorrection - 2}
@@ -373,7 +383,7 @@ export function JsonType(props: JsonTypeProps) {
             )}
             {fields}
             {drafts}
-            {/* {dataPoints} */}
+            {!hasMappingConstructor && dataPoints}
         </g>
     );
 }

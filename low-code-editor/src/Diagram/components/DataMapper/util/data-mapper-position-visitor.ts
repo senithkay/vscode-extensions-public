@@ -26,14 +26,16 @@ export class DataMapperPositionVisitor implements Visitor {
     private offset: number;
     private startOffset: number;
     private maxOffset: number;
-    private hasDataMapperTypeDesc: boolean;
+    // private hasDataMapperTypeDesc: boolean;
+    private hasMappingConstructor: boolean;
 
     constructor(height: number, startOffset: number) {
         this.height = height;
         this.offset = startOffset;
         this.startOffset = startOffset;
         this.maxOffset = 0;
-        this.hasDataMapperTypeDesc = false;
+        // this.hasDataMapperTypeDesc = false;
+        this.hasMappingConstructor = false;
     }
 
     getMaxOffset(): number {
@@ -54,7 +56,8 @@ export class DataMapperPositionVisitor implements Visitor {
             const viewState = node.dataMapperViewState as FieldViewState;
             viewState.bBox.x = this.offset + PADDING_OFFSET;
             viewState.bBox.y = this.height + PADDING_OFFSET;
-            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            // this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            this.hasMappingConstructor = STKindChecker.isMappingConstructor(node.expression);
         }
     }
 
@@ -87,7 +90,7 @@ export class DataMapperPositionVisitor implements Visitor {
 
             this.height += DEFAULT_OFFSET * 2;
             this.offset = this.startOffset;
-            this.hasDataMapperTypeDesc = false;
+            // this.hasDataMapperTypeDesc = false;
         }
     }
 
@@ -96,8 +99,8 @@ export class DataMapperPositionVisitor implements Visitor {
             const viewState = node.dataMapperViewState as FieldViewState;
             viewState.bBox.x = this.offset + PADDING_OFFSET;
             viewState.bBox.y = this.height + PADDING_OFFSET;
-            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
-
+            // this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            this.hasMappingConstructor = STKindChecker.isMappingConstructor(node.initializer);
         }
     }
 
@@ -131,7 +134,7 @@ export class DataMapperPositionVisitor implements Visitor {
 
             this.height += DEFAULT_OFFSET * 2;
             this.offset = this.startOffset;
-            this.hasDataMapperTypeDesc = false;
+            // this.hasDataMapperTypeDesc = false;
         }
     }
 
@@ -148,7 +151,7 @@ export class DataMapperPositionVisitor implements Visitor {
     }
 
     beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
             this.height += DEFAULT_OFFSET;
             const viewState = node.dataMapperViewState as DataMapperViewState;
             viewState.bBox.y = this.height + PADDING_OFFSET;
@@ -165,7 +168,7 @@ export class DataMapperPositionVisitor implements Visitor {
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !this.hasDataMapperTypeDesc) {
+        if (node.dataMapperViewState && this.hasMappingConstructor) {
             this.height += DEFAULT_OFFSET;
             const viewstate = node.dataMapperViewState as FieldViewState;
             viewstate.bBox.x = this.offset + PADDING_OFFSET;
@@ -175,7 +178,7 @@ export class DataMapperPositionVisitor implements Visitor {
     }
 
     endVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState) {
+        if (node.dataMapperViewState && this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
             if (viewstate.draftViewState) {

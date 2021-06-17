@@ -36,7 +36,8 @@ export interface DataMapperState {
     squashConstants?: boolean;
     isInitializationInProgress: boolean;
     getDiagramEditorLangClient: any;
-    langServerURL: any
+    langServerURL: any;
+    draftArrows?: { x1: number, x2: number, y1: number, y2: number }[];
 }
 
 export enum FieldDraftType {

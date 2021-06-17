@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, SpecificField, StringLiteral, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, SpecificField, STKindChecker, StringLiteral, Visitor } from "@ballerina/syntax-tree";
 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
@@ -25,8 +25,9 @@ export class DataPointVisitor implements Visitor {
     private nameComponents: string[] = [];
     private outPutOffsetGap: number = 0;
     private readonly sourceTypeX: number = 0;
-    private hasDataMapperTypeDesc: boolean;
-    private hasInlineTypeDesc: boolean;
+    // private hasDataMapperTypeDesc: boolean;
+    // private hasInlineTypeDesc: boolean;
+    private hasMappingConstructor: boolean;
 
     constructor(maxFieldWidth: number, outputOffsetGap: number) {
         this.sourceTypeX = maxFieldWidth - 25;
@@ -63,12 +64,14 @@ export class DataPointVisitor implements Visitor {
                 this.nameComponents[this.nameComponents.length - 2]
                     = `${this.nameComponents[this.nameComponents.length - 2]}?`
             }
-            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            // this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            this.hasMappingConstructor = STKindChecker.isMappingConstructor(node.expression);
 
             if (viewState.sourcePointViewState) {
                 viewState.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewState.sourcePointViewState.bBox.y = viewState.bBox.y;
                 viewState.sourcePointViewState.connections = [];
+                viewState.sourcePointViewState.type = viewState.type;
                 viewState.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewState.sourcePointViewState);
             }
@@ -93,7 +96,7 @@ export class DataPointVisitor implements Visitor {
             }
 
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
-            this.hasDataMapperTypeDesc = false;
+            // this.hasDataMapperTypeDesc = false;
         }
     }
 
@@ -107,12 +110,14 @@ export class DataPointVisitor implements Visitor {
                     = `${this.nameComponents[this.nameComponents.length - 2]}?`
             }
 
-            this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
-            this.hasInlineTypeDesc = viewstate.hasInlineRecordDescription;
+            // this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+            // this.hasInlineTypeDesc = viewstate.hasInlineRecordDescription;
+            this.hasMappingConstructor = STKindChecker.isMappingConstructor(node.initializer);
 
             if (viewstate.sourcePointViewState) {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.type = viewstate.type;
                 viewstate.sourcePointViewState.connections = [];
                 viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
                 viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
@@ -140,12 +145,12 @@ export class DataPointVisitor implements Visitor {
             }
 
             this.nameComponents.splice(this.nameComponents.length - 1, 1);
-            this.hasDataMapperTypeDesc = false;
+            // this.hasDataMapperTypeDesc = false;
         }
     }
 
     beginVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
@@ -159,6 +164,7 @@ export class DataPointVisitor implements Visitor {
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.sourcePointViewState.connections = [];
                 viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
+                viewstate.sourcePointViewState.type = viewstate.type;
                 viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
@@ -174,7 +180,7 @@ export class DataPointVisitor implements Visitor {
     }
 
     endVisitRecordField(node: RecordField) {
-        if (node.dataMapperViewState) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
             if (viewstate.isOptionalType && this.nameComponents.length > 1) {
@@ -188,7 +194,7 @@ export class DataPointVisitor implements Visitor {
     }
 
     beginVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
+        if (node.dataMapperViewState && this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
             this.nameComponents.push(viewstate.name);
 
@@ -201,6 +207,7 @@ export class DataPointVisitor implements Visitor {
                 viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
                 viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
                 viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
+                viewstate.sourcePointViewState.type = viewstate.type;
                 viewstate.sourcePointViewState.connections = [];
                 this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
             }
@@ -215,7 +222,7 @@ export class DataPointVisitor implements Visitor {
     }
 
     endVisitSpecificField(node: SpecificField) {
-        if (node.dataMapperViewState && !(this.hasDataMapperTypeDesc || this.hasInlineTypeDesc)) {
+        if (node.dataMapperViewState && this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
             if (viewstate.isOptionalType && this.nameComponents.length > 1) {
