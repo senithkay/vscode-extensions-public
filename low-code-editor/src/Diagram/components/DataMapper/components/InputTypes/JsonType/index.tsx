@@ -120,6 +120,8 @@ export function JsonType(props: JsonTypeProps) {
                     mappingConstructorNode = model.initializer as MappingConstructor;
                 } else if (STKindChecker.isAssignmentStatement(model)) {
                     mappingConstructorNode = model.expression as MappingConstructor;
+                } else if (STKindChecker.isSpecificField(model)) {
+                    mappingConstructorNode = model.valueExpr as MappingConstructor;
                 }
 
                 if (mappingConstructorNode) {

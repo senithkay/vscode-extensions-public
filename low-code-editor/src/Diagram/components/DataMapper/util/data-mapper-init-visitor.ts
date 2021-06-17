@@ -15,11 +15,13 @@ import {
     AssignmentStatement,
     BinaryExpression,
     CaptureBindingPattern,
+    CheckAction,
     CheckExpression,
     FieldAccess,
     IdentifierToken,
     LocalVarDecl,
     MethodCall,
+    PositionalArg,
     QualifiedNameReference,
     RecordField,
     RecordTypeDesc,
@@ -219,8 +221,10 @@ export class DataMapperInitVisitor implements Visitor {
             }
         }
 
+
         if (node.valueExpr) {
             const valueExprVS = new FieldViewState();
+            viewstate.hasMappedConstructorInitializer = STKindChecker.isMappingConstructor(node.valueExpr);
 
             if (STKindChecker.isStringLiteral(node.valueExpr)) {
                 valueExprVS.type = CONSTANT_TYPE;
@@ -283,8 +287,14 @@ export class DataMapperInitVisitor implements Visitor {
 
         node.expression.dataMapperViewState = new DataMapperViewState();
     }
-    
 
+    beginVisitPositionalArg(node: PositionalArg) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperViewState();
+        }
+
+        node.expression.dataMapperViewState = new DataMapperViewState();
+    }
 }
 
 function setTypeFromTypeSymbol(viewstate: FieldViewState, typeSymbol: any) {
