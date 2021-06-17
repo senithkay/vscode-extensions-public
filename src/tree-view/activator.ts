@@ -59,8 +59,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
-            showDiagramEditor(ballerinaExtInstance, construct.startLine, construct.startColumn, construct.kind,
-                construct.name, construct.filePath);
+            showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
+                construct.filePath);
         }
     });
     return packageTreeDataProvider;

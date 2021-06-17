@@ -22,8 +22,9 @@ import {
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND } from './model';
 import { join, sep } from 'path';
-import fileUriToPath = require('file-uri-to-path');
+import fileUriToPath from 'file-uri-to-path';
 import { BAL_TOML, PROJECT_TYPE } from '../project';
+import { DiagramOptions } from '../diagram';
 
 /**
  * Data provider class for package tree.
@@ -257,5 +258,46 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
         }
         return resources;
+    }
+
+    public async getFirstViewElement(): Promise<DiagramOptions> {
+        const packageItems: PackageTreeItem[] | undefined | null = await this.getChildren();
+        if (!packageItems) {
+            return { isDiagram: false };
+        }
+        if (packageItems.length > 0) {
+            for (let i = 0; i < packageItems.length; i++) {
+                const child: PackageTreeItem | undefined = await this.getNextChild(packageItems[i]);
+                if (child) {
+                    return {
+                        name: child.getName(),
+                        kind: child.getKind(),
+                        filePath: child.getFilePath(),
+                        startLine: child.getStartLine(),
+                        startColumn: child.getStartColumn(),
+                        isDiagram: true
+                    };
+                }
+            }
+        }
+        return { isDiagram: false };
+    }
+
+    async getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
+        const children: PackageTreeItem[] | undefined | null = await this.getChildren(treeItem);
+        if (!children || children.length === 0) {
+            return;
+        }
+
+        for (let i = 0; i < children.length; i++) {
+            let child: PackageTreeItem = children[i];
+            if (child.getKind() === CMP_KIND.SERVICE) {
+                return await this.getNextChild(child);
+            }
+            if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
+                return child;
+            }
+        }
+        return;
     }
 }

@@ -28,7 +28,7 @@ import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
-import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
+import { CMP_KIND, PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
@@ -41,21 +41,21 @@ let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 
-export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
-	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
+export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
+	filePath: string, isCommand: boolean = false): Promise<void> {
 
 	const editor = window.activeTextEditor;
 	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
+			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
 			window.showErrorMessage(message);
 			return;
 		}
 	}
 
-	if (isCommand && editor && langClient && overviewDataProvider) {
-		const diagramOptions: DiagramOptions = await getFirstViewElement();
+	if (isCommand && overviewDataProvider) {
+		const diagramOptions: DiagramOptions = await overviewDataProvider.getFirstViewElement();
 		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
@@ -105,7 +105,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(ballerinaExtInstance, 0, 0, '', '', '', true);
+				showDiagramEditor(0, 0, '', '', '', true);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -113,47 +113,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
-}
-
-export async function getFirstViewElement(): Promise<DiagramOptions> {
-	const packageItems: PackageTreeItem[] | undefined | null = await overviewDataProvider.getChildren();
-	if (!packageItems) {
-		return { isDiagram: false };
-	}
-	if (packageItems.length > 0) {
-		for (let i = 0; i < packageItems.length; i++) {
-			const child: PackageTreeItem | undefined = await getNextChild(packageItems[i]);
-			if (child) {
-				return {
-					name: child.getName(),
-					kind: child.getKind(),
-					filePath: child.getFilePath(),
-					startLine: child.getStartLine(),
-					startColumn: child.getStartColumn(),
-					isDiagram: true
-				};
-			}
-		}
-	}
-	return { isDiagram: false };
-}
-
-async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
-	const children: PackageTreeItem[] | undefined | null = await overviewDataProvider.getChildren(treeItem);
-	if (!children || children.length === 0) {
-		return;
-	}
-
-	for (let i = 0; i < children.length; i++) {
-		let child: PackageTreeItem = children[i];
-		if (child.getKind() === CMP_KIND.SERVICE) {
-			return await getNextChild(child);
-		}
-		if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
-			return child;
-		}
-	}
-	return;
 }
 
 class DiagramPanel {
@@ -201,10 +160,13 @@ class DiagramPanel {
 	}
 
 	private update() {
-		if (diagramElement) {
-			this.webviewPanel.webview.html = render(diagramElement?.fileUri!, diagramElement?.startLine!,
-				diagramElement?.startColumn!, diagramElement?.kind!, diagramElement?.name!);
-			callUpdateDiagramMethod();
+		if (diagramElement && diagramElement.isDiagram) {
+			if (!DiagramPanel.currentPanel) {
+				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
+					diagramElement!.startColumn!, diagramElement!.kind!, diagramElement!.name!);
+			} else {
+				callUpdateDiagramMethod();
+			}
 		}
 	}
 }
