@@ -165,7 +165,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (isNewConnection && isOauthConnector) {
             setFormState(FormStates.OauthConnect);
             setIsLoading(false);
-            // return;
+            return;
         } else if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
             setFormState(FormStates.SingleForm);
             setIsLoading(false);
@@ -521,8 +521,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     modifications.push(updateConnectorInit);
                 }
             }
-
-
         }
         if (modifications.length > 0) {
             modifyDiagram(modifications);
@@ -627,13 +625,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addPayload);
                     }
-
-                    modifyDiagram(modifications);
-                    onClose();
+                    if (modifications.length > 0) {
+                        modifyDiagram(modifications);
+                        onClose();
+                    }
                     showNotification(response.status, ConnectionAction.create);
                 })();
             }
-
         }
     };
 
