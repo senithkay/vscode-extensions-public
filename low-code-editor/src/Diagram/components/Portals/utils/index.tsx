@@ -979,6 +979,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 if (formField.isParam) {
                     let type = "";
                     if (formField.type === "error" || formField.isErrorType) {
+                        formField.isErrorType = true;
                         response.hasError = true;
                     }
                     if (type === "" && formField.typeInfo && !formField.isErrorType) {

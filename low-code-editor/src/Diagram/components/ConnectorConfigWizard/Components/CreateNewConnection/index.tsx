@@ -52,7 +52,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo : symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
+            onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -144,7 +144,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
-        state.onAPIClient(nameState.value, connector);
         onSave();
     };
 
