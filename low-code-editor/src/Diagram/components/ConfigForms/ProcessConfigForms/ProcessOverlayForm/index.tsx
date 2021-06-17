@@ -10,10 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
+import { DefaultConfig } from "../../../../../..//src/Diagram/visitors/default";
+import { Context } from "../../../../../../src/Contexts/Diagram";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
@@ -34,8 +38,18 @@ interface ProcessOverlayFormProps {
 
 export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
-    // const { type } = config;
     const { isLoading, error, formType } = configOverlayFormStatus;
+    const { state } = useContext(Context);
+    const { onFitToScreen, appInfo } = state;
+
+    const dispatch = useDispatch();
+    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
+    const currentAppid = appInfo?.currentApp?.id;
+
+    React.useEffect(() => {
+        onFitToScreen(currentAppid);
+        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+    }, []);
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
