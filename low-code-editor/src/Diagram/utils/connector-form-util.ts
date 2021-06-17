@@ -508,6 +508,13 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
             break;
         case 'ballerinax_github_Client':
             functionDefInfoMap.forEach((value, key) => {
+                if (key === 'init') {
+                    value.parameters.forEach(field => {
+                        if (field.name === 'clientConfig') {
+                            field.optional = true;
+                        }
+                    })
+                }
                 if (key === 'getRepository') {
                     value.parameters.forEach(field => {
                         if (field.name === 'repoIdentifier') {
