@@ -248,7 +248,6 @@ export async function completeMissingTypeDesc(paramNode: STNode, records: Map<st
                             await Promise.all((typeDescST as RecordTypeDesc).fields.map(async (field: any) => {
                                 await completeMissingTypeDesc(field, records, visitType, langClient);
                             }))
-
                             break;
                     }
                 }

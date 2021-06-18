@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import { FieldViewState } from '../../../viewstate';
@@ -19,6 +20,7 @@ interface ConstantProps {
     viewState: FieldViewState;
     offSetCorrection: number;
 }
+
 
 export function Constant(props: ConstantProps) {
     const { viewState, offSetCorrection } = props
@@ -50,7 +52,13 @@ export function Constant(props: ConstantProps) {
                 y={viewState.bBox.y + 10}
                 height="50"
             >
-                <tspan className="key-value"> {`${viewState.value}`} </tspan>
+                <tspan className="key-value">
+                    {
+                        viewState.value.length > 20 ?
+                            `${viewState.value}`.slice(0, 20) + '...'
+                            : `${viewState.value}`
+                    }
+                </tspan>
             </text>
             {dataPoints}
         </g>

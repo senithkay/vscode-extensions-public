@@ -120,6 +120,8 @@ export function ValueType(props: ValueTypeProps) {
         dispatchMutations(modifications);
     }
 
+    const isNameTooLong = `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`.length > 20;
+
     return (
         <g
             data-testid={'datamapper-variable-wrapper'}
@@ -147,10 +149,22 @@ export function ValueType(props: ValueTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="key-value"> {`${name}:`} </tspan>
-                                <tspan className="value-para">
-                                    {`${type}${viewState.isOptionalType ? '?' : ''}`}
-                                </tspan>
+                                {!isNameTooLong ?
+                                    (
+
+                                        <>
+                                            <tspan className="key-value"> {`${name}:`} </tspan>
+                                            <tspan className="value-para">
+                                                {`${type}${viewState.isOptionalType ? '?' : ''}`}
+                                            </tspan>
+                                        </>
+                                    ) : (
+                                        <tspan className="key-value">
+                                            {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                                .slice(0, 20) + '...'}
+                                        </tspan>
+                                    )
+                                }
                             </text>
                             {!isTarget && (
                                 <g
@@ -174,8 +188,14 @@ export function ValueType(props: ValueTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="value-para"> {`${name}:`} </tspan>
-                                <tspan className="value-para"> {`${type}${viewState.isOptionalType ? '?' : ''}`}  </tspan>
+                                <tspan className="value-para">
+                                    {
+                                        !isNameTooLong ?
+                                            `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                            : `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                                .slice(0, 20) + '...'
+                                    }
+                                </tspan>
                             </text>
                             {isTarget && isJsonField && (
                                 <g

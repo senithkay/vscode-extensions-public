@@ -49,7 +49,7 @@ interface JsonTypeProps {
 export function JsonType(props: JsonTypeProps) {
     const { state: { dispatchMutations } } = useContext(DataMapperViewContext);
     const { model, isMain, onDataPointClick, offSetCorrection, onAddFieldButtonClick,
-            isTarget, removeInputType, commaPosition, isLastField } = props;
+        isTarget, removeInputType, commaPosition, isLastField } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
 
@@ -300,6 +300,8 @@ export function JsonType(props: JsonTypeProps) {
         hasMappingConstructor = true;
     }
 
+    const isNameTooLong = `${name}: ${type}`.length > 20;
+
     return (
 
         <g
@@ -328,8 +330,21 @@ export function JsonType(props: JsonTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="key-value"> {`${name}:`} </tspan>
-                                <tspan className="value-para"> {`${type}`}  </tspan>
+                                {
+                                    !isNameTooLong ?
+                                        (
+                                            <>
+                                                <tspan className="key-value"> {`${name}:`} </tspan>
+                                                <tspan className="value-para"> {`${type}`}  </tspan>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <tspan className="key-value">
+                                                    {`${name}: ${type}`.slice(0, 20) + '...'}
+                                                </tspan>
+                                            </>
+                                        )
+                                }
                             </text>
                             {!isTarget && (
                                 <g
@@ -353,8 +368,13 @@ export function JsonType(props: JsonTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="value-para"> {`${name}:`} </tspan>
-                                <tspan className="value-para"> {`${type}`}  </tspan>
+                                <tspan className="value-para">
+                                    {
+                                        !isNameTooLong ?
+                                            `${name}: ${type}`
+                                            : `${name}: ${type}`.slice(0, 20) + '...'
+                                    }
+                                </tspan>
                             </text>
                             {isTarget && (
                                 <g

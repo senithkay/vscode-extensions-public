@@ -160,6 +160,8 @@ export function RecordType(props: RecordTypeProps) {
         }
     }
 
+    const isNameTooLong = `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`.length > 20;
+
     return (
 
         <g
@@ -187,10 +189,32 @@ export function RecordType(props: RecordTypeProps) {
                                 x={viewState.bBox.x}
                                 y={viewState.bBox.y + 10}
                                 height="50"
+                                width={100}
                                 ref={svgTextRef}
+                                style={{ textOverflow: 'ellipsis' }}
                             >
-                                <tspan className="key-value"> {`${name}`} </tspan>
-                                {type && <tspan className="value-para"> {`: ${type}${viewState.isOptionalType ? '?' : ''}`}  </tspan>}
+                                {!isNameTooLong ?
+                                    (
+                                        <>
+                                            <tspan className="key-value"> {`${name}`} </tspan>
+                                            {
+                                                type && (
+                                                    <tspan className="value-para">
+                                                        {`: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                                    </tspan>
+                                                )
+                                            }
+                                        </>
+                                    ) :
+                                    (
+                                        <>
+                                            <tspan className="key-value">
+                                                {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                                    .slice(0, 20) + "..."}
+                                            </tspan>
+                                        </>
+                                    )
+                                }
                             </text>
                             {!isTarget && (
                                 <g
@@ -212,8 +236,13 @@ export function RecordType(props: RecordTypeProps) {
                             y={viewState.bBox.y + DefaultConfig.dotGap}
                             height="50"
                         >
-                            <tspan className="value-para"> {`${name}`} </tspan>
-                            {type && <tspan className="value-para"> {`: ${type}${viewState.isOptionalType ? '?' : ''}`}  </tspan>}
+                            <tspan className="value-para">
+                                {isNameTooLong ?
+                                    `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
+                                        .slice(0, 20) + "..."
+                                    : `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
+                                }
+                            </tspan>
                         </text>
                     )
                 }

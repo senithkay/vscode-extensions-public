@@ -33,10 +33,10 @@ export function DataMapperWrapper(props: DataMapperState) {
         // updateState({
         //     ...props,
         // });
-        (async () => {
-            await initializeNodesAndUpdate(props, updateState);
-        })()
-        // initializeNodesAndUpdate(props, updateState);
+        // (async () => {
+        //     await initializeNodesAndUpdate(props, updateState);
+        // })()
+        initializeNodesAndUpdate(props, updateState);
     }, [inputSTNodes, outputSTNode, stSymbolInfo])
 
     return (
