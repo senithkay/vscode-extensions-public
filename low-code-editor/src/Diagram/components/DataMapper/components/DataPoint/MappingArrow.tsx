@@ -72,6 +72,8 @@ export function MappingArrow(props: MappingArrowProps) {
                     statement = '0';
                 }
                 break;
+            case PrimitiveBalType.Json:
+                statement = '""';
             default:
             // ignored
         }
