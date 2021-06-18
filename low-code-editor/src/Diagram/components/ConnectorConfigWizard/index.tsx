@@ -101,6 +101,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const handleClose = () => {
         onClose();
         dispatchOverlayClose();
+        toggleDiagramOverlay();
     }
 
     return (
