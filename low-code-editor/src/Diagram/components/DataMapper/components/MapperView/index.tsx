@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import Typography from '@material-ui/core/Typography';
 
 import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
 import { STModification } from '../../../../../Definitions';
@@ -35,7 +36,6 @@ import { SaveButton } from '../buttons/SaveButton';
 import { AddVariableButton } from '../buttons/SelectNewVariable';
 import { OutputTypeConfigForm } from '../forms/OutputTypeConfigForm';
 import { VariablePicker } from '../forms/VariablePicker';
-import Typography from '@material-ui/core/Typography';
 
 export function MapperView() {
     const {
@@ -75,6 +75,7 @@ export function MapperView() {
     const [eventListenerMap] = useState<any>({});
     const [isExpressionValid, setIsExpressionValid] = useState(true);
     const [expressionEditorText, setExpressionEditorText] = useState(undefined);
+    const [hasTypeMismatch, setHasTypeMismatch] = useState(false);
 
     const handleAddVariableClick = () => {
         toggleAddVariableForm();
@@ -96,23 +97,66 @@ export function MapperView() {
 
     const handleTypeConversionConfirmation = () => {
         let statement = '';
-        if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
-            || selectedTargetDataPoint.type === PrimitiveBalType.Float
-            || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
-            statement += `check ${selectedTargetDataPoint.type}:fromString(${selectedDataPoint.text})`;
-        } else if ((selectedDataPoint.type === PrimitiveBalType.Int
-            || selectedDataPoint.type === PrimitiveBalType.Float
-            || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
-            statement += `${selectedDataPoint.text}.toString()`;
+
+        if (!selectedTargetDataPoint.isOptionalType && selectedDataPoint.isOptionalType) {
+            setHasTypeMismatch(true);
+            const validateFunction = (name: string, validity: boolean) => {
+                setIsExpressionValid(validity);
+            }
+
+            const onChange = (value: string) => {
+                setExpressionEditorText(value);
+            }
+
+            setDefaultInputConfig({
+                positionX: selectedTargetDataPoint.bBox.x,
+                positionY: selectedTargetDataPoint.bBox.y,
+                config: {
+                    model: {
+                        name: 'expression',
+                        displayName: 'expression',
+                        type:
+                            selectedDataPoint.type === 'union' ?
+                                selectedDataPoint.unionType
+                                : selectedDataPoint.type
+                    },
+                    customProps: {
+                        validate: validateFunction,
+                        tooltipTitle: '',
+                        tooltipActionText: '',
+                        tooltipActionLink: '',
+                        interactive: true,
+                        statementType: selectedDataPoint.type === 'union' ?
+                            selectedDataPoint.unionType
+                            : selectedDataPoint.type,
+                        editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
+                    },
+                    onChange,
+                    defaultValue: '',
+                }
+            })
+        } else {
+            if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
+                || selectedTargetDataPoint.type === PrimitiveBalType.Float
+                || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
+                statement += `check ${selectedTargetDataPoint.type}:fromString(${selectedDataPoint.text})`;
+            } else if ((selectedDataPoint.type === PrimitiveBalType.Int
+                || selectedDataPoint.type === PrimitiveBalType.Float
+                || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
+                statement += `${selectedDataPoint.text}.toString()`;
+            }
+
+            onSave([
+                updatePropertyStatement(statement, selectedTargetDataPoint.position)
+            ]);
+
+            setSelectedDataPoint(undefined);
+            setSelectedTargetDataPoint(undefined);
         }
 
-        onSave([
-            updatePropertyStatement(statement, selectedTargetDataPoint.position)
-        ]);
 
         setShowTypeConfirmationDialog(false);
-        setSelectedDataPoint(undefined);
-        setSelectedTargetDataPoint(undefined);
+
         // updateState({ draftArrows: [] })
     };
 
@@ -138,8 +182,24 @@ export function MapperView() {
     }
 
     const defaultInputConfigOnSave = () => {
-        const statement = `${selectedDataPoint.text} ?: ${expressionEditorText}`;
-        onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+        if (hasTypeMismatch) {
+            let statement = '';
+            if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
+                || selectedTargetDataPoint.type === PrimitiveBalType.Float
+                || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
+                statement += `check ${selectedTargetDataPoint.type}:fromString(${selectedDataPoint.text} ?: ${expressionEditorText})`;
+            } else if ((selectedDataPoint.type === PrimitiveBalType.Int
+                || selectedDataPoint.type === PrimitiveBalType.Float
+                || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
+                statement += `(${selectedDataPoint.text} ?: ${expressionEditorText}).toString()`;
+            }
+            
+            setHasTypeMismatch(false);
+            onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+        } else {
+            const statement = `${selectedDataPoint.text} ?: ${expressionEditorText}`;
+            onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+        }
 
         setDefaultInputConfig(undefined);
         setExpressionEditorText(undefined);
@@ -276,43 +336,54 @@ export function MapperView() {
         });
 
         if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
-            const validateFunction = (name: string, validity: boolean) => {
-                setIsExpressionValid(validity);
-            }
-
-            const onChange = (value: string) => {
-                setExpressionEditorText(value);
-            }
-
-            setSelectedTargetDataPoint(targetPointViewState);
-            setDefaultInputConfig({
-                positionX: targetPointViewState.bBox.x,
-                positionY: targetPointViewState.bBox.y,
-                config: {
-                    model: {
-                        name: 'expression',
-                        displayName: 'expression',
-                        type:
-                            targetPointViewState.type === 'union' ?
-                                targetPointViewState.unionType
-                                : targetPointViewState.type
-                    },
-                    customProps: {
-                        validate: validateFunction,
-                        tooltipTitle: '',
-                        tooltipActionText: '',
-                        tooltipActionLink: '',
-                        interactive: true,
-                        statementType: targetPointViewState.type === 'union' ? targetPointViewState.unionType
-                            : targetPointViewState.isOptionalType ?
-                                `${targetPointViewState.type}?` : targetPointViewState.type,
-                        editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
-                    },
-                    onChange,
-                    defaultValue: '',
+            if ((targetPointViewState.type === PrimitiveBalType.Int
+                || targetPointViewState.type === PrimitiveBalType.Float
+                || targetPointViewState.type === 'decimal') && sourcePointViewState.type === PrimitiveBalType.String) {
+                setSelectedTargetDataPoint(targetPointViewState);
+                setShowTypeConfirmationDialog(true);
+            } else if ((sourcePointViewState.type === PrimitiveBalType.Int
+                || sourcePointViewState.type === PrimitiveBalType.Float
+                || sourcePointViewState.type === 'decimal') && targetPointViewState.type === PrimitiveBalType.String) {
+                setSelectedTargetDataPoint(targetPointViewState);
+                setShowTypeConfirmationDialog(true);
+            } else {
+                const validateFunction = (name: string, validity: boolean) => {
+                    setIsExpressionValid(validity);
                 }
-            })
 
+                const onChange = (value: string) => {
+                    setExpressionEditorText(value);
+                }
+
+                setSelectedTargetDataPoint(targetPointViewState);
+                setDefaultInputConfig({
+                    positionX: targetPointViewState.bBox.x,
+                    positionY: targetPointViewState.bBox.y,
+                    config: {
+                        model: {
+                            name: 'expression',
+                            displayName: 'expression',
+                            type:
+                                targetPointViewState.type === 'union' ?
+                                    targetPointViewState.unionType
+                                    : targetPointViewState.type
+                        },
+                        customProps: {
+                            validate: validateFunction,
+                            tooltipTitle: '',
+                            tooltipActionText: '',
+                            tooltipActionLink: '',
+                            interactive: true,
+                            statementType: targetPointViewState.type === 'union' ? targetPointViewState.unionType
+                                : targetPointViewState.isOptionalType ?
+                                    `${targetPointViewState.type}?` : targetPointViewState.type,
+                            editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
+                        },
+                        onChange,
+                        defaultValue: '',
+                    }
+                })
+            }
         } else if (!sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
             if ((targetPointViewState.type === PrimitiveBalType.Int
                 || targetPointViewState.type === PrimitiveBalType.Float
