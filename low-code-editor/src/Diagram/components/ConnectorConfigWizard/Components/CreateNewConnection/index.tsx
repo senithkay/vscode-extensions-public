@@ -50,7 +50,7 @@ interface NameState {
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
-    const { stSymbolInfo : symbolInfo } = state;
+    const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard } = props;
     const classes = useStyles();
@@ -59,7 +59,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name,
-        isValidName:  !!connectorConfig.name,
+        isValidName: !!connectorConfig.name,
         isNameProvided: nameRegex.test(connectorConfig.name)
     };
 
@@ -83,8 +83,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
-    if (hasReference === undefined){
-        if (!symbolRefArray){
+    if (hasReference === undefined) {
+        if (!symbolRefArray) {
             setHasReference(false);
         } else if (isNewConnectorInitWizard) {
             setHasReference(symbolRefArray.length > 0);
@@ -96,7 +96,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("connector name", value, defaultConnectorName, state);
-            if (varValidationResponse?.error){
+            if (varValidationResponse?.error) {
                 setConnectorNameError(varValidationResponse.message);
                 return false;
             }
@@ -180,32 +180,33 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const pathInstructionsBullet1 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint1",
         defaultMessage: "Include spaces and special characters"
-      });
+    });
 
     const pathInstructionsBullet2 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint2",
         defaultMessage: "Start with a numerical character"
-      });
+    });
 
     const pathInstructionsBullet3 = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint3",
         defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
-      });
+    });
 
     const pathInstructions = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.tooltip",
         defaultMessage: "A valid endpoint name should not:"
-      });
+    });
+    
     const title = (
         <div>
-          <p>{pathInstructions}</p>
-          <ul>
-            <li>{pathInstructionsBullet1}</li>
-            <li>{pathInstructionsBullet2}</li>
-            <li>{pathInstructionsBullet3}</li>
-          </ul>
+            <p>{pathInstructions}</p>
+            <ul>
+                <li>{pathInstructionsBullet1}</li>
+                <li>{pathInstructionsBullet2}</li>
+                <li>{pathInstructionsBullet3}</li>
+            </ul>
         </div>
-      );
+    );
 
     const connectionNametitle = (
         <div>
@@ -282,18 +283,18 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )} */}
                     <div className={classes.saveConnectorBtnHolder}>
-                        { !isNewConnectorInitWizard && (
+                        {!isNewConnectorInitWizard && (
                             <PrimaryButton
-                                text="Save Connector"
+                                text="Save Connection"
                                 fullWidth={false}
                                 disabled={!(isFieldsValid)}
                                 onClick={handleOnSave}
                             />
-                        ) }
-                        { isNewConnectorInitWizard && (
+                        )}
+                        {isNewConnectorInitWizard && (
                             <>
                                 <LinePrimaryButton
-                                    text="Save Connector"
+                                    text="Save Connection"
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     onClick={handleOnSave}
@@ -305,11 +306,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     onClick={handleOnSaveNext}
                                 />
                             </>
-                        ) }
+                        )}
                     </div>
                 </div>
             </FormControl>
         </div>
     );
 }
-

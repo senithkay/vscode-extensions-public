@@ -902,6 +902,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                                 selectedConnectionType={selectedConnectionType}
                                                 onSave={handleClientOnSave}
                                                 onClickManualConnection={onManualConnection}
+                                                onSaveNext={handleCreateConnectorSaveNext}
                                             />
                                         </div>
                                     </div>

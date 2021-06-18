@@ -21,12 +21,14 @@ import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
 import { Context } from "../../../Contexts/Diagram";
-import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
+
 
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
 import { useStyles } from "./styles";
+import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
+import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
 
 export enum ConnectionType {
   NEW = "NEW",
@@ -46,6 +48,7 @@ export interface OauthConnectButtonProps {
   selectedConnectionType?: ConnectionType;
   onSave?: () => void;
   onClickManualConnection?: () => void;
+  onSaveNext?: () => void;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
@@ -70,7 +73,8 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     className,
     selectedConnectionType,
     onSave,
-    onClickManualConnection
+    onClickManualConnection,
+    onSaveNext
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -203,11 +207,28 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
               onChangeConnection={handleClickChangeConnection}
           />
           <div className={classes.saveBtnWrapper}>
-            <PrimaryButton
-                text="Save"
-                fullWidth={true}
-                onClick={onSave}
-            />
+            {(selectedConnectionType === ConnectionType.NEW) ? (
+              <div className={classes.saveConnectorBtnHolder}>
+                <LinePrimaryButton
+                  text="Save Connection"
+                  fullWidth={true}
+                  onClick={onSave}
+                />
+                <PrimaryButton
+                    text="Continue to invoke API"
+                    fullWidth={true}
+                    onClick={onSaveNext}
+                />
+              </div>
+            ) : (
+              <div className={classes.saveConnectorBtnHolder}>
+                <PrimaryButton
+                    text="Save Connection"
+                    fullWidth={true}
+                    onClick={onSave}
+                />
+              </div>
+            )}
           </div>
         </>
     );

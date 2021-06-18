@@ -255,6 +255,14 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             flexDirection: "column",
             marginTop: '1rem',
             position: "relative"
+        },
+        authBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 100,
+            flexDirection: 'column',
+            justifyContent: "space-between",
+            paddingTop: theme.spacing(2.5)
         }
     }),
 );
