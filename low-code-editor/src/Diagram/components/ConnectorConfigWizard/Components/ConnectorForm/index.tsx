@@ -552,7 +552,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if((connectorTypes.includes(connectorInfo.displayName))){
+                if ((connectorTypes.includes(connectorInfo.displayName))){
                     const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                     const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                     const formattedFieldValues: { name: string; value: string; }[] = [];
@@ -579,7 +579,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 targetPosition
                             );
                             modifications.push(addImport);
-    
+
                             if (connectorConfigurables) {
                                 const addConfigurableVars = createPropertyStatement(
                                     connectorConfigurables,
@@ -587,7 +587,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 );
                                 modifications.push(addConfigurableVars);
                             }
-    
+
                             const addConnectorInit: STModification = createPropertyStatement(
                                 `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
                                 targetPosition
@@ -608,7 +608,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             );
                             modifications.push(addActionInvocation);
                         }
-    
+
                         if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
                             const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                                 config.responsePayloadMap.payloadVariableName,
@@ -636,7 +636,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addImport);
-    
+
                         if (connectorConfigurables) {
                             const addConfigurableVars = createPropertyStatement(
                                 connectorConfigurables,
@@ -644,7 +644,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             );
                             modifications.push(addConfigurableVars);
                         }
-    
+
                         const addConnectorInit: STModification = createPropertyStatement(
                             `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
                                 ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
@@ -660,7 +660,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addImport);
-    
+
                         const addConnectorInit: STModification = createPropertyStatement(
                             `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                             targetPosition
@@ -681,7 +681,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addActionInvocation);
                     }
-    
+
                     if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             config.responsePayloadMap.payloadVariableName,
