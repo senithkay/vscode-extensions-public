@@ -587,21 +587,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            const offset = varType.length + 1;
-            await langClient.getType({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                },
-                position: {
-                    line: targetPosition.line,
-                    offset
-                }
-            }).then((resp: any) => {
-                const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
-                handleTypeInfo(typeInfo);
-            });
-        });
+        // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+        // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        //     const offset = varType.length + 1;
+        //     await langClient.getType({
+        //         documentIdentifier: {
+        //             uri: expressionEditorState.uri,
+        //         },
+        //         position: {
+        //             line: targetPosition.line,
+        //             offset
+        //         }
+        //     }).then((resp: any) => {
+        //         const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+        //         handleTypeInfo(typeInfo);
+        //     });
+        // });
 
         if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
@@ -662,21 +663,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                const offset = varType.length + 1;
-                await langClient.getType({
-                    documentIdentifier: {
-                        uri: expressionEditorState.uri,
-                    },
-                    position: {
-                        line: targetPosition.line,
-                        offset
-                    }
-                }).then((resp: any) => {
-                    const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
-                    handleTypeInfo(typeInfo);
-                });
-            });
+            // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+            // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            //     const offset = varType.length + 1;
+            //     await langClient.getType({
+            //         documentIdentifier: {
+            //             uri: expressionEditorState.uri,
+            //         },
+            //         position: {
+            //             line: targetPosition.line,
+            //             offset
+            //         }
+            //     }).then((resp: any) => {
+            //         const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+            //         handleTypeInfo(typeInfo);
+            //     });
+            // });
 
             if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
