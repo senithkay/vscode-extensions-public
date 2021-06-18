@@ -40,7 +40,7 @@ export function LinePrimaryButton(props: ButtonProps) {
     const { text, startIcon, onClick, fullWidth, disabled, className, testId, dataTestId } = props;
     return (
         <Button
-            data-testid={testId}
+            data-testid={dataTestId}
             onClick={onClick}
             variant="outlined"
             classes={{
