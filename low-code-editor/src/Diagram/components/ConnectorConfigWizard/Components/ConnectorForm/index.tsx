@@ -631,10 +631,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     if (isOauthConnector && connection) {
                         let OAuthtype;
                         if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name) {
-                            OAuthtype = "BearerTokenConfig"
+                            OAuthtype = "BearerTokenConfig";
                         }
                         else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name) {
-                            OAuthtype = "OAuth2RefreshTokenGrantConfig"
+                            OAuthtype = "OAuth2RefreshTokenGrantConfig";
                         }
                         // tslint:disable-next-line:no-shadowed-variable variable-name
                         const connectorConfigurablesInvoke = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);
