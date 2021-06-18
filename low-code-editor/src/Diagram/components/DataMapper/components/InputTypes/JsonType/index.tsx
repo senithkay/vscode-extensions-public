@@ -19,6 +19,7 @@ import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordTypeDesc, 
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import Tooltip from '../../../../../../components/Tooltip';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
@@ -338,11 +339,18 @@ export function JsonType(props: JsonTypeProps) {
                                                 <tspan className="value-para"> {`${type}`}  </tspan>
                                             </>
                                         ) : (
-                                            <>
+                                            <Tooltip
+                                                arrow={true}
+                                                placement="top-start"
+                                                title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                                inverted={false}
+                                                interactive={true}
+                                            >
                                                 <tspan className="key-value">
                                                     {`${name}: ${type}`.slice(0, 20) + '...'}
                                                 </tspan>
-                                            </>
+                                            </Tooltip>
+
                                         )
                                 }
                             </text>
@@ -368,13 +376,25 @@ export function JsonType(props: JsonTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="value-para">
-                                    {
-                                        !isNameTooLong ?
-                                            `${name}: ${type}`
-                                            : `${name}: ${type}`.slice(0, 20) + '...'
-                                    }
-                                </tspan>
+                                {
+                                    !isNameTooLong ?
+                                        (
+                                            <tspan className="value-para"> {`${name}: ${type}`}  </tspan>
+                                        ) : (
+                                            <Tooltip
+                                                arrow={true}
+                                                placement="top-start"
+                                                title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                                inverted={false}
+                                                interactive={true}
+                                            >
+                                                <tspan className="value-value">
+                                                    {`${name}: ${type}`.slice(0, 20) + '...'}
+                                                </tspan>
+                                            </Tooltip>
+
+                                        )
+                                }
                             </text>
                             {isTarget && (
                                 <g

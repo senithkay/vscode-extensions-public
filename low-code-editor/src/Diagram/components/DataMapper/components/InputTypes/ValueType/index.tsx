@@ -19,6 +19,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import Tooltip from '../../../../../../components/Tooltip';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
@@ -159,10 +160,18 @@ export function ValueType(props: ValueTypeProps) {
                                             </tspan>
                                         </>
                                     ) : (
-                                        <tspan className="key-value">
-                                            {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
-                                                .slice(0, 20) + '...'}
-                                        </tspan>
+                                        <Tooltip
+                                            arrow={true}
+                                            placement="top-start"
+                                            title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                            inverted={false}
+                                            interactive={true}
+                                        >
+                                            <tspan className="key-value">
+                                                {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                                    .slice(0, 20) + '...'}
+                                            </tspan>
+                                        </Tooltip>
                                     )
                                 }
                             </text>
@@ -188,14 +197,28 @@ export function ValueType(props: ValueTypeProps) {
                                 height="50"
                                 ref={svgTextRef}
                             >
-                                <tspan className="value-para">
-                                    {
-                                        !isNameTooLong ?
-                                            `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
-                                            : `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
-                                                .slice(0, 20) + '...'
-                                    }
-                                </tspan>
+                                {!isNameTooLong ?
+                                    (
+                                        <>
+                                            <tspan className="value-para">
+                                                {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                            </tspan>
+                                        </>
+                                    ) : (
+                                        <Tooltip
+                                            arrow={true}
+                                            placement="top-start"
+                                            title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                            inverted={false}
+                                            interactive={true}
+                                        >
+                                            <tspan className="value-value">
+                                                {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
+                                                    .slice(0, 20) + '...'}
+                                            </tspan>
+                                        </Tooltip>
+                                    )
+                                }
                             </text>
                             {isTarget && isJsonField && (
                                 <g

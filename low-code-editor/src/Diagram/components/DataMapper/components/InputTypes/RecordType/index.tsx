@@ -15,12 +15,13 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: no-console
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
+import Tooltip from '../../../../../../components/Tooltip';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
@@ -207,12 +208,18 @@ export function RecordType(props: RecordTypeProps) {
                                         </>
                                     ) :
                                     (
-                                        <>
+                                        <Tooltip
+                                            arrow={true}
+                                            placement="top-start"
+                                            title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                            inverted={false}
+                                            interactive={true}
+                                        >
                                             <tspan className="key-value">
                                                 {`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`
                                                     .slice(0, 20) + "..."}
                                             </tspan>
-                                        </>
+                                        </Tooltip>
                                     )
                                 }
                             </text>
@@ -236,6 +243,26 @@ export function RecordType(props: RecordTypeProps) {
                             y={viewState.bBox.y + DefaultConfig.dotGap}
                             height="50"
                         >
+                            {
+                                isNameTooLong ? (
+                                    <Tooltip
+                                        arrow={true}
+                                        placement="top-start"
+                                        title={`${name}: ${type}${viewState.isOptionalType ? '?' : ''}`}
+                                        inverted={false}
+                                        interactive={true}
+                                    >
+                                        <tspan className="value-para">
+                                            {`${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
+                                                .slice(0, 20) + "..."}
+                                        </tspan>
+                                    </Tooltip>
+                                ) : (
+                                    <tspan className="value-para">
+                                        `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
+                                    </tspan>
+                                )
+                            }
                             <tspan className="value-para">
                                 {isNameTooLong ?
                                     `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`

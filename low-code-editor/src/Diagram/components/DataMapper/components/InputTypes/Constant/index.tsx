@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import Tooltip from '../../../../../../components/Tooltip';
 import { FieldViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
 
@@ -52,13 +53,25 @@ export function Constant(props: ConstantProps) {
                 y={viewState.bBox.y + 10}
                 height="50"
             >
-                <tspan className="key-value">
-                    {
-                        viewState.value.length > 20 ?
-                            `${viewState.value}`.slice(0, 20) + '...'
-                            : `${viewState.value}`
-                    }
-                </tspan>
+                {
+                    !(viewState.value.length > 20) ?
+                        (
+                            <tspan className="key-para"> {viewState.value}  </tspan>
+                        ) : (
+                            <Tooltip
+                                arrow={true}
+                                placement="top-start"
+                                title={viewState.value}
+                                inverted={false}
+                                interactive={true}
+                            >
+                                <tspan className="key-value">
+                                    {`${viewState.value}`.slice(0, 20) + '...'}
+                                </tspan>
+                            </Tooltip>
+
+                        )
+                }
             </text>
             {dataPoints}
         </g>
