@@ -24,6 +24,7 @@ import {
     PositionalArg,
     QualifiedNameReference,
     RecordField,
+    RecordFieldWithDefaultValue,
     RecordTypeDesc,
     SimpleNameReference,
     SpecificField,
@@ -180,6 +181,28 @@ export class DataMapperInitVisitor implements Visitor {
 
         if (node.questionMarkToken) {
             viewState.isOptionalType = true;
+        }
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            viewState.targetPointViewState = new TargetPointViewState();
+        }
+    }
+
+    beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new FieldViewState();
+        }
+
+        const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
+        const typeName = node.typeName;
+        viewState.name = node.fieldName.value;
+
+        setViewStateTypeInformation(viewState, typeName, node);
+
+        if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+            viewState.type = PrimitiveBalType.Record;
         }
 
         if (this.visitType === VisitingType.INPUT) {

@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, SpecificField, STKindChecker, StringLiteral, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, RecordFieldWithDefaultValue, SpecificField, STKindChecker, StringLiteral, Visitor } from "@ballerina/syntax-tree";
 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
@@ -180,6 +180,50 @@ export class DataPointVisitor implements Visitor {
     }
 
     endVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = this.nameComponents[this.nameComponents.length - 2]
+                        .substring(0, this.nameComponents[this.nameComponents.length - 2].length - 1);
+            }
+
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+        }
+    }
+
+    beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.nameComponents.push(viewstate.name);
+
+            if (viewstate.isOptionalType && this.nameComponents.length > 1) {
+                this.nameComponents[this.nameComponents.length - 2]
+                    = `${this.nameComponents[this.nameComponents.length - 2]}?`
+            }
+
+            if (viewstate.sourcePointViewState) {
+                viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.connections = [];
+                viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
+                viewstate.sourcePointViewState.type = viewstate.type;
+                viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
+            }
+
+            if (viewstate.targetPointViewState) {
+                viewstate.targetPointViewState.bBox.x = this.outPutOffsetGap;
+                viewstate.targetPointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.targetPointViewState.type = viewstate.type;
+                viewstate.targetPointViewState.isOptionalType = viewstate.isOptionalType;
+                this._targetPointMap.set(this.generateDataPointName(this.nameComponents), viewstate.targetPointViewState);
+            }
+        }
+    }
+
+    endVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         if (node.dataMapperViewState && !this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 

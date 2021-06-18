@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
+import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
 import { expression } from 'joi';
 
 import { DataMapperViewState, FieldViewState } from '../viewstate';
@@ -233,6 +233,59 @@ export class DataMapperSizingVisitor implements Visitor {
     }
 
     endVisitRecordField(node: RecordField) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            let height: number = 0;
+
+            if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+                const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                typeDescNode.fields.forEach(field => {
+                    const fieldViewState = field.dataMapperViewState as FieldViewState;
+                    height += fieldViewState.bBox.h;
+                });
+            }
+
+            if (viewstate.hasInlineRecordDescription) {
+                if (STKindChecker.isRecordTypeDesc(node.typeName)) {
+                    const typeDescNode: RecordTypeDesc = node.typeName as RecordTypeDesc;
+                    typeDescNode.fields.forEach(field => {
+                        const fieldViewState = field.dataMapperViewState as FieldViewState;
+                        height += fieldViewState.bBox.h;
+                    });
+                }
+            }
+
+            viewstate.bBox.h += height;
+
+            // clean up
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode || viewstate.hasInlineRecordDescription) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
+
+    beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        if (node.dataMapperViewState && !this.hasMappingConstructor) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            viewstate.bBox.h = FIELD_HEIGHT;
+            viewstate.bBox.w = this.offSet + DEFAULT_FIELD_WIDTH;
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            this.nameparts.push(viewstate.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+
+            if (node.dataMapperTypeDescNode || viewstate.hasInlineRecordDescription) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         if (node.dataMapperViewState && !this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;
 
