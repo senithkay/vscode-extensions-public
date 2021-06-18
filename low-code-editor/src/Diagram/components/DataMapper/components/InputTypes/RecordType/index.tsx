@@ -263,13 +263,6 @@ export function RecordType(props: RecordTypeProps) {
                                     </tspan>
                                 )
                             }
-                            <tspan className="value-para">
-                                {isNameTooLong ?
-                                    `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
-                                        .slice(0, 20) + "..."
-                                    : `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
-                                }
-                            </tspan>
                         </text>
                     )
                 }
