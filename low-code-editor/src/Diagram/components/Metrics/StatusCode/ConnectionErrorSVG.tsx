@@ -25,16 +25,14 @@ export const ERROR_LABEL_SHADOW_OFFSET = ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW - ER
 
 export const tooltipStyles = {
     tooltip: {
-        width : "666px",
+        width : 670,
         color: "#40404B",
-        borderRadius: "4px",
-        backgroundColor: "#ffffff",
+        borderRadius: 4,
+        backgroundColor: "#fff",
         boxShadow: "0 1px 10px 0 rgba(0,0,0,0.22)",
         padding: "1rem",
-        font: "Droid Sans Mono",
-        fontSize: "12px",
+        fontSize: 12,
         letterSpacing: 0,
-        lineHeight: "20px",
     },
     arrow: {
         color: "#ffffff"
@@ -56,7 +54,7 @@ export function ConnectionErrorSVG(props: { x: number, y: number, text: string, 
                 className={"copy"}
                 disableRipple={true}
             >
-                {<img src="/images/error-copy.svg" />}
+                {<img src="/images/error-copy-icon.svg" />}
             </IconButton>
         )
     };
