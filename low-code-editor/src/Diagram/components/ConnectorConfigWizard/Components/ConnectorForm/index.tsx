@@ -693,8 +693,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addPayload);
                     }
-                    modifyDiagram(modifications);
-                    onClose();
+                    if (modifications.length > 0) {
+                        modifyDiagram(modifications);
+                        onClose();
+                    }
                 }
             }
         }
