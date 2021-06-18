@@ -315,13 +315,71 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                             return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                                const completionItems: monaco.languages.CompletionItem[] = []
+                                if (model?.customAutoComplete) {
+                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string, order: number) => {
+                                        return {
+                                            range: null,
+                                            label: customCompletion,
+                                            kind: monaco.languages.CompletionItemKind.Enum,
+                                            insertText: customCompletion,
+                                            sortText: `0${createSortText(order)}`
+                                        }
+                                    })
+                                    completionItems.push(...completionItemCustom);
+                                }
+                                if (model.aiSuggestion) {
+                                    const completionItemAI: monaco.languages.CompletionItem = {
+                                        preselect: true,
+                                        range: null,
+                                        label: model.aiSuggestion,
+                                        kind: 1 as CompletionItemKind,
+                                        insertText: model.aiSuggestion,
+                                        sortText: '1'
+                                    }
+                                    completionItems.push(completionItemAI);
+                                }
+                                if (varType === "string") {
+                                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
+                                        range: null,
+                                        label: 'Custom string template',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        // tslint:disable-next-line: no-invalid-template-strings
+                                        insertText: '"${1:}"',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                        sortText: '2'
+                                    }
+                                    completionItems.push(completionItemTemplate);
+                                } else if (varType === "boolean") {
+                                    const completionItemTemplate: monaco.languages.CompletionItem = {
+                                        preselect: true,
+                                        range: null,
+                                        label: 'true',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        insertText: 'true',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                        sortText: '2'
+                                    }
+                                    const completionItemTemplate1: monaco.languages.CompletionItem = {
+                                        range: null,
+                                        label: 'false',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        insertText: 'false',
+                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+                                        sortText: '2'
+                                    }
+                                    completionItems.push(completionItemTemplate);
+                                    completionItems.push(completionItemTemplate1);
+                                }
+
                                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                                     (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
                                     completionResponse.label !== varName &&
                                     completionResponse.label !== model.aiSuggestion &&
                                     !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
                                 ));
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+                                const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
                                     if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
                                         return {
                                             range: null,
@@ -361,66 +419,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         }
                                     }
                                 });
-                                if (varType === "string") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: 'Custom string template',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        // tslint:disable-next-line: no-invalid-template-strings
-                                        insertText: '"${1:}"',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: '2'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                }
-                                if (varType === "boolean") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: 'true',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'true',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: '2'
-                                    }
-                                    const completionItemTemplate1: monaco.languages.CompletionItem = {
-                                        range: null,
-                                        label: 'false',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: 'false',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-                                        sortText: '2'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                    completionItems.push(completionItemTemplate1);
-                                }
-                                if (model.aiSuggestion) {
-                                    const completionItemAI: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: model.aiSuggestion,
-                                        kind: 1 as CompletionItemKind,
-                                        insertText: model.aiSuggestion,
-                                        sortText: '1'
-                                    }
-                                    completionItems.push(completionItemAI);
-                                }
-                                if (model?.customAutoComplete) {
-                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string) => {
-                                        return {
-                                            range: null,
-                                            label: customCompletion,
-                                            kind: monaco.languages.CompletionItemKind.Enum,
-                                            insertText: customCompletion,
-                                            sortText: '0'
-                                        }
-                                    })
-                                    completionItems.push(...completionItemCustom);
-                                }
+                                completionItems.push(...lsCompletionItems);
+
                                 if (completionItems.length > 0) {
                                     completionItems[0] = { ...completionItems[0], preselect: true }
                                 }
+
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
                                     suggestions: completionItems
