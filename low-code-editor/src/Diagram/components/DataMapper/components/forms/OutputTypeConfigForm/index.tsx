@@ -160,11 +160,11 @@ export function OutputTypeConfigForm() {
                         });
                     }
                 } else if (STKindChecker.isRequiredParam(el)) {
-                    variables.push({
-                        name: el.paramName.value,
-                        type,
-                        // node: el
-                    })
+                    // variables.push({
+                    //     name: el.paramName.value,
+                    //     type,
+                    //     // node: el
+                    // })
                 }
             });
     });

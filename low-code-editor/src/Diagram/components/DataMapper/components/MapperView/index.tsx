@@ -193,7 +193,7 @@ export function MapperView() {
                 || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
                 statement += `(${selectedDataPoint.text} ?: ${expressionEditorText}).toString()`;
             }
-            
+
             setHasTypeMismatch(false);
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
         } else {
