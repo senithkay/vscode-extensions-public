@@ -30,6 +30,7 @@ import {
     STKindChecker,
     STNode,
     StringLiteral,
+    TypeCastExpression,
     TypedBindingPattern,
     Visitor,
 } from '@ballerina/syntax-tree';
@@ -289,6 +290,14 @@ export class DataMapperInitVisitor implements Visitor {
     }
 
     beginVisitPositionalArg(node: PositionalArg) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new DataMapperViewState();
+        }
+
+        node.expression.dataMapperViewState = new DataMapperViewState();
+    }
+
+    beginVisitTypeCastExpression(node: TypeCastExpression) {
         if (!node.dataMapperViewState) {
             node.dataMapperViewState = new DataMapperViewState();
         }
