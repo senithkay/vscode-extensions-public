@@ -629,6 +629,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
                 else{
                     if (isOauthConnector && connection) {
+                        // tslint:disable-next-line: no-shadowed-variable
                         const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
