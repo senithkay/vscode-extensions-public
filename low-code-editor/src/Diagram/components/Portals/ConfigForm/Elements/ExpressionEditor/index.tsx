@@ -24,7 +24,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
@@ -321,15 +321,43 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
                                 ));
                                 const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
-                                    return {
-                                        range: null,
-                                        label: completionResponse.label,
-                                        detail: completionResponse.detail,
-                                        kind: completionResponse.kind as CompletionItemKind,
-                                        insertText: completionResponse.insertText,
-                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: createSortText(order)
+                                    if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
+                                        return {
+                                            range: null,
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order),
+                                            command: {
+                                                id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
+                                                    if (args.length > 0) {
+                                                        const startColumn =  args[0].range.start.character - snippetTargetPosition + 2
+                                                        const endColumn =  args[0].range.end.character - snippetTargetPosition + 2
+                                                        const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
+                                                            text: args[0].newText,
+                                                            range: new monaco.Range(1, startColumn, 1, endColumn)
+                                                        }];
+                                                        monacoRef.current.editor.executeEdits("completion-edit", edit)
+                                                    }
+                                                }, ''),
+                                                title: "completion-edit",
+                                                arguments: [completionResponse.additionalTextEdits]
+                                            }
+                                        }
+                                    } else {
+                                        return {
+                                            range: null,
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order)
+                                        }
                                     }
                                 });
                                 if (varType === "string") {

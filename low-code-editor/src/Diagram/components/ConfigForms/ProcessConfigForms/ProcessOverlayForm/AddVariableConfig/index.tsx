@@ -110,13 +110,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const validateNameValue = (value: string) => {
-        if (value !== undefined || value !== null) {
+        if (value !== undefined && value !== null) {
             const varValidationResponse = checkVariableName("variable name", value, defaultVarName, state);
             if (varValidationResponse?.error) {
                 setVarNameError(varValidationResponse.message);
                 setIsValidVarName(false);
                 return false;
             }
+        } else if (value === null) {
+            setIsValidVarName(false);
+            return true;
         }
         setIsValidVarName(true);
         return true;
