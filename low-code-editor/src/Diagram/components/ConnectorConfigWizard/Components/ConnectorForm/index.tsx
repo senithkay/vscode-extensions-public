@@ -552,33 +552,91 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
-                const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
-                const formattedFieldValues: { name: string; value: string; }[] = [];
-                manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
-                    if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
-                        formattedFieldValues.push({
-                            name: item.name,
-                            value: item.value.substring(1, (item.value.length - 1))
-                        });
-                    }
-                });
-                (async () => {
-                    if (config.connectorInit.length > 0){
-                        // save action with client path
-                        response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                            config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
-                        configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                            response.data, selectedType);
-                        connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
-                            response.data, symbolInfo.configurables, selectedType);
+                if((connectorTypes.includes(connectorInfo.displayName))){
+                    const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
+                    const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
+                    const formattedFieldValues: { name: string; value: string; }[] = [];
+                    manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
+                        if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
+                            formattedFieldValues.push({
+                                name: item.name,
+                                value: item.value.substring(1, (item.value.length - 1))
+                            });
+                        }
+                    });
+                    (async () => {
+                        if (config.connectorInit.length > 0){
+                            // save action with client path
+                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                                config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
+                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                response.data, selectedType);
+                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
+                                response.data, symbolInfo.configurables, selectedType);
+                            const addImport: STModification = createImportStatement(
+                                connectorInfo.org,
+                                connectorInfo.module,
+                                targetPosition
+                            );
+                            modifications.push(addImport);
+    
+                            if (connectorConfigurables) {
+                                const addConfigurableVars = createPropertyStatement(
+                                    connectorConfigurables,
+                                    { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                                );
+                                modifications.push(addConfigurableVars);
+                            }
+    
+                            const addConnectorInit: STModification = createPropertyStatement(
+                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                targetPosition
+                            );
+                            modifications.push(addConnectorInit);
+                        }
+                        // Add an action invocation on the initialized client.
+                        if (currentActionReturnType.hasReturn) {
+                            const addActionInvocation = createPropertyStatement(
+                                `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                                targetPosition
+                            );
+                            modifications.push(addActionInvocation);
+                        } else {
+                            const addActionInvocation = createPropertyStatement(
+                                `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                                targetPosition
+                            );
+                            modifications.push(addActionInvocation);
+                        }
+    
+                        if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
+                            const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                                config.responsePayloadMap.payloadVariableName,
+                                "var",
+                                config.action.returnVariableName,
+                                config.responsePayloadMap.payloadTypes.get(
+                                    config.responsePayloadMap.selectedPayloadType),
+                                targetPosition
+                            );
+                            modifications.push(addPayload);
+                        }
+                        if (modifications.length > 0) {
+                            modifyDiagram(modifications);
+                            onClose();
+                        }
+                        showNotification(response.status, ConnectionAction.create);
+                    })();
+                }
+                else{
+                    if (isOauthConnector && connection) {
+                        const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
                             connectorInfo.module,
                             targetPosition
                         );
                         modifications.push(addImport);
-
+    
                         if (connectorConfigurables) {
                             const addConfigurableVars = createPropertyStatement(
                                 connectorConfigurables,
@@ -586,9 +644,25 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             );
                             modifications.push(addConfigurableVars);
                         }
-
+    
                         const addConnectorInit: STModification = createPropertyStatement(
-                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                                ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                            targetPosition
+                        );
+                        modifications.push(addConnectorInit);
+                    }
+                    if (config.connectorInit.length > 0) {
+                        // save action with client path
+                        const addImport: STModification = createImportStatement(
+                            connectorInfo.org,
+                            connectorInfo.module,
+                            targetPosition
+                        );
+                        modifications.push(addImport);
+    
+                        const addConnectorInit: STModification = createPropertyStatement(
+                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
@@ -607,7 +681,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addActionInvocation);
                     }
-
+    
                     if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
                         const addPayload: STModification = createCheckedPayloadFunctionInvocation(
                             config.responsePayloadMap.payloadVariableName,
@@ -619,12 +693,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addPayload);
                     }
-                    if (modifications.length > 0) {
-                        modifyDiagram(modifications);
-                        onClose();
-                    }
-                    showNotification(response.status, ConnectionAction.create);
-                })();
+                    modifyDiagram(modifications);
+                    onClose();
+                }
             }
         }
     };
