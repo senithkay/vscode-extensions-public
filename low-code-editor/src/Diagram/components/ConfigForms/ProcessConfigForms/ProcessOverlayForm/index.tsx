@@ -25,6 +25,7 @@ import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
+import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 
@@ -67,6 +68,12 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             type: "",
             expression: ""
         };
+    } else if (formType === "DataMapper") {
+        config.config = {
+            inputTypes: [],
+            outputType: undefined,
+            wizardType: config.wizardType
+        }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
             expression: ""
@@ -113,6 +120,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                             {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>

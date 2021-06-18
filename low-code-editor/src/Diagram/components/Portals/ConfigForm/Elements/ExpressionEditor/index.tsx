@@ -132,6 +132,7 @@ export interface ExpressionEditorProps {
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
+    editPosition?: any;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -161,10 +162,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         defaultValue,
         model,
         onChange,
-        customProps
+        customProps,
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor } = customProps;
-    const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor, editPosition } = customProps;
+    const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
     const [addCheck, setAddCheck] = useState(false);

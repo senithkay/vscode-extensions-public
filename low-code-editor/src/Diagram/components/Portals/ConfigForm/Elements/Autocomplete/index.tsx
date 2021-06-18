@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent } from "react";
 
+import { FormHelperText } from "@material-ui/core";
 import TextField, { FilledTextFieldProps, OutlinedTextFieldProps, StandardTextFieldProps } from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
@@ -26,19 +27,22 @@ export interface AutocompleteProps {
     getItemLabel?: (item: any) => string;
     renderItem?: (item: any) => ReactNode;
     onChange: (event: object, value: any, reason: string) => void;
+    dataTestId?: string;
 }
 
 export function FormAutocomplete(props: AutocompleteProps) {
-    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange } = props;
+    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange, dataTestId } = props;
     const classes = useStyles();
 
     function renderInnerTextField(params: (JSX.IntrinsicAttributes & StandardTextFieldProps) | (JSX.IntrinsicAttributes & FilledTextFieldProps) | (JSX.IntrinsicAttributes & OutlinedTextFieldProps)) {
         return (
             <TextField
                 {...params}
-                label={label}
                 placeholder={placeholder}
                 variant="outlined"
+                InputLabelProps={{
+                    shrink: false
+                }}
             />
         );
     }
@@ -50,7 +54,11 @@ export function FormAutocomplete(props: AutocompleteProps) {
         <div
             onWheel={preventDiagramScrolling}
         >
+            <FormHelperText className={classes.titleLabel}>{label}</FormHelperText>
+            <FormHelperText className={classes.titleLabelRequired}>*</FormHelperText>
+
             <Autocomplete
+                data-testid={dataTestId}
                 id="combo-box-demo"
                 options={itemList}
                 getOptionLabel={getItemLabel}

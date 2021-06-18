@@ -17,11 +17,11 @@ import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
-import { Context } from "../Contexts/Diagram";
-import { STModification } from "../Definitions";
+import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
+import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
@@ -61,13 +61,14 @@ export function Diagram(props: DiagramProps) {
         isMutationInProgress,
         isCodeEditorActive,
         isConfigPanelOpen,
-        isConfigOverlayFormOpen,
         triggerType,
         hasConfigurables
     } = props;
     const { state: {
-        diagnostics
-    } } = useContext(Context);
+        diagnostics,
+        isDataMapperShown,
+        isConfigOverlayFormOpen,
+    } } = useContext(DiagramContext);
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
@@ -109,7 +110,14 @@ export function Diagram(props: DiagramProps) {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState x={5} y={-100} text={numberOfErrors} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
+            <DiagramErrorState
+                x={5}
+                y={-100}
+                text={numberOfErrors}
+                onClose={closeErrorDialog}
+                onOpen={openErrorDialog}
+                isErrorMsgVisible={isErrorStateDialogOpen}
+            />
         </div>
     );
 
@@ -128,7 +136,7 @@ export function Diagram(props: DiagramProps) {
 
     // todo: need to handle this when file is empty
     // AST node passed in to this is can be a top level node or a compilation unit.
-    const child = getSTComponent(syntaxTree);
+    // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
     const viewState = syntaxTree.viewState as ViewState;
     let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.paddingY) : DefaultConfig.canvas.height;
     const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.paddingX) : DefaultConfig.canvas.width;
@@ -137,8 +145,10 @@ export function Diagram(props: DiagramProps) {
         h = h + (window.innerHeight - h);
     }
 
+    const child = getSTComponent(syntaxTree);
+
     let hasConfigurable = false;
-    if (originalSyntaxTree){
+    if (originalSyntaxTree) {
         hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
     }
 
@@ -150,7 +160,8 @@ export function Diagram(props: DiagramProps) {
 
             <div className={enableIconClassCheck}>
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
-                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramDisabledStatus}
+                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly &&
+                    diagramDisabledStatus}
             </div>
 
             {diagnosticInDiagram && (
@@ -165,9 +176,14 @@ export function Diagram(props: DiagramProps) {
             <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    <Canvas h={h} w={w} >
-                        {child}
-                    </Canvas>
+                    {isDataMapperShown && (
+                        <DataMapper width={w} />
+                    )}
+                    {!isDataMapperShown && (
+                        <Canvas h={h} w={w} >
+                            {child}
+                        </Canvas>
+                    )}
                     {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
