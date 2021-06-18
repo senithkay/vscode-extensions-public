@@ -486,12 +486,16 @@ export function OutputTypeConfigForm() {
                 {generationType === GenerationType.NEW && createNewVariableComponent}
                 {generationType === GenerationType.ASSIGNMENT && useExistingVariableComponent}
                 <div className={overlayClasses.buttonWrapper} style={{ paddingTop: '0.5rem' }} >
-                    <SecondaryButton
-                        dataTestId={"datamapper-output-config-cancel-btn"}
-                        text="Cancel"
-                        fullWidth={false}
-                        onClick={handleOnCancelBtnClick}
-                    />
+                    {
+                        outputSTNode && (
+                            <SecondaryButton
+                                dataTestId={"datamapper-output-config-cancel-btn"}
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={handleOnCancelBtnClick}
+                            />
+                        )
+                    }
                     <PrimaryButton
                         dataTestId={"datamapper-output-config-save-btn"}
                         disabled={!variableNameValid || (selectedDataType === PrimitiveBalType.Json && !isJsonValid)}
