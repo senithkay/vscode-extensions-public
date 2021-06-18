@@ -24,7 +24,9 @@ import { Status } from "components/Status";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
+import { ConnectorConfig, FormField } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
+import {STSymbolInfo} from "../../../Definitions";
 
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
@@ -50,6 +52,8 @@ export interface OauthConnectButtonProps {
   onSave?: () => void;
   onClickManualConnection?: () => void;
   onSaveNext?: () => void;
+  initFormFields?: FormField[];
+  connectorConfig?: ConnectorConfig;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
@@ -75,7 +79,9 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     selectedConnectionType,
     onSave,
     onClickManualConnection,
-    onSaveNext
+    onSaveNext,
+    initFormFields,
+    connectorConfig,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -92,6 +98,11 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   const connectionListError = sessionState?.existingConnectionData?.error;
   const isConnectionListEmpty = (!connectionList || (connectionList?.length === 0) || connectionList === undefined);
   const isOngoingFetching = (isAuthenticating || isTokenExchanging || isConnectionFetching);
+  const [configForm, setConfigForm] = useState(initFormFields);
+  // tslint:disable-next-line:no-shadowed-variable
+  const { state } = useContext(Context);
+  const { stSymbolInfo } = state;
+  const symbolInfo: STSymbolInfo = stSymbolInfo;
 
   useEffect(() => {
     if (!activeConnection && !isOngoingFetching) {
@@ -176,6 +187,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
 
   const handleChangeConnectionSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     // reset connection button
+    connectorConfig.connectorInit = configForm;
     const allConnections = sessionState?.existingConnectionData?.connections;
     const selectedConnection = (event.target).value;
     setActiveConnection(allConnections?.find((connection: any) => connection.handle === selectedConnection));

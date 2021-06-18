@@ -552,7 +552,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if ((connectorTypes.includes(connectorInfo.displayName))){
+                if ((connectorTypes.includes(connectorInfo.displayName)) && !connection){
                     const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                     const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                     const formattedFieldValues: { name: string; value: string; }[] = [];
@@ -629,8 +629,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
                 else{
                     if (isOauthConnector && connection) {
-                        // tslint:disable-next-line: no-shadowed-variable
-                        const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
+                        let OAuthtype;
+                        if (connection.codeVariableKeys.find(field => field.name === "tokenKey")?.name) {
+                            OAuthtype = "BearerTokenConfig"
+                        }
+                        else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name) {
+                            OAuthtype = "OAuth2RefreshTokenGrantConfig"
+                        }
+                        // tslint:disable-next-line:no-shadowed-variable variable-name
+                        const connectorConfigurablesInvoke = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
                             connectorInfo.module,
@@ -638,37 +645,21 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         );
                         modifications.push(addImport);
 
-                        if (connectorConfigurables) {
-                            const addConfigurableVars = createPropertyStatement(
-                                connectorConfigurables,
+                        if (connectorConfigurablesInvoke) {
+                            const addConfigurableVarsInvoke = createPropertyStatement(
+                                connectorConfigurablesInvoke,
                                 { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
                             );
-                            modifications.push(addConfigurableVars);
+                            modifications.push(addConfigurableVarsInvoke);
                         }
 
                         const addConnectorInit: STModification = createPropertyStatement(
                             `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
-                                ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                                ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection, OAuthtype)}\n);`,
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
                     }
-                    if (config.connectorInit.length > 0) {
-                        // save action with client path
-                        const addImport: STModification = createImportStatement(
-                            connectorInfo.org,
-                            connectorInfo.module,
-                            targetPosition
-                        );
-                        modifications.push(addImport);
-
-                        const addConnectorInit: STModification = createPropertyStatement(
-                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
-                            targetPosition
-                        );
-                        modifications.push(addConnectorInit);
-                    }
-                    // Add an action invocation on the initialized client.
                     if (currentActionReturnType.hasReturn) {
                         const addActionInvocation = createPropertyStatement(
                             `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
@@ -977,6 +968,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                                 onSave={handleClientOnSave}
                                                 onClickManualConnection={onManualConnection}
                                                 onSaveNext={handleCreateConnectorSaveNext}
+                                                initFormFields={connectorInitFormFields}
+                                                connectorConfig={config}
                                             />
                                         </div>
                                     </div>
