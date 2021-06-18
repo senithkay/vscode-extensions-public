@@ -259,7 +259,7 @@ export function RecordType(props: RecordTypeProps) {
                                     </Tooltip>
                                 ) : (
                                     <tspan className="value-para">
-                                        `${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`
+                                        {`${name}${type ? `: ${type}${viewState.isOptionalType ? '?' : ''}` : ''}`}
                                     </tspan>
                                 )
                             }
