@@ -724,6 +724,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 open: "'",
                 close: "'"
             }, {
+                open: '"',
+                close: '"'
+            }, {
                 open: "(",
                 close: ")"
             }, {
