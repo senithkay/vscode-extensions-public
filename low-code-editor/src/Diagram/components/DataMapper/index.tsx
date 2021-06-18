@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
+    AssignmentStatement,
     CaptureBindingPattern,
     LocalVarDecl,
     STKindChecker,
@@ -119,22 +120,16 @@ export function DataMapper(props: DataMapperProps) {
                         .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
                     : undefined;
             } else {
-                const outputTypeVariables = stSymbolInfo.variables.size > 0 ?
+                const outputTypeVariables = stSymbolInfo.assignmentStatement.size > 0 ?
                     stSymbolInfo.assignmentStatement.get(outputTypeConfig.variableName)
                     : undefined;
                 outputSTNode = outputTypeVariables ?
                     outputTypeVariables
-                        .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+                        .find((node: AssignmentStatement) =>
+                            node.position.startLine === dataMapperConfig.outputType.startLine)
                     : undefined;
             }
         }
-
-        // const sizingAndPositioningResult = dataMapperSizingAndPositioning(
-        //     inputSTNodes, outputSTNode, stSymbolInfo, showAddVariableForm, dataMapperConfig, updateDataMapperConfig);
-
-        // constantMap = sizingAndPositioningResult.constantMap;
-        // constantList = sizingAndPositioningResult.constantList;
-        // maxFieldWidth = sizingAndPositioningResult.maxFieldWidth;
     }
 
     const initialState: DataMapperState = {

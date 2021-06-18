@@ -73,6 +73,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
 
             if (STKindChecker.isAssignmentStatement(outputST)) {
                 generationType = GenerationType.ASSIGNMENT;
+                outputVarName = (outputST.varRef as SimpleNameReference).name.value;
             } else if (STKindChecker.isLocalVarDecl(outputST)) {
                 generationType = GenerationType.NEW;
                 const typedBindingPattern = outputST.typedBindingPattern as TypedBindingPattern;
