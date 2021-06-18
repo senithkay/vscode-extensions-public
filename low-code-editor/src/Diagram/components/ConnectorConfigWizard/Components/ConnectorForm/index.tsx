@@ -739,7 +739,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             <div className={wizardClasses.authBtnHolder}>
                                 {!isNewConnectorInitWizard && (
                                     <PrimaryButton
-                                        text="Save Connection"
+                                        text={intl.formatMessage({
+                                            id: "lowcode.develop.connectorForms.saveConnectionBtn.text",
+                                            defaultMessage: "Save Connection"
+                                        })}
                                         fullWidth={true}
                                         disabled={connection === undefined}
                                         onClick={handleClientOnSave}
@@ -748,13 +751,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 {isNewConnectorInitWizard && (
                                     <>
                                         <LinePrimaryButton
-                                            text="Save Connection"
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.saveConnectionButton.text",
+                                                defaultMessage: "Save Connection"
+                                            })}
                                             fullWidth={true}
                                             disabled={connection === undefined}
                                             onClick={handleClientOnSave}
                                         />
                                         <PrimaryButton
-                                            text="Continue to invoke API"
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.invokeConnnectionButton.text",
+                                                defaultMessage: "Continue to invoke API"
+                                            })}
                                             fullWidth={true}
                                             disabled={connection === undefined}
                                             onClick={handleCreateConnectorSaveNext}
