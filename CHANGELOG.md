@@ -8,7 +8,7 @@
 - Positioning on the examples view. [#87](https://github.com/wso2/ballerina-plugin-vscode/issues/87)
 
 ### Improved
-- The *vscode-languageclient* module version. [#43](https://github.com/wso2/ballerina-plugin-vscode/issues/43)
+- The *vscode-languageclient* and other dependency versions. [#43](https://github.com/wso2/ballerina-plugin-vscode/issues/43)
 
 ## **2.0.0**
 ### Initial release.

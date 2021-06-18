@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more. Supports Ballerina Swan Lake and 1.2.x.",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "wso2",
     "repository": {
         "type": "git",
