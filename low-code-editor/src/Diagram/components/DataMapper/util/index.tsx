@@ -15,8 +15,8 @@ import React from 'react';
 import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import { DiagramEditorLangClientInterface } from '../../../../Definitions/diagram-editor-lang-client-interface';
+import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
@@ -203,7 +203,11 @@ export async function completeMissingTypeDesc(paramNode: STNode, records: Map<st
             if (paramViewState.typeInfo) {
                 const typeInfo: TypeInfo = paramViewState.typeInfo;
                 const qualifiedKey: string = `${typeInfo.orgName}/${typeInfo.moduleName}:${typeInfo.version}:${typeInfo.name}`;
-                let typeDescST = JSON.parse(JSON.stringify(records.get(qualifiedKey)));
+                let typeDescST;
+
+                if (records.has(qualifiedKey)) {
+                    typeDescST = JSON.parse(JSON.stringify(records.get(qualifiedKey)));
+                }
 
                 if (!typeDescST) {
                     // todo: fetch typedesc using records api
