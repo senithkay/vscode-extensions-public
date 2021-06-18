@@ -225,7 +225,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 <PrimaryButton
                                     text={intl.formatMessage({
                                         id: "lowcode.develop.connectorForms.saveAllInvokeConnectionButton.text",
-                                        defaultMessage: "Continue to invoke API"
+                                        defaultMessage: "Continue to Invoke API"
                                     })}
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}

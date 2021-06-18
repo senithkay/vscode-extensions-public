@@ -762,7 +762,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                         <PrimaryButton
                                             text={intl.formatMessage({
                                                 id: "lowcode.develop.connectorForms.invokeConnnectionButton.text",
-                                                defaultMessage: "Continue to invoke API"
+                                                defaultMessage: "Continue to Invoke API"
                                             })}
                                             fullWidth={true}
                                             disabled={connection === undefined}

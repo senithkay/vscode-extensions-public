@@ -266,7 +266,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     dataTestId={"http-save-next"}
                                     text={intl.formatMessage({
                                         id: "lowcode.develop.connectorForms.saveHttpInvokeConnectionBtn.text",
-                                        defaultMessage: "Continue to invoke API"
+                                        defaultMessage: "Continue to Invoke API"
                                     })}
                                     className="product-tour-next"
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
