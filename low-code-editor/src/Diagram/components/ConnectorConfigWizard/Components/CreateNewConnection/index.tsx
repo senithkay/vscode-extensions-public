@@ -202,7 +202,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     <div className={classes.saveConnectorBtnHolder}>
                         {!isNewConnectorInitWizard && (
                             <PrimaryButton
-                                text="Save Connection"
+                                text={intl.formatMessage({
+                                    id: "lowcode.develop.connectorForms.saveAllConnectionBtn.text",
+                                    defaultMessage: "Save Connection"
+                                })}
                                 fullWidth={false}
                                 disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 onClick={handleOnSave}
@@ -211,13 +214,19 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         {isNewConnectorInitWizard && (
                             <>
                                 <LinePrimaryButton
-                                    text="Save Connection"
+                                    text={intl.formatMessage({
+                                        id: "lowcode.develop.connectorForms.saveAllConnectionButton.text",
+                                        defaultMessage: "Save Connection"
+                                    })}
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     onClick={handleOnSave}
                                 />
                                 <PrimaryButton
-                                    text="Continue to invoke API"
+                                    text={intl.formatMessage({
+                                        id: "lowcode.develop.connectorForms.saveAllInvokeConnectionButton.text",
+                                        defaultMessage: "Continue to Invoke API"
+                                    })}
                                     fullWidth={false}
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     onClick={handleOnSaveNext}
