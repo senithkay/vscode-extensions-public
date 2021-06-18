@@ -45,7 +45,6 @@ const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
 export function ConnectionErrorSVG(props: { x: number, y: number, text: string, errorMsg: string }) {
     const { text, errorMsg, ...xyProps } = props;
 
-
     const codeCopyBtn = (copy: any) => {
         const copyButtonClick = () => {
             copy(errorMsg);
