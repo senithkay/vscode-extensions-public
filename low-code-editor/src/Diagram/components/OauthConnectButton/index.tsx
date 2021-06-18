@@ -11,24 +11,24 @@
  * associated services.
  */
 
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
+import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
+import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
 import { Status } from "components/Status";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
 import { Context } from "../../../Contexts/Diagram";
 
-
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
 import { useStyles } from "./styles";
-import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
-import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
 
 export enum ConnectionType {
   NEW = "NEW",

@@ -196,7 +196,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.tooltip",
         defaultMessage: "A valid endpoint name should not:"
     });
-    
+
     const title = (
         <div>
             <p>{pathInstructions}</p>

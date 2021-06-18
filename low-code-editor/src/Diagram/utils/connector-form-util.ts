@@ -380,16 +380,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 filteredFunctions.set(key, value);
             });
             break;
-        case 'ballerinax_github_Client':
-            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                // hide optional fields from github forms
-                // TODO: Remove when optional field BE support is given
-                if (key === INIT){
-                    hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
-                }
-                filteredFunctions.set(key, value);
-            });
-            break;
         case "ballerinax_googleapis.calendar_Client":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
 
@@ -449,7 +439,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === 'init') {
+                if (key === INIT) {
                     value.parameters.find(fields => fields.name === "config").fields
                         .find(fields => fields.name === "clientConfig").optional = true;
                 }
