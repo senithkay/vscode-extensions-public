@@ -48,7 +48,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { state } = useContext(Context);
     const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
 
-    let initialModelType: string = 'var';
+    let initialModelType: string = 'json';
     let modelType = initialModelType;
     let variableName: string = '';
 
@@ -68,7 +68,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
     } else {
-        variableName = stSymbolInfo ? genVariableName("variable", getAllVariables(stSymbolInfo)) : "";
+        variableName = stSymbolInfo ? null : "";
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
@@ -208,7 +208,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const validForm: boolean = (isValidVarName && validExpresssionValue);
 
     // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "other"];
+    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "any", "anydata", "other"];
 
     return (
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
