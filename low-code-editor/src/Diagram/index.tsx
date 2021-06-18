@@ -102,8 +102,12 @@ export function Diagram(props: DiagramProps) {
     const enableIconClassCheck = (triggerType === "API") ? classes.diagramAPIStateWrapper : classes.diagramStateWrapper;
 
     const diagramDisabledStatus = (
-
         <div className={disableIconClassCheck}>
+            <DiagramDisableState />
+        </div>
+    );
+    const diagramDisabledWithTextLoaderStatus = (
+        <div className={classes.disableDiagramIconWithTextLoader}>
             <DiagramDisableState />
         </div>
     );
@@ -155,13 +159,13 @@ export function Diagram(props: DiagramProps) {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
-            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledStatus}
+            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledWithTextLoaderStatus}
             {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
 
             <div className={enableIconClassCheck}>
                 {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
-                {(isCodeEditorActive || isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly &&
-                    diagramDisabledStatus}
+                {isWaitingOnWorkspace && !isConfigPanelOpen && !isReadOnly && diagramDisabledWithTextLoaderStatus}
+                {isCodeEditorActive && diagramDisabledStatus}
             </div>
 
             {diagnosticInDiagram && (
@@ -184,7 +188,7 @@ export function Diagram(props: DiagramProps) {
                             {child}
                         </Canvas>
                     )}
-                    {diagramDisabledStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                    {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
