@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
+import classNames from "classnames";
 import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
 import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
 import { Status } from "components/Status";
@@ -199,6 +200,16 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
       </>
   );
 
+  const saveConnectionText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.saveConnectionBtn.text",
+    defaultMessage: "Save Connection"
+  });
+
+  const invokeAPIText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.saveAllInvokeConnectionButton.text",
+    defaultMessage: "Continue to Invoke API"
+  });
+
   function renderConnectedButton() {
     return (
         <>
@@ -210,12 +221,12 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
             {(selectedConnectionType === ConnectionType.NEW) ? (
               <div className={classes.saveConnectorBtnHolder}>
                 <LinePrimaryButton
-                  text="Save Connection"
+                  text={saveConnectionText}
                   fullWidth={true}
                   onClick={onSave}
                 />
                 <PrimaryButton
-                    text="Continue to invoke API"
+                    text={invokeAPIText}
                     fullWidth={true}
                     onClick={onSaveNext}
                 />
@@ -223,7 +234,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
             ) : (
               <div className={classes.saveConnectorBtnHolder}>
                 <PrimaryButton
-                    text="Save Connection"
+                    text={saveConnectionText}
                     fullWidth={true}
                     onClick={onSave}
                 />
@@ -254,6 +265,11 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     defaultMessage: "Your Account"
   });
 
+  const manualConnectionButtonLabel = intl.formatMessage({
+      id: "lowcode.develop.connectorForms.manualConnection.button.label",
+      defaultMessage: "Manual Configuration"
+  });
+
   function renderConnectButton() {
     return (
       <div>
@@ -277,6 +293,24 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
+            </div>
+            <div>
+              <div className={classNames(classes.manualConfigBtnWrapper)}>
+                  <LinePrimaryButton
+                      className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
+                      text={manualConnectionButtonLabel}
+                      fullWidth={false}
+                      onClick={onClickManualConnection}
+                  />
+              </div>
+              <div className={classes.oauthConnectionAltTextWrapper}>
+                  <p className={classes.oauthConnectionAltText}>
+                      <FormattedMessage
+                          id="lowcode.develop.connectorForms.newConnectionAltText"
+                          defaultMessage={"You will be prompted to enter configuration details"}
+                      />
+                  </p>
+              </div>
             </div>
       </div>
     );
