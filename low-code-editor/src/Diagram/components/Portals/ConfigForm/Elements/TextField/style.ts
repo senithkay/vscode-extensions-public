@@ -186,5 +186,13 @@ export const useStyles = makeStyles((theme: Theme) =>
     whiteToolTip: {
       background: 'red'
     },
+    code: {
+      color: "#05a26b",
+      fontSize: 10,
+      border: '1px solid',
+      borderRadius: '3px',
+      padding: '2px 3px',
+      marginLeft: '4px'
+    },
   })
 );
