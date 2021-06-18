@@ -187,7 +187,7 @@ export function MapperView() {
             if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
                 || selectedTargetDataPoint.type === PrimitiveBalType.Float
                 || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
-                statement += `check ${selectedTargetDataPoint.type}:fromString(${selectedDataPoint.text} ?: ${expressionEditorText})`;
+                statement += `check ${selectedTargetDataPoint.type}:fromString((${selectedDataPoint.text} ?: ${expressionEditorText}))`;
             } else if ((selectedDataPoint.type === PrimitiveBalType.Int
                 || selectedDataPoint.type === PrimitiveBalType.Float
                 || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
