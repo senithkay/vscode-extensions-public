@@ -22,17 +22,17 @@
 // as well as import your extension to test it
 
 // Ballerina tools distribution will be copied to following location by maven
-import * as fs from 'fs';
-import * as path from 'path';
+import { readdirSync, realpathSync } from 'fs';
+import { join, sep } from 'path';
 import { killPortProcess } from 'kill-port-process';
 import { isWindows } from './utils';
 
-const TEST_RESOURCES = path.join(__dirname, '..', '..', 'extractedDistribution').toString();
+const TEST_RESOURCES = join(__dirname, '..', '..', 'extractedDistribution').toString();
 const PLATFORM_PREFIX = /jballerina-tools-/;
 
 
 function findBallerinaDistribution() {
-    const directories = fs.readdirSync(TEST_RESOURCES);
+    const directories = readdirSync(TEST_RESOURCES);
     if (directories.length === 1) {
         return directories[0];
     }
@@ -47,13 +47,13 @@ function findBallerinaDistribution() {
 }
 
 export function getBallerinaHome(): string {
-    const filePath = TEST_RESOURCES + path.sep + findBallerinaDistribution();
-    return fs.realpathSync(filePath);
+    const filePath = TEST_RESOURCES + sep + findBallerinaDistribution();
+    return realpathSync(filePath);
 }
 
 export function getBallerinaCmd(): string {
-    const ballerinaDistribution = TEST_RESOURCES + path.sep + findBallerinaDistribution();
-    const prefix = path.join(fs.realpathSync(ballerinaDistribution), "bin") + path.sep;
+    const ballerinaDistribution = TEST_RESOURCES + sep + findBallerinaDistribution();
+    const prefix = join(realpathSync(ballerinaDistribution), "bin") + sep;
     return prefix + (isWindows() ? 'bal.bat' : 'bal');
 }
 
@@ -62,7 +62,7 @@ export function getBallerinaVersion() {
 }
 
 export function getBBEPath(): any {
-    return path.join(__dirname, '..', 'data');
+    return join(__dirname, '..', 'data');
 }
 
 export function delay(ms: number) {

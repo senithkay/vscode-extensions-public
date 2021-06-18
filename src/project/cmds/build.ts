@@ -45,7 +45,6 @@ export function activateBuildCommand() {
                         BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
                 }
             } else {
-                const currentProject = await getCurrentBallerinaProject();
                 if (currentProject.path) {
                     const buildOptions = [{
                         description: "ballerina build <module-name>",

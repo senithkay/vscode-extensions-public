@@ -20,20 +20,20 @@
 
 import assert = require('assert');
 import { expect } from 'chai';
-import * as path from 'path';
-import { ExtendedLangClient } from "../../src/core/extended-language-client";
-import { getServerOptions } from "../../src/server/server";
+import { join } from 'path';
+import { ExtendedLangClient } from "../core/extended-language-client";
+import { getServerOptions } from "../server/server";
 import { getBallerinaCmd } from "../test-util";
 import { commands, Uri } from "vscode";
-import { isWindows } from 'src/utils';
+import { isWindows } from '../utils';
 
-const PROJECT_ROOT = path.join(__dirname, '..', '..', '..', 'test', 'data');
+const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Language Server Tests", function () {
     this.timeout(10000);
     let langClient: ExtendedLangClient;
 
-    suiteSetup((done: MochaDone): any => {
+    suiteSetup((done): any => {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
@@ -57,7 +57,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getSyntaxTree", function (done): void {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 langClient.getSyntaxTree({
@@ -75,11 +75,11 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getBallerinaProject - Ballerina project", (done) => {
-        const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
-        const uri = Uri.file(path.join(projectPath, 'main.bal').toString());
+        const projectPath = join(PROJECT_ROOT, 'helloPackage');
+        const uri = Uri.file(join(projectPath, 'main.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
-                const projectPath = path.join(PROJECT_ROOT, 'helloPackage');
+                const projectPath = join(PROJECT_ROOT, 'helloPackage');
                 const documentIdentifier = {
                     documentIdentifier: {
                         uri: uri.toString()
@@ -99,7 +99,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getBallerinaProject - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const documentIdentifier = {
@@ -129,7 +129,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Folding Range - Ballerina project", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const foldingRangeParam = {
@@ -158,7 +158,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Folding Range - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const foldingRangeParam = {
@@ -184,7 +184,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Goto Defition - Ballerina project", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal'));
         langClient.onReady().then(() => {
             const definitionParam = {
                 textDocument: {
@@ -195,7 +195,7 @@ suite("Language Server Tests", function () {
                 }
             };
             langClient.sendRequest('textDocument/definition', definitionParam).then((response: any) => {
-                const gotoDefFilePath = Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello',
+                const gotoDefFilePath = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello',
                     'hello_service.bal').toString());
                 assert.equal(response[0].uri, isWindows() ? gotoDefFilePath.toString().replace('%3A', ':') :
                     gotoDefFilePath, 'Invalid goto definitopn file uri.');
@@ -209,7 +209,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Goto Defition - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         langClient.onReady().then(() => {
             const definitionParam = {
                 textDocument: {
@@ -235,7 +235,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const hoverParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
                 },
                 position: {
                     line: 6,
@@ -254,7 +254,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const hoverParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'hello_world.bal')).toString()
                 },
                 position: {
                     line: 10,
@@ -273,7 +273,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
                 },
                 range: {
                     start: {
@@ -302,7 +302,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'hello_world.bal')).toString()
                 },
                 range: {
                     start: {
@@ -331,7 +331,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                 },
                 range: {
                     start: {
@@ -358,7 +358,7 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
-                    uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                    uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                 },
                 range: {
                     start: {
@@ -382,7 +382,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Folding Range - Different Ballerina components", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const foldingRangeParam = {
@@ -498,12 +498,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Optimize Imports Action - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                     },
                     range: {
                         start: {
@@ -530,12 +530,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Incompatible Params Action - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                     },
                     range: {
                         start: {
@@ -565,12 +565,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Create Variable Action - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                     },
                     range: {
                         start: {
@@ -600,12 +600,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Create Variable With Unions Action - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                     },
                     range: {
                         start: {
@@ -637,12 +637,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test CodeLens - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample1.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const lensParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample1.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
                     }
                 };
 
@@ -658,12 +658,12 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Update Document Action - Single file", (done) => {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'sample2.bal').toString());
+        const uri = Uri.file(join(PROJECT_ROOT, 'sample2.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
-                        uri: Uri.file(path.join(PROJECT_ROOT, 'sample2.bal')).toString()
+                        uri: Uri.file(join(PROJECT_ROOT, 'sample2.bal')).toString()
                     },
                     range: {
                         start: {
@@ -692,7 +692,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test BallerinaProjectComponents, and ExecutorPositions", function (done): void {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.onReady().then(async () => {
                 await langClient.getBallerinaProjectComponents({
@@ -712,7 +712,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test SyntaxTreeNode", function (done): void {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         langClient.getSyntaxTreeNode({
             documentIdentifier: {
                 uri: uri.toString()
@@ -737,7 +737,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test ExecutorPositions", function (done): void {
-        const uri = Uri.file(path.join(PROJECT_ROOT, 'hello_world.bal'));
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         langClient.getExecutorPositions({
             documentIdentifier: {
                 uri: uri.toString()

@@ -21,7 +21,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(context: ExtensionContext, langClient: ExtendedLangClient)
+export function render(_context: ExtensionContext, _langClient: ExtendedLangClient)
     : string {
 
     const body = `<div id="examples" class="examples-container" />`;

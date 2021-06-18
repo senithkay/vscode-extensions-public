@@ -53,11 +53,14 @@ export class ReadOnlyFileProvider {
 
             const childProcess: ChildProcess = spawn(command, [attribute, document.fileName]);
 
-            childProcess.stdout.on("data", (data) => {
+            if (!childProcess) {
+                debug('Could not change file access permission');
+            }
+            childProcess.stdout?.on("data", (data) => {
                 debug(`Update file access: ${data}`);
             });
 
-            childProcess.stderr.on("data", (data) => {
+            childProcess.stderr?.on("data", (data) => {
                 debug(`Error occured while updating file access: ${data}`);
                 if (!data.includes('Operation not permitted')) {
                     window.showErrorMessage(`Error at file access update: ${data}`);

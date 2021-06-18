@@ -27,13 +27,16 @@ import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
-import { StaticFeature, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
+import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
     class TraceLogsFeature implements StaticFeature {
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+        }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.introspection = true;
@@ -43,6 +46,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     }
 
     class ShowFileFeature implements StaticFeature {
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+
+        }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.showTextDocument = true;

@@ -225,7 +225,7 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 }
 
 export async function refreshDiagramForEditorChange(change: Change) {
-	if (!webviewRPCHandler || !diagramElement) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
 		return;
 	}
 
