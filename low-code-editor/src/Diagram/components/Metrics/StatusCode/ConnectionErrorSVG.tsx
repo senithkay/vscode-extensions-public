@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import  { Grid, IconButton,  withStyles } from "@material-ui/core";
+import { Grid, IconButton,  withStyles } from "@material-ui/core";
 import TooltipBase from '@material-ui/core/Tooltip';
 import { CopyToClipboard } from 'components/CopyToClipboard';
 
