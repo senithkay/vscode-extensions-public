@@ -292,7 +292,7 @@ export function JsonType(props: JsonTypeProps) {
 
     let hasMappingConstructor: boolean = false;
 
-    if (STKindChecker.isLocalVarDecl(model) && STKindChecker.isMappingConstructor(model.initializer) ) {
+    if (STKindChecker.isLocalVarDecl(model) && STKindChecker.isMappingConstructor(model.initializer)) {
         hasMappingConstructor = true;
     } else if (STKindChecker.isAssignmentStatement(model) && STKindChecker.isMappingConstructor(model.expression)) {
         hasMappingConstructor = true;

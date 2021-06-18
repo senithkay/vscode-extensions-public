@@ -68,10 +68,10 @@ export function DataMapper(props: DataMapperProps) {
 
     let outputSTNode; //
 
-    let maxFieldWidth: number = 200;
+    const maxFieldWidth: number = 200;
     const inputSTNodes: STNode[] = [];
-    let constantMap: Map<string, FieldViewState> = new Map();
-    let constantList: FieldViewState[] = [];
+    const constantMap: Map<string, FieldViewState> = new Map();
+    const constantList: FieldViewState[] = [];
 
     if (dataMapperConfig) {
         const inputVariableInfo: DataMapperInputTypeInfo[] = dataMapperConfig.inputTypes;

@@ -37,7 +37,7 @@ export function getDataMapperComponent(type: string, args: any) {
     if (DataMapperComponent) {
         return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
     } else {
-        DataMapperComponent = (DataMapperComponents as any)['var'];
+        DataMapperComponent = (DataMapperComponents as any).var;
         return DataMapperComponent ? <DataMapperComponent {...args} /> : null;
     }
 }
