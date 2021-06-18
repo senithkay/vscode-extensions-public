@@ -72,7 +72,13 @@ export function VariablePicker() {
                     varName = el.paramName.value;
                 }
 
-                return selectedVariables.indexOf(varName) === -1;
+                let isOutputVariable = false
+
+                if (dataMapperConfig.outputType && varName === dataMapperConfig.outputType.variableName) {
+                    isOutputVariable = true;
+                }
+
+                return selectedVariables.indexOf(varName) === -1 && !isOutputVariable;
             })
             .forEach((el: STNode) => {
                 if (STKindChecker.isLocalVarDecl(el)) {

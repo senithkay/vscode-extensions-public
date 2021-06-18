@@ -30,7 +30,7 @@ import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/Co
 import { DataMapperWrapper } from './components/DataMapperWrapper';
 import './components/InputTypes/style.scss';
 import { Provider as DataMapperViewProvider } from './context/DataMapperViewContext';
-// import { dataMapperSizingAndPositioning } from './util';
+import { DEFAULT_FIELD_WIDTH } from './util/datamapper-sizing-visitor';
 import { DataMapperState } from './util/types';
 import { FieldViewState } from './viewstate';
 
@@ -68,7 +68,7 @@ export function DataMapper(props: DataMapperProps) {
 
     let outputSTNode; //
 
-    const maxFieldWidth: number = 200;
+    const maxFieldWidth: number = DEFAULT_FIELD_WIDTH;
     const inputSTNodes: STNode[] = [];
     const constantMap: Map<string, FieldViewState> = new Map();
     const constantList: FieldViewState[] = [];
