@@ -44,8 +44,8 @@ export interface OauthConnectButtonProps {
   onDeselectConnection: () => void;
   onFailure: (error: Error) => void;
   selectedConnectionType?: ConnectionType;
-  onSave: () => void;
-  onClickManualConnection: () => void;
+  onSave?: () => void;
+  onClickManualConnection?: () => void;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {

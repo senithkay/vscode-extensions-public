@@ -250,5 +250,11 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column',
             justifyContent: "space-between"
         },
+        manualBtnWrapper: {
+            display: "flex",
+            flexDirection: "column",
+            marginTop: '1rem',
+            position: "relative"
+        }
     }),
 );

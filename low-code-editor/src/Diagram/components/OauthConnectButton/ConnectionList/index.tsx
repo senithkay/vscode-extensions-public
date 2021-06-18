@@ -36,8 +36,8 @@ export interface ConnectionListProps {
     connectionList: ConnectionDetails[];
     onChangeConnection: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onInitConnection: () => void;
-    connectionName: string;
-    onClickManualConnection: () => void;
+    connectionName?: string;
+    onClickManualConnection?: () => void;
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
