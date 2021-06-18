@@ -55,7 +55,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
         setSelectedConnection(evt.target.value);
     };
 
-    const filteredList = activeConnection ? connectionList.filter(item => item.handle !== activeConnection.handle) : connectionList;
+    const filteredList = activeConnection ? connectionList?.filter(item => item.handle !== activeConnection.handle) : connectionList;
 
     const connectionListElements = filteredList.map((item) => (
         // tslint:disable-next-line:jsx-key

@@ -117,7 +117,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(1)
         },
         changeConnectionBtn: {
-            padding: 3,
+            padding: 9,
+            border: "1px solid #E6E7EC",
+            borderRadius: "50%",
+            cursor: "pointer"
         },
         searchBox: {
             height: 32,
@@ -164,15 +167,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         activeConnectionWrapper: {
             display: "flex",
             marginTop: -8,
-            marginBottom: 8
+            marginBottom: 8,
+            alignItems: "center"
         },
         activeConnectionWrapperChild1: {
-            width: "63%",
-            float: "left"
-        },
-        activeConnectionWrapperChild2: {
-            width: "37%",
-            float: "right",
+            flexGrow: 1
         },
         activeConnectionBox: {
             width: "100%",

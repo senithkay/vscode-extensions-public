@@ -16,7 +16,7 @@ import React from 'react';
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 
-import { ConnectionDetails } from "../../../../api/models";
+import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
 import { useStyles } from "../styles";
 
 export interface ConnectedButtonProps {
@@ -34,19 +34,23 @@ export function ConnectedButton(props: ConnectedButtonProps) {
                 <div className={classes.activeConnectionWrapperChild1}>
                     <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
                         <Typography variant="subtitle2">
-                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                            <p className={classes.radioBtnSubtitle}>
+                                {(activeConnection.type === CONNECTION_TYPE_MANUAL) ? activeConnection.displayName : activeConnection.userAccountIdentifier}
+                            </p>
                         </Typography>
                     </Box>
                 </div>
-                <IconButton
-                    color="primary"
-                    classes={ {
-                        root: classes.changeConnectionBtn
-                    } }
-                    onClick={onChangeConnection}
-                >
-                    <EditIcon />
-                </IconButton>
+                <div>
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={onChangeConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
+                </div>
             </div>
         </>
     );

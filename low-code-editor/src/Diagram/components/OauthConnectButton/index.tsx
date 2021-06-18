@@ -187,7 +187,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
               </Typography>
             </Box>
           </div>
-          <div className={classes.activeConnectionWrapperChild2}>
+          <div>
             <Status type={"Connected"} />
           </div>
         </div>
