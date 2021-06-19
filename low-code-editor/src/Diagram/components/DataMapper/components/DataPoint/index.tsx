@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import classNames from 'classnames';
 import React from 'react';
+
+import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import { DeleteSVG } from '../../../DiagramActions/DeleteBtn/DeleteSVG';
