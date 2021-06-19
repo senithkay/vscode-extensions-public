@@ -25,7 +25,6 @@
 import { readdirSync, realpathSync } from 'fs';
 import { join, sep } from 'path';
 import { killPortProcess } from 'kill-port-process';
-import { isWindows } from './utils';
 
 const TEST_RESOURCES = join(__dirname, '..', '..', 'extractedDistribution').toString();
 const PLATFORM_PREFIX = /jballerina-tools-/;
@@ -75,4 +74,8 @@ export function killPort(port: number) {
             await killPortProcess(port);
         })();
     }
+}
+
+export function isWindows(): boolean {
+	return process.platform === "win32";
 }

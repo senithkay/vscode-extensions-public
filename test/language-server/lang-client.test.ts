@@ -21,11 +21,10 @@
 import assert = require('assert');
 import { expect } from 'chai';
 import { join } from 'path';
-import { ExtendedLangClient } from "../core/extended-language-client";
-import { getServerOptions } from "../server/server";
-import { getBallerinaCmd } from "../test-util";
+import { ExtendedLangClient } from "../../src/core/extended-language-client";
+import { getServerOptions } from "../../src/server/server";
+import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
-import { isWindows } from '../utils';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -760,4 +759,3 @@ suite("Language Server Tests", function () {
         });
     });
 });
-

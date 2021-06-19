@@ -25,10 +25,9 @@ import * as path from 'path';
 import * as child_process from "child_process";
 import * as http from 'http';
 
-import { getBallerinaHome } from '../test-util';
+import { getBallerinaHome, isWindows } from '../test-util';
 import { DebugClient } from "vscode-debugadapter-testsupport";
 import { ExecutableOptions } from 'vscode-languageclient';
-import { isWindows } from 'src/utils';
 
 suite('Ballerina Debug Adapter', () => {
 
