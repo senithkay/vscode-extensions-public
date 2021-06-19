@@ -135,10 +135,38 @@
     fill: #CBCEDB;
     pointer-events: all;
     &:hover {
-        fill: #5567D5
+        fill: #5567D5;
     }
 }
 
 .delete-icon-show.disable {
     opacity: 0.5;
+}
+
+.data-point {
+    .inner-oval {
+        fill: #fff;
+
+        &.mapped {
+            fill: #5567d5;
+        }
+    }
+
+    .outer-oval {
+        fill: #fff;
+    }
+
+    &:hover {
+        .inner-oval {
+            fill: #fff;
+
+            &.mapped {
+                fill: #fff;
+            }
+        }
+    
+        .outer-oval {
+            fill: #5567d5;
+        }
+    }
 }

@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import classNames from 'classnames';
 import React from 'react';
 
 import { DefaultConfig } from '../../../../../../../low-code-editor/src/Diagram/visitors/default';
@@ -59,27 +60,29 @@ export function DataPoint(props: DataPointProps) {
         })
         dataPointElement.push((
             <>
-                <g>
+                <g className={'data-point'}>
                     <circle
+                        className={'outer-oval'}
                         data-testid={'datamapper-source-mapping-circle1'}
                         id="Oval-test"
                         cx={dataPointViewState.bBox.x + 100}
                         cy={dataPointViewState.bBox.y}
                         r="6"
-                        fill="none"
+                        // fill="none"
                         stroke="#a6b3ff"
                         stroke-miterlimit="10"
                         stroke-width="1"
                         onClick={onDataPointClick}
                     />
                     <circle
+                        className={classNames('inner-oval', { 'mapped': connections.length > 0 })}
                         data-testid={'datamapper-source-mapping-circle2'}
                         id="Oval-2"
                         data-name="Oval"
                         cx={dataPointViewState.bBox.x + 100}
                         cy={dataPointViewState.bBox.y}
                         r="3"
-                        fill="#5567d5"
+                        // fill="#5567d5"
                         onClick={onDataPointClick}
                     />
                 </g>
@@ -123,14 +126,15 @@ export function DataPoint(props: DataPointProps) {
                     y={dataPointViewState.bBox.y - (EXPRESSION_BOX_SVG_HEIGHT / 2)}
                     onClick={onDataPointClick}
                 />
-                <g>
+                <g className='data-point'>
                     <circle
                         data-testid={'datamapper-target-mapping-circle1'}
                         id="Oval-test2"
+                        className={classNames('outer-oval')}
                         cx={dataPointViewState.bBox.x - 125}
                         cy={dataPointViewState.bBox.y}
                         r="6"
-                        fill="none"
+                        // fill="none"
                         stroke="#a6b3ff"
                         stroke-miterlimit="10"
                         stroke-width="1"
@@ -139,11 +143,12 @@ export function DataPoint(props: DataPointProps) {
                     <circle
                         data-testid={'datamapper-target-mapping-circle2'}
                         id="Oval-2"
+                        className={classNames('inner-oval', 'mapped')}
                         data-name="Oval"
                         cx={dataPointViewState.bBox.x - 125}
                         cy={dataPointViewState.bBox.y}
                         r="3"
-                        fill="#5567d5"
+                        // fill="#5567d5"
                         onClick={onDataPointClick}
                     />
                 </g>
