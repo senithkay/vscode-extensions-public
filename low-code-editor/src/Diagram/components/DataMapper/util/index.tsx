@@ -72,9 +72,13 @@ export function getDefaultValueForType(type: DataMapperOutputTypeInfo, recordMap
         case PrimitiveBalType.Json:
             // todo: look into default json type
             if (type.sampleStructure) {
-                const jsonStructure = JSON.parse(type.sampleStructure);
-                resetJsonValueToDefault(jsonStructure);
-                return JSON.stringify(jsonStructure);
+                try {
+                    const jsonStructure = JSON.parse(type.sampleStructure);
+                    resetJsonValueToDefault(jsonStructure);
+                    return JSON.stringify(jsonStructure);
+                } catch (e) {
+                    return type.sampleStructure;
+                }
             } else {
                 return '{}';
             }
