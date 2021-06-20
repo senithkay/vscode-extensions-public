@@ -366,6 +366,29 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 if (key === 'init') {
                     value.parameters.find(fields => fields.name === "config").fields
                         .find(fields => fields.name === "clientConfig").optional = true;
+                } else if (key === "getOrganizationProjectList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const stateField = value.parameters.find(fields => fields.name === "state");
+                    if (stateField) {
+                        stateField.type = PrimitiveBalType.String;
+                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
+                } else if (key === "getRepositoryProjectList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const stateField = value.parameters.find(fields => fields.name === "state");
+                    if (stateField) {
+                        stateField.type = PrimitiveBalType.String;
+                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
+                } else if (key === "getRepositoryIssueList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const statesField = value.parameters.find(fields => fields.name === "states");
+                    if (statesField) {
+                        statesField.type = "collection";
+                        statesField.isArray = true;
+                        statesField.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
+                        statesField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
                 }
                 filteredFunctions.set(key, value);
             });
