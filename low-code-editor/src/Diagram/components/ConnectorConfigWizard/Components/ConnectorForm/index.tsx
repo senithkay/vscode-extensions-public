@@ -304,13 +304,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const showNotification = (status: number, action: ConnectionAction) => {
         if (action === ConnectionAction.create) {
-            if (status === 200) {
+            if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
             } else if (status !== 200) {
                 store.dispatch(triggerErrorNotification(createConfigErrorMessage));
             }
         } else if (action === ConnectionAction.update) {
-            if (status === 200) {
+            if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
             } else if (status !== 200) {
                 store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
