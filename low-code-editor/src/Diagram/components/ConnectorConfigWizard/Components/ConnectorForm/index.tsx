@@ -264,7 +264,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const handleConnectionUpdate = () => {
-        // setIsManualConnection(false);
         setConnection(undefined);
     };
 
@@ -402,9 +401,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
                         if (formattedFieldValues.length > 0) {
-                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName, config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
-                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), response.data, selectedType);
-                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), response.data, symbolInfo.configurables, selectedType);
+                            response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                                config.connectionName, userInfo.user.email, formattedFieldValues);
+                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                response.data, selectedType);
+                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
+                                response.data, symbolInfo.configurables, selectedType);
                             showNotification(response.status, ConnectionAction.create);
                         }
                         else {
@@ -568,7 +570,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         if (config.connectorInit.length > 0){
                             // save action with client path
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                                config.connectionName, userInfo.user.email, formattedFieldValues, selectedType);
+                                config.connectionName, userInfo.user.email, formattedFieldValues);
                             configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                 response.data, selectedType);
                             connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
@@ -636,7 +638,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         else if (connection.codeVariableKeys.find(field => field?.name === "clientIdKey")?.name) {
                             OAuthtype = "OAuth2RefreshTokenGrantConfig";
                         }
-                        // tslint:disable-next-line:no-shadowed-variable variable-name
                         const connectorConfigurablesInvoke = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables, OAuthtype);
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
