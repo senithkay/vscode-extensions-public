@@ -524,6 +524,7 @@ export function APIOptions(props: APIOptionsProps) {
             property: connector.displayName
         };
         onEvent(event);
+        state.onAPIClient(connector);
         onSelect(connector, selectedConnector);
     }
 

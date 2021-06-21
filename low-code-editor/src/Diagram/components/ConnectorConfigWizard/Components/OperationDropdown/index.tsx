@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, {useContext} from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
@@ -20,6 +20,9 @@ import classNames from 'classnames';
 
 import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
+import {Context} from "../../../../../Contexts/Diagram";
+import {STSymbolInfo} from "../../../../../Definitions";
+import {getModuleVariable} from "../../../../utils/mixins";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
@@ -35,9 +38,16 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const { operations, showConnectionName, onOperationSelect, connectionDetails } = props;
     const classes = wizardStyles();
     const intl = useIntl();
+    const { state } = useContext(Context);
 
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value.name);
+        const connector = (state.stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.moduleID);
+        if (connector){
+            const {orgName: org, moduleName: module, version} = connector;
+            state.onAPIClient({org, module, version}, value.name);
+        }
+
     };
 
     const operationDropdownPlaceholder = intl.formatMessage({

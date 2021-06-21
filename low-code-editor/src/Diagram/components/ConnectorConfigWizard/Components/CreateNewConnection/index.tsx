@@ -109,7 +109,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
-        state.onAPIClient(nameState.value, connector);
+        state.onAPIClient(connector);
         onSave();
     };
 
@@ -167,6 +167,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
+        state.onAPIClient(connector);
         onSaveNext();
     };
 
