@@ -41,6 +41,7 @@ import {
     createSortText,
     diagnosticCheckerExp,
     getDiagnosticMessage,
+    getFilteredDiagnostics,
     getInitialValue,
     getRandomInt,
     getTargetPosition,
@@ -236,9 +237,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     notValidExpEditor("Please wait for validation");
                 }
-            } else if (diagnosticCheckerExp(expressionEditorState.diagnostic, isCustomTemplate)) {
+            } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate));
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
                 }
             } else {
                 if (monacoRef.current) {
@@ -554,7 +555,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }).then((diagResp: any) => {
                 setExpressionEditorState({
                     ...expressionEditorState,
-                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                 })
             });
         });
@@ -618,7 +619,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }).then((diagResp: any) => {
                 setExpressionEditorState({
                     ...expressionEditorState,
-                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                 })
             });
         });
@@ -694,7 +695,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }).then((diagResp: any) => {
                     setExpressionEditorState({
                         ...expressionEditorState,
-                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                        diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                     })
                 });
             });
@@ -907,7 +908,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     (
                         <>
                             <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics)}</FormHelperText>
+                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics[0]?.message)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
@@ -917,11 +918,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                 <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
-                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate) ?
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
-                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate)} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic, varType, isCustomTemplate)}</FormHelperText>
+                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
+                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(getDiagnosticMessage(expressionEditorState.diagnostic, varType))}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
                                         <div className={formClasses.suggestionsWrapper} >

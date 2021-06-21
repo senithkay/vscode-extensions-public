@@ -34,13 +34,12 @@ import "./style.scss";
 
 
 // return true if there is any diagnostic of severity === 1
-export function diagnosticChecker(diagnostics: Diagnostic[], isCustomStatement?: boolean): boolean {
+export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
     if (!diagnostics) {
         return false
     }
     // ignore certain codes and check if there are any diagnostics with severity of level 1
-    const diagnosticList = (typeof isCustomStatement === 'undefined' || isCustomStatement) ? diagnostics : getFilteredDiagnostics(diagnostics);
-    return diagnosticList.some(diagnostic => diagnostic.severity === 1)
+    return diagnostics.some(diagnostic => diagnostic.severity === 1)
 }
 
 export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
@@ -100,9 +99,9 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     return initVal;
 }
 
-export function diagnosticCheckerExp(diagnostics: Diagnostic[], isCustomStatement?: boolean): boolean {
+export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     // check for severity level == 1
-    return diagnosticChecker(diagnostics, isCustomStatement)
+    return diagnosticChecker(diagnostics)
 }
 
 export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
@@ -303,15 +302,20 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export const getFilteredDiagnostics = (diagnostics: Diagnostic[]) =>
-    diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()))
+export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomStatement: boolean) {
+    if (isCustomStatement) {
+        return diagnostics;
+    } else {
+        return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()));
+    }
+}
+    
 
-export const truncateDiagnosticMsg = (diagnostics: Diagnostic[], varType?: string, isCustomStatement?: boolean) => {
-    const errorMsg = getDiagnosticMessage(diagnostics, varType, isCustomStatement);
-    if (errorMsg && errorMsg.length > 50)
-        return errorMsg.slice(0, 50) + " ..."
+export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
+    if (diagnosticsMessage && diagnosticsMessage.length > 50)
+        return diagnosticsMessage.slice(0, 50) + " ..."
     else
-        return errorMsg
+        return diagnosticsMessage
 }
 
 export const getValueWithoutSemiColon = (currentContent: string) => {
@@ -332,13 +336,12 @@ export const getValueWithoutSemiColon = (currentContent: string) => {
     return currentContent;
 }
 
-export function getDiagnosticMessage(diagnostics: any, varType: string, isCustomStatement?: boolean): string {
-    const filteredDiagnostics = (typeof isCustomStatement === 'undefined' || isCustomStatement) ? diagnostics : getFilteredDiagnostics(diagnostics)
+export function getDiagnosticMessage(diagnostics: any, varType: string): string {
     if (varType === 'string') {
-        const quotesError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
-        const undefSymbolError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
-        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : filteredDiagnostics[0]?.message;
+        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
+        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : diagnostics[0]?.message;
     } else {
-        return filteredDiagnostics[0]?.message;
+        return diagnostics[0]?.message;
     }
 }
