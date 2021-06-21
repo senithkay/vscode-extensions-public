@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -17,9 +16,8 @@ import React from 'react';
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 
-import { ConnectionDetails } from "../../../../api/models";
-
-import { useStyles } from "./../styles";
+import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
+import { useStyles } from "../styles";
 
 export interface ConnectedButtonProps {
     activeConnection: ConnectionDetails;
@@ -32,23 +30,28 @@ export function ConnectedButton(props: ConnectedButtonProps) {
 
     return (
         <>
-            <Box border={1} borderRadius={5} className={classes.box} key={activeConnection?.handle}>
-                <Typography variant="subtitle2">
-                <div>
-                    <p className={classes.radioBtnTitle}>{activeConnection.displayName}</p>
-                    <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>
+                                {(activeConnection.type === CONNECTION_TYPE_MANUAL) ? activeConnection.displayName : activeConnection.userAccountIdentifier}
+                            </p>
+                        </Typography>
+                    </Box>
                 </div>
-                </Typography>
-                <IconButton
-                    color="primary"
-                    classes={ {
-                        root: classes.changeConnectionBtn
-                    } }
-                    onClick={onChangeConnection}
-                >
-                    <EditIcon />
-                </IconButton>
-            </Box>
+                <div>
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={onChangeConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
+                </div>
+            </div>
         </>
     );
 }
