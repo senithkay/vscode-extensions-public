@@ -208,11 +208,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         </div>
     );
 
-    const connectionNametitle = (
-        <div>
-            <p>{connectionNameHelpText}</p>
-        </div>
-    );
 
     const handleOnSaveNext = () => {
         // update config connector name, when user click next button
@@ -226,7 +221,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         <div className={wizardClasses.section}>
             <Section
                 title={createConnectionNameLabel}
-                tooltip={{connectionNametitle}}
+                tooltip={connectionNameHelpText}
             >
                 <FormTextInput
                     customProps={{
@@ -258,7 +253,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={wizardClasses.section}>
                             <Section
                                 title={createEndpointNameLabel}
-                                tooltip={{title}}
+                                tooltipWithListView={{title}}
                             >
                                 <FormTextInput
                                     customProps={{
