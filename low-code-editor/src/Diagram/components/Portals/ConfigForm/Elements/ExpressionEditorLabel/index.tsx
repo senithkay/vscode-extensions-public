@@ -17,12 +17,13 @@ import { FormattedMessage } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
-import { TooltipIcon } from "../../../../../../components/Tooltip";
+import { TooltipCodeSnippet, TooltipIcon } from "../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorProps } from "../ExpressionEditor";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { useStyles as useTextInputStyles } from "../TextField/style";
+import { truncateText } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
     const { model, customProps } = props;
@@ -44,7 +45,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
             data-lang="ballerina"
             className={textFieldClasses.code}
         >
-            {typeString}
+            {truncateText(typeString)}
         </code>
     );
 
@@ -96,9 +97,11 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                 ) : null
             }
             {typeString && (
-                <div className={textFieldClasses.codeWrapper}>
-                    <EditorType />
-                </div>
+                <TooltipCodeSnippet content={typeString} placement="right" arrow={true}>
+                    <div className={textFieldClasses.codeWrapper}>
+                            <EditorType />
+                    </div>
+                </TooltipCodeSnippet>
             )}
         </>
     )
