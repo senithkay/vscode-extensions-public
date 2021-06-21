@@ -17,6 +17,7 @@
  * under the License.
  *
  */
+
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as http from 'http';

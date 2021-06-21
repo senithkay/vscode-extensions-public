@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 export * from "./activator";
 export * from "./model";
 export { PackageOverviewDataProvider } from "./tree-data-provider";

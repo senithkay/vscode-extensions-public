@@ -15,14 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND } from './model';
 import { join, sep } from 'path';
-import fileUriToPath = require('file-uri-to-path');
+import fileUriToPath from 'file-uri-to-path';
 import { BAL_TOML, PROJECT_TYPE } from '../project';
+import { DiagramOptions } from '../diagram';
 
 /**
  * Data provider class for package tree.
@@ -48,7 +50,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             }
         });
     }
-    private _onDidChangeTreeData: EventEmitter<PackageTreeItem | undefined> = new EventEmitter<PackageTreeItem | undefined>();
+    private _onDidChangeTreeData: EventEmitter<PackageTreeItem | undefined> = new EventEmitter<PackageTreeItem
+        | undefined>();
     readonly onDidChangeTreeData: Event<PackageTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     refresh(): void {
@@ -64,7 +67,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake) {
+        if (!this.ballerinaExtension.isSwanLake()) {
             window.showErrorMessage("Ballerina package overview is only supported in Swan Lake.");
             return;
         }
@@ -131,8 +134,9 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             if (mainFunctionNodes.length > 0) {
                 mainFunctionNodes.forEach(fn => {
                     components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
-                        CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
-                            fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+                        CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() :
+                        join(parent.getFilePath(), fn.filePath), this.extensionPath, true, parent, {}, fn.startLine,
+                        fn.startColumn));
                 });
             }
         }
@@ -184,7 +188,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         return components;
     }
 
-    private createPackageData(projectPackage: Package, isSingleFile: boolean, documentName: string = ''): PackageTreeItem[] {
+    private createPackageData(projectPackage: Package, isSingleFile: boolean, documentName: string):
+        PackageTreeItem[] {
         let moduleItems: PackageTreeItem[] = [];
         if (!window.activeTextEditor && documentName === '') {
             return moduleItems;
@@ -210,7 +215,10 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                 return !module.name;
             });
             if (defaultModules.length === 1) {
-                parent.setChildrenData({ functions: defaultModules[0].functions, services: defaultModules[0].services });
+                parent.setChildrenData({
+                    functions: defaultModules[0].functions, services:
+                        defaultModules[0].services
+                });
             }
 
             const nonDefaultModules: Module[] = modules.filter(module => {
@@ -250,5 +258,46 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
         }
         return resources;
+    }
+
+    public async getFirstViewElement(): Promise<DiagramOptions> {
+        const packageItems: PackageTreeItem[] | undefined | null = await this.getChildren();
+        if (!packageItems) {
+            return { isDiagram: false };
+        }
+        if (packageItems.length > 0) {
+            for (let i = 0; i < packageItems.length; i++) {
+                const child: PackageTreeItem | undefined = await this.getNextChild(packageItems[i]);
+                if (child) {
+                    return {
+                        name: child.getName(),
+                        kind: child.getKind(),
+                        filePath: child.getFilePath(),
+                        startLine: child.getStartLine(),
+                        startColumn: child.getStartColumn(),
+                        isDiagram: true
+                    };
+                }
+            }
+        }
+        return { isDiagram: false };
+    }
+
+    async getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
+        const children: PackageTreeItem[] | undefined | null = await this.getChildren(treeItem);
+        if (!children || children.length === 0) {
+            return;
+        }
+
+        for (let i = 0; i < children.length; i++) {
+            let child: PackageTreeItem = children[i];
+            if (child.getKind() === CMP_KIND.SERVICE) {
+                return await this.getNextChild(child);
+            }
+            if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
+                return child;
+            }
+        }
+        return;
     }
 }

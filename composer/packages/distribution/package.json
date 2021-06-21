@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/distribution",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "build/composer.js",
   "scripts": {
@@ -15,11 +15,11 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/ballerina-by-examples": "^2.0.0",
-    "@ballerina/low-code-editor": "^2.0.0",
-    "@ballerina/theme": "^2.0.0"
+    "@ballerina/ballerina-by-examples": "^2.1.0",
+    "@ballerina/low-code-editor": "^2.1.0",
+    "@ballerina/theme": "^2.1.0"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^2.0.0"
+    "@ballerina/composer-cli": "^2.1.0"
   }
 }

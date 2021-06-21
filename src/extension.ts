@@ -17,24 +17,26 @@
  * under the License.
  *
  */
+
 import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance } from './core';
-// import { activate as activateAPIEditor } from './api-editor';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
-// import { activate as activateTraceLogs } from './trace-logs';
 import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
-import { StaticFeature, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
+import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
     class TraceLogsFeature implements StaticFeature {
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+        }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.introspection = true;
@@ -44,6 +46,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     }
 
     class ShowFileFeature implements StaticFeature {
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+
+        }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.showTextDocument = true;
@@ -66,17 +72,13 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateDiagram(ballerinaExtInstance, packageOverviewDataProvider);
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
-        // Enable Network logs
-        // activateTraceLogs(ballerinaExtInstance);
         // Enable Ballerina Debug Config Provider
         activateDebugConfigProvider(ballerinaExtInstance);
-        // Enable Ballerina API Designer
-        // activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
 
-        if (ballerinaExtInstance.isSwanLake) {
+        if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);
         }
@@ -112,7 +114,6 @@ export function activate(context: ExtensionContext): Promise<any> {
                                 }
                             }
                         });
-
                 });
             });
         }

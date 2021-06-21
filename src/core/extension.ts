@@ -24,17 +24,19 @@ import {
     Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
-    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND, NO_SUCH_FILE,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT, OLD_PLUGIN_INSTALLED
+    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
+    NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
+    OLD_PLUGIN_INSTALLED
 } from "./messages";
-import * as path from 'path';
+import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel } from '../utils/index';
+import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
-import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME } from "./preferences";
+import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME }
+    from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
     createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
@@ -73,15 +75,14 @@ export class BallerinaExtension {
     public ballerinaHome: string;
     private ballerinaCmd: string;
     public ballerinaVersion: string;
-    public isSwanLake: boolean;
-    public is12x: boolean;
+    private swanLake: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
-    private packageTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
-    private lastChange: Change | undefined;
+    private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private editorChangesCallbacks: Array<(change: Change) => void> = [];
 
     private webviewPanels: {
         [name: string]: WebviewPanel;
@@ -96,13 +97,14 @@ export class BallerinaExtension {
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
         this.sdkVersion.command = `ballerina.showLogs`;
         this.sdkVersion.show();
-        this.isSwanLake = false;
-        this.is12x = false;
-        this.lastChange = undefined;
+        this.swanLake = false;
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
-            documentSelector: [{ scheme: 'file', language: LANGUAGE.BALLERINA }, { scheme: 'file', language: LANGUAGE.TOML }],
+            documentSelector: [{ scheme: 'file', language: LANGUAGE.BALLERINA }, {
+                scheme: 'file', language:
+                    LANGUAGE.TOML
+            }],
             synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
@@ -154,15 +156,13 @@ export class BallerinaExtension {
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
                 if (this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
-                    this.isSwanLake = true;
-                } else if (this.ballerinaVersion.match(PREV_REGEX)) {
-                    this.is12x = true;
+                    this.swanLake = true;
                 }
 
-                if (!this.isSwanLake && !this.is12x) {
+                if (!this.swanLake && !this.ballerinaVersion.match(PREV_REGEX)) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        Please use a compatible VSCode extension version.`;
+                        The extension supports Ballerina Swan Lake and 1.2.x versions.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
@@ -270,10 +270,10 @@ export class BallerinaExtension {
         }
         let distPath = "";
         if (overrideBallerinaHome) {
-            distPath = path.join(ballerinaHome, "bin") + path.sep;
+            distPath = join(ballerinaHome, "bin") + sep;
         }
         let exeExtension = "";
-        if (process.platform === 'win32') {
+        if (isWindows()) {
             exeExtension = ".bat";
         }
 
@@ -292,7 +292,8 @@ export class BallerinaExtension {
                     return;
                 }
 
-                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) ||
+                    stdout.includes(COMMAND_NOT_FOUND)) {
                     reject(stdout);
                     return;
                 }
@@ -316,7 +317,8 @@ export class BallerinaExtension {
                     return;
                 }
 
-                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) || stdout.includes(COMMAND_NOT_FOUND)) {
+                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) ||
+                    stdout.includes(COMMAND_NOT_FOUND)) {
                     reject(stdout);
                     return;
                 }
@@ -455,7 +457,7 @@ export class BallerinaExtension {
             }
 
             // specially handle unknown ballerina command scenario for windows
-            if (balHomeOutput === "" && process.platform === "win32") {
+            if (balHomeOutput === "" && isWindows()) {
                 isOldBallerinaDist = true;
             }
         } catch ({ message }) {
@@ -515,26 +517,28 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
     }
 
-    public packageTreeElementClicked(construct: ConstructIdentifier): void {
-        this.packageTreeElementClickedCallbacks.forEach((callback) => {
+    public isSwanLake(): boolean {
+        return this.swanLake;
+    }
+
+    public diagramTreeElementClicked(construct: ConstructIdentifier): void {
+        this.diagramTreeElementClickedCallbacks.forEach((callback) => {
             callback(construct);
         });
     }
 
-    public onPackageTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
-        this.packageTreeElementClickedCallbacks.push(callback);
+    public onDiagramTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
+        this.diagramTreeElementClickedCallbacks.push(callback);
     }
 
-    public setLastChange(fileUri: Uri, startLine: number, startColumn: number) {
-        this.lastChange = { fileUri, startLine, startColumn };
+    public onEditorChanged(callback: (change: Change) => void) {
+        this.editorChangesCallbacks.push(callback);
     }
 
-    public resetLastChange() {
-        this.lastChange = undefined;
-    }
-
-    public getLastChange(): Change | undefined {
-        return this.lastChange;
+    public didEditorChange(change: Change): void {
+        this.editorChangesCallbacks.forEach((callback) => {
+            callback(change);
+        });
     }
 }
 

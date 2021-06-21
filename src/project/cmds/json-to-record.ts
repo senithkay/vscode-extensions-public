@@ -41,7 +41,7 @@ export function activatePasteJsonAsRecord() {
     // This command is only available since Swan Lake Beta 2
     // Check the version before registering the command
     if (
-        ballerinaExtInstance.isSwanLake 
+        ballerinaExtInstance.isSwanLake()
         && !ballerinaExtInstance.ballerinaVersion.includes("Alpha")
         && !ballerinaExtInstance.ballerinaVersion.includes("Preview")
     ) {

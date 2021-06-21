@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { DiagramEditorLangClientInterface } from "@wso2-enterprise/low-code-editor";
 import { createElement } from "react";
 import { render } from "react-dom";
@@ -30,7 +31,6 @@ export function renderDiagramEditor(options: {
         name: string
     }
 }) {
-    options.target.classList.add("composer");
     const DiagramElement = createElement(Diagram, options);
     return render(DiagramElement, options.target);
 }

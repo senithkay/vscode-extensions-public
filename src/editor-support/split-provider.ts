@@ -16,12 +16,13 @@
  * under the License.
  *
  */
+
 import { BallerinaExtension } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
-import { refreshDiagram } from "../diagram";
+import { isWindows } from "../utils";
 
-const newLine: string = process.platform === "win32" ? '\r\n' : '\n';
+const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
 
 /**
@@ -35,9 +36,12 @@ export class StringSplitter {
             return;
         }
         if (this instanceof BallerinaExtension) {
-            // Refresh diagram
-            this.setLastChange(editor.document.uri, editor.selection.active.line, editor.selection.active.character);
-            refreshDiagram();
+            // Add change for diagram edit callback
+            this.didEditorChange({
+                fileUri: editor.document.uri,
+                startLine: editor.selection.active.line,
+                startColumn: editor.selection.active.character
+            });
 
             let documentChange: TextDocumentContentChangeEvent | undefined;
             event.contentChanges.forEach(change => {

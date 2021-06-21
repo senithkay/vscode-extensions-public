@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
@@ -63,7 +81,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (ballerinaExtInstance.isSwanLake && ballerinaExtInstance.langClient) {
+    if (ballerinaExtInstance.isSwanLake() && ballerinaExtInstance.langClient) {
         await ballerinaExtInstance.langClient.getBallerinaProject({
             documentIdentifier: {
                 uri: activeDoc.uri.toString()
@@ -120,16 +138,18 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
+    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
+        Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const cwd = this.getCurrentWorkingDir();
         let args: string[] = [];
         const cmd = this.getScriptPath(args);
 
-        if (ballerinaExtInstance.is12x) {
+        if (!ballerinaExtInstance.isSwanLake()) {
             const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/1.2/learn/setting-up-visual-studio-code/run-and-debug/";
             const showDetails: string = 'Learn More';
-            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
+            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known" +
+                " limitations and workarounds.",
                 showDetails).then((selection) => {
                     if (showDetails === selection) {
                         commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
@@ -165,9 +185,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         });
     }
     getScriptPath(args: string[]): string {
-        let cmd = this.ballerinaExtInstance.getBallerinaCmd();
         args.push('start-debugger-adapter');
-        return cmd;
+        return this.ballerinaExtInstance.getBallerinaCmd();
     }
     getCurrentWorkingDir(): string {
         return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
