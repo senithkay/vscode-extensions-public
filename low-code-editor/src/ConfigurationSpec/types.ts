@@ -26,6 +26,7 @@ export enum PrimitiveBalType {
     Nil = "nil",
     Var = "var",
     Error = "error",
+    Decimal = "decimal"
 }
 
 export const httpResponse: NonPrimitiveBal = {
