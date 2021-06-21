@@ -290,7 +290,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isFieldsValid)}
+                                disabled={!(isFieldsWithConnectionNameValid)}
                                 onClick={handleOnSave}
                             />
                         )}
@@ -302,7 +302,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Save Connection"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    disabled={!(isFieldsWithConnectionNameValid)}
                                     onClick={handleOnSave}
                                 />
                                 <PrimaryButton
@@ -311,7 +311,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Continue to Invoke API"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
+                                    disabled={!(isFieldsWithConnectionNameValid)}
                                     onClick={handleOnSaveNext}
                                 />
                             </>
