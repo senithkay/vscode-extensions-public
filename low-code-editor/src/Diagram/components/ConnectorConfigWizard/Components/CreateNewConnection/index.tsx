@@ -221,7 +221,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         <div className={wizardClasses.section}>
             <Section
                 title={createConnectionNameLabel}
-                tooltipWithoutListView={connectionNameHelpText}
+                tooltip={connectionNameHelpText}
             >
                 <FormTextInput
                     customProps={{
@@ -253,7 +253,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={wizardClasses.section}>
                             <Section
                                 title={createEndpointNameLabel}
-                                tooltip={{title}}
+                                tooltipWithListView={{title}}
                             >
                                 <FormTextInput
                                     customProps={{
