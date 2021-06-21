@@ -759,6 +759,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 open: "'",
                 close: "'"
             }, {
+                open: '"',
+                close: '"'
+            }, {
                 open: "(",
                 close: ")"
             }, {
@@ -919,7 +922,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                             <FormHelperText className={formClasses.suggestionsText}>
                                                 {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to add double quotes to the empty expression" : " to convert the expression to a string"}
+                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to make an empty string" : " to convert the expression to a string"}
                                             </FormHelperText>
                                         </div>
                                     )}
