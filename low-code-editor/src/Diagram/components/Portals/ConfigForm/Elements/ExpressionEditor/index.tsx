@@ -27,6 +27,7 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
+import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
@@ -867,16 +868,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return errorMsg
     }
 
-    const clickHereText = intl.formatMessage({
-        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
-        defaultMessage: "Click here"
-    })
-
-    const toHandleItText = intl.formatMessage({
-        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
-        defaultMessage: "to handle it"
-    })
-
     setDefaultTooltips();
 
     return (
@@ -907,25 +898,20 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         </>
                     ) : addCheck ?
                         (
-                            <div className={formClasses.suggestionsWrapper} >
-                                <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
-                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
-                            </div>
+                            <ExpressionEditorHint type={HintType.ADD_CHECK} onClickHere={addCheckToExpression}/>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                             (
                                 <>
                                     <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
-                                    {stringCheck && needQuotes && (
-                                        <div className={formClasses.suggestionsWrapper} >
-                                            <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
-                                            <FormHelperText className={formClasses.suggestionsText}>
-                                                {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to make an empty string" : " to convert the expression to a string"}
-                                            </FormHelperText>
-                                        </div>
-                                    )}
+                                    {stringCheck && needQuotes && monacoRef.current ?
+                                        (monacoRef.current.editor.getModel().getValue() === "") ? (
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={stringCheckToExpression}/>
+                                        ) : (
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={stringCheckToExpression}/>
+                                        ) : null
+                                    }
                                 </>
                             ) : null
             }
