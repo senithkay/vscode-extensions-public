@@ -19,7 +19,7 @@ interface PayloadProps {
 
 export function PayloadEditor(props: PayloadProps) {
     const { payload, disabled, onChange } = props;
-    const segment: Payload = convertPayloadStringToPayload(payload);
+    const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
     const classes = useStyles();
     const initValue: Payload = segment ? { ...segment } : {
         name: "",
