@@ -1,5 +1,15 @@
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { Path, PathSegment, Payload, QueryParam, QueryParamCollection } from "./types";
+import {ReturnTypeDescriptor, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import {
+    Path,
+    PathSegment,
+    Payload,
+    QueryParam,
+    QueryParamCollection,
+    ReturnType,
+    ReturnTypeCollection,
+    ReturnTypesMap
+} from "./types";
+import {boolean} from "../../../../ConfigForm/Elements";
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
     let payload: Payload = {
@@ -216,6 +226,38 @@ export function generateQueryParamFromQueryCollection(params: QueryParamCollecti
         });
     }
     return queryParamString;
+}
+
+export function generateReturnTypeFromReturnCollection(params: ReturnType[]): string {
+    const returnTypes: string[] = [];
+    params.forEach(param => {
+        returnTypes.push(`${param.type} ${param.isOptional ? "?" : ""}`);
+    })
+    return returnTypes.join("|");
+}
+
+export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
+    if (returnTypeDesc) {
+        return returnTypeDesc.type.source.trim();
+    } else {
+        return "";
+    }
+}
+
+export function convertReturnTypeStringToSegments(returnTypeString: string): ReturnType[] {
+    const codeReturnTypes = returnTypeString?.split("|");
+    const returnTypes: ReturnType[] = [];
+    if (codeReturnTypes) {
+        codeReturnTypes.forEach((returnType, index) => {
+            if (returnType.includes("?")) {
+                returnTypes.push({type: returnType.replace("?", "").
+                    trim(), isOptional: true, id: index});
+            } else {
+                returnTypes.push({type: returnType.trim(), isOptional: false, id: index});
+            }
+        });
+    }
+    return returnTypes;
 }
 
 export function isCallerParamAvailable(params: STNode[]): boolean {

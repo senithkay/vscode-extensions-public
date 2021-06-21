@@ -1,9 +1,7 @@
-import { CloseRounded } from "@material-ui/icons";
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
-import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { Path, PathSegment } from "../../types";
 import { convertPathStringToSegments, genrateBallerinaResourcePath } from "../../util";
 import { PathSegmentItem } from "./pathSegement";

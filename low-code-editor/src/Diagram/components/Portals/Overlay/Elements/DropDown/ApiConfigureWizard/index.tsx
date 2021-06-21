@@ -15,7 +15,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, ReturnStatement, STKindChecker } from "@ballerina/syntax-tree";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
@@ -24,7 +24,7 @@ import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import RadioControl from "../../../../../../../components/RadioControl";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { updatePropertyStatement, updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
+import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import { validatePath } from "../../../../../../../utils/validator";
 import {
@@ -40,12 +40,25 @@ import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTex
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 import { PathEditor } from "./components/pathEditor";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType, isCallerParamAvailable, isRequestParamAvailable } from "./util";
+import {
+  convertPathStringToSegments,
+  convertQueryParamStringToSegments,
+  extractPayloadFromST,
+  generateQueryParamFromQueryCollection,
+  generateQueryParamFromST,
+  genrateBallerinaQueryParams,
+  genrateBallerinaResourcePath,
+  getBallerinaPayloadType,
+  getReturnType,
+  isCallerParamAvailable,
+  isRequestParamAvailable
+} from "./util";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
 import { PayloadEditor } from "./components/extractPayload";
 import { AdvancedEditor } from "./components/advanced";
+import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -87,6 +100,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
+  const [returnType, setReturnType] = useState<string>("");
+  const [callerChecked, setCallerChecked] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
   const [showPathUI, setShowPathUI] = useState(false);
   const [payloadAvailable, setPayloadAvailable] = useState(false);
@@ -110,13 +125,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const payload: string = extractPayloadFromST(functionSignature?.parameters);
       const callerParam: boolean = isCallerParamAvailable(functionSignature?.parameters);
       const requestParam: boolean = isRequestParamAvailable(functionSignature?.parameters);
+      const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload, isCaller: callerParam, isRequest: requestParam });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -176,6 +192,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnChangeReturnTypeFormUI(text: string, index: number) {
+    setReturnType(text);
+    const updatedResources = resources;
+    updatedResources[index].returnType = text;
+    setResources(updatedResources);
+  }
+
   function handleOnChangeQueryParamFromUI(text: string, index: number) {
     setCurrentPath(text);
     if (text === 'hello') {
@@ -204,6 +227,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     updatedResources[index].isCaller = advanced.isCaller;
     updatedResources[index].isRequest = advanced.isRequest;
     setResources(updatedResources);
+    setCallerChecked(advanced.isCaller);
   }
 
   const validateResources = () => {
@@ -255,6 +279,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             "PAYLOAD": res.payload ? res.payload : "",
             "ADD_CALLER": res.isCaller,
             "ADD_REQUEST": res.isRequest,
+            "ADD_RETURN": res.returnType
           }
         })
       });
@@ -271,15 +296,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const updatePosition: any = {
         startLine: model.functionName.position.startLine,
         startColumn: model.functionName.position.startColumn,
-        endLine: model.functionSignature.closeParenToken.position.endLine,
-        endColumn: model.functionSignature.closeParenToken.position.endColumn
+        endLine: model.functionSignature.position.endLine,
+        endColumn: model.functionSignature.position.endColumn
       }
       const selectedResource = resources[0];
       if (selectedResource.queryParams) {
         let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
         selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
       }
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller, selectedResource.isRequest, updatePosition));
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path,
+          selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
+          selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
       setTriggerChanged(true);
       modifyDiagram(mutations);
@@ -445,6 +472,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)}/>
                   </Section>
                 </div>
+                <div className={classes.sectionSeparator}>
+                  <Section
+                      title={returnTypeTitle}
+                      tooltipWithExample={{ title, content: pathExample }}
+                  >
+                    <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+                  </Section>
+                </div>
               </div>
             }
             {/* 
@@ -482,7 +517,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 }}
                 errorMessage={pathErrorMessage}
                 placeholder={pathPlaceholder}
-              /> 
+              />
             </Section> */}
           </div>
         ))}
