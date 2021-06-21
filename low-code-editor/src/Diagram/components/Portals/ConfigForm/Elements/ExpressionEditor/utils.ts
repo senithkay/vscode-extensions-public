@@ -27,20 +27,20 @@ import {
     DOUBLE_QUOTE_ERR_CODE,
     EXPAND_WIDGET_ID,
     INCORRECT_STR_DIAGNOSTICS,
-    UNDEFINED_SYMBOL_ERR_CODE
+    UNDEFINED_SYMBOL_ERR_CODE,
+    IGNORED_DIAGNOSTIC_MESSAGES
 } from "./constants";
 import "./style.scss";
 
-/** Messages to be ignored when displaying diagnostics in expression editor */
-const ignoredDiagnosticMessages: string[] = [`invalid token ';'`];
 
 // return true if there is any diagnostic of severity === 1
-export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
+export function diagnosticChecker(diagnostics: Diagnostic[], isCustomStatement?: boolean): boolean {
     if (!diagnostics) {
         return false
     }
     // ignore certain codes and check if there are any diagnostics with severity of level 1
-    return getFilteredDiagnostics(diagnostics).some(diagnostic => diagnostic.severity === 1)
+    const diagnosticList = (typeof isCustomStatement === 'undefined' || isCustomStatement) ? diagnostics : getFilteredDiagnostics(diagnostics);
+    return diagnosticList.some(diagnostic => diagnostic.severity === 1)
 }
 
 export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
@@ -100,9 +100,9 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     return initVal;
 }
 
-export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
+export function diagnosticCheckerExp(diagnostics: Diagnostic[], isCustomStatement?: boolean): boolean {
     // check for severity level == 1
-    return diagnosticChecker(diagnostics)
+    return diagnosticChecker(diagnostics, isCustomStatement)
 }
 
 export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
@@ -304,17 +304,17 @@ export function getRandomInt(max: number) {
 }
 
 export const getFilteredDiagnostics = (diagnostics: Diagnostic[]) =>
-    diagnostics.filter(diagnostic => !ignoredDiagnosticMessages.includes(diagnostic.message.toString()))
+    diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()))
 
-export const truncateDiagnosticMsg = (diagnostics: Diagnostic[], varType: string) => {
-    const errorMsg = getDiagnosticMessage(diagnostics, varType);
+export const truncateDiagnosticMsg = (diagnostics: Diagnostic[], varType?: string, isCustomStatement?: boolean) => {
+    const errorMsg = getDiagnosticMessage(diagnostics, varType, isCustomStatement);
     if (errorMsg && errorMsg.length > 50)
         return errorMsg.slice(0, 50) + " ..."
     else
         return errorMsg
 }
 
-export const getValueWithoutSemiColon = (currentContent: string, isCustomTemplate: boolean) => {
+export const getValueWithoutSemiColon = (currentContent: string) => {
     if (currentContent.endsWith(';')) {
         let semiColonCount = 0;
         // Loop through content and remove if multiple semicolons exist
@@ -325,10 +325,6 @@ export const getValueWithoutSemiColon = (currentContent: string, isCustomTemplat
                 break;
             }
         }
-        // Skip the removal of last semicolon for custom statements
-        if (isCustomTemplate) {
-            semiColonCount++;
-        }
         if (semiColonCount < 0) {
             return currentContent.slice(0, semiColonCount);
         }
@@ -336,8 +332,8 @@ export const getValueWithoutSemiColon = (currentContent: string, isCustomTemplat
     return currentContent;
 }
 
-export function getDiagnosticMessage(diagnostics: any, varType: string): string {
-    const filteredDiagnostics = getFilteredDiagnostics(diagnostics)
+export function getDiagnosticMessage(diagnostics: any, varType: string, isCustomStatement?: boolean): string {
+    const filteredDiagnostics = (typeof isCustomStatement === 'undefined' || isCustomStatement) ? diagnostics : getFilteredDiagnostics(diagnostics)
     if (varType === 'string') {
         const quotesError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
         const undefSymbolError = filteredDiagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);

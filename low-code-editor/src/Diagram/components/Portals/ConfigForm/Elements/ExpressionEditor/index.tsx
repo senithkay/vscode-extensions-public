@@ -179,6 +179,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
+    const isCustomTemplate = !!customTemplate;
     const formClasses = useFormStyles();
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
@@ -235,9 +236,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     notValidExpEditor("Please wait for validation");
                 }
-            } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
+            } else if (diagnosticCheckerExp(expressionEditorState.diagnostic, isCustomTemplate)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate));
                 }
             } else {
                 if (monacoRef.current) {
@@ -732,10 +733,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         const monacoModel = monacoRef?.current?.editor.getModel();
         if (monacoModel){
             const currentContent = monacoModel.getValue();
-            if (currentContent.endsWith(';')){
-                const contentWithoutSemiColon = getValueWithoutSemiColon(currentContent, !!customTemplate)
+            // Remove semicolon only if the content ends with a semicolon and if its not a custom template
+            if (currentContent.endsWith(';') && !isCustomTemplate){
+                const contentWithoutSemiColon = getValueWithoutSemiColon(currentContent);
                 model.value = contentWithoutSemiColon;
-                onChange(contentWithoutSemiColon);
+                if (onChange){
+                    onChange(contentWithoutSemiColon);
+                }
             }
         }
 
@@ -769,9 +773,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         languages.register({ id: BALLERINA_EXPR });
         languages.setLanguageConfiguration(BALLERINA_EXPR, {
             autoClosingPairs: [{
-                open: `"`,
-                close: `"`
-            }, {
                 open: "'",
                 close: "'"
             }, {
@@ -905,8 +906,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={getDiagnosticMessage(mainDiagnostics, varType)} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics, varType)}</FormHelperText>
+                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
+                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
@@ -916,11 +917,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                 <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
-                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate) ?
                         (
                                 <>
-                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic, varType)}</FormHelperText>
+                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType, isCustomTemplate)} placement="right" arrow={true}>
+                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(expressionEditorState.diagnostic, varType, isCustomTemplate)}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
                                         <div className={formClasses.suggestionsWrapper} >
