@@ -26,7 +26,7 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
         queryParams: []
     };
 
-    if (queryParamsString !== "") {
+    if (queryParamsString && queryParamsString !== "") {
         const queryParamSplited: string[] = queryParamsString.split("&");
         queryParamSplited.forEach((value, index) => {
             let queryParam: QueryParam = {
@@ -216,4 +216,24 @@ export function generateQueryParamFromQueryCollection(params: QueryParamCollecti
         });
     }
     return queryParamString;
+}
+
+export function isCallerParamAvailable(params: STNode[]): boolean {
+    let isCallerParam: boolean = false;
+    if (params && params.length > 0) {
+
+        const caller: STNode[] = params.filter((value) => (value.source && value.source.includes("http:Caller")));
+        isCallerParam = caller.length > 0;
+    }
+    return isCallerParam;
+}
+
+export function isRequestParamAvailable(params: STNode[]): boolean {
+    let isRequestParam: boolean = false;
+    if (params && params.length > 0) {
+
+        const caller: STNode[] = params.filter((value) => (value.source && value.source.includes("http:Request")));
+        isRequestParam = caller.length > 0;
+    }
+    return isRequestParam;
 }

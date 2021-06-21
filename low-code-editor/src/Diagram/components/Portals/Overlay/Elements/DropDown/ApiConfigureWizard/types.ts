@@ -35,3 +35,8 @@ export interface Payload {
     type: string;
     name: string;
 }
+
+export interface Advanced {
+    isCaller?: boolean;
+    isRequest?: boolean;
+}

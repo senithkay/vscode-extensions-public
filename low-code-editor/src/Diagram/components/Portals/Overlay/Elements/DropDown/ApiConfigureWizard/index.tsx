@@ -40,11 +40,12 @@ import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTex
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 import { PathEditor } from "./components/pathEditor";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType } from "./util";
+import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType, isCallerParamAvailable, isRequestParamAvailable } from "./util";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
-import { Path, Payload, QueryParamCollection, Resource } from "./types";
+import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
 import { PayloadEditor } from "./components/extractPayload";
+import { AdvancedEditor } from "./components/advanced";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -107,13 +108,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const { functionName, relativeResourcePath, functionSignature } = syntaxTree as FunctionDefinition;
       const queryParam: string = generateQueryParamFromST(functionSignature?.parameters);
       const payload: string = extractPayloadFromST(functionSignature?.parameters);
+      const callerParam: boolean = isCallerParamAvailable(functionSignature?.parameters);
+      const requestParam: boolean = isRequestParamAvailable(functionSignature?.parameters);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload, isCaller: callerParam, isRequest: requestParam });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -195,6 +198,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnChangeAdvancedUI(advanced: Advanced, index: number) {
+    // Update path
+    const updatedResources = resources;
+    updatedResources[index].isCaller = advanced.isCaller;
+    updatedResources[index].isRequest = advanced.isRequest;
+    setResources(updatedResources);
+  }
+
   const validateResources = () => {
     if (!resources || resources.length === 0) return false;
 
@@ -241,7 +252,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             "PATH": res.path,
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams),
             "METHOD": res.method.toLowerCase(),
-            "PAYLOAD": res.payload ? res.payload : ""
+            "PAYLOAD": res.payload ? res.payload : "",
+            "ADD_CALLER": res.isCaller,
+            "ADD_REQUEST": res.isRequest,
           }
         })
       });
@@ -266,7 +279,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
         selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
       }
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), updatePosition));
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller, selectedResource.isRequest, updatePosition));
 
       setTriggerChanged(true);
       modifyDiagram(mutations);
@@ -424,6 +437,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} />
                   </Section>
                 </div>
+                <div className={classes.sectionSeparator}>
+                  <Section
+                    title={advancedTitle}
+                    tooltipWithExample={{ title, content: pathExample }}
+                  >
+                  <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)}/>
+                  </Section>
+                </div>
               </div>
             }
             {/* 
@@ -446,24 +467,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 />
               </Section>
             </div>
-            <div className={classes.sectionSeparator}>
-              <Section
-                title={advancedTitle}
-                tooltipWithExample={{ title, content: pathExample }}
-              >
-                <FormTextInput
-                  dataTestId="api-path"
-                  defaultValue={resProps.path}
-                  onChange={(text: string) => handleOnChangePath(text, index)}
-                  customProps={{
-                    startAdornment: "/",
-                    validate: validatePath
-                  }}
-                  errorMessage={pathErrorMessage}
-                  placeholder={pathPlaceholder}
-                />
-              </Section>
-            </div>
+            
             <Section
               title={returnTypeTitle}
               tooltipWithExample={{ title, content: pathExample }}
