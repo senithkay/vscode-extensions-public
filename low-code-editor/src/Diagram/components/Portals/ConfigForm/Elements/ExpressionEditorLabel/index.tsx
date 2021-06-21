@@ -58,7 +58,6 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                 <div className={textFieldClasses.labelWrapper}>
                                     <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                     {!customProps?.subEditor && <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>}
-                                    {typeString && <EditorType />}
                                 </div>
                                 {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
@@ -80,7 +79,6 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                             <div className={textFieldClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
-                                {typeString && <EditorType />}
                             </div>
                             {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
@@ -97,6 +95,11 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                     )
                 ) : null
             }
+            {typeString && (
+                <div className={textFieldClasses.codeWrapper}>
+                    <EditorType />
+                </div>
+            )}
         </>
     )
 }

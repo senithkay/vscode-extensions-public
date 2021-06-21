@@ -19,15 +19,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
             backgroundColor: "#FFF",
             paddingBottom: "0.5rem",
-            "& .MuiInputBase-root": {
-                width: '100% !important',
-            },
-            "& .MuiFormControl-marginNormal": {
-                margin: '0 !important',
-            },
-            "& div": {
-                margin: '0 !important',
-            },
+            ":not(.codeWrapper)" : {
+                "& .MuiInputBase-root": {
+                    width: '100% !important',
+                },
+                "& .MuiFormControl-marginNormal": {
+                    margin: '0 !important',
+                },
+                "& div": {
+                    margin: '0 !important',
+                }
+            }
         },
         accordionWrapper: {
             width: '100%',

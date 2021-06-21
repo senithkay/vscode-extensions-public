@@ -187,12 +187,13 @@ export const useStyles = makeStyles((theme: Theme) =>
       background: 'red'
     },
     code: {
-      color: "#05a26b",
       fontSize: 10,
-      border: '1px solid',
+      border: '1px solid #36B475',
       borderRadius: '3px',
-      padding: '2px 3px',
-      marginLeft: '4px'
+      padding: '2px 3px'
     },
+    codeWrapper: {
+      margin: '-5px 0 7px !important'
+    }
   })
 );
