@@ -38,7 +38,6 @@ export function ObjectTypeDraftButton(props: ObjectTypeDraftButtonProps) {
 			interactive={true}
 		>
 			<svg data-testid={'datamapper-add-json-object-field-btn'} id={'add-json-object-field-btn'} {...xyProps} onClick={onClick} className={'json-add-field-btn'} width="14px" height="16px" viewBox="0 0 14 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-				<title>08B0076A-2BE2-4A8E-95AA-596E9A9EAA3A</title>
 				<g id="Data-mapping" stroke="none" stroke-width="1" fill-rule="evenodd">
 					<g id="datamaping-input-variables" transform="translate(-1131.000000, -300.000000)" fill-rule="nonzero">
 						<g id="Icon/Data/Folder-Copy" transform="translate(1131.000000, 300.500000)">

@@ -38,7 +38,6 @@ export function AttributeTypeDraftButton(props: AttributeTypeDraftButtonProps) {
 			interactive={true}
 		>
 			<svg data-testid={'datamapper-add-json-attribute-field-btn'} id={'add-json-attribute-field-btn'} {...xyProps} onClick={onClick} width="15px" height="15px" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-				{/* <title>BE355D25-9D37-4F3D-AF75-98B198CA3D53</title> */}
 				<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 					<g id="datamaping-input-variables" className={'json-add-field-btn'} transform="translate(-1106.000000, -300.000000)" fill-rule="nonzero">
 						<g id="Icon/Data/Folder-Copy" transform="translate(1106.000000, 300.500000)">
