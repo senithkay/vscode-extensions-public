@@ -354,7 +354,7 @@ export function MapperView() {
             if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
                 || selectedTargetDataPoint.type === PrimitiveBalType.Float
                 || selectedTargetDataPoint.type === PrimitiveBalType.Decimal
-                || selectedSourceDataPoint.type === PrimitiveBalType.Boolean)
+                || selectedTargetDataPoint.type === PrimitiveBalType.Boolean)
                 && selectedSourceDataPoint.type === PrimitiveBalType.String) {
                 statement += `check ${selectedTargetDataPoint.type}:fromString((${selectedSourceDataPoint.text} ?: ${expressionEditorText}))`;
             } else if ((selectedSourceDataPoint.type === PrimitiveBalType.Int
@@ -364,8 +364,8 @@ export function MapperView() {
                 statement += `(${selectedSourceDataPoint.text} ?: ${expressionEditorText}).toString()`;
             }
 
-            setHasTypeMismatch(false);
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+            setHasTypeMismatch(false);
         } else {
             const statement = `${selectedSourceDataPoint.text} ?: ${expressionEditorText}`;
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
