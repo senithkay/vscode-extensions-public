@@ -1,4 +1,5 @@
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { Path, PathSegment, QueryParam, QueryParamCollection } from "./types";
 
 export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
     let queryParamCollection: QueryParamCollection = {

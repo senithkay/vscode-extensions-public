@@ -5,6 +5,7 @@ import { CloseRounded } from "@material-ui/icons";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 
 import { useStyles } from './style';
+import { QueryParam } from "../../types";
 
 interface QueryParamItemProps {
     queryParam: QueryParam;

@@ -43,16 +43,7 @@ import { PathEditor } from "./components/pathEditor";
 import { convertPathStringToSegments, convertQueryParamStringToSegments, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath } from "./util";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
-
-interface Resource {
-  id: number;
-  method: string;
-  path: string;
-  queryParams?: string;
-  isCaller?: boolean;
-  isRequest?: boolean;
-  returnType?: string;
-}
+import { Path, QueryParamCollection, Resource } from "./types";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -417,7 +408,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     tooltipWithExample={{ title, content: pathExample }}
                     button={<SwitchToggle initSwitch={payloadAvailable} onChange={onPayloadToggleSelect} />}
                   >
-                    
+
                   </Section>
                 </div>
               </div>

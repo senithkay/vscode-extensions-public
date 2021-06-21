@@ -10,6 +10,7 @@ import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/com
 import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
 import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { PathSegment } from "../../types";
 
 interface PathSegmentEditorProps {
     id?: number;
