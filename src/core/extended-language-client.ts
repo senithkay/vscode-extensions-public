@@ -238,6 +238,6 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
         const params: JsonToRecordRequestParams = {
             jsonString: json
         };
-        return this.sendRequest("JsonToRecord/convert", params);
+        return this.sendRequest("jsonToRecord/convert", params);
     }
 }
