@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
@@ -35,7 +36,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         packageTreeDataProvider.refresh()
     );
 
-    if (!ballerinaExtInstance.isSwanLake) {
+    if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
 
@@ -47,7 +48,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {
-        ballerinaExtInstance.packageTreeElementClicked({
+        ballerinaExtInstance.diagramTreeElementClicked({
             filePath,
             kind,
             startLine,
@@ -56,10 +57,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         });
     });
 
-    ballerinaExtInstance.onPackageTreeElementClicked((construct: ConstructIdentifier) => {
-        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.MAIN_FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
-            showDiagramEditor(ballerinaExtInstance, construct.startLine, construct.startColumn, construct.kind,
-                construct.name, construct.filePath);
+    ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
+        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
+            showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
+                construct.filePath);
         }
     });
     return packageTreeDataProvider;

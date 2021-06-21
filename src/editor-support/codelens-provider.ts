@@ -16,13 +16,14 @@
  * under the License.
  *
  */
+
 import { BallerinaExtension, ExecutorPosition, LANGUAGE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
 import { BAL_TOML, clearTerminal, PALETTE_COMMANDS } from '../project';
-import fileUriToPath = require('file-uri-to-path');
+import fileUriToPath from 'file-uri-to-path';
 import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
@@ -119,8 +120,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         codeLens.command = {
             title: execType.toString(),
             tooltip: `${execType.toString()} ${execPosition.name}`,
-            command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.RUN :
-                SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST : TEST_DEBUG_COMMAND),
+            command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ?
+                PALETTE_COMMANDS.RUN : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
+                    TEST_DEBUG_COMMAND),
             arguments: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? [] : (execType === EXEC_TYPE.RUN ?
                 [EXEC_ARG.TESTS, execPosition.name] : [execPosition.name])
         };

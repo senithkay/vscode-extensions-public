@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+
 import { languages } from "vscode";
 import { BallerinaExtension, LANGUAGE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
@@ -23,14 +24,15 @@ import { ReadOnlyFileProvider } from "./readonly-file-provider";
 import { StringSplitFeature, StringSplitter } from "./split-provider";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient || !ballerinaExtInstance.isSwanLake) {
+    if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient || !ballerinaExtInstance.isSwanLake()) {
         return;
     }
     ballerinaExtInstance.context!.subscriptions.push(new StringSplitFeature(new StringSplitter(),
         ballerinaExtInstance));
 
     if (ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }], new ExecutorCodeLensProvider(ballerinaExtInstance));
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+            new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
     // Create a read only file provider

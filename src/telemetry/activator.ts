@@ -23,7 +23,7 @@ import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_FEATURE_USAGE_LANG_SER
 
 // Language server telemetry event types
 const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
-const TM_EVENT_TYPE_FEATURE_USAGE= "FeatureUsageTelemetryEvent";
+const TM_EVENT_TYPE_FEATURE_USAGE = "FeatureUsageTelemetryEvent";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;
@@ -45,7 +45,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                         break;
                     case TM_EVENT_TYPE_FEATURE_USAGE:
                         const usageEvent: LSFeatureUsageTelemetryEvent = <LSFeatureUsageTelemetryEvent>event;
-                        props = getTelemetryProperties(ballerinaExtInstance, event.component, TM_EVENT_TYPE_FEATURE_USAGE);
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component,
+                            TM_EVENT_TYPE_FEATURE_USAGE);
                         props["ballerina.langserver.feature.name"] = usageEvent.featureName;
                         props["ballerina.langserver.feature.class"] = usageEvent.featureClass;
                         props["ballerina.langserver.feature.message"] = usageEvent.featureMessage;

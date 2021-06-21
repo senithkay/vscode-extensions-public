@@ -16,86 +16,46 @@
  * under the License.
  *
  */
+
 import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension, Change } from '../core';
-import { getCommonWebViewOptions, WebViewRPCHandler } from '../utils';
+import { getCommonWebViewOptions, isWindows, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
-import { CMP_KIND, PackageOverviewDataProvider, PackageTreeItem } from '../tree-view';
+import { CMP_KIND, PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
+import { DiagramOptions, Member, SyntaxTree } from './model';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
-interface DiagramOptions {
-	name?: string;
-	kind?: string;
-	startLine?: number;
-	startColumn?: number;
-	filePath?: string;
-	isDiagram: boolean;
-	fileUri?: Uri;
-}
-
-interface SyntaxTree {
-	members: Member[];
-}
-
-interface Member {
-	kind: string;
-	position: Position;
-	functionName?: {
-		value: string;
-		position: Position;
-	};
-	members: Member[];
-	relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-	startLine: number;
-	startColumn: number;
-	endLine: number;
-	endColumn: number;
-}
-
-interface ResourcePath {
-	value: string;
-}
-
 let langClient: ExtendedLangClient;
-let packageOverviewDataProvider: PackageOverviewDataProvider;
+let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
-let extensionPath: string;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 
-export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension, startLine: number,
-	startColumn: number, kind: string, name: string, filePath: string, isCommand: boolean = false): Promise<void> {
+export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
+	filePath: string, isCommand: boolean = false): Promise<void> {
 
-	ballerinaExtInstance.resetLastChange();
 	const editor = window.activeTextEditor;
-	let treeItemPath: Uri;
-	if (filePath === '') {
+	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
+			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
 			window.showErrorMessage(message);
 			return;
 		}
-		treeItemPath = editor!.document.uri;
-	} else {
-		treeItemPath = Uri.file(filePath);
 	}
 
-	if (isCommand && editor && langClient && packageOverviewDataProvider) {
-		const diagramOptions: DiagramOptions = await getFirstViewElement();
+	if (isCommand && overviewDataProvider) {
+		const diagramOptions: DiagramOptions = await overviewDataProvider.getFirstViewElement();
 		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
@@ -111,7 +71,7 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 		};
 	} else {
 		diagramElement = {
-			fileUri: treeItemPath!,
+			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 			startLine,
 			startColumn,
 			kind,
@@ -123,15 +83,19 @@ export async function showDiagramEditor(ballerinaExtInstance: BallerinaExtension
 	DiagramPanel.create();
 }
 
-export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataProvider: PackageOverviewDataProvider) {
+export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider:
+	PackageOverviewDataProvider) {
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-	packageOverviewDataProvider = overviewDataProvider;
-	extensionPath = context.extensionPath;
+	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
 
+	ballerinaExtInstance.onEditorChanged(change => {
+		refreshDiagramForEditorChange(change);
+	});
+
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		if (!ballerinaExtInstance.isSwanLake) {
+		if (!ballerinaExtInstance.isSwanLake()) {
 			ballerinaExtInstance.showMessageOldBallerina();
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,
 				"Diagram Editor is not supported for the ballerina version.");
@@ -141,7 +105,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(ballerinaExtInstance, 0, 0, '', '', '', true);
+				showDiagramEditor(0, 0, '', '', '', true);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -149,48 +113,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension, overviewDataP
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
-}
-
-export async function getFirstViewElement(): Promise<DiagramOptions> {
-	const packageItems: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren();
-	if (!packageItems) {
-		return { isDiagram: false };
-	}
-	if (packageItems.length > 0) {
-		for (let i = 0; i < packageItems.length; i++) {
-			const child: PackageTreeItem | undefined = await getNextChild(packageItems[i]);
-			if (child) {
-				return {
-					name: child.getName(),
-					kind: child.getKind(),
-					filePath: child.getFilePath(),
-					startLine: child.getStartLine(),
-					startColumn: child.getStartColumn(),
-					isDiagram: true
-				};
-			}
-		}
-	}
-	return { isDiagram: false };
-}
-
-async function getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
-	const children: PackageTreeItem[] | undefined | null = await packageOverviewDataProvider.getChildren(treeItem);
-	if (!children || children.length === 0) {
-		return;
-	}
-
-	for (let i = 0; i < children.length; i++) {
-		let child: PackageTreeItem = children[i];
-		if (child.getKind() === CMP_KIND.SERVICE) {
-			return await getNextChild(child);
-		}
-		if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.MAIN_FUNCTION ||
-			child.getKind() === CMP_KIND.RESOURCE) {
-			return child;
-		}
-	}
-	return;
 }
 
 class DiagramPanel {
@@ -219,8 +141,9 @@ class DiagramPanel {
 		);
 
 		panel.iconPath = {
-			light: Uri.file(join(extensionPath, 'resources/images/icons/design-view.svg')),
-			dark: Uri.file(join(extensionPath, 'resources/images/icons/design-view-inverse.svg'))
+			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
+			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
+				'resources/images/icons/design-view-inverse.svg'))
 		};
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
@@ -237,9 +160,13 @@ class DiagramPanel {
 	}
 
 	private update() {
-		if (diagramElement) {
-			this.webviewPanel.webview.html = render(diagramElement?.fileUri!, diagramElement?.startLine!,
-				diagramElement?.startColumn!, diagramElement?.kind!, diagramElement?.name!);
+		if (diagramElement && diagramElement.isDiagram) {
+			if (!DiagramPanel.currentPanel) {
+				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
+					diagramElement!.startColumn!, diagramElement!.kind!, diagramElement!.name!);
+			} else {
+				callUpdateDiagramMethod();
+			}
 		}
 	}
 }
@@ -297,12 +224,11 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 	return { isDiagram: false };
 }
 
-export async function refreshDiagram() {
-	if (!webviewRPCHandler || !diagramElement) {
+export async function refreshDiagramForEditorChange(change: Change) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
 		return;
 	}
 
-	const change: Change | undefined = ballerinaExtension.getLastChange();
 	if (change && langClient) {
 		await langClient.getSyntaxTree({
 			documentIdentifier: {
@@ -319,28 +245,26 @@ export async function refreshDiagram() {
 	if (!diagramElement!.isDiagram) {
 		return;
 	}
-
-	let elementKind = diagramElement!.kind;
-	elementKind = elementKind === CMP_KIND.MAIN_FUNCTION ? CMP_KIND.FUNCTION : elementKind;
-	elementKind = elementKind!.charAt(0).toUpperCase() + elementKind!.slice(1);
-
-	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
-	if (process.platform === 'win32') {
-		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
-	}
-
-	const args = [{
-		filePath: ballerinaFilePath,
-		startLine: diagramElement!.startLine,
-		startColumn: diagramElement!.startColumn,
-		name: diagramElement!.name,
-		kind: elementKind
-	}];
-	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+	callUpdateDiagramMethod();
 }
 
 function isWithinRange(member: Member, change: Change) {
 	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
 		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
 			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
+}
+
+function callUpdateDiagramMethod() {
+	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
+	if (isWindows()) {
+		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
+	}
+	const args = [{
+		filePath: ballerinaFilePath,
+		startLine: diagramElement!.startLine,
+		startColumn: diagramElement!.startColumn,
+		name: diagramElement!.name,
+		kind: diagramElement!.kind
+	}];
+	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }
