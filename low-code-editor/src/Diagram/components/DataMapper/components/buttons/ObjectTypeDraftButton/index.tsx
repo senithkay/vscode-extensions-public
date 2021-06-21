@@ -33,7 +33,7 @@ export function ObjectTypeDraftButton(props: ObjectTypeDraftButtonProps) {
 		<Tooltip
 			arrow={true}
 			placement="top-start"
-			title={'Add object field'}
+			title={'Add complex field'}
 			inverted={false}
 			interactive={true}
 		>

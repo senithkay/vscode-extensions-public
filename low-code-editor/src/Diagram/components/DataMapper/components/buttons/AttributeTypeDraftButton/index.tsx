@@ -33,7 +33,7 @@ export function AttributeTypeDraftButton(props: AttributeTypeDraftButtonProps) {
 		<Tooltip
 			arrow={true}
 			placement="top-start"
-			title={'Add attribute field'}
+			title={'Add value field'}
 			inverted={false}
 			interactive={true}
 		>
