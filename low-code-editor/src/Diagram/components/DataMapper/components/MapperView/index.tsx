@@ -263,7 +263,7 @@ export function MapperView() {
                     }
                     break;
                 case PrimitiveBalType.Boolean:
-                    switch (selectedSourceDataPoint) {
+                    switch (selectedSourceDataPoint.type) {
                         case PrimitiveBalType.String:
                             statement = `check ${selectedTargetDataPoint.type}:fromString(${selectedSourceDataPoint.text})`;
                             break;
@@ -588,12 +588,13 @@ export function MapperView() {
                     break;
                 case PrimitiveBalType.Json:
                     showDefaultConfirmation = true;
+                    break;
                 case PrimitiveBalType.Boolean:
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             showDefaultConfirmation = true;
                             break;
-                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
@@ -614,6 +615,7 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.String:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Float:
                         case PrimitiveBalType.Decimal:
@@ -621,8 +623,10 @@ export function MapperView() {
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -631,14 +635,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Int:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Float:
                         case PrimitiveBalType.Decimal:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -647,14 +654,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Float:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Decimal:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -663,14 +673,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Decimal:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Float:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -682,12 +695,15 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -794,13 +810,16 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             statement = sourcePointViewState.text;
+                            break;
                         case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         default:
                         // unmappable
                     }
+                    break;
                 default:
                     statement = sourcePointViewState.text;
             }
