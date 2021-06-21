@@ -375,7 +375,31 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
-                if (config.connectorInit.length > 0){
+                if (isOauthConnector && connection) {
+                    const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    if (connectorConfigurables) {
+                        const addConfigurableVars = createPropertyStatement(
+                            connectorConfigurables,
+                            { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                        );
+                        modifications.push(addConfigurableVars);
+                    }
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                            ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+                if (config.connectorInit.length > 0) {
                     // save action with client path
                     const addImport: STModification = createImportStatement(
                         connectorInfo.org,
@@ -681,7 +705,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
-                            { isOauthConnector && !isManualConnection && !isAction && (
+                            {isOauthConnector && !isManualConnection && !isAction && (
                                 <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
                                     <div className={wizardClasses.fullWidth}>
                                         <div className={wizardClasses.mainOauthBtnWrapper}>
@@ -700,7 +724,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                        <p className={wizardClasses.manualConnectionTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                                        <p className={wizardClasses.manualConnectionTitle}>
+                                            <FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" />
+                                        </p>
                                         <LinePrimaryButton
                                             className={wizardClasses.fullWidth}
                                             text={manualConnectionButtonLabel}
@@ -710,13 +736,40 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                     </div>
                                 )
                             }
-                            <div className={wizardClasses.saveBtnWrapper}>
-                                <PrimaryButton
-                                    text="Save"
-                                    fullWidth={true}
-                                    disabled={connection === undefined}
-                                    onClick={handleClientOnSave}
-                                />
+                            <div className={wizardClasses.authBtnHolder}>
+                                {!isNewConnectorInitWizard && (
+                                    <PrimaryButton
+                                        text={intl.formatMessage({
+                                            id: "lowcode.develop.connectorForms.saveConnectionBtn.text",
+                                            defaultMessage: "Save Connection"
+                                        })}
+                                        fullWidth={true}
+                                        disabled={connection === undefined}
+                                        onClick={handleClientOnSave}
+                                    />
+                                )}
+                                {isNewConnectorInitWizard && (
+                                    <>
+                                        <LinePrimaryButton
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.saveConnectionButton.text",
+                                                defaultMessage: "Save Connection"
+                                            })}
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleClientOnSave}
+                                        />
+                                        <PrimaryButton
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.invokeConnnectionButton.text",
+                                                defaultMessage: "Continue to Invoke API"
+                                            })}
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleCreateConnectorSaveNext}
+                                        />
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}

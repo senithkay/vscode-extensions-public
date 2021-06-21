@@ -30,10 +30,12 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { CustomExpressionConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
+import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataMapper/util";
+import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ProcessOverlayForm } from "./ProcessOverlayForm";
+import { GenerationType } from "./ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface AddProcessFormProps {
     type: string;
@@ -49,7 +51,7 @@ export interface AddProcessFormProps {
 
 export function ProcessConfigForm(props: any) {
     const { modifyDiagram } = useContext(DiagramContext).callbacks;
-    const { state: { trackAddStatement, onEvent } } = useContext(Context);
+    const { state: { trackAddStatement, onEvent, stSymbolInfo, currentApp } } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
@@ -64,7 +66,6 @@ export function ProcessConfigForm(props: any) {
     const onSaveClick = () => {
         const modifications: STModification[] = [];
         if (wizardType === WizardType.EXISTING) {
-            // todo: handle if the property already exists
             switch (processConfig.type) {
                 case 'Variable':
                     const propertyConfig: string = processConfig.config as string;
@@ -79,6 +80,9 @@ export function ProcessConfigForm(props: any) {
                         logConfig.type, logConfig.expression, formArgs?.model.position
                     );
                     modifications.push(updateLogStmt);
+                    break;
+                case 'DataMapper':
+                    // TODO: handle datamapper edit scenario
                     break;
                 case 'Call':
                 case 'Custom':
@@ -104,6 +108,47 @@ export function ProcessConfigForm(props: any) {
                         "ballerina", "log", formArgs?.targetPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
+                } else if (processConfig.type === 'DataMapper') {
+                    const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
+                    datamapperConfig.outputType.startLine = formArgs?.targetPosition.line;
+                    const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
+                    let signatureString = '';
+
+                    datamapperConfig.inputTypes.forEach((param, i) => {
+                        signatureString += `${param.type} ${param.name}`;
+                        if (i < datamapperConfig.inputTypes.length - 1) {
+                            signatureString += ',';
+                        }
+                    })
+
+                    let outputType = '';
+                    let conversionStatement = '';
+
+                    switch (datamapperConfig.outputType.type) {
+                        case 'json':
+                            // outputType = 'json';
+                            // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
+                            outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
+                            conversionStatement = `json ${datamapperConfig.outputType.variableName}Json = ${datamapperConfig.outputType.variableName}.toJson();`
+                            break;
+                        case 'record':
+                            const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
+                            outputType = outputTypeInfo.moduleName === currentApp.name ?
+                                outputTypeInfo.name
+                                : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                            break;
+                        default:
+                            outputType = datamapperConfig.outputType.type;
+                    }
+
+
+                    const functionString = `${datamapperConfig.outputType.generationType === GenerationType.NEW ? outputType : ''} ${datamapperConfig.outputType.variableName} = ${defaultReturn};`
+
+                    const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
+                    modifications.push(dataMapperFunction);
+                    if (conversionStatement.length > 0) {
+                        modifications.push(createPropertyStatement(conversionStatement, formArgs?.targetPosition));
+                    }
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);

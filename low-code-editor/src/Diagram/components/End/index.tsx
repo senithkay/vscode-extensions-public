@@ -48,12 +48,12 @@ export function End(props: EndProps) {
             isReadOnly,
             setCodeLocationToHighlight: setCodeToHighlight,
             maximize: maximizeCodeView,
-            closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
             dispactchConfigOverlayForm: openNewReturnConfigForm,
             currentApp,
             isCodeEditorActive
         },
-        diagramCleanDraw
+        diagramCleanDraw,
+        toggleDiagramOverlay
     } = useContext(Context);
     const { id: appId } = currentApp || {};
 
@@ -93,7 +93,7 @@ export function End(props: EndProps) {
     };
     const onCancel = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     const onReturnEditClick = () => {
@@ -105,7 +105,7 @@ export function End(props: EndProps) {
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     let codeSnippet = "No return statement"

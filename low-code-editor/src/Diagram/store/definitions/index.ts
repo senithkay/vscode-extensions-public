@@ -81,6 +81,7 @@ export interface DiagramState {
     isLoadingSuccess: boolean;
     exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
+    isDataMapperActive?: boolean;
 }
 
 export interface ExpressionEditorState {

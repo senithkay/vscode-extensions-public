@@ -50,9 +50,11 @@ import {
     Visitor,
     XmlTypeDesc
 } from "@ballerina/syntax-tree";
+import * as Ballerina from "@ballerina/syntax-tree/lib/syntax-tree-interfaces";
+
+import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
 // import { BallerinaLangClient } from "../../../../api/lang-client";
-import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
 export const functionDefinitionMap: Map<string, FunctionDefinitionInfo> = new Map();
 const records: Map<string, STNode> = new Map();
@@ -118,6 +120,15 @@ class FieldVisitor implements Visitor {
             node.typeName.viewState = viewState;
             viewState.optional = true;
             viewState.isDefaultableParam = true;
+
+            if (node.annotations.length > 0){
+                const annotateField = node.annotations.find((annotation: any) => (annotation.annotReference as SimpleNameReference).name.value === "display")?.
+                annotValue?.fields.find((field: any) => STKindChecker.isSpecificField(field)) as SpecificField;
+                if (annotateField?.fieldName.value === "label"){
+                    const labelField = annotateField.valueExpr as StringLiteral;
+                    viewState.label = labelField?.literalToken.value.replace(/\"/gi, '');
+                }
+            }
         }
     }
 
@@ -409,12 +420,34 @@ class FieldVisitor implements Visitor {
         }
     }
 
-    endVisitRecordTypeDesc(node: RecordTypeDesc) {
+    endVisitRecordTypeDesc(node: RecordTypeDesc, parent?: Ballerina.STNode) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
+            const parameterDescriptions: Map<string, string> = new Map<string, string>();
+            if (STKindChecker.isTypeDefinition(parent)) {
+                if (parent.metadata?.documentationString) {
+                    parent.metadata.documentationString.documentationLines
+                        .filter(docLine => docLine.kind === 'MarkdownParameterDocumentationLine')
+                        .forEach((paramDesc: MarkdownParameterDocumentationLine) => {
+                            parameterDescriptions.set(paramDesc.parameterName.value, paramDesc.source.trim());
+                        });
+                }
+            }
             viewState.fields = [];
             if (node.fields) {
                 node.fields.forEach(field => {
+                    const annotations = (field as any).metadata?.annotations;
+                    if ((field as any).metadata?.annotations?.length > 0) {
+                        const annotateField = annotations.find((annotation: any) =>
+                            (annotation.annotReference as SimpleNameReference).name.value === "display")?.
+                        annotValue?.fields.find((specificField: any) => STKindChecker.isSpecificField(specificField)) as SpecificField;
+                        if (annotateField?.fieldName.value === "label"){
+                            const labelField = annotateField.valueExpr as StringLiteral;
+                            field.viewState.label = labelField?.literalToken.value
+                                .replace(/\"/gi, '');
+                        }
+                    }
+                    field.viewState.description = parameterDescriptions.get(field.viewState.name);
                     viewState.fields.push(field.viewState);
                 });
             }

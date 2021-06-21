@@ -100,6 +100,7 @@ export function SlackConfigureForm(props: SlackConfigureFormProps) {
             PORT: 8090,
             VERIFICATION_TOKEN: verificationToken,
             EVENT: slackEvent,
+            RECORD_TYPE: slackEvent.slice(2) + "Event"
         });
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
