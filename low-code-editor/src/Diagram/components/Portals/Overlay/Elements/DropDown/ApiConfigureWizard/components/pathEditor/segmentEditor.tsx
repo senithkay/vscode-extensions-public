@@ -63,25 +63,18 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
             <div>
                 <Grid container spacing={1}>
                     <Grid container item spacing={2}>
-                        <Grid item xs={7}>
-                            <div className={classes.labelOfInputs}>
-                                name
-                            </div>
-                        </Grid>
                         <Grid item xs={5}>
                             <div className={classes.labelOfInputs}>
                                 type
                             </div>
                         </Grid>
+                        <Grid item xs={7}>
+                            <div className={classes.labelOfInputs}>
+                                name
+                            </div>
+                        </Grid>
                     </Grid>
                     <Grid container item spacing={2}>
-                        <Grid item xs={7}>
-                            <FormTextInput
-                                dataTestId="api-path-segment"
-                                defaultValue={segmentState?.name}
-                                onChange={(text: string) => { onChangeSegment(text, "NAME") }}
-                            />
-                        </Grid>
                         <Grid item xs={5}>
                             <SelectDropdownWithButton
                                 defaultValue={segmentState?.type}
@@ -93,6 +86,13 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                     }
                                 }
                                 onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
+                            />
+                        </Grid>
+                        <Grid item xs={7}>
+                            <FormTextInput
+                                dataTestId="api-path-segment"
+                                defaultValue={segmentState?.name}
+                                onChange={(text: string) => { onChangeSegment(text, "NAME") }}
                             />
                         </Grid>
                     </Grid>
@@ -116,7 +116,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={"Add"}
-                                    disabled={false}
+                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === ""))}
                                     fullWidth={false}
                                     onClick={handleOnSave}
                                 />

@@ -52,26 +52,19 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
         <div className={classes.queryParamEditorWrap}>
             <div>
                 <Grid container spacing={1}>
+                    <Grid item xs={5}>
+                        <div className={classes.labelOfInputs}>
+                            type
+                        </div>
+                    </Grid>
                     <Grid container item spacing={2}>
                         <Grid item xs={7}>
                             <div className={classes.labelOfInputs}>
                                 name
                             </div>
                         </Grid>
-                        <Grid item xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                type
-                            </div>
-                        </Grid>
                     </Grid>
                     <Grid container item spacing={2}>
-                        <Grid item xs={7}>
-                            <FormTextInput
-                                dataTestId="api-query-param-name"
-                                defaultValue={segmentState?.name}
-                                onChange={(text: string) => { onChangeSegment(text, "NAME") }}
-                            />
-                        </Grid>
                         <Grid item xs={5}>
                             <SelectDropdownWithButton
                                 dataTestId="api-query-param-type"
@@ -85,6 +78,14 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                                 onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
                             />
                         </Grid>
+                        <Grid item xs={7}>
+                            <FormTextInput
+                                dataTestId="api-query-param-name"
+                                defaultValue={segmentState?.name}
+                                onChange={(text: string) => { onChangeSegment(text, "NAME") }}
+                            />
+                        </Grid>
+
                     </Grid>
                     <Grid container item spacing={2}>
                         <Grid item xs={5}>
@@ -101,7 +102,7 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={"Add"}
-                                    disabled={false}
+                                    disabled={!segmentState.name || !segmentState.type || segment.name === "" || segment.type === ""}
                                     fullWidth={false}
                                     onClick={handleOnSave}
                                 />

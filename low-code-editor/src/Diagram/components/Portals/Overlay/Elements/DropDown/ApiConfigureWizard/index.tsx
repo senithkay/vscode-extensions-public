@@ -40,7 +40,7 @@ import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTex
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 import { PathEditor } from "./components/pathEditor";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType, isCallerParamAvailable, isRequestParamAvailable } from "./util";
+import { convertPathStringToSegments, convertPayloadStringToPayload, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType, isCallerParamAvailable, isRequestParamAvailable } from "./util";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
@@ -194,7 +194,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   function handleOnChangePayloadFromUI(segment: Payload, index: number) {
     // Update path
     const updatedResources = resources;
-    updatedResources[index].payload = getBallerinaPayloadType(segment, true);
+    updatedResources[index].payload = getBallerinaPayloadType(segment, (updatedResources[index].isCaller || updatedResources[index].isRequest));
     setResources(updatedResources);
   }
 
@@ -247,12 +247,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         "RES_PATH": currentPath,
         "METHODS": currentMethod.toLocaleLowerCase(),
         "RESOURCES": resources.map((res) => {
+          let payload: Payload = convertPayloadStringToPayload(res.payload);
           let queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
             "PATH": res.path,
-            "QUERY_PARAM": genrateBallerinaQueryParams(queryParams),
+            "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
-            "PAYLOAD": res.payload ? res.payload : "",
+            "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
             "ADD_CALLER": res.isCaller,
             "ADD_REQUEST": res.isRequest,
           }
@@ -277,8 +278,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const selectedResource = resources[0];
       if (selectedResource.queryParams) {
         let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
-        selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
+        selectedResource.queryParams = genrateBallerinaQueryParams(queryParams, (selectedResource.isCaller || selectedResource.isRequest || (selectedResource.payload && selectedResource.payload !== "")));
       }
+
+      if (selectedResource.payload && selectedResource.payload !== "") {
+        let payload: Payload = convertPayloadStringToPayload(selectedResource.payload);
+        selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
+      }
+
       mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller, selectedResource.isRequest, updatePosition));
 
       setTriggerChanged(true);
@@ -442,7 +449,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={advancedTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                   >
-                  <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)}/>
+                    <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
                 </div>
               </div>
