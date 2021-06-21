@@ -29,20 +29,20 @@ export function PayloadEditor(props: PayloadProps) {
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
 
     const onChangeSegment = (text: string, type: string) => {
+        const segment: Payload = {
+            ...segmentState,
+        };
+        
         if (type === "NAME") {
-            setSegmentState({
-                ...segmentState,
-                name: text
-            });
+            segment.name = text;
+            setSegmentState(segment);
         } else if (type === "TYPE") {
-            setSegmentState({
-                ...segmentState,
-                type: text
-            });
+            segment.type = text;
+            setSegmentState(segment);
         }
 
         if (onChange) {
-            onChange(segmentState);
+            onChange(segment);
         }
     };
 
