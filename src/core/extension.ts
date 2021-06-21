@@ -162,7 +162,7 @@ export class BallerinaExtension {
                 if (!this.swanLake && !this.ballerinaVersion.match(PREV_REGEX)) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        Please use a compatible VSCode extension version.`;
+                        The extension supports Ballerina Swan Lake and 1.2.x versions.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
