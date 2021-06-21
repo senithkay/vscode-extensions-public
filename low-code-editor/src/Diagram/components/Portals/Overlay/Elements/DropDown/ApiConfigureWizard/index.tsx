@@ -40,10 +40,11 @@ import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTex
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 import { PathEditor } from "./components/pathEditor";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath } from "./util";
+import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType } from "./util";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
-import { Path, QueryParamCollection, Resource } from "./types";
+import { Path, Payload, QueryParamCollection, Resource } from "./types";
+import { PayloadEditor } from "./components/extractPayload";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -105,14 +106,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (syntaxTree) {
       const { functionName, relativeResourcePath, functionSignature } = syntaxTree as FunctionDefinition;
       const queryParam: string = generateQueryParamFromST(functionSignature?.parameters);
+      const payload: string = extractPayloadFromST(functionSignature?.parameters);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload });
           setResources(resourceMembers);
+          if (payload && payload !== "") {
+            setPayloadAvailable(true);
+          }
         } else {
           const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
           resourceMembers.push(defaultConfig);
@@ -120,7 +125,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         }
       }
     }
-  }, [syntaxTree])
+  }, [syntaxTree]);
 
   const onPathUIToggleSelect = (checked: boolean) => {
     setShowPathUI(!checked);
@@ -183,6 +188,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnChangePayloadFromUI(segment: Payload, index: number) {
+    // Update path
+    const updatedResources = resources;
+    updatedResources[index].payload = getBallerinaPayloadType(segment, true);
+    setResources(updatedResources);
+  }
+
   const validateResources = () => {
     if (!resources || resources.length === 0) return false;
 
@@ -228,7 +240,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           return {
             "PATH": res.path,
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams),
-            "METHOD": res.method.toLowerCase()
+            "METHOD": res.method.toLowerCase(),
+            "PAYLOAD": res.payload ? res.payload : ""
           }
         })
       });
@@ -253,7 +266,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
         selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
       }
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, updatePosition));
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), updatePosition));
 
       setTriggerChanged(true);
       modifyDiagram(mutations);
@@ -408,7 +421,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     tooltipWithExample={{ title, content: pathExample }}
                     button={<SwitchToggle initSwitch={payloadAvailable} onChange={onPayloadToggleSelect} />}
                   >
-
+                    <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} />
                   </Section>
                 </div>
               </div>

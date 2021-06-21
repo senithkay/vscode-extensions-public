@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { QueryParamCollection } from "../../types";
+import { QueryParam, QueryParamCollection } from "../../types";
 import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection, genrateBallerinaQueryParams } from "../../util";
 import { QueryParamItem } from "./queryParamItem";
 import { QueryParamSegmentEditor } from "./segmentEditor";

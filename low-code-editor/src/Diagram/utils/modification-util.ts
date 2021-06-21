@@ -141,7 +141,7 @@ export function updatePropertyStatement(property: string, targetPosition: DraftU
     return propertyStatement;
 }
 
-export function updateResourceSignature(method: string, path: string, queryParam: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, targetPosition: DraftUpdateStatement): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -151,7 +151,8 @@ export function updateResourceSignature(method: string, path: string, queryParam
         config: {
             "METHOD": method,
             "PATH": path,
-            "QUERY_PARAM": queryParam
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload
         }
     };
 

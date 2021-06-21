@@ -25,6 +25,7 @@ export interface Resource {
     method: string;
     path: string;
     queryParams?: string;
+    payload?: string;
     isCaller?: boolean;
     isRequest?: boolean;
     returnType?: string;

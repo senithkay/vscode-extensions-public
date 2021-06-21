@@ -7,20 +7,19 @@ import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Po
 import { useStyles } from './style';
 import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
-import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
+
 import { Payload } from "../../types";
+import { convertPayloadStringToPayload } from "../../util";
 
 interface PayloadProps {
-    id?: number;
-    segment?: Payload,
-    onSave?: (segment: Payload) => void;
-    onCancel?: () => void;
+    payload?: string,
+    disabled?: boolean,
+    onChange?: (segment: Payload) => void;
 }
 
 export function PayloadEditor(props: PayloadProps) {
-    const { segment, onSave, id, onCancel } = props;
+    const { payload, disabled, onChange } = props;
+    const segment: Payload = convertPayloadStringToPayload(payload);
     const classes = useStyles();
     const initValue: Payload = segment ? { ...segment } : {
         name: "",
@@ -42,8 +41,8 @@ export function PayloadEditor(props: PayloadProps) {
             });
         }
 
-        if (onSave) {
-            onSave(segmentState);
+        if (onChange) {
+            onChange(segmentState);
         }
     };
 
@@ -66,10 +65,11 @@ export function PayloadEditor(props: PayloadProps) {
                     <Grid container item spacing={2}>
                         <Grid item xs={5}>
                             <SelectDropdownWithButton
+                                disabled={disabled}
                                 defaultValue={segmentState?.type}
                                 customProps={
                                     {
-                                        values: ["string", "int"],
+                                        values: ["string", "int", "json", "xml"],
                                         disableCreateNew: true,
                                     }
                                 }
@@ -78,8 +78,11 @@ export function PayloadEditor(props: PayloadProps) {
                         </Grid>
                         <Grid item xs={7}>
                             <FormTextInput
-                                dataTestId="api-path-segment"
+                                dataTestId="api-extract-segment"
                                 defaultValue={segmentState?.name}
+                                customProps={{
+                                    disabled
+                                }}
                                 onChange={(text: string) => { onChangeSegment(text, "NAME") }}
                             />
                         </Grid>

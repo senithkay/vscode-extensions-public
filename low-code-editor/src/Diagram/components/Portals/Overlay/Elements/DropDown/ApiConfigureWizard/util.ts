@@ -1,5 +1,25 @@
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { Path, PathSegment, QueryParam, QueryParamCollection } from "./types";
+import { Path, PathSegment, Payload, QueryParam, QueryParamCollection } from "./types";
+
+export function convertPayloadStringToPayload(payloadString: string): Payload {
+    let payload: Payload = {
+        type: "",
+        name: ""
+    }
+
+    const payloadSplitted = payloadString.split("@http:Payload");
+    if (payloadSplitted.length > 1) {
+        const typeNameSplited = payloadSplitted[payloadSplitted.length - 1].trim().split(" ");
+        payload.type = typeNameSplited[0];
+        payload.name = typeNameSplited[1];
+    }
+    return payload;
+}
+
+export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): string {
+    return payload.type && payload.name && payload.type !== ""
+        && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? "," : "")) : "";
+}
 
 export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
     let queryParamCollection: QueryParamCollection = {
@@ -169,6 +189,18 @@ export function generateQueryParamFromST(params: STNode[]): string {
         });
     }
     return queryParamString;
+}
+
+export function extractPayloadFromST(params: STNode[]): string {
+    let payloadString: string = "";
+    if (params && params.length > 0) {
+
+        const payload: STNode[] = params.filter((value) => (value.source && value.source.includes("@http:Payload")));
+        if (payload.length > 0) {
+            payloadString = payload[0].source;
+        }
+    }
+    return payloadString;
 }
 
 export function generateQueryParamFromQueryCollection(params: QueryParamCollection): string {
