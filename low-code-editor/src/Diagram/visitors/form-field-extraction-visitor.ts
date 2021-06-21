@@ -50,9 +50,11 @@ import {
     Visitor,
     XmlTypeDesc
 } from "@ballerina/syntax-tree";
+import * as Ballerina from "@ballerina/syntax-tree/lib/syntax-tree-interfaces";
+
+import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
 // import { BallerinaLangClient } from "../../../../api/lang-client";
-import { FormField, FunctionDefinitionInfo, PrimitiveBalType } from "../../ConfigurationSpec/types";
 
 export const functionDefinitionMap: Map<string, FunctionDefinitionInfo> = new Map();
 const records: Map<string, STNode> = new Map();
@@ -418,9 +420,19 @@ class FieldVisitor implements Visitor {
         }
     }
 
-    endVisitRecordTypeDesc(node: RecordTypeDesc) {
+    endVisitRecordTypeDesc(node: RecordTypeDesc, parent?: Ballerina.STNode) {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
+            const parameterDescriptions: Map<string, string> = new Map<string, string>();
+            if (STKindChecker.isTypeDefinition(parent)) {
+                if (parent.metadata?.documentationString) {
+                    parent.metadata.documentationString.documentationLines
+                        .filter(docLine => docLine.kind === 'MarkdownParameterDocumentationLine')
+                        .forEach((paramDesc: MarkdownParameterDocumentationLine) => {
+                            parameterDescriptions.set(paramDesc.parameterName.value, paramDesc.source.trim());
+                        });
+                }
+            }
             viewState.fields = [];
             if (node.fields) {
                 node.fields.forEach(field => {
@@ -435,6 +447,7 @@ class FieldVisitor implements Visitor {
                                 .replace(/\"/gi, '');
                         }
                     }
+                    field.viewState.description = parameterDescriptions.get(field.viewState.name);
                     viewState.fields.push(field.viewState);
                 });
             }
