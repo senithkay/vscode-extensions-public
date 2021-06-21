@@ -611,25 +611,16 @@ export function APIOptions(props: APIOptionsProps) {
         setSelectedContName(evt.target.value);
     };
 
-    const genericConnectors: ReactNode[] = [];
-    const serviceConnectors: ReactNode[] = [];
+    const updatedConnectorComponents: ReactNode[] = [];
     if (selectedContName !== "") {
         const allCnts: ConnctorComponent[] = connectorComponents.filter(el =>
             el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
         allCnts.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
+            updatedConnectorComponents.push(allCnt.component);
         });
     } else {
         connectorComponents.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
+            updatedConnectorComponents.push(allCnt.component);
         });
     }
     const exsitingConnectors: ReactNode[] = [];
@@ -720,10 +711,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 />
                             </div>
                             <div className="options-wrapper">
-                                {/* {(genericConnectors.length > 0 ? <Divider /> : null)} */}
-                                {genericConnectors}
-                                {(serviceConnectors.length > 0 ? <Divider /> : null)}
-                                {serviceConnectors}
+                                {updatedConnectorComponents}
                             </div>
                         </>
                     )
