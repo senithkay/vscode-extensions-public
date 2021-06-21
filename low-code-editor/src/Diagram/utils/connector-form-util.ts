@@ -19,8 +19,71 @@ import {
     PrimitiveBalType,
     ResponsePayloadMap
 } from "../../ConfigurationSpec/types";
-import { Connector } from "../../Definitions/lang-client-extended";
+import { Connector } from "../../Definitions";
 import { tooltipMessages } from "../components/Portals/utils/constants";
+
+const headerKeys = [`"Accept"`,
+    `"Accept-Charset"`,
+    `"Accept-Datetime"`,
+    `"Accept-Encoding"`,
+    `"Accept-Language"`,
+    `"Access-Control-Request-Method"`,
+    `"Access-Control-Request-Headers"`,
+    `"Authorization"`,
+    `"Cache-Control"`,
+    `"Connection"`,
+    `"Permanent"`,
+    `"Content-Encoding"`,
+    `"Content-Length"`,
+    `"Content-MD5"`,
+    `"Content-Type"`,
+    `"Cookie"`,
+    `"Date"`,
+    `"Expect"`,
+    `"Forwarded"`,
+    `"From"`,
+    `"Host"`,
+]
+
+const headerVal = [
+    `"audio/aac"`,
+    `"application/x-abiword"`,
+    `"application/x-freearc"`,
+    `"video/x-msvideo"`,
+    `"application/vnd.amazon.ebook"`,
+    `"application/octet-stream"`,
+    `"image/bmp"`,
+    `"application/x-bzip"`,
+    `"application/x-bzip2"`,
+    `"application/x-csh"`,
+    `"text/css"`,
+    `"text/csv"`,
+    `"application/msword"`,
+    `"application/epub+zip"`,
+    `"application/gzip"`,
+    `"image/gif"`,
+    `"text/html"`,
+    `"text/calendar"`,
+    `"application/java-archive"`,
+    `"image/jpeg"`,
+    `"text/javascript"`,
+    `"application/json"`,
+    `"application/ld+json"`,
+    `"audio/mpeg"`,
+    `"video/mpeg"`,
+    `"image/png"`,
+    `"application/pdf"`,
+    `"image/svg+xml"`,
+    `"application/x-shockwave-flash"`,
+    `"application/x-tar"`,
+    `"image/tiff"`,
+    `"font/ttf"`,
+    `"text/plain"`,
+    `"font/woff"`,
+    `"font/woff2"`,
+    `"application/xml"`,
+    `"text/xml"`,
+]
 
 export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FunctionDefinitionInfo>,
                                          connectorConfig: ConnectorConfig, state?: any): Map<string, FunctionDefinitionInfo> {
@@ -70,6 +133,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         } else if (param.name === "targetType") {
                             param.hide = true;
                             param.noCodeGen = true;
+                        } else if (param.name === "headers") {
+                            param.displayName = "Headers";
+                            param.customAutoComplete = headerKeys;
+                            param.fields[0].customAutoComplete = headerVal;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -83,6 +150,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         } else if (param.name === "targetType") {
                             param.hide = true;
                             param.noCodeGen = true;
+                        } else if (param.name === "headers") {
+                            param.displayName = "Headers";
+                            param.customAutoComplete = headerKeys;
+                            param.fields[0].customAutoComplete = headerVal;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -132,6 +203,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
                             param.type = "collection";
+                            param.isArray = true;
                             param.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
                             param.isUnion = false;
                             param.fields = [];
@@ -276,6 +348,51 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_googleapis.sheets_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: hide duplicate sheet operations. this will fixed in next sheet connector release. #5338
+                const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
+                    "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
+                if (!filteredOperations.includes(key)) {
+                    if (key === "addRowsBeforeBySheetName") {
+                        value.label = "Add Rows Before"
+                    }
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
+        case 'ballerinax_github_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === 'init') {
+                    value.parameters.find(fields => fields.name === "config").fields
+                        .find(fields => fields.name === "clientConfig").optional = true;
+                } else if (key === "getOrganizationProjectList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const stateField = value.parameters.find(fields => fields.name === "state");
+                    if (stateField) {
+                        stateField.type = PrimitiveBalType.String;
+                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
+                } else if (key === "getRepositoryProjectList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const stateField = value.parameters.find(fields => fields.name === "state");
+                    if (stateField) {
+                        stateField.type = PrimitiveBalType.String;
+                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
+                } else if (key === "getRepositoryIssueList") {
+                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                    const statesField = value.parameters.find(fields => fields.name === "states");
+                    if (statesField) {
+                        statesField.type = "collection";
+                        statesField.isArray = true;
+                        statesField.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
+                        statesField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
+                    }
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "init") {
@@ -316,6 +433,32 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_worldbank_Client':
+            // HACK: update default response format as a JSON
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (value.parameters.find(field => field.name === "format")){
+                    value.parameters.find(field => field.name === "format").value = `"json"`;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_twilio_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "makeVoiceCall") {
+                    value.parameters.find(field => field.name === "voiceCallInput").fields.forEach(field => {
+                        if (field.name === "userInputType") {
+                            // HACK: add ENUM types to expression-editor auto suggestion list
+                            //      need to remove this once add ENUM support to Choreo
+                            field.customAutoComplete = [
+                                "twilio:TWIML_URL",
+                                "twilio:MESSAGE_IN_TEXT"
+                            ];
+                        }
+                    });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_googleapis.drive_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 // TODO: hide these operation until the Choreo support file upload feature
@@ -326,7 +469,6 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     "watchFilesById",
                     "watchStop",
                     "getAbout",
-                    "updateFileMetadataById",
                     "listChanges"
                 ];
                 if (!hiddenActions.includes(key)) {
@@ -386,6 +528,8 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                 switch (key) {
                     case 'init':
                     case 'sendMessage':
+                        break;
+                    case 'send':
                         break;
                     default:
                         value.parameters.forEach(fields => {

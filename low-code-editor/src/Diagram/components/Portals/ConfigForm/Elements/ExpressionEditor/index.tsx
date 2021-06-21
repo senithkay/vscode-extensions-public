@@ -24,12 +24,12 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EXPAND_WIDGET_ID } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -40,6 +40,7 @@ import {
     createContentWidget,
     createSortText,
     diagnosticCheckerExp,
+    getDiagnosticMessage,
     getInitialValue,
     getRandomInt,
     getTargetPosition,
@@ -131,6 +132,7 @@ export interface ExpressionEditorProps {
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
+    editPosition?: any;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -146,28 +148,28 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         syntaxTree,
     } = state;
 
-    const [ expressionEditorState, setExpressionEditorState ] = useState({
+    const [expressionEditorState, setExpressionEditorState] = useState({
         name: undefined,
         content: undefined,
         uri: undefined,
         diagnostic: [],
     });
 
-    const [ disposableTriggers ] = useState([]);
+    const [disposableTriggers] = useState([]);
 
     const {
         index,
         defaultValue,
         model,
         onChange,
-        customProps
+        customProps,
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor } = customProps;
-    const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor, editPosition } = customProps;
+    const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
-    const [ expand, setExpand ] = useState(expandDefault || false);
-    const [ addCheck, setAddCheck ] = useState(false);
-    const [ cursorOnEditor, setCursorOnEditor ] = useState(false);
+    const [expand, setExpand] = useState(expandDefault || false);
+    const [addCheck, setAddCheck] = useState(false);
+    const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
@@ -178,10 +180,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
-    const [ stringCheck, setStringCheck ] = useState(checkIfStringExist(varType));
-    const [ needQuotes, setNeedQuotes ] = useState(false);
+    const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
+    const [needQuotes, setNeedQuotes] = useState(false);
 
     const validExpEditor = () => {
+        if (monacoRef.current?.editor?.getModel()?.getValue()) {
+            model.value = monacoRef.current?.editor?.getModel()?.getValue();
+            if (onChange) {
+                onChange(monacoRef.current?.editor?.getModel()?.getValue());
+            }
+        }
         validate(model.name, false);
         if (monacoRef.current) {
             monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
@@ -227,7 +235,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(expressionEditorState.diagnostic[0].message);
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
                 }
             } else {
                 if (monacoRef.current) {
@@ -307,23 +315,30 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                             return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
-                                    completionResponse.label !== varName &&
-                                    completionResponse.label !== model.aiSuggestion &&
-                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
-                                ));
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
-                                    return {
+                                const completionItems: monaco.languages.CompletionItem[] = []
+                                if (model?.customAutoComplete) {
+                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string, order: number) => {
+                                        return {
+                                            range: null,
+                                            label: customCompletion,
+                                            kind: monaco.languages.CompletionItemKind.Enum,
+                                            insertText: customCompletion,
+                                            sortText: `0${createSortText(order)}`
+                                        }
+                                    })
+                                    completionItems.push(...completionItemCustom);
+                                }
+                                if (model.aiSuggestion) {
+                                    const completionItemAI: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
-                                        label: completionResponse.label,
-                                        kind: completionResponse.kind as CompletionItemKind,
-                                        insertText: completionResponse.insertText,
-                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: createSortText(order)
+                                        label: model.aiSuggestion,
+                                        kind: 1 as CompletionItemKind,
+                                        insertText: model.aiSuggestion,
+                                        sortText: '1'
                                     }
-                                });
+                                    completionItems.push(completionItemAI);
+                                }
                                 if (varType === "string") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
@@ -336,8 +351,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
-                                }
-                                if (varType === "boolean") {
+                                } else if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
                                         range: null,
@@ -358,20 +372,59 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     completionItems.push(completionItemTemplate);
                                     completionItems.push(completionItemTemplate1);
                                 }
-                                if (model.aiSuggestion) {
-                                    const completionItemAI: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: model.aiSuggestion,
-                                        kind: 1 as CompletionItemKind,
-                                        insertText: model.aiSuggestion,
-                                        sortText: '1'
+
+                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
+                                    completionResponse.label !== varName &&
+                                    completionResponse.label !== model.aiSuggestion &&
+                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
+                                ));
+                                const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+                                    if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
+                                        return {
+                                            range: null,
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order),
+                                            command: {
+                                                id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
+                                                    if (args.length > 0) {
+                                                        const startColumn =  args[0].range.start.character - snippetTargetPosition + 2
+                                                        const endColumn =  args[0].range.end.character - snippetTargetPosition + 2
+                                                        const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
+                                                            text: args[0].newText,
+                                                            range: new monaco.Range(1, startColumn, 1, endColumn)
+                                                        }];
+                                                        monacoRef.current.editor.executeEdits("completion-edit", edit)
+                                                    }
+                                                }, ''),
+                                                title: "completion-edit",
+                                                arguments: [completionResponse.additionalTextEdits]
+                                            }
+                                        }
+                                    } else {
+                                        return {
+                                            range: null,
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order)
+                                        }
                                     }
-                                    completionItems.push(completionItemAI);
-                                }
+                                });
+                                completionItems.push(...lsCompletionItems);
+
                                 if (completionItems.length > 0) {
-                                    completionItems[0] = {...completionItems[0], preselect: true}
+                                    completionItems[0] = { ...completionItems[0], preselect: true }
                                 }
+
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
                                     suggestions: completionItems
@@ -423,7 +476,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     useEffect(() => {
         // Programatically clear exp-editor
         if (clearInput && revertClearInput) {
-            if (monacoRef.current){
+            if (monacoRef.current) {
                 const editorModel = monacoRef.current.editor.getModel();
                 if (editorModel) {
                     editorModel.setValue("");
@@ -567,21 +620,22 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            const offset = varType.length + 1;
-            await langClient.getType({
-                documentIdentifier: {
-                    uri: expressionEditorState.uri,
-                },
-                position: {
-                    line: targetPosition.line,
-                    offset
-                }
-            }).then((resp: any) => {
-                const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
-                handleTypeInfo(typeInfo);
-            });
-        });
+        // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+        // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        //     const offset = varType.length + 1;
+        //     await langClient.getType({
+        //         documentIdentifier: {
+        //             uri: expressionEditorState.uri,
+        //         },
+        //         position: {
+        //             line: targetPosition.line,
+        //             offset
+        //         }
+        //     }).then((resp: any) => {
+        //         const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+        //         handleTypeInfo(typeInfo);
+        //     });
+        // });
 
         if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
             monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
@@ -642,24 +696,29 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                const offset = varType.length + 1;
-                await langClient.getType({
-                    documentIdentifier: {
-                        uri: expressionEditorState.uri,
-                    },
-                    position: {
-                        line: targetPosition.line,
-                        offset
-                    }
-                }).then((resp: any) => {
-                    const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
-                    handleTypeInfo(typeInfo);
-                });
-            });
+            // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+            // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            //     const offset = varType.length + 1;
+            //     await langClient.getType({
+            //         documentIdentifier: {
+            //             uri: expressionEditorState.uri,
+            //         },
+            //         position: {
+            //             line: targetPosition.line,
+            //             offset
+            //         }
+            //     }).then((resp: any) => {
+            //         const typeInfo: string[] = (resp as ExpressionTypeResponse).types;
+            //         handleTypeInfo(typeInfo);
+            //     });
+            // });
 
             if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
+            }
+
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+                setExpand(true);
             }
         }
     }
@@ -761,9 +820,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         // Disabling certain key events
         monacoEditor.onKeyDown((event: monaco.IKeyboardEvent) => {
-            const {keyCode, ctrlKey, metaKey} = event;
-            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)){
+            const { keyCode, ctrlKey, metaKey } = event;
+            if ([36, 37].includes(keyCode) && (metaKey || ctrlKey)) {
                 // Disabling ctrl/cmd + (f || g)
+                event.stopPropagation();
+            }
+            const suggestWidgetStatus = (monacoEditor as any)._contentWidgets["editor.widget.suggestWidget"].widget.state;
+            // When suggest widget is open => suggestWidgetStatus = 3
+            if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3){
                 event.stopPropagation();
             }
         });
@@ -815,9 +879,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{height: expand ? '114px' : '32px'}}>
+            <div className="exp-container" style={{ height: expand ? '114px' : '32px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{height: expand ? '100px' : '32px'}} >
+                    <div className="exp-editor" style={{ height: expand ? '100px' : '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -836,18 +900,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
                                 <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
                             </TooltipCodeSnippet>
-                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue."/></FormHelperText>
+                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
                         (
                             <div className={formClasses.suggestionsWrapper} >
                                 <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
-                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error."/> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
+                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
                             </div>
-                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && expressionEditorState.diagnostic[0]?.message ?
+                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                             (
                                 <>
-                                    <TooltipCodeSnippet content={expressionEditorState.diagnostic[0].message} placement="right" arrow={true}>
+                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
                                     </TooltipCodeSnippet>
                                     {stringCheck && needQuotes && (
@@ -855,7 +919,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                             <FormHelperText className={formClasses.suggestionsText}>
                                                 {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ?  " to add double quotes to the empty expression" : " to convert the expression to a string"}
+                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to add double quotes to the empty expression" : " to convert the expression to a string"}
                                             </FormHelperText>
                                         </div>
                                     )}

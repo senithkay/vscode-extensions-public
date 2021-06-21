@@ -18,7 +18,7 @@ import { CaptureBindingPattern, CheckAction, LocalVarDecl, PositionalArg, Remote
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 
-import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
@@ -42,13 +42,15 @@ import {
     updatePropertyStatement,
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
-import { DraftInsertPosition, DraftUpdateStatement } from "../../../view-state/draft";
+import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
+import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
+import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -96,6 +98,19 @@ export function HTTPWizard(props: WizardProps) {
     const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
         : connectorConfig?.action?.name);
 
+    const operations: string[] = [];
+    if (functionDefinitions) {
+        functionDefinitions.forEach((value, key) => {
+            if (key !== "init" && key !== "__init") {
+                operations.push(key);
+            }
+        });
+    }
+
+    if (!connectorConfig.action) {
+        connectorConfig.action = new ActionConfig();
+    }
+
     React.useEffect(() => {
         if (!isNewConnectorInitWizard && isAction) {
             setState(InitFormState.SelectInputOutput);
@@ -117,7 +132,7 @@ export function HTTPWizard(props: WizardProps) {
     }, [isNewConnectorInitWizard, selectedConnector])
 
     const handleCreateConnectorOnSaveNext = () => {
-        setState(isNewConnectorInitWizard ? InitFormState.OperationDropdown : InitFormState.SelectInputOutput);
+        setState(InitFormState.SelectInputOutput);
     };
 
     const handleConnectionChange = () => {
@@ -126,6 +141,12 @@ export function HTTPWizard(props: WizardProps) {
         } else {
             setState(InitFormState.Home);
         }
+    };
+
+    const onOperationSelect = (operation: string) => {
+        setSelectedOperation(operation);
+        setState(InitFormState.SelectInputOutput);
+        connectorConfig.action.returnVariableName = undefined;
     };
 
     const handleCreateConnectorOnSave = () => {
@@ -358,7 +379,7 @@ export function HTTPWizard(props: WizardProps) {
                         }
 
                         if (headerObject.length > 0) {
-                            const updatePosition: DraftUpdateStatement = {
+                            const updatePosition: DraftUpdatePosition = {
                                 startLine,
                                 startColumn,
                                 endColumn,
@@ -599,7 +620,7 @@ export function HTTPWizard(props: WizardProps) {
                 />
                 <div className={wizardClasses.titleWrapper}>
                     <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.module}_${connector.name}`)}</div>
-                    <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection"/></Typography>
+                    <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
                 </div>
             </div>
             <>

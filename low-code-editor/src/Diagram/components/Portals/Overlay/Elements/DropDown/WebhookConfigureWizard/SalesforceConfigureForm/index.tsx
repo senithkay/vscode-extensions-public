@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
-import { useIntl } from "react-intl";
+import {FormattedMessage, useIntl} from "react-intl";
 
 import {
     CaptureBindingPattern,
@@ -35,6 +35,7 @@ import {
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../../utils/modification-util";
+import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
@@ -70,12 +71,16 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const intl = useIntl();
 
     const [ triggerChanged, setTriggerChanged ] = useState(false);
-    const [ topic, setTopic ] = useState("");
+    const [ channelName, setTopic ] = useState("");
     const [ username, setUsername ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ showConfirmDialog, setShowConfirmDialog ] = useState(false);
+    const [ salesforceEvent, setSalesforceEvent ] = useState<string>();
 
     const Trigger = "Salesforce";
+
+    // HACK: hardcoded event list until get it from connector API
+    const events = ["onCreate", "onUpdate", "onDelete", "onRestore"];
 
     useEffect(() => {
         if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -93,6 +98,9 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     const handlePasswordOnChange = (value: string) => {
         setPassword(value);
     };
+    const handleEventChange = (event: object, value: string) => {
+        setSalesforceEvent(value);
+    };
 
     // handle SFDC trigger update
     const updateSalesforceTrigger = () => {
@@ -104,7 +112,7 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
             typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
             typeSymbol?.name === "ListenerConfiguration");
 
-        const pushTopicVarTemplate = `string pushTopic = "${topic}";`;
+        const pushTopicVarTemplate = `string pushTopic = "${channelName}";`;
         const listenerConfigTemplate = `sfdc:ListenerConfiguration listenerConfig = {\n
                                             username: "${username}",\n
                                             password: "${password}"\n
@@ -125,16 +133,18 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         // dispatch and close the wizard
         modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: "salesforce",
-            PUSH_TOPIC_NAME: topic,
+            CHANNEL_NAME: channelName,
             USER_NAME: username,
             PASSWORD: password,
+            EVENT: salesforceEvent,
         });
-        const event: LowcodeEvent = {
+
+        const userEvent: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: TRIGGER_SELECTED_INSIGHTS,
             property: Trigger
         };
-        onEvent(event);
+        onEvent(userEvent);
     }
 
     // handle trigger configure complete
@@ -163,8 +173,13 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
     });
 
     const topicPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.salesForceConfigWizard.topic.placeholder",
-        defaultMessage: "Topic"
+        id: "lowcode.develop.salesForceConfigWizard.channelName.placeholder",
+        defaultMessage: "Channel Name"
+    })
+
+    const eventPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.salesForceConfigWizard.event.placeholder",
+        defaultMessage: "Event"
     })
 
     const saveConfigButton = intl.formatMessage({
@@ -182,9 +197,9 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                 id: "lowcode.develop.triggerDropDown.salesforceTrigger.password.tooltip.title",
                 defaultMessage: "Enter the Salesforce password appended with your Salesforce security token."
             }),
-            topic: intl.formatMessage({
-                id: "lowcode.develop.triggerDropDown.salesforceTrigger.topic.tooltip.title",
-                defaultMessage: "The topic of the Push type that was added to your Salesforce account to receive notifications."
+            channelName: intl.formatMessage({
+                id: "lowcode.develop.triggerDropDown.salesforceTrigger.channelName.tooltip.title",
+                defaultMessage: "The channelName of the Push type that was added to your Salesforce account to receive notifications."
             })
         }
     }
@@ -212,15 +227,24 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
                 />
                 <FormTextInput
                     label={topicPlaceholder}
-                    defaultValue={topic}
+                    defaultValue={channelName}
                     onChange={handleTopicOnChange}
                     customProps={{
                         optional: false,
-                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.topic
+                        tooltipTitle: salesforceConfigTooltips.salesforceTrigger.channelName
                     }}
                 />
+                <p className={classes.textFieldLabel}>
+                    <FormattedMessage id="lowcode.develop.salesforceConfigWizard.event.title.text" defaultMessage="Event" />
+                </p>
+                <FormAutocomplete
+                    placeholder={eventPlaceholder}
+                    itemList={events}
+                    value={salesforceEvent}
+                    onChange={handleEventChange}
+                />
             </div>
-            { topic && username && password &&
+            { channelName && username && password && salesforceEvent &&
                 (
                     <div className={classes.customFooterWrapper}>
                         <PrimaryButton

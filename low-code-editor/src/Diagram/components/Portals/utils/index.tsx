@@ -207,7 +207,7 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
-export function getParams(formFields: FormField[]): string[] {
+export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
         let paramString: string = "";
@@ -243,6 +243,16 @@ export function getParams(formFields: FormField[]): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    } else if (field.type === "map" && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        // HACK:    current map type will render by expression-editor component.
+                        //          expression-editor component will set value property directly.
+                        //          need to implement fetch inner field's values of map object.
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     } else if (field.type === "collection" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -258,7 +268,7 @@ export function getParams(formFields: FormField[]): string[] {
                                 return fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
-                                const params = getParams([selectedField]);
+                                const params = getParams([selectedField], depth + 1);
                                 if (params && params.length > 0) {
                                     if (firstRecordField) {
                                         recordFieldsString += ", ";
@@ -286,7 +296,7 @@ export function getParams(formFields: FormField[]): string[] {
                                     fields: field.fields
                                 }
                             ]
-                            const params = getParams(fieldArray);
+                            const params = getParams(fieldArray, depth + 1);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
                                     recordFieldsString += ", ";
@@ -298,8 +308,10 @@ export function getParams(formFields: FormField[]): string[] {
                         }
                     }
                 });
-                if (recordFieldsString !== "" && recordFieldsString !== undefined) {
+                if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
+                }else if (recordFieldsString === "" && !formField.optional && depth === 1){
+                    paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
                 //      code generation doesn't need another record inside OAuth2RefreshTokenGrantConfig
@@ -436,11 +448,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         if (formField.type === "union") {
                             formField.fields.forEach(subFormField => {
                                 if (subFormField.type === "record" && subFormField.fields) {
-                                    // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
-                                    //      it will generate empty formField. getParams() code-gen skip this empty FormField.
-                                    //      here skip that empty FormFiled and use inside field array
-                                    const subFields = subFormField.typeInfo?.name === "OAuth2RefreshTokenGrantConfig" ?
-                                        subFormField.fields[0]?.fields : subFormField.fields;
+                                    const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
@@ -468,6 +476,16 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     });
 }
 
+export function getRestParamFieldValue (remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
+    const varArgValues: string[] = [];
+    for (let i = currentFieldIndex; i < remoteMethodCallArguments.length; i++) {
+        const varArgs: PositionalArg = remoteMethodCallArguments[i] as PositionalArg;
+        const literalExpression: any = varArgs.expression;
+        varArgValues.push(literalExpression.literalToken.value);
+    }
+    return varArgValues.join(",");
+}
+
 export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formFields: FormField[]) {
     const remoteMethodCallArguments = remoteCall.arguments.filter(arg => arg.kind !== 'CommaToken');
     let nextValueIndex = 0;
@@ -487,15 +505,16 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
             const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
             if (formField.type === "string" || formField.type === "int" || formField.type === "boolean"
                 || formField.type === "float" || formField.type === "httpRequest") {
-                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                    const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
-                    formField.value = stringLiteral.literalToken.value;
-                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = numericLiteral.literalToken.value;
-                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                    const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = booleanLiteral.literalToken.value;
+                if (STKindChecker.isStringLiteral(positionalArg.expression) ||
+                    STKindChecker.isNumericLiteral(positionalArg.expression) ||
+                    STKindChecker.isBooleanLiteral(positionalArg.expression)) {
+                    if (formField.isRestParam) {
+                        formField.value = getRestParamFieldValue(remoteMethodCallArguments as PositionalArg[],
+                            nextValueIndex);
+                    } else {
+                        const literalExpression = positionalArg.expression;
+                        formField.value = literalExpression.literalToken.value;
+                    }
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
@@ -884,17 +903,20 @@ export function getInitReturnType(functionDefinitions: Map<string, FunctionDefin
 }
 
 export function getActionReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): FormFieldReturnType {
+    if (!action){
+        return undefined;
+    }
     const returnTypeField = functionDefinitions.get(action)?.returnType;
     return getFormFieldReturnType(returnTypeField);
 }
 
-function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
+function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
     const response: FormFieldReturnType = {
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
         returnType: "var",
     };
-    const primitives = ["string", "int", "float", "boolean", "json", "xml"];
+    const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
     const returnTypes: string[] = [];
 
     if (formField && formField?.isParam) {
@@ -902,7 +924,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
             case "union":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -921,7 +943,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                             return `${fullType}${type !== '?' ? '|' : ''}${type}`;
                         });
                     } else {
-                        response.returnType = returnTypes[0];
+                        response.returnType = returnTypes[ 0 ];
                         if (response.returnType === '?') {
                             response.hasReturn = false;
                         }
@@ -931,7 +953,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
 
             case "collection":
                 if (formField?.isParam && formField?.collectionDataType) {
-                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType);
+                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType, depth + 1);
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -946,7 +968,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
             case "tuple":
                 formField?.fields.forEach(field => {
                     if (field?.isParam) {
-                        const returnTypeResponse = getFormFieldReturnType(field);
+                        const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
@@ -958,7 +980,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[0];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
                 }
                 break;
 
@@ -966,6 +988,7 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                 if (formField.isParam) {
                     let type = "";
                     if (formField.type === "error" || formField.isErrorType) {
+                        formField.isErrorType = true;
                         response.hasError = true;
                     }
                     if (type === "" && formField.typeInfo && !formField.isErrorType) {
@@ -980,7 +1003,15 @@ function getFormFieldReturnType(formField: FormField): FormFieldReturnType {
                         // remove error return
                         response.hasError = false;
                     }
-                    if (type === "" && formField.type && primitives.includes(formField.type)) {
+                    if (type === "" && !formField.typeInfo && primitives.includes(formField.type) &&
+                        formField?.isStream && formField.isErrorType) {
+                        // set stream record type with error
+                        type = `${formField.type},error`;
+                        response.hasReturn = true;
+                        // remove error return
+                        response.hasError = false;
+                    }
+                    if (type === "" && !formField.isStream && formField.type && primitives.includes(formField.type)) {
                         // set primitive types
                         type = formField.type;
                         response.hasReturn = true;
@@ -1120,13 +1151,11 @@ export function getOauthConnectionFromFormField(formField: FormField, allConnect
         case "googleapis.gmail":
         case "googleapis.sheets":
             variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         case "googleapis.calendar": {
             variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field =>
-                    field.typeInfo.name === "RefreshTokenGrantConfig").fields.find(field => field.name === "clientId")?.value;
+                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
             break;
         }
         default:

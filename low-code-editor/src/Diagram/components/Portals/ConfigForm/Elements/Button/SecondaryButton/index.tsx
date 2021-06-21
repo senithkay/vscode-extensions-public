@@ -30,13 +30,16 @@ export interface ButtonProps {
     startIcon?: JSX.Element;
     fullWidth?: boolean;
     disabled?: boolean;
+    dataTestId?: string;
 }
 
 export function SecondaryButton(props: ButtonProps) {
     const classes = useStyles();
-    const {text, startIcon, onClick, fullWidth, disabled, className} = props;
+    const { text, startIcon, onClick, fullWidth, disabled, className, dataTestId } = props;
+
     return (
         <Button
+            data-testid={dataTestId}
             onClick={onClick}
             variant="contained"
             classes={{

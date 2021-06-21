@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { DraftUpdateStatement } from "../Diagram/view-state/draft";
+import { DraftUpdatePosition } from "../Diagram/view-state/draft";
 
 export enum PrimitiveBalType {
     String = "string",
@@ -90,6 +90,7 @@ export interface FormField {
     isErrorType?: boolean;
     isDefaultableParam?: boolean;
     isRestParam?: boolean;
+    customAutoComplete?: string[];
 }
 export interface FormFieldReturnType {
     hasError: boolean;
@@ -123,7 +124,7 @@ export class ConnectorConfig {
     public subExitingConnection?: string;
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
-    public initPosition?: DraftUpdateStatement;
+    public initPosition?: DraftUpdatePosition;
     public isReturnError?: boolean;
 }
 

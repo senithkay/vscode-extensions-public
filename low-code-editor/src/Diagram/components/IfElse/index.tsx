@@ -64,7 +64,7 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const { state, diagramCleanDraw, insertComponentStart } = useContext(Context);
+    const { state, diagramCleanDraw, insertComponentStart, toggleDiagramOverlay } = useContext(Context);
     const {
         isMutationProgress,
         syntaxTree,
@@ -89,6 +89,7 @@ export function IfElse(props: IfElseProps) {
             const conditionConfigState = getConditionConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
             setIfElseConditionConfigState(conditionConfigState);
+            toggleDiagramOverlay();
         }
     }, []);
 
@@ -105,10 +106,12 @@ export function IfElse(props: IfElseProps) {
             diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
+        toggleDiagramOverlay();
     }
 
     const onSave = () => {
         setConfigWizardOpen(false);
+        toggleDiagramOverlay();
     }
 
     let codeSnippet = "IF ELSE CODE SNIPPET"

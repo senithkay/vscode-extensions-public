@@ -35,6 +35,21 @@ export interface CompletionResponse {
 	insertTextFormat: number;
 	kind: number;
 	label: string;
+	additionalTextEdits?: TextEdit[]
+}
+
+export interface TextEdit {
+	newText: string,
+	range: {
+		end: {
+			character: number;
+			line: number;
+		},
+		start: {
+			character: number;
+			line: number;
+		}
+	}
 }
 
 export interface PublishDiagnosticsParams {

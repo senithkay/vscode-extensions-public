@@ -13,8 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useDispatch } from 'react-redux';
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
 import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
@@ -22,6 +24,7 @@ import { BallerinaConnectorsInfo, Connector } from "../../../Definitions/lang-cl
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
 import { DraftInsertPosition } from "../../view-state/draft";
+import { DefaultConfig } from '../../visitors/default';
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../Portals/Overlay';
 import { fetchConnectorInfo } from "../Portals/utils";
 
@@ -51,9 +54,9 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-    const { state } = useContext(Context);
+    const { state, toggleDiagramOverlay } = useContext(Context);
     const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen,
-            isCodeEditorActive, triggerErrorNotification } = state;
+            isCodeEditorActive, triggerErrorNotification, onFitToScreen, appInfo } = state;
 
     const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
 
@@ -67,28 +70,38 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
 
     const intl = useIntl();
     const connectionErrorMsgText = intl.formatMessage({
-    	id: "lowcode.develop.connectorForms.createConnection.errorMessage",
-    	defaultMessage: "Something went wrong. Couldn't load the connection."
+        id: "lowcode.develop.connectorForms.createConnection.errorMessage",
+        defaultMessage: "Something went wrong. Couldn't load the connection."
     });
+
+    const dispatch = useDispatch();
+    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
+    const currentAppid = appInfo?.currentApp?.id;
+
+    React.useEffect(() => {
+        onFitToScreen(currentAppid);
+        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+    }, []);
 
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
                 const configList = await fetchConnectorInfo(connectorInfo, model, state);
-                if (configList){
+                if (configList) {
                     setWizardState(configList);
-                }else{
+                } else {
                     triggerErrorNotification(new Error(connectionErrorMsgText));
                     handleClose();
                 }
             })()
-            dispatchOverlayOpen();
+            toggleDiagramOverlay();
         }
     }, [wizardState]);
 
     const handleClose = () => {
         onClose();
         dispatchOverlayClose();
+        toggleDiagramOverlay();
     }
 
     return (
@@ -106,15 +119,15 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                                         <TextPreloaderVertical position='relative' />
                                     </div>
                                 ) : (
-                                        <ConnectorForm
-                                            selectedConnector={selectedConnector}
-                                            targetPosition={targetPosition}
-                                            configWizardArgs={wizardState}
-                                            connectorInfo={connectorInfo}
-                                            isAction={isAction}
-                                            onClose={handleClose}
-                                        />
-                                    )}
+                                    <ConnectorForm
+                                        selectedConnector={selectedConnector}
+                                        targetPosition={targetPosition}
+                                        configWizardArgs={wizardState}
+                                        connectorInfo={connectorInfo}
+                                        isAction={isAction}
+                                        onClose={handleClose}
+                                    />
+                                )}
                             </>
                         </DiagramOverlay>
                     )
@@ -125,10 +138,3 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         </div>
     );
 }
-
-// const mapDispatchToProps = {
-//     dispatchOverlayOpen: configOverlayFormPrepareStart,
-//     dispatchOverlayClose: closeConfigOverlayForm,
-// };
-
-// export const ConnectorConfigWizard = connect(null, mapDispatchToProps)(ConnectorConfigWizardC);

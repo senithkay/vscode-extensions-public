@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { formCreateSvg  } from "../../../../../assets";
+import { formCreateSvg } from "../../../../../assets";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -110,6 +110,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end",
             marginTop: "0.5rem",
         },
+        addElementButton: {
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 10
+        },
         wizardBtnHolder: {
             display: "flex",
             justifyContent: "flex-end",
@@ -124,6 +129,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         saveBtnHolder: {
             display: "flex",
+        },
+        saveConnectorBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 80,
+            flexDirection: 'column',
+            justifyContent: "space-between"
         },
         formCreate: {
             width: 191.2,
@@ -305,10 +317,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: '1px solid #dee0e7',
             borderRadius: 5,
         },
+        componentGap: {
+            marginBottom: 4,
+        },
         textlabel: {
             fontSize: '13px !important',
             width: '215px !important',
-            padding: 8
+            padding: 8,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
         },
         deleteBtn: {
             backgroundColor: '#fff !important',

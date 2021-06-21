@@ -20,7 +20,7 @@ import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
-import { DraftInsertPosition, DraftUpdateStatement } from "../../view-state/draft";
+import { DraftInsertPosition, DraftUpdatePosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
@@ -138,7 +138,7 @@ export function ForEach(props: ForeachProps) {
             line: model.position.startLine
         };
 
-        const conditionUpdatePosition: DraftUpdateStatement = {
+        const conditionUpdatePosition: DraftUpdatePosition = {
             /*
             * As we are replacing the whole condition including the variable and the iteration condition different
             * components of the model are used to generate the update position

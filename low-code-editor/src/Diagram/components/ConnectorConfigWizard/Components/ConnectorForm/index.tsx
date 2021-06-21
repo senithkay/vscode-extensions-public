@@ -39,7 +39,7 @@ import {
     FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
     LowcodeEvent
 } from "../../../../models";
-import { getAllVariables } from "../../../../utils/mixins";
+import { getAllVariables, getModuleVariable } from "../../../../utils/mixins";
 import {
     createCheckedPayloadFunctionInvocation,
     createImportStatement,
@@ -51,16 +51,20 @@ import { DraftInsertPosition } from "../../../../view-state/draft";
 import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from '../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
+import {
+    addAiSuggestion, genVariableName, getActionReturnType, getAllVariablesForAi,
     getConnectorComponent, getConnectorIcon, getFormattedModuleName, getInitReturnType, getMapTo,
     getOauthConnectionConfigurables, getOauthConnectionFromFormField, getOauthParamsFromConnection, getParams,
-    matchEndpointToFormField } from '../../../Portals/utils';
+    matchEndpointToFormField
+} from '../../../Portals/utils';
+import { connectorCategories } from '../../../Portals/utils/constants';
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
 import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from '../SelectExistingConnection';
+import { SingleForm } from "../SingleForm";
 
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
@@ -69,17 +73,16 @@ export interface OauthProviderConfigState {
 }
 export interface ConnectorOperation {
     name: string,
-    label?: string
+    label?: string;
 }
 
 enum FormStates {
     ExistingConnection,
-
     OauthConnect,
     CreateNewConnection,
-
     OperationDropdown,
     OperationForm,
+    SingleForm,
 }
 
 export interface ConnectorConfigWizardProps {
@@ -118,7 +121,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     });
 
-    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig())
+    const [config] = useState(connectorConfig ? connectorConfig : new ConnectorConfig());
     const isNewConnectorInitWizard = config.existingConnections ? (wizardType === WizardType.NEW) : true;
 
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
@@ -126,14 +129,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [isManualConnection, setIsManualConnection] = useState(false);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedOperation, setSelectedOperation] = useState(connectorConfig?.action?.name);
+    const [selectedOperation, setSelectedOperation] = useState(config?.action?.name);
 
     useEffect(() => {
-
         if (isNewConnection && isOauthConnector) {
             setFormState(FormStates.OauthConnect);
             setIsLoading(false);
             return;
+        } else if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
+            setFormState(FormStates.SingleForm);
+            setIsLoading(false);
         } else if (isAction) {
             setFormState(FormStates.OperationForm);
             setIsLoading(false);
@@ -180,17 +185,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
         setConfigName(name);
-    }
+    };
 
     const operations: ConnectorOperation[] = [];
-    if (functionDefInfo && isAction) {
+    if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
             if (key !== "init" && key !== "__init") {
-                operations.push({name: key, label: value.label});
+                operations.push({ name: key, label: value.label });
             }
         });
     }
-    if (!config.action && isAction) {
+    if (!config.action) {
         config.action = new ActionConfig();
     }
 
@@ -244,17 +249,18 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const onSelectExisting = (value: any) => {
-        setConfigName(value);
-        setIsNewConnection(false);
-        setFormState(FormStates.OperationForm);
+        if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
+            setIsNewConnection(true);
+            setFormState(FormStates.SingleForm);
+        } else {
+            setConfigName(value);
+            setIsNewConnection(false);
+            setFormState(FormStates.OperationForm);
+        }
     };
 
     const handleCreateConnectorSaveNext = () => {
-        if (isNewConnection) {
-            setFormState(FormStates.OperationDropdown);
-        } else {
-            setFormState(FormStates.OperationForm);
-        }
+        setFormState(FormStates.OperationForm);
     };
 
     const handleClientOnSave = () => {
@@ -340,11 +346,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             modifyDiagram(modifications);
             onClose();
         }
-    }
+    };
 
     const handleActionOnSave = () => {
         const modifications: STModification[] = [];
+        const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        const moduleName = getFormattedModuleName(connectorInfo.module);
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -352,7 +360,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         };
         onEvent(event);
         if (!isNewConnectorInitWizard) {
-            if (currentActionReturnType.hasReturn){
+            if (currentActionReturnType.hasReturn) {
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -367,8 +375,47 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
         } else {
             if (targetPosition) {
+                if (isOauthConnector && connection) {
+                    const connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(), connection, symbolInfo.configurables);
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    if (connectorConfigurables) {
+                        const addConfigurableVars = createPropertyStatement(
+                            connectorConfigurables,
+                            { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                        );
+                        modifications.push(addConfigurableVars);
+                    }
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (
+                            ${getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(), connection)}\n);`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+                if (config.connectorInit.length > 0) {
+                    // save action with client path
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
                 // Add an action invocation on the initialized client.
-                if (currentActionReturnType.hasReturn){
+                if (currentActionReturnType.hasReturn) {
                     const addActionInvocation = createPropertyStatement(
                         `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         targetPosition
@@ -398,13 +445,81 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
         modifyDiagram(modifications);
         onClose();
-    }
+    };
+
+    // code generate for single forms
+    // this will generate both client and action source code
+    // only one client will be create for each module
+    const handleSingleFormOnSave = () => {
+        const modifications: STModification[] = [];
+        const moduleName = getFormattedModuleName(connectorInfo.module);
+        const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
+        const isInitReturnError = getInitReturnType(functionDefInfo);
+        const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
+        if (!isNewConnectorInitWizard) {
+            if (currentActionReturnType.hasReturn) {
+                const updateActionInvocation = updatePropertyStatement(
+                    `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            } else {
+                const updateActionInvocation = updatePropertyStatement(
+                    `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                    model.position
+                );
+                modifications.push(updateActionInvocation);
+            }
+        } else {
+            if (targetPosition) {
+                if (!existingEndpointName) {
+                    // new connector client initialization
+                    const addImport: STModification = createImportStatement(
+                        connectorInfo.org,
+                        connectorInfo.module,
+                        targetPosition
+                    );
+                    modifications.push(addImport);
+
+                    const addConnectorInit: STModification = createPropertyStatement(
+                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${getParams(config.connectorInit).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addConnectorInit);
+                }
+                // Add an action invocation on the initialized client.
+                if (currentActionReturnType.hasReturn) {
+                    const addActionInvocation = createPropertyStatement(
+                        `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${existingEndpointName || config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                } else {
+                    const addActionInvocation = createPropertyStatement(
+                        `${currentActionReturnType.hasError ? 'check' : ''} ${existingEndpointName || config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                        targetPosition
+                    );
+                    modifications.push(addActionInvocation);
+                }
+            }
+        }
+        modifyDiagram(modifications);
+        onClose();
+    };
 
     const onConnectionNameChange = () => {
         if ((isNewConnection && !isOauthConnector) || (isNewConnection && isOauthConnector && isManualConnection)) {
             setFormState(FormStates.CreateNewConnection);
         } else if (isNewConnection && isOauthConnector && !isManualConnection) {
             setFormState(FormStates.OauthConnect);
+        } else if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
+            setFormState(FormStates.SingleForm);
         } else {
             setFormState(FormStates.ExistingConnection);
         }
@@ -419,7 +534,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     };
 
     const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
-    if (!isNewConnectorInitWizard && actionReturnType.hasReturn) {
+    if (!isNewConnectorInitWizard && actionReturnType?.hasReturn) {
         if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
             config.action.returnVariableName =
                 (((model as LocalVarDecl).typedBindingPattern.bindingPattern) as
@@ -432,7 +547,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const showConnectionName = !isOauthConnector || isManualConnection || !isNewConnection;
 
     useEffect(() => {
-        const varAi: { [key: string]: any } = getAllVariablesForAi(symbolInfo)
+        const varAi: { [key: string]: any; } = getAllVariablesForAi(symbolInfo);
         let allFormFields: FormField[] = [];
         Array.from(functionDefInfo.keys()).forEach((key: string) => {
             allFormFields = allFormFields.concat(functionDefInfo.get(key).parameters);
@@ -447,9 +562,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 const varMap = JSON.parse(schema);
                 const varKeys = Object.keys(varMap);
                 varKeys.forEach((variable: string) => {
-                    addAiSuggestion(variable, varMap[variable], allFormFields)
-                })
-            })
+                    addAiSuggestion(variable, varMap[variable], allFormFields);
+                });
+            });
         });
     }, [functionDefInfo]);
 
@@ -471,7 +586,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 );
                 modifications.push(updateConnectorInit);
 
-                if (actionReturnType.hasReturn){
+                if (actionReturnType?.hasReturn) {
                     const updateActionInvocation = updatePropertyStatement(
                         `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         model.position
@@ -496,7 +611,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                     // Add an connector client initialization.
                     if (isNewConnection) {
-                        let addConnectorInit: STModification
+                        let addConnectorInit: STModification;
                         if (isOauthConnector && !isManualConnection) {
                             addConnectorInit = createObjectDeclaration(
                                 (moduleName + ":" + connectorInfo.name),
@@ -514,7 +629,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
 
                     // Add an action invocation on the initialized client.
-                    if (actionReturnType.hasReturn){
+                    if (actionReturnType?.hasReturn) {
                         const addActionInvocation = createPropertyStatement(
                             `${actionReturnType.returnType} ${config.action.returnVariableName} = ${actionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -590,7 +705,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     </div>
                     {(formState === FormStates.OauthConnect) && (
                         <div>
-                            { isOauthConnector && !isManualConnection && !isAction && (
+                            {isOauthConnector && !isManualConnection && !isAction && (
                                 <div className={classNames(wizardClasses.bottomBtnWrapper, wizardClasses.bottomRadius)}>
                                     <div className={wizardClasses.fullWidth}>
                                         <div className={wizardClasses.mainOauthBtnWrapper}>
@@ -609,7 +724,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             {!isAction &&
                                 (
                                     <div className={classNames(wizardClasses.manualBtnWrapper)}>
-                                        <p className={wizardClasses.manualConnectionTitle}><FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" /></p>
+                                        <p className={wizardClasses.manualConnectionTitle}>
+                                            <FormattedMessage id="lowcode.develop.connectorForms.manualConnection" defaultMessage="Or use manual configurations" />
+                                        </p>
                                         <LinePrimaryButton
                                             className={wizardClasses.fullWidth}
                                             text={manualConnectionButtonLabel}
@@ -619,13 +736,40 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                     </div>
                                 )
                             }
-                            <div className={wizardClasses.saveBtnWrapper}>
-                                <PrimaryButton
-                                    text="Save"
-                                    fullWidth={true}
-                                    disabled={connection === undefined}
-                                    onClick={handleClientOnSave}
-                                />
+                            <div className={wizardClasses.authBtnHolder}>
+                                {!isNewConnectorInitWizard && (
+                                    <PrimaryButton
+                                        text={intl.formatMessage({
+                                            id: "lowcode.develop.connectorForms.saveConnectionBtn.text",
+                                            defaultMessage: "Save Connection"
+                                        })}
+                                        fullWidth={true}
+                                        disabled={connection === undefined}
+                                        onClick={handleClientOnSave}
+                                    />
+                                )}
+                                {isNewConnectorInitWizard && (
+                                    <>
+                                        <LinePrimaryButton
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.saveConnectionButton.text",
+                                                defaultMessage: "Save Connection"
+                                            })}
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleClientOnSave}
+                                        />
+                                        <PrimaryButton
+                                            text={intl.formatMessage({
+                                                id: "lowcode.develop.connectorForms.invokeConnnectionButton.text",
+                                                defaultMessage: "Continue to Invoke API"
+                                            })}
+                                            fullWidth={true}
+                                            disabled={connection === undefined}
+                                            onClick={handleCreateConnectorSaveNext}
+                                        />
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
@@ -634,12 +778,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             functionDefInfo={functionDefInfo}
                             connectionDetails={config}
                             showConnectionName={showConnectionName}
-                            selectedOperation={config.action?.name}
+                            selectedOperation={selectedOperation}
                             onSave={handleActionOnSave}
                             onConnectionChange={onConnectionNameChange}
                             mutationInProgress={isMutationProgress}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
-                            hasReturn={actionReturnType.hasReturn}
                             operations={operations}
                         />
                     )}
@@ -676,8 +819,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             isOauthConnector={isOauthConnector}
                         />
                     )}
+                    {(formState === FormStates.SingleForm) && (
+                        <SingleForm
+                            functionDefInfo={functionDefInfo}
+                            connectionDetails={config}
+                            showConnectionName={showConnectionName}
+                            mutationInProgress={isMutationProgress}
+                            isNewConnectorInitWizard={isNewConnectorInitWizard}
+                            operations={operations}
+                            onSave={handleSingleFormOnSave}
+                        />
+                    )}
                 </div>
-            )
+            );
         }
     }
 

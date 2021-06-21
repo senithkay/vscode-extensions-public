@@ -17,7 +17,7 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
-import Tooltip from "../../../../../../../../components/Tooltip";
+import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
@@ -102,7 +102,8 @@ export function APIOptions(props: APIOptionsProps) {
         imapConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-                defaultMessage: "Setup an email client to use the IMAP protocol."
+                defaultMessage: "Setup an email client to use the IMAP protocol.\
+                NOTE : There can be vendor-specific security settings to be setup before using this connector."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
@@ -251,7 +252,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
                 defaultMessage: "Create document \nCreate stored procedure"
             }),
-            placement: 'left'
+            placement: 'right'
         },
         azureFileService: {
             title: intl.formatMessage({
@@ -284,7 +285,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
                 defaultMessage: "Insert document, List collections"
             }),
-            placement: 'right'
+            placement: 'left'
         },
         redis: {
             title: intl.formatMessage({
@@ -295,7 +296,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
                 defaultMessage: "Insert string value to a cache"
             }),
-            placement: 'left'
+            placement: 'right'
         },
         AWSS3: {
             title: intl.formatMessage({
@@ -306,7 +307,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
                 defaultMessage: "Create bucket, List objects"
             }),
-            placement: 'right'
+            placement: 'left'
         },
         AWSSQS: {
             title: intl.formatMessage({
@@ -316,6 +317,61 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
                 defaultMessage: "Create SQS queue, \nReceive a message from a SQS Queue"
+            }),
+            placement: 'right'
+        },
+        mailByChoreo: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.title",
+                defaultMessage: "Send an email using a pre-configured mail server."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.content",
+                defaultMessage: "Send Email"
+            }),
+            placement: 'left'
+        },
+        smsByChoreo: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.title",
+                defaultMessage: "Send an SMS using a pre-configured SMS gateway."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.content",
+                defaultMessage: "Send SMS"
+            }),
+            placement: 'right'
+        },
+        covid19Api: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.title",
+                defaultMessage: "Connect with Covid 19 Open API to get the latest status."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
+                defaultMessage: "Global status, \nCountry status"
+            }),
+            placement: 'left'
+        },
+        weatherApi: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.title",
+                defaultMessage: " Connect with Open Weather Map API to access the current weather data for any location."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.content",
+                defaultMessage: "Get current weather data, \nGet weather forecast"
+            }),
+            placement: 'right'
+        },
+        worldBankApi: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.title",
+                defaultMessage: "Connect with World Bank Open API to access global development data."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
+                defaultMessage: "Country population, \nGDP by country"
             }),
             placement: 'left'
         },
@@ -336,7 +392,7 @@ export function APIOptions(props: APIOptionsProps) {
         POSTGRESQL: connectionsTooltipMessages.postgreSQL.title,
         NETSUITE: connectionsTooltipMessages.netsuite.title,
         "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.title,
-        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.title,
+        "PEOPLE API": connectionsTooltipMessages.gPeopleAPI.title,
         "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.title,
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.title,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.title,
@@ -345,6 +401,11 @@ export function APIOptions(props: APIOptionsProps) {
         "REDIS": connectionsTooltipMessages.redis.title,
         "AWS S3": connectionsTooltipMessages.AWSS3.title,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.title,
+        "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.title,
+        "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.title,
+        "COVID 19 API": connectionsTooltipMessages.covid19Api.title,
+        "WEATHER API": connectionsTooltipMessages.weatherApi.title,
+        "WORLD BANK API": connectionsTooltipMessages.worldBankApi.title,
     };
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -363,7 +424,7 @@ export function APIOptions(props: APIOptionsProps) {
         POSTGRESQL: connectionsTooltipMessages.postgreSQL.content,
         NETSUITE: connectionsTooltipMessages.netsuite.content,
         "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.content,
-        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.content,
+        "PEOPLE API": connectionsTooltipMessages.gPeopleAPI.content,
         "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.content,
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.content,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.content,
@@ -372,6 +433,11 @@ export function APIOptions(props: APIOptionsProps) {
         "REDIS": connectionsTooltipMessages.redis.content,
         "AWS S3": connectionsTooltipMessages.AWSS3.content,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.content,
+        "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.content,
+        "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.content,
+        "COVID 19 API": connectionsTooltipMessages.covid19Api.content,
+        "WEATHER API": connectionsTooltipMessages.weatherApi.content,
+        "WORLD BANK API": connectionsTooltipMessages.worldBankApi.content,
     };
 
     const tooltipPlacement: Record<any, any> = {
@@ -389,7 +455,7 @@ export function APIOptions(props: APIOptionsProps) {
         POSTGRESQL: connectionsTooltipMessages.postgreSQL.placement,
         NETSUITE: connectionsTooltipMessages.netsuite.placement,
         "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.placement,
-        "GOOGLE PEOPLE API": connectionsTooltipMessages.gPeopleAPI.placement,
+        "PEOPLE API": connectionsTooltipMessages.gPeopleAPI.placement,
         "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.placement,
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.placement,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.placement,
@@ -398,6 +464,11 @@ export function APIOptions(props: APIOptionsProps) {
         "REDIS": connectionsTooltipMessages.redis.placement,
         "AWS S3": connectionsTooltipMessages.AWSS3.placement,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.placement,
+        "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.placement,
+        "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.placement,
+        "COVID 19 API": connectionsTooltipMessages.covid19Api.placement,
+        "WEATHER API": connectionsTooltipMessages.weatherApi.placement,
+        "WORLD BANK API": connectionsTooltipMessages.worldBankApi.placement,
     };
 
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
@@ -452,33 +523,39 @@ export function APIOptions(props: APIOptionsProps) {
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
+            // filter connectors due to maintenance
+            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "asb", "choreo.sendwhatsapp"];
+            if (filteredConnectors.includes(connector.module)) {
+                return;
+            }
+
             const placement = tooltipPlacement[connector.displayName.toUpperCase()]
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
+            const tooltipText = {
+                "heading" : connector.displayName,
+                "example" : tooltipExample,
+                "content" : tooltipTitle
+            }
             const component: ReactNode = (
-                <Tooltip title={tooltipTitle} placement={placement} arrow={true} example={true} interactive={true} codeSnippet={true} content={tooltipExample} key={connector.displayName.toLowerCase()}>
-                    <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
-                        <div className="connector-details product-tour-add-http">
-                            <div className="connector-icon">
-                                {getConnectorIconSVG(connector)}
-                            </div>
-                            <div className="connector-name">
-                                {connector.displayName}
+                    <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
+                        <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
+                            <div className="connector-details product-tour-add-http">
+                                <div className="connector-icon">
+                                    {getConnectorIconSVG(connector)}
+                                </div>
+                                <div className="connector-name">
+                                    {connector.displayName}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </Tooltip>
-            );
+                    </Tooltip>
+                );
             const connectorComponent: ConnctorComponent = {
-                connectorInfo: connector,
-                component
-            }
-
-            // filter connectors due to maintenance
-            const filletedConnectors = ['azure_cosmosdb', 'azure_storage_service.files', 'azure_storage_service.blobs', 'asb'];
-            if (!filletedConnectors.includes(connector.module)) {
-                connectorComponents.push(connectorComponent);
-            }
+                    connectorInfo: connector,
+                    component
+                }
+            connectorComponents.push(connectorComponent);
         });
 
         const getConnector = (moduleName: string, name: string): BallerinaConnectorsInfo => {
@@ -542,7 +619,7 @@ export function APIOptions(props: APIOptionsProps) {
         allCnts.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });
@@ -550,7 +627,7 @@ export function APIOptions(props: APIOptionsProps) {
         connectorComponents.forEach((allCnt) => {
             if (allCnt.connectorInfo.category === "generic-connectors") {
                 genericConnectors.push(allCnt.component);
-            } else if (allCnt.connectorInfo.category === "service-connectors") {
+            } else {
                 serviceConnectors.push(allCnt.component);
             }
         });

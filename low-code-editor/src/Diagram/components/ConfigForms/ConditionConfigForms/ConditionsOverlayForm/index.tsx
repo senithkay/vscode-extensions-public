@@ -10,8 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 
+import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
+
+import { Context } from "../../../../../../src/Contexts/Diagram";
+import { DefaultConfig } from "../../../../../../src/Diagram/visitors/default";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { ConditionConfig } from "../../../Portals/ConfigForm/types";
@@ -19,7 +24,7 @@ import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from 
 
 import { AddForeachForm } from "./AddForeachForm";
 import { AddIfForm } from "./AddIfForm/index";
-import {AddWhileForm} from "./AddWhileForm";
+import { AddWhileForm } from "./AddWhileForm";
 
 interface ConditionsWizardProps {
     condition: ConditionConfig;
@@ -30,9 +35,21 @@ interface ConditionsWizardProps {
     configOverlayFormStatus: ConfigOverlayFormStatus
 }
 
+
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
+    const { state } = useContext(Context);
+    const { onFitToScreen, appInfo } = state;
+
+    const dispatch = useDispatch();
+    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
+    const currentAppid = appInfo?.currentApp?.id;
+
+    React.useEffect(() => {
+        onFitToScreen(currentAppid);
+        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+    }, []);
 
     if (formType === "if" || formType === "While") {
         if (isNewConditionForm) {
