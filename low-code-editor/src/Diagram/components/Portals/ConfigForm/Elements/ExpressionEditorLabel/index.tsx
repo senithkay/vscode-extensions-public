@@ -23,6 +23,7 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorProps } from "../ExpressionEditor";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { useStyles as useTextInputStyles } from "../TextField/style";
+
 import { truncateText } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
