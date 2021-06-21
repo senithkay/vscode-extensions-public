@@ -141,6 +141,23 @@ export function updatePropertyStatement(property: string, targetPosition: DraftU
     return propertyStatement;
 }
 
+export function updateResourceSignature(method: string, path: string, queryParam: string, targetPosition: DraftUpdateStatement): STModification {
+    const resourceSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "RESOURCE_SIGNATURE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam
+        }
+    };
+
+    return resourceSignature;
+}
+
 export function createLogStatement(type: string, logExpr: string, targetPosition: DraftInsertPosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.line,
@@ -208,7 +225,7 @@ export function createImportStatement(org: string, module: string, targetPositio
     const formattedName = getFormattedModuleName(module);
     let moduleNameStr = org + "/" + module;
 
-    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName){
+    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
         // add alias if module name is different with formatted name
         moduleNameStr = org + "/" + module + " as " + formattedName
     }
@@ -491,7 +508,7 @@ export function removeStatement(targetPosition: DraftUpdateStatement): STModific
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
+    message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -532,7 +549,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdateStatement): STModification {
+    message: FormField, targetPosition: DraftUpdateStatement): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
