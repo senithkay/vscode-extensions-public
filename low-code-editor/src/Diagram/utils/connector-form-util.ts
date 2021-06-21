@@ -440,6 +440,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
+                    // hide optional fields from github forms
+                    // TODO: Remove when optional field BE support is given
+                    hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
+
                     value.parameters.find(fields => fields.name === "config").fields
                         .find(fields => fields.name === "clientConfig").optional = true;
                 } else if (key === "getOrganizationProjectList") {
