@@ -236,7 +236,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     onChange={onConnectionNameChange}
                     errorMessage={connectionNameError}
                     placeholder={createConnectionPlaceholder}
-                    disabled={connectorConfig.connectorInit.length > 0}
+                    disabled={!isNewConnectorInitWizard}
                 />
             </Section>
         </div>
