@@ -53,6 +53,10 @@
                     width: 1px !important;
                     height: 1px !important;
                 }
+
+                div.hover-row.status-bar {
+                    display: none !important;
+                }
             }
         }
     }

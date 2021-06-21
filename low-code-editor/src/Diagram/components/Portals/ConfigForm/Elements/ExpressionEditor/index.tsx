@@ -24,7 +24,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
@@ -132,6 +132,7 @@ export interface ExpressionEditorProps {
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
+    editPosition?: any;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -161,10 +162,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         defaultValue,
         model,
         onChange,
-        customProps
+        customProps,
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor } = customProps;
-    const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor, editPosition } = customProps;
+    const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
     const [addCheck, setAddCheck] = useState(false);
@@ -314,24 +315,30 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
                         return getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
                             return langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
-                                    completionResponse.label !== varName &&
-                                    completionResponse.label !== model.aiSuggestion &&
-                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
-                                ));
-                                const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
-                                    return {
+                                const completionItems: monaco.languages.CompletionItem[] = []
+                                if (model?.customAutoComplete) {
+                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string, order: number) => {
+                                        return {
+                                            range: null,
+                                            label: customCompletion,
+                                            kind: monaco.languages.CompletionItemKind.Enum,
+                                            insertText: customCompletion,
+                                            sortText: `0${createSortText(order)}`
+                                        }
+                                    })
+                                    completionItems.push(...completionItemCustom);
+                                }
+                                if (model.aiSuggestion) {
+                                    const completionItemAI: monaco.languages.CompletionItem = {
+                                        preselect: true,
                                         range: null,
-                                        label: completionResponse.label,
-                                        detail: completionResponse.detail,
-                                        kind: completionResponse.kind as CompletionItemKind,
-                                        insertText: completionResponse.insertText,
-                                        insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: createSortText(order)
+                                        label: model.aiSuggestion,
+                                        kind: 1 as CompletionItemKind,
+                                        insertText: model.aiSuggestion,
+                                        sortText: '1'
                                     }
-                                });
+                                    completionItems.push(completionItemAI);
+                                }
                                 if (varType === "string") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
@@ -344,8 +351,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                         sortText: '2'
                                     }
                                     completionItems.push(completionItemTemplate);
-                                }
-                                if (varType === "boolean") {
+                                } else if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
                                         range: null,
@@ -366,32 +372,59 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     completionItems.push(completionItemTemplate);
                                     completionItems.push(completionItemTemplate1);
                                 }
-                                if (model.aiSuggestion) {
-                                    const completionItemAI: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: model.aiSuggestion,
-                                        kind: 1 as CompletionItemKind,
-                                        insertText: model.aiSuggestion,
-                                        sortText: '1'
-                                    }
-                                    completionItems.push(completionItemAI);
-                                }
-                                if (model?.customAutoComplete) {
-                                    const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string) => {
+
+                                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+                                    (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
+                                    completionResponse.label !== varName &&
+                                    completionResponse.label !== model.aiSuggestion &&
+                                    !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
+                                ));
+                                const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+                                    if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
                                         return {
                                             range: null,
-                                            label: customCompletion,
-                                            kind: monaco.languages.CompletionItemKind.Enum,
-                                            insertText: customCompletion,
-                                            sortText: '0'
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order),
+                                            command: {
+                                                id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
+                                                    if (args.length > 0) {
+                                                        const startColumn =  args[0].range.start.character - snippetTargetPosition + 2
+                                                        const endColumn =  args[0].range.end.character - snippetTargetPosition + 2
+                                                        const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
+                                                            text: args[0].newText,
+                                                            range: new monaco.Range(1, startColumn, 1, endColumn)
+                                                        }];
+                                                        monacoRef.current.editor.executeEdits("completion-edit", edit)
+                                                    }
+                                                }, ''),
+                                                title: "completion-edit",
+                                                arguments: [completionResponse.additionalTextEdits]
+                                            }
                                         }
-                                    })
-                                    completionItems.push(...completionItemCustom);
-                                }
+                                    } else {
+                                        return {
+                                            range: null,
+                                            label: completionResponse.label,
+                                            detail: completionResponse.detail,
+                                            kind: completionResponse.kind as CompletionItemKind,
+                                            insertText: completionResponse.insertText,
+                                            insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            sortText: createSortText(order)
+                                        }
+                                    }
+                                });
+                                completionItems.push(...lsCompletionItems);
+
                                 if (completionItems.length > 0) {
                                     completionItems[0] = { ...completionItems[0], preselect: true }
                                 }
+
                                 const completionList: monaco.languages.CompletionList = {
                                     incomplete: false,
                                     suggestions: completionItems
@@ -726,6 +759,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 open: "'",
                 close: "'"
             }, {
+                open: '"',
+                close: '"'
+            }, {
                 open: "(",
                 close: ")"
             }, {
@@ -886,7 +922,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
                                             <FormHelperText className={formClasses.suggestionsText}>
                                                 {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to add double quotes to the empty expression" : " to convert the expression to a string"}
+                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to make an empty string" : " to convert the expression to a string"}
                                             </FormHelperText>
                                         </div>
                                     )}

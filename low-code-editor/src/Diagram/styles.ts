@@ -144,13 +144,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             lineHeight: '29px',
         },
         disableDiagramIcon: {
-            right: '1rem',
+            left: '1rem',
             position: "fixed",
             top: '1.1rem',
             zIndex: 3
         },
         disableAPIDiagramIcon: {
-            right: '1rem',
+            left: '1rem',
+            position: "fixed",
+            top: '4.1rem',
+            zIndex: 3
+        },
+        disableDiagramIconWithTextLoader: {
+            left: '10rem',
             position: "fixed",
             top: '4.1rem',
             zIndex: 3
