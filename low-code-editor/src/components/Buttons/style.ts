@@ -69,6 +69,41 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: theme.palette.common.white
             }
         },
+        squareSmall: {
+            height: theme.spacing(4)
+        },
+        squareSmallText: {
+            fontSize: 11
+        },
+        iconBtnText: {
+            marginLeft: -theme.spacing(0.5),
+            marginTop: -theme.spacing(0.25)
+        },
+        greyBtnDisabled: {
+            backgroundColor: `${theme.palette.secondary.light} !important`,
+            color: "#CBCEDB !important",
+            opacity: 0.75,
+            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.3), 0 0 0 0 rgba(0,0,0,0.07)",
+            '&:hover, &:active, &:focus': {
+                boxShadow: "none"
+            }
+        },
+        greyBtn: {
+            textTransform: "capitalize",
+            color: "#40404B",
+            fontSize: 13,
+            backgroundColor: theme.palette.secondary.light,
+            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.05)",
+            "&:hover": {
+                backgroundColor: theme.palette.secondary.light,
+                boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06), 0 2px 4px 0 rgba(0,0,0,0.12)",
+            },
+            "&:focus, &:active": {
+                backgroundColor: theme.palette.secondary.light,
+                background: "linear-gradient(180deg, rgba(0,0,0,0.07) 0%, rgba(0,0,0,0) 100%)",
+                boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.08), 0 0 0 0 rgba(0,0,0,0.07)",
+            }
+        },
         linePrimaryBtn: {
             textTransform: "capitalize",
             backgroundColor: "#fff",

@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: no-empty-interface
 export const APP_TYPE_JOB = "Schedule";
 export const APP_TYPE_API = "API";
 export const APP_TYPE_CUSTOM = "Custom";
@@ -7,12 +20,17 @@ export const APP_TYPE_MANUAL = "Manual";
 export const APP_TYPE_EMAIL = "Email";
 export const APP_TYPE_SERVICE_DRAFT = "Service Draft";
 export const APP_TYPE_INTEGRATION_DRAFT = "Integration Draft";
+export const TYPE_INTEGRATION = "Integration";
+export const TYPE_SERVICE = "Service";
+export const TYPE_API = "API";
 export const APP_CODE = "Code";
 export const APP_ANALYZE = "Analyze";
 export const APP_SETTINGS = "Settings";
+export const TYPE_REMOTE = 'Remote App';
 
 export type AppType = typeof APP_TYPE_JOB | typeof APP_TYPE_API | typeof APP_TYPE_CUSTOM | typeof APP_TYPE_WEBHOOK
     | typeof APP_TYPE_MANUAL | typeof APP_TYPE_EMAIL | typeof APP_TYPE_SERVICE_DRAFT | typeof APP_TYPE_INTEGRATION_DRAFT | typeof APP_TYPE_EXTERNAL;
+export type ArtifactType = typeof TYPE_INTEGRATION | typeof TYPE_SERVICE | typeof TYPE_API | typeof APP_TYPE_SERVICE_DRAFT | typeof APP_TYPE_INTEGRATION_DRAFT | typeof TYPE_REMOTE;
 
 export const LOG_LEVEL_TRACE = "TRACE";
 export const LOG_LEVEL_DEBUG = "DEBUG";
@@ -30,6 +48,8 @@ export const STAGE_FAILURE = "failure"
 export const STAGE_SKIPPED = "skipped"
 export const STAGE_UNDEFINED = "undefined"
 
+export const CONNECTION_TYPE_CONNECTED = "Connected";
+
 export type DEPLOY_STATE = typeof STAGE_QUEUED | typeof STAGE_IN_PROGRESS |
     typeof STAGE_SUCCESS | typeof STAGE_FAILURE | typeof STAGE_SKIPPED | typeof STAGE_UNDEFINED;
 
@@ -37,7 +57,7 @@ export interface LogMessage {
     type: "control" | "data" | "error",
     message: {
         type: "STDOUT" | "STDERR",
-        data: string
+        data?: string
     }
 }
 
@@ -78,6 +98,65 @@ export interface AppRuntimeInfo {
     prod: EnvInfo;
 }
 
+export interface OnPremKeyModel {
+    displayName: string,
+    key?: string,
+    handle?: string
+    status?: string
+}
+
+export interface GroupTags {
+    handle: string
+}
+
+export interface GroupModel {
+    displayName: string;
+    description: string;
+    tags: GroupTags[];
+    createdAt?: string;
+    handle?: string;
+    users: any;
+    defaultGroup?: boolean;
+}
+
+export interface InvitationMemberModel {
+    email: string,
+    handle: string,
+    groups: string[]
+}
+
+export interface MemberForGroupModel {
+    id: number,
+    description: string,
+    defaultGroup: string,
+    displayName: string,
+    handle: string
+}
+
+export interface MemberModel {
+    id: number,
+    idpId: string,
+    pictureUrl: string,
+    email: string,
+    displayName: string,
+    groups: MemberForGroupModel[]
+}
+
+export interface SubscriptionModel {
+    id: number,
+    orgName: string,
+    plan: string,
+    isExpired: boolean,
+    startDate: string,
+    endDate: string,
+}
+
+export interface InviteMembers {
+    application: string;
+    emails: string[];
+    groups: string[]
+}
+
 export interface WorkspaceInfo {
     langServerUrl?: string;
 }
@@ -106,13 +185,21 @@ export interface AppInfo {
     template: AppType;
     displayType?: AppType;
     deployType?: DeploymentType;
+    preBuilt?: boolean;
+    sampleReference?: string;
+    dockerImage?: string;
     observability?: ObservabilityDetails;
     gitRemote?: string;
     status?: string;
     workspace?: WorkspaceInfo;
     createdAt: string;
     cronSchedule?: string;
-    preBuilt?: boolean;
+    type?: string;
+}
+
+export interface AppQuotaResponse {
+    isIntegrationThrottled: boolean;
+    isServiceThrottled: boolean;
 }
 
 export interface PerformanceAnalysis {
@@ -142,6 +229,11 @@ export interface GraphAnalysisData {
 export interface ServiceAnalysis {
     sequenceDiagramData: SequenceDiagramAnalysisData[],
     graphData: GraphAnalysisData[]
+}
+
+export interface AnalyzerErrorMessage {
+    type: "error" | "info",
+    message: "NO_DATA" | "ESTIMATOR_ERROR" | "COMMUNICATION_ISSUE" | "MODEL_NOT_FOUND" | "SOURCE_NOT_FOUND",
 }
 
 export interface JobAnalysis {
@@ -241,7 +333,7 @@ export interface TestCaseInfo {
     id?: string;
     name?: string;
     orgSlug?: string;
-    appSlug?: string;
+    appId?: string;
     displayName?: string;
     workingFile?: string;
     createdAt?: string;
@@ -270,8 +362,8 @@ export interface AiSuggestionsRes {
 
 export interface AiSuggestionsReq {
     userID: string,
-    mapTo: [{[key: string]: any}],
-    mapFrom: [{[key: string]: any}]
+    mapTo: [{ [key: string]: any }],
+    mapFrom: [{ [key: string]: any }]
 }
 
 // data object that used to create org connection
@@ -291,12 +383,18 @@ export type CONNECTION_TYPE = typeof CONNECTION_TYPE_MANUAL | typeof CONNECTION_
 
 // connection api response
 export interface ConnectionDetails {
+    id?: string;
     handle: string;
     displayName: string;
     connectorName: string;
     userAccountIdentifier: string;
     codeVariableKeys: ConnectionMetadata[];
+    isUsed?: boolean;
     type?: string;
+}
+export interface ConnectorApiResponse {
+    data?: ConnectionDetails;
+    status: number;
 }
 export interface ConnectionMetadata {
     name: string;
@@ -321,64 +419,141 @@ export interface OauthInfoParam {
     value: string;
 }
 
-export interface APIInfo {
+export interface ApiInfo {
     id: string,
     name: string,
     apiVersion: string,
     status: string,
 }
 
+export interface ApiRevisionInfo {
+    displayName: string,
+    id: string,
+    description: string,
+    createdTime: string,
+    apiInfo: {
+        id: string
+    },
+    deploymentInfo: ApiDeploymentInfo[]
+}
+
+export interface ApiDeploymentInfo {
+    revisionUuid: string,
+    name: string,
+    displayOnDevportal: boolean,
+    deployedTime: string
+}
+
 export interface BusinessPlan {
     name: string,
     displayName: string,
     description: string,
+    requestCount: number,
+    timeUnit: string,
+    unitTime: number,
     checked?: boolean
 }
 
-export interface APIManagerAPIObj {
+export interface ApiSubscriptions {
+    count: number,
+}
+
+export interface ApiThrottlingPolicy {
+    name: string,
+    description: string,
+    policylevel: string,
+    displayName: string
+}
+
+export interface ApiManagerApiObj {
     id: string,
     name: string,
     description?: string,
+    context?: string,
     policies: string[],
     provider: string,
-    businessInformation?: APIBusinessInfo,
+    businessInformation?: ApiBusinessInfo,
     createdTime: string,
     tags?: string[],
-    operations: APIOperation[],
+    operations: ApiOperation[],
     transport?: string[],
     securityScheme?: string[],
     corsConfiguration?: CorsConfiguration,
     additionalProperties?: AdditionalProperties,
+    endpointConfig?: EndpointConfiguration,
     version?: string,
     lifeCycleStatus?: ApiState,
-    status?: ApiState,
-    thumbnail?: APIThumbnail,
+    thumbnail?: ApiThumbnail,
+    isRevision: boolean,
+    revisionedApiId: string,
+    revisionId: number
 }
 
-export interface AdditionalProperties{
-    application: string,
-    applicationId: string,
-    organization: string,
-    appIngressEnabled: string,
+export interface EndpointConfiguration {
+    endpoint_type: string,
+    production_endpoints: {
+        url: string,
+    },
+    sandbox_endpoints: {
+        url: string
+    }
 }
 
-export interface APIBusinessInfo {
+export interface ApiTestJwt {
+    apikey: string,
+    validityTime: number
+}
+
+export interface AdditionalProperties {
+    application?: AdditionalProperty,
+    applicationId?: AdditionalProperty,
+    organization?: AdditionalProperty,
+    apiEndpoint?: AdditionalProperty
+}
+
+export interface AdditionalProperty {
+    value?: string,
+    display?: boolean
+}
+
+export interface ApiBusinessInfo {
     businessOwner?: string,
     businessOwnerEmail?: string,
     technicalOwner?: string,
     technicalOwnerEmail?: string
 }
 
-export interface APIOperation {
+export interface ApiOperation {
     target: string,
     verb: string
+}
+
+export interface ApiSubscribedAppInfo {
+    applicationId: string,
+    name: string,
+    subscriber: string,
+    description: string,
+    subscriptionCount: number
+}
+
+export interface ApiSubscriptionList {
+    count: number,
+    list?: ApiSubscriptionObj[]
+}
+
+export interface ApiSubscriptionObj {
+    subscriptionId: string,
+    applicationInfo?: ApiSubscribedAppInfo,
+    throttlingPolicy: string,
+    subscriptionStatus: string
 }
 
 export interface CorsConfiguration {
     corsConfigurationEnabled: boolean,
     accessControlAllowOrigins: string[],
     accessControlAllowHeaders: string[],
-    accessControlAllowMethods: string[]
+    accessControlAllowMethods: string[],
+    accessControlAllowCredentials: boolean
 }
 
 export interface Document {
@@ -392,14 +567,39 @@ export interface Document {
     sourceUrl?: string,
 }
 
-export interface ConfigView {
+export interface ApiDevelopView {
     designConfigView: DesignConfigView,
-    runtimeConfigView: RuntimeConfigView;
-    subscriptionView: SubscriptionView;
-    businessInfoView: BusinessInfoView;
-    documentsView: DocumentsView;
-    apiLifecycleView: APILifecycleView;
-    isUnsavedChangesAvailable: boolean;
+    runtimeConfigView: RuntimeConfigView,
+    subscriptionView: SubscriptionView,
+    businessInfoView: BusinessInfoView,
+    documentsView: DocumentsView,
+    definitionView: DefinitionView,
+    resourcesView: ResourcesView,
+    endpointConfigView: EndpointConfigView,
+    isUnsavedChangesAvailable: boolean
+}
+
+export interface ApiRevisions {
+    count: number,
+    list: ApiRevisionInfo[]
+}
+
+export interface ApiDeployView {
+    isRevisionCreating: boolean,
+    isRevisionDeploying: boolean,
+    isRevisionsFetching: boolean,
+    isRevisionDeleting: boolean,
+    isRevisionUndeploying: boolean,
+    isRevisionRestoring: boolean,
+    isRevisionCreatingAndDeploying: boolean,
+    isDeploymentsFetching: boolean,
+    revisions?: ApiRevisions,
+    deploymentInfo?: ApiDeploymentInfo[]
+}
+
+export interface SwitchableRevisionObject {
+    uuid: string,
+    displayName: string
 }
 
 export const API_STATE_PUBLISHED = "Published"
@@ -433,35 +633,35 @@ export type ApiStateAction = typeof API_STATE_ACTION_PUBLISH | typeof API_STATE_
     | typeof API_STATE_ACTION_DEMOTE_TO_CREATED | typeof API_STATE_ACTION_RETIRE
     | typeof API_STATE_ACTION_BLOCK | typeof API_STATE_ACTION_DEPRECATE | typeof API_STATE_ACTION_RE_PUBLISH;
 
-export interface APILifecycleView {
+export interface ApiLifecycleView {
     isApiLifecycleFetching: boolean;
     isApiLifecycleHistoryFetching: boolean;
     isApiLifecycleUpdating: boolean;
-    apiLifecycleState: APILifecycleState;
-    apiLifecycleStateChangeHistory?: APILifecycleChangeHistory;
+    apiLifecycleState: ApiLifecycleState;
+    apiLifecycleStateChangeHistory?: ApiLifecycleChangeHistory;
 }
 
 // The lifecycle state objects are partially defined here considering usage
-export interface APILifecycleUpdateResponse {
-    lifecycleState: APILifecycleState
+export interface ApiLifecycleUpdateResponse {
+    lifecycleState: ApiLifecycleState
 }
 
-export interface APILifecycleState {
+export interface ApiLifecycleState {
     state: ApiState;
-    availableTransitions: APILifecycleAvailableTransition[]
+    availableTransitions: ApiLifecycleAvailableTransition[]
 }
 
-export interface APILifecycleAvailableTransition {
+export interface ApiLifecycleAvailableTransition {
     event: ApiStateAction,
     targetState: ApiState
 }
 
-export interface APILifecycleChangeHistory {
+export interface ApiLifecycleChangeHistory {
     count: number,
-    list: APILifecycleChangeRecord[]
+    list: ApiLifecycleChangeRecord[]
 }
 
-export interface APILifecycleChangeRecord {
+export interface ApiLifecycleChangeRecord {
     previousState: ApiState,
     postState: ApiState,
     user: string,
@@ -476,6 +676,11 @@ export interface RuntimeConfigView {
 export interface SubscriptionView {
     isSubscriptionPlanUpdating: boolean;
     isBusinessPlansFetching: boolean;
+    isApiSubscriptionListUpdating: boolean;
+    isApiSubscriptionBlocking: boolean;
+    isApiSubscriptionUnblocking: boolean;
+    apiSubscriptionList: ApiSubscriptionList;
+    updatedSubscription: ApiSubscriptionObj;
 }
 
 export interface BusinessInfoView {
@@ -483,16 +688,16 @@ export interface BusinessInfoView {
 }
 
 export interface DocumentsView {
-    isAPIDocumentsFetching: boolean;
-    isAddingAPIDocument: boolean;
-    isAPIDocumentFetching: boolean;
-    isAPIDocumentUpdating: boolean;
-    isAPIDocumentDeleting: boolean;
+    isApiDocumentsFetching: boolean;
+    isAddingApiDocument: boolean;
+    isApiDocumentFetching: boolean;
+    isApiDocumentUpdating: boolean;
+    isApiDocumentDeleting: boolean;
     documents?: Document[];
     currentDocument?: Document;
 }
 
-export interface APIThumbnail {
+export interface ApiThumbnail {
     isApiThumbnailFetching?: boolean,
     isApiThumbnailUpdating?: boolean,
     thumbnailApiId?: string,
@@ -500,7 +705,7 @@ export interface APIThumbnail {
     isThumbnailAvailable?: boolean
 }
 
-export interface APICreateView {
+export interface ApiCreateView {
     isApiCreating: boolean,
     isBusinessPlansFetching: boolean,
 }
@@ -509,15 +714,40 @@ export interface DesignConfigView {
     isDesignConfigsUpdating: boolean,
 }
 
+export interface EndpointConfigView {
+    isEndpointConfigsUpdating: boolean,
+}
+
+export interface ValidationInfo {
+    isValid: boolean,
+    content: {},
+    info: any,
+    errors: any[]
+}
+
+export interface DefinitionView {
+    isSwaggerFetching: boolean;
+    isSwaggerUpdating: boolean;
+    isSwaggerValidating: boolean
+    swagger?: string;
+    validationInfo?: ValidationInfo
+}
+
+export interface ResourcesView {
+    isApiThrottlingPoliciesFetching: boolean;
+    isApiThrottlingPolicyUpdating: boolean;
+    apiThrottlingPolicies?: ApiThrottlingPolicy[]
+}
+
 export interface ConnectorRequest {
     organization: string,
-	   connectionHandle: string,
-	   connectorName: string,
+    connectionHandle: string,
+    connectorName: string,
     operationName: string,
     arguments: {}
 }
-export interface GithubRepoRequest extends ConnectorRequest{
-	arguments: {
+export interface GithubRepoRequest extends ConnectorRequest {
+    arguments: {
         user: string;
         recordCount: number;
     }
@@ -537,3 +767,46 @@ export interface ModelCodePosition {
     startColumn: number;
     startLine: number;
 }
+
+export interface EndpointValidationStatus {
+    error: string;
+    statusCode: number;
+    statusMessage: string;
+}
+
+export enum ApiCreationMethod  {
+    NONE,
+    API_FROM_REST,
+    API_FROM_CHOREO_APP,
+    API_FROM_SWAGGER_DEFINITION
+}
+
+export interface MetricDensityType {
+    count: number;
+    range: string;
+}
+
+export interface MetricDensityHistogramType {
+    time: string;
+    value: number;
+}
+
+export interface ConfigObject {
+    id?: string;
+    displayName: string;
+    environment?: 'choreo-prod' | 'choreo-dev';
+    configMapping: ConfigMap[];
+}
+
+export interface ConfigMap {
+    id?: string;
+    connectionId?: string;
+    keyType: 'refreshTokenEndpointKey' | 'accessTokenKey' | 'invocationUrlKey' | 'customKey' | 'clientIdKey' | 'clientSecretKey' | 'tokenEpKey' | 'refreshTokenKey' | string;
+    keyName?: string;
+    value?: string;
+    configKeyName: string;
+}
+export const INTEGRATION_DISPLAY_TYPES = [APP_TYPE_WEBHOOK, APP_TYPE_MANUAL, APP_TYPE_INTEGRATION_DRAFT, APP_TYPE_JOB];
+export const SERVICE_APP_DISPLAY_TYPES = [APP_TYPE_API, APP_TYPE_SERVICE_DRAFT];
+
+export interface Resource { }
