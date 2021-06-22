@@ -40,6 +40,7 @@ export function ReturnTypeItem(props: ReturnTypeItemProps) {
                 <ButtonWithIcon
                     onClick={handleDelete}
                     icon={<CloseRounded fontSize="small" />}
+                    className={classes.iconBtn}
                 />
             </div>
         </div>

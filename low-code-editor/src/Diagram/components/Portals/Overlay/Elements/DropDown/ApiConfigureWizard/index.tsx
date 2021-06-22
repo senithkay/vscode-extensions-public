@@ -314,8 +314,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       }
 
       mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path,
-          selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
-          selectedResource.isRequest, selectedResource.returnType, updatePosition));
+        selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
+        selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
       setTriggerChanged(true);
       modifyDiagram(mutations);
@@ -478,17 +478,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={advancedTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                   >
-                  <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)}/>
+                    <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
                 </div>
-                <div className={classes.sectionSeparator}>
-                  <Section
-                      title={returnTypeTitle}
-                      tooltipWithExample={{ title, content: pathExample }}
-                  >
-                    <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
-                  </Section>
-                </div>
+                <Section
+                  title={returnTypeTitle}
+                  tooltipWithExample={{ title, content: pathExample }}
+                >
+                  <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+                </Section>
               </div>
             }
             {/*

@@ -72,5 +72,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end",
             marginTop: theme.spacing(1)
         },
+        iconBtn: {
+            padding: 0
+        }
     })
 );

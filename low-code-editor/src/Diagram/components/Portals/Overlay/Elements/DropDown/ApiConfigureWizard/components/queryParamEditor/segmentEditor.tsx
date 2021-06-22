@@ -99,7 +99,7 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
                                 text={"Add"}
-                                disabled={!segmentState.name || !segmentState.type || segment.name === "" || segment.type === ""}
+                                disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === ""}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />
