@@ -368,14 +368,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             setOnOperationChange(false);
         }
         setPayloadState({
-            isPayloadSelected: false,
+            isPayloadSelected: true,
             selectedPayload: "",
             isNameProvided: false,
             validPayloadName: true,
             variableName: undefined
         });
         connectorConfig.responsePayloadMap.selectedPayloadType = "";
-        connectorConfig.responsePayloadMap.isPayloadSelected = false;
+        connectorConfig.responsePayloadMap.isPayloadSelected = true;
     };
 
     const handleOperationChange = () => {
@@ -434,7 +434,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 </div>
 
                                 <SwitchToggle
-                                    text="Do you want to extract a payload?"
+                                    text="Extract payload from response"
                                     onChange={handleSwitchToggleChange}
                                     initSwitch={connectorConfig.responsePayloadMap.isPayloadSelected}
                                 />
