@@ -38,13 +38,6 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
     const formClasses = useFormStyles();
     const intl = useIntl();
 
-    // Ref: <code>
-    const codeRef = (ref: HTMLPreElement) => {
-        if (ref) {
-            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
-        }
-    };
-
     const clickHereText = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
         defaultMessage: "Click here"
@@ -102,9 +95,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotes}
-                        <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
-                            {`"${editorContent}"`}
-                        </code>
+                        <CodeSnippet content={`"${editorContent}"`} />
                     </FormHelperText>
                 </div>
             )
@@ -129,9 +120,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addToString}
-                        <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
-                            {codeSnippetToString}
-                        </code>
+                        <CodeSnippet content={codeSnippetToString} />
                     </FormHelperText>
                 </div>
             )
@@ -147,5 +136,22 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         <>
             {component}
         </>
+    )
+}
+
+function CodeSnippet(props: { content: string }) {
+    const { content } = props;
+    const formClasses = useFormStyles();
+
+    const codeRef = (ref: HTMLPreElement) => {
+        if (ref) {
+            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
+        }
+    };
+
+    return (
+        <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
+            {content}
+        </code>
     )
 }
