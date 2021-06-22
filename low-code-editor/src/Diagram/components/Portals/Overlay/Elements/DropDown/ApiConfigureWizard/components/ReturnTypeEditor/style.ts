@@ -68,16 +68,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: "0",
             lineHeight: "24px"
         },
-        actionBtn: {
-            fontSize: 13,
-        },
         btnContainer: {
             display: "flex",
-            justifyContent: "flex-end"
+            justifyContent: "flex-end",
+            marginTop: theme.spacing(1)
         },
         iconBtn: {
             padding: 0
         }
-
     })
 );

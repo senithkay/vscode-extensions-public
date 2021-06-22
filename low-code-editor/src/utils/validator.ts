@@ -130,3 +130,20 @@ export function validateFormFields(field: FormField, emptyFieldChecker: Map<stri
     }
     return allFieldsValid;
 }
+
+export function isKeywords(word: string): boolean {
+    return keywords.includes(word);
+}
+
+export function isValidBallerinaIdentifier(word: string): boolean {
+    if (word.startsWith("'")) {
+        const splitedWord = word.split("'");
+        if (splitedWord && splitedWord[splitedWord.length - 1]) {
+            return (/^[a-zA-Z0-9]+$/g.test(word)) && !isKeywords(word);
+        } else {
+            return false;
+        }
+    } else {
+        return (/^[a-zA-Z0-9]+$/g.test(word)) && !isKeywords(word);
+    }
+}
