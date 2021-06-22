@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { FormHelperText } from "@material-ui/core";
@@ -24,7 +24,7 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
@@ -179,7 +179,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const formClasses = useFormStyles();
-    const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
     const [needQuotes, setNeedQuotes] = useState(false);
@@ -217,14 +216,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const handleTypeInfo = (typeInfo: string[]) => {
-        if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
-            // expression can resolve to an error
-            setAddCheck(true)
-        } else {
-            setAddCheck(false)
-        }
-    }
+    // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+    // const handleTypeInfo = (typeInfo: string[]) => {
+    //     if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
+    //         // expression can resolve to an error
+    //         setAddCheck(true)
+    //     } else {
+    //         setAddCheck(false)
+    //     }
+    // }
 
     const handleDiagnostic = () => {
         if (invalidSourceCode) {
