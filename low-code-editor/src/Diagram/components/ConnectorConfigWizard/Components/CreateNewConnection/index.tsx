@@ -52,7 +52,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -144,6 +144,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
+        state.onAPIClient(connector);
         onSave();
     };
 
@@ -208,17 +209,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         </div>
     );
 
-    const connectionNametitle = (
-        <div>
-            <p>{connectionNameHelpText}</p>
-        </div>
-    );
 
     const handleOnSaveNext = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
+        state.onAPIClient(connector);
         onSaveNext();
     };
 
@@ -226,7 +223,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         <div className={wizardClasses.section}>
             <Section
                 title={createConnectionNameLabel}
-                tooltip={{connectionNametitle}}
+                tooltip={connectionNameHelpText}
             >
                 <FormTextInput
                     customProps={{
@@ -244,10 +241,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const connectorModuleName = initFields[0]?.typeInfo?.modName;
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
-        connectorModuleName === "googleapis.calendar" || connectorModuleName === "googleapis.drive";
-    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName
-        && connectionNameState.isNameProvided && connectionNameState.isValidName;
-    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName
+        connectorModuleName === "googleapis.calendar";
+    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
+    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
+    const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
 
     return (
         <div>
@@ -258,7 +255,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={wizardClasses.section}>
                             <Section
                                 title={createEndpointNameLabel}
-                                tooltip={{title}}
+                                tooltipWithListView={{title}}
                             >
                                 <FormTextInput
                                     customProps={{
@@ -290,7 +287,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isFieldsWithConnectionNameValid)}
+                                disabled={!(isEnabled)}
                                 onClick={handleOnSave}
                             />
                         )}
@@ -302,7 +299,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Save Connection"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isFieldsWithConnectionNameValid)}
+                                    disabled={!(isEnabled)}
                                     onClick={handleOnSave}
                                 />
                                 <PrimaryButton
@@ -311,7 +308,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Continue to Invoke API"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isFieldsWithConnectionNameValid)}
+                                    disabled={!(isEnabled)}
                                     onClick={handleOnSaveNext}
                                 />
                             </>

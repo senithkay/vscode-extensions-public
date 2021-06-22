@@ -27,7 +27,7 @@ import ExpressionEditor from '../../../Portals/ConfigForm/Elements/ExpressionEdi
 import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../Portals/Overlay';
 import { Context as DataMapperViewContext } from '../../context/DataMapperViewContext';
-import { getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
+import { convertMemberViewStateToString, getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { MouseEventHub } from '../../util/mouse-event-hub';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
@@ -263,7 +263,7 @@ export function MapperView() {
                     }
                     break;
                 case PrimitiveBalType.Boolean:
-                    switch (selectedSourceDataPoint) {
+                    switch (selectedSourceDataPoint.type) {
                         case PrimitiveBalType.String:
                             statement = `check ${selectedTargetDataPoint.type}:fromString(${selectedSourceDataPoint.text})`;
                             break;
@@ -354,7 +354,7 @@ export function MapperView() {
             if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
                 || selectedTargetDataPoint.type === PrimitiveBalType.Float
                 || selectedTargetDataPoint.type === PrimitiveBalType.Decimal
-                || selectedSourceDataPoint.type === PrimitiveBalType.Boolean)
+                || selectedTargetDataPoint.type === PrimitiveBalType.Boolean)
                 && selectedSourceDataPoint.type === PrimitiveBalType.String) {
                 statement += `check ${selectedTargetDataPoint.type}:fromString((${selectedSourceDataPoint.text} ?: ${expressionEditorText}))`;
             } else if ((selectedSourceDataPoint.type === PrimitiveBalType.Int
@@ -364,8 +364,8 @@ export function MapperView() {
                 statement += `(${selectedSourceDataPoint.text} ?: ${expressionEditorText}).toString()`;
             }
 
-            setHasTypeMismatch(false);
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+            setHasTypeMismatch(false);
         } else {
             const statement = `${selectedSourceDataPoint.text} ?: ${expressionEditorText}`;
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
@@ -462,7 +462,18 @@ export function MapperView() {
                     setExpressionEditorText(value);
                 }
 
-                // todo: handle logic to show expression editor
+                let type = '';
+                switch (dataPointVS.type) {
+                    case PrimitiveBalType.Union:
+                        type = dataPointVS.unionType;
+                        break;
+                    case PrimitiveBalType.Collection:
+                        // type = convertMemberViewStateToString(dataPointVS);
+                        break;
+                    default:
+                        type = dataPointVS.type;
+                }
+
                 setExpressionConfig({
                     positionX: dataPointVS.bBox.x,
                     positionY: dataPointVS.bBox.y,
@@ -588,12 +599,13 @@ export function MapperView() {
                     break;
                 case PrimitiveBalType.Json:
                     showDefaultConfirmation = true;
+                    break;
                 case PrimitiveBalType.Boolean:
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             showDefaultConfirmation = true;
                             break;
-                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
@@ -614,6 +626,7 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.String:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Float:
                         case PrimitiveBalType.Decimal:
@@ -621,8 +634,10 @@ export function MapperView() {
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -631,14 +646,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Int:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Float:
                         case PrimitiveBalType.Decimal:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -647,14 +665,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Float:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Decimal:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -663,14 +684,17 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Decimal:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                         case PrimitiveBalType.Int:
                         case PrimitiveBalType.Float:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -682,12 +706,15 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             showDefaultConfirmation = true;
+                            break;
                         case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
+                            break;
                         default:
                         // unmappable
                     }
@@ -786,6 +813,8 @@ export function MapperView() {
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
                             break;
+                        case PrimitiveBalType.Collection:
+                            statement = `check ${sourcePointViewState.text}`;
                         default:
                         // unmappableÎ
                     }
@@ -794,13 +823,16 @@ export function MapperView() {
                     switch (sourcePointViewState.type) {
                         case PrimitiveBalType.Boolean:
                             statement = sourcePointViewState.text;
+                            break;
                         case PrimitiveBalType.String:
                             setSelectedTargetDataPoint(targetPointViewState);
                             setHasTypeMismatch(true);
                             setShowTypeConfirmationDialog(true);
+                            break;
                         default:
                         // unmappable
                     }
+                    break;
                 default:
                     statement = sourcePointViewState.text;
             }
@@ -922,7 +954,7 @@ export function MapperView() {
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
         if (isJsonRecordTypeSelected) {
-            outputHeight += 332 + 64;
+            outputHeight += 332 + 64 + 80;
         } else {
             outputHeight += 265 + 64;
         }

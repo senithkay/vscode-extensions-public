@@ -421,6 +421,19 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         const realTypeDescNode = typeDescriptor.typeDescriptor;
         viewState.isOptionalType = true;
         setViewStateTypeInformation(viewState, realTypeDescNode, parentNode);
+    } else if (STKindChecker.isArrayTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Collection;
+        viewState.isArray = true;
+        const memberTypeViewstate = new FieldViewState();
+        setViewStateTypeInformation(memberTypeViewstate, typeDescriptor.memberTypeDesc, typeDescriptor);
+        viewState.memberType = memberTypeViewstate;
+        viewState.isUnsupported = true;
+        viewState.warningTooltip = 'Unsupported variable type of array, please use variables of types string, int, float, decimal, boolean, record and json.'
+    } else if (STKindChecker.isStreamTypeDesc(typeDescriptor)) {
+        viewState.type = 'stream';
+        viewState.isUnsupported = true;
+        viewState.warningTooltip = 'Unsupported variable type of stream, please use variables of types string, int, float, decimal, boolean, record and json.'
     }
-
 }
+
+

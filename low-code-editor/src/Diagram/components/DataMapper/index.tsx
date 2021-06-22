@@ -117,7 +117,14 @@ export function DataMapper(props: DataMapperProps) {
                 const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
                 outputSTNode = outputTypeVariables ?
                     outputTypeVariables
-                        .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+                        .find((node: STNode) => {
+                            if (STKindChecker.isLocalVarDecl(node)) {
+                                const varName =
+                                    (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                                        .variableName.value;
+                                return varName === outputTypeConfig.variableName;
+                            }
+                        })
                     : undefined;
             } else {
                 const outputTypeVariables = stSymbolInfo.assignmentStatement.size > 0 ?

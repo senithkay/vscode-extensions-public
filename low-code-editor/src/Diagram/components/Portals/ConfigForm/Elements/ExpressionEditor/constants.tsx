@@ -17,12 +17,14 @@ export const acceptedKind: CompletionItemKind[] = [
     3 as CompletionItemKind,
 ];
 
+export const TRIGGER_CHARACTERS: number[] = [monaco.KeyCode.US_DOT, monaco.KeyCode.Space];
+
 export const EXPAND_WIDGET_ID = "expand-widget";
 export const COLLAPSE_WIDGET_ID = "collapse-widget";
 export const DOUBLE_QUOTE_ERR_CODE = "BCE0411";
 export const UNDEFINED_SYMBOL_ERR_CODE = "BCE2010";
 
 // BCE0411 = Missing quotes, BCE2010 = Undefined symbol, BCE0012 = Missing plus token, BCE0400 = missing identifier
-export const INCORRECT_STR_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012", "BCE0400"];
+export const SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012", "BCE0400"];
 
 export const EDITOR_MAXIMUM_CHARACTERS = 25;
