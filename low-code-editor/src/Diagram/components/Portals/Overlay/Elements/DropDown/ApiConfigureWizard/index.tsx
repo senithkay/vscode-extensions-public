@@ -382,6 +382,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
   });
 
+  const returnTypeExample = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
+    defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
+  });
+
   const title = (
     <div>
       <p>
@@ -483,7 +488,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </div>
                 <Section
                   title={returnTypeTitle}
-                  tooltipWithExample={{ title, content: pathExample }}
                 >
                   <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
                 </Section>

@@ -261,6 +261,12 @@ export function convertReturnTypeStringToSegments(returnTypeString: string): Ret
     return returnTypes;
 }
 
+export function recalculateItemIds(items: any[]) {
+    items.forEach((item, index) => {
+        item.id = index;
+    });
+}
+
 export function isCallerParamAvailable(params: STNode[]): boolean {
     let isCallerParam: boolean = false;
     if (params && params.length > 0) {

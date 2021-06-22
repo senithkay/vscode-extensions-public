@@ -75,6 +75,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         iconBtn: {
             padding: 0
+        },
+        actionBtn: {
+            fontSize: 13,
         }
     })
 );

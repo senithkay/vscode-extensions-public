@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
-
-import { CloseRounded } from "@material-ui/icons";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
 import { Path, PathSegment } from "../../types";
-import { convertPathStringToSegments, genrateBallerinaResourcePath } from "../../util";
+import { convertPathStringToSegments, genrateBallerinaResourcePath, recalculateItemIds } from "../../util";
 
 import { PathSegmentItem } from "./pathSegement";
 import { PathSegmentEditor } from "./segmentEditor";
@@ -33,6 +31,7 @@ export function PathEditor(props: PathEditorProps) {
                 segments: pathState.segments
             };
             pathClone.segments.splice(id, 1);
+            recalculateItemIds(pathClone.segments);
             setPathState(pathClone);
             if (onChange) {
                 onChange(genrateBallerinaResourcePath(pathClone));

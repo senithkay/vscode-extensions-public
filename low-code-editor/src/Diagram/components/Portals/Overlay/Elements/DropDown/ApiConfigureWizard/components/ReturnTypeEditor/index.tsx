@@ -18,7 +18,8 @@ import { FormattedMessage } from "react-intl";
 import { AddIcon } from "../../../../../../../../../assets/icons";
 import {
     convertReturnTypeStringToSegments,
-    generateReturnTypeFromReturnCollection
+    generateReturnTypeFromReturnCollection,
+    recalculateItemIds
 } from "../../util";
 import { ReturnTypeItem } from "./ReturnTypeItem";
 import { ReturnTypeSegmentEditor } from "./SegmentEditor";
@@ -43,7 +44,7 @@ export function ReturnTypeEditor(props: PathEditorProps) {
     const classes = useStyles();
 
     const [returnTypeCollection, setReturnTypeCollection] = useState<ReturnTypeCollection>(initReturnType);
-    const [addingRetunType, setAddingReturnType] = useState<boolean>(false);
+    const [addingReturnType, setAddingReturnType] = useState<boolean>(false);
 
 
     const onDelete = (returnType: ReturnType) => {
@@ -53,6 +54,7 @@ export function ReturnTypeEditor(props: PathEditorProps) {
                 types: returnTypeCollection.types
             };
             returnTypeCollectionClone.types.splice(id, 1);
+            recalculateItemIds(returnTypeCollectionClone.types);
             setReturnTypeCollection(returnTypeCollectionClone);
             if (onChange) {
                 onChange(generateReturnTypeFromReturnCollection(returnTypeCollectionClone.types));
@@ -70,18 +72,18 @@ export function ReturnTypeEditor(props: PathEditorProps) {
     const onSave = (returnType: ReturnType) => {
         returnTypeCollection.types.push(returnType);
         setReturnTypeCollection(returnTypeCollection);
-        setAddingReturnType(!addingRetunType);
+        setAddingReturnType(!addingReturnType);
         if (onChange) {
             onChange(generateReturnTypeFromReturnCollection(returnTypeCollection.types));
         }
     };
 
     const onCancel = () => {
-        setAddingReturnType(!addingRetunType);
+        setAddingReturnType(!addingReturnType);
     };
 
     const addReturnType = () => {
-        setAddingReturnType(!addingRetunType);
+        setAddingReturnType(!addingReturnType);
     }
 
     return (
@@ -89,7 +91,7 @@ export function ReturnTypeEditor(props: PathEditorProps) {
             <div id="listReturnTypes" >
                 {returnTypeItems}
             </div>
-            {addingRetunType ? (
+            {addingReturnType ? (
                 <div>
                     <ReturnTypeSegmentEditor
                         id={returnTypeCollection.types.length}
