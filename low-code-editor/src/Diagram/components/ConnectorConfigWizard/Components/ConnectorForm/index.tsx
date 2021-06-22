@@ -660,7 +660,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
-                    } else {
+                    } else if (config.connectorInit && config.connectorInit.length > 0){
                         const addImport: STModification = createImportStatement(
                             connectorInfo.org,
                             connectorInfo.module,
