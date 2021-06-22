@@ -27,7 +27,7 @@ import {
     DOUBLE_QUOTE_ERR_CODE,
     EXPAND_WIDGET_ID,
     SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS,
-    TO_STRING_DIAGNOSTICS,
+    SUGGEST_TO_STRING_DIAGNOSTICS,
     UNDEFINED_SYMBOL_ERR_CODE
 } from "./constants";
 import "./style.scss";
@@ -142,7 +142,7 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
-        return Array.from(diagnostics).some((diagnostic: Diagnostic) => TO_STRING_DIAGNOSTICS.includes((diagnostic.code).toString()));
+        return Array.from(diagnostics).some((diagnostic: Diagnostic) => SUGGEST_TO_STRING_DIAGNOSTICS.includes((diagnostic.code).toString()));
     }
     return false;
 }
