@@ -27,4 +27,8 @@ export class FieldViewState extends DataMapperViewState {
     public draftViewState: DraftFieldViewstate;
     public value: string;
     public isOptionalType: boolean;
+    public isArray: boolean;
+    public memberType: FieldViewState;
+    public isUnsupported: boolean;
+    public warningTooltip: string;
 }
