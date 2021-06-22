@@ -191,6 +191,7 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
                     onSelectConnection={handleOnSelectConnection}
                     onDeselectConnection={handleOnDeselectConnection}
                     onFailure={handleError}
+                    isTriggerConnector={true}
                 />
                 <p />
                 {activeConnection && (

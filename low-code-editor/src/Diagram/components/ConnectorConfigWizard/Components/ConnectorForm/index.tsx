@@ -971,6 +971,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                                 onSaveNext={handleCreateConnectorSaveNext}
                                                 initFormFields={connectorInitFormFields}
                                                 connectorConfig={config}
+                                                isTriggerConnector={false}
                                             />
                                         </div>
                                     </div>
