@@ -20,6 +20,7 @@ export class SourcePointViewState extends DataMapperViewState {
     public isJsonField: boolean;
     public isOptionalType: boolean;
     public type: string;
+    public unionType: string;
 
     constructor() {
         super();

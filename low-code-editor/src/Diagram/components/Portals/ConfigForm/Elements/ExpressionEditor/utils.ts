@@ -26,9 +26,9 @@ import {
     COLLAPSE_WIDGET_ID,
     DOUBLE_QUOTE_ERR_CODE,
     EXPAND_WIDGET_ID,
-    INCORRECT_STR_DIAGNOSTICS,
-    UNDEFINED_SYMBOL_ERR_CODE,
-    IGNORED_DIAGNOSTIC_MESSAGES
+    IGNORED_DIAGNOSTIC_MESSAGES,
+    SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS,
+    UNDEFINED_SYMBOL_ERR_CODE
 } from "./constants";
 import "./style.scss";
 
@@ -125,7 +125,7 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
-        return Array.from(diagnostics).some((diagnostic: Diagnostic) => INCORRECT_STR_DIAGNOSTICS.includes((diagnostic.code).toString()));
+        return Array.from(diagnostics).some((diagnostic: Diagnostic) => SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS.includes((diagnostic.code).toString()));
     }
     return false;
 }

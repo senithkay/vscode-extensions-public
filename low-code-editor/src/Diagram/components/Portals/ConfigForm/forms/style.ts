@@ -430,13 +430,6 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textDecoration: 'underline'
             }
         },
-        suggestionsTextError: {
-            color: '#ea4c4d !important',
-            "&:hover": {
-                cursor: 'pointer',
-                textDecoration: 'underline'
-            }
-        },
         toFieldTooltipWrapper: {
             display: "flex",
             justifyContent: "space-between",

@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React, { useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { FormHelperText } from "@material-ui/core";
@@ -24,9 +24,10 @@ import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, ExpressionTypeResponse, TextEdit } from "../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
+import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
@@ -182,7 +183,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
     const isCustomTemplate = !!customTemplate;
     const formClasses = useFormStyles();
-    const intl = useIntl();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
     const [needQuotes, setNeedQuotes] = useState(false);
@@ -220,14 +220,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const handleTypeInfo = (typeInfo: string[]) => {
-        if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
-            // expression can resolve to an error
-            setAddCheck(true)
-        } else {
-            setAddCheck(false)
-        }
-    }
+    // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
+    // const handleTypeInfo = (typeInfo: string[]) => {
+    //     if (typeInfo && typeInfo.length > 1 && typeInfo.includes("error")) {
+    //         // expression can resolve to an error
+    //         setAddCheck(true)
+    //     } else {
+    //         setAddCheck(false)
+    //     }
+    // }
 
     const handleDiagnostic = () => {
         if (invalidSourceCode) {
@@ -394,6 +395,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                                             sortText: createSortText(order),
+                                            documentation: completionResponse.documentation,
                                             command: {
                                                 id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
                                                     if (args.length > 0) {
@@ -419,7 +421,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             insertText: completionResponse.insertText,
                                             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                            sortText: createSortText(order)
+                                            sortText: createSortText(order),
+                                            documentation: completionResponse.documentation
                                         }
                                     }
                                 });
@@ -777,6 +780,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 open: "'",
                 close: "'"
             }, {
+                open: '"',
+                close: '"'
+            }, {
                 open: "(",
                 close: ")"
             }, {
@@ -861,7 +867,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const stringCheckToExpression = () => {
+    const addDoubleQuotesToExpresssion = () => {
         if (monacoRef.current) {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
@@ -873,16 +879,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }
-
-    const clickHereText = intl.formatMessage({
-        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
-        defaultMessage: "Click here"
-    })
-
-    const toHandleItText = intl.formatMessage({
-        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.toHandleIt.text",
-        defaultMessage: "to handle it"
-    })
 
     setDefaultTooltips();
 
@@ -914,25 +910,20 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         </>
                     ) : addCheck ?
                         (
-                            <div className={formClasses.suggestionsWrapper} >
-                                <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
-                                <FormHelperText className={formClasses.suggestionsText}><FormattedMessage id="lowcode.develop.elements.expressionEditor.expressionError.errorMessage" defaultMessage="This expression could cause an error." /> {<a className={formClasses.suggestionsTextError} onClick={addCheckToExpression}>{clickHereText}</a>} {toHandleItText}</FormHelperText>
-                            </div>
+                            <ExpressionEditorHint type={HintType.ADD_CHECK} onClickHere={addCheckToExpression}/>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
                                     <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
                                         <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(getDiagnosticMessage(expressionEditorState.diagnostic, varType))}</FormHelperText>
                                     </TooltipCodeSnippet>
-                                    {stringCheck && needQuotes && (
-                                        <div className={formClasses.suggestionsWrapper} >
-                                            <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
-                                            <FormHelperText className={formClasses.suggestionsText}>
-                                                {<a className={formClasses.suggestionsTextInfo} onClick={stringCheckToExpression}>Click here</a>}
-                                                {(monacoRef.current && monacoRef.current.editor.getModel().getValue() === "") ? " to add double quotes to the empty expression" : " to convert the expression to a string"}
-                                            </FormHelperText>
-                                        </div>
-                                    )}
+                                    {stringCheck && needQuotes && monacoRef.current ?
+                                        (monacoRef.current.editor.getModel().getValue() === "") ? (
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
+                                        ) : (
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion}/>
+                                        ) : null
+                                    }
                                 </>
                             ) : null
             }
