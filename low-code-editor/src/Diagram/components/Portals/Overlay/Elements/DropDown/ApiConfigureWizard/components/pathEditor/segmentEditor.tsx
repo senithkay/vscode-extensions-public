@@ -13,6 +13,7 @@ import { FormTextInput } from "../../../../../../../../../Diagram/components/Por
 import { PathSegment } from "../../types";
 
 import { useStyles } from './style';
+import { pathParamTypes } from "../../util";
 
 interface PathSegmentEditorProps {
     id?: number;
@@ -63,34 +64,16 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
     return (
         <div className={classes.segmentEditorWrap}>
             <div>
-                <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                Type
-                            </div>
-                        </Grid>
-                        <Grid item xs={7}>
+                <Grid container={true} spacing={1}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={7}>
                             <div className={classes.labelOfInputs}>
                                 Name
                             </div>
                         </Grid>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-                            <SelectDropdownWithButton
-                                defaultValue={segmentState?.type}
-                                disabled={!segmentState?.isParam}
-                                customProps={
-                                    {
-                                        values: ["string", "int"],
-                                        disableCreateNew: true,
-                                    }
-                                }
-                                onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
-                            />
-                        </Grid>
-                        <Grid item xs={7}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={7}>
                             <FormTextInput
                                 dataTestId="api-path-segment"
                                 defaultValue={segmentState?.name}
@@ -101,6 +84,19 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                     <Grid container={true} item={true} spacing={2}>
                         <Grid item={true} xs={7}>
                             <CheckBoxGroup values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />
+                        </Grid>
+                        <Grid item={true} xs={5}>
+                            <SelectDropdownWithButton
+                                defaultValue={segmentState?.type}
+                                disabled={!segmentState?.isParam}
+                                customProps={
+                                    {
+                                        values: pathParamTypes,
+                                        disableCreateNew: true,
+                                    }
+                                }
+                                onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
+                            />
                         </Grid>
                     </Grid>
                     <Grid container={true} item={true} spacing={2}>

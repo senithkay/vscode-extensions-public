@@ -4,7 +4,7 @@ import { keywords } from "../Diagram/components/Portals/utils/constants";
 export function validatePath(text: string) {
     if (text !== "") {
         let isPathValid = true;
-        let isQueryParamValid = true;
+        const isQueryParamValid = true;
 
         if ((text.match(/\[/g)?.length !== text.match(/\]/g)?.length) ||
             (text.charAt(text.length - 1) === "/") || (text.charAt(0) === "/")) {
@@ -62,7 +62,7 @@ export function validatePath(text: string) {
 
         if (seperateQueryParams[1]) {
 
-            let queryParams: string = seperateQueryParams[1];
+            const queryParams: string = seperateQueryParams[1];
             const splitedQueryParams: string[] = queryParams.split("&");
             for (const queryParam of splitedQueryParams) {
                 if (queryParam.includes("=")) {
@@ -83,18 +83,30 @@ export function validatePath(text: string) {
                         if (!keywords.includes(splitString[0].slice(1)) || keywords.includes(splitString[1].slice(0, -1)) || (splitString[1].slice(0, -1) === "")) {
                             return false;
                         }
+                    } else if (splittedQueryParam[1].startsWith("{") && splittedQueryParam[1].endsWith("}")) {
+                        if (splittedQueryParam[1].match(/\/\d/g)) return false;
+                        const splitString = splittedQueryParam[1].replace("{", "").replace("}", "");
+                        if (keywords.includes(splitString) || splitString === "" || splitString.includes(" ")) {
+                            return false;
+                        }
                     } else if (splittedQueryParam[1].startsWith("[") && !splitedQueryParams[1].endsWith("]")) {
                         return false;
                     } else if (!splittedQueryParam[1].startsWith("[") && splitedQueryParams[1].endsWith("]")) {
                         return false;
                     } else if (!splittedQueryParam[1].startsWith("[") && !splitedQueryParams[1].endsWith("]")) {
                         return false;
-                    } else if (splittedQueryParam[1] === "" || splittedQueryParam[1] === "[]") {
+                    } else if (splittedQueryParam[1].startsWith("{") && !splitedQueryParams[1].endsWith("}")) {
+                        return false;
+                    } else if (!splittedQueryParam[1].startsWith("{") && splitedQueryParams[1].endsWith("}")) {
+                        return false;
+                    } else if (!splittedQueryParam[1].startsWith("{") && !splitedQueryParams[1].endsWith("}")) {
+                        return false;
+                    } else if (splittedQueryParam[1] === "" || splittedQueryParam[1] === "[]" || splittedQueryParam[1] === "{}") {
                         return false;
                     } else if (splittedQueryParam[1].match(/\/\d/g)) {
                         return false;
                     }
-                } else if (keywords.includes(queryParam) || queryParam.match(/\/\d/g) || queryParam === "" || !(/^[a-zA-Z0-9]+$/g.test(queryParam))) {
+                } else if (keywords.includes(queryParam) || queryParam.match(/\/\d/g) || queryParam === "" || (/^[a-zA-Z0-9]+$/g.test(queryParam))) {
                     return false;
                 }
             }

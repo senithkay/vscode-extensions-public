@@ -1,13 +1,13 @@
 
 import React, { useContext, useEffect, useState } from "react";
-import { CloseRounded } from "@material-ui/icons";
+
 import { Checkbox, Grid } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
+
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-
 import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
-import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-
+import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Advanced } from "../../types";
 import { convertPayloadStringToPayload } from "../../util";
 
@@ -22,8 +22,8 @@ interface AdvancedProps {
 export function AdvancedEditor(props: AdvancedProps) {
     const { isCaller, isRequest, onChange } = props;
     const segment: Advanced = {
-        isCaller: isCaller,
-        isRequest: isRequest
+        isCaller,
+        isRequest
     };
     const classes = useStyles();
     const initValue: Advanced = segment ? { ...segment } : {
@@ -40,7 +40,7 @@ export function AdvancedEditor(props: AdvancedProps) {
         if (text) {
             advancedSegment.isCaller = text.length > 1;
             setSegmentState(advancedSegment);
-            if(onChange) {
+            if (onChange) {
                 onChange(advancedSegment);
             }
         }
@@ -53,7 +53,7 @@ export function AdvancedEditor(props: AdvancedProps) {
         if (text) {
             advancedSegment.isRequest = text.length > 1;
             setSegmentState(advancedSegment);
-            if(onChange) {
+            if (onChange) {
                 onChange(advancedSegment);
             }
         }
@@ -61,12 +61,12 @@ export function AdvancedEditor(props: AdvancedProps) {
 
     return (
         <div>
-            <Grid container spacing={1}>
-                <Grid container item spacing={2}>
-                    <Grid item xs={6}>
+            <Grid container={true} spacing={1}>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={6}>
                         <CheckBoxGroup values={["Add Caller"]} defaultValues={[segmentState.isCaller ? "Add Caller" : ""]}  onChange={onCallerCheckChange} />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item={true} xs={6}>
                         <CheckBoxGroup values={["Add Request"]} defaultValues={[segmentState.isRequest ? "Add Request" : ""]} onChange={onRequestCheckChange} />
                     </Grid>
                 </Grid>

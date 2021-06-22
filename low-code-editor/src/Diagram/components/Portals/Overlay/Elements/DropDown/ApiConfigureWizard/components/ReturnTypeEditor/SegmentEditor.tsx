@@ -12,14 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
+
 import { Grid } from "@material-ui/core";
 
-import { useStyles } from './style';
-import { SelectDropdownWithButton } from "../../../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
-import { SecondaryButton } from "../../../../../../ConfigForm/Elements/Button/SecondaryButton";
 import { PrimaryButton } from "../../../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { SecondaryButton } from "../../../../../../ConfigForm/Elements/Button/SecondaryButton";
+import { SelectDropdownWithButton } from "../../../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { ReturnType } from "../../types";
+
+import { useStyles } from './style';
+import { returnTypes } from "../../util";
 
 interface PathSegmentEditorProps {
     id?: number;
@@ -35,7 +38,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
 
     const initValue: ReturnType = segment ? { ...segment } : {
         id: id ? id : 0,
-        type: showDefaultError ? "error": "",
+        type: showDefaultError ? "error" : "",
         isOptional: false
     };
     const [segmentState, setSegmentState] = useState<ReturnType>(initValue);
@@ -53,7 +56,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
             }
             setSegmentState({
                 ...segmentState,
-                isOptional: isOptional
+                isOptional
             });
         }
     };
@@ -65,30 +68,28 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     return (
         <div className={classes.returnTypeEditorWrap}>
             <div>
-                <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                Type
-                            </div>
-                        </Grid>
+                <Grid container={true} spacing={1}>
+                    <Grid item={true} xs={5}>
+                        <div className={classes.labelOfInputs}>
+                            Type
+                        </div>
                     </Grid>
                 </Grid>
-                <Grid container item spacing={2}>
-                    <Grid item xs={5}>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={5}>
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
                             defaultValue={segmentState?.type}
                             customProps={
                                 {
-                                    values: ["string", "int", "boolean", "float", "error"],
+                                    values: returnTypes,
                                     disableCreateNew: true,
                                 }
                             }
                             onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
                         />
                     </Grid>
-                    <Grid item xs={7}>
+                    <Grid item={true} xs={7}>
                         <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={(selectedCheck: string[]) => { onChangeSegment(selectedCheck, "IS_OPTIONAL") }} />
                     </Grid>
                 </Grid>

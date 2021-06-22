@@ -1,4 +1,7 @@
-import {ReturnTypeDescriptor, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+
+import { boolean } from "../../../../ConfigForm/Elements";
+
 import {
     Path,
     PathSegment,
@@ -9,7 +12,11 @@ import {
     ReturnTypeCollection,
     ReturnTypesMap
 } from "./types";
-import {boolean} from "../../../../ConfigForm/Elements";
+
+export const payloadTypes: string[] = ["json", "xml", "byte[]", "string"];
+export const queryParamTypes: string[] = ["string", "int"];
+export const pathParamTypes: string[] = ["string", "int"];
+export const returnTypes: string[] = ["http:Response", "json", "xml", "string", "int", "boolean", "float", "error"];
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
     const payload: Payload = {
@@ -54,12 +61,13 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
                     queryParam.name = splitedNameAndType[1];
                     queryParam.type = splitedNameAndType[0];
                     queryParamCollection.queryParams.push(queryParam);
+                } else if (queryParamSplited.length === 2 && queryParamSplited[1].startsWith("{") && queryParamSplited[1].endsWith("}")) {
+                    const formattedQueryParam = queryParamSplited[1].replace("{", "").replace("}", "");
+                    queryParam.id = index;
+                    queryParam.name = formattedQueryParam;
+                    queryParam.type = "string";
+                    queryParamCollection.queryParams.push(queryParam);
                 }
-            } else {
-                queryParam.id = index;
-                queryParam.name = value;
-                queryParam.type = "string";
-                queryParamCollection.queryParams.push(queryParam);
             }
         });
     }
@@ -251,10 +259,11 @@ export function convertReturnTypeStringToSegments(returnTypeString: string): Ret
     if (codeReturnTypes) {
         codeReturnTypes.forEach((returnType, index) => {
             if (returnType.includes("?")) {
-                returnTypes.push({type: returnType.replace("?", "").
-                    trim(), isOptional: true, id: index});
+                returnTypes.push({
+                    type: returnType.replace("?", "").trim(), isOptional: true, id: index
+                });
             } else {
-                returnTypes.push({type: returnType.trim(), isOptional: false, id: index});
+                returnTypes.push({ type: returnType.trim(), isOptional: false, id: index });
             }
         });
     }

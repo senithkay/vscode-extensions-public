@@ -12,12 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+
 import { CloseRounded } from "@material-ui/icons";
 
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import { ReturnType } from "../../types";
 
 import { useStyles } from './style';
-import { ReturnType } from "../../types";
 
 interface ReturnTypeItemProps {
     returnType: ReturnType;

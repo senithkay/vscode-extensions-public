@@ -514,7 +514,7 @@ export function removeStatement(targetPosition: DraftUpdateStatement): STModific
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-    message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
+                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -555,7 +555,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-    message: FormField, targetPosition: DraftUpdateStatement): STModification {
+                                              message: FormField, targetPosition: DraftUpdateStatement): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {

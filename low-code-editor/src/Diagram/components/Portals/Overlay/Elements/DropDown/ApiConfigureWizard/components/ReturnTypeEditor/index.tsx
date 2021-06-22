@@ -16,17 +16,16 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
+import { ReturnType, ReturnTypeCollection } from "../../types";
 import {
     convertReturnTypeStringToSegments,
     generateReturnTypeFromReturnCollection,
     recalculateItemIds
 } from "../../util";
+
 import { ReturnTypeItem } from "./ReturnTypeItem";
 import { ReturnTypeSegmentEditor } from "./SegmentEditor";
-
-
 import { useStyles } from './style';
-import { ReturnType, ReturnTypeCollection } from "../../types";
 
 interface PathEditorProps {
     returnTypeString?: string;

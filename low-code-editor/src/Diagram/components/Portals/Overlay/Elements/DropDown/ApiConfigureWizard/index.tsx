@@ -36,13 +36,20 @@ import {
   TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
+import { AdvancedEditor } from "./components/advanced";
+import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
+import { QueryParamEditor } from "./components/queryParamEditor";
+import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
+import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
 import {
   convertPathStringToSegments,
+  convertPayloadStringToPayload,
   convertQueryParamStringToSegments,
   extractPayloadFromST,
   generateQueryParamFromQueryCollection,
@@ -52,15 +59,8 @@ import {
   getBallerinaPayloadType,
   getReturnType,
   isCallerParamAvailable,
-  isRequestParamAvailable,
-  convertPayloadStringToPayload
+  isRequestParamAvailable
 } from "./util";
-import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
-import { QueryParamEditor } from "./components/queryParamEditor";
-import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
-import { PayloadEditor } from "./components/extractPayload";
-import { AdvancedEditor } from "./components/advanced";
-import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -134,7 +134,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -219,7 +219,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   function handleOnChangePayloadFromUI(segment: Payload, index: number) {
     // Update path
     const updatedResources = resources;
-    updatedResources[index].payload = getBallerinaPayloadType(segment, (updatedResources[index].isCaller || updatedResources[index].isRequest));
+    updatedResources[index].payload = getBallerinaPayloadType(segment);
     setResources(updatedResources);
   }
 
@@ -273,8 +273,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         "RES_PATH": currentPath,
         "METHODS": currentMethod.toLocaleLowerCase(),
         "RESOURCES": resources.map((res) => {
-          let payload: Payload = convertPayloadStringToPayload(res.payload);
-          let queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
+          const payload: Payload = convertPayloadStringToPayload(res.payload);
+          const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
             "PATH": res.path,
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
@@ -304,12 +304,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       }
       const selectedResource = resources[0];
       if (selectedResource.queryParams) {
-        let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
+        const queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
         selectedResource.queryParams = genrateBallerinaQueryParams(queryParams, (selectedResource.isCaller || selectedResource.isRequest || (selectedResource.payload && selectedResource.payload !== "")));
       }
 
       if (selectedResource.payload && selectedResource.payload !== "") {
-        let payload: Payload = convertPayloadStringToPayload(selectedResource.payload);
+        const payload: Payload = convertPayloadStringToPayload(selectedResource.payload);
         selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
       }
 
@@ -432,24 +432,22 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             </Section>
             <SwitchToggle initSwitch={showPathUI} onChange={onPathUIToggleSelect} text={"Edit UI"} />
             {!showPathUI &&
-              <div className={classes.sectionSeparator}>
-                <Section
-                  title={pathTitle}
-                  tooltipWithExample={{ title, content: pathExample }}
-                >
-                  <FormTextInput
-                    dataTestId="api-path"
-                    defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                    onChange={(text: string) => handleOnChangePath(text, index)}
-                    customProps={{
-                      startAdornment: "/",
-                      validate: validatePath
-                    }}
-                    errorMessage={pathErrorMessage}
-                    placeholder={pathPlaceholder}
-                  />
-                </Section>
-              </div>
+              <Section
+                title={pathTitle}
+                tooltipWithExample={{ title, content: pathExample }}
+              >
+                <FormTextInput
+                  dataTestId="api-path"
+                  defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                  onChange={(text: string) => handleOnChangePath(text, index)}
+                  customProps={{
+                    startAdornment: "/",
+                    validate: validatePath
+                  }}
+                  errorMessage={pathErrorMessage}
+                  placeholder={pathPlaceholder}
+                />
+              </Section>
             }
             {showPathUI &&
               <div>
@@ -513,7 +511,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 />
               </Section>
             </div>
-            
+
             <Section
               title={returnTypeTitle}
               tooltipWithExample={{ title, content: pathExample }}

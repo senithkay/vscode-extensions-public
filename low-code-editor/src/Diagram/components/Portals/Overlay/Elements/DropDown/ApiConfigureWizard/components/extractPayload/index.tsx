@@ -1,12 +1,13 @@
 
 import React, { useContext, useEffect, useState } from "react";
+
 import { Checkbox, Grid } from "@material-ui/core";
 
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Payload } from "../../types";
-import { convertPayloadStringToPayload } from "../../util";
+import { convertPayloadStringToPayload, payloadTypes } from "../../util";
 
 import { useStyles } from './style';
 
@@ -24,6 +25,11 @@ export function PayloadEditor(props: PayloadProps) {
         name: "",
         type: "string"
     };
+
+    let payloadTypeArray: string[] = payloadTypes;
+    if (!payloadTypeArray.includes(initValue.type)) {
+        payloadTypeArray.push(initValue.type);
+    }
 
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
 
@@ -65,10 +71,10 @@ export function PayloadEditor(props: PayloadProps) {
                         <Grid item={true} xs={5}>
                             <SelectDropdownWithButton
                                 disabled={disabled}
-                                defaultValue={segmentState?.type? segmentState?.type : "string"}
+                                defaultValue={segmentState?.type ? segmentState?.type : "string"}
                                 customProps={
                                     {
-                                        values: ["string", "int", "json", "xml"],
+                                        values: payloadTypeArray,
                                         disableCreateNew: true,
                                     }
                                 }

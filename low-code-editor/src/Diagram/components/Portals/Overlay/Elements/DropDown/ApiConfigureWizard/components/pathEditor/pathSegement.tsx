@@ -4,9 +4,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { CloseRounded } from "@material-ui/icons";
 
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import { PathSegment } from "../../types";
 
 import { useStyles } from './style';
-import { PathSegment } from "../../types";
 
 interface PathSegmentProps {
     segment: PathSegment;
