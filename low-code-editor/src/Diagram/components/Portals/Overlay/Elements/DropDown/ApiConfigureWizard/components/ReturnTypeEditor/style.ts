@@ -46,12 +46,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         paramEditorWrap: {
             boxSizing: "border-box",
-            height: "153px",
             width: "100%",
             border: "1px solid #EEEEEE",
             backgroundColor: "#F7F8FB",
+            padding: theme.spacing(2),
+            borderRadius: 4
         },
-        queryParamEditorWrap: {
+        returnTypeEditorWrap: {
             boxSizing: "border-box",
             width: "100%",
             border: "1px solid #EEEEEE",
@@ -67,10 +68,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: "0",
             lineHeight: "24px"
         },
+        actionBtn: {
+            fontSize: 13,
+        },
         btnContainer: {
             display: "flex",
-            justifyContent: "flex-end",
-            marginTop: theme.spacing(1)
+            justifyContent: "flex-end"
         },
+        iconBtn: {
+            padding: 0
+        }
+
     })
 );

@@ -63,13 +63,15 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     };
 
     return (
-        <div className={classes.queryParamEditorWrap}>
+        <div className={classes.returnTypeEditorWrap}>
             <div>
                 <Grid container spacing={1}>
-                    <Grid item xs={5}>
-                        <div className={classes.labelOfInputs}>
-                            Type
-                        </div>
+                    <Grid container item spacing={2}>
+                        <Grid item xs={5}>
+                            <div className={classes.labelOfInputs}>
+                                Type
+                            </div>
+                        </Grid>
                     </Grid>
                 </Grid>
                 <Grid container item spacing={2}>
@@ -96,7 +98,8 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                             <SecondaryButton
                                 text="Cancel"
                                 fullWidth={false}
-                                onClick={onCancel} 
+                                onClick={onCancel}
+                                className={classes.actionBtn}
                             />
                             <PrimaryButton
                                 dataTestId={"api-return-save-btn"}
