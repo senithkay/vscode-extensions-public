@@ -1,25 +1,35 @@
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
-
-import { Path, PathSegment, Payload, QueryParam, QueryParamCollection } from "./types";
+import {ReturnTypeDescriptor, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import {
+    Path,
+    PathSegment,
+    Payload,
+    QueryParam,
+    QueryParamCollection,
+    ReturnType,
+    ReturnTypeCollection,
+    ReturnTypesMap
+} from "./types";
+import {boolean} from "../../../../ConfigForm/Elements";
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
     const payload: Payload = {
         type: "",
         name: ""
     }
-
-    const payloadSplitted = payloadString.split("@http:Payload");
-    if (payloadSplitted.length > 1) {
-        const typeNameSplited = payloadSplitted[payloadSplitted.length - 1].trim().split(" ");
-        payload.type = typeNameSplited[0];
-        payload.name = typeNameSplited[1];
+    if (payloadString && payloadString !== "") {
+        const payloadSplitted = payloadString.split("@http:Payload");
+        if (payloadSplitted.length > 1) {
+            const typeNameSplited = payloadSplitted[payloadSplitted.length - 1].trim().split(" ");
+            payload.type = typeNameSplited[0];
+            payload.name = typeNameSplited[1];
+        }
     }
     return payload;
 }
 
 export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): string {
     return payload.type && payload.name && payload.type !== ""
-        && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? "," : "")) : "";
+        && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
 }
 
 export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
@@ -27,7 +37,7 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
         queryParams: []
     };
 
-    if (queryParamsString !== "") {
+    if (queryParamsString && queryParamsString !== "") {
         const queryParamSplited: string[] = queryParamsString.split("&");
         queryParamSplited.forEach((value, index) => {
             const queryParam: QueryParam = {
@@ -66,7 +76,7 @@ export function convertPathStringToSegments(pathString: string): Path {
     const path: Path = {
         segments: []
     };
-    if (pathString !== "") {
+    if (pathString && pathString !== "") {
         const pathSegments: string[] = pathString.split("/");
         pathSegments.forEach((value, index) => {
             let segment: PathSegment;
@@ -150,11 +160,11 @@ export function genrateBallerinaResourcePath(path: Path): string {
     return pathAsString;
 }
 
-export function genrateBallerinaQueryParams(queryParamCollection: QueryParamCollection, noLastComma?: boolean): string {
+export function genrateBallerinaQueryParams(queryParamCollection: QueryParamCollection, addLastComma?: boolean): string {
     let queryParamsAsString: string = "";
     queryParamCollection.queryParams.forEach((value, index, array) => {
-        if (noLastComma && index === (array.length - 1)) {
-            queryParamsAsString += value.type + " " + value.name;
+        if (index === (array.length - 1)) {
+            queryParamsAsString += value.type + " " + value.name + (addLastComma ? ", " : "");
         } else {
             queryParamsAsString += value.type + " " + value.name + ", ";
         }
@@ -168,7 +178,7 @@ export function generateQueryParamFromST(params: STNode[]): string {
 
         const filteredParams: STNode[] = [];
         params.forEach((value) => {
-            if (!STKindChecker.isCommaToken(value) && !value.source.includes("@http:Payload") && !value.source.includes("http:Request") && !value.source.includes("http:Caller")) {
+            if (!STKindChecker.isCommaToken(value) && !value.source.includes("@http:Payload") && !value.source.includes("http:Request") && !value.source.includes("http") && !value.source.includes("Request") && !value.source.includes("http:Caller") && !value.source.includes("Caller")) {
                 filteredParams.push(value);
             }
         });
@@ -217,4 +227,56 @@ export function generateQueryParamFromQueryCollection(params: QueryParamCollecti
         });
     }
     return queryParamString;
+}
+
+export function generateReturnTypeFromReturnCollection(params: ReturnType[]): string {
+    const returnTypes: string[] = [];
+    params.forEach(param => {
+        returnTypes.push(`${param.type} ${param.isOptional ? "?" : ""}`);
+    })
+    return returnTypes.join("|");
+}
+
+export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
+    if (returnTypeDesc) {
+        return returnTypeDesc.type.source.trim();
+    } else {
+        return "";
+    }
+}
+
+export function convertReturnTypeStringToSegments(returnTypeString: string): ReturnType[] {
+    const codeReturnTypes = returnTypeString?.split("|");
+    const returnTypes: ReturnType[] = [];
+    if (codeReturnTypes) {
+        codeReturnTypes.forEach((returnType, index) => {
+            if (returnType.includes("?")) {
+                returnTypes.push({type: returnType.replace("?", "").
+                    trim(), isOptional: true, id: index});
+            } else {
+                returnTypes.push({type: returnType.trim(), isOptional: false, id: index});
+            }
+        });
+    }
+    return returnTypes;
+}
+
+export function isCallerParamAvailable(params: STNode[]): boolean {
+    let isCallerParam: boolean = false;
+    if (params && params.length > 0) {
+
+        const caller: STNode[] = params.filter((value) => (value.source && value.source.includes("http:Caller")));
+        isCallerParam = caller.length > 0;
+    }
+    return isCallerParam;
+}
+
+export function isRequestParamAvailable(params: STNode[]): boolean {
+    let isRequestParam: boolean = false;
+    if (params && params.length > 0) {
+
+        const caller: STNode[] = params.filter((value) => (value.source && value.source.includes("http:Request")));
+        isRequestParam = caller.length > 0;
+    }
+    return isRequestParam;
 }

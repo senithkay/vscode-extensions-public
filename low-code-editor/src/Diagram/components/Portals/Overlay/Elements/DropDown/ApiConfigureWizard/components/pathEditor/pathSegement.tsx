@@ -6,6 +6,7 @@ import { CloseRounded } from "@material-ui/icons";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 
 import { useStyles } from './style';
+import { PathSegment } from "../../types";
 
 interface PathSegmentProps {
     segment: PathSegment;

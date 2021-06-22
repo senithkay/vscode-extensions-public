@@ -53,58 +53,57 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
     return (
         <div className={classes.queryParamEditorWrap}>
             <div>
-                <Grid container={true} spacing={1}>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={7}>
-                            <div className={classes.labelOfInputs}>
-                                Name
-                            </div>
-                        </Grid>
-                        <Grid item={true} xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                Type
-                            </div>
-                        </Grid>
+                <Grid container spacing={1}>
+                    <Grid item xs={5}>
+                        <div className={classes.labelOfInputs}>
+                            Type
+                        </div>
                     </Grid>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={7}>
-                            <FormTextInput
-                                dataTestId="api-query-param-name"
-                                defaultValue={segmentState?.name}
-                                onChange={(text: string) => { onChangeSegment(text, "NAME") }}
-                            />
-                        </Grid>
-                        <Grid item={true} xs={5}>
-                            <SelectDropdownWithButton
-                                dataTestId="api-query-param-type"
-                                defaultValue={segmentState?.type}
-                                customProps={
-                                    {
-                                        values: ["string", "int"],
-                                        disableCreateNew: true,
-                                    }
+                    <Grid item xs={7}>
+                        <div className={classes.labelOfInputs}>
+                            Name
+                        </div>
+                    </Grid>
+                </Grid>
+                <Grid container item spacing={2}>
+                    <Grid item xs={5}>
+                        <SelectDropdownWithButton
+                            dataTestId="api-query-param-type"
+                            defaultValue={segmentState?.type}
+                            customProps={
+                                {
+                                    values: ["string", "int"],
+                                    disableCreateNew: true,
                                 }
-                                onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
-                            />
-                        </Grid>
+                            }
+                            onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
+                        />
                     </Grid>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={12}>
-                            <div className={classes.btnContainer}>
-                                <SecondaryButton
-                                    text="Cancel"
-                                    fullWidth={false}
-                                    onClick={onCancel}
-                                />
-                                <PrimaryButton
-                                    dataTestId={"custom-expression-save-btn"}
-                                    text={"Add"}
-                                    disabled={false}
-                                    fullWidth={false}
-                                    onClick={handleOnSave}
-                                />
-                            </div>
-                        </Grid>
+                    <Grid item xs={7}>
+                        <FormTextInput
+                            dataTestId="api-query-param-name"
+                            defaultValue={segmentState?.name}
+                            onChange={(text: string) => { onChangeSegment(text, "NAME") }}
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={12}>
+                        <div className={classes.btnContainer}>
+                            <SecondaryButton
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={onCancel}
+                            />
+                            <PrimaryButton
+                                dataTestId={"custom-expression-save-btn"}
+                                text={"Add"}
+                                disabled={!segmentState.name || !segmentState.type || segment.name === "" || segment.type === ""}
+                                fullWidth={false}
+                                onClick={handleOnSave}
+                            />
+                        </div>
                     </Grid>
                 </Grid>
             </div>

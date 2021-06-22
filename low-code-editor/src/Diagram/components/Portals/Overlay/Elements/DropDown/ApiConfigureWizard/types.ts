@@ -16,6 +16,24 @@ export interface QueryParam {
     name: string;
 }
 
+export interface ReturnType {
+    id: number;
+    type: string;
+    isOptional: boolean
+}
+
+export const ReturnTypesMap: Map<string, string> = new Map([
+    ["string", `""`],
+    ["int", "1"],
+    ["boolean", "false"],
+    ["error", "()"],
+]);
+
+export interface ReturnTypeCollection {
+    types: ReturnType[];
+    defaultReturnValue?: string;
+}
+
 export interface QueryParamCollection {
     queryParams: QueryParam[];
 }
@@ -29,9 +47,15 @@ export interface Resource {
     isCaller?: boolean;
     isRequest?: boolean;
     returnType?: string;
+    returnTypeDefaultValue?: string;
 }
 
 export interface Payload {
     type: string;
     name: string;
+}
+
+export interface Advanced {
+    isCaller?: boolean;
+    isRequest?: boolean;
 }

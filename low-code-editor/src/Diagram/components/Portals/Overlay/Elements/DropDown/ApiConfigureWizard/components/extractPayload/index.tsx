@@ -1,8 +1,6 @@
 
 import React, { useContext, useEffect, useState } from "react";
-
 import { Checkbox, Grid } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
@@ -67,7 +65,7 @@ export function PayloadEditor(props: PayloadProps) {
                         <Grid item={true} xs={5}>
                             <SelectDropdownWithButton
                                 disabled={disabled}
-                                defaultValue={segmentState?.type}
+                                defaultValue={segmentState?.type? segmentState?.type : "string"}
                                 customProps={
                                     {
                                         values: ["string", "int", "json", "xml"],

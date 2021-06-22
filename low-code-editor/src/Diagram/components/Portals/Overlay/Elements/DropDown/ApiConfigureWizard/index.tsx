@@ -15,7 +15,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
@@ -24,7 +24,7 @@ import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import RadioControl from "../../../../../../../components/RadioControl";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { updatePropertyStatement, updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
+import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
 import { validatePath } from "../../../../../../../utils/validator";
 import {
@@ -36,16 +36,31 @@ import {
   TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
-import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
-import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
+import {
+  convertPathStringToSegments,
+  convertQueryParamStringToSegments,
+  extractPayloadFromST,
+  generateQueryParamFromQueryCollection,
+  generateQueryParamFromST,
+  genrateBallerinaQueryParams,
+  genrateBallerinaResourcePath,
+  getBallerinaPayloadType,
+  getReturnType,
+  isCallerParamAvailable,
+  isRequestParamAvailable,
+  convertPayloadStringToPayload
+} from "./util";
+import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
-import { Path, Payload, QueryParamCollection, Resource } from "./types";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType } from "./util";
+import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
+import { PayloadEditor } from "./components/extractPayload";
+import { AdvancedEditor } from "./components/advanced";
+import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -87,6 +102,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
+  const [returnType, setReturnType] = useState<string>("");
+  const [callerChecked, setCallerChecked] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
   const [showPathUI, setShowPathUI] = useState(false);
   const [payloadAvailable, setPayloadAvailable] = useState(false);
@@ -108,13 +125,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const { functionName, relativeResourcePath, functionSignature } = syntaxTree as FunctionDefinition;
       const queryParam: string = generateQueryParamFromST(functionSignature?.parameters);
       const payload: string = extractPayloadFromST(functionSignature?.parameters);
+      const callerParam: boolean = isCallerParamAvailable(functionSignature?.parameters);
+      const requestParam: boolean = isRequestParamAvailable(functionSignature?.parameters);
+      const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -174,6 +194,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnChangeReturnTypeFormUI(text: string, index: number) {
+    setReturnType(text);
+    const updatedResources = resources;
+    updatedResources[index].returnType = text;
+    setResources(updatedResources);
+  }
+
   function handleOnChangeQueryParamFromUI(text: string, index: number) {
     setCurrentPath(text);
     if (text === 'hello') {
@@ -192,8 +219,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   function handleOnChangePayloadFromUI(segment: Payload, index: number) {
     // Update path
     const updatedResources = resources;
-    updatedResources[index].payload = getBallerinaPayloadType(segment, true);
+    updatedResources[index].payload = getBallerinaPayloadType(segment, (updatedResources[index].isCaller || updatedResources[index].isRequest));
     setResources(updatedResources);
+  }
+
+  function handleOnChangeAdvancedUI(advanced: Advanced, index: number) {
+    // Update path
+    const updatedResources = resources;
+    updatedResources[index].isCaller = advanced.isCaller;
+    updatedResources[index].isRequest = advanced.isRequest;
+    setResources(updatedResources);
+    setCallerChecked(advanced.isCaller);
   }
 
   const validateResources = () => {
@@ -237,12 +273,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         "RES_PATH": currentPath,
         "METHODS": currentMethod.toLocaleLowerCase(),
         "RESOURCES": resources.map((res) => {
-          const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
+          let payload: Payload = convertPayloadStringToPayload(res.payload);
+          let queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
             "PATH": res.path,
-            "QUERY_PARAM": genrateBallerinaQueryParams(queryParams),
+            "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
-            "PAYLOAD": res.payload ? res.payload : ""
+            "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
+            "ADD_CALLER": res.isCaller,
+            "ADD_REQUEST": res.isRequest,
+            "ADD_RETURN": res.returnType
           }
         })
       });
@@ -259,15 +299,23 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const updatePosition: any = {
         startLine: model.functionName.position.startLine,
         startColumn: model.functionName.position.startColumn,
-        endLine: model.functionSignature.closeParenToken.position.endLine,
-        endColumn: model.functionSignature.closeParenToken.position.endColumn
+        endLine: model.functionSignature.position.endLine,
+        endColumn: model.functionSignature.position.endColumn
       }
       const selectedResource = resources[0];
       if (selectedResource.queryParams) {
-        const queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
-        selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
+        let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
+        selectedResource.queryParams = genrateBallerinaQueryParams(queryParams, (selectedResource.isCaller || selectedResource.isRequest || (selectedResource.payload && selectedResource.payload !== "")));
       }
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), updatePosition));
+
+      if (selectedResource.payload && selectedResource.payload !== "") {
+        let payload: Payload = convertPayloadStringToPayload(selectedResource.payload);
+        selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
+      }
+
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path,
+          selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
+          selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
       setTriggerChanged(true);
       modifyDiagram(mutations);
@@ -425,6 +473,22 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} />
                   </Section>
                 </div>
+                <div className={classes.sectionSeparator}>
+                  <Section
+                    title={advancedTitle}
+                    tooltipWithExample={{ title, content: pathExample }}
+                  >
+                  <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)}/>
+                  </Section>
+                </div>
+                <div className={classes.sectionSeparator}>
+                  <Section
+                      title={returnTypeTitle}
+                      tooltipWithExample={{ title, content: pathExample }}
+                  >
+                    <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+                  </Section>
+                </div>
               </div>
             }
             {/*
@@ -447,24 +511,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 />
               </Section>
             </div>
-            <div className={classes.sectionSeparator}>
-              <Section
-                title={advancedTitle}
-                tooltipWithExample={{ title, content: pathExample }}
-              >
-                <FormTextInput
-                  dataTestId="api-path"
-                  defaultValue={resProps.path}
-                  onChange={(text: string) => handleOnChangePath(text, index)}
-                  customProps={{
-                    startAdornment: "/",
-                    validate: validatePath
-                  }}
-                  errorMessage={pathErrorMessage}
-                  placeholder={pathPlaceholder}
-                />
-              </Section>
-            </div>
+            
             <Section
               title={returnTypeTitle}
               tooltipWithExample={{ title, content: pathExample }}
