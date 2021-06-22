@@ -30,7 +30,7 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -275,7 +275,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 setCursorOnEditor(true);
-                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
+                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
             }));
 
             // event emitted when the content of the editor has changed
@@ -578,7 +578,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }
 
     // ExpEditor start
-    const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
+    const handleOnFocus = async (currentContent: string, EOL: string) => {
         let initContent: string = null;
         if (model.optional === true && (currentContent === undefined || currentContent === "")) {
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
@@ -640,8 +640,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         //     });
         // });
 
-        if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
-            monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
+        if (currentContent === "" && monacoRef.current.editor.hasTextFocus()) {
+            monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
     }
 
@@ -716,7 +716,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             //     });
             // });
 
-            if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
+            if (currentContent === "" && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
@@ -835,6 +835,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // When suggest widget is open => suggestWidgetStatus = 3
             if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3){
                 event.stopPropagation();
+            }
+            if (TRIGGER_CHARACTERS.includes(keyCode) && suggestWidgetStatus !== 3) {
+                monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
         });
     }
