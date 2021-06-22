@@ -139,7 +139,7 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
  */
-export const transformFormFieldTypeToString = (model?: FormField): string => {
+export const transformFormFieldTypeToString = (model?: FormField, returnUndefined?: boolean): string => {
     if (model.type === "record" || model.typeInfo) {
         if (model.typeInfo){
             let modName = model.typeInfo.modName;
@@ -219,6 +219,9 @@ export const transformFormFieldTypeToString = (model?: FormField): string => {
         }
     } else if (model.type) {
         return model.type;
+    }
+    if (returnUndefined && !model.type) {
+        return undefined;
     }
     return PrimitiveBalType.Var.toString();
 }
