@@ -432,7 +432,7 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
     } else if (STKindChecker.isStreamTypeDesc(typeDescriptor)) {
         viewState.type = 'stream';
         viewState.isUnsupported = true;
-        viewState.warningTooltip = 'Unsupported variable type of array, please use variables of types string, int, float, decimal, boolean, record and json.'
+        viewState.warningTooltip = 'Unsupported variable type of stream, please use variables of types string, int, float, decimal, boolean, record and json.'
     }
 }
 
