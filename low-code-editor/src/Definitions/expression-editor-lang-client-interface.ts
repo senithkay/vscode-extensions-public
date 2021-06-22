@@ -35,7 +35,8 @@ export interface CompletionResponse {
 	insertTextFormat: number;
 	kind: number;
 	label: string;
-	additionalTextEdits?: TextEdit[]
+	additionalTextEdits?: TextEdit[];
+	documentation?: string;
 }
 
 export interface TextEdit {

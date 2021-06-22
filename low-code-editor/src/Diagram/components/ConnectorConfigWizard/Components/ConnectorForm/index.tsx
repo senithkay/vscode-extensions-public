@@ -660,6 +660,18 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
+                    } else {
+                        const addImport: STModification = createImportStatement(
+                            connectorInfo.org,
+                            connectorInfo.module,
+                            targetPosition
+                        );
+                        modifications.push(addImport);
+                        const addConnectorInit: STModification = createPropertyStatement(
+                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                            targetPosition
+                        );
+                        modifications.push(addConnectorInit);
                     }
                     if (currentActionReturnType.hasReturn) {
                         const addActionInvocation = createPropertyStatement(
@@ -971,6 +983,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                                 onSaveNext={handleCreateConnectorSaveNext}
                                                 initFormFields={connectorInitFormFields}
                                                 connectorConfig={config}
+                                                isTriggerConnector={false}
                                             />
                                         </div>
                                     </div>

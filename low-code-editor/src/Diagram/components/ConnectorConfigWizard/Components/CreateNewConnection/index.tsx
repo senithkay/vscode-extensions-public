@@ -239,10 +239,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const connectorModuleName = initFields[0]?.typeInfo?.modName;
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
-        connectorModuleName === "googleapis.calendar" || connectorModuleName === "googleapis.drive";
-    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName
-        && connectionNameState.isNameProvided && connectionNameState.isValidName;
-    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName
+        connectorModuleName === "googleapis.calendar";
+    const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
+    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
+    const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
 
     return (
         <div>
@@ -285,7 +285,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isFieldsWithConnectionNameValid)}
+                                disabled={!(isEnabled)}
                                 onClick={handleOnSave}
                             />
                         )}
@@ -297,7 +297,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Save Connection"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isFieldsWithConnectionNameValid)}
+                                    disabled={!(isEnabled)}
                                     onClick={handleOnSave}
                                 />
                                 <PrimaryButton
@@ -306,7 +306,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         defaultMessage: "Continue to Invoke API"
                                     })}
                                     fullWidth={false}
-                                    disabled={!(isFieldsWithConnectionNameValid)}
+                                    disabled={!(isEnabled)}
                                     onClick={handleOnSaveNext}
                                 />
                             </>

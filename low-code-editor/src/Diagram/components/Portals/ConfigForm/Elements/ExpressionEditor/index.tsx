@@ -394,6 +394,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                                             sortText: createSortText(order),
+                                            documentation: completionResponse.documentation,
                                             command: {
                                                 id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
                                                     if (args.length > 0) {
@@ -419,7 +420,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             insertText: completionResponse.insertText,
                                             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                                             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                            sortText: createSortText(order)
+                                            sortText: createSortText(order),
+                                            documentation: completionResponse.documentation
                                         }
                                     }
                                 });

@@ -36,7 +36,7 @@ import { useStyles as formStyles } from "../../../../Portals/ConfigForm/forms/st
 import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { checkVariableName, genVariableName } from '../../../../Portals/utils';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
-import { getDefaultValueForType } from '../../../util';
+import { getDefaultValueForType, resetJsonValueToDefault } from '../../../util';
 
 export enum GenerationType {
     ASSIGNMENT,
@@ -243,6 +243,7 @@ export function OutputTypeConfigForm() {
         const localVarDecl: LocalVarDecl = nodeList && nodeList.length > 0 ? nodeList[0] as LocalVarDecl : undefined;
 
         let typeInfo;
+        let sampleStructure;
 
         if (localVarDecl) {
             const typeData = localVarDecl.typeData;
@@ -258,13 +259,26 @@ export function OutputTypeConfigForm() {
                     }
                 }
             }
+
+            if (variableOption.type === PrimitiveBalType.Json) {
+                if (localVarDecl.initializer && STKindChecker.isMappingConstructor(localVarDecl.initializer)) {
+                    try {
+                        const jsonStructure = JSON.parse(localVarDecl.initializer.source);
+                        resetJsonValueToDefault(jsonStructure);
+                        sampleStructure = JSON.stringify(jsonStructure);
+                    } catch (e) {
+                        sampleStructure = localVarDecl.initializer.source;
+                    }
+                }
+            }
         }
 
         config.outputType = {
             type: variableOption.type,
             generationType,
             typeInfo,
-            variableName: variableOption.name
+            variableName: variableOption.name,
+            sampleStructure
         }
         setVariableName(variableOption.name);
     }
@@ -318,9 +332,6 @@ export function OutputTypeConfigForm() {
             switch (config.outputType.type) {
                 case 'json':
                     outputType = 'json';
-                    // config.outputType.type = 'record'; // todo: handle conversion to json
-                    // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
-                    // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;
@@ -344,10 +355,6 @@ export function OutputTypeConfigForm() {
             switch (config.outputType.type) {
                 case 'json':
                     outputType = 'json';
-                    // config.outputType.sampleStructure = defaultReturn;
-                    // config.outputType.type = 'record'; // todo: handle conversion to json
-                    // outputType = `record {|${generateInlineRecordForJson(JSON.parse(config.outputType.sampleStructure))}|}`;
-                    // conversionStatement = `json ${config.outputType.variableName}Json = ${config.outputType.variableName}.toJson();`
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;

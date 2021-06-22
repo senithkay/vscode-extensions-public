@@ -281,6 +281,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     onSelectConnection={handleOnSelectConnection}
                     onDeselectConnection={handleOnDeselectConnection}
                     onFailure={handleError}
+                    isTriggerConnector={true}
                 />
                 <p />
             </div>

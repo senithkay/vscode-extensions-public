@@ -20,6 +20,7 @@ import classNames from 'classnames';
 
 import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import Tooltip from '../../../../../../components/Tooltip';
+import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
@@ -337,6 +338,14 @@ export function JsonType(props: JsonTypeProps) {
                                             <>
                                                 <tspan className="key-value"> {`${name}:`} </tspan>
                                                 <tspan className="value-para"> {`${type}`}  </tspan>
+                                                {
+                                                    viewState.type === PrimitiveBalType.Json ?
+                                                        (
+                                                            <tspan className="json-type-indicator">
+                                                                ({hasMappingConstructor ? 'object' : 'value'})
+                                                            </tspan>
+                                                        ) : null
+                                                }
                                             </>
                                         ) : (
                                             <Tooltip
@@ -346,9 +355,19 @@ export function JsonType(props: JsonTypeProps) {
                                                 inverted={false}
                                                 interactive={true}
                                             >
-                                                <tspan className="key-value">
-                                                    {`${name}: ${type}`.slice(0, 20) + '...'}
-                                                </tspan>
+                                                <>
+                                                    <tspan className="key-value">
+                                                        {`${name}: ${type}`.slice(0, 20) + '...'}
+                                                    </tspan>
+                                                    {
+                                                        viewState.type === PrimitiveBalType.Json ?
+                                                            (
+                                                                <tspan className="json-type-indicator">
+                                                                    ({hasMappingConstructor ? 'object' : 'value'})
+                                                                </tspan>
+                                                            ) : null
+                                                    }
+                                                </>
                                             </Tooltip>
 
                                         )
@@ -379,7 +398,12 @@ export function JsonType(props: JsonTypeProps) {
                                 {
                                     !isNameTooLong ?
                                         (
-                                            <tspan className="value-para"> {`${name}: ${type}`}  </tspan>
+                                            <>
+                                                <tspan className="value-para"> {`${name}: ${type}`}  </tspan>
+                                                <tspan className="json-type-indicator">
+                                                    ({hasMappingConstructor ? 'object' : 'value'})
+                                                </tspan>
+                                            </>
                                         ) : (
                                             <Tooltip
                                                 arrow={true}
@@ -388,9 +412,15 @@ export function JsonType(props: JsonTypeProps) {
                                                 inverted={false}
                                                 interactive={true}
                                             >
-                                                <tspan className="value-value">
-                                                    {`${name}: ${type}`.slice(0, 20) + '...'}
-                                                </tspan>
+                                                <>
+                                                    <tspan className="value-para">
+                                                        {`${name}: ${type}`.slice(0, 20) + '...'}
+                                                    </tspan>
+                                                    <tspan className="json-type-indicator">
+                                                        ({hasMappingConstructor ? 'object' : 'value'})
+                                                    </tspan>
+                                                </>
+
                                             </Tooltip>
 
                                         )

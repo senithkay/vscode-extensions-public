@@ -24,7 +24,6 @@ export function OutputConfigureButton(props: OutputConfigureButtonProps) {
 
     return (
         <svg data-testid={'datamapper-json-output-configure-btn'}  {...xyProps} width="110px" height="18px" viewBox="0 0 110px 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-            {/* <title>AD26148C-0FD3-4B56-9178-150E90F65543</title> */}
             <g id="Data-mapping" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="datamaping-input-variables" transform="translate(-1027.000000, -131.000000)" fill="#5567D5" fill-rule="nonzero">
                     <g id="Icon/Feedback-Copy-6" transform="translate(1027.000000, 131.000000)">

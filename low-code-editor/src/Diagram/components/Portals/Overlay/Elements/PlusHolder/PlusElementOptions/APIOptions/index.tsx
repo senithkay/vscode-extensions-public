@@ -611,26 +611,13 @@ export function APIOptions(props: APIOptionsProps) {
         setSelectedContName(evt.target.value);
     };
 
-    const genericConnectors: ReactNode[] = [];
-    const serviceConnectors: ReactNode[] = [];
+    const updatedConnectorComponents: ReactNode[] = [];
     if (selectedContName !== "") {
-        const allCnts: ConnctorComponent[] = connectorComponents.filter(el =>
+        const filteredComponents: ConnctorComponent[] = connectorComponents.filter(el =>
             el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
-        allCnts.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
-        });
+        filteredComponents.map((component) => updatedConnectorComponents.push(component.component));
     } else {
-        connectorComponents.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
-        });
+        connectorComponents.map((component) => updatedConnectorComponents.push(component.component));
     }
     const exsitingConnectors: ReactNode[] = [];
     if (selectedContName !== "") {
@@ -720,10 +707,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 />
                             </div>
                             <div className="options-wrapper">
-                                {/* {(genericConnectors.length > 0 ? <Divider /> : null)} */}
-                                {genericConnectors}
-                                {(serviceConnectors.length > 0 ? <Divider /> : null)}
-                                {serviceConnectors}
+                                {updatedConnectorComponents}
                             </div>
                         </>
                     )
