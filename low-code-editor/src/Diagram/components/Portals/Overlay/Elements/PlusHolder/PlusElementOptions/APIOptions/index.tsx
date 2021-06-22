@@ -613,15 +613,11 @@ export function APIOptions(props: APIOptionsProps) {
 
     const updatedConnectorComponents: ReactNode[] = [];
     if (selectedContName !== "") {
-        const allCnts: ConnctorComponent[] = connectorComponents.filter(el =>
+        const filteredComponents: ConnctorComponent[] = connectorComponents.filter(el =>
             el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
-        allCnts.forEach((allCnt) => {
-            updatedConnectorComponents.push(allCnt.component);
-        });
+        filteredComponents.map((component) => updatedConnectorComponents.push(component.component));
     } else {
-        connectorComponents.forEach((allCnt) => {
-            updatedConnectorComponents.push(allCnt.component);
-        });
+        connectorComponents.map((component) => updatedConnectorComponents.push(component.component));
     }
     const exsitingConnectors: ReactNode[] = [];
     if (selectedContName !== "") {
