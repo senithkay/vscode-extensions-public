@@ -66,52 +66,46 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
         <div className={classes.queryParamEditorWrap}>
             <div>
                 <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                Type
-                            </div>
-                        </Grid>
-                        <Grid item xs={7}>
-                        </Grid>
-                        <Grid item xs={5}>
-                            <SelectDropdownWithButton
-                                dataTestId="api-return-type"
-                                defaultValue={segmentState?.type}
-                                customProps={
-                                    {
-                                        values: ["string", "int", "boolean", "float", "error"],
-                                        disableCreateNew: true,
-                                    }
-                                }
-                                onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
-                            />
-                        </Grid>
-                        <Grid item xs={7}>
-                            <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={(selectedCheck: string[]) => { onChangeSegment(selectedCheck, "IS_OPTIONAL") }} />
-                        </Grid>
+                    <Grid item xs={5}>
+                        <div className={classes.labelOfInputs}>
+                            Type
+                        </div>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-
-                        </Grid>
-                        <Grid container item xs={7}>
-                            <Grid item xs={6} spacing={1}>
-                                <SecondaryButton
-                                    text="Cancel"
-                                    fullWidth={false}
-                                    onClick={onCancel} />
-                            </Grid>
-                            <Grid item xs={6} spacing={1}>
-                                <PrimaryButton
-                                    dataTestId={"api-return-save-btn"}
-                                    text={"Add"}
-                                    disabled={false}
-                                    fullWidth={false}
-                                    onClick={handleOnSave}
-                                />
-                            </Grid>
-                        </Grid>
+                </Grid>
+                <Grid container item spacing={2}>
+                    <Grid item xs={5}>
+                        <SelectDropdownWithButton
+                            dataTestId="api-return-type"
+                            defaultValue={segmentState?.type}
+                            customProps={
+                                {
+                                    values: ["string", "int", "boolean", "float", "error"],
+                                    disableCreateNew: true,
+                                }
+                            }
+                            onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
+                        />
+                    </Grid>
+                    <Grid item xs={7}>
+                        <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={(selectedCheck: string[]) => { onChangeSegment(selectedCheck, "IS_OPTIONAL") }} />
+                    </Grid>
+                </Grid>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={12}>
+                        <div className={classes.btnContainer}>
+                            <SecondaryButton
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={onCancel} 
+                            />
+                            <PrimaryButton
+                                dataTestId={"api-return-save-btn"}
+                                text={"Add"}
+                                disabled={false}
+                                fullWidth={false}
+                                onClick={handleOnSave}
+                            />
+                        </div>
                     </Grid>
                 </Grid>
             </div>

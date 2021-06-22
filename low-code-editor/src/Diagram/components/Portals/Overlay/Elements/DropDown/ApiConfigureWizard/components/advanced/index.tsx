@@ -60,19 +60,17 @@ export function AdvancedEditor(props: AdvancedProps) {
     };
 
     return (
-        <div className={classes.segmentEditorWrap}>
-            <div>
-                <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={6}>
-                            <CheckBoxGroup values={["Add Caller"]} defaultValues={[segmentState.isCaller ? "Add Caller" : ""]}  onChange={onCallerCheckChange} />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <CheckBoxGroup values={["Add Request"]} defaultValues={[segmentState.isRequest ? "Add Request" : ""]} onChange={onRequestCheckChange} />
-                        </Grid>
+        <div>
+            <Grid container spacing={1}>
+                <Grid container item spacing={2}>
+                    <Grid item xs={6}>
+                        <CheckBoxGroup values={["Add Caller"]} defaultValues={[segmentState.isCaller ? "Add Caller" : ""]}  onChange={onCallerCheckChange} />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <CheckBoxGroup values={["Add Request"]} defaultValues={[segmentState.isRequest ? "Add Request" : ""]} onChange={onRequestCheckChange} />
                     </Grid>
                 </Grid>
-            </div>
+            </Grid>
         </div>
     );
 }
