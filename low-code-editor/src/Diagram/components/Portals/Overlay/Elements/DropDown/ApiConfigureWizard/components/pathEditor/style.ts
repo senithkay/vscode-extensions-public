@@ -46,10 +46,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         segmentEditorWrap: {
             boxSizing: "border-box",
-            height: "185px",
             width: "100%",
             border: "1px solid #EEEEEE",
             backgroundColor: "#F7F8FB",
+            padding: theme.spacing(2),
+            borderRadius: 4
         },
         labelOfInputs: {
             height: "24px",
@@ -58,6 +59,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             letterSpacing: "0",
             lineHeight: "24px"
+        },
+        actionBtn: {
+            fontSize: 13,
+        },
+        btnContainer: {
+            display: "flex",
+            justifyContent: "flex-end"
+        },
+        iconBtn: {
+            padding: 0
         }
     })
 );

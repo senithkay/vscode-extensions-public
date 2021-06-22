@@ -1,16 +1,18 @@
 
 import React, { useContext, useEffect, useState } from "react";
-import { CloseRounded } from "@material-ui/icons";
+
 import { Checkbox, Grid } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
+
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
+import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { PathSegment } from "../../types";
 
 import { useStyles } from './style';
-import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
-import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { PathSegment } from "../../types";
 
 interface PathSegmentEditorProps {
     id?: number;
@@ -61,28 +63,28 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
     return (
         <div className={classes.segmentEditorWrap}>
             <div>
-                <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={7}>
+                <Grid container={true} spacing={1}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={7}>
                             <div className={classes.labelOfInputs}>
-                                name
+                                Name
                             </div>
                         </Grid>
-                        <Grid item xs={5}>
+                        <Grid item={true} xs={5}>
                             <div className={classes.labelOfInputs}>
-                                type
+                                Type
                             </div>
                         </Grid>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={7}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={7}>
                             <FormTextInput
                                 dataTestId="api-path-segment"
                                 defaultValue={segmentState?.name}
                                 onChange={(text: string) => { onChangeSegment(text, "NAME") }}
                             />
                         </Grid>
-                        <Grid item xs={5}>
+                        <Grid item={true} xs={5}>
                             <SelectDropdownWithButton
                                 defaultValue={segmentState?.type}
                                 disabled={!segmentState?.isParam}
@@ -96,31 +98,29 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={7}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={7}>
                             <CheckBoxGroup values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />
                         </Grid>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
-
-                        </Grid>
-                        <Grid container item xs={7}>
-                            <Grid item xs={6} spacing={1}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={12}>
+                            <div className={classes.btnContainer}>
                                 <SecondaryButton
                                     text="Cancel"
                                     fullWidth={false}
-                                    onClick={onCancel} />
-                            </Grid>
-                            <Grid item xs={6} spacing={1}>
+                                    onClick={onCancel}
+                                    className={classes.actionBtn}
+                                />
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={"Add"}
                                     disabled={false}
                                     fullWidth={false}
                                     onClick={handleOnSave}
+                                    className={classes.actionBtn}
                                 />
-                            </Grid>
+                            </div>
                         </Grid>
                     </Grid>
                 </Grid>

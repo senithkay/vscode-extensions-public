@@ -11,6 +11,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         switchWrapper: {
             display: 'flex',
             justifyContent: 'space-between',
+            marginTop: "1rem",
             "& .MuiFormControlLabel-root" : {
                 justifyContent: 'space-between',
                 flexDirection: 'row-reverse',

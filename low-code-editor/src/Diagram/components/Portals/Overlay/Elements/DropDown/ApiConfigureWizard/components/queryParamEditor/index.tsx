@@ -1,15 +1,15 @@
-import { CloseRounded } from "@material-ui/icons";
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
+
+import { CloseRounded } from "@material-ui/icons";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { QueryParam, QueryParamCollection } from "../../types";
 import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection, genrateBallerinaQueryParams } from "../../util";
+
 import { QueryParamItem } from "./queryParamItem";
 import { QueryParamSegmentEditor } from "./segmentEditor";
-
-
 import { useStyles } from './style';
 
 interface PathEditorProps {

@@ -7,19 +7,18 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
 
         checkbox: {
-            color: '#40404B',
+            color: '#2FA86C',
 
             "&$checked": {
-                color: "#404040",
+                color: "#2FA86C",
 
                 "&:hover": {
-                    background: "#404040",
+                    background: "transparent",
                 },
 
                 "& .MuiIconButton-label": {
                     position: "relative",
                     zIndex: 0,
-                    color: "#fff",
                 },
 
                 "& .MuiIconButton-label::after": {
@@ -29,9 +28,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                     width: 19,
                     height: 19,
                     position: "absolute",
-                    backgroundColor: "#404040",
+                    backgroundColor: "#fff",
                     zIndex: -1,
-                    border: "1px solid #404040",
                     borderRadius: 3,
                 }
             }
@@ -40,7 +38,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         checked: {},
 
         checkFormControl: {
-            margin: theme.spacing(0.5)
+            margin: theme.spacing(0.5),
+            marginTop: 0
         },
 
         disabled: {

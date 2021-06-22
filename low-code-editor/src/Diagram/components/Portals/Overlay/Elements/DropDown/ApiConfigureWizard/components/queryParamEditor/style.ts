@@ -53,10 +53,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         queryParamEditorWrap: {
             boxSizing: "border-box",
-            height: "125px",
             width: "100%",
             border: "1px solid #EEEEEE",
             backgroundColor: "#F7F8FB",
+            padding: theme.spacing(2),
+            borderRadius: 4
         },
         labelOfInputs: {
             height: "24px",
@@ -65,6 +66,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             letterSpacing: "0",
             lineHeight: "24px"
+        },
+        actionBtn: {
+            fontSize: 13,
+        },
+        btnContainer: {
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: theme.spacing(1)
+        },
+        iconBtn: {
+            padding: 0
         }
     })
 );

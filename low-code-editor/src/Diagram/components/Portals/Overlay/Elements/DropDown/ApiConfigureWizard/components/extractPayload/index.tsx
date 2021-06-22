@@ -1,15 +1,16 @@
 
 import React, { useContext, useEffect, useState } from "react";
-import { CloseRounded } from "@material-ui/icons";
+
 import { Checkbox, Grid } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
+
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-
-import { useStyles } from './style';
-import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-
+import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Payload } from "../../types";
 import { convertPayloadStringToPayload } from "../../util";
+
+import { useStyles } from './style';
 
 interface PayloadProps {
     payload?: string,
@@ -32,7 +33,7 @@ export function PayloadEditor(props: PayloadProps) {
         const segment: Payload = {
             ...segmentState,
         };
-        
+
         if (type === "NAME") {
             segment.name = text;
             setSegmentState(segment);
@@ -49,21 +50,21 @@ export function PayloadEditor(props: PayloadProps) {
     return (
         <div className={classes.segmentEditorWrap}>
             <div>
-                <Grid container spacing={1}>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
+                <Grid container={true} spacing={1}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={5}>
                             <div className={classes.labelOfInputs}>
-                                type
+                                Type
                             </div>
                         </Grid>
-                        <Grid item xs={7}>
+                        <Grid item={true} xs={7}>
                             <div className={classes.labelOfInputs}>
-                                name
+                                Name
                             </div>
                         </Grid>
                     </Grid>
-                    <Grid container item spacing={2}>
-                        <Grid item xs={5}>
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={5}>
                             <SelectDropdownWithButton
                                 disabled={disabled}
                                 defaultValue={segmentState?.type}
@@ -76,7 +77,7 @@ export function PayloadEditor(props: PayloadProps) {
                                 onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
                             />
                         </Grid>
-                        <Grid item xs={7}>
+                        <Grid item={true} xs={7}>
                             <FormTextInput
                                 dataTestId="api-extract-segment"
                                 defaultValue={segmentState?.name}

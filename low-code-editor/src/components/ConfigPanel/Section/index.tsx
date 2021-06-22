@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { Grid } from "@material-ui/core";
 import React from "react";
+
+import { Grid, Typography } from "@material-ui/core";
 
 import { TooltipIcon } from "../../Tooltip";
 
@@ -22,18 +23,27 @@ export default function ConfigPanelSection(props: any) {
     const classes = useStyles();
     const { title, tooltip, children, tooltipWithExample, button } = props;
 
+    const switchBtn = (
+        <div className={classes.switch}>
+            {button}
+        </div>
+    )
+
     return (
         <div className={classes.sectionWrapper}>
-            <Grid container spacing={1}>
-                <Grid container item spacing={2}>
-                    <Grid item xs={button ? 7 : 12}>
+            <Grid container={true} spacing={1}>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={12}>
                         {!!tooltip ? (
                             <TooltipIcon
                                 title={tooltip.title}
                                 placement="left"
                                 arrow={true}
                             >
-                                <p className={classes.sectionTitle}>{title}</p>
+                                <div className={classes.titleContent}>
+                                    <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                    {button && switchBtn}
+                                </div>
                             </TooltipIcon>
 
                         ) : (!!tooltipWithExample) ? (
@@ -45,18 +55,20 @@ export default function ConfigPanelSection(props: any) {
                                 example={true}
                                 content={tooltipWithExample.content}
                             >
-                                <p className={classes.sectionTitle}>{title}</p>
+                                <div className={classes.titleContent}>
+                                    <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                    {button && switchBtn}
+                                </div>
                             </TooltipIcon>
 
-                        ) :
-                            (<p className={classes.sectionTitle}>{title}</p>)
+                        ) : (
+                            <div className={classes.titleContent}>
+                                <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                {button && switchBtn}
+                            </div>
+                            )
                         }
                     </Grid>
-                    {button &&
-                        <Grid item xs={5}>
-                            {button}
-                        </Grid>
-                    }
                 </Grid>
             </Grid>
             {children}

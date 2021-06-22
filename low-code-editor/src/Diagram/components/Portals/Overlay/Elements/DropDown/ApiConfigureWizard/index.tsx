@@ -36,15 +36,16 @@ import {
   TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
+
+import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
-import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType } from "./util";
-import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { Path, Payload, QueryParamCollection, Resource } from "./types";
-import { PayloadEditor } from "./components/extractPayload";
+import { convertPathStringToSegments, convertQueryParamStringToSegments, extractPayloadFromST, generateQueryParamFromQueryCollection, generateQueryParamFromST, genrateBallerinaQueryParams, genrateBallerinaResourcePath, getBallerinaPayloadType } from "./util";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
@@ -113,7 +114,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload: payload });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -180,7 +181,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       // dispatchGoToNextTourStep("CONFIG_HTTP_PATH");
     }
 
-    let queryParams: QueryParamCollection = convertQueryParamStringToSegments(text);
+    const queryParams: QueryParamCollection = convertQueryParamStringToSegments(text);
 
     // Update path
     const updatedResources = resources;
@@ -236,7 +237,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         "RES_PATH": currentPath,
         "METHODS": currentMethod.toLocaleLowerCase(),
         "RESOURCES": resources.map((res) => {
-          let queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
+          const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
             "PATH": res.path,
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams),
@@ -263,7 +264,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       }
       const selectedResource = resources[0];
       if (selectedResource.queryParams) {
-        let queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
+        const queryParams: QueryParamCollection = convertQueryParamStringToSegments(selectedResource.queryParams);
         selectedResource.queryParams = genrateBallerinaQueryParams(queryParams);
       }
       mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path, selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), updatePosition));
@@ -426,8 +427,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </div>
               </div>
             }
-            {/* 
-            
+            {/*
+
             <div className={classes.sectionSeparator}>
               <Section
                 title={extractPayloadTitle}
@@ -478,7 +479,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 }}
                 errorMessage={pathErrorMessage}
                 placeholder={pathPlaceholder}
-              /> 
+              />
             </Section> */}
           </div>
         ))}
@@ -518,15 +519,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 }
 
 function extractPathData(text: string): Resource {
-  let resource: Resource = {
+  const resource: Resource = {
     id: 0,
     method: "GET",
     path: ""
   };
-  let splittedPath: string[] = text.split("?");
-  let path: Path = convertPathStringToSegments(splittedPath[0]);
+  const splittedPath: string[] = text.split("?");
+  const path: Path = convertPathStringToSegments(splittedPath[0]);
   if (splittedPath.length > 1) {
-    let queryParams: QueryParamCollection = convertQueryParamStringToSegments(splittedPath[1]);
+    const queryParams: QueryParamCollection = convertQueryParamStringToSegments(splittedPath[1]);
     resource.queryParams = generateQueryParamFromQueryCollection(queryParams);
   }
   resource.id = 0;

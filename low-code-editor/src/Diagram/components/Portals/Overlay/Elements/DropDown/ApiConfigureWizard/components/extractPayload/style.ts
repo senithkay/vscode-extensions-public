@@ -45,11 +45,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center"
         },
         segmentEditorWrap: {
-            boxSizing: "border-box",
-            height: "185px",
-            width: "100%",
-            border: "1px solid #EEEEEE",
-            backgroundColor: "#F7F8FB",
+            width: "100%"
         },
         labelOfInputs: {
             height: "24px",

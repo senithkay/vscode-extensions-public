@@ -1,8 +1,9 @@
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+
 import { Path, PathSegment, Payload, QueryParam, QueryParamCollection } from "./types";
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
-    let payload: Payload = {
+    const payload: Payload = {
         type: "",
         name: ""
     }
@@ -22,23 +23,23 @@ export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): s
 }
 
 export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
-    let queryParamCollection: QueryParamCollection = {
+    const queryParamCollection: QueryParamCollection = {
         queryParams: []
     };
 
     if (queryParamsString !== "") {
         const queryParamSplited: string[] = queryParamsString.split("&");
         queryParamSplited.forEach((value, index) => {
-            let queryParam: QueryParam = {
+            const queryParam: QueryParam = {
                 id: index,
                 name: "",
                 type: ""
             };
             if (value.includes("=")) {
-                let queryParamSplited: string[] = value.split("=");
+                const queryParamSplited: string[] = value.split("=");
                 if (queryParamSplited.length === 2 && queryParamSplited[1].startsWith("[") && queryParamSplited[1].endsWith("]")) {
-                    let formattedQueryParam = queryParamSplited[1].replace("[", "").replace("]", "");
-                    let splitedNameAndType: string[] = formattedQueryParam.split(" ");
+                    const formattedQueryParam = queryParamSplited[1].replace("[", "").replace("]", "");
+                    const splitedNameAndType: string[] = formattedQueryParam.split(" ");
                     queryParam.id = index;
                     queryParam.name = splitedNameAndType[1];
                     queryParam.type = splitedNameAndType[0];
@@ -57,12 +58,12 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
 }
 
 /**
- * 
+ *
  * @param path path will be like `/name/[string name]/id/[int id]`
  * @returns Path
  */
 export function convertPathStringToSegments(pathString: string): Path {
-    let path: Path = {
+    const path: Path = {
         segments: []
     };
     if (pathString !== "") {
@@ -98,20 +99,20 @@ export function convertPathStringToSegments(pathString: string): Path {
 }
 
 /**
-* 
+*
 * @param pathParamString path param will be like `string id`
 * @returns PathSegement
 */
 export function convertPathParamStringToSegment(pathParamString: string): PathSegment {
     let pathSegment: PathSegment;
     const splitedPathParam: string[] = pathParamString.split(" ");
-    let type: string = splitedPathParam[0];
-    let name: string = pathParamString.substr(type.length + 1, pathParamString.length - 1);
+    const type: string = splitedPathParam[0];
+    const name: string = pathParamString.substr(type.length + 1, pathParamString.length - 1);
     pathSegment = {
         id: 0,
         isParam: true,
-        name: name,
-        type: type
+        name,
+        type
     };
     return pathSegment;
 }
@@ -165,7 +166,7 @@ export function generateQueryParamFromST(params: STNode[]): string {
     let queryParamString: string = "";
     if (params && params.length > 0) {
 
-        let filteredParams: STNode[] = [];
+        const filteredParams: STNode[] = [];
         params.forEach((value) => {
             if (!STKindChecker.isCommaToken(value) && !value.source.includes("@http:Payload") && !value.source.includes("http:Request") && !value.source.includes("http:Caller")) {
                 filteredParams.push(value);
@@ -177,10 +178,10 @@ export function generateQueryParamFromST(params: STNode[]): string {
         }
 
         filteredParams.forEach((value, index, array) => {
-            let queryParamSource = value.source.trim();
-            let splitedQueryParam = queryParamSource.split(" ");
-            let type: string = splitedQueryParam[0];
-            let name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
+            const queryParamSource = value.source.trim();
+            const splitedQueryParam = queryParamSource.split(" ");
+            const type: string = splitedQueryParam[0];
+            const name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
             if (index === (array.length - 1)) {
                 queryParamString += name + "=[" + type + " " + name + "]";
             } else {
