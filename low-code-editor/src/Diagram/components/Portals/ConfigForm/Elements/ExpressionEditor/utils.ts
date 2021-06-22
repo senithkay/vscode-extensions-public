@@ -309,7 +309,7 @@ export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomState
         return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()));
     }
 }
-    
+
 
 export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
     if (diagnosticsMessage && diagnosticsMessage.length > 50)
