@@ -56,7 +56,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
     })
 
     const addDoubleQuotesToEmptyExpr = intl.formatMessage({
-        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotes.text",
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotesToEmptyExpr.text",
         defaultMessage: " to make an empty string"
     })
 
