@@ -27,9 +27,9 @@ import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { convertMemberViewStateToString, hasReferenceConnections } from '../../../util';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
+import { WarningIcon } from '../../buttons/WarningIcon';
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
-import { WarningIcon } from '../../buttons/WarningIcon';
 
 interface ValueTypeProps {
     model: STNode;
