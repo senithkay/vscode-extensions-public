@@ -11,130 +11,157 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
-import { useIntl } from 'react-intl';
-import { useDispatch } from 'react-redux';
+import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
-import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
+// import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
-import { ConnectorConfig, FunctionDefinitionInfo, WizardType } from "../../../ConfigurationSpec/types";
+import {
+  ConnectorConfig,
+  FunctionDefinitionInfo,
+  WizardType,
+} from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import { BallerinaConnectorsInfo, Connector } from "../../../Definitions/lang-client-extended";
+import {
+  BallerinaConnectorsInfo,
+  Connector,
+} from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
+import { DiagramContext } from "../../../providers/contexts";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
 import { DraftInsertPosition } from "../../view-state/draft";
-import { DefaultConfig } from '../../visitors/default';
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../Portals/Overlay';
+import { DefaultConfig } from "../../visitors/default";
+import {
+  DiagramOverlay,
+  DiagramOverlayContainer,
+  DiagramOverlayPosition,
+} from "../Portals/Overlay";
 import { fetchConnectorInfo } from "../Portals/utils";
 
 import { ConnectorForm } from "./Components/ConnectorForm";
 import { wizardStyles } from "./style";
-// import { connect } from "react-redux";
-
 
 export interface ConfigWizardState {
-    isLoading: boolean;
-    connector: Connector;
-    wizardType: WizardType;
-    functionDefInfo: Map<string, FunctionDefinitionInfo>;
-    connectorConfig: ConnectorConfig;
-    model?: STNode;
+  isLoading: boolean;
+  connector: Connector;
+  wizardType: WizardType;
+  functionDefInfo: Map<string, FunctionDefinitionInfo>;
+  connectorConfig: ConnectorConfig;
+  model?: STNode;
 }
 
 export interface ConnectorConfigWizardProps {
-    position: DiagramOverlayPosition;
-    connectorInfo: BallerinaConnectorsInfo;
-    targetPosition: DraftInsertPosition;
-    model?: STNode;
-    onClose: () => void;
-    selectedConnector?: LocalVarDecl;
-    isAction?: boolean;
-    // dispatchOverlayOpen: () => void;
+  position: DiagramOverlayPosition;
+  connectorInfo: BallerinaConnectorsInfo;
+  targetPosition: DraftInsertPosition;
+  model?: STNode;
+  onClose: () => void;
+  selectedConnector?: LocalVarDecl;
+  isAction?: boolean;
+  // dispatchOverlayOpen: () => void;
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-    const { state, toggleDiagramOverlay } = useContext(Context);
-    const { closeConfigOverlayForm: dispatchOverlayClose, configOverlayFormPrepareStart: dispatchOverlayOpen,
-            isCodeEditorActive, triggerErrorNotification, onFitToScreen, appInfo } = state;
+  const { diagramPanLocation } = useContext(DiagramContext).callbacks;
+  const { state, toggleDiagramOverlay } = useContext(Context);
+  const {
+    closeConfigOverlayForm: dispatchOverlayClose,
+    configOverlayFormPrepareStart: dispatchOverlayOpen,
+    isCodeEditorActive,
+    triggerErrorNotification,
+    onFitToScreen,
+    appInfo,
+  } = state;
 
-    const { position, connectorInfo, targetPosition, model, onClose, selectedConnector, isAction } = props;
+  const {
+    position,
+    connectorInfo,
+    targetPosition,
+    model,
+    onClose,
+    selectedConnector,
+    isAction,
+  } = props;
 
-    const initWizardState: ConfigWizardState = {
-        isLoading: true, connectorConfig: undefined,
-        functionDefInfo: undefined, wizardType: undefined, connector: undefined
-    }
+  const initWizardState: ConfigWizardState = {
+    isLoading: true,
+    connectorConfig: undefined,
+    functionDefInfo: undefined,
+    wizardType: undefined,
+    connector: undefined,
+  };
 
-    const [wizardState, setWizardState] = useState<ConfigWizardState>(initWizardState);
-    const classes = wizardStyles();
+  const [wizardState, setWizardState] = useState<ConfigWizardState>(
+    initWizardState
+  );
+  const classes = wizardStyles();
 
-    const intl = useIntl();
-    const connectionErrorMsgText = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.errorMessage",
-        defaultMessage: "Something went wrong. Couldn't load the connection."
-    });
+  const intl = useIntl();
+  const connectionErrorMsgText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.createConnection.errorMessage",
+    defaultMessage: "Something went wrong. Couldn't load the connection.",
+  });
 
-    const dispatch = useDispatch();
-    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
-    const currentAppid = appInfo?.currentApp?.id;
+  const currentAppid = appInfo?.currentApp?.id;
 
-    React.useEffect(() => {
-        onFitToScreen(currentAppid);
-        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
-    }, []);
+  React.useEffect(() => {
+    onFitToScreen(currentAppid);
+    diagramPanLocation(currentAppid, 0, -position.y + DefaultConfig.dotGap * 3);
+  }, []);
 
-    React.useEffect(() => {
-        if (wizardState.isLoading) {
-            (async () => {
-                const configList = await fetchConnectorInfo(connectorInfo, model, state);
-                if (configList) {
-                    setWizardState(configList);
-                } else {
-                    triggerErrorNotification(new Error(connectionErrorMsgText));
-                    handleClose();
-                }
-            })()
-            toggleDiagramOverlay();
+  React.useEffect(() => {
+    if (wizardState.isLoading) {
+      (async () => {
+        const configList = await fetchConnectorInfo(
+          connectorInfo,
+          model,
+          state
+        );
+        if (configList) {
+          setWizardState(configList);
+        } else {
+          triggerErrorNotification(new Error(connectionErrorMsgText));
+          handleClose();
         }
-    }, [wizardState]);
-
-    const handleClose = () => {
-        onClose();
-        dispatchOverlayClose();
-        toggleDiagramOverlay();
+      })();
+      toggleDiagramOverlay();
     }
+  }, [wizardState]);
 
-    return (
-        <div>
-            <DiagramOverlayContainer>
-                {!isCodeEditorActive ?
-                    (
-                        <DiagramOverlay
-                            className={classes.configWizardContainer}
-                            position={position}
-                        >
-                            <>
-                                {wizardState.isLoading ? (
-                                    <div className={classes.loaderWrapper}>
-                                        <TextPreloaderVertical position='relative' />
-                                    </div>
-                                ) : (
-                                    <ConnectorForm
-                                        selectedConnector={selectedConnector}
-                                        targetPosition={targetPosition}
-                                        configWizardArgs={wizardState}
-                                        connectorInfo={connectorInfo}
-                                        isAction={isAction}
-                                        onClose={handleClose}
-                                    />
-                                )}
-                            </>
-                        </DiagramOverlay>
-                    )
-                    :
-                    null
-                }
-            </DiagramOverlayContainer>
-        </div>
-    );
+  const handleClose = () => {
+    onClose();
+    dispatchOverlayClose();
+    toggleDiagramOverlay();
+  };
+
+  return (
+    <div>
+      <DiagramOverlayContainer>
+        {!isCodeEditorActive ? (
+          <DiagramOverlay
+            className={classes.configWizardContainer}
+            position={position}
+          >
+            <>
+              {wizardState.isLoading ? (
+                <div className={classes.loaderWrapper}>
+                  <TextPreloaderVertical position="relative" />
+                </div>
+              ) : (
+                <ConnectorForm
+                  selectedConnector={selectedConnector}
+                  targetPosition={targetPosition}
+                  configWizardArgs={wizardState}
+                  connectorInfo={connectorInfo}
+                  isAction={isAction}
+                  onClose={handleClose}
+                />
+              )}
+            </>
+          </DiagramOverlay>
+        ) : null}
+      </DiagramOverlayContainer>
+    </div>
+  );
 }

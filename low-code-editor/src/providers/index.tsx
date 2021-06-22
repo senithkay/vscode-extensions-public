@@ -6,33 +6,31 @@ import { TriggerType } from "../Diagram/models";
 import { Provider as DiagramProvider } from "./contexts/Diagram";
 
 export default function Provider(props: any) {
-    const {
-        children,
-        onMutate,
-        ...restProps
-    } = props;
+  const { children, onMutate, diagramPanLocation, ...restProps } = props;
 
-    const initialState = restProps;
+  const initialState = restProps;
 
-    const modifyTrigger = (triggerType: TriggerType, model?: any, configObject?: any) => {
-        onMutate('TRIGGER', { triggerType, model, configObject });
-    }
+  const modifyTrigger = (
+    triggerType: TriggerType,
+    model?: any,
+    configObject?: any
+  ) => {
+    onMutate("TRIGGER", { triggerType, model, configObject });
+  };
 
-    const modifyDiagram = (mutations: STModification[], options: any = {}) => {
-        onMutate('DIAGRAM', { mutations, ...options });
-    }
+  const modifyDiagram = (mutations: STModification[], options: any = {}) => {
+    onMutate("DIAGRAM", { mutations, ...options });
+  };
 
-    const callbacks = {
-        modifyDiagram,
-        modifyTrigger
-    };
+  const callbacks = {
+    modifyDiagram,
+    modifyTrigger,
+    diagramPanLocation,
+  };
 
-    return (
-        <DiagramProvider
-            initialState={initialState}
-            callbacks={callbacks}
-        >
-            {children}
-        </DiagramProvider>
-    );
+  return (
+    <DiagramProvider initialState={initialState} callbacks={callbacks}>
+      {children}
+    </DiagramProvider>
+  );
 }

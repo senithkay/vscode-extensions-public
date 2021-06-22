@@ -68,7 +68,8 @@
         "toposort": "1.0.0",
         "uuid": "^8.3.0",
         "vscode-ws-jsonrpc": "^0.1.1",
-        "vue-jest": "^3.0.7"
+        "vue-jest": "^3.0.7",
+        "joi": "^17.3.0"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^17.1.0",
