@@ -109,14 +109,6 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
                 defaultMessage: "Receive email messages"
             }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.actionText",
-                defaultMessage: "Learn more..."
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.actionLink",
-                defaultMessage: "https://wso2.com/choreo/docs/"
-            }),
             placement: 'right'
         },
         gitHubConnector: {
@@ -546,33 +538,7 @@ export function APIOptions(props: APIOptionsProps) {
                 "example" : tooltipExample,
                 "content" : tooltipTitle
             }
-            if (connector.displayName === "IMAP"){
-                const tooltipAction = {
-                    "link": connectionsTooltipMessages.imapConnector.actionLink,
-                    "text": connectionsTooltipMessages.imapConnector.actionText
-                }
-                const component: ReactNode = (
-                    <Tooltip type="info" text={tooltipText} action={tooltipAction} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
-                        <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
-                            <div className="connector-details product-tour-add-http">
-                                <div className="connector-icon">
-                                    {getConnectorIconSVG(connector)}
-                                </div>
-                                <div className="connector-name">
-                                    {connector.displayName}
-                                </div>
-                            </div>
-                        </div>
-                    </Tooltip>
-                );
-                const connectorComponent: ConnctorComponent = {
-                    connectorInfo: connector,
-                    component
-                }
-                connectorComponents.push(connectorComponent);
-            }
-            else{
-                const component: ReactNode = (
+            const component: ReactNode = (
                     <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connector.displayName.toLowerCase()}>
                         <div className="connect-option" key={connector.displayName} onClick={onSelectConnector.bind(this, connector)} data-testid={connector.displayName.toLowerCase()}>
                             <div className="connector-details product-tour-add-http">
@@ -586,12 +552,11 @@ export function APIOptions(props: APIOptionsProps) {
                         </div>
                     </Tooltip>
                 );
-                const connectorComponent: ConnctorComponent = {
+            const connectorComponent: ConnctorComponent = {
                     connectorInfo: connector,
                     component
                 }
-                connectorComponents.push(connectorComponent);
-            }
+            connectorComponents.push(connectorComponent);
         });
 
         const getConnector = (moduleName: string, name: string): BallerinaConnectorsInfo => {
@@ -647,26 +612,13 @@ export function APIOptions(props: APIOptionsProps) {
         setSelectedContName(evt.target.value);
     };
 
-    const genericConnectors: ReactNode[] = [];
-    const serviceConnectors: ReactNode[] = [];
+    const updatedConnectorComponents: ReactNode[] = [];
     if (selectedContName !== "") {
-        const allCnts: ConnctorComponent[] = connectorComponents.filter(el =>
+        const filteredComponents: ConnctorComponent[] = connectorComponents.filter(el =>
             el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
-        allCnts.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
-        });
+        filteredComponents.map((component) => updatedConnectorComponents.push(component.component));
     } else {
-        connectorComponents.forEach((allCnt) => {
-            if (allCnt.connectorInfo.category === "generic-connectors") {
-                genericConnectors.push(allCnt.component);
-            } else {
-                serviceConnectors.push(allCnt.component);
-            }
-        });
+        connectorComponents.map((component) => updatedConnectorComponents.push(component.component));
     }
     const exsitingConnectors: ReactNode[] = [];
     if (selectedContName !== "") {
@@ -756,10 +708,7 @@ export function APIOptions(props: APIOptionsProps) {
                                 />
                             </div>
                             <div className="options-wrapper">
-                                {/* {(genericConnectors.length > 0 ? <Divider /> : null)} */}
-                                {genericConnectors}
-                                {(serviceConnectors.length > 0 ? <Divider /> : null)}
-                                {serviceConnectors}
+                                {updatedConnectorComponents}
                             </div>
                         </>
                     )

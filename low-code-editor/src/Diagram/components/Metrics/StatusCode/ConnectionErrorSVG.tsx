@@ -13,14 +13,52 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import { Grid, IconButton,  withStyles } from "@material-ui/core";
+import TooltipBase from '@material-ui/core/Tooltip';
+import { CopyToClipboard } from 'components/CopyToClipboard';
+
 export const ERROR_LABEL_SVG_WIDTH_WITH_SHADOW = 65;
 export const ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW = 31;
 export const ERROR_LABEL_SVG_WIDTH = 59;
 export const ERROR_LABEL_SVG_HEIGHT = 25;
 export const ERROR_LABEL_SHADOW_OFFSET = ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW - ERROR_LABEL_SVG_HEIGHT;
 
-export function ConnectionErrorSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+export const tooltipStyles = {
+    tooltip: {
+        width : 670,
+        color: "#40404B",
+        borderRadius: 4,
+        backgroundColor: "#fff",
+        boxShadow: "0 1px 10px 0 rgba(0,0,0,0.22)",
+        padding: "1rem",
+        fontSize: 12,
+        letterSpacing: 0,
+    },
+    arrow: {
+        color: "#ffffff"
+    }
+};
+const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
+
+export function ConnectionErrorSVG(props: { x: number, y: number, text: string, errorMsg: string }) {
+    const { text, errorMsg, ...xyProps } = props;
+
+    const codeCopyBtn = (copy: any) => {
+        const copyButtonClick = () => {
+            copy(errorMsg);
+        };
+        return (
+            <IconButton
+                aria-label="test invoke URL"
+                onClick={copyButtonClick}
+                className={"copy"}
+                disableRipple={true}
+            >
+                {<img src="/images/error-copy-icon.svg" />}
+            </IconButton>
+        )
+    };
+
     return (
         <svg {...xyProps} width={ERROR_LABEL_SVG_WIDTH_WITH_SHADOW} height={ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -39,26 +77,49 @@ export function ConnectionErrorSVG(props: { x: number, y: number, text: string }
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Error" transform="translate(3 2)">
-                <g transform="matrix(1, 0, 0, 1, -3, -2)" filter="url(#ConnectionErrorFilter)">
-                    <rect
-                        id="ErrorRect"
-                        width={ERROR_LABEL_SVG_WIDTH}
-                        height={ERROR_LABEL_SVG_HEIGHT}
-                        rx="4"
-                        transform="translate(3 2)"
-                        fill="#ea4c4d"
-                    />
-                </g>
-                <text
-                    className="metrics-text"
-                    id="Error_text"
-                    transform="translate(30.5 16)"
+            <g id="ErrorComplete">
+                <TooltipComponent
+                    title={
+                        (
+                        <Grid container={true} spacing={2} justify="flex-start" alignItems="flex-start">
+                            <Grid item={true} xs={true} zeroMinWidth={true}>
+                                {errorMsg}
+                            </Grid>
+                            <Grid item={true} >
+                                <CopyToClipboard title={"Copied!"}>
+                                    {({ copy }) => codeCopyBtn(copy)}
+                                </CopyToClipboard>
+                            </Grid>
+                        </Grid>
+                        )
+                    }
+                    placement="top-start"
+                    arrow={true}
+                    interactive={true}
                 >
-                    <tspan x="0" y="0" textAnchor="middle">
-                        {text}
-                    </tspan>
-                </text>
+
+                    <g id="Error" transform="translate(3 2)">
+                        <g transform="matrix(1, 0, 0, 1, -3, -2)" filter="url(#ConnectionErrorFilter)">
+                            <rect
+                                id="ErrorRect"
+                                width={ERROR_LABEL_SVG_WIDTH}
+                                height={ERROR_LABEL_SVG_HEIGHT}
+                                rx="4"
+                                transform="translate(3 2)"
+                                fill="#ea4c4d"
+                            />
+                        </g>
+                        <text
+                            className="metrics-text"
+                            id="Error_text"
+                            transform="translate(30.5 16)"
+                        >
+                            <tspan x="0" y="0" textAnchor="middle">
+                                {text}
+                            </tspan>
+                        </text>
+                    </g>
+                </TooltipComponent>
             </g>
         </svg>
     )

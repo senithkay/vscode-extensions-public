@@ -73,7 +73,8 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
             type: subEditorType,
             value: subEditorValue,
             tooltip: "Add elements to Array",
-            optional: true
+            optional: true,
+            customAutoComplete: model.customAutoComplete
         },
         customProps: {
             validate: handleSubEditorValidation,
@@ -83,6 +84,8 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         },
         onChange: handleSubEditorChange
     };
+
+    model.displayName = "Array Expression";
 
     return (
         <>

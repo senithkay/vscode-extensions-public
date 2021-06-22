@@ -10,10 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
+import { DefaultConfig } from "../../../../../..//src/Diagram/visitors/default";
+import { Context } from "../../../../../../src/Contexts/Diagram";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
@@ -21,6 +25,7 @@ import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
+import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 
@@ -34,8 +39,18 @@ interface ProcessOverlayFormProps {
 
 export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
-    // const { type } = config;
     const { isLoading, error, formType } = configOverlayFormStatus;
+    const { state } = useContext(Context);
+    const { onFitToScreen, appInfo } = state;
+
+    const dispatch = useDispatch();
+    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
+    const currentAppid = appInfo?.currentApp?.id;
+
+    React.useEffect(() => {
+        onFitToScreen(currentAppid);
+        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+    }, []);
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
@@ -53,6 +68,12 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             type: "",
             expression: ""
         };
+    } else if (formType === "DataMapper") {
+        config.config = {
+            inputTypes: [],
+            outputType: undefined,
+            wizardType: config.wizardType
+        }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
             expression: ""
@@ -99,6 +120,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         <>
                             {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                             {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                             {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
                         </>
                     </DiagramOverlay>

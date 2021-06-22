@@ -475,6 +475,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     onSelectConnection={handleOnSelectConnection}
                     onDeselectConnection={handleOnDeselectConnection}
                     onFailure={handleError}
+                    isTriggerConnector={true}
                 />
             </div>
             { activeConnection && isRepoListFetching && (

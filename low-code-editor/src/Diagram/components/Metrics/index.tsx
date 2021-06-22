@@ -44,11 +44,11 @@ export function Metrics(props: MetricsProps) {
 
     const getElement = () => {
         if (trace?.duration){
-            const { duration, httpStatusCode, errorStatus } = trace;
+            const { duration, httpStatusCode, errorStatus, errorMsg } = trace;
             return (
                 <g className={"metrics"}>
                     <DoubleArrowHeadLine className={"arrow-line"} direction={"vertical"} {...doubleArrlowLine} />
-                    <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} {...successText} />
+                    <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} errorMsg={errorMsg} {...successText} />
                     <ResponseTimer responseTime={duration} {...responseTime} />
                 </g>
             );

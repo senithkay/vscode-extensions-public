@@ -24,6 +24,7 @@ const LightTooltip = withStyles((theme) => ({
       padding: '8px 30px',
       borderTopLeftRadius: 20,
       borderBottomLeftRadius: 20,
+      marginLeft: -60
     },
     popperInteractive: {
         padding: '5px',
@@ -33,8 +34,8 @@ const LightTooltip = withStyles((theme) => ({
 
 export function DiagramDisableState() {
     return (
-            <LightTooltip title="Diagram is inactive" interactive={true} placement='left'>
-                <img height='40px' src="../../../../../../images/disable-diagram-icon.svg" />
+            <LightTooltip title="Diagram is inactive" interactive={true} placement='right'>
+                <img height='35px' src="../../../../../../images/disable-diagram-icon.svg" />
             </LightTooltip>
     );
 }
