@@ -54,6 +54,7 @@ export interface OauthConnectButtonProps {
   onSaveNext?: () => void;
   initFormFields?: FormField[];
   connectorConfig?: ConnectorConfig;
+  isTriggerConnector?: boolean;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
@@ -82,6 +83,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     onSaveNext,
     initFormFields,
     connectorConfig,
+    isTriggerConnector
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -187,7 +189,9 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
 
   const handleChangeConnectionSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     // reset connection button
-    connectorConfig.connectorInit = configForm;
+    if (configForm) {
+      connectorConfig.connectorInit = configForm;
+    }
     const allConnections = sessionState?.existingConnectionData?.connections;
     const selectedConnection = (event.target).value;
     setActiveConnection(allConnections?.find((connection: any) => connection.handle === selectedConnection));
@@ -267,6 +271,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
               onChangeConnection={handleChangeConnectionSelection}
               onInitConnection={handleClickInitSession}
               onClickManualConnection={onClickManualConnection}
+              isTriggerConnector={isTriggerConnector}
           />
         </>
     );
@@ -306,24 +311,27 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
                     />
                 </p>
             </div>
+        {!isTriggerConnector &&
+        (
             <div>
               <div className={classNames(classes.manualConfigBtnWrapper)}>
-                  <LinePrimaryButton
-                      className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
-                      text={manualConnectionButtonLabel}
-                      fullWidth={false}
-                      onClick={onClickManualConnection}
-                  />
+                <LinePrimaryButton
+                    className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
+                    text={manualConnectionButtonLabel}
+                    fullWidth={false}
+                    onClick={onClickManualConnection}
+                />
               </div>
               <div className={classes.oauthConnectionAltTextWrapper}>
-                  <p className={classes.oauthConnectionAltText}>
-                      <FormattedMessage
-                          id="lowcode.develop.connectorForms.newConnectionAltText"
-                          defaultMessage={"You will be prompted to enter configuration details"}
-                      />
-                  </p>
+                <p className={classes.oauthConnectionAltText}>
+                  <FormattedMessage
+                      id="lowcode.develop.connectorForms.newConnectionAltText"
+                      defaultMessage={"You will be prompted to enter configuration details"}
+                  />
+                </p>
               </div>
             </div>
+        )}
       </div>
     );
   }

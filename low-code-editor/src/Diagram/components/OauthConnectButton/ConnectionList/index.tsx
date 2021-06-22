@@ -38,10 +38,11 @@ export interface ConnectionListProps {
     onInitConnection: () => void;
     connectionName?: string;
     onClickManualConnection?: () => void;
+    isTriggerConnector?: boolean;
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
-    const { activeConnection, connectionList, onChangeConnection, onInitConnection, onClickManualConnection } = props;
+    const { activeConnection, connectionList, onChangeConnection, onInitConnection, onClickManualConnection, isTriggerConnector } = props;
     const classes = useStyles();
     const intl = useIntl();
     const [selectedConnection, setSelectedConnection] = useState("");
@@ -176,24 +177,27 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     />
                 </p>
             </div>
-            <div>
-                <div className={classNames(classes.manualConfigBtnWrapper)}>
-                    <LinePrimaryButton
-                        className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
-                        text={manualConnectionButtonLabel}
-                        fullWidth={false}
-                        onClick={onClickManualConnection}
-                    />
-                </div>
-                <div className={classes.oauthConnectionAltTextWrapper}>
-                    <p className={classes.oauthConnectionAltText}>
-                        <FormattedMessage
-                            id="lowcode.develop.connectorForms.newConnectionAltText"
-                            defaultMessage={"You will be prompted to enter configuration details"}
+            {!isTriggerConnector &&
+            (
+                <div>
+                    <div className={classNames(classes.manualConfigBtnWrapper)}>
+                        <LinePrimaryButton
+                            className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
+                            text={manualConnectionButtonLabel}
+                            fullWidth={false}
+                            onClick={onClickManualConnection}
                         />
-                    </p>
+                    </div>
+                    <div className={classes.oauthConnectionAltTextWrapper}>
+                        <p className={classes.oauthConnectionAltText}>
+                            <FormattedMessage
+                                id="lowcode.develop.connectorForms.newConnectionAltText"
+                                defaultMessage={"You will be prompted to enter configuration details"}
+                            />
+                        </p>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
