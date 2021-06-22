@@ -430,6 +430,12 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textDecoration: 'underline'
             }
         },
+        suggestionsTextCodeSnippet: {
+            backgroundColor: "#eff1f5",
+            color: "#526acf",
+            fontSize: "12px",
+            padding: "5px"
+        },
         toFieldTooltipWrapper: {
             display: "flex",
             justifyContent: "space-between",

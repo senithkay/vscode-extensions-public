@@ -15,25 +15,35 @@ import React, { ReactNode } from "react";
 import { useIntl } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
+import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { useStyles as useFormStyles } from "../../forms/style";
 
 export enum HintType {
     ADD_CHECK,
     ADD_DOUBLE_QUOTES,
-    ADD_DOUBLE_QUOTES_EMPTY
+    ADD_DOUBLE_QUOTES_EMPTY,
+    ADD_TO_STRING
 }
 
 interface ExpressionEditorHintProps {
     onClickHere: () => void;
     type: HintType;
+    editorContent?: string;
 }
 
 export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
-    const { type, onClickHere } = props;
+    const { type, onClickHere, editorContent } = props;
 
     const formClasses = useFormStyles();
     const intl = useIntl();
+
+    // Ref: <code>
+    const codeRef = (ref: HTMLPreElement) => {
+        if (ref) {
+            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
+        }
+    };
 
     const clickHereText = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.clickHere.text",
@@ -52,12 +62,22 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
 
     const addDoubleQuotes = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotes.text",
-        defaultMessage: " to convert the expression to a string"
+        defaultMessage: " to change the expression to "
     })
 
     const addDoubleQuotesToEmptyExpr = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotesToEmptyExpr.text",
         defaultMessage: " to make an empty string"
+    })
+
+    const addToString = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addToString.text",
+        defaultMessage: " to make a string using "
+    })
+
+    const codeSnippetToString = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.codeSnippetToString.text",
+        defaultMessage: "toString()"
     })
 
     let component: ReactNode;
@@ -82,6 +102,9 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotes}
+                        <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
+                            {`"${editorContent}"`}
+                        </code>
                     </FormHelperText>
                 </div>
             )
@@ -94,6 +117,21 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotesToEmptyExpr}
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.ADD_TO_STRING: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {addToString}
+                        <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
+                            {codeSnippetToString}
+                        </code>
                     </FormHelperText>
                 </div>
             )
