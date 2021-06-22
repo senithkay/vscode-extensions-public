@@ -25,10 +25,11 @@ import { removeStatement } from '../../../../../../Diagram/utils/modification-ut
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
-import { hasReferenceConnections } from '../../../util';
+import { convertMemberViewStateToString, hasReferenceConnections } from '../../../util';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../../../viewstate";
 import { DataPoint } from '../../DataPoint';
 import "../style.scss";
+import { WarningIcon } from '../../buttons/WarningIcon';
 
 interface ValueTypeProps {
     model: STNode;
@@ -55,9 +56,18 @@ export function ValueType(props: ValueTypeProps) {
     const dataPoints: JSX.Element[] = [];
 
     let name: string = viewState.name;
-    const type: string = viewState.type && viewState.type === PrimitiveBalType.Union ?
-        viewState.unionType
-        : viewState.type;
+    let type: string = '';
+
+    switch (viewState.type) {
+        case PrimitiveBalType.Union:
+            type = viewState.unionType;
+            break;
+        case PrimitiveBalType.Collection:
+            type = convertMemberViewStateToString(viewState);
+            break;
+        default:
+            type = viewState.type;
+    }
 
     const regexPattern = new RegExp(/^"(\w+)\"$/);
 
@@ -82,7 +92,7 @@ export function ValueType(props: ValueTypeProps) {
 
     useEffect(() => {
         if (svgTextRef.current) {
-            setTextWidth(svgTextRef.current.getComputedTextLength())
+            setTextWidth(svgTextRef.current.getComputedTextLength() + (viewState.isUnsupported ? 30 : 0))
         }
     }, []);
 
@@ -123,7 +133,7 @@ export function ValueType(props: ValueTypeProps) {
 
     const isNameTooLong = `${name}: ${type}${viewState.isOptionalType ? '?' : ''}`.length > 20;
 
-    return (
+    const child = (
         <g
             data-testid={'datamapper-variable-wrapper'}
             id="Value-wrapper"
@@ -143,9 +153,12 @@ export function ValueType(props: ValueTypeProps) {
                 {isMain ?
                     (
                         <>
+                            {viewState.isUnsupported && (
+                                <WarningIcon x={viewState.bBox.x} y={viewState.bBox.y - 2} />
+                            )}
                             <text
                                 render-order="1"
-                                x={viewState.bBox.x}
+                                x={viewState.bBox.x + (viewState.isUnsupported ? 30 : 0)}
                                 y={viewState.bBox.y + 10}
                                 height="50"
                                 ref={svgTextRef}
@@ -233,8 +246,25 @@ export function ValueType(props: ValueTypeProps) {
                     )
                 }
             </g>
-            {dataPoints}
+            {!viewState.isUnsupported && dataPoints}
         </g>
+    )
 
+    return (
+        <>
+            {
+                viewState.isUnsupported ? (
+                    <Tooltip
+                        arrow={true}
+                        placement="top-start"
+                        title={viewState.warningTooltip}
+                        inverted={false}
+                        interactive={true}
+                    >
+                        {child}
+                    </Tooltip>
+                ) : child
+            }
+        </>
     );
 }
