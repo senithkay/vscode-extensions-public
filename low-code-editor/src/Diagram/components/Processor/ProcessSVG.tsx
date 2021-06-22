@@ -15,7 +15,6 @@ import * as React from "react";
 
 import { ModelCodePosition } from "../../../api/models";
 import Tooltip from "../../../components/TooltipV2";
-import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import "./style.scss";
 
@@ -31,6 +30,39 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void, processType: string }) {
     const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
+
+    const processTypeIndicator: JSX.Element[] = [];
+    switch (processType) {
+        case 'Log':
+        case 'Call':
+            processTypeIndicator.push(
+                <text id="new" transform="translate(242 538)" className="process-icon-text">
+                    <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
+                </text>
+            );
+            break;
+        case 'DataMapper':
+            processTypeIndicator.push(
+                <>
+                    <g transform="translate(244 529)">
+                        <path id="Combined_Shape" d="M4.8,11.2H0V9.6H4.8v-8H.8V0h9.6V1.6h-4V4.8h4V6.4h-4v4.8Z" transform="translate(2.4 2.4)" fill="#ccd1f2" />
+                        <path id="Combined_Shape-2" d="M12,11.2a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,12,11.2Zm-12,0a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,0,11.2ZM12,6.4A1.6,1.6,0,1,1,13.6,8,1.6,1.6,0,0,1,12,6.4ZM0,6.4A1.6,1.6,0,1,1,1.6,8,1.6,1.6,0,0,1,0,6.4ZM12,1.6a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,12,1.6ZM0,1.6A1.6,1.6,0,1,1,1.6,3.2,1.6,1.6,0,0,1,0,1.6Z" transform="translate(0.4 1.6)" fill="#5567d5" />
+                    </g>
+                </>
+            )
+            break;
+        default:
+            processTypeIndicator.push(
+                <path
+                    id="Icon"
+                    className="process-icon"
+                    d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
+                    transform="translate(112 258)"
+                />
+            );
+
+    }
+
     const tooltipText = {
         code: sourceSnippet
     }
@@ -65,23 +97,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                                 <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
                             </g>
                         </g>
-                        {(processType === "Log" || processType === "Call") ?
-                            (
-                                <text id="new" transform="translate(242 538)" className="process-icon-text">
-                                    <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
-                                </text>
-                            )
-                            :
-                            (
-                                <path
-                                    id="Icon"
-                                    className="process-icon"
-                                    d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
-                                    transform="translate(112 258)"
-                                />
-                            )
-                        }
-
+                        {processTypeIndicator}
                     </g>
                 </Tooltip>
             </g>

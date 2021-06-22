@@ -15,7 +15,7 @@ import * as React from "react";
 
 export const TRIGGER_SVG_WIDTH = 29;
 export const TRIGGER_SVG_HEIGHT = 97;
-export const TRIGGER_RECT_SVG_HEIGHT = 52;
+export const TRIGGER_RECT_SVG_HEIGHT = 49;
 export const TRIGGER_RECT_SVG_WIDTH = 11;
 
 export function TriggerSVG(props: { x: number, y: number }) {

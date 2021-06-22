@@ -32,23 +32,23 @@ export function Metrics(props: MetricsProps) {
         y: lineStartY + DefaultConfig.metrics.successTextPadding
     };
     const doubleArrlowLine = {
-        startX: triggerSVGX + TRIGGER_SVG_WIDTH + DefaultConfig.textLine.width + (2 * DefaultConfig.textLine.padding),
-        startY: triggerSVGY + TRIGGER_SVG_HEIGHT / 2 - TRIGGER_RECT_SVG_HEIGHT / 2,
-        endX: triggerSVGX + TRIGGER_SVG_WIDTH + DefaultConfig.textLine.width + (2 * DefaultConfig.textLine.padding),
-        endY: triggerSVGY + TRIGGER_SVG_HEIGHT / 2 + TRIGGER_RECT_SVG_HEIGHT / 2
+        startX: triggerSVGX + TRIGGER_SVG_WIDTH + (2 * DefaultConfig.textLine.padding),
+        startY: triggerSVGY,
+        endX: triggerSVGX + TRIGGER_SVG_WIDTH + (2 * DefaultConfig.textLine.padding),
+        endY: triggerSVGY + TRIGGER_RECT_SVG_HEIGHT
     }
     const responseTime = {
         x: doubleArrlowLine.startX + DefaultConfig.metrics.responseTimePadding,
-        y: doubleArrlowLine.startY + TRIGGER_RECT_SVG_HEIGHT / 2 - COUNTERLEFT_SVG_HEIGHT / 2
+        y: doubleArrlowLine.startY + COUNTERLEFT_SVG_HEIGHT
     };
 
     const getElement = () => {
         if (trace?.duration){
-            const { duration, httpStatusCode, errorStatus } = trace;
+            const { duration, httpStatusCode, errorStatus, errorMsg } = trace;
             return (
                 <g className={"metrics"}>
                     <DoubleArrowHeadLine className={"arrow-line"} direction={"vertical"} {...doubleArrlowLine} />
-                    <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} {...successText} />
+                    <StatusCode httpStatusCode={httpStatusCode} errorStatus={errorStatus} errorMsg={errorMsg} {...successText} />
                     <ResponseTimer responseTime={duration} {...responseTime} />
                 </g>
             );

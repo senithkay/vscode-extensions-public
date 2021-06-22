@@ -26,10 +26,11 @@ export interface SwitchToggleProps {
   text?: string;
   className?: string;
   initSwitch?: boolean;
+  dataTestId?: string;
 }
 
 export function SwitchToggle(props: SwitchToggleProps) {
-  const { text, onChange, initSwitch } = props
+  const { text, onChange, initSwitch, dataTestId } = props
   const [checked, setChecked] = React.useState(initSwitch);
   const classes = useStyles();
 
@@ -49,6 +50,7 @@ export function SwitchToggle(props: SwitchToggleProps) {
         control={
           (
             <Switch
+              data-testid={dataTestId}
               classes={{ root: classes.root, switchBase: classes.switchBase, thumb: classes.thumb, track: classes.track }}
               checked={checked}
               onChange={toggleChecked}

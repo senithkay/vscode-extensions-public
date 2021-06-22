@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import color = Mocha.reporters.Base.color;
 
 export const wizardStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -43,13 +44,13 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         configTitle: {
-            marginBottom: '0.2rem !important',
+            marginBottom: '1.2rem !important',
             fontWeight: 500,
-            fontSize: 17,
+            fontSize: 13,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            padding: '0 0.5rem',
+            padding: '0.2rem 0.5rem',
             width: 350
         },
         deleteBtn: {
@@ -104,7 +105,8 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         buttonSm: {
-            height: "35px !important"
+            height: "35px !important",
+            marginTop: "1rem"
         },
 
         userDetailWrapper: {
@@ -151,12 +153,6 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         oauthBtnWrapper: {
             display: "flex",
             flexDirection: "column"
-        },
-        manualBtnWrapper: {
-            display: "flex",
-            flexDirection: "column",
-            marginTop: '1rem',
-            position: "relative"
         },
         connectBackBtn: {
             display: "flex",
@@ -243,6 +239,30 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end",
             height: "auto",
             marginTop: "2.5rem",
+        },
+        section: {
+            marginBottom: theme.spacing(2)
+        },
+        saveConnectorBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 80,
+            flexDirection: 'column',
+            justifyContent: "space-between"
+        },
+        manualBtnWrapper: {
+            display: "flex",
+            flexDirection: "column",
+            marginTop: '1rem',
+            position: "relative"
+        },
+        authBtnHolder: {
+            display: "flex",
+            width: "100%",
+            height: 100,
+            flexDirection: 'column',
+            justifyContent: "space-between",
+            paddingTop: theme.spacing(2.5)
         }
     }),
 );

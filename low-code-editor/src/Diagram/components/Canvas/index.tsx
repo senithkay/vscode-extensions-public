@@ -30,6 +30,19 @@ export function Canvas(props: CanvasProps) {
                 width={w}
                 height={h}
             >
+                <defs>
+                    <marker
+                        id="arrowhead"
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="0"
+                        refY="3.5"
+                        orient="auto"
+                        fill="#5567d5"
+                    >
+                        <polygon points="0 0, 7 3.5, 0 7" />
+                    </marker>
+                </defs>
                 <g>
                     {children}
                 </g>

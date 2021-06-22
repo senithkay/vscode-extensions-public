@@ -15,7 +15,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 export const useStyles = makeStyles(() =>
     createStyles({
         overlayBackground: {
-            background: '#ffffff52',
+            background: '#e6e7ec6e',
             top: '-250rem;',
             position: 'fixed',
             zIndex: 1,
