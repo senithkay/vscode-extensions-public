@@ -6,7 +6,15 @@ import { TriggerType } from "../Diagram/models";
 import { Provider as DiagramProvider } from "./contexts/Diagram";
 
 export default function Provider(props: any) {
-  const { children, onMutate, diagramPanLocation, ...restProps } = props;
+  const {
+    children,
+    onMutate,
+    diagramPanLocation,
+    createManualConnection,
+    triggerErrorNotification,
+    triggerSuccessNotification,
+    ...restProps
+  } = props;
 
   const initialState = restProps;
 
@@ -26,6 +34,9 @@ export default function Provider(props: any) {
     modifyDiagram,
     modifyTrigger,
     diagramPanLocation,
+    createManualConnection,
+    triggerErrorNotification,
+    triggerSuccessNotification
   };
 
   return (

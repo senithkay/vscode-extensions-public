@@ -18,10 +18,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from '@ballerina/syntax-tree';
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
-import { triggerErrorNotification, triggerSuccessNotification } from "store/actions";
-import { store } from "store/index";
 
-import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
     AiSuggestionsReq,
     AiSuggestionsRes,
@@ -69,6 +66,8 @@ import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from '../SelectExistingConnection';
 import { SingleForm } from "../SingleForm";
 
+export const MANUAL_TYPE = "manual";
+
 export interface OauthProviderConfigState {
     isConfigListLoading: boolean;
     configList: OauthProviderConfig[];
@@ -105,7 +104,13 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const {
+        modifyDiagram,
+        createManualConnection,
+        updateManualConnection,
+        triggerErrorNotification,
+        triggerSuccessNotification
+    } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         stSymbolInfo,
@@ -305,15 +310,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const showNotification = (status: number, action: ConnectionAction) => {
         if (action === ConnectionAction.create) {
             if (status === 200 || status === 201) {
-                store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
+                triggerSuccessNotification(createConfigSuccessMessage);
             } else if (status !== 200) {
-                store.dispatch(triggerErrorNotification(createConfigErrorMessage));
+                triggerErrorNotification(createConfigErrorMessage);
             }
         } else if (action === ConnectionAction.update) {
             if (status === 200 || status === 201) {
-                store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
+                triggerSuccessNotification(updateConfigSuccessMessage);
             } else if (status !== 200) {
-                store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
+                triggerErrorNotification(updateConfigErrorMessage);
             }
         }
     }
