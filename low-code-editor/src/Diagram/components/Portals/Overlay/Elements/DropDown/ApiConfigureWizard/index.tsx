@@ -430,7 +430,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 onSelect={(m: string) => handleOnSelect(m, index)}
               />
             </Section>
-            <SwitchToggle initSwitch={showPathUI} onChange={onPathUIToggleSelect} text={"Edit UI"} />
+            <SwitchToggle initSwitch={showPathUI} onChange={onPathUIToggleSelect} text={"Advanced"} />
             {!showPathUI &&
               <Section
                 title={pathTitle}
@@ -484,13 +484,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
                 </div>
-                <Section
+                
+              </div>
+            }
+            <Section
                   title={returnTypeTitle}
                 >
                   <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
                 </Section>
-              </div>
-            }
             {/*
 
             <div className={classes.sectionSeparator}>
