@@ -20,6 +20,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import Switch from '@material-ui/core/Switch';
 
 import { useStyles } from "./style";
+import cn from "classnames";
 
 export interface SwitchToggleProps {
   onChange: (checked: boolean) => void,
@@ -29,7 +30,7 @@ export interface SwitchToggleProps {
 }
 
 export function SwitchToggle(props: SwitchToggleProps) {
-  const { text, onChange, initSwitch } = props
+  const { text, onChange, initSwitch, className } = props
   const [checked, setChecked] = React.useState(initSwitch);
   const classes = useStyles();
 
@@ -45,7 +46,7 @@ export function SwitchToggle(props: SwitchToggleProps) {
   return (
     <FormGroup className={classes.switchWrapper}>
       <FormControlLabel
-        label={text ? (<Typography variant="body1" className={classes.toggleTitle}>{text}</Typography>) : null}
+        label={text ? (<Typography variant="body1" className={cn(classes.toggleTitle, className)}>{text}</Typography>) : null}
         control={
           (
             <Switch

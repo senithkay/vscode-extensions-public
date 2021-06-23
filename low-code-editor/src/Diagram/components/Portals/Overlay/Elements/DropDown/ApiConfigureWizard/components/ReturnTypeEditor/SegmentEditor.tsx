@@ -76,7 +76,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={5}>
+                    <Grid item={true} xs={6}>
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
                             defaultValue={segmentState?.type}
@@ -89,7 +89,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                             onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
                         />
                     </Grid>
-                    <Grid item={true} xs={7}>
+                    <Grid item={true} xs={6}>
                         <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={(selectedCheck: string[]) => { onChangeSegment(selectedCheck, "IS_OPTIONAL") }} />
                     </Grid>
                 </Grid>

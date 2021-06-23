@@ -40,6 +40,7 @@ import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
+import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
 
 import { AdvancedEditor } from "./components/advanced";
 import { PayloadEditor } from "./components/extractPayload";
@@ -95,6 +96,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // dispatchGoToNextTourStep
   } = props;
   const classes = useStyles();
+  const returnClasses = returnStyles();
   const intl = useIntl();
 
   const [resources, setResources] = useState<Resource[]>([]);
@@ -105,7 +107,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [returnType, setReturnType] = useState<string>("");
   const [callerChecked, setCallerChecked] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
-  const [showPathUI, setShowPathUI] = useState(false);
+
+  const [showPathUI, setShowPathUI] = useState(new Map([[0, false]]));
+  const [toggle, setToggle] = useState(false);
   const [payloadAvailable, setPayloadAvailable] = useState(false);
 
   useEffect(() => {
@@ -148,8 +152,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
   }, [syntaxTree]);
 
-  const onPathUIToggleSelect = (checked: boolean) => {
-    setShowPathUI(!checked);
+  const onPathUIToggleSelect = (index: number, checked: boolean) => {
+    showPathUI.set(index, !checked);
+    setShowPathUI(showPathUI);
+    setToggle(!toggle);
   }
 
   const onPayloadToggleSelect = (checked: boolean) => {
@@ -324,7 +330,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const handleAddResource = () => {
     const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
-    setResources([...resources, defaultConfig])
+    setResources([...resources, defaultConfig]);
+    setShowPathUI(showPathUI.set(resources.length, false));
   }
 
   const resourceConfigTitle = intl.formatMessage({
@@ -340,6 +347,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const pathTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.title",
     defaultMessage: "Path"
+  });
+
+  const pathSegmentTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.segment.title",
+    defaultMessage: "Path Segments"
   });
 
   const pathErrorMessage = intl.formatMessage({
@@ -430,30 +442,31 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 onSelect={(m: string) => handleOnSelect(m, index)}
               />
             </Section>
-            <SwitchToggle initSwitch={showPathUI} onChange={onPathUIToggleSelect} text={"Advanced"} />
-            {!showPathUI &&
+            <SwitchToggle initSwitch={showPathUI.get(index)} onChange={onPathUIToggleSelect.bind(this, index)} text={"Advanced"} />
+            {!showPathUI.get(index) &&
+            <div className={classes.sectionSeparator}>
               <Section
-                title={pathTitle}
-                tooltipWithExample={{ title, content: pathExample }}
+                  title={pathTitle}
+                  tooltipWithExample={{ title, content: pathExample }}
               >
                 <FormTextInput
-                  dataTestId="api-path"
-                  defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                  onChange={(text: string) => handleOnChangePath(text, index)}
-                  customProps={{
-                    startAdornment: "/",
-                    validate: validatePath
-                  }}
-                  errorMessage={pathErrorMessage}
-                  placeholder={pathPlaceholder}
+                    dataTestId="api-path"
+                    defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                    onChange={(text: string) => handleOnChangePath(text, index)}
+                    customProps={{
+                      validate: validatePath
+                    }}
+                    errorMessage={pathErrorMessage}
+                    placeholder={pathPlaceholder}
                 />
               </Section>
+            </div>
             }
-            {showPathUI &&
+            {showPathUI.get(index) &&
               <div>
                 <div className={classes.sectionSeparator}>
                   <Section
-                    title={pathTitle}
+                    title={pathSegmentTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                   >
                     <PathEditor pathString={resProps.path} defaultValue={resProps.path} onChange={(text: string) => handleOnChangePathFromUI(text, index)} />
@@ -487,11 +500,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 
               </div>
             }
-            <Section
+              <Section
                   title={returnTypeTitle}
-                >
-                  <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
-                </Section>
+              >
+                <div className={returnClasses.toggleWrapper}>
+                  <SwitchToggle className={returnClasses.toggleTitle} initSwitch={true} onChange={null} text={"Advanced"} />
+                </div>
+                <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+              </Section>
             {/*
 
             <div className={classes.sectionSeparator}>

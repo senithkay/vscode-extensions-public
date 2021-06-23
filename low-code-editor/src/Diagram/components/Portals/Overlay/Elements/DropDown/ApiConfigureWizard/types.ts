@@ -59,3 +59,8 @@ export interface Advanced {
     isCaller?: boolean;
     isRequest?: boolean;
 }
+
+export interface resourceState {
+    path: boolean;
+    returnType: boolean;
+}

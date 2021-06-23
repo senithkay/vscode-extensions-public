@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import {
     CaptureBindingPattern,
     FunctionBodyBlock,
-    FunctionDefinition,
+    FunctionDefinition, IdentifierToken,
     ModulePart, ModuleVarDecl,
     ServiceDeclaration, SimpleNameReference,
     STKindChecker,
@@ -202,10 +202,26 @@ export function StartButton(props: StartButtonProps) {
     }
 
     let text: string;
+    let resourceText: string;
     if ((model.kind === "ModulePart") || !activeTriggerType) {
         text = "START";
     } else if (activeTriggerType === TRIGGER_TYPE_API) {
         text = "RESOURCE";
+        const functionName = (model as FunctionDefinition).functionName.value;
+        const identifierTokens: IdentifierToken[] = ((model as FunctionDefinition)?.relativeResourcePath?.filter(
+            (relPath: any) => STKindChecker.isIdentifierToken(relPath))) as IdentifierToken[];
+        resourceText = functionName.toUpperCase();
+        if (identifierTokens) {
+            const tokens: string[] = []
+            identifierTokens.forEach(token => {
+                tokens.push(token.value);
+            });
+            resourceText += ` ${tokens.join("/")}`;
+            if (resourceText.length >= 15) {
+                resourceText = resourceText.substr(0, 15);
+                resourceText += "...";
+            }
+        }
     } else {
         text = activeTriggerType.toUpperCase();
     }
@@ -217,6 +233,7 @@ export function StartButton(props: StartButtonProps) {
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
+                resourceText={resourceText}
                 showIcon={true}
                 handleEdit={handleEditClick}
             />
