@@ -435,6 +435,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "12px",
             padding: "5px"
         },
+        pre: {
+            margin: 0,
+            display: "contents",
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word"
+        },
         toFieldTooltipWrapper: {
             display: "flex",
             justifyContent: "space-between",

@@ -19,6 +19,8 @@ import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { useStyles as useFormStyles } from "../../forms/style";
 
+import { truncateText } from "./utils";
+
 export enum HintType {
     ADD_CHECK,
     ADD_DOUBLE_QUOTES,
@@ -55,7 +57,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
 
     const addDoubleQuotes = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotes.text",
-        defaultMessage: " to change the expression to "
+        defaultMessage: " to change to "
     })
 
     const addDoubleQuotesToEmptyExpr = intl.formatMessage({
@@ -95,7 +97,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotes}
-                        <CodeSnippet content={`"${editorContent}"`} />
+                        <CodeSnippet content={`"${truncateText(editorContent)}"`} />
                     </FormHelperText>
                 </div>
             )
@@ -145,13 +147,18 @@ function CodeSnippet(props: { content: string }) {
 
     const codeRef = (ref: HTMLPreElement) => {
         if (ref) {
-            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
+            MonacoEditor.editor.colorizeElement(ref, { theme: 'exp-theme' });
         }
     };
 
-    return (
+    const Code = () => (
         <code ref={codeRef} data-lang="ballerina" className={formClasses.suggestionsTextCodeSnippet} >
             {content}
         </code>
+    )
+    return (
+        <pre className={formClasses.pre}>
+            {content && <Code/>}
+        </pre>
     )
 }
