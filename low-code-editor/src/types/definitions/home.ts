@@ -1,5 +1,5 @@
 import { APISortingData, SortingData } from "../";
-import { APIManagerAPIObj, AppInfo } from "../../api/models";
+import { ApiManagerApiObj, AppInfo } from "../../api/models";
 
 export interface HomeViewState {
     isAppListLoading: boolean;
@@ -9,7 +9,7 @@ export interface HomeViewState {
     isAppDeleteLoading: boolean;
     isAppCreateLoading: boolean;
     appList: AppInfo[];
-    apiList: APIManagerAPIObj[];
+    apiList: ApiManagerApiObj[];
     error?: Error;
     appListRowsPerPage: number;
     appListPageNumber: number;
