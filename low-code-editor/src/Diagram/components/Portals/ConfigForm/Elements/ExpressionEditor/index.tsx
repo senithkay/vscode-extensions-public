@@ -887,7 +887,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? '114px' : '32px' }}>
+            <div className="exp-container" style={{ height: expand ? '100px' : '32px' }}>
                 <div className="exp-absolute-wrapper">
                     <div className="exp-editor" style={{ height: expand ? '100px' : '32px' }} >
                         <MonacoEditor
