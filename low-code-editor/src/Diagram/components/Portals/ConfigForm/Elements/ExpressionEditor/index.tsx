@@ -279,7 +279,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }));
 
             // event emitted when the content of the editor has changed
-            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
+                const lastPressedKey = event.changes && event.changes.length > 0 && event.changes[0].text;
                 notValidExpEditor("Please wait for validation");
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
@@ -289,7 +290,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     return;
                 }
 
-                debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
+                debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), lastPressedKey);
             }));
 
             // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
@@ -640,13 +641,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         //     });
         // });
 
-        if (currentContent === "" && monacoRef.current.editor.hasTextFocus()) {
+        const lastCharacter = currentContent.length > 0 && currentContent.charAt(currentContent.length - 1)
+        if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
     }
 
     // ExpEditor onChange
-    const handleContentChange = async (currentContent: string, EOL: string) => {
+    const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
@@ -716,7 +718,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             //     });
             // });
 
-            if (currentContent === "" && monacoRef.current.editor.hasTextFocus()) {
+            if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastPressedKey)) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
@@ -835,9 +837,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // When suggest widget is open => suggestWidgetStatus = 3
             if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3){
                 event.stopPropagation();
-            }
-            if (TRIGGER_CHARACTERS.includes(keyCode) && suggestWidgetStatus !== 3) {
-                monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
         });
     }
