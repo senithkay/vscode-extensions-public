@@ -18,7 +18,6 @@ import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagra
 import createContext from "./createContext";
 
 const reducer = (state: any, action: any) => {
-    console.log('action :::', action.type, action);
     switch (action.type) {
         case 'UPDATE_STATE':
             return { ...state, ...action.payload, targetPosition: state.targetPosition };
