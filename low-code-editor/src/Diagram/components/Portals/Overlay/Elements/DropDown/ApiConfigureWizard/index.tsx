@@ -427,6 +427,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     defaultMessage: "string|error?\nint?|error?"
   });
 
+  const advancedExample = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.advanced.tooltip.example",
+    defaultMessage: "http:Request request \nhttp:Caller caller"
+  });
+
   const title = (
     <div>
       <p>
@@ -443,6 +448,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc." values={{ b: (chunks: string) => <b>{chunks}</b> }} />
         </li>
       </ul>
+    </div>
+  );
+
+  const advancedTooltip = (
+    <div>
+      <p>
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
+      </p>
     </div>
   );
 
@@ -528,7 +541,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div className={classes.sectionSeparator}>
                   <Section
                     title={advancedTitle}
-                    tooltipWithExample={{ title, content: pathExample }}
+                    tooltipWithExample={{ title: advancedTooltip, content: advancedExample }}
                   >
                     <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
