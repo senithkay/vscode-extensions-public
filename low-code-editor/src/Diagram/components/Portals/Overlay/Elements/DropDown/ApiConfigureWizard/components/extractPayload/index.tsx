@@ -21,9 +21,9 @@ export function PayloadEditor(props: PayloadProps) {
     const { payload, disabled, onChange } = props;
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
     const classes = useStyles();
-    const initValue: Payload = segment ? { ...segment } : {
+    const initValue: Payload = segment.type !== "" && segment.type !== "" ? { ...segment } : {
         name: "",
-        type: "string"
+        type: "json"
     };
 
     let payloadTypeArray: string[] = payloadTypes;
@@ -71,7 +71,7 @@ export function PayloadEditor(props: PayloadProps) {
                         <Grid item={true} xs={5}>
                             <SelectDropdownWithButton
                                 disabled={disabled}
-                                defaultValue={segmentState?.type ? segmentState?.type : "string"}
+                                defaultValue={segmentState?.type ? segmentState?.type : "json"}
                                 customProps={
                                     {
                                         values: payloadTypeArray,

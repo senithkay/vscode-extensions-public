@@ -1,7 +1,5 @@
 import { ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
-import { boolean } from "../../../../ConfigForm/Elements";
-
 import {
     Path,
     PathSegment,
@@ -298,4 +296,16 @@ export function isRequestParamAvailable(params: STNode[]): boolean {
         isRequestParam = caller.length > 0;
     }
     return isRequestParam;
+}
+
+export function noErrorTypeAvailable(returnTypeCollection: ReturnTypeCollection): boolean {
+    let isErrorTypeAvailable: boolean = false;
+
+    returnTypeCollection.types.forEach((value) => {
+        if (value.type === "error") {
+            isErrorTypeAvailable = value.type === "error";
+        }
+    });
+
+    return isErrorTypeAvailable;
 }
