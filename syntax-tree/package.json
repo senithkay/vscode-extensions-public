@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/syntax-tree",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "syntax-tree",
   "license": "Apache-2.0",
   "files": [
