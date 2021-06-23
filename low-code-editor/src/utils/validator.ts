@@ -1,5 +1,10 @@
 import { FormField } from "../ConfigurationSpec/types";
 import { keywords } from "../Diagram/components/Portals/utils/constants";
+import {
+    convertReturnTypeStringToSegments,
+    returnTypes
+} from "../Diagram/components/Portals/Overlay/Elements/DropDown/ApiConfigureWizard/util";
+import {allLocalesLoader} from "cronstrue/dist/i18n/allLocalesLoader";
 
 export function validatePath(text: string) {
     if (text !== "") {
@@ -157,5 +162,21 @@ export function isValidBallerinaIdentifier(word: string): boolean {
         }
     } else {
         return (/^[a-zA-Z0-9]+$/g.test(word)) && !isKeywords(word);
+    }
+}
+
+export function validateReturnType(text: string) {
+    if (!text) {
+        return true;
+    } else {
+        const returnSegments = convertReturnTypeStringToSegments(text);
+        if (returnSegments.length === 0) {
+            return false;
+        }
+        let allSegmentsValid = true;
+        returnSegments.forEach(segment => {
+            allSegmentsValid = returnTypes.includes(segment.type);
+        })
+        return allSegmentsValid;
     }
 }

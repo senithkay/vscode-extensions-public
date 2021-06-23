@@ -216,7 +216,7 @@ export function StartButton(props: StartButtonProps) {
             identifierTokens.forEach(token => {
                 tokens.push(token.value);
             });
-            resourceText += ` ${tokens.join("/")}`;
+            resourceText += ` /${tokens.join("/")}`;
             if (resourceText.length >= 15) {
                 resourceText = resourceText.substr(0, 15);
                 resourceText += "...";

@@ -60,7 +60,7 @@ export interface Advanced {
     isRequest?: boolean;
 }
 
-export interface resourceState {
-    path: boolean;
-    returnType: boolean;
+export interface AdvancedResourceState {
+    path: Map<number, boolean>;
+    returnType: Map<number, boolean>;
 }
