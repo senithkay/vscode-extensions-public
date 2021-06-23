@@ -345,19 +345,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     }
                                     completionItems.push(completionItemAI);
                                 }
-                                if (varType === "string") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: 'Custom string template',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        // tslint:disable-next-line: no-invalid-template-strings
-                                        insertText: '"${1:}"',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: '2'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                } else if (varType === "boolean") {
+                                if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
                                         range: null,
