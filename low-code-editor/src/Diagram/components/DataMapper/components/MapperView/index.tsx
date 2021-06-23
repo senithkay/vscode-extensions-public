@@ -27,7 +27,7 @@ import ExpressionEditor from '../../../Portals/ConfigForm/Elements/ExpressionEdi
 import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../Portals/Overlay';
 import { Context as DataMapperViewContext } from '../../context/DataMapperViewContext';
-import { getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
+import { convertMemberViewStateToString, getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { MouseEventHub } from '../../util/mouse-event-hub';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
@@ -67,7 +67,7 @@ export function MapperView() {
     const overlayClasses = wizardStyles();
 
     const [isDataPointSelected, setIsDataPointSelected] = useState(false);
-    const [selectedDataPoint, setSelectedDataPoint] = useState(undefined);
+    const [selectedSourceDataPoint, setSelectedSourceDataPoint] = useState(undefined);
     const [selectedTargetDataPoint, setSelectedTargetDataPoint] = useState(undefined);
     const [showTypeConviertConfirmationDialog, setShowTypeConfirmationDialog] = useState(false);
     const [expressionConfig, setExpressionConfig] = useState(undefined);
@@ -97,9 +97,185 @@ export function MapperView() {
 
     const handleTypeConversionConfirmation = () => {
         let statement = '';
+        let showDefaultValueForm = false
 
-        if (!selectedTargetDataPoint.isOptionalType && selectedDataPoint.isOptionalType) {
-            setHasTypeMismatch(true);
+        if (selectedSourceDataPoint.isOptionalType && !selectedTargetDataPoint.isOptionalType) {
+            switch (selectedTargetDataPoint.type) {
+                case PrimitiveBalType.String:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            statement = `${selectedSourceDataPoint.text}.toString()`;
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${selectedSourceDataPoint.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Int:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Float:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Decimal:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Int:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                default:
+                // unmappable
+            }
+        } else if (selectedTargetDataPoint.isOptionalType && selectedSourceDataPoint.isOptionalType) {
+            switch (selectedTargetDataPoint.type) {
+                case PrimitiveBalType.String:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            statement = `${selectedSourceDataPoint.text}.toString()`
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Int:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Float:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Decimal:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.String:
+                            showDefaultValueForm = true;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                default:
+                // unmappable
+            }
+        } else {
+            switch (selectedTargetDataPoint.type) {
+                case PrimitiveBalType.String:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            statement = `${selectedSourceDataPoint.text}.toString()`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Int:
+                case PrimitiveBalType.Decimal:
+                case PrimitiveBalType.Float:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            statement = `<${selectedTargetDataPoint.type}> ${selectedSourceDataPoint.text}`;
+                            break;
+                        case PrimitiveBalType.String:
+                            statement = `check ${selectedTargetDataPoint.type}:fromString(${selectedSourceDataPoint.text})`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (selectedSourceDataPoint.type) {
+                        case PrimitiveBalType.String:
+                            statement = `check ${selectedTargetDataPoint.type}:fromString(${selectedSourceDataPoint.text})`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                default:
+                // unmappable
+            }
+        }
+
+        if (showDefaultValueForm) {
             const validateFunction = (name: string, validity: boolean) => {
                 setIsExpressionValid(validity);
             }
@@ -116,9 +292,9 @@ export function MapperView() {
                         name: 'expression',
                         displayName: 'expression',
                         type:
-                            selectedDataPoint.type === 'union' ?
-                                selectedDataPoint.unionType
-                                : selectedDataPoint.type
+                            selectedSourceDataPoint.type === 'union' ?
+                                selectedSourceDataPoint.unionType
+                                : selectedSourceDataPoint.type
                     },
                     customProps: {
                         validate: validateFunction,
@@ -126,43 +302,34 @@ export function MapperView() {
                         tooltipActionText: '',
                         tooltipActionLink: '',
                         interactive: true,
-                        statementType: selectedDataPoint.type === 'union' ?
-                            selectedDataPoint.unionType
-                            : selectedDataPoint.type,
+                        statementType: selectedSourceDataPoint.type === 'union' ?
+                            selectedSourceDataPoint.unionType
+                            : selectedSourceDataPoint.type,
                         editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
                     },
                     onChange,
                     defaultValue: '',
                 }
-            })
-        } else {
-            if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
-                || selectedTargetDataPoint.type === PrimitiveBalType.Float
-                || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
-                statement += `check ${selectedTargetDataPoint.type}:fromString(${selectedDataPoint.text})`;
-            } else if ((selectedDataPoint.type === PrimitiveBalType.Int
-                || selectedDataPoint.type === PrimitiveBalType.Float
-                || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
-                statement += `${selectedDataPoint.text}.toString()`;
-            }
+            });
 
+        }
+
+        if (statement.length > 0) {
             onSave([
                 updatePropertyStatement(statement, selectedTargetDataPoint.position)
             ]);
 
-            setSelectedDataPoint(undefined);
+            setSelectedSourceDataPoint(undefined);
             setSelectedTargetDataPoint(undefined);
         }
 
-
         setShowTypeConfirmationDialog(false);
-
-        // updateState({ draftArrows: [] })
+        setShowTypeConfirmationDialog(false);
     };
 
     const handleTypeConversionCancel = () => {
         setShowTypeConfirmationDialog(false);
-        setSelectedDataPoint(undefined);
+        setSelectedSourceDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
         updateState({ draftArrows: [] })
     };
@@ -175,7 +342,7 @@ export function MapperView() {
 
 
     const expressionEditorOnSave = () => {
-        onSave([updatePropertyStatement(expressionEditorText, selectedDataPoint.position)]);
+        onSave([updatePropertyStatement(expressionEditorText, selectedSourceDataPoint.position)]);
         setExpressionConfig(undefined);
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
@@ -186,25 +353,28 @@ export function MapperView() {
             let statement = '';
             if ((selectedTargetDataPoint.type === PrimitiveBalType.Int
                 || selectedTargetDataPoint.type === PrimitiveBalType.Float
-                || selectedTargetDataPoint.type === 'decimal') && selectedDataPoint.type === PrimitiveBalType.String) {
-                statement += `check ${selectedTargetDataPoint.type}:fromString((${selectedDataPoint.text} ?: ${expressionEditorText}))`;
-            } else if ((selectedDataPoint.type === PrimitiveBalType.Int
-                || selectedDataPoint.type === PrimitiveBalType.Float
-                || selectedDataPoint.type === 'decimal') && selectedTargetDataPoint.type === PrimitiveBalType.String) {
-                statement += `(${selectedDataPoint.text} ?: ${expressionEditorText}).toString()`;
+                || selectedTargetDataPoint.type === PrimitiveBalType.Decimal
+                || selectedTargetDataPoint.type === PrimitiveBalType.Boolean)
+                && selectedSourceDataPoint.type === PrimitiveBalType.String) {
+                statement += `check ${selectedTargetDataPoint.type}:fromString((${selectedSourceDataPoint.text} ?: ${expressionEditorText}))`;
+            } else if ((selectedSourceDataPoint.type === PrimitiveBalType.Int
+                || selectedSourceDataPoint.type === PrimitiveBalType.Float
+                || selectedSourceDataPoint.type === PrimitiveBalType.Decimal)
+                && selectedTargetDataPoint.type === PrimitiveBalType.String) {
+                statement += `(${selectedSourceDataPoint.text} ?: ${expressionEditorText}).toString()`;
             }
 
-            setHasTypeMismatch(false);
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
+            setHasTypeMismatch(false);
         } else {
-            const statement = `${selectedDataPoint.text} ?: ${expressionEditorText}`;
+            const statement = `${selectedSourceDataPoint.text} ?: ${expressionEditorText}`;
             onSave([updatePropertyStatement(statement, selectedTargetDataPoint.position)]);
         }
 
         setDefaultInputConfig(undefined);
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
-        setSelectedDataPoint(undefined);
+        setSelectedSourceDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
     }
 
@@ -212,7 +382,7 @@ export function MapperView() {
         setDefaultInputConfig(undefined);
         setExpressionEditorText(undefined);
         setIsExpressionValid(false);
-        setSelectedDataPoint(undefined);
+        setSelectedSourceDataPoint(undefined);
         setSelectedTargetDataPoint(undefined);
         updateState({ draftArrows: [] })
     }
@@ -254,7 +424,7 @@ export function MapperView() {
                     drawingLineRef.current.setAttribute('y1', -5);
                     drawingLineRef.current.setAttribute('y2', -5);
                     drawingLineRef.current.setAttribute('style', 'display: none;')
-                    setSelectedDataPoint(undefined);
+                    setSelectedSourceDataPoint(undefined);
                     setIsDataPointSelected(false);
                     window.removeEventListener("keyup", eventListenerMap.keyup);
                 }
@@ -270,7 +440,7 @@ export function MapperView() {
                 drawingLineRef.current.setAttribute('y1', -5);
                 drawingLineRef.current.setAttribute('y2', -5);
                 drawingLineRef.current.setAttribute('style', 'display: none;')
-                updateMappingStatement(selectedDataPoint, dataPointVS);
+                updateMappingStatement(selectedSourceDataPoint, dataPointVS);
             } else if (!isDataPointSelected && dataPointVS instanceof SourcePointViewState) {
                 eventListenerMap.mousemove = onMouseMove;
                 eventListenerMap.keyup = escapeListener
@@ -280,7 +450,7 @@ export function MapperView() {
                 drawingLineRef.current.setAttribute('y2', dataPointVS.bBox.y);
                 drawingLineRef.current.setAttribute('style', '')
                 setIsDataPointSelected(true);
-                setSelectedDataPoint(dataPointVS);
+                setSelectedSourceDataPoint(dataPointVS);
                 window.addEventListener('mousemove', eventListenerMap.mousemove);
                 window.addEventListener('keyup', eventListenerMap.keyup);
             } else if (!isDataPointSelected && dataPointVS instanceof TargetPointViewState) {
@@ -292,7 +462,18 @@ export function MapperView() {
                     setExpressionEditorText(value);
                 }
 
-                // todo: handle logic to show expression editor
+                let type = '';
+                switch (dataPointVS.type) {
+                    case PrimitiveBalType.Union:
+                        type = dataPointVS.unionType;
+                        break;
+                    case PrimitiveBalType.Collection:
+                        // type = convertMemberViewStateToString(dataPointVS);
+                        break;
+                    default:
+                        type = dataPointVS.type;
+                }
+
                 setExpressionConfig({
                     positionX: dataPointVS.bBox.x,
                     positionY: dataPointVS.bBox.y,
@@ -319,7 +500,7 @@ export function MapperView() {
                         defaultValue: dataPointVS.value,
                     }
                 });
-                setSelectedDataPoint(dataPointVS);
+                setSelectedSourceDataPoint(dataPointVS);
             }
         }
     }
@@ -335,108 +516,372 @@ export function MapperView() {
             y2: targetPointViewState.bBox.y
         });
 
-        if (sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
-            if ((targetPointViewState.type === PrimitiveBalType.Int
-                || targetPointViewState.type === PrimitiveBalType.Float
-                || targetPointViewState.type === 'decimal') && sourcePointViewState.type === PrimitiveBalType.String) {
-                setSelectedTargetDataPoint(targetPointViewState);
-                setShowTypeConfirmationDialog(true);
-            } else if ((sourcePointViewState.type === PrimitiveBalType.Int
-                || sourcePointViewState.type === PrimitiveBalType.Float
-                || sourcePointViewState.type === 'decimal') && targetPointViewState.type === PrimitiveBalType.String) {
-                setSelectedTargetDataPoint(targetPointViewState);
-                setShowTypeConfirmationDialog(true);
-            } else {
-                const validateFunction = (name: string, validity: boolean) => {
-                    setIsExpressionValid(validity);
-                }
+        let showDefaultConfirmation = false;
 
-                const onChange = (value: string) => {
-                    setExpressionEditorText(value);
-                }
-
-                setSelectedTargetDataPoint(targetPointViewState);
-                setDefaultInputConfig({
-                    positionX: targetPointViewState.bBox.x,
-                    positionY: targetPointViewState.bBox.y,
-                    config: {
-                        model: {
-                            name: 'expression',
-                            displayName: 'expression',
-                            type:
-                                targetPointViewState.type === 'union' ?
-                                    targetPointViewState.unionType
-                                    : targetPointViewState.type
-                        },
-                        customProps: {
-                            validate: validateFunction,
-                            tooltipTitle: '',
-                            tooltipActionText: '',
-                            tooltipActionLink: '',
-                            interactive: true,
-                            statementType: targetPointViewState.type === 'union' ? targetPointViewState.unionType
-                                : targetPointViewState.isOptionalType ?
-                                    `${targetPointViewState.type}?` : targetPointViewState.type,
-                            editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
-                        },
-                        onChange,
-                        defaultValue: '',
+        if (!targetPointViewState.isOptionalType && sourcePointViewState.isOptionalType) {
+            switch (targetPointViewState.type) {
+                case PrimitiveBalType.String:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.String:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
                     }
-                })
+                    break;
+                case PrimitiveBalType.Int:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Int:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Float:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Float:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Decimal:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Decimal:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Int:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Json:
+                    showDefaultConfirmation = true;
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Boolean:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                default:
+                // unmappable
             }
-        } else if (!sourcePointViewState.isOptionalType && !targetPointViewState.isOptionalType) {
-            if ((targetPointViewState.type === PrimitiveBalType.Int
-                || targetPointViewState.type === PrimitiveBalType.Float
-                || targetPointViewState.type === 'decimal') && sourcePointViewState.type === PrimitiveBalType.String) {
-                setSelectedTargetDataPoint(targetPointViewState);
-                setShowTypeConfirmationDialog(true);
-            } else if ((sourcePointViewState.type === PrimitiveBalType.Int
-                || sourcePointViewState.type === PrimitiveBalType.Float
-                || sourcePointViewState.type === 'decimal') && targetPointViewState.type === PrimitiveBalType.String) {
-                setSelectedTargetDataPoint(targetPointViewState);
-                setShowTypeConfirmationDialog(true);
-            } else {
-                statement = sourcePointViewState.text;
-                onSave([
-                    updatePropertyStatement(statement, targetPointViewState.position)
-                ]);
+        } else if (targetPointViewState.isOptionalType && sourcePointViewState.isOptionalType) {
+            switch (targetPointViewState.type) {
+                case PrimitiveBalType.String:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.String:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Int:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Int:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Float:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Float:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Decimal:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Decimal:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                case PrimitiveBalType.Json:
+                    showDefaultConfirmation = true;
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Boolean:
+                            showDefaultConfirmation = true;
+                            break;
+                        case PrimitiveBalType.String:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                default:
+                // unmappable
             }
         } else {
-            statement = sourcePointViewState.text;
+            switch (targetPointViewState.type) {
+                case PrimitiveBalType.String:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.String:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.Boolean:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappableÎ
+                    }
+                    break;
+                case PrimitiveBalType.Int:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Int:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappableÎ
+                    }
+                    break;
+                case PrimitiveBalType.Float:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Float:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Decimal:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappableÎ
+                    }
+                    break;
+                case PrimitiveBalType.Decimal:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Decimal:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        default:
+                        // unmappableÎ
+                    }
+                    break;
+                case PrimitiveBalType.Json:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Decimal:
+                        case PrimitiveBalType.String:
+                        case PrimitiveBalType.Int:
+                        case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Boolean:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.Json:
+                            statement = `check ${sourcePointViewState.text}`;
+                            break;
+                        case PrimitiveBalType.Collection:
+                            statement = `check ${sourcePointViewState.text}`;
+                        default:
+                        // unmappableÎ
+                    }
+                    break;
+                case PrimitiveBalType.Boolean:
+                    switch (sourcePointViewState.type) {
+                        case PrimitiveBalType.Boolean:
+                            statement = sourcePointViewState.text;
+                            break;
+                        case PrimitiveBalType.String:
+                            setSelectedTargetDataPoint(targetPointViewState);
+                            setHasTypeMismatch(true);
+                            setShowTypeConfirmationDialog(true);
+                            break;
+                        default:
+                        // unmappable
+                    }
+                    break;
+                default:
+                    statement = sourcePointViewState.text;
+            }
+        }
 
+        if (showDefaultConfirmation) {
+            const validateFunction = (name: string, validity: boolean) => {
+                setIsExpressionValid(validity);
+            }
+
+            const onChange = (value: string) => {
+                setExpressionEditorText(value);
+            }
+
+            setSelectedTargetDataPoint(targetPointViewState);
+            setDefaultInputConfig({
+                positionX: targetPointViewState.bBox.x,
+                positionY: targetPointViewState.bBox.y,
+                config: {
+                    model: {
+                        name: 'expression',
+                        displayName: 'expression',
+                        type:
+                            sourcePointViewState.type === 'union' ?
+                                sourcePointViewState.unionType
+                                : sourcePointViewState.type,
+                    },
+                    customProps: {
+                        validate: validateFunction,
+                        tooltipTitle: '',
+                        tooltipActionText: '',
+                        tooltipActionLink: '',
+                        interactive: true,
+                        statementType: sourcePointViewState.type === 'union' ? sourcePointViewState.unionType
+                            : sourcePointViewState.type,
+                        editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
+                    },
+                    onChange,
+                    defaultValue: '',
+                }
+            });
+        }
+
+        if (statement.length > 0) {
             onSave([
                 updatePropertyStatement(statement, targetPointViewState.position)
             ]);
         }
     }
-
-
-
-    // ToDo: Revisit
-    // useEffect(() => {
-    //     const parentSVG = (drawingLineRef.current as SVGGraphicsElement).parentElement.parentElement.parentElement;
-
-    //     if (parentSVG instanceof SVGSVGElement) {
-    //         const ctm = (parentSVG as SVGSVGElement).getScreenCTM();
-    //         const point = (parentSVG as SVGSVGElement).createSVGPoint();
-
-    //         const updatePositionMouseMove = (evt: MouseEvent) => {
-    //             point.x = evt.pageX;
-    //             point.y = evt.pageY;
-    //             const mappedPoint = point.matrixTransform(ctm.inverse());
-    //             // mouseMoveEventHub.updateCursorPosition({ x: mappedPoint.x, y: mappedPoint.y })
-    //             getEventHub().updateCursorPosition({ x: mappedPoint.x, y: mappedPoint.y });
-    //         }
-
-    //         eventListenerMap.positionListener = updatePositionMouseMove;
-    //         window.addEventListener('mousemove', eventListenerMap.positionListener);
-    //     }
-
-    //     return () => {
-    //         window.removeEventListener('mousemove', eventListenerMap.positionListener);
-    //         eventListenerMap.positionListener = undefined;
-    //     }
-    // }, []);
 
     const inputComponents: JSX.Element[] = [];
     const outputComponent: JSX.Element[] = [];
@@ -509,7 +954,7 @@ export function MapperView() {
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
         if (isJsonRecordTypeSelected) {
-            outputHeight += 332 + 64;
+            outputHeight += 332 + 64 + 80;
         } else {
             outputHeight += 265 + 64;
         }
@@ -562,7 +1007,14 @@ export function MapperView() {
             outputComponent.push(
                 getDataMapperComponent(
                     outputSTNode.dataMapperViewState.type,
-                    { model: outputSTNode, isMain: true, onDataPointClick, offSetCorrection: 10, onAddFieldButtonClick, isTarget: true }
+                    {
+                        model: outputSTNode,
+                        isMain: true,
+                        onDataPointClick,
+                        offSetCorrection: 10,
+                        onAddFieldButtonClick,
+                        isTarget: true
+                    }
                 )
             );
         }
@@ -600,12 +1052,20 @@ export function MapperView() {
         });
     }
     return (
-        <Canvas h={maxHeight} w={maxWidth} >
+        <Canvas h={maxHeight} w={maxWidth}>
             <g id='datamapper-diagram-switch' onClick={handleSwitchBackToDiagram}>
-                <text data-testid="datamapper-diagram-switch" x="45" y="30" >←  Back to the Diagram</text>
+                <text data-testid="datamapper-diagram-switch" x="45" y="30">← Back to the Diagram</text>
             </g>
             <g id="outputComponent">
-                <rect className="main-wrapper" width={maxFieldWidth + 50 + 25} height={outputHeight} rx="6" fill="green" x={maxFieldWidth + INPUT_OUTPUT_GAP + 40} y="60" />
+                <rect
+                    className="main-wrapper"
+                    width={maxFieldWidth + 50 + 25}
+                    height={outputHeight}
+                    rx="6"
+                    fill="green"
+                    x={maxFieldWidth + INPUT_OUTPUT_GAP + 40}
+                    y="60"
+                />
                 <text className="main-title-text" x={maxFieldWidth + INPUT_OUTPUT_GAP + 60} y="85"> Output</text>
                 {!showConfigureOutputForm && (
                     <OutputConfigureButton
@@ -702,7 +1162,8 @@ export function MapperView() {
                         >
                             <div className='expression-wrapper'>
                                 <Typography variant="h5">
-                                    {`Mapping an Optional type, please provide a default value`}
+                                    {`Mapping an Optional type, please provide a default value of type
+                                     ${defaultInputConfig.config.model.type}`}
                                 </Typography>
                                 <ExpressionEditor {...defaultInputConfig.config} />
                                 <div className={overlayClasses.buttonWrapper}>
@@ -735,7 +1196,7 @@ export function MapperView() {
                             <div className='expression-wrapper'>
                                 <Typography variant="h5">
                                     {`Mismatch type in mapping, expected ${selectedTargetDataPoint.type}
-                                     found ${selectedDataPoint.type},
+                                     found ${selectedSourceDataPoint.type},
                                     convert to ${selectedTargetDataPoint.type}?`}
                                 </Typography>
                                 <div className={overlayClasses.buttonWrapper}>

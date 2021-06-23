@@ -11,13 +11,22 @@
  * associated services.
  */
 
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
+import { Box, IconButton, Typography } from "@material-ui/core";
+import Divider from "@material-ui/core/Divider";
+import classNames from "classnames";
+import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
+import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
+import { Status } from "components/Status";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
+import { ConnectorConfig, FormField } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
+import {STSymbolInfo} from "../../../Definitions";
 
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
@@ -39,6 +48,13 @@ export interface OauthConnectButtonProps {
   onSelectConnection: (type: ConnectionType, connection: ConnectionDetails) => void;
   onDeselectConnection: () => void;
   onFailure: (error: Error) => void;
+  selectedConnectionType?: ConnectionType;
+  onSave?: () => void;
+  onClickManualConnection?: () => void;
+  onSaveNext?: () => void;
+  initFormFields?: FormField[];
+  connectorConfig?: ConnectorConfig;
+  isTriggerConnector?: boolean;
 }
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
@@ -61,8 +77,16 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     onDeselectConnection,
     onFailure,
     className,
+    selectedConnectionType,
+    onSave,
+    onClickManualConnection,
+    onSaveNext,
+    initFormFields,
+    connectorConfig,
+    isTriggerConnector
   } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const session = sessionId || camelCase(connectorName);
 
   // active connection in button
@@ -76,6 +100,11 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   const connectionListError = sessionState?.existingConnectionData?.error;
   const isConnectionListEmpty = (!connectionList || (connectionList?.length === 0) || connectionList === undefined);
   const isOngoingFetching = (isAuthenticating || isTokenExchanging || isConnectionFetching);
+  const [configForm, setConfigForm] = useState(initFormFields);
+  // tslint:disable-next-line:no-shadowed-variable
+  const { state } = useContext(Context);
+  const { stSymbolInfo } = state;
+  const symbolInfo: STSymbolInfo = stSymbolInfo;
 
   useEffect(() => {
     if (!activeConnection && !isOngoingFetching) {
@@ -97,6 +126,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     return () => {
       // clean up session
       dispatchDeleteOauthSession(session);
+      dispatchFetchConnectionList(connectorName, session);
     }
   }, [])
 
@@ -119,10 +149,10 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
     // trigger onSelectConnection when changing activeConnection
     if (activeConnection) {
       const btnConnectionType = (currentConnection) ?
-        (activeConnection.handle === currentConnection.handle) ?
-          ConnectionType.NOT_CHANGED
-          : ConnectionType.UPDATED
-        : ConnectionType.NEW;
+          (activeConnection.handle === currentConnection.handle) ?
+              ConnectionType.NOT_CHANGED
+              : ConnectionType.UPDATED
+          : ConnectionType.NEW;
 
       onSelectConnection(btnConnectionType, activeConnection);
     }
@@ -159,45 +189,158 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
 
   const handleChangeConnectionSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     // reset connection button
+    if (configForm) {
+      connectorConfig.connectorInit = configForm;
+    }
     const allConnections = sessionState?.existingConnectionData?.connections;
     const selectedConnection = (event.target).value;
     setActiveConnection(allConnections?.find((connection: any) => connection.handle === selectedConnection));
   };
 
   // render elements
+  const activeConnectionLabel = () => (
+      <>
+        <div className={classes.activeConnectionWrapper}>
+          <div className={classes.activeConnectionWrapperChild1}>
+            <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+              <Typography variant="subtitle2">
+                <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+              </Typography>
+            </Box>
+          </div>
+          <div>
+            <Status type={"Connected"} />
+          </div>
+        </div>
+        <Divider />
+      </>
+  );
+
+  const saveConnectionText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.saveConnectionBtn.text",
+    defaultMessage: "Save Connection"
+  });
+
+  const invokeAPIText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.saveAllInvokeConnectionButton.text",
+    defaultMessage: "Continue to Invoke API"
+  });
 
   function renderConnectedButton() {
     return (
-      <ConnectedButton
-        activeConnection={activeConnection}
-        onChangeConnection={handleClickChangeConnection}
-      />
+        <>
+          <ConnectedButton
+              activeConnection={activeConnection}
+              onChangeConnection={handleClickChangeConnection}
+          />
+          <div className={classes.saveBtnWrapper}>
+            {(selectedConnectionType === ConnectionType.NEW) ? (
+              <div className={classes.saveConnectorBtnHolder}>
+                <LinePrimaryButton
+                  text={saveConnectionText}
+                  fullWidth={true}
+                  onClick={onSave}
+                />
+                <PrimaryButton
+                    text={invokeAPIText}
+                    fullWidth={true}
+                    onClick={onSaveNext}
+                />
+              </div>
+            ) : (
+              <div className={classes.saveConnectorBtnHolder}>
+                <PrimaryButton
+                    text={saveConnectionText}
+                    fullWidth={true}
+                    onClick={onSave}
+                />
+              </div>
+            )}
+          </div>
+        </>
     );
   }
   function renderConnectionList() {
     return (
-      <ConnectionList
-        activeConnection={activeConnection}
-        connectionList={connectionList}
-        onChangeConnection={handleChangeConnectionSelection}
-        onInitConnection={handleClickInitSession}
-      />
+        <>
+          {activeConnection && activeConnectionLabel()}
+          <ConnectionList
+              activeConnection={activeConnection}
+              connectionList={connectionList}
+              connectionName={connectorName}
+              onChangeConnection={handleChangeConnectionSelection}
+              onInitConnection={handleClickInitSession}
+              onClickManualConnection={onClickManualConnection}
+              isTriggerConnector={isTriggerConnector}
+          />
+        </>
     );
   }
+
+  const connectYourAccountButtonText = intl.formatMessage({
+    id: "lowcode.develop.connectorForms.OAuthConnect.ConnectionList.connectAnotherAccountButton.text",
+    defaultMessage: "Your Account"
+  });
+
+  const manualConnectionButtonLabel = intl.formatMessage({
+      id: "lowcode.develop.connectorForms.manualConnection.button.label",
+      defaultMessage: "Manual Configuration"
+  });
+
   function renderConnectButton() {
     return (
-      <PrimaryButton
-        text={`Connect to ${connectorName}`}
-        onClick={handleClickInitSession}
-        className={className ? className : classes.mainConnectBtn}
-      />
+      <div>
+        <div className={classes.oauthConnectionTextWrapper}>
+                <p className={classes.oauthConnectionText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionText.noConnections"
+                        defaultMessage={"Create a new connection via"}
+                    />
+                </p>
+            </div>
+            <PrimaryButton
+                text={connectYourAccountButtonText}
+                onClick={handleClickInitSession}
+                className={classes.mainConnectBtn}
+            />
+            <div className={classes.oauthConnectionAltTextWrapper}>
+                <p className={classes.oauthConnectionAltText}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        defaultMessage={"Connect via OAuth"}
+                    />
+                </p>
+            </div>
+        {!isTriggerConnector &&
+        (
+            <div>
+              <div className={classNames(classes.manualConfigBtnWrapper)}>
+                <LinePrimaryButton
+                    className={classNames(classes.fullWidth, classes.manualConfigBtnSquare)}
+                    text={manualConnectionButtonLabel}
+                    fullWidth={false}
+                    onClick={onClickManualConnection}
+                />
+              </div>
+              <div className={classes.oauthConnectionAltTextWrapper}>
+                <p className={classes.oauthConnectionAltText}>
+                  <FormattedMessage
+                      id="lowcode.develop.connectorForms.newConnectionAltText"
+                      defaultMessage={"You will be prompted to enter configuration details"}
+                  />
+                </p>
+              </div>
+            </div>
+        )}
+      </div>
     );
   }
 
   return (
     <div className={classes.root}>
       {isOngoingFetching && <CustomPreloader sessionState={sessionState} />}
-      {!isOngoingFetching && activeConnection && renderConnectedButton()}
+      {!isOngoingFetching && activeConnection && (selectedConnectionType === ConnectionType.NEW || selectedConnectionType === ConnectionType.UPDATED) && renderConnectedButton()}
+      {!isOngoingFetching && activeConnection && (selectedConnectionType === ConnectionType.NOT_CHANGED) && renderConnectionList()}
       {!isOngoingFetching && !activeConnection && (!isConnectionListEmpty ? renderConnectionList() : renderConnectButton())}
     </div>
   );

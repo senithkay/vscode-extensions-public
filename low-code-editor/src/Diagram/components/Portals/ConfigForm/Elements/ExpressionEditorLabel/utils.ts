@@ -10,22 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-import { ConnectionViewState } from "./connection-viewstate";
-import { DataMapperViewState } from "./data-mapper-viewstate";
-
-export class SourcePointViewState extends DataMapperViewState {
-    public text: string;
-    public connections: ConnectionViewState[] = [];
-    public isJsonField: boolean;
-    public isOptionalType: boolean;
-    public type: string;
-    public unionType: string;
-
-    constructor() {
-        super();
-        this.text = '';
-        this.isJsonField = false;
-        this.isOptionalType = false;
-    }
+export function truncateText(value: string) {
+    if (!value)
+        return undefined
+    else if (value.length > 35)
+        return value.slice(0, 35) + "...";
+    else
+        return value;
 }
