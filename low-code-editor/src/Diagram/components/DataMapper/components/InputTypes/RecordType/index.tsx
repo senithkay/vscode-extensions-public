@@ -20,9 +20,9 @@ import React, { ReactElement, useContext, useEffect, useRef, useState } from 're
 import { CaptureBindingPattern, LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
-import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import Tooltip from '../../../../../../components/Tooltip';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
+import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { getDataMapperComponent, hasReferenceConnections } from '../../../util';

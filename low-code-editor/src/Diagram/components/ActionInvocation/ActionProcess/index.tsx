@@ -16,9 +16,9 @@ import React, { useContext, useState } from "react";
 import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
+import { BallerinaConnectorsInfo } from "../../../../Definitions";
 import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";

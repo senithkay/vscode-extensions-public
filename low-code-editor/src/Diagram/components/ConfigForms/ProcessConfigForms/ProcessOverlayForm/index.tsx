@@ -14,10 +14,10 @@ import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
-import { DefaultConfig } from "../../../../../..//src/Diagram/visitors/default";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
+import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { DiagramContext } from "../../../../../providers/contexts";
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";

@@ -17,7 +17,7 @@ import { useIntl } from 'react-intl';
 import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import { Context } from '../../../../../../../../low-code-editor/src/Contexts/Diagram';
+import { Context } from '../../../../../../Contexts/Diagram';
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { ButtonWithIcon } from "../../../ConfigForm/Elements/Button/ButtonWithIcon";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../index";
