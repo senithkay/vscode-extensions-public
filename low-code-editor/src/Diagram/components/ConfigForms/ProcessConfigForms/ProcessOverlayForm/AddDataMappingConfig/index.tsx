@@ -138,6 +138,16 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                                     });
                                 }
                             })
+                        } else if (varNode.kind === 'ResourcePathSegmentParam') {
+                            const varName = (varNode as any).paramName.value;
+                            mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                                if (missingVarName === varName) {
+                                    dataMapperConfig.inputTypes.push({
+                                        type: key,
+                                        name: varName
+                                    })
+                                }
+                            })
                         }
                     })
                 })

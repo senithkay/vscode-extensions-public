@@ -179,6 +179,29 @@ export class DataPointVisitor implements Visitor {
         }
     }
 
+    beginVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+            this.nameComponents.push(viewstate.name);
+
+            if (viewstate.sourcePointViewState) {
+                viewstate.sourcePointViewState.bBox.x = this.sourceTypeX;
+                viewstate.sourcePointViewState.bBox.y = viewstate.bBox.y;
+                viewstate.sourcePointViewState.connections = [];
+                viewstate.sourcePointViewState.isOptionalType = viewstate.isOptionalType;
+                viewstate.sourcePointViewState.type = viewstate.type;
+                viewstate.sourcePointViewState.text = this.generateDataPointName(this.nameComponents);
+                this._sourcePointMap.set(this.generateDataPointName(this.nameComponents), viewstate.sourcePointViewState);
+            }
+        }
+    }
+
+    endVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            this.nameComponents.splice(this.nameComponents.length - 1, 1);
+        }
+    }
+
     endVisitRecordField(node: RecordField) {
         if (node.dataMapperViewState && !this.hasMappingConstructor) {
             const viewstate = node.dataMapperViewState as FieldViewState;

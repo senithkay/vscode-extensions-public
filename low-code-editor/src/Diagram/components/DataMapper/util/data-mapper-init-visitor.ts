@@ -108,7 +108,6 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
         }
-
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -326,6 +325,27 @@ export class DataMapperInitVisitor implements Visitor {
         }
 
         node.expression.dataMapperViewState = new DataMapperViewState();
+    }
+
+    // todo: change when syntax tree interfaces are generated
+    public beginVisitResourcePathSegmentParam(node: any) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new FieldViewState();
+        }
+
+        const viewstate: FieldViewState = node.dataMapperViewState as FieldViewState;
+
+        viewstate.name = node.paramName.value;
+
+        const typeDescriptor = node.typeDescriptor;
+
+        if (typeDescriptor) {
+            setViewStateTypeInformation(viewstate, typeDescriptor, node);
+        }
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewstate.sourcePointViewState = new SourcePointViewState();
+        }
     }
 }
 

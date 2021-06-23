@@ -84,6 +84,8 @@ export function DataMapper(props: DataMapperProps) {
                     varName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
                 } else if (STKindChecker.isRequiredParam(node)) {
                     varName = node.paramName.value;
+                } else if (node.kind === 'ResourcePathSegmentParam') {
+                    varName = (node as any).paramName.value; // todo: change when syntax tree interfaces are updated
                 }
 
                 if (varName === varInfo.name) {

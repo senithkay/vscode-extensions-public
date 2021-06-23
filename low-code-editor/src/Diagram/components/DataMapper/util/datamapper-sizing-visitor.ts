@@ -98,7 +98,7 @@ export class DataMapperSizingVisitor implements Visitor {
             this.nameparts.push(viewstate.name);
             this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
 
-            viewstate.bBox.w = DEFAULT_FIELD_WIDTH
+            viewstate.bBox.w = DEFAULT_FIELD_WIDTH;
 
             if (viewstate.bBox.w > this.maxWidth) {
                 this.maxWidth = viewstate.bBox.w;
@@ -160,6 +160,23 @@ export class DataMapperSizingVisitor implements Visitor {
             if (node.dataMapperTypeDescNode || STKindChecker.isMappingConstructor(node.initializer) || viewState.hasInlineRecordDescription) {
                 this.offSet -= FIELD_OFFSET;
             }
+        }
+    }
+
+    beginVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            viewState.bBox.w = DEFAULT_FIELD_WIDTH;
+            this.nameparts.push(viewState.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewState);
+        }
+    }
+
+    endVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            viewState.bBox.h = FIELD_HEIGHT;
+            this.nameparts.splice(this.nameparts.length - 1, 1);
         }
     }
 
