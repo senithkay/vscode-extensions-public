@@ -28,3 +28,6 @@ export const UNDEFINED_SYMBOL_ERR_CODE = "BCE2010";
 export const SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS = ["BCE0411", "BCE2010", "BCE0012", "BCE0400"];
 
 export const EDITOR_MAXIMUM_CHARACTERS = 25;
+
+/** Messages to be ignored when displaying diagnostics in expression editor */
+export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];
