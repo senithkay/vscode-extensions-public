@@ -17,6 +17,8 @@ export const acceptedKind: CompletionItemKind[] = [
     3 as CompletionItemKind,
 ];
 
+export const TRIGGER_CHARACTERS: string[] = [".", " "];
+
 export const EXPAND_WIDGET_ID = "expand-widget";
 export const COLLAPSE_WIDGET_ID = "collapse-widget";
 export const DOUBLE_QUOTE_ERR_CODE = "BCE0411";
