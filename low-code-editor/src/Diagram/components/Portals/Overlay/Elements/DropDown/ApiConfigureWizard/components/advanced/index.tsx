@@ -64,10 +64,10 @@ export function AdvancedEditor(props: AdvancedProps) {
             <Grid container={true} spacing={1}>
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={6}>
-                        <CheckBoxGroup values={["Add Caller"]} defaultValues={[segmentState.isCaller ? "Add Caller" : ""]}  onChange={onCallerCheckChange} />
+                        <CheckBoxGroup values={["Add Request"]} defaultValues={[segmentState.isRequest ? "Add Request" : ""]} onChange={onRequestCheckChange} />
                     </Grid>
                     <Grid item={true} xs={6}>
-                        <CheckBoxGroup values={["Add Request"]} defaultValues={[segmentState.isRequest ? "Add Request" : ""]} onChange={onRequestCheckChange} />
+                        <CheckBoxGroup values={["Add Caller"]} defaultValues={[segmentState.isCaller ? "Add Caller" : ""]}  onChange={onCallerCheckChange} />
                     </Grid>
                 </Grid>
             </Grid>
