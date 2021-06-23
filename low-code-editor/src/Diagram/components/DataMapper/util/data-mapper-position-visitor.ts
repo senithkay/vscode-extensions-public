@@ -94,6 +94,21 @@ export class DataMapperPositionVisitor implements Visitor {
         }
     }
 
+    beginVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            viewState.bBox.x = this.offset + PADDING_OFFSET;
+            viewState.bBox.y = this.height + PADDING_OFFSET;
+            // this.hasDataMapperTypeDesc = node.dataMapperTypeDescNode !== undefined;
+        }
+    }
+
+    endVisitResourcePathSegmentParam(node: any) {
+        if (node.dataMapperViewState) {
+            this.height += DEFAULT_OFFSET * 2;
+        }
+    }
+
     beginVisitLocalVarDecl(node: LocalVarDecl) {
         if (node.dataMapperViewState) {
             const viewState = node.dataMapperViewState as FieldViewState;
