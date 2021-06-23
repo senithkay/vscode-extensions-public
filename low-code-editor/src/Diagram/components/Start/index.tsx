@@ -26,7 +26,8 @@ import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
-    TRIGGER_TYPE_WEBHOOK
+    TRIGGER_TYPE_WEBHOOK,
+    TRIGGER_TYPE_API
 } from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
 import { DefaultConfig } from "../../visitors/default";
@@ -200,9 +201,14 @@ export function StartButton(props: StartButtonProps) {
         block = funcModel.functionBody as FunctionBodyBlock;
     }
 
-    const text: string = (model.kind === "ModulePart") || !activeTriggerType
-        ? "START"
-        : activeTriggerType.toUpperCase();
+    let text: string;
+    if ((model.kind === "ModulePart") || !activeTriggerType) {
+        text = "START";
+    } else if (activeTriggerType === TRIGGER_TYPE_API) {
+        text = "RESOURCE";
+    } else {
+        text = activeTriggerType.toUpperCase();
+    }
 
     return (
         // hide edit button for triggers and expression bodied functions
