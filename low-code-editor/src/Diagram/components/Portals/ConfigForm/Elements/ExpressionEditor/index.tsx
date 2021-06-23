@@ -30,7 +30,7 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -175,6 +175,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
+    const [superExpand, setSuperExpand] = useState(false);
     const [addCheck, setAddCheck] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
@@ -728,6 +729,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
                 setExpand(true);
+                if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
+                    setSuperExpand(true);
+                }
             }
         }
     }
@@ -887,9 +891,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? '100px' : '32px' }}>
+            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? '100px' : '32px' }} >
+                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
