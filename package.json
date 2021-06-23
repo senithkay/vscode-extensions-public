@@ -246,7 +246,7 @@
             },
             {
                 "command": "ballerina.project.doc",
-                "title": "Document",
+                "title": "Build Documentation",
                 "category": "Ballerina"
             },
             {

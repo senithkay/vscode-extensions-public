@@ -20,7 +20,6 @@
 import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
-import { isWindows } from "./config";
 
 function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
@@ -45,7 +44,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 function getVSCodeResourceURI(filePath: string): string {
-    return isWindows() ? 'vscode-resource:/' + filePath : 'vscode-resource:' + filePath;
+    return `vscode-resource:${filePath}`;
 }
 
 export interface WebViewOptions {
