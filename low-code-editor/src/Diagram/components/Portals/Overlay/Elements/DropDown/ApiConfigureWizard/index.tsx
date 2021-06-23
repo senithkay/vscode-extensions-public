@@ -38,15 +38,15 @@ import {
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { useStyles } from "../styles";
 import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
+import { useStyles } from "../styles";
 
 import { AdvancedEditor } from "./components/advanced";
 import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
-import { Advanced, Path, Payload, QueryParamCollection, Resource, AdvancedResourceState } from "./types";
+import { Advanced, AdvancedResourceState, Path, Payload, QueryParamCollection, Resource } from "./types";
 import {
   convertPathStringToSegments,
   convertPayloadStringToPayload,
@@ -454,7 +454,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const advancedTooltip = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.advanced.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
       </p>
     </div>
   );
@@ -462,7 +462,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const returnTitle = (
       <div>
         <p>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="A valid ballerina type can be used" />
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.return.type.instructions.tooltip" defaultMessage="A valid ballerina type can be used" />
         </p>
       </div>
   );
@@ -492,7 +492,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               />
             </Section>
             <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={onPathUIToggleSelect.bind(this, index)} text={"Advanced"} />
-            {!advancedMenuState.path.get(index) &&
+            {!advancedMenuState.path.get(index) && (
             <div className={classes.sectionSeparator}>
               <Section
                   title={pathTitle}
@@ -510,8 +510,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 />
               </Section>
             </div>
-            }
-            {advancedMenuState.path.get(index) &&
+            )}
+            {advancedMenuState.path.get(index) && (
               <div>
                 <div className={classes.sectionSeparator}>
                   <Section
@@ -546,9 +546,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
                 </div>
-                
+
               </div>
-            }
+            )}
               <Section
                   title={returnTypeTitle}
               >

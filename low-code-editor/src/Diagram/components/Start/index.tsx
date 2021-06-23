@@ -26,8 +26,8 @@ import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
-    TRIGGER_TYPE_WEBHOOK,
-    TRIGGER_TYPE_API
+    TRIGGER_TYPE_API,
+    TRIGGER_TYPE_WEBHOOK
 } from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
 import { DefaultConfig } from "../../visitors/default";

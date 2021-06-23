@@ -8,7 +8,6 @@ import {
     QueryParamCollection,
     ReturnType,
     ReturnTypeCollection,
-    ReturnTypesMap
 } from "./types";
 
 export const payloadTypes: string[] = ["json", "xml", "byte[]", "string"];
@@ -51,16 +50,16 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
                 type: ""
             };
             if (value.includes("=")) {
-                const queryParamSplited: string[] = value.split("=");
-                if (queryParamSplited.length === 2 && queryParamSplited[1].startsWith("[") && queryParamSplited[1].endsWith("]")) {
-                    const formattedQueryParam = queryParamSplited[1].replace("[", "").replace("]", "");
+                const splitedParam: string[] = value.split("=");
+                if (splitedParam.length === 2 && splitedParam[1].startsWith("[") && splitedParam[1].endsWith("]")) {
+                    const formattedQueryParam = splitedParam[1].replace("[", "").replace("]", "");
                     const splitedNameAndType: string[] = formattedQueryParam.split(" ");
                     queryParam.id = index;
                     queryParam.name = splitedNameAndType[1];
                     queryParam.type = splitedNameAndType[0];
                     queryParamCollection.queryParams.push(queryParam);
-                } else if (queryParamSplited.length === 2 && queryParamSplited[1].startsWith("{") && queryParamSplited[1].endsWith("}")) {
-                    const formattedQueryParam = queryParamSplited[1].replace("{", "").replace("}", "");
+                } else if (splitedParam.length === 2 && splitedParam[1].startsWith("{") && splitedParam[1].endsWith("}")) {
+                    const formattedQueryParam = splitedParam[1].replace("{", "").replace("}", "");
                     queryParam.id = index;
                     queryParam.name = formattedQueryParam;
                     queryParam.type = "string";
@@ -115,10 +114,10 @@ export function convertPathStringToSegments(pathString: string): Path {
 }
 
 /**
-*
-* @param pathParamString path param will be like `string id`
-* @returns PathSegement
-*/
+ *
+ * @param pathParamString path param will be like `string id`
+ * @returns PathSegement
+ */
 export function convertPathParamStringToSegment(pathParamString: string): PathSegment {
     let pathSegment: PathSegment;
     const splitedPathParam: string[] = pathParamString.split(" ");
@@ -236,13 +235,13 @@ export function generateQueryParamFromQueryCollection(params: QueryParamCollecti
 }
 
 export function generateReturnTypeFromReturnCollection(params: ReturnType[]): string {
-    const returnTypes: string[] = [];
+    const returnTypeCollection: string[] = [];
     params.forEach(param => {
         if (param.type) {
-            returnTypes.push(`${param.type} ${param.isOptional ? "?" : ""}`);
+            returnTypeCollection.push(`${param.type} ${param.isOptional ? "?" : ""}`);
         }
     })
-    return returnTypes.join("|");
+    return returnTypeCollection.join("|");
 }
 
 export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
@@ -254,22 +253,22 @@ export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
 }
 
 export function convertReturnTypeStringToSegments(returnTypeString: string): ReturnType[] {
-    const returnTypes: ReturnType[] = [];
+    const returnTypeCollection: ReturnType[] = [];
     if (returnTypeString) {
         const codeReturnTypes = returnTypeString?.split("|");
         if (codeReturnTypes) {
             codeReturnTypes.forEach((returnType, index) => {
                 if (returnType.includes("?")) {
-                    returnTypes.push({
+                    returnTypeCollection.push({
                         type: returnType.replace("?", "").trim(), isOptional: true, id: index
                     });
                 } else {
-                    returnTypes.push({ type: returnType.trim(), isOptional: false, id: index });
+                    returnTypeCollection.push({ type: returnType.trim(), isOptional: false, id: index });
                 }
             });
         }
     }
-    return returnTypes;
+    return returnTypeCollection;
 }
 
 export function recalculateItemIds(items: any[]) {

@@ -1,10 +1,9 @@
 import { FormField } from "../ConfigurationSpec/types";
-import { keywords } from "../Diagram/components/Portals/utils/constants";
 import {
     convertReturnTypeStringToSegments,
     returnTypes
 } from "../Diagram/components/Portals/Overlay/Elements/DropDown/ApiConfigureWizard/util";
-import {allLocalesLoader} from "cronstrue/dist/i18n/allLocalesLoader";
+import { keywords } from "../Diagram/components/Portals/utils/constants";
 
 export function validatePath(text: string) {
     if (text !== "") {
