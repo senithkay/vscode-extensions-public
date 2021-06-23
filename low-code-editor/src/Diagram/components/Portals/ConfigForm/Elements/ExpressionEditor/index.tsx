@@ -82,7 +82,10 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     find: { addExtraSpaceOnTop: false, autoFindInSelection: 'never', seedSearchStringFromSelection: false },
     autoClosingBrackets: "always",
     autoClosingQuotes: "always",
-    autoClosingOvertype: "always"
+    autoClosingOvertype: "always",
+    hover: {
+        enabled: false
+    }
 };
 
 monaco.editor.defineTheme('exp-theme', {
@@ -200,7 +203,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const notValidExpEditor = (message: string) => {
+    const notValidExpEditor = (message: string, updateState: boolean = true) => {
         const currentContent = monacoRef.current ? monacoRef.current?.editor?.getModel()?.getValue() : model.value;
         if (model.optional === true && (currentContent === undefined || currentContent === "") && !invalidSourceCode) {
             validExpEditor();
@@ -215,7 +218,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     endColumn: 1000,
                     message,
                     severity: monaco.MarkerSeverity.Error
-                }])
+                }]);
+                if (updateState) {
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: [{
+                            message,
+                            code: ""
+                        }]
+                    })
+                }
             }
         }
     }
@@ -240,7 +252,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
                 }
             } else {
                 if (monacoRef.current) {
