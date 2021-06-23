@@ -588,9 +588,12 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
         if (outputSTNode.dataMapperTypeDescNode) {
             switch (outputSTNode.dataMapperTypeDescNode.kind) {
                 case 'RecordTypeDesc': {
-                    await Promise.all((outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.map(async (field: any) => {
-                        await completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions, VisitingType.OUTPUT, langClient);
-                    }));
+                    await Promise.all(
+                        (outputSTNode.dataMapperTypeDescNode as RecordTypeDesc).fields.map(async (field: any) => {
+                            await completeMissingTypeDesc(field, stSymbolInfo.recordTypeDescriptions,
+                                VisitingType.OUTPUT, langClient);
+                        })
+                    );
                 }
             }
         }
@@ -757,6 +760,18 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
                                 });
                             }
                         })
+                    } else if (varNode.kind === 'ResourcePathSegmentParam') {
+                        const varName = (varNode as any).paramName.value;
+
+                        mappingVisitor.getMissingVarRefList().forEach((missingVarName: string) => {
+                            if (missingVarName === varName && inputVarNameList.indexOf(varName) === -1) {
+                                dataMapperConfig.inputTypes.push({
+                                    type: key,
+                                    name: varName,
+                                    // node: varNode
+                                });
+                            }
+                        });
                     }
                 })
             })

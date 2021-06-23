@@ -388,8 +388,18 @@ export function MapperView() {
     }
 
     const removeInputType = (model: STNode) => {
+        let varName = '';
         if (STKindChecker.isLocalVarDecl(model)) {
-            const varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+        } else if (STKindChecker.isAssignmentStatement(model)) {
+            if (STKindChecker.isSimpleNameReference(model.varRef)) {
+                varName = model.varRef.name.value
+            }
+        } else if (model.kind === 'ResourcePathSegmentParam') {
+            varName = (model as any).paramName.value;
+        }
+
+        if (varName.length > 0) {
             const index = dataMapperConfig.inputTypes
                 .map((inputType: DataMapperInputTypeInfo) => inputType.name)
                 .indexOf(varName);

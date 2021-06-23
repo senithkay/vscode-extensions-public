@@ -34,3 +34,6 @@ export const INCOMPATIBLE_TYPE_MAP_ERR_CODE = "BCE2508"
 export const SUGGEST_TO_STRING_TYPE = ["string", "record", "union", "int", "float", "boolean", "json", "xml", "var", "error", "any", "anydata", "decimal"];
 
 export const EDITOR_MAXIMUM_CHARACTERS = 25;
+
+/** Messages to be ignored when displaying diagnostics in expression editor */
+export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];

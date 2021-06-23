@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
 
@@ -80,6 +80,12 @@ export function Respond(props: RespondProps) {
         cy = blockViewState.draft[1].bBox.cy;
         compType = blockViewState.draft[1].subType.toUpperCase();
     }
+
+    useEffect(() => {
+        if (configOverlayFormState){
+            toggleDiagramOverlay();
+        }
+    }, [configOverlayFormState])
 
     const deleteTriggerPosition = {
         cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
