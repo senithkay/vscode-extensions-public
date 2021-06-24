@@ -231,20 +231,12 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       updateCronStartTime.setMonth(Number(cronMonthValue) - 1);
     }
 
-    const timezoneOffsetMinutes = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMinutes();
-    const timezoneOffsetHours = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getHours();
-    const timezoneOffsetDay = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getDate();
-    const timezoneOffsetMonth = addMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMonth() + 1;
-
-    const cronDateUTCValue = (cronDayValue === "*") ? cronDayValue : timezoneOffsetDay;
-    const cronMonthUTCValue = (cronMonthValue === "*") || !isNumber(cronMonthValue) ? cronMonthValue : timezoneOffsetMonth;
-
     if (scheduledComp === "Minute") {
       return minuteGenCron + " * * * *"
     } else if (scheduledComp === "Hour") {
       return "0 " + hourGenCron + " * * *"
     } else if (scheduledComp === "Day") {
-      return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *"
+      return cronMinuteValue + " " + cronHourValue + " * * *"
     } else if (scheduledComp === "Month") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
     } else if (scheduledComp === "Week") {

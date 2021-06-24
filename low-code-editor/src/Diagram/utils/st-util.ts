@@ -12,8 +12,10 @@
  */
 import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import { getPathOfResources } from 'components/DiagramSelector/utils';
+import {format} from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
+import {useState} from "react";
 
 import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
@@ -22,6 +24,7 @@ import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Defin
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import {weekOptions} from "../components/Portals/Overlay/Elements/DropDown/ScheduleConfigureWizard/ScheduleConstants";
 import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
@@ -542,8 +545,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
     return (resourceKeyword !== undefined);
 }
 
-export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
-    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly|Custom): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
+export function getConfigDataFromSt(triggerType: TriggerType, model: any, currentApp: any): any {
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -560,11 +562,30 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
-                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
+                cron: currentApp.cronSchedule,
+                schType: getSchType(currentApp.cronSchedule)
             }
         default:
             return undefined;
+    }
+}
+
+export function getSchType(cron: string) : string{
+    const cronSplit = cron?.split(" ", 5);
+    const count = cronSplit.filter(value => value === "*").length;
+
+    if (cronSplit[1].includes("*/") && cronSplit[0] === "0") {
+        return "Hour";
+    } else if (cronSplit[0].includes("*/") && count === 4) {
+        return "Minute";
+    } else if (count === 3) {
+        return "Day";
+    } else if (count === 2) {
+        return "Week";
+    } else if (count === 1) {
+        return "Month";
+    } else {
+        return "Custom";
     }
 }
 
