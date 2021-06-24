@@ -27,7 +27,7 @@ export function DiagramErrorState(props: {
 }) {
    const { errorCount, warningCount, isErrorMsgVisible, onClose, onOpen, ...xyProps } = props;
    const text = errorCount + warningCount;
-   const iconColor = (errorCount > 0) ? "#fe523c" : "#ede78a";
+   const iconColor = (errorCount > 0) ? "#FE523C" : "#FF9D52";
    const messageAreaColor = (errorCount > 0) ? "#fceded" : "#fcfacf";
    const message = (errorCount > 0) ? "Code has errors, fix them first to activate the diagram" : "Code has warnings, Please check them";
    return (
