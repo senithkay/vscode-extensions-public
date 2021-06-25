@@ -18,7 +18,9 @@ import {
     ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
     ServiceDeclaration, STKindChecker, STNode
 } from "@ballerina/syntax-tree";
+import {Box} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import {Status} from "components/Status";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
@@ -466,6 +468,24 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             }),
     }
     }
+
+    const activeConnectionLabel = () => (
+        <>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                        </Typography>
+                    </Box>
+                </div>
+                <div>
+                    <Status type={"Connected"} />
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <>
             <div className={classes.customWrapper}>
@@ -478,6 +498,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     isTriggerConnector={true}
                 />
             </div>
+            {activeConnection && activeConnectionLabel()}
             { activeConnection && isRepoListFetching && (
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
