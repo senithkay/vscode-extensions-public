@@ -23,7 +23,6 @@ import { getPathOfResources } from "components/DiagramSelector/utils";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
-import RadioControl from "../../../../../../../components/RadioControl";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
@@ -274,6 +273,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
       // Validate paths
       if (!validatePath(res.path)) {
+        isValidated = false;
+        return;
+      }
+      // validate return type
+      if (!validateReturnType(res.returnType)) {
         isValidated = false;
         return;
       }
@@ -529,7 +533,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   >
                     <FormTextInput
                       dataTestId="api-path"
-                      defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                      defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
                         validate: validatePath
@@ -611,12 +615,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   placeholder={returnTypePlaceholder}
                 />
               )}
-              <div className={returnClasses.toggleWrapper}>
-                <Link component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                  Advanced
-                </Link>
-                {/* <SwitchToggle className={returnClasses.toggleTitle} initSwitch={advancedMenuState.returnType.get(index)} onChange={} text={"Advanced"} /> */}
-              </div>
+              <Grid container={true} spacing={1}>
+                <Grid item={true} xs={9}/>
+                <Grid item={true} xs={3}>
+                  <Link component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
+                    Advanced
+                  </Link>
+                </Grid>
+              </Grid>
             </Section>
           </div>
         ))}
