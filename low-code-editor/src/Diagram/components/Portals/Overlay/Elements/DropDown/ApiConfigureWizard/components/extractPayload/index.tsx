@@ -34,7 +34,7 @@ export function PayloadEditor(props: PayloadProps) {
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
     const classes = useStyles();
     const initValue: Payload = segment.type !== "" && segment.type !== "" ? { ...segment } : {
-        name: "",
+        name: "payload",
         type: "json"
     };
 

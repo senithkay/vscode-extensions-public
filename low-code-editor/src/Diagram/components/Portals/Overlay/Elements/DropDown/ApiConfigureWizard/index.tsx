@@ -405,7 +405,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const extractPayloadTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.extract.payload.title",
-    defaultMessage: "Extract Payload"
+    defaultMessage: "Extract Request Payload"
   });
 
   const advancedTitle = intl.formatMessage({
