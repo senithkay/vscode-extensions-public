@@ -202,24 +202,31 @@ export function StartButton(props: StartButtonProps) {
     }
 
     let text: string;
-    let resourceText: string;
+    let additionalInfo: string;
     if ((model.kind === "ModulePart") || !activeTriggerType) {
         text = "START";
     } else if (activeTriggerType === TRIGGER_TYPE_API) {
-        text = "RESOURCE";
         const functionName = (model as FunctionDefinition).functionName.value;
         const identifierTokens: IdentifierToken[] = ((model as FunctionDefinition)?.relativeResourcePath?.filter(
             (relPath: any) => STKindChecker.isIdentifierToken(relPath))) as IdentifierToken[];
-        resourceText = functionName.toUpperCase();
-        if (identifierTokens) {
+        additionalInfo = functionName.toUpperCase();
+        if (identifierTokens && identifierTokens.length > 0) {
+            text = "RESOURCE";
             const tokens: string[] = []
             identifierTokens.forEach(token => {
                 tokens.push(token.value);
             });
-            resourceText += ` /${tokens.join("/")}`;
-            if (resourceText.length >= 15) {
-                resourceText = resourceText.substr(0, 15);
-                resourceText += "...";
+            additionalInfo += ` /${tokens.join("/")}`;
+            if (additionalInfo.length >= 15) {
+                additionalInfo = additionalInfo.substr(0, 15);
+                additionalInfo += "...";
+            }
+        } else {
+            text = "FUNCTION";
+            additionalInfo = functionName.toUpperCase();
+            if (additionalInfo.length >= 15) {
+                additionalInfo = additionalInfo.substr(0, 15);
+                additionalInfo += "...";
             }
         }
     } else {
@@ -233,7 +240,7 @@ export function StartButton(props: StartButtonProps) {
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
-                resourceText={resourceText}
+                resourceText={additionalInfo}
                 showIcon={true}
                 handleEdit={handleEditClick}
             />
