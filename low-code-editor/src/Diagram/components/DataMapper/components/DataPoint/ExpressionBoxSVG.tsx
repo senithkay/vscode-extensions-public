@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import { EditSVG } from "../../../DiagramActions/EditBtn/EditSVG";
+
 export const EXPRESSION_BOX_SVG_HEIGHT = 29;
 export const EXPRESSION_BOX_SVG_WIDTH = 29;
 
@@ -24,7 +26,15 @@ export function ExpressionBoxSVG(props: { x: number, y: number, onClick: () => v
     }
 
     return (
-        <svg data-testid={'datamapper-expression-box'} {...xyProps} height={EXPRESSION_BOX_SVG_HEIGHT} width={EXPRESSION_BOX_SVG_WIDTH} onClick={onClick} onMouseOver={onHover} >
+        <svg
+            className="datamapper-expression-box"
+            data-testid={'datamapper-expression-box'}
+            {...xyProps}
+            height={EXPRESSION_BOX_SVG_HEIGHT}
+            width={EXPRESSION_BOX_SVG_WIDTH}
+            onClick={onClick}
+            onMouseOver={onHover}
+        >
             <g id="Button_Primary_Square_Click" transform="translate(2.5 2.5)">
                 <g id="State">
                     <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />
@@ -42,6 +52,9 @@ export function ExpressionBoxSVG(props: { x: number, y: number, onClick: () => v
                             fill="#8d91a3"
                         />
                     </g>
+                </g>
+                <g className="edit-icon-wrapper" >
+                    <EditSVG x={4} y={5} />
                 </g>
             </g>
         </svg>
