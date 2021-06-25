@@ -49,7 +49,7 @@ import {
     UnionTypeDesc,
     VarTypeDesc,
     Visitor,
-    XmlTypeDesc
+    XmlTypeDesc,
 } from "@ballerina/syntax-tree";
 import * as Ballerina from "@ballerina/syntax-tree/lib/syntax-tree-interfaces";
 
@@ -352,6 +352,25 @@ class FieldVisitor implements Visitor {
                             viewState.fields.push(element.viewState);
                         });
                     }
+                } else if (typeSymbol.kind === 'TYPE' && typeSymbol.typeKind === 'array') {
+                    if (typeSymbol.memberTypeDescriptor && typeSymbol.memberTypeDescriptor.moduleID) {
+                        viewState.typeName = typeSymbol.memberTypeDescriptor.name;
+                        viewState.isArray = true;
+                        viewState.type = PrimitiveBalType.Collection;
+
+                        const collectionType: FormField = {
+                            isParam: true,
+                            type: PrimitiveBalType.Record,
+                            typeName: typeSymbol.memberTypeDescriptor.name,
+                            typeInfo : {
+                                modName: typeSymbol.memberTypeDescriptor.moduleID.moduleName,
+                                name: typeSymbol.memberTypeDescriptor.name,
+                                orgName: typeSymbol.memberTypeDescriptor.moduleID.orgName,
+                                version: typeSymbol.memberTypeDescriptor.moduleID.version
+                            }
+                        }
+                        viewState.collectionDataType = collectionType;
+                    }
                 } else {
                     viewState.typeName = node.name.value;
                     if (node.typeData.typeSymbol.kind !== 'CONSTANT' && typeSymbol.moduleID) {
@@ -431,7 +450,7 @@ class FieldVisitor implements Visitor {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
             const parameterDescriptions: Map<string, string> = new Map<string, string>();
-            if (STKindChecker.isTypeDefinition(parent)) {
+            if (parent && STKindChecker.isTypeDefinition(parent)) {
                 if (parent.metadata?.documentationString) {
                     parent.metadata.documentationString.documentationLines
                         .filter(docLine => docLine.kind === 'MarkdownParameterDocumentationLine')
