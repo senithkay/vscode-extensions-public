@@ -395,7 +395,7 @@ export function MapperView() {
             if (STKindChecker.isSimpleNameReference(model.varRef)) {
                 varName = model.varRef.name.value
             }
-        }else if (STKindChecker.isRequiredParam(model)){
+        } else if (STKindChecker.isRequiredParam(model)) {
             varName = model.paramName.value;
         } else if (model.kind === 'ResourcePathSegmentParam') {
             varName = (model as any).paramName.value;
