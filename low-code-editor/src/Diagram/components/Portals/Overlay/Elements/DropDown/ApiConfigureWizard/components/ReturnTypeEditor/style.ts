@@ -78,6 +78,16 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         actionBtn: {
             fontSize: 13,
+        },
+        toggleWrapper: {
+            marginTop: 0,
+            ".MuiFormGroup-root": {
+                marginTop: "0 !important",
+                backgroundColor: "green !important"
+            }
+        },
+        toggleTitle: {
+            fontSize: 13,
         }
     })
 );

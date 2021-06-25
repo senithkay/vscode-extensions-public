@@ -59,3 +59,8 @@ export interface Advanced {
     isCaller?: boolean;
     isRequest?: boolean;
 }
+
+export interface AdvancedResourceState {
+    path: Map<number, boolean>;
+    returnType: Map<number, boolean>;
+}

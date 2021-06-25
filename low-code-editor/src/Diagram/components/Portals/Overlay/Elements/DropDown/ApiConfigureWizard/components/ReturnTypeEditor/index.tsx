@@ -107,8 +107,7 @@ export function ReturnTypeEditor(props: PathEditorProps) {
                     >
                         <div className={classes.addQueryParamBtnWrap}>
                             <AddIcon/>
-                            <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addReturnType.title"
-                                                 defaultMessage="Add Return Type"/></p>
+                            <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addReturnType.title" defaultMessage="Add Return Type"/></p>
                         </div>
                     </button>
                 </div>

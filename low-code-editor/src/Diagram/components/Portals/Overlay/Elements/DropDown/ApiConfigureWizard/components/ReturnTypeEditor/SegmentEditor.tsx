@@ -20,9 +20,9 @@ import { PrimaryButton } from "../../../../../../ConfigForm/Elements/Button/Prim
 import { SecondaryButton } from "../../../../../../ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { ReturnType } from "../../types";
+import { returnTypes } from "../../util";
 
 import { useStyles } from './style';
-import { returnTypes } from "../../util";
 
 interface PathSegmentEditorProps {
     id?: number;
@@ -43,22 +43,22 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     };
     const [segmentState, setSegmentState] = useState<ReturnType>(initValue);
 
-    const onChangeSegment = (text: any, type: string) => {
-        if (type === "TYPE") {
-            setSegmentState({
-                ...segmentState,
-                type: text
-            });
-        } else if (type === "IS_OPTIONAL") {
-            let isOptional = false
-            if (text.find((item: string) => item === "Is Optional")) {
-                isOptional = true;
-            }
-            setSegmentState({
-                ...segmentState,
-                isOptional
-            });
+    const onChangeSegmentType = (text: any) => {
+        setSegmentState({
+            ...segmentState,
+            type: text
+        });
+    };
+
+    const onChangeSegmentOptional = (text: any) => {
+        let isOptional = false
+        if (text.find((item: string) => item === "Is Optional")) {
+            isOptional = true;
         }
+        setSegmentState({
+            ...segmentState,
+            isOptional
+        });
     };
 
     const handleOnSave = () => {
@@ -76,7 +76,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={5}>
+                    <Grid item={true} xs={6}>
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
                             defaultValue={segmentState?.type}
@@ -86,11 +86,11 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                                     disableCreateNew: true,
                                 }
                             }
-                            onChange={(text: string) => { onChangeSegment(text, "TYPE") }}
+                            onChange={onChangeSegmentType}
                         />
                     </Grid>
-                    <Grid item={true} xs={7}>
-                        <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={(selectedCheck: string[]) => { onChangeSegment(selectedCheck, "IS_OPTIONAL") }} />
+                    <Grid item={true} xs={6}>
+                        <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>

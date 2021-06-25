@@ -26,7 +26,7 @@ import RadioControl from "../../../../../../../components/RadioControl";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { validatePath } from "../../../../../../../utils/validator";
+import { validatePath, validateReturnType } from "../../../../../../../utils/validator";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -38,7 +38,7 @@ import {
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
-import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
+import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
 import { useStyles } from "../styles";
 
 import { AdvancedEditor } from "./components/advanced";
@@ -46,7 +46,7 @@ import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
-import { Advanced, Path, Payload, QueryParamCollection, Resource } from "./types";
+import { Advanced, AdvancedResourceState, Path, Payload, QueryParamCollection, Resource } from "./types";
 import {
   convertPathStringToSegments,
   convertPayloadStringToPayload,
@@ -84,7 +84,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
-    connectionData,
     onEvent
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -95,6 +94,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // dispatchGoToNextTourStep
   } = props;
   const classes = useStyles();
+  const returnClasses = returnStyles();
   const intl = useIntl();
 
   const [resources, setResources] = useState<Resource[]>([]);
@@ -105,7 +105,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [returnType, setReturnType] = useState<string>("");
   const [callerChecked, setCallerChecked] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
-  const [showPathUI, setShowPathUI] = useState(false);
+
+  const initAdvancedResourceState: AdvancedResourceState = {
+    path: new Map([[0, false]]),
+    returnType: new Map([[0, false]]),
+  }
+  const [advancedMenuState, setAdvancesMenuState] = useState<AdvancedResourceState>(initAdvancedResourceState);
+  const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
+  const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
   const [payloadAvailable, setPayloadAvailable] = useState(false);
 
   useEffect(() => {
@@ -148,8 +155,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
   }, [syntaxTree]);
 
-  const onPathUIToggleSelect = (checked: boolean) => {
-    setShowPathUI(!checked);
+  const onPathUIToggleSelect = (index: number, checked: boolean) => {
+    advancedMenuState.path.set(index, !checked);
+    setAdvancesMenuState(advancedMenuState);
+    setToggleMainAdvancedMenu(!toggleMainAdvancedMenu);
+  }
+
+  const onReturnTypeToggleSelect = (index: number, checked: boolean) => {
+    advancedMenuState.returnType.set(index, !checked);
+    setAdvancesMenuState(advancedMenuState);
+    setToggleReturnTypeMenu(!toggleReturnTypeMenu);
   }
 
   const onPayloadToggleSelect = (checked: boolean) => {
@@ -178,6 +193,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const updatedResources = resources;
     updatedResources[index].path = formattedPath.path;
     updatedResources[index].queryParams = formattedPath.queryParams;
+    setResources(updatedResources);
+  }
+
+  function handleOnChangeReturnType(text: string, index: number) {
+    setReturnType(text);
+    const updatedResources = resources;
+    updatedResources[index].returnType = text;
     setResources(updatedResources);
   }
 
@@ -324,7 +346,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const handleAddResource = () => {
     const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
-    setResources([...resources, defaultConfig])
+    setResources([...resources, defaultConfig]);
+    advancedMenuState.path.set(resources.length, false);
+    advancedMenuState.returnType.set(resources.length, false)
+    setAdvancesMenuState(advancedMenuState);
   }
 
   const resourceConfigTitle = intl.formatMessage({
@@ -342,6 +367,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     defaultMessage: "Path"
   });
 
+  const pathSegmentTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.segment.title",
+    defaultMessage: "Path Segments"
+  });
+
   const pathErrorMessage = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.errorMessage",
     defaultMessage: "Please enter a valid path"
@@ -350,6 +380,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const pathPlaceholder = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.placeholder",
     defaultMessage: "Relative path from host"
+  });
+
+  const returnErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.return.type.errorMessage",
+    defaultMessage: "Please enter a valid return type"
+  });
+
+  const returnTypePlaceholder = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.return.type.placeholder",
+    defaultMessage: "Return Type"
   });
 
   const queryParamTitle = intl.formatMessage({
@@ -383,8 +423,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   });
 
   const returnTypeExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
-    defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
+    id: "lowcode.develop.apiConfigWizard.return.type.tooltip.example",
+    defaultMessage: "string|error?\nint?|error?"
   });
 
   const advancedExample = intl.formatMessage({
@@ -414,9 +454,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const advancedTooltip = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.advanced.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
       </p>
     </div>
+  );
+
+  const returnTitle = (
+      <div>
+        <p>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.return.type.instructions.tooltip" defaultMessage="A valid ballerina type can be used" />
+        </p>
+      </div>
   );
 
   return (
@@ -443,30 +491,31 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 onSelect={(m: string) => handleOnSelect(m, index)}
               />
             </Section>
-            <SwitchToggle initSwitch={showPathUI} onChange={onPathUIToggleSelect} text={"Advanced"} />
-            {!showPathUI &&
+            <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={onPathUIToggleSelect.bind(this, index)} text={"Advanced"} />
+            {!advancedMenuState.path.get(index) && (
+            <div className={classes.sectionSeparator}>
               <Section
-                title={pathTitle}
-                tooltipWithExample={{ title, content: pathExample }}
+                  title={pathTitle}
+                  tooltipWithExample={{ title, content: pathExample }}
               >
                 <FormTextInput
-                  dataTestId="api-path"
-                  defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                  onChange={(text: string) => handleOnChangePath(text, index)}
-                  customProps={{
-                    startAdornment: "/",
-                    validate: validatePath
-                  }}
-                  errorMessage={pathErrorMessage}
-                  placeholder={pathPlaceholder}
+                    dataTestId="api-path"
+                    defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                    onChange={(text: string) => handleOnChangePath(text, index)}
+                    customProps={{
+                      validate: validatePath
+                    }}
+                    errorMessage={pathErrorMessage}
+                    placeholder={pathPlaceholder}
                 />
               </Section>
-            }
-            {showPathUI &&
+            </div>
+            )}
+            {advancedMenuState.path.get(index) && (
               <div>
                 <div className={classes.sectionSeparator}>
                   <Section
-                    title={pathTitle}
+                    title={pathSegmentTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                   >
                     <PathEditor pathString={resProps.path} defaultValue={resProps.path} onChange={(text: string) => handleOnChangePathFromUI(text, index)} />
@@ -497,14 +546,37 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <AdvancedEditor isCaller={resProps.isCaller} isRequest={resProps.isRequest} onChange={(segment: Advanced) => handleOnChangeAdvancedUI(segment, index)} />
                   </Section>
                 </div>
-                
+
               </div>
-            }
-            <Section
+            )}
+              <Section
                   title={returnTypeTitle}
-                >
-                  <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
-                </Section>
+              >
+                <div className={returnClasses.toggleWrapper}>
+                  <SwitchToggle className={returnClasses.toggleTitle} initSwitch={advancedMenuState.returnType.get(index)} onChange={onReturnTypeToggleSelect.bind(this, index)} text={"Advanced"} />
+                </div>
+                {advancedMenuState.returnType.get(index) ? (
+                    <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+                ) : (
+                    <div className={classes.sectionSeparator}>
+                      <Section
+                          title={returnTypeTitle}
+                          tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}
+                      >
+                        <FormTextInput
+                            dataTestId="api-return-type"
+                            defaultValue={resProps.returnType}
+                            onChange={(text: string) => handleOnChangeReturnType(text, index)}
+                            customProps={{
+                              validate: validateReturnType
+                            }}
+                            errorMessage={returnErrorMessage}
+                            placeholder={returnTypePlaceholder}
+                        />
+                      </Section>
+                    </div>
+                )}
+              </Section>
             {/*
 
             <div className={classes.sectionSeparator}>
