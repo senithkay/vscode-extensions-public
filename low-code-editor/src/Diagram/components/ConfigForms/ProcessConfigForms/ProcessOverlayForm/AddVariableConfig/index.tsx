@@ -49,7 +49,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
 
     let initialModelType: string = 'json';
-    let modelType = initialModelType;
+    let modelType;
     let variableName: string = '';
 
     const existingProperty = config && config.wizardType === WizardType.EXISTING;
