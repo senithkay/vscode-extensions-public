@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
+import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
 import { expression } from 'joi';
 
 import { DataMapperViewState, FieldViewState } from '../viewstate';
@@ -27,6 +27,58 @@ export class DataMapperSizingVisitor implements Visitor {
     private viewstateMap: Map<string, DataMapperViewState> = new Map();
     private nameparts: string[] = [];
     private hasMappingConstructor: boolean = false;
+
+    beginVisitRequiredParam(node: RequiredParam) {
+        if (node.dataMapperViewState) {
+            const viewstate = node.dataMapperViewState as FieldViewState;
+
+            this.nameparts.push(viewstate.name);
+            this.viewstateMap.set(this.generateDataPointName(this.nameparts), viewstate);
+
+            viewstate.bBox.w = DEFAULT_FIELD_WIDTH;
+
+            if (viewstate.bBox.w > this.maxWidth) {
+                this.maxWidth = viewstate.bBox.w;
+            }
+
+            if (node.dataMapperTypeDescNode) {
+                this.offSet += FIELD_OFFSET;
+            }
+        }
+    }
+
+    endVisitRequiredParam(node: RequiredParam) {
+        if (node.dataMapperViewState) {
+            const viewState: FieldViewState = node.dataMapperViewState as FieldViewState;
+            let height: number = 0;
+
+            height += FIELD_HEIGHT; // title height
+
+
+            if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
+                const typeDescNode: RecordTypeDesc = node.dataMapperTypeDescNode as RecordTypeDesc;
+                typeDescNode.fields.forEach(field => {
+                    const viewstate: FieldViewState = field.dataMapperViewState as FieldViewState;
+                    height += viewstate.bBox.h;
+                });
+            }
+
+
+
+            if (viewState.draftViewState) {
+                height += ADD_FIELD_FORM_HEIGHT;
+                viewState.draftViewState.bBox.h = ADD_FIELD_FORM_HEIGHT;
+            }
+
+            viewState.bBox.h = height;
+
+            // cleanup
+            this.nameparts.splice(this.nameparts.length - 1, 1);
+            if (node.dataMapperTypeDescNode) {
+                this.offSet -= FIELD_OFFSET;
+            }
+        }
+    }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
         if (node.dataMapperViewState) {

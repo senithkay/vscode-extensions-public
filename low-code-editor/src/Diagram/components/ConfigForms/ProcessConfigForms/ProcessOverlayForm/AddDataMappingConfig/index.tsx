@@ -123,7 +123,6 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                                     dataMapperConfig.inputTypes.push({
                                         type: key,
                                         name: varName,
-                                        // node: varNode
                                     });
                                 }
                             })
@@ -134,7 +133,6 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                                     dataMapperConfig.inputTypes.push({
                                         type: key,
                                         name: varName,
-                                        // node: varNode
                                     });
                                 }
                             })
