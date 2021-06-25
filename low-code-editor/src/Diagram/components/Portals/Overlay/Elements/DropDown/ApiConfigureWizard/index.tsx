@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
-import { Link } from "@material-ui/core";
+import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
@@ -37,6 +37,7 @@ import {
   TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
+import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
@@ -493,38 +494,67 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             key={resProps.id}
             className={classes.resourceWrapper}
           >
-            <Section
-              title={httpMethodTitle}
-            >
-              <RadioControl
-                options={SERVICE_METHODS}
-                selectedValue={resProps.method.toUpperCase()}
-                onSelect={(m: string) => handleOnSelect(m, index)}
-              />
-            </Section>
-            <Link component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
-              Advanced
-            </Link>
-            {/* <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={} text={"Advanced"} /> */}
-            {!advancedMenuState.path.get(index) && (
-              <div className={classes.sectionSeparator}>
+            <Grid container={true} spacing={1}>
+              <Grid item={true} xs={5}>
+
                 <Section
-                  title={pathTitle}
-                  tooltipWithExample={{ title, content: pathExample }}
+                  title={httpMethodTitle}
                 >
-                  <FormTextInput
-                    dataTestId="api-path"
-                    defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                    onChange={(text: string) => handleOnChangePath(text, index)}
-                    customProps={{
-                      validate: validatePath
-                    }}
-                    errorMessage={pathErrorMessage}
-                    placeholder={pathPlaceholder}
+                  {/* <RadioControl
+                    options={SERVICE_METHODS}
+                    selectedValue={resProps.method.toUpperCase()}
+                    onSelect={(m: string) => handleOnSelect(m, index)}
+                  /> */}
+                  <SelectDropdownWithButton
+                    dataTestId="api-return-type"
+                    defaultValue={resProps.method.toUpperCase()}
+                    customProps={
+                      {
+                        values: SERVICE_METHODS,
+                        disableCreateNew: true,
+                      }
+                    }
+                    onChange={(m: string) => handleOnSelect(m, index)}
                   />
                 </Section>
-              </div>
-            )}
+
+              </Grid>
+              <Grid item={true} xs={7}>
+
+                {!advancedMenuState.path.get(index) && (
+                  // <div className={classes.sectionSeparator}>
+                  <Section
+                    title={pathTitle}
+                    tooltipWithExample={{ title, content: pathExample }}
+                  >
+                    <FormTextInput
+                      dataTestId="api-path"
+                      defaultValue={resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                      onChange={(text: string) => handleOnChangePath(text, index)}
+                      customProps={{
+                        validate: validatePath
+                      }}
+                      errorMessage={pathErrorMessage}
+                      placeholder={pathPlaceholder}
+                    />
+                  </Section>
+                  // </div>
+                )}
+
+              </Grid>
+            </Grid>
+            <Grid container={true} spacing={1}>
+              <Grid item={true} xs={9}/>
+              <Grid item={true} xs={3}>
+                <Link component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
+                  Advanced
+                </Link>
+              </Grid>
+            </Grid>
+
+            {!advancedMenuState.path.get(index) && <div className={classes.sectionSeparator} />}
+            {/* <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={} text={"Advanced"} /> */}
+
             {advancedMenuState.path.get(index) && (
               <div>
                 <div className={classes.sectionSeparator}>
