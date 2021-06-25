@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { Link } from "@material-ui/core";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
@@ -61,7 +62,6 @@ import {
   isCallerParamAvailable,
   isRequestParamAvailable
 } from "./util";
-import { Link } from "@material-ui/core";
 
 interface ApiConfigureWizardProps {
   position: DiagramOverlayPosition;
