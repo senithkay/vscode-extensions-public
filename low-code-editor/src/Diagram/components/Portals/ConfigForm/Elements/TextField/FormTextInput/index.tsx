@@ -35,7 +35,7 @@ interface FormTextInputProps {
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
-    const { index, customProps, onChange, defaultValue, label, placeholder, errorMessage, dataTestId, size = "medium" } = props;
+    const { index, customProps, onChange, defaultValue, label, placeholder, errorMessage, dataTestId, size = "medium", disabled } = props;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
     const defaultText: string = defaultValue ? defaultValue : "";
@@ -130,7 +130,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 value={inputValue}
                 helperText={isInvalid ? errorMessage : ""}
                 autoFocus={customProps?.focused}
-                disabled={customProps?.disabled}
+                disabled={disabled}
                 type={customProps?.secret ? "password" : "text"}
             />
 

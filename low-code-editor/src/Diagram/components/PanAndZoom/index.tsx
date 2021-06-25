@@ -94,7 +94,8 @@ export default function PanAndZoom(props: PanAndZoomProps) {
     function onDrag(event: any) {
         // disable diagram scrolling
         const classList = (event?.target?.classList as DOMTokenList);
-        if (event?.target?.nodeName === 'INPUT' || classList.contains('exp-editor') || classList.contains('view-line')) {
+        if (event?.target?.nodeName === 'INPUT' || classList.contains('exp-editor')
+            || classList.contains('view-line')) {
             event.stopPropagation();
             return;
         }

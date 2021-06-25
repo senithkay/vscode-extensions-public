@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
 
@@ -37,7 +37,7 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state, diagramCleanDraw } = useContext(Context);
+    const { state, diagramCleanDraw, toggleDiagramOverlay } = useContext(Context);
     const {
         syntaxTree,
         stSymbolInfo,
@@ -48,8 +48,6 @@ export function Respond(props: RespondProps) {
         currentApp,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        closeConfigPanel: dispatchCloseConfigPanel,
         dispactchConfigOverlayForm: openNewEndConfig
     } = state;
     const { id: appId } = currentApp || {};
@@ -82,6 +80,12 @@ export function Respond(props: RespondProps) {
         cy = blockViewState.draft[1].bBox.cy;
         compType = blockViewState.draft[1].subType.toUpperCase();
     }
+
+    useEffect(() => {
+        if (configOverlayFormState){
+            toggleDiagramOverlay();
+        }
+    }, [configOverlayFormState])
 
     const deleteTriggerPosition = {
         cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
@@ -116,7 +120,7 @@ export function Respond(props: RespondProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            dispatchCloseConfigOverlayForm();
+            toggleDiagramOverlay();
         }
         setConfigWizardOpen(false);
     };
@@ -127,7 +131,7 @@ export function Respond(props: RespondProps) {
             diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     React.useEffect(() => {
@@ -154,7 +158,7 @@ export function Respond(props: RespondProps) {
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        toggleDiagramOverlay();
     }
 
     return (

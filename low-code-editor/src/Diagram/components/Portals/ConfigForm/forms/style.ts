@@ -84,7 +84,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: '12px',
             textTransform: 'capitalize',
             display: 'inline-block',
-            float: 'right',
             lineHeight: '40px',
             marginBottom: '0.06rem',
             marginLeft: '0.25rem',
@@ -424,13 +423,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         suggestionsTextInfo: {
-            color: '#ea4c4d !important',
-            "&:hover": {
-                cursor: 'pointer',
-                textDecoration: 'underline'
-            }
-        },
-        suggestionsTextError: {
             color: '#ea4c4d !important',
             "&:hover": {
                 cursor: 'pointer',

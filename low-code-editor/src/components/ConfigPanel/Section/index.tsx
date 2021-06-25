@@ -21,7 +21,7 @@ import { useStyles } from "./styles";
 
 export default function ConfigPanelSection(props: any) {
     const classes = useStyles();
-    const { title, tooltip, children, tooltipWithExample, button } = props;
+    const { title, tooltip, children, tooltipWithExample, tooltipWithListView, button } = props;
 
     const switchBtn = (
         <div className={classes.switch}>
@@ -34,14 +34,14 @@ export default function ConfigPanelSection(props: any) {
             <Grid container={true} spacing={1}>
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={12}>
-                        {!!tooltip ? (
+                        {!!tooltipWithListView ? (
                             <TooltipIcon
-                                title={tooltip.title}
+                                title={tooltipWithListView.title}
                                 placement="left"
                                 arrow={true}
                             >
                                 <div className={classes.titleContent}>
-                                    <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                    <p className={classes.sectionTitle}>{title}</p>
                                     {button && switchBtn}
                                 </div>
                             </TooltipIcon>
@@ -56,17 +56,28 @@ export default function ConfigPanelSection(props: any) {
                                 content={tooltipWithExample.content}
                             >
                                 <div className={classes.titleContent}>
-                                    <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                    <p className={classes.sectionTitle}>{title}</p>
                                     {button && switchBtn}
                                 </div>
                             </TooltipIcon>
 
+                        ) : (!!tooltip) ? (
+                            <TooltipIcon
+                                title={tooltip}
+                                placement="left"
+                                arrow={true}
+                            >
+                                <div className={classes.titleContent}>
+                                    <p className={classes.sectionTitle}>{title}</p>
+                                    {button && switchBtn}
+                                </div>
+                            </TooltipIcon>
                         ) : (
                             <div className={classes.titleContent}>
-                                <Typography variant="body1" className={classes.sectionTitle}>{title}</Typography>
+                                <p className={classes.sectionTitle}>{title}</p>
                                 {button && switchBtn}
                             </div>
-                            )
+                        )
                         }
                     </Grid>
                 </Grid>

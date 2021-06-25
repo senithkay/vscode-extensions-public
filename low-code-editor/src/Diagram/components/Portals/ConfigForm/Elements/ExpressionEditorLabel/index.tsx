@@ -15,19 +15,40 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
+import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
-import { TooltipIcon } from "../../../../../../components/Tooltip";
+import { TooltipCodeSnippet, TooltipIcon } from "../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 import { ExpressionEditorProps } from "../ExpressionEditor";
+import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { useStyles as useTextInputStyles } from "../TextField/style";
+
+import { truncateText } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
     const { model, customProps } = props;
-    const textLabel = model.label || model.displayName || model.name;
 
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
+
+    const textLabel = model.label || model.displayName || model.name;
+    const typeString = transformFormFieldTypeToString(model, true);
+
+    const codeRef = (ref: HTMLPreElement) => {
+        if (ref) {
+            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
+        }
+    }
+    const EditorType = () => (
+        <code
+            ref={codeRef}
+            data-lang="ballerina"
+            className={textFieldClasses.code}
+        >
+            {truncateText(typeString)}
+        </code>
+    );
 
     return (
         <>
@@ -76,6 +97,13 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                     )
                 ) : null
             }
+            {typeString && (
+                <TooltipCodeSnippet content={typeString} placement="right" arrow={true}>
+                    <div className={textFieldClasses.codeWrapper}>
+                            <EditorType />
+                    </div>
+                </TooltipCodeSnippet>
+            )}
         </>
     )
 }

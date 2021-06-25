@@ -240,7 +240,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     <div className={classes.saveConnectorBtnHolder}>
                         {!isNewConnectorInitWizard && (
                             <PrimaryButton
-                                text="Save Connection"
+                                text={intl.formatMessage({
+                                    id: "lowcode.develop.connectorForms.saveHttpConnectionBtn.text",
+                                    defaultMessage: "Save Connection"
+                                })}
                                 fullWidth={false}
                                 disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                 onClick={handleOnSave}
@@ -250,7 +253,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             <>
                                 <LinePrimaryButton
                                     dataTestId={"http-save"}
-                                    text="Save Connection"
+                                    text={intl.formatMessage({
+                                        id: "lowcode.develop.connectorForms.saveHttpConnectionBtn.text",
+                                        defaultMessage: "Save Connection"
+                                    })}
                                     className="product-tour-next"
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     fullWidth={false}
@@ -258,7 +264,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 />
                                 <PrimaryButton
                                     dataTestId={"http-save-next"}
-                                    text="Continue to invoke API"
+                                    text={intl.formatMessage({
+                                        id: "lowcode.develop.connectorForms.saveHttpInvokeConnectionBtn.text",
+                                        defaultMessage: "Continue to Invoke API"
+                                    })}
                                     className="product-tour-next"
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     fullWidth={false}

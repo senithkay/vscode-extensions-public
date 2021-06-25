@@ -23,17 +23,18 @@ export interface StatusCodeProps {
     y: number,
     httpStatusCode: string
     errorStatus: string
+    errorMsg: string
 }
 
 export function StatusCodeC(props: StatusCodeProps) {
-    const { x, y, httpStatusCode, errorStatus } = props;
+    const { x, y, httpStatusCode, errorStatus, errorMsg } = props;
 
     const statusMsg = httpStatusCode.charAt(0) === '2' ? <ConnectionSuccessSVG x={x} y={y} text={httpStatusCode}/> : <ConnectionFailedSVG x={x} y={y} text={httpStatusCode}/>
 
     if (errorStatus !== "false"){
         return (
             <g>
-                <ConnectionErrorSVG x={x} y={y} text={"ERROR"}/>
+                <ConnectionErrorSVG x={x} y={y} text={"ERROR"} errorMsg={errorMsg}/>
             </g>
         );
     }else{

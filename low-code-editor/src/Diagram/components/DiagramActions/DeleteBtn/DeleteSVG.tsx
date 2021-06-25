@@ -22,7 +22,7 @@ export const DELETE_SVG_HEIGHT = 25;
 export const DELETE_SVG_OFFSET = 16;
 export const DELETE_SHADOW_OFFSET = DELETE_SVG_HEIGHT_WITH_SHADOW - DELETE_SVG_HEIGHT;
 
-export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string }) {
+export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, ref?: any }) {
     const { toolTipTitle, ...xyProps } = props;
     const deleteSVGIcon = (
         <g id="DeleteGroup" className="delete-circle" transform="translate(3.5 3.5)">

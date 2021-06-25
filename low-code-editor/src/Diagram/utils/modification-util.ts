@@ -14,7 +14,7 @@ import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
-import { DraftInsertPosition, DraftUpdateStatement } from "../view-state/draft";
+import { DraftInsertPosition, DraftUpdatePosition } from "../view-state/draft";
 /* tslint:disable ordered-imports */
 import { getInsertComponentSource } from "./template-utils";
 
@@ -33,7 +33,7 @@ export function createIfStatement(conditionExpression: string, targetPosition: D
     return ifStatement;
 }
 
-export function updateIfStatementCondition(conditionExpression: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateIfStatementCondition(conditionExpression: string, targetPosition: DraftUpdatePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -65,7 +65,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function updateForEachCondition(collection: string, variableName: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateForEachCondition(collection: string, variableName: string, targetPosition: DraftUpdatePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -96,7 +96,7 @@ export function createWhileStatement(conditionExpression: string, targetPosition
     return ifStatement;
 }
 
-export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdatePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -126,7 +126,7 @@ export function createPropertyStatement(property: string, targetPosition: DraftI
     return propertyStatement;
 }
 
-export function updatePropertyStatement(property: string, targetPosition: DraftUpdateStatement): STModification {
+export function updatePropertyStatement(property: string, targetPosition: DraftUpdatePosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -180,7 +180,7 @@ export function createLogStatement(type: string, logExpr: string, targetPosition
     return propertyStatement;
 }
 
-export function updateLogStatement(type: string, logExpr: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateLogStatement(type: string, logExpr: string, targetPosition: DraftUpdatePosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -211,7 +211,7 @@ export function createReturnStatement(returnExpr: string, targetPosition: DraftI
     return returnStatement;
 }
 
-export function updateReturnStatement(returnExpr: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateReturnStatement(returnExpr: string, targetPosition: DraftUpdatePosition): STModification {
     const returnStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -266,7 +266,7 @@ export function createObjectDeclaration(type: string, variableName: string, para
     return objectDeclaration;
 }
 
-export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
     const objectDeclaration: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -301,7 +301,7 @@ export function createRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
-export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
     const remoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -339,7 +339,7 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
     return checkedRemoteServiceCall;
 }
 
-export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -378,7 +378,7 @@ export function createServiceCallForPayload(type: string, variable: string, call
     return modification;
 }
 
-export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdateStatement): STModification {
+export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
     let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
@@ -432,7 +432,7 @@ export function createCheckedRespond(callerName: string, expression: string, tar
     return checkedRespond;
 }
 
-export function updateCheckedRespond(callerName: string, expression: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateCheckedRespond(callerName: string, expression: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedRespond: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -483,7 +483,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdateStatement): STModification {
+export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -501,7 +501,7 @@ export function updateCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function removeStatement(targetPosition: DraftUpdateStatement): STModification {
+export function removeStatement(targetPosition: DraftUpdatePosition): STModification {
     const removeLine: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -555,7 +555,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdateStatement): STModification {
+                                              message: FormField, targetPosition: DraftUpdatePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {

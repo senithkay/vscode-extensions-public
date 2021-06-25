@@ -13,10 +13,10 @@
 
 export const repeatRange = [
     "Minute",
-    "Hourly",
-    "Daily",
-    "Weekly",
-    "Monthly",
+    "Hour",
+    "Day",
+    "Week",
+    "Month",
     "Custom"
 ];
 

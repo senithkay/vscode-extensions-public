@@ -35,9 +35,11 @@ export interface ButtonProps {
 
 export function SecondaryButton(props: ButtonProps) {
     const classes = useStyles();
-    const {text, startIcon, onClick, fullWidth, disabled, className, dataTestId} = props;
+    const { text, startIcon, onClick, fullWidth, disabled, className, dataTestId } = props;
+
     return (
         <Button
+            data-testid={dataTestId}
             onClick={onClick}
             variant="contained"
             classes={{

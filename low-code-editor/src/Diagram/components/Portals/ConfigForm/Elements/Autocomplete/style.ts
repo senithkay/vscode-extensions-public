@@ -19,14 +19,14 @@ export const useStyles = makeStyles(() =>
       backgroundColor: "#fff",
       borderRadius: 5,
       boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-      height: 45,
+      height: 35,
       maxWidth: 300,
     },
     inputRoot: {
       backgroundColor: "#fff",
       borderRadius: 5,
       boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-      height: 45,
+      height: 35,
       maxWidth: 300,
       padding: "1px !important",
       '& fieldset.MuiOutlinedInput-notchedOutline': {
@@ -37,5 +37,20 @@ export const useStyles = makeStyles(() =>
       padding: "9px !important",
       marginLeft: 12
     },
+    titleLabel: {
+      padding: 0,
+      color: '#1D2028',
+      fontSize: 14,
+      lineHeight: '40px',
+      display: 'inline-block',
+    },
+    titleLabelRequired: {
+      padding: 0,
+      color: '#DC143C',
+      fontSize: "13px",
+      textTransform: 'capitalize',
+      display: 'inline-block',
+      paddingTop: '0.25rem'
+    }
   })
 );

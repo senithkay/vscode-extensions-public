@@ -25,14 +25,15 @@ export interface DiagramOverlayProps {
     position: DiagramOverlayPosition;
     children: React.ReactElement | React.ReactElement[],
     className?: string;
+    stylePosition?: any
 }
 
-export function DiagramOverlay({ children, position, className }: DiagramOverlayProps) {
+export function DiagramOverlay({ children, position, className, stylePosition }: DiagramOverlayProps) {
     return (
         <div
             className={className}
             style={{
-                position: 'relative',
+                position: stylePosition ? stylePosition : 'relative',
                 top: position.y,
                 left: position.x,
             }}
@@ -57,5 +58,10 @@ export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
 
     const overlayDiv = document.getElementById('canvas-overlay');
 
-    return ReactDOM.createPortal(children, overlayDiv);
+    if (overlayDiv) {
+        return ReactDOM.createPortal(children, overlayDiv);
+    } else {
+        return null;
+    }
+
 }
