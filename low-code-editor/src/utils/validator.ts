@@ -24,7 +24,7 @@ export function validatePath(text: string) {
             let paths = seperateQueryParams[0];
             const splitPath = paths.split("/");
             for (const word of splitPath) {
-                if (keywords.includes(word)) {
+                if (keywords.includes(word) && !word.includes("'")) {
                     return false;
                 }
             }
@@ -40,7 +40,7 @@ export function validatePath(text: string) {
                     }
                     paths = paths.replace(paramArray[i], "")
                 }
-                isPathValid = ((/^[a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)))
+                isPathValid = ((/^['a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)))
             } else if (paths.includes("/") && paths.includes("{") && paths.includes("}")) {
                 if (paths.match(/\/\d/g)) return false;
                 const paramArray = (paths.match(/\{([^\[\]]*)\}/g));
@@ -60,7 +60,7 @@ export function validatePath(text: string) {
             } else if (paths.match(/\/\d/g)) {
                 return false;
             } else {
-                isPathValid = ((/^[a-zA-Z0-9\/\[\]\{\}]+$/g.test(paths)) && (!/^\d/g.test(paths)));
+                isPathValid = ((/^['a-zA-Z0-9\/\[\]\{\}]+$/g.test(paths)) && (!/^\d/g.test(paths)));
             }
         }
 
