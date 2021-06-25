@@ -58,7 +58,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor;
         if (STKindChecker.isIntTypeDesc(typeDescriptor) || STKindChecker.isFloatTypeDesc(typeDescriptor) ||
             STKindChecker.isBooleanTypeDesc(typeDescriptor) || STKindChecker.isStringTypeDesc(typeDescriptor) ||
-            STKindChecker.isJsonTypeDesc(typeDescriptor) || STKindChecker.isVarTypeDesc(typeDescriptor)) {
+            STKindChecker.isJsonTypeDesc(typeDescriptor) || STKindChecker.isVarTypeDesc(typeDescriptor) ||
+            STKindChecker.isErrorTypeDesc(typeDescriptor) || STKindChecker.isAnyTypeDesc(typeDescriptor) ||
+            STKindChecker.isAnydataTypeDesc(typeDescriptor)) {
             initialModelType = typeDescriptor.name.value;
         } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
             initialModelType = typeDescriptor.source.trim();
@@ -211,7 +213,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const validForm: boolean = (isValidVarName && validExpresssionValue);
 
     // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "any", "anydata", "other"];
+    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
 
     return (
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
