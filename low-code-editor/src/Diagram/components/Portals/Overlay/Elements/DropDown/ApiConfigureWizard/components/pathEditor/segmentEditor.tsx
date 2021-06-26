@@ -46,20 +46,6 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
 
     const [segmentState, setSegmentState] = useState<PathSegment>(initValue);
 
-    const onChangeSegment = (text: string, type: string) => {
-        if (type === "NAME") {
-            setSegmentState({
-                ...segmentState,
-                name: text
-            });
-        } else if (type === "TYPE") {
-            setSegmentState({
-                ...segmentState,
-                type: text
-            });
-        }
-    };
-
     const onChangeSegmentName = (text: string) => {
         setSegmentState({
             ...segmentState,
