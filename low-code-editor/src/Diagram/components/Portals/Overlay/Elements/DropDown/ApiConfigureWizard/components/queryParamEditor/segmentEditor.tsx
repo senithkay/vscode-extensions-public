@@ -16,12 +16,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { Checkbox, Grid } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
+import { Context } from "../../../../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { checkVariableName } from "../../../../../../utils";
 import { QueryParam } from "../../types";
 import { queryParamTypes } from "../../util";
 
@@ -37,13 +39,16 @@ interface PathSegmentEditorProps {
 export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
     const { segment, onSave, id, onCancel } = props;
     const classes = useStyles();
+    const { state: diagramState } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
         id: id ? id : 0,
         name: "",
-        type: "string"
+        type: "string",
     };
 
     const [segmentState, setSegmentState] = useState<QueryParam>(initValue);
+    const [pramError, setParamError] = useState<string>("");
+
     const onChangeSegmentName = (text: string) => {
         setSegmentState({
             ...segmentState,
@@ -56,6 +61,19 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
             ...segmentState,
             type: text
         });
+    };
+
+    const validateNameValue = (value: string) => {
+        if (value) {
+            const varValidationResponse = checkVariableName("query param name", value,
+                "", diagramState);
+            if (varValidationResponse?.error) {
+                setParamError(varValidationResponse.message);
+                return false;
+            }
+        }
+        setParamError("");
+        return true;
     };
 
     const handleOnSave = () => {
@@ -95,7 +113,11 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                         <FormTextInput
                             dataTestId="api-query-param-name"
                             defaultValue={segmentState?.name}
+                            customProps={{
+                                validate: validateNameValue,
+                            }}
                             onChange={onChangeSegmentName}
+                            errorMessage={pramError}
                         />
                     </Grid>
 
@@ -111,7 +133,8 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
                                 text={"Add"}
-                                disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === ""}
+                                disabled={!segmentState.name || !segmentState.type || segmentState?.name === ""
+                                || segmentState?.type === "" || pramError !== ""}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />

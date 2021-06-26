@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, SpecificField, STKindChecker, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from "@ballerina/syntax-tree";
 
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 
@@ -49,6 +49,24 @@ export class DataMapperPositionVisitor implements Visitor {
 
     setHeight(height: number) {
         this.height = height;
+    }
+
+    beginVisitRequiredParam(node: RequiredParam) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+            viewState.bBox.x = this.offset + PADDING_OFFSET;
+            viewState.bBox.y = this.height + PADDING_OFFSET;
+        }
+    }
+
+    endVisitRequiredParam(node: RequiredParam) {
+        if (node.dataMapperViewState) {
+            const viewState = node.dataMapperViewState as FieldViewState;
+
+            this.height += DEFAULT_OFFSET * 2;
+            this.offset = this.startOffset;
+            // this.hasDataMapperTypeDesc = false;
+        }
     }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {

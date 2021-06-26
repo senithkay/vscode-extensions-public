@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { AddIcon } from "../../../../../../../../../assets/icons";
+import { keywords } from "../../../../../../utils/constants";
 import { Path, PathSegment } from "../../types";
 import { convertPathStringToSegments, genrateBallerinaResourcePath, recalculateItemIds } from "../../util";
 
@@ -57,6 +58,9 @@ export function PathEditor(props: PathEditorProps) {
     });
 
     const onSave = (pathSegment: PathSegment) => {
+        if (keywords.includes(pathSegment.name)) {
+            pathSegment.name = "'" + pathSegment.name;
+        }
         pathState.segments.push(pathSegment);
         setPathState(pathState);
         setAddingSegment(!addingSegment);

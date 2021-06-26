@@ -15,9 +15,11 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Checkbox, Grid } from "@material-ui/core";
 
+import { Context } from "../../../../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { checkVariableName } from "../../../../../../utils";
 import { Payload } from "../../types";
 import { convertPayloadStringToPayload, payloadTypes } from "../../util";
 
@@ -27,11 +29,14 @@ interface PayloadProps {
     payload?: string,
     disabled?: boolean,
     onChange?: (segment: Payload) => void;
+    onError: (isError?: boolean) => void;
 }
 
 export function PayloadEditor(props: PayloadProps) {
-    const { payload, disabled, onChange } = props;
+    const { payload, disabled, onChange, onError } = props;
+    const { state: diagramState } = useContext(Context);
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
+
     const classes = useStyles();
     const initValue: Payload = segment.type !== "" && segment.type !== "" ? { ...segment } : {
         name: "payload",
@@ -44,6 +49,9 @@ export function PayloadEditor(props: PayloadProps) {
     }
 
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
+
+    const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(segmentState.name);
+    const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
 
     const onChangeSegmentType = (text: string) => {
         const payloadSegment: Payload = {
@@ -65,6 +73,20 @@ export function PayloadEditor(props: PayloadProps) {
         if (onChange) {
             onChange(payloadSegment);
         }
+    };
+
+    const validatePayloadNameValue = (value: string) => {
+        if (value) {
+            const varValidationResponse = checkVariableName("payload name", value,
+                defaultPayloadVarName, diagramState);
+            setPayloadVarNameError(varValidationResponse.message);
+            if (varValidationResponse?.error) {
+                onError(true);
+                return false;
+            }
+        }
+        onError(false);
+        return true;
     };
 
     return (
@@ -102,9 +124,10 @@ export function PayloadEditor(props: PayloadProps) {
                                 dataTestId="api-extract-segment"
                                 defaultValue={segmentState?.name}
                                 customProps={{
-                                    disabled
+                                    validate: validatePayloadNameValue,
                                 }}
                                 onChange={onChangeSegmentName}
+                                errorMessage={payloadVarNameError}
                             />
                         </Grid>
                     </Grid>

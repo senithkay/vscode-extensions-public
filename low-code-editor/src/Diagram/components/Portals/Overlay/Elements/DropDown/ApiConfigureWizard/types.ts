@@ -44,6 +44,7 @@ export interface Resource {
     path: string;
     queryParams?: string;
     payload?: string;
+    payloadError?: boolean;
     isCaller?: boolean;
     isRequest?: boolean;
     returnType?: string;

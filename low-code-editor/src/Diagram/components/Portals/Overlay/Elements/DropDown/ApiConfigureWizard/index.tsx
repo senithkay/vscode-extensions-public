@@ -105,6 +105,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [currentPath, setCurrentPath] = useState<string>(path || "");
   const [returnType, setReturnType] = useState<string>("");
   const [callerChecked, setCallerChecked] = useState<boolean>(false);
+  const [payloadError, setPayloadError] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const initAdvancedResourceState: AdvancedResourceState = {
@@ -239,6 +240,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnPayloadErrorFromUI(isError: boolean, index: number) {
+    // Update path
+    const updatedResources = resources;
+    updatedResources[index].payloadError = isError;
+    setPayloadError(isError);
+    setResources(updatedResources);
+  }
+
   function handleOnChangePayloadFromUI(segment: Payload, index: number) {
     // Update path
     const updatedResources = resources;
@@ -278,6 +287,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       }
       // validate return type
       if (!validateReturnType(res.returnType)) {
+        isValidated = false;
+        return;
+      }
+      // validate payload name
+      if (res.payloadError) {
         isValidated = false;
         return;
       }
@@ -621,7 +635,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
                     button={<SwitchToggle initSwitch={payloadAvailable} onChange={onPayloadToggleSelect} />}
                   >
-                    <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} />
+                    <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
                   </Section>
                 </div>
                 <div className={classes.sectionSeparator}>
