@@ -31,14 +31,15 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         addPathBtn: {
             outline: "none",
-            background: "transparent",
-            border: "none",
             color: "#5567D5",
-            fontSize: "13px",
+            fontSize: 12,
             letterSpacing: 0,
             lineHeight: "16px",
-            padding: 0,
-            cursor: "pointer"
+            cursor: "pointer",
+            background: "#fff",
+            border: "1px solid #5567d55c",
+            padding: "4px 8px",
+            borderRadius: 8
         },
         addPathBtnWrap: {
             display: "flex",
