@@ -467,6 +467,44 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     </div>
   );
 
+  const queryParamContenttitle = (
+    <div>
+      <p>
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip" defaultMessage="A valid query parameter should" />
+      </p>
+      <ul>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint1" defaultMessage="<b>NOT</b> include spaces on the left and right ends" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc. in the name" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+      </ul>
+    </div>
+  );
+
+  const payloadContenttitle = (
+    <div>
+      <p>
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip" defaultMessage="A valid payload should" />
+      </p>
+      <ul>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint1" defaultMessage="<b>NOT</b> include spaces on the left and right ends" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc. in the name" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+        </li>
+      </ul>
+    </div>
+  );
+
   const advancedTooltip = (
     <div>
       <p>
@@ -572,7 +610,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div className={classes.sectionSeparator}>
                   <Section
                     title={queryParamTitle}
-                    tooltipWithExample={{ title, content: queryParamExample }}
+                    tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
                   >
                     <QueryParamEditor queryParams={resProps.queryParams} onChange={(text: string) => handleOnChangeQueryParamFromUI(text, index)} />
                   </Section>
@@ -580,7 +618,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <div className={classes.sectionSeparator}>
                   <Section
                     title={extractPayloadTitle}
-                    tooltipWithExample={{ title, content: payloadExample }}
+                    tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
                     button={<SwitchToggle initSwitch={payloadAvailable} onChange={onPayloadToggleSelect} />}
                   >
                     <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} />
