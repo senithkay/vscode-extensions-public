@@ -26,6 +26,7 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
+    RequiredParam,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
@@ -52,6 +53,26 @@ export class DataMapperInitVisitor implements Visitor {
 
     constructor(visitType: VisitingType) {
         this.visitType = visitType;
+    }
+
+    beginVisitRequiredParam(node: RequiredParam) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new FieldViewState();
+        }
+
+        const viewState = node.dataMapperViewState as FieldViewState;
+        viewState.name = node.paramName?.value;
+
+        const typeName = node.typeName;
+
+        setViewStateTypeInformation(viewState, typeName, node);
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            viewState.targetPointViewState = new TargetPointViewState();
+            viewState.targetPointViewState.type = viewState.type;
+        }
     }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
