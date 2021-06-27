@@ -143,7 +143,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: stPath, queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -169,16 +169,25 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setToggleReturnTypeMenu(!toggleReturnTypeMenu);
   }
 
-  const onPayloadToggleSelect = (checked: boolean) => {
+  const onPayloadToggleSelect = (checked: boolean, index: number) => {
     setPayloadAvailable(!checked);
+    const updatedResources = resources;
+    if (!checked && (!updatedResources[index].payload || updatedResources[index].payload !== "")) {
+      const segment: Payload = {
+        name: "payload",
+        type: "json"
+      };
+      updatedResources[index].payload = getBallerinaPayloadType(segment);
+      setResources(updatedResources);
+    }
   }
 
   function handleOnSelect(methodType: string, index: number) {
-    setCurrentMethod(methodType);
+    setCurrentMethod(methodType.toLowerCase());
 
     // Update selected method
     const updatedResources = resources;
-    updatedResources[index].method = methodType;
+    updatedResources[index].method = methodType.toLowerCase();
     setResources(updatedResources);
   }
 
@@ -318,7 +327,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           const payload: Payload = convertPayloadStringToPayload(res.payload);
           const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
-            "PATH": res.path,
+            "PATH": (res.path === "" ? "." : res.path),
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
             "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
@@ -355,7 +364,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
       }
 
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), selectedResource.path,
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), (selectedResource.path === "" ? "." : selectedResource.path),
         selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
         selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
@@ -600,7 +609,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               </Grid>
             </Grid>
             <Grid container={true} spacing={1}>
-              <Grid item={true} xs={9}/>
+              <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
                 <Link component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
                   Advanced
@@ -633,7 +642,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={payloadAvailable} onChange={onPayloadToggleSelect} />}
+                    button={<SwitchToggle initSwitch={payloadAvailable} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
                   >
                     <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
                   </Section>
@@ -668,7 +677,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 />
               )}
               <Grid container={true} spacing={1}>
-                <Grid item={true} xs={9}/>
+                <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
                   <Link component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
                     Advanced
