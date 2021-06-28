@@ -12,10 +12,8 @@
  */
 import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import { getPathOfResources } from 'components/DiagramSelector/utils';
-import {format} from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
-import {useState} from "react";
 
 import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
@@ -24,7 +22,6 @@ import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Defin
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
-import {weekOptions} from "../components/Portals/Overlay/Elements/DropDown/ScheduleConfigureWizard/ScheduleConstants";
 import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
