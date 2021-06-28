@@ -66,8 +66,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         currentApp,
         getGithubRepoList,
         stSymbolInfo,
-        originalSyntaxTree,
-        dispatchResetOauthSession
+        originalSyntaxTree
     } = state;
     const { onComplete, currentEvent, currentAction, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
