@@ -174,6 +174,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [expand, setExpand] = useState(expandDefault || false);
     const [addCheck, setAddCheck] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
+    const [cursorOnSubEditor, setCursorOnSubEditor] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
@@ -279,6 +280,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 setCursorOnEditor(true);
+                if (subEditor) {
+                    setCursorOnSubEditor(true);
+                }
                 handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
             }));
 
@@ -770,6 +774,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             setCursorOnEditor(false);
             if (subEditor) {
+                setCursorOnSubEditor(false);
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             }
         }
@@ -901,7 +906,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            {subEditor && !cursorOnEditor ? null :
+            {subEditor && !cursorOnEditor && cursorOnSubEditor ? null :
                 invalidSourceCode ?
                     (
                         <>
