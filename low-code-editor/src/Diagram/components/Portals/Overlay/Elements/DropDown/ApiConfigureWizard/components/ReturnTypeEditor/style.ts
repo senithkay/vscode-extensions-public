@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         addReturnTypeBtn: {
             outline: "none",
             color: "#5567D5",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: 0,
             lineHeight: "16px",
             cursor: "pointer",
