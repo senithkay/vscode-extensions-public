@@ -16,7 +16,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import {
     CaptureBindingPattern,
     FunctionBodyBlock,
-    FunctionDefinition,
+    FunctionDefinition, IdentifierToken,
     ModulePart, ModuleVarDecl,
     ServiceDeclaration, SimpleNameReference,
     STKindChecker,
@@ -26,6 +26,7 @@ import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
+    TRIGGER_TYPE_API,
     TRIGGER_TYPE_WEBHOOK
 } from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
@@ -200,9 +201,37 @@ export function StartButton(props: StartButtonProps) {
         block = funcModel.functionBody as FunctionBodyBlock;
     }
 
-    const text: string = (model.kind === "ModulePart") || !activeTriggerType
-        ? "START"
-        : activeTriggerType.toUpperCase();
+    let text: string;
+    let additionalInfo: string;
+    if ((model.kind === "ModulePart") || !activeTriggerType) {
+        text = "START";
+    } else if (activeTriggerType === TRIGGER_TYPE_API) {
+        const functionName = (model as FunctionDefinition).functionName.value;
+        const identifierTokens: IdentifierToken[] = ((model as FunctionDefinition)?.relativeResourcePath?.filter(
+            (relPath: any) => STKindChecker.isIdentifierToken(relPath))) as IdentifierToken[];
+        additionalInfo = functionName.toUpperCase();
+        if (identifierTokens && identifierTokens.length > 0) {
+            text = "RESOURCE";
+            const tokens: string[] = []
+            identifierTokens.forEach(token => {
+                tokens.push(token.value);
+            });
+            additionalInfo += ` /${tokens.join("/")}`;
+            if (additionalInfo.length >= 15) {
+                additionalInfo = additionalInfo.substr(0, 15);
+                additionalInfo += "...";
+            }
+        } else {
+            text = "FUNCTION";
+            additionalInfo = functionName.toUpperCase();
+            if (additionalInfo.length >= 15) {
+                additionalInfo = additionalInfo.substr(0, 15);
+                additionalInfo += "...";
+            }
+        }
+    } else {
+        text = activeTriggerType.toUpperCase();
+    }
 
     return (
         // hide edit button for triggers and expression bodied functions
@@ -211,6 +240,7 @@ export function StartButton(props: StartButtonProps) {
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
                 text={text}
+                resourceText={additionalInfo}
                 showIcon={true}
                 handleEdit={handleEditClick}
             />

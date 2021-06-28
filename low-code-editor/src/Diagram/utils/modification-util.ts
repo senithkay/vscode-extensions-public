@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
@@ -141,6 +142,29 @@ export function updatePropertyStatement(property: string, targetPosition: DraftU
     return propertyStatement;
 }
 
+export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
+                                        isCaller: boolean, isRequest: boolean, addReturn: string,
+                                        targetPosition: DraftUpdateStatement): STModification {
+    const resourceSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "RESOURCE_SIGNATURE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload,
+            "ADD_CALLER": isCaller,
+            "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+
+    return resourceSignature;
+}
+
 export function createLogStatement(type: string, logExpr: string, targetPosition: DraftInsertPosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.line,
@@ -208,7 +232,7 @@ export function createImportStatement(org: string, module: string, targetPositio
     const formattedName = getFormattedModuleName(module);
     let moduleNameStr = org + "/" + module;
 
-    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName){
+    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
         // add alias if module name is different with formatted name
         moduleNameStr = org + "/" + module + " as " + formattedName
     }

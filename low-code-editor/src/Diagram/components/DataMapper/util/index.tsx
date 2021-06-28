@@ -773,8 +773,8 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
                             }
                         });
                     }
-                })
-            })
+                });
+            });
             updateDataMapperConfig(dataMapperConfig);
         }
     }
