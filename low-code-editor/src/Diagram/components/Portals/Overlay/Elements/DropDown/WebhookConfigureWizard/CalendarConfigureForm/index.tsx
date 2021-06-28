@@ -49,6 +49,8 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
+import {Box} from "@material-ui/core";
+import {Status} from "components/Status";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
@@ -270,6 +272,23 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             defaultMessage: "Save"
         });
 
+    const activeConnectionLabel = () => (
+        <>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                        </Typography>
+                    </Box>
+                </div>
+                <div>
+                    <Status type={"Connected"} />
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <>
 
@@ -285,6 +304,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                 />
                 <p />
             </div>
+            {activeConnection && activeConnectionLabel()}
             {activeConnection && isCalenderFetching && (
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
