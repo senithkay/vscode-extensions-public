@@ -64,6 +64,10 @@
                         stroke: #5566d5 !important;
                     }
                 }
+
+                text {
+                    text-transform: lowercase;
+                }
             }
         }
     }
