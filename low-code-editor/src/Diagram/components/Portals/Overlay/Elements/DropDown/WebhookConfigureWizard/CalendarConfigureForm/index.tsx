@@ -27,7 +27,9 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
+import {Box} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import {Status} from "components/Status";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
@@ -49,8 +51,6 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
-import {Box} from "@material-ui/core";
-import {Status} from "components/Status";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
