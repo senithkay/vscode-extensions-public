@@ -93,7 +93,6 @@ export function PlusElements(props: PlusElementsProps) {
 
     const onStatementTypeSelect = (processType: string) => {
         onChange("STATEMENT", processType);
-        state.onAPIClient({org: processType});
         if (processType === "Respond") {
             // todo: handle the dispatch for the tour
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
