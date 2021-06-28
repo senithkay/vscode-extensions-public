@@ -278,6 +278,25 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     value.parameters[0].fields = formField;
                     filteredFunctions.set(key, value);
+                } else if (key === 'send'){
+                    // Temporary fix to prevent runtime errors due to contentType not being defined
+                    const optionsField = {
+                        fields: [{
+                            description: "# + contentType - Content Type of the Body",
+                            isParam: true,
+                            name: "contentType",
+                            optional: true,
+                            type: "string",
+                            value: `"text/plain"`,
+                        }],
+                        isParam: true,
+                        name: "options",
+                        type: "record",
+                        typeName: "Options",
+                        optional: true,
+                    }
+                    value.parameters.push(optionsField);
+                    filteredFunctions.set(key, value);
                 }
                 else if (key === INIT) {
                     if (value.parameters[3].name === CLIENT_CONFIG) {
