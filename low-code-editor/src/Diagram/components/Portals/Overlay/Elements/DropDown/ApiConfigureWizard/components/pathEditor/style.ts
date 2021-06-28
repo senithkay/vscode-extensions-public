@@ -43,7 +43,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         addPathBtnWrap: {
             display: "flex",
-            alignItems: "center"
+            alignItems: "center",
+            "& .MuiSvgIcon-root": {
+                height: '18px !important',
+            }
         },
         segmentEditorWrap: {
             boxSizing: "border-box",

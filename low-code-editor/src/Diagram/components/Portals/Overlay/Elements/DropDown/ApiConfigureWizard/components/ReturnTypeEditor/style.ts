@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         addReturnTypeBtn: {
             outline: "none",
             color: "#5567D5",
-            fontSize: 14,
+            fontSize: 12,
             letterSpacing: 0,
             lineHeight: "16px",
             cursor: "pointer",
@@ -43,7 +43,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         addReturnTypeBtnWrap: {
             display: "flex",
-            alignItems: "center"
+            alignItems: "center",
+            "& .MuiSvgIcon-root": {
+                height: '18px !important',
+            }
         },
         paramEditorWrap: {
             boxSizing: "border-box",
