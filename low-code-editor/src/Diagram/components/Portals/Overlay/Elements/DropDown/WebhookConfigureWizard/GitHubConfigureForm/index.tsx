@@ -18,9 +18,8 @@ import {
     ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
     ServiceDeclaration, STKindChecker, STNode
 } from "@ballerina/syntax-tree";
-import { Box } from "@material-ui/core";
+import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import { Status } from "components/Status";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
@@ -67,7 +66,8 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         currentApp,
         getGithubRepoList,
         stSymbolInfo,
-        originalSyntaxTree
+        originalSyntaxTree,
+        dispatchResetOauthSession
     } = state;
     const { onComplete, currentEvent, currentAction, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
@@ -480,7 +480,15 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     </Box>
                 </div>
                 <div>
-                    <Status type={"Connected"} />
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={handleOnDeselectConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
                 </div>
             </div>
         </>
@@ -488,6 +496,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
 
     return (
         <>
+            { !activeConnection && (
             <div className={classes.customWrapper}>
                 <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubConnection.title" defaultMessage="GitHub Connection"/></p>
                 <OauthConnectButton
@@ -498,6 +507,8 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     isTriggerConnector={true}
                 />
             </div>
+            )
+            }
             {activeConnection && activeConnectionLabel()}
             { activeConnection && isRepoListFetching && (
                 <div className={classes.loader}>

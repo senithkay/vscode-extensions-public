@@ -27,9 +27,8 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
-import {Box} from "@material-ui/core";
+import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import {Status} from "components/Status";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
@@ -283,7 +282,15 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     </Box>
                 </div>
                 <div>
-                    <Status type={"Connected"} />
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={handleOnDeselectConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
                 </div>
             </div>
         </>
@@ -291,19 +298,20 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
 
     return (
         <>
-
-            <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection" /></p>
-                <OauthConnectButton
-                    connectorName={Trigger}
-                    currentConnection={activeConnection}
-                    onSelectConnection={handleOnSelectConnection}
-                    onDeselectConnection={handleOnDeselectConnection}
-                    onFailure={handleError}
-                    isTriggerConnector={true}
-                />
-                <p />
-            </div>
+            { !activeConnection && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
+                    <OauthConnectButton
+                        connectorName={Trigger}
+                        currentConnection={activeConnection}
+                        onSelectConnection={handleOnSelectConnection}
+                        onDeselectConnection={handleOnDeselectConnection}
+                        onFailure={handleError}
+                        isTriggerConnector={true}
+                    />
+                    <p/>
+                </div>
+            )}
             {activeConnection && activeConnectionLabel()}
             {activeConnection && isCalenderFetching && (
                 <div className={classes.loader}>
@@ -326,7 +334,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     />
                 </div>
             ) }
-            {activeGcalendar && (
+            {activeGcalendar && activeConnection && (
                 <div className={classes.customWrapper}>
                     <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event" /></p>
                     <FormAutocomplete

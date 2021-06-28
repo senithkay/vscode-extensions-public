@@ -253,8 +253,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             marginTop: -8,
             marginBottom: 8,
-            marginLeft: 24,
-            marginRight: 24,
+            marginLeft: 23,
+            marginRight: 23,
             alignItems: "center"
         },
         activeConnectionWrapperChild1: {
@@ -280,6 +280,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             color: "#222228",
             margin: "-5px 0",
+        },
+        changeConnectionBtn: {
+            padding: 9,
+            border: "1px solid #E6E7EC",
+            borderRadius: "50%",
+            cursor: "pointer"
         }
     })
 );
