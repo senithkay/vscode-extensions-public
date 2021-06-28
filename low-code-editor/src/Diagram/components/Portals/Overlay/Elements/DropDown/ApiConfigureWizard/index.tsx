@@ -189,6 +189,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const updatedResources = resources;
     updatedResources[index].method = methodType.toLowerCase();
     setResources(updatedResources);
+    if (methodType === 'PUT' || methodType === 'POST' || methodType === 'DELETE' || methodType === 'PATCH') {
+      setPayloadAvailable(true);
+      const segment: Payload = {
+        name: "payload",
+        type: "json"
+      };
+      updatedResources[index].payload = getBallerinaPayloadType(segment);
+      setResources(updatedResources);
+    } else {
+      setPayloadAvailable(false);
+    }
   }
 
   function handleOnChangePath(text: string, index: number) {
