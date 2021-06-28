@@ -31,12 +31,13 @@ export function StartSVG(props: {
     y: number,
     text: string,
     showIcon: boolean,
+    resourceText?: string,
     handleDropDown?: () => void,
     handleEdit: () => void
 }) {
     const { state } = useContext(Context);
     const { isMutationProgress, isWaitingOnWorkspace, isReadOnly } = state;
-    const { text, showIcon, handleDropDown, handleEdit, ...xyProps } = props;
+    const { text, showIcon, handleDropDown, handleEdit, resourceText, ...xyProps } = props;
 
     return (
         <svg {...xyProps} width={START_HOVER_SVG_WIDTH_WITH_SHADOW} height={START_HOVER_SVG_HEIGHT_WITH_SHADOW} >
@@ -68,11 +69,22 @@ export function StartSVG(props: {
                 <g transform="matrix(1, 0, 0, 1, 0, -1)" className="start-button-rect">
                     <rect id="StartRectangle" width="105" height="49" rx="24.5" transform="translate(10 7)" />
                 </g>
-                <text id="StartText" transform="translate(10 7)" x="52" y="27" >
-                    <tspan className="start-text">
-                        {text}
-                    </tspan>
-                </text>
+                {resourceText ? (
+                    <text id="StartText" transform="translate(10 7)" x="52" y="21" >
+                        <tspan className="start-text">
+                            {text}
+                        </tspan>
+                        <tspan className="resource-text" y="35" x="52">
+                            {resourceText}
+                        </tspan>
+                    </text>
+                ) : (
+                    <text id="StartText" transform="translate(10 7)" x="52" y="27" >
+                        <tspan className="start-text">
+                            {text}
+                        </tspan>
+                    </text>
+                )}
                 {!isMutationProgress && !isWaitingOnWorkspace && (<>
                     {(!isReadOnly) && (<g className="start-options-wrapper">
                         <rect className="start-rect" x={20} y={13} width="80" height="35" />

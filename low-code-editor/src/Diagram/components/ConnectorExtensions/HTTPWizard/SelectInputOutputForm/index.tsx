@@ -352,6 +352,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
+        const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID);
+        const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
+        if (connector){
+            const {orgName: org, moduleName: module, version} = connector;
+            diagramState.onAPIClient({org, module, version, name}, operation);
+        }
         if (isNewConnectorInitWizard) {
             setReturnNameState({
                 value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
