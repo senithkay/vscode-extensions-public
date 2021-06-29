@@ -338,13 +338,13 @@ class PositioningVisitor implements Visitor {
                 controlFlowArrowState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
                 controlFlowArrowState.h = statementViewState.bBox.cy - blockViewState.bBox.cy + blockViewState.bBox.offsetFromBottom;
             } else {
-                const priviosStatementViewState: StatementViewState = node.statements[index - 1].viewState;
-                controlFlowArrowState.x = priviosStatementViewState.bBox.cx;
+                const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                controlFlowArrowState.x = previousStatementViewState.bBox.cx;
                 if (node.statements[index - 1].kind === "IfElseStatement") {
-                    controlFlowArrowState.y = priviosStatementViewState.bBox.cy + priviosStatementViewState.bBox.h - priviosStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
-                    controlFlowArrowState.h = statementViewState.bBox.cy - controlFlowArrowState.y + priviosStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
+                    controlFlowArrowState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
+                    controlFlowArrowState.h = statementViewState.bBox.cy - controlFlowArrowState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
                 } else {
-                    controlFlowArrowState.y = priviosStatementViewState.bBox.cy;
+                    controlFlowArrowState.y = previousStatementViewState.bBox.cy;
                     controlFlowArrowState.h = statementViewState.bBox.cy - controlFlowArrowState.y;
                 }
 
