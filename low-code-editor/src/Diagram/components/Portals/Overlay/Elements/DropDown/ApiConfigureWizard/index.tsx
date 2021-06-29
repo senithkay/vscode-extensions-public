@@ -382,27 +382,27 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const resourceConfigTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
+    id: "lowcode.develop.apiConfigureWizard.resourceConfig.title",
     defaultMessage: "Configure Resource"
   });
 
   const httpMethodTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.httpMethod.title",
+    id: "lowcode.develop.apiConfigureWizard.httpMethod.title",
     defaultMessage: "HTTP Method"
   });
 
   const pathTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.title",
+    id: "lowcode.develop.apiConfigureWizard.path.title",
     defaultMessage: "Path"
   });
 
   const pathSegmentTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.segment.title",
+    id: "lowcode.develop.apiConfigureWizard.path.segment.title",
     defaultMessage: "Path Segments"
   });
 
   const pathErrorMessage = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.errorMessage",
+    id: "lowcode.develop.apiConfigureWizard.path.errorMessage",
     defaultMessage: "Please enter a valid path"
   });
 
@@ -412,79 +412,79 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   });
 
   const returnErrorMessage = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.errorMessage",
+    id: "lowcode.develop.apiConfigureWizard.return.type.errorMessage",
     defaultMessage: "Please enter a valid return type"
   });
 
   const returnTypePlaceholder = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.placeholder",
+    id: "lowcode.develop.apiConfigureWizard.return.type.placeholder",
     defaultMessage: "Return Type"
   });
 
   const queryParamTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.query.param.title",
+    id: "lowcode.develop.apiConfigureWizard.query.param.title",
     defaultMessage: "Query Parameters"
   });
 
   const extractPayloadTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.extract.payload.title",
+    id: "lowcode.develop.apiConfigureWizard.extract.payload.title",
     defaultMessage: "Extract Request Payload"
   });
 
   const advancedTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.advanced.title",
+    id: "lowcode.develop.apiConfigureWizard.advanced.title",
     defaultMessage: "Advanced"
   });
 
   const returnTypeTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.title",
+    id: "lowcode.develop.apiConfigureWizard.return.type.title",
     defaultMessage: "Return Type"
   });
 
   const saveAPIButton = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.saveAPIButton.text",
+    id: "lowcode.develop.apiConfigureWizard.saveAPIButton.text",
     defaultMessage: "Save API"
   });
 
   const pathExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
+    id: "lowcode.develop.apiConfigureWizard.path.tooltip.example",
     defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
   });
 
   const queryParamExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.queryparam.tooltip.example",
+    id: "lowcode.develop.apiConfigureWizard.queryparam.tooltip.example",
     defaultMessage: "string id, string name"
   });
 
   const payloadExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.payloadExample.tooltip.example",
+    id: "lowcode.develop.apiConfigureWizard.payloadExample.tooltip.example",
     defaultMessage: "@http:Payload json payload"
   });
 
   const returnTypeExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.tooltip.example",
+    id: "lowcode.develop.apiConfigureWizard.return.type.tooltip.example",
     defaultMessage: "string|error?\nint?|error?"
   });
 
   const advancedExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.advanced.tooltip.example",
+    id: "lowcode.develop.apiConfigureWizard.advanced.tooltip.example",
     defaultMessage: "http:Request request \nhttp:Caller caller"
   });
 
   const title = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="A valid path should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip" defaultMessage="A valid path should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
       </p>
       <ul>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="Spaces outside the square brackets"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="Spaces outside the square brackets"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
         </li>
       </ul>
     </div>
@@ -493,17 +493,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const queryParamContenttitle = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip" defaultMessage="A valid query parameter should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip" defaultMessage="A valid query parameter should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
       </p>
       <ul>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint1" defaultMessage="Spaces on the left and right ends"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint1" defaultMessage="Spaces on the left and right ends"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
         </li>
       </ul>
     </div>
@@ -512,17 +512,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const payloadContenttitle = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip" defaultMessage="A valid payload should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+        <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip" defaultMessage="A valid payload should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
       </p>
       <ul>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint1" defaultMessage="Spaces on the left and right ends"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint1" defaultMessage="Spaces on the left and right ends"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc." />
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc." />
         </li>
       </ul>
     </div>
@@ -531,7 +531,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const advancedTooltip = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.advanced.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource." />
+        <FormattedMessage id="lowcode.develop.apiConfigureWizard.advanced.instructions.tooltip" defaultMessage="Request represents the message that is used to invoke this service. Caller represents the client who invokes this resource" />
       </p>
     </div>
   );
@@ -539,7 +539,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const returnTitle = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.return.type.instructions.tooltip" defaultMessage="A valid ballerina type can be used" />
+        <FormattedMessage id="lowcode.develop.apiConfigureWizard.return.type.instructions.tooltip" defaultMessage="A valid ballerina type can be used" />
       </p>
     </div>
   );
