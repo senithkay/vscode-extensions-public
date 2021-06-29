@@ -91,9 +91,6 @@ export default function CheckBoxGroup(props: CheckBoxGroupProps) {
                                     }}
                                     name={val}
                                     value={selected}
-                                    disableFocusRipple={true}
-                                    disableRipple={true}
-                                    disableTouchRipple={true}
                                 />
                             }
                             label={val}
