@@ -46,8 +46,10 @@ import {
     OnErrorViewState,
     PlusViewState,
     StatementViewState,
+    ViewState,
     WhileViewState
 } from "../view-state";
+import { ControlFlowData } from "../view-state/block";
 
 import { DefaultConfig } from "./default";
 
@@ -203,6 +205,20 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
+
+        // Update Last and First Controll Flow Arrows
+        if (viewState.workerBody.controlFlowData.length > 1) {
+            const startArrow = viewState.workerBody.controlFlowData[0];
+            const endArrow = viewState.workerBody.controlFlowData[viewState.workerBody.controlFlowData.length - 1];
+            startArrow.h = startArrow.y - viewState.trigger.cy + startArrow.h + DefaultConfig.triggerPortalOffset.y;
+            startArrow.y = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
+            viewState.workerBody.controlFlowData.push(
+                {
+                    h: viewState.end.bBox.cy - endArrow.y - endArrow.h,
+                    x: viewState.end.bBox.cx,
+                    y: endArrow.y + endArrow.h
+                });
+        }
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -226,6 +242,19 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        // Update Last and First Controll Flow Arrows
+        if (viewState.workerBody.controlFlowData.length > 1) {
+            const startArrow = viewState.workerBody.controlFlowData[0];
+            const endArrow = viewState.workerBody.controlFlowData[viewState.workerBody.controlFlowData.length - 1];
+            startArrow.h = startArrow.y - viewState.trigger.cy + startArrow.h + DefaultConfig.triggerPortalOffset.y;
+            startArrow.y = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
+            viewState.workerBody.controlFlowData.push(
+                {
+                    h: viewState.end.bBox.cy - endArrow.y - endArrow.h,
+                    x: viewState.end.bBox.cx,
+                    y: endArrow.y + endArrow.h
+                });
+        }
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -249,6 +278,20 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // Update Last and First Controll Flow Arrows
+        if (viewState.workerBody.controlFlowData.length > 1) {
+            const startArrow = viewState.workerBody.controlFlowData[0];
+            const endArrow = viewState.workerBody.controlFlowData[viewState.workerBody.controlFlowData.length - 1];
+            startArrow.h = startArrow.y - viewState.trigger.cy + startArrow.h + DefaultConfig.triggerPortalOffset.y;
+            startArrow.y = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
+            viewState.workerBody.controlFlowData.push(
+                {
+                    h: viewState.end.bBox.cy - endArrow.y - endArrow.h,
+                    x: viewState.end.bBox.cx,
+                    y: endArrow.y + endArrow.h
+                });
+        }
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -285,6 +328,28 @@ class PositioningVisitor implements Visitor {
                     height += draft.bBox.h;
                 }
             }
+            const controlFlowArrowState: ControlFlowData = {
+                x: 0,
+                y: 0,
+                h: 0
+            };
+            if (index === 0) {
+                controlFlowArrowState.x = blockViewState.bBox.cx;
+                controlFlowArrowState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
+                controlFlowArrowState.h = statementViewState.bBox.cy - blockViewState.bBox.cy + blockViewState.bBox.offsetFromBottom;
+            } else {
+                const priviosStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                controlFlowArrowState.x = priviosStatementViewState.bBox.cx;
+                if (node.statements[index - 1].kind === "IfElseStatement") {
+                    controlFlowArrowState.y = priviosStatementViewState.bBox.cy + priviosStatementViewState.bBox.h - priviosStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
+                    controlFlowArrowState.h = statementViewState.bBox.cy - controlFlowArrowState.y + priviosStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
+                } else {
+                    controlFlowArrowState.y = priviosStatementViewState.bBox.cy;
+                    controlFlowArrowState.h = statementViewState.bBox.cy - controlFlowArrowState.y;
+                }
+
+            }
+            blockViewState.controlFlowData.push(controlFlowArrowState);
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                 blockViewState.collapseView.bBox.cx = statementViewState.bBox.cx;
@@ -418,9 +483,19 @@ class PositioningVisitor implements Visitor {
                     height += statementViewState.bBox.h;
                 }
             }
-
             ++index;
         });
+
+        // adding last line for if block
+        if (node.statements.length > 0 && !(node.viewState as BlockViewState).isElseBlock) {
+            const lastStatement = node.statements[node.statements.length - 1];
+            const lastArrow: ControlFlowData = {
+                x: lastStatement.viewState.bBox.cx,
+                y: lastStatement.viewState.bBox.cy,
+                h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
+            }
+            blockViewState.controlFlowData.push(lastArrow);
+        }
 
         // Get the last plus view state
         const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);

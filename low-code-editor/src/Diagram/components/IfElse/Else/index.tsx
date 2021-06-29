@@ -19,8 +19,10 @@ import cn from "classnames";
 import { Context } from "../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../utils";
 import { ElseViewState } from "../../../view-state";
+import { ControlFlowData } from "../../../view-state/block";
 import { DefaultConfig } from "../../../visitors/default";
 import { Collapse } from "../../Collapse";
+import { ControlFlowArrow } from "../../ControlFlowArrow";
 import { PlusButton } from "../../Plus";
 
 import { BottomCurveSVG, BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from "./BottomCurve";
@@ -51,7 +53,7 @@ export function Else(props: ElseProps) {
     const yOffsetForCurve = DefaultConfig.elseCurveYOffset;
     let drafts: React.ReactNode[] = [];
     const components: React.ReactNode[] = [];
-
+    const controlFlowChiled: React.ReactNode[] = [];
     if (viewState.draft) {
         drafts = getDraftComponent(viewState, state, insertComponentStart);
     }
@@ -107,6 +109,12 @@ export function Else(props: ElseProps) {
         for (const plusView of viewState.plusButtons) {
             pluses.push(<PlusButton viewState={plusView} model={elseBlock} initPlus={false} />)
         }
+
+        (viewState.controlFlowData as ControlFlowData[]).forEach((controlFlowArrow, i) => {
+            const startIf = i === 0;
+            const endIf = viewState.controlFlowData.length - i === 1;
+            controlFlowChiled.push(<ControlFlowArrow parentViewState={viewState} startIf={startIf} endIf={endIf} controlFlowViewState={controlFlowArrow} />)
+        });
     }
 
     if (viewState.collapseView) {
@@ -125,6 +133,7 @@ export function Else(props: ElseProps) {
     return (
         <g className={classes}>
             {components}
+            {controlFlowChiled}
             {children}
             {pluses}
             {drafts}
