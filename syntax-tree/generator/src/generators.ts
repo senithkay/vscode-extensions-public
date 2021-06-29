@@ -26,7 +26,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             endColumn?: number;
         }
 
-        export interface ControlFlow{
+        export interface ControlFlow {
             isReached? : boolean;
         }
 
