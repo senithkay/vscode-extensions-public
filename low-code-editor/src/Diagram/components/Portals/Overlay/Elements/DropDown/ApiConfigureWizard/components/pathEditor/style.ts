@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         addPathBtn: {
             outline: "none",
             color: "#5567D5",
-            ffontSize: 12,
+            fontSize: 12,
             letterSpacing: 0,
             lineHeight: "16px",
             cursor: "pointer",
