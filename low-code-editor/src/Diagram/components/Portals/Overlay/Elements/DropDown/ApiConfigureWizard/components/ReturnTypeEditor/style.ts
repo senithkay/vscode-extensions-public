@@ -43,7 +43,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         addReturnTypeBtnWrap: {
             display: "flex",
-            alignItems: "center"
+            alignItems: "center",
+            "& .MuiSvgIcon-root": {
+                height: '18px !important',
+            }
         },
         paramEditorWrap: {
             boxSizing: "border-box",
