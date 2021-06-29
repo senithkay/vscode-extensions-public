@@ -21,7 +21,7 @@ export interface NodePosition {
   endColumn?: number;
 }
 
-export interface ControlFlow{
+export interface ControlFlow {
   isReached?: boolean;
 }
 
