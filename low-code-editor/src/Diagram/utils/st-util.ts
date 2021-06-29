@@ -12,6 +12,7 @@
  */
 import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import { getPathOfResources } from 'components/DiagramSelector/utils';
+import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -559,7 +560,7 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any, curren
             }
         case "Schedule":
             return {
-                cron: currentApp.cronSchedule,
+                cron: getCronFromUtcCron(currentApp.cronSchedule),
                 schType: getSchType(currentApp.cronSchedule)
             }
         default:
@@ -567,7 +568,23 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any, curren
     }
 }
 
-export function getSchType(cron: string) : string{
+export function getCronFromUtcCron(utcCron: string) : string {
+    const cronSplit = utcCron?.split(" ", 5);
+    if (getSchType(utcCron) === "Day") {
+        const updateCronStartTime = new Date();
+        updateCronStartTime.setHours(Number(cronSplit[1]));
+        updateCronStartTime.setMinutes(Number(cronSplit[0]));
+
+        const timezoneOffsetMinutes = subMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMinutes();
+        const timezoneOffsetHours = subMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getHours();
+
+        return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *";
+    } else {
+        return utcCron;
+    }
+}
+
+export function getSchType(cron: string) : string {
     const cronSplit = cron?.split(" ", 5);
     const count = cronSplit.filter(value => value === "*").length;
 
