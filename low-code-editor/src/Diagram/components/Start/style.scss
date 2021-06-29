@@ -23,16 +23,6 @@
         text-anchor: middle;
     }
 
-    text .resource-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 9px;
-        font-weight: 400;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
     .start-button {
         .start-button-rect {
             fill: #5567d5;
@@ -67,16 +57,6 @@
         text-anchor: middle;
     }
 
-    text .resource-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 9px;
-        font-weight: 400;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
     .start-button {
         .start-button-rect {
             fill: #5567d5;
@@ -91,16 +71,6 @@
                 fill: #fff;
                 opacity: 0.75;
             }
-
-            text .resource-text {
-                fill: #fff;
-                font-family: inherit;
-                font-size: 9px;
-                font-weight: 400;
-                letter-spacing: 0.5;
-                text-align: center;
-                text-anchor: middle;
-            }
         }
 
         &:active {
@@ -110,16 +80,6 @@
             text .start-text {
                 fill: #fff;
                 opacity: 1;
-            }
-
-            text .resource-text {
-                fill: #fff;
-                font-family: inherit;
-                font-size: 9px;
-                font-weight: 400;
-                letter-spacing: 0.5;
-                text-align: center;
-                text-anchor: middle;
             }
         }
 

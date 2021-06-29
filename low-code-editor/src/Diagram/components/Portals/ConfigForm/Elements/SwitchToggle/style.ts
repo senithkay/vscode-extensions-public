@@ -48,7 +48,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         toggleTitle: {
             fontWeight: 500,
-            fontSize: 14,
+            fontSize: 15,
             color: '#222228',
             letterSpacing: 0,
         },
