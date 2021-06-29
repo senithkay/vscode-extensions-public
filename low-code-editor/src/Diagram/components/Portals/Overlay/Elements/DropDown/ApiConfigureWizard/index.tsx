@@ -212,22 +212,22 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const resourceConfigTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.resourceConfig.title",
+    id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
     defaultMessage: "Configure Resource"
   });
 
   const httpMethodTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.httpMethod.title",
+    id: "lowcode.develop.apiConfigWizard.httpMethod.title",
     defaultMessage: "HTTP Method"
   });
 
   const pathTitle = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.path.title",
+    id: "lowcode.develop.apiConfigWizard.path.title",
     defaultMessage: "Path"
   });
 
   const pathErrorMessage = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.path.errorMessage",
+    id: "lowcode.develop.apiConfigWizard.path.errorMessage",
     defaultMessage: "Please enter a valid path"
   });
 
@@ -237,12 +237,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   });
 
   const saveAPIButton = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.saveAPIButton.text",
+    id: "lowcode.develop.apiConfigWizard.saveAPIButton.text",
     defaultMessage: "Save API"
   });
 
   const pathExample = intl.formatMessage({
-    id: "lowcode.develop.apiConfigureWizard.path.tooltip.example",
+    id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
     defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
   });
 
