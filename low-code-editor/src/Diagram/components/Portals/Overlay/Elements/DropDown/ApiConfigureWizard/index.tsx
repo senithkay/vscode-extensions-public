@@ -484,7 +484,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object."/>
         </li>
       </ul>
     </div>
@@ -503,7 +503,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc."/>
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object."/>
         </li>
       </ul>
     </div>
@@ -522,7 +522,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object, etc." />
+          <FormattedMessage id="lowcode.develop.apiConfigureWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object." />
         </li>
       </ul>
     </div>
