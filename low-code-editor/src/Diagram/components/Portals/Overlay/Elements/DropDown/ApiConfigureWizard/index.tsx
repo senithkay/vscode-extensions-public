@@ -327,7 +327,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           const payload: Payload = convertPayloadStringToPayload(res.payload);
           const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
-            "PATH": (res.path === "" ? "." : res.path),
+            "PATH": (res.path === "" ? "." : res.path.charAt(0) === "/" ? res.path.substr(1 , res.path.length) : res.path),
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
             "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
@@ -364,7 +364,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
       }
 
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), (selectedResource.path === "" ? "." : selectedResource.path),
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(),
+          (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
+              selectedResource.path.substr(1 , selectedResource.path.length) : selectedResource.path),
         selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
         selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
@@ -448,7 +450,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
-    defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
+    defaultMessage: "users \nusers/[string name] \nusers/[int userId]/groups"
   });
 
   const queryParamExample = intl.formatMessage({
