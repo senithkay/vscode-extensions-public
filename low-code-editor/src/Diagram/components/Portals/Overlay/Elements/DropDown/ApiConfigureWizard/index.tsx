@@ -249,17 +249,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const title = (
     <div>
       <p>
-        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="A valid path should"/>
+        <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip" defaultMessage="A valid path should <b>NOT</b> include the following :" values={{b: (chunks: string) => <b>{chunks}</b>}}/>
       </p>
       <ul>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="<b>NOT</b> include spaces outside the square brackets" values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="Spaces outside the square brackets"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc." values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object."/>
         </li>
       </ul>
     </div>
