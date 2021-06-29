@@ -102,16 +102,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             padding: "5px 0"
         },
-        sectionSeparator: {
-            borderBottom: "1px solid #D8D8D8",
-            marginBottom: "15px",
-            padding: "5px 0"
-        },
-        sectionSeparatorTop: {
-            borderTop: "1px solid #D8D8D8",
-            marginTop: "15px",
-            padding: "5px 0"
-        },
         customWrapper: {
             marginLeft: 24,
             marginRight: 24,
