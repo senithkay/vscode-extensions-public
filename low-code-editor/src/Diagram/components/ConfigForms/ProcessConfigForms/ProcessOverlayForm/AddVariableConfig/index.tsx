@@ -59,9 +59,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         if (STKindChecker.isIntTypeDesc(typeDescriptor) || STKindChecker.isFloatTypeDesc(typeDescriptor) ||
             STKindChecker.isBooleanTypeDesc(typeDescriptor) || STKindChecker.isStringTypeDesc(typeDescriptor) ||
             STKindChecker.isJsonTypeDesc(typeDescriptor) || STKindChecker.isVarTypeDesc(typeDescriptor) ||
-            STKindChecker.isErrorTypeDesc(typeDescriptor) || STKindChecker.isAnyTypeDesc(typeDescriptor) ||
-            STKindChecker.isAnydataTypeDesc(typeDescriptor)) {
+            STKindChecker.isAnyTypeDesc(typeDescriptor) || STKindChecker.isAnydataTypeDesc(typeDescriptor)) {
             initialModelType = typeDescriptor.name.value;
+        } else if (STKindChecker.isErrorTypeDesc(typeDescriptor)) {
+            initialModelType = typeDescriptor.errorKeywordToken.value;
         } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
             initialModelType = typeDescriptor.source.trim();
         } else {
