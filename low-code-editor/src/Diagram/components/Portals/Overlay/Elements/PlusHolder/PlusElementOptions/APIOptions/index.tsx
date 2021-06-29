@@ -507,6 +507,7 @@ export function APIOptions(props: APIOptionsProps) {
         };
         onEvent(event);
         onSelect(connector, undefined);
+        state.onAPIClient(connector);
     }
 
     const onSelectExistingConnector = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
@@ -516,6 +517,7 @@ export function APIOptions(props: APIOptionsProps) {
             property: connector.displayName
         };
         onEvent(event);
+        state.onAPIClient(connector);
         onSelect(connector, selectedConnector);
     }
 

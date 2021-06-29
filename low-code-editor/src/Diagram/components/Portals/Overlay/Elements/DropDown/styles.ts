@@ -102,6 +102,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             padding: "5px 0"
         },
+        sectionSeparator: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
+        sectionSeparatorTop: {
+            borderTop: "1px solid #D8D8D8",
+            marginTop: "15px",
+            padding: "5px 0"
+        },
         customWrapper: {
             marginLeft: 24,
             marginRight: 24,
@@ -238,6 +248,44 @@ export const useStyles = makeStyles((theme: Theme) =>
             "& .MuiSelect-root.MuiSelect-select.MuiSelect-selectMenu.MuiInputBase-input.MuiInput-input": {
                 fontSize: 20
             }
+        },
+        activeConnectionWrapper: {
+            display: "flex",
+            marginTop: -8,
+            marginBottom: 8,
+            marginLeft: 23,
+            marginRight: 23,
+            alignItems: "center"
+        },
+        activeConnectionWrapperChild1: {
+            flexGrow: 1
+        },
+        activeConnectionBox: {
+            width: "100%",
+            borderRadius: 5,
+            padding: theme.spacing(0.5),
+            borderColor: "#ff000000",
+            border: "0px solid",
+            '& .MuiFormControlLabel-root': {
+                width: "100%",
+            },
+            '& span.MuiTypography-root.MuiFormControlLabel-label.MuiTypography-body1': {
+                whiteSpace: "nowrap",
+                width: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+            }
+        },
+        radioBtnSubtitle: {
+            fontSize: 13,
+            color: "#222228",
+            margin: "-5px 0",
+        },
+        changeConnectionBtn: {
+            padding: 9,
+            border: "1px solid #E6E7EC",
+            borderRadius: "50%",
+            cursor: "pointer"
         }
     })
 );

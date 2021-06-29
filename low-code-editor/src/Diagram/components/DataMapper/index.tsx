@@ -84,6 +84,8 @@ export function DataMapper(props: DataMapperProps) {
                     varName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
                 } else if (STKindChecker.isRequiredParam(node)) {
                     varName = node.paramName.value;
+                } else if (node.kind === 'ResourcePathSegmentParam') {
+                    varName = (node as any).paramName.value; // todo: change when syntax tree interfaces are updated
                 }
 
                 if (varName === varInfo.name) {
@@ -117,7 +119,14 @@ export function DataMapper(props: DataMapperProps) {
                 const outputTypeVariables = stSymbolInfo.variables.size > 0 ? stSymbolInfo.variables.get(outputType) : undefined;
                 outputSTNode = outputTypeVariables ?
                     outputTypeVariables
-                        .find((node: LocalVarDecl) => node.position.startLine === dataMapperConfig.outputType.startLine)
+                        .find((node: STNode) => {
+                            if (STKindChecker.isLocalVarDecl(node)) {
+                                const varName =
+                                    (node.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                                        .variableName.value;
+                                return varName === outputTypeConfig.variableName;
+                            }
+                        })
                     : undefined;
             } else {
                 const outputTypeVariables = stSymbolInfo.assignmentStatement.size > 0 ?

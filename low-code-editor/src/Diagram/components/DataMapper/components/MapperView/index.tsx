@@ -27,7 +27,7 @@ import ExpressionEditor from '../../../Portals/ConfigForm/Elements/ExpressionEdi
 import { DataMapperInputTypeInfo } from '../../../Portals/ConfigForm/types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../Portals/Overlay';
 import { Context as DataMapperViewContext } from '../../context/DataMapperViewContext';
-import { getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
+import { convertMemberViewStateToString, getDataMapperComponent, INPUT_OUTPUT_GAP } from '../../util';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
 import { MouseEventHub } from '../../util/mouse-event-hub';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../../viewstate';
@@ -388,8 +388,20 @@ export function MapperView() {
     }
 
     const removeInputType = (model: STNode) => {
+        let varName = '';
         if (STKindChecker.isLocalVarDecl(model)) {
-            const varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+            varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+        } else if (STKindChecker.isAssignmentStatement(model)) {
+            if (STKindChecker.isSimpleNameReference(model.varRef)) {
+                varName = model.varRef.name.value
+            }
+        } else if (STKindChecker.isRequiredParam(model)) {
+            varName = model.paramName.value;
+        } else if (model.kind === 'ResourcePathSegmentParam') {
+            varName = (model as any).paramName.value;
+        }
+
+        if (varName.length > 0) {
             const index = dataMapperConfig.inputTypes
                 .map((inputType: DataMapperInputTypeInfo) => inputType.name)
                 .indexOf(varName);
@@ -462,7 +474,18 @@ export function MapperView() {
                     setExpressionEditorText(value);
                 }
 
-                // todo: handle logic to show expression editor
+                let type = '';
+                switch (dataPointVS.type) {
+                    case PrimitiveBalType.Union:
+                        type = dataPointVS.unionType;
+                        break;
+                    case PrimitiveBalType.Collection:
+                        // type = convertMemberViewStateToString(dataPointVS);
+                        break;
+                    default:
+                        type = dataPointVS.type;
+                }
+
                 setExpressionConfig({
                     positionX: dataPointVS.bBox.x,
                     positionY: dataPointVS.bBox.y,
@@ -802,6 +825,8 @@ export function MapperView() {
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
                             break;
+                        case PrimitiveBalType.Collection:
+                            statement = `check ${sourcePointViewState.text}`;
                         default:
                         // unmappableÎ
                     }
@@ -941,7 +966,7 @@ export function MapperView() {
 
     if (showConfigureOutputForm && !isExistingOutputSelected) {
         if (isJsonRecordTypeSelected) {
-            outputHeight += 332 + 64;
+            outputHeight += 332 + 64 + 80;
         } else {
             outputHeight += 265 + 64;
         }

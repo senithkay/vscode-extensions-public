@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
 
@@ -48,6 +48,9 @@ export function Respond(props: RespondProps) {
         currentApp,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
+        handleRightPanelContent,
+        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+        closeConfigPanel: dispatchCloseConfigPanel,
         dispactchConfigOverlayForm: openNewEndConfig
     } = state;
     const { id: appId } = currentApp || {};
@@ -81,6 +84,12 @@ export function Respond(props: RespondProps) {
         compType = blockViewState.draft[1].subType.toUpperCase();
     }
 
+    useEffect(() => {
+        if (configOverlayFormState){
+            toggleDiagramOverlay();
+        }
+    }, [configOverlayFormState])
+
     const deleteTriggerPosition = {
         cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
         cy: cy + (RESPOND_SVG_HEIGHT / 4)
@@ -93,6 +102,7 @@ export function Respond(props: RespondProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 

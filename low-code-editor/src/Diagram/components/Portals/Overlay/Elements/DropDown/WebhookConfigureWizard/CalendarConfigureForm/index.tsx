@@ -27,6 +27,7 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
+import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
@@ -270,21 +271,48 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
             defaultMessage: "Save"
         });
 
+    const activeConnectionLabel = () => (
+        <>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                        </Typography>
+                    </Box>
+                </div>
+                <div>
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={handleOnDeselectConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <>
-
-            <div className={classes.customWrapper}>
-                <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection" /></p>
-                <OauthConnectButton
-                    connectorName={Trigger}
-                    currentConnection={activeConnection}
-                    onSelectConnection={handleOnSelectConnection}
-                    onDeselectConnection={handleOnDeselectConnection}
-                    onFailure={handleError}
-                    isTriggerConnector={true}
-                />
-                <p />
-            </div>
+            { !activeConnection && (
+                <div className={classes.customWrapper}>
+                    <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleConnection.title" defaultMessage="Google Connection"/></p>
+                    <OauthConnectButton
+                        connectorName={Trigger}
+                        currentConnection={activeConnection}
+                        onSelectConnection={handleOnSelectConnection}
+                        onDeselectConnection={handleOnDeselectConnection}
+                        onFailure={handleError}
+                        isTriggerConnector={true}
+                    />
+                    <p/>
+                </div>
+            )}
+            {activeConnection && activeConnectionLabel()}
             {activeConnection && isCalenderFetching && (
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />
@@ -306,7 +334,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                     />
                 </div>
             ) }
-            {activeGcalendar && (
+            {activeGcalendar && activeConnection && (
                 <div className={classes.customWrapper}>
                     <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GCalendarConfigWizard.googleCalendarEvent.title.text" defaultMessage="Event" /></p>
                     <FormAutocomplete

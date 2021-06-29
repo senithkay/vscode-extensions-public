@@ -157,6 +157,17 @@ class SymbolFindingVisitor implements Visitor {
         const actionName = (node.expression as CheckAction).expression.methodName.name.value;
         actions.set(actionName, node);
     }
+
+    public beginVisitResourcePathSegmentParam(node: any) {
+        const type = getType(node.typeDescriptor);
+
+        if (variables.get(type)) {
+            variables.get(type).push(node);
+        } else {
+            variables.set(type, [node]);
+        }
+    }
+
 }
 
 function getType(typeNode: any): any {

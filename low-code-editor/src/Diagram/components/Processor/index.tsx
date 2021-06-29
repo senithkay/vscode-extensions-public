@@ -56,6 +56,7 @@ export function DataProcessor(props: ProcessorProps) {
         isWaitingOnWorkspace,
         isReadOnly,
         maximize: maximizeCodeView,
+        handleRightPanelContent,
         setCodeLocationToHighlight: setCodeToHighlight,
         currentApp,
         isCodeEditorActive
@@ -190,6 +191,7 @@ export function DataProcessor(props: ProcessorProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
