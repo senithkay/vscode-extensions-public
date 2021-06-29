@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         addPathBtn: {
             outline: "none",
             color: "#5567D5",
-            fontSize: 12,
+            ffontSize: 12,
             letterSpacing: 0,
             lineHeight: "16px",
             cursor: "pointer",
@@ -43,10 +43,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         addPathBtnWrap: {
             display: "flex",
-            alignItems: "center",
-            "& .MuiSvgIcon-root": {
-                height: '18px !important',
-            }
+            alignItems: "center"
         },
         segmentEditorWrap: {
             boxSizing: "border-box",
