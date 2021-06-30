@@ -230,7 +230,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
                 defaultMessage: "Create contact, Modify contact"
             }),
-            placement: 'right'
+            placement: 'left'
         },
         azureEventHub: {
             title: intl.formatMessage({
