@@ -11,7 +11,7 @@ export function validatePath(text: string) {
         const isQueryParamValid = true;
 
         if ((text.match(/\[/g)?.length !== text.match(/\]/g)?.length) ||
-            (text.charAt(text.length - 1) === "/") || (text.charAt(0) === "/")) {
+            (text.charAt(text.length - 1) === "/")) {
             return false;
         }
 
