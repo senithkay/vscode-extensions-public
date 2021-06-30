@@ -255,9 +255,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         onChange={handleOtherTypeOnChange}
                                         label={otherTypeLabel}
                                         placeholder={enterTypePlaceholder}
-                                        customProps={{
-                                            tooltipTitle: variableTooltipMessages.customVariableType.title,
-                                        }}
                                     />
                                 )}
                                 <FormTextInput
