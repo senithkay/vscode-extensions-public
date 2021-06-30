@@ -143,7 +143,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
+          let returnTypeWithoutError = returnTypeDesc;
+          if (returnTypeDesc.includes('|error?')) {
+            returnTypeWithoutError = returnTypeDesc.replace('|error?', '');
+          } else if (returnTypeDesc.includes('error?')) {
+            returnTypeWithoutError = returnTypeDesc.replace('error?', '');
+          }
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeWithoutError });
           setResources(resourceMembers);
           if (payload && payload !== "") {
             setPayloadAvailable(true);
@@ -338,13 +344,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           const payload: Payload = convertPayloadStringToPayload(res.payload);
           const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
-            "PATH": (res.path === "" ? "." : res.path.charAt(0) === "/" ? res.path.substr(1 , res.path.length) : res.path),
+            "PATH": (res.path === "" ? "." : res.path.charAt(0) === "/" ? res.path.substr(1, res.path.length) : res.path),
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
             "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
             "ADD_CALLER": res.isCaller,
             "ADD_REQUEST": res.isRequest,
-            "ADD_RETURN": res.returnType
+            "ADD_RETURN": ((res.returnType) ? res.returnType + "|error?" : "error?")
           }
         })
       });
@@ -376,8 +382,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       }
 
       mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(),
-          (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
-              selectedResource.path.substr(1 , selectedResource.path.length) : selectedResource.path),
+        (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
+          selectedResource.path.substr(1, selectedResource.path.length) : selectedResource.path),
         selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
         selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
