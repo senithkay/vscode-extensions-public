@@ -21,6 +21,10 @@ export interface NodePosition {
   endColumn?: number;
 }
 
+export interface ControlFlow {
+  isReached?: boolean;
+}
+
 export interface STNode {
   kind: string;
   value?: any;
@@ -33,6 +37,7 @@ export interface STNode {
   VisibleEndpoints?: VisibleEndpoint[];
   source: string;
   configurablePosition?: NodePosition;
+  controlFlow?: ControlFlow;
 }
 
 export interface ActionStatement extends STNode {
