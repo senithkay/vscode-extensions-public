@@ -34,6 +34,13 @@ export function Form(props: FormProps) {
 
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
 
+    React.useEffect(() => {
+        // Set form as valid if there aren't any mandatory fields
+        if (fields.every(field => field.optional)){
+            onValidate(true);
+        }
+    }, [])
+
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);
         let allFieldsValid = true;
