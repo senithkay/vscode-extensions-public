@@ -158,7 +158,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
             "PAYLOAD": payload,
             "ADD_CALLER": isCaller,
             "ADD_REQUEST": isRequest,
-            "ADD_RETURN": addReturn
+            "ADD_RETURN": ((addReturn) ?  addReturn + "|error?" : "error?")
         }
     };
 
