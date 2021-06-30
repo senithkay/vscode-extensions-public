@@ -551,10 +551,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     model.position
                 );
                 modifications.push(updateActionInvocation);
+
+            }
+            if (modifications.length > 0) {
+                modifyDiagram(modifications);
+                onClose();
             }
         } else {
             if (targetPosition) {
-                if ((connectorTypes.includes(connectorInfo.displayName)) && !connection){
+                if ((connectorTypes.includes(connectorInfo.displayName)) && !connection && !isAction){
                     const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                     const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                     const formattedFieldValues: { name: string; value: string; }[] = [];
