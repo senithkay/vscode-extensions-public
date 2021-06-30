@@ -259,7 +259,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object."/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object."/>
         </li>
       </ul>
     </div>
