@@ -264,7 +264,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     dataTestId="variable-name"
                                     customProps={{
                                         validate: validateNameValue,
-                                        tooltipTitle: "Name of the {0}".replace("{0}", selectedType),
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}
