@@ -256,10 +256,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint1" defaultMessage="Spaces outside the square brackets"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="A numerical character at the beginning"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object."/>
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object"/>
         </li>
       </ul>
     </div>
