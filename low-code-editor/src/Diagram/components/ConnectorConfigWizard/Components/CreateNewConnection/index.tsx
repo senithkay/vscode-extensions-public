@@ -191,7 +191,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
           <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint2" defaultMessage="Start with a numerical character"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, Object."/>
+          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object."/>
         </li>
       </ul>
     </div>
