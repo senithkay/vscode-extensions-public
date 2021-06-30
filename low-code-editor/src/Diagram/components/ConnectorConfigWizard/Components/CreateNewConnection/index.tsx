@@ -71,7 +71,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
     const [connectionNameState, setConnectionNameState] = useState<NameState>(initialConnectionNameState);
-    const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(initFields.every(field => field.optional));
+    const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [defaultConnectorName] = useState<string>(connectorConfig.name);
     const [connectorNameError, setConnectorNameError] = useState('');
     const [connectionNameError, setConnectionNameError] = useState('');
