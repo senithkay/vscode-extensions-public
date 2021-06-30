@@ -26,14 +26,13 @@ import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
-import { BlockViewState, ElseViewState, IfViewState } from "../../view-state";
-import { ControlFlowData } from "../../view-state/block";
+import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
-import { ControlFlowArrow } from "../ControlFlowArrow";
+import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -271,7 +270,7 @@ export function IfElse(props: IfElseProps) {
 
         const children = getSTComponents(ifStatement.ifBody.statements);
         const pluses: React.ReactNode[] = [];
-        const controlFlowChiled: React.ReactNode[] = [];
+        const controlFlowLines: React.ReactNode[] = [];
         for (const plusView of ifStatement.ifBody.viewState.plusButtons) {
             pluses.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
         }
@@ -297,11 +296,11 @@ export function IfElse(props: IfElseProps) {
         };
 
 
-        if (ifStatement.ifBody.viewState){
-            for (const controlFlowArrow of (ifStatement.ifBody.viewState.controlFlowData as ControlFlowData[])) {
-                controlFlowChiled.push(<ControlFlowArrow controlFlowViewState={controlFlowArrow}/>)
-            }
-        }
+        if (ifStatement.ifBody.viewState) {
+            for (const controlFlowLine of (ifStatement.ifBody.viewState.controlFlowLineState as ControlFlowLineState[])) {
+                controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
+            };
+        };
 
         component = (
             conditionExpr && viewState && !viewState.collapsed &&
@@ -407,7 +406,7 @@ export function IfElse(props: IfElseProps) {
                             }
                         </>
                     </g>
-                    {controlFlowChiled}
+                    {controlFlowLines}
                     {children}
                     {isElseExist && <Else model={ifStatement.elseBody.elseBody} />}
                     {isDefaultElseExist && <Else defaultViewState={viewState.defaultElseVS as ElseViewState} />}

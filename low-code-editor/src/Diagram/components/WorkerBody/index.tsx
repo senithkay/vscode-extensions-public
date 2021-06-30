@@ -18,7 +18,7 @@ import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
 import { Collapse } from "../Collapse";
-import { ControlFlowArrow } from "../ControlFlowArrow";
+import { ControlFlowLine } from "../ControlFlowLine";
 import { PlusButton } from "../Plus";
 export interface DiagramProps {
     model: FunctionBodyBlock,
@@ -32,10 +32,10 @@ export function WorkerBody(props: DiagramProps) {
     const pluses: React.ReactNode[] = [];
     const children = getSTComponents(model.statements);
     let drafts: React.ReactNode[] = [];
-    const controlFlowChiled: React.ReactNode[] = [];
+    const controlFlowLines: React.ReactNode[] = [];
 
-    for (const controlFlowArrow of viewState.controlFlowData) {
-        controlFlowChiled.push(<ControlFlowArrow controlFlowViewState={controlFlowArrow} />);
+    for (const controlFlowLine of viewState.controlFlowLineState) {
+        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 
     for (const plusView of viewState.plusButtons) {
@@ -52,7 +52,7 @@ export function WorkerBody(props: DiagramProps) {
 
     return (
         <g>
-            {controlFlowChiled}
+            {controlFlowLines}
             {pluses}
             {children}
             {drafts}
