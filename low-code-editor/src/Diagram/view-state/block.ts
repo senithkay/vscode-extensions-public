@@ -32,7 +32,7 @@ export class BlockViewState extends ViewState {
     public isElseBlock: boolean = false;
     public isDoBlock: boolean = false;
     public isOnErrorBlock: boolean = false;
-    public controlFlowLineState?: ControlFlowLineState[] = [];
+    public controlFlowLineStates?: ControlFlowLineState[] = [];
 
     constructor() {
         super();

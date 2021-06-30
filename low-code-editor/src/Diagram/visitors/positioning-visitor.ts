@@ -159,9 +159,9 @@ class PositioningVisitor implements Visitor {
     }
 
     private updateFunctionEdgeControlFlow(viewState: FunctionViewState) {
-        // Update Last and First Controll Flow line
-        if (viewState.workerBody.controlFlowLineState.length > 0) { // The list may contain 0 CF lines
-            const startLine = viewState.workerBody.controlFlowLineState[0];
+        // Update First Controll Flow line
+        if (viewState.workerBody.controlFlowLineStates.length > 0) { // The list may contain 0 CF lines
+            const startLine = viewState.workerBody.controlFlowLineStates[0];
             const newStartLineY = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
             const newStartLineH = startLine.y - viewState.trigger.cy + startLine.h + DefaultConfig.triggerPortalOffset.y;
             startLine.h = newStartLineH;
@@ -217,7 +217,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 
-        // Update Last and First Controll Flow Arrows
+        // Update First Controll Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -243,7 +243,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
-        // Update Last and First Controll Flow Arrows
+        // Update First Controll Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -269,7 +269,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
-        // Update Last and First Controll Flow Arrows
+        // Update First Controll Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -329,7 +329,7 @@ class PositioningVisitor implements Visitor {
                 }
 
             }
-            blockViewState.controlFlowLineState.push(controlFlowLineState);
+            blockViewState.controlFlowLineStates.push(controlFlowLineState);
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                 blockViewState.collapseView.bBox.cx = statementViewState.bBox.cx;
@@ -469,23 +469,23 @@ class PositioningVisitor implements Visitor {
         //  Adding last control flow line after last statement for any block
         if (node.statements.length > 0 && !(node.viewState as BlockViewState).isElseBlock) {
             const lastStatement = node.statements[node.statements.length - 1];
-            const lastArrow: ControlFlowLineState = {
+            const lastLine: ControlFlowLineState = {
                 x: lastStatement.viewState.bBox.cx,
                 y: lastStatement.viewState.bBox.cy,
                 h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
             }
-            blockViewState.controlFlowLineState.push(lastArrow);
+            blockViewState.controlFlowLineStates.push(lastLine);
 
-        //  Adding last control flow line after last statement for else block
+            //  Adding last control flow line after last statement for else block
         } else if (node.statements.length > 0 && (node.viewState as BlockViewState).isElseBlock) {
             const lastStatement = node.statements[node.statements.length - 1];
             if (lastStatement.kind !== "ReturnStatement") {
-                const lastArrow: ControlFlowLineState = {
+                const lastLine: ControlFlowLineState = {
                     x: lastStatement.viewState.bBox.cx,
                     y: lastStatement.viewState.bBox.cy,
                     h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
                 }
-                blockViewState.controlFlowLineState.push(lastArrow);
+                blockViewState.controlFlowLineStates.push(lastLine);
             }
 
         }

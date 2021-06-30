@@ -34,7 +34,7 @@ export function WorkerBody(props: DiagramProps) {
     let drafts: React.ReactNode[] = [];
     const controlFlowLines: React.ReactNode[] = [];
 
-    for (const controlFlowLine of viewState.controlFlowLineState) {
+    for (const controlFlowLine of viewState.controlFlowLineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 

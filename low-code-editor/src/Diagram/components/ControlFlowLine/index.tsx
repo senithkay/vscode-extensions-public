@@ -25,7 +25,7 @@ export function ControlFlowLine(props: ControlFlowProps) {
     const { controlFlowViewState } = props;
     const { h, x, y } = controlFlowViewState;
     return (
-        <g className="control-flow-arrow">
+        <g className="control-flow-line">
             <line
                 x1={x}
                 y1={y}

@@ -297,7 +297,7 @@ export function IfElse(props: IfElseProps) {
 
 
         if (ifStatement.ifBody.viewState) {
-            for (const controlFlowLine of (ifStatement.ifBody.viewState.controlFlowLineState as ControlFlowLineState[])) {
+            for (const controlFlowLine of (ifStatement.ifBody.viewState.controlFlowLineStates as ControlFlowLineState[])) {
                 controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
             };
         };

@@ -14,7 +14,6 @@
 import React from 'react'
 
 import { BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from '../IfElse/Else/BottomCurve';
-import { TOP_CURVE_SVG_HEIGHT, TOP_CURVE_SVG_WIDTH } from '../IfElse/Else/TopCurve';
 
 export interface ControlFlowElseEndProp {
     x: number;
@@ -26,11 +25,11 @@ export interface ControlFlowElseEndProp {
 export default function ControlFlowElseEnd(props: ControlFlowElseEndProp) {
     const { h, w, x, y } = props;
     return (
-        <g>
+        <g className="control-flow-line">
             <line
                 x1={x}
                 y1={y}
-                x2={x + w - TOP_CURVE_SVG_WIDTH}
+                x2={x + w - BOTTOM_CURVE_SVG_WIDTH}
                 y2={y}
                 className="line"
             />

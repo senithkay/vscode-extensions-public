@@ -25,7 +25,7 @@ export interface ControlFlowElseStartProp {
 export default function ControlFlowElseStart(props: ControlFlowElseStartProp) {
     const { h, w, x, y } = props;
     return (
-        <g>
+        <g className="control-flow-line">
             <svg
                 x={x + w - TOP_CURVE_SVG_WIDTH}
                 y={y}
