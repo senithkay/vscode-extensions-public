@@ -91,11 +91,11 @@ export function VariablePicker() {
                     })
                 } else if (STKindChecker.isRequiredParam(el)) {
                     // TODO: Add support for required params
-                    // variables.push({
-                    //     name: el.paramName.value,
-                    //     type,
-                    //     node: el
-                    // })
+                    variables.push({
+                        name: el.paramName.value,
+                        type,
+                        node: el
+                    })
                 } else if (el.kind === 'ResourcePathSegmentParam') {
                     variables.push({
                         name: (el as any).paramName.value,

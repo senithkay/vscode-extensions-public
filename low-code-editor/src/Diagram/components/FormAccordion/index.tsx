@@ -48,7 +48,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                 </div >
             ) }
             { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
-                <ExpansionPanel className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
+                <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
                     {title && (
                         <ExpansionPanelSummary
                             className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
@@ -68,7 +68,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                 </ExpansionPanel>
             ) }
             { !isEmptyOptionalFields && (
-                <ExpansionPanel className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={expanded === 'optional'} onChange={handleChange('optional')}>
+                <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={expanded === 'optional'} onChange={handleChange('optional')}>
                     <ExpansionPanelSummary
                         className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
                         expandIcon={<ExpandMoreIcon />}

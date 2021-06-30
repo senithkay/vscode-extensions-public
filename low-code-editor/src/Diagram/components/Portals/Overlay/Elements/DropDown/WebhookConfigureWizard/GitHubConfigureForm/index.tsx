@@ -18,6 +18,7 @@ import {
     ModulePart, ModuleVarDecl, QualifiedNameReference, RequiredParam,
     ServiceDeclaration, STKindChecker, STNode
 } from "@ballerina/syntax-tree";
+import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
@@ -466,8 +467,35 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             }),
     }
     }
+
+    const activeConnectionLabel = () => (
+        <>
+            <div className={classes.activeConnectionWrapper}>
+                <div className={classes.activeConnectionWrapperChild1}>
+                    <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <Typography variant="subtitle2">
+                            <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
+                        </Typography>
+                    </Box>
+                </div>
+                <div>
+                    <IconButton
+                        color="primary"
+                        classes={ {
+                            root: classes.changeConnectionBtn
+                        } }
+                        onClick={handleOnDeselectConnection}
+                    >
+                        <img src="../../../../../../images/edit-dark.svg"/>
+                    </IconButton>
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <>
+            { !activeConnection && (
             <div className={classes.customWrapper}>
                 <p className={classes.subTitle}><FormattedMessage id="lowcode.develop.GitHubConfigWizard.GitHubConnection.title" defaultMessage="GitHub Connection"/></p>
                 <OauthConnectButton
@@ -478,6 +506,9 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     isTriggerConnector={true}
                 />
             </div>
+            )
+            }
+            {activeConnection && activeConnectionLabel()}
             { activeConnection && isRepoListFetching && (
                 <div className={classes.loader}>
                     <CirclePreloader position="relative" />

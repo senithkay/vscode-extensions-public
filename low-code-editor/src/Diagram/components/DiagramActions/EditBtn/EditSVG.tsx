@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import './style.scss';
+
 export const EDIT_SVG_WIDTH_WITH_SHADOW = 34;
 export const EDIT_SVG_HEIGHT_WITH_SHADOW = 34;
 export const EDIT_SVG_WIDTH = 25;
