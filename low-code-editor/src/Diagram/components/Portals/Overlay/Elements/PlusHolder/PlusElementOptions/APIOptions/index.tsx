@@ -373,7 +373,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
                 defaultMessage: "Country population, \nGDP by country"
             }),
-            placement: 'left'
+            placement: 'right'
         },
     }
     // tslint:disable-next-line: no-shadowed-variable
