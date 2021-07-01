@@ -12,7 +12,8 @@
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React from "react";
-;
+import { useLocation } from "react-router-dom";
+
 import { ControlFlowLineState } from "../../view-state";
 
 import "./style.scss";
@@ -24,6 +25,13 @@ export interface ControlFlowProps {
 export function ControlFlowLine(props: ControlFlowProps) {
     const { controlFlowViewState } = props;
     const { h, x, y } = controlFlowViewState;
+
+    const location = useLocation();
+    const enableControlFlow = new URLSearchParams(location.search).get("enableControlFlow") === "true";
+    if (!enableControlFlow) {
+        return null;
+    }
+
     return (
         <g className="control-flow-line">
             <line
