@@ -308,28 +308,30 @@ class PositioningVisitor implements Visitor {
                 }
             }
             // Add control flow line above each statement
-            const controlFlowLineState: ControlFlowLineState = {
-                x: 0,
-                y: 0,
-                h: 0
-            };
-            if (index === 0) {
-                controlFlowLineState.x = blockViewState.bBox.cx;
-                controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
-                controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
-            } else {
-                const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
-                controlFlowLineState.x = statementViewState.bBox.cx;
-                if (node.statements[index - 1].kind === "IfElseStatement") {
-                    controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
-                    controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
-                } else {
-                    controlFlowLineState.y = previousStatementViewState.bBox.cy;
+            if (statement?.controlFlow?.isReached){
+                const controlFlowLineState: ControlFlowLineState = {
+                    x: 0,
+                    y: 0,
+                    h: 0
+                };
+                if (index === 0) {
+                    controlFlowLineState.x = blockViewState.bBox.cx;
+                    controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
                     controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
-                }
+                } else {
+                    const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                    controlFlowLineState.x = statementViewState.bBox.cx;
+                    if (node.statements[index - 1].kind === "IfElseStatement") {
+                        controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
+                        controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
+                    } else {
+                        controlFlowLineState.y = previousStatementViewState.bBox.cy;
+                        controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
+                    }
 
+                }
+                blockViewState.controlFlowLineStates.push(controlFlowLineState);
             }
-            blockViewState.controlFlowLineStates.push(controlFlowLineState);
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                 blockViewState.collapseView.bBox.cx = statementViewState.bBox.cx;
@@ -465,29 +467,29 @@ class PositioningVisitor implements Visitor {
             }
             ++index;
         });
-
         //  Adding last control flow line after last statement for any block
-        if (node.statements.length > 0 && !(node.viewState as BlockViewState).isElseBlock) {
+        if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached){
             const lastStatement = node.statements[node.statements.length - 1];
-            const lastLine: ControlFlowLineState = {
-                x: lastStatement.viewState.bBox.cx,
-                y: lastStatement.viewState.bBox.cy,
-                h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
-            }
-            blockViewState.controlFlowLineStates.push(lastLine);
-
-            //  Adding last control flow line after last statement for else block
-        } else if (node.statements.length > 0 && (node.viewState as BlockViewState).isElseBlock) {
-            const lastStatement = node.statements[node.statements.length - 1];
-            if (lastStatement.kind !== "ReturnStatement") {
+            if (!(node.viewState as BlockViewState).isElseBlock) {
                 const lastLine: ControlFlowLineState = {
                     x: lastStatement.viewState.bBox.cx,
                     y: lastStatement.viewState.bBox.cy,
-                    h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                    h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
                 }
                 blockViewState.controlFlowLineStates.push(lastLine);
-            }
 
+                //  Adding last control flow line after last statement for else block
+            } else {
+                if (lastStatement.kind !== "ReturnStatement") {
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: lastStatement.viewState.bBox.cy,
+                        h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                    }
+                    blockViewState.controlFlowLineStates.push(lastLine);
+                }
+
+            }
         }
 
         // Get the last plus view state
