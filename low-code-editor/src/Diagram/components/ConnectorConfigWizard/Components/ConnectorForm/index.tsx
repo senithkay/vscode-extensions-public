@@ -37,6 +37,7 @@ import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVer
 import { DiagramContext } from "../../../../../providers/contexts";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
 import {
+    CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
     FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
@@ -300,6 +301,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
     const handleCreateConnectorSaveNext = () => {
         setFormState(FormStates.OperationForm);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: CONTINUE_TO_INVOKE_API,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
     };
 
     const showNotification = (status: number, action: ConnectionAction) => {
@@ -551,10 +558,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     model.position
                 );
                 modifications.push(updateActionInvocation);
+
+            }
+            if (modifications.length > 0) {
+                modifyDiagram(modifications);
+                onClose();
             }
         } else {
             if (targetPosition) {
-                if ((connectorTypes.includes(connectorInfo.displayName)) && !connection){
+                if ((connectorTypes.includes(connectorInfo.displayName)) && !connection && !isAction){
                     const selectedType = getManualConnectionTypeFromFormFields(config.connectorInit);
                     const manualConnectionFormFieldValues = getManualConnectionDetailsFromFormFields(config.connectorInit);
                     const formattedFieldValues: { name: string; value: string; }[] = [];

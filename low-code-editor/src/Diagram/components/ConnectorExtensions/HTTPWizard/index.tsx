@@ -23,6 +23,7 @@ import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import {
+    CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
     FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
@@ -133,6 +134,12 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleCreateConnectorOnSaveNext = () => {
         setState(InitFormState.SelectInputOutput);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: CONTINUE_TO_INVOKE_API,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
     };
 
     const handleConnectionChange = () => {
