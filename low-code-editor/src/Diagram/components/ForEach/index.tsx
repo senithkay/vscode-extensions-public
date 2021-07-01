@@ -37,6 +37,7 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
+import { LoopControlFlow, LoopControlFlowProp, LOOP_CONTROL_FLOW_PROP_PADDING } from "../LoopControlFlow"
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
@@ -104,6 +105,15 @@ export function ForEach(props: ForeachProps) {
         x: x + (viewState.foreachBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (FOREACH_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
+
+    let loopControlFlowProp : LoopControlFlowProp;
+    if (model.controlFlow?.isReached) {
+         loopControlFlowProp = {
+            x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2) + LOOP_CONTROL_FLOW_PROP_PADDING,
+            y: viewState.foreachBodyRect.cy + LOOP_CONTROL_FLOW_PROP_PADDING,
+            count: model.controlFlow.numberOfIterations
+        }
+    }
 
     if (bodyViewState.collapseView) {
         children.push(<Collapse blockViewState={bodyViewState} />)
@@ -217,6 +227,11 @@ export function ForEach(props: ForeachProps) {
                     className="condition-assignment"
                     key_id={getRandomInt(1000)}
                 />
+                <>
+                    {model.controlFlow?.isReached &&
+                        <LoopControlFlow {...loopControlFlowProp} />
+                    }
+                </>
                 <>
                     {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                         className="foreach-options-wrapper"

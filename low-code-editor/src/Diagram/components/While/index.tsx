@@ -47,6 +47,7 @@ import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSV
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
 import { FOREACH_SVG_HEIGHT } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
+import { LoopControlFlow, LoopControlFlowProp, LOOP_CONTROL_FLOW_PROP_PADDING } from "../LoopControlFlow";
 import { PlusButton } from "../Plus";
 
 import "./style.scss";
@@ -118,6 +119,15 @@ export function While(props: WhileProps) {
         x: x + (viewState.whileBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
+
+    let loopControlFlowProp : LoopControlFlowProp;
+    if (model.controlFlow?.isReached) {
+         loopControlFlowProp = {
+            x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2) + LOOP_CONTROL_FLOW_PROP_PADDING,
+            y: viewState.whileBodyRect.cy + LOOP_CONTROL_FLOW_PROP_PADDING,
+            count: model.controlFlow.numberOfIterations
+        }
+    }
 
     if (bodyViewState.collapseView) {
         children.push(<Collapse blockViewState={bodyViewState} />)
@@ -194,6 +204,11 @@ export function While(props: WhileProps) {
                     className="condition-assignment"
                     key_id={getRandomInt(1000)}
                 />
+                <>
+                    {model.controlFlow?.isReached &&
+                        <LoopControlFlow {...loopControlFlowProp} />
+                    }
+                </>
 
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
