@@ -116,15 +116,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [payloadError, setPayloadError] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
+  const funcSignature = (syntaxTree as FunctionDefinition)?.functionSignature;
+  const extPayload: string = extractPayloadFromST(funcSignature?.parameters);
   const initAdvancedResourceState: AdvancedResourceState = {
     path: new Map([[0, false]]),
     returnType: new Map([[0, false]]),
+    payloadSelected: new Map([[0, extPayload ? true : false]]),
   }
   const [advancedMenuState, setAdvancesMenuState] = useState<AdvancedResourceState>(initAdvancedResourceState);
   const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
   const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
   const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
-  const [payloadAvailable, setPayloadAvailable] = useState(false);
+  const [togglePayload, setTogglePayload] = useState(false);
 
   useEffect(() => {
     const members = syntaxTree && syntaxTree.members;
@@ -161,7 +164,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeWithoutError });
           setResources(resourceMembers);
           if (payload && payload !== "") {
-            setPayloadAvailable(true);
+            setTogglePayload(true);
           }
         } else {
           const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
@@ -185,7 +188,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const onPayloadToggleSelect = (checked: boolean, index: number) => {
-    setPayloadAvailable(!checked);
+    setTogglePayload(!togglePayload);
+    advancedMenuState.payloadSelected.set(index, !advancedMenuState.payloadSelected.get(index));
+    setAdvancesMenuState(advancedMenuState);
     const updatedResources = resources;
     if (!checked && (!updatedResources[index].payload || updatedResources[index].payload !== "")) {
       const segment: Payload = {
@@ -193,6 +198,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         type: "json"
       };
       updatedResources[index].payload = getBallerinaPayloadType(segment);
+      setResources(updatedResources);
+    } else {
+      updatedResources[index].payload = undefined;
       setResources(updatedResources);
     }
   }
@@ -205,7 +213,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     updatedResources[index].method = methodType.toLowerCase();
     setResources(updatedResources);
     if (methodType === 'PUT' || methodType === 'POST' || methodType === 'DELETE' || methodType === 'PATCH') {
-      setPayloadAvailable(true);
+      setTogglePayload(true);
+      advancedMenuState.payloadSelected.set(index, true);
       const segment: Payload = {
         name: "payload",
         type: "json"
@@ -213,7 +222,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       updatedResources[index].payload = getBallerinaPayloadType(segment);
       setResources(updatedResources);
     } else {
-      setPayloadAvailable(false);
+      setTogglePayload(false);
+      advancedMenuState.payloadSelected.set(index, false);
     }
   }
 
@@ -425,7 +435,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(),
         (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
           selectedResource.path.substr(1, selectedResource.path.length) : selectedResource.path),
-        selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
+        selectedResource.queryParams, (togglePayload ? selectedResource.payload : ""), selectedResource.isCaller,
         selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
       setTriggerChanged(true);
@@ -438,6 +448,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
     advancedMenuState.returnType.set(resources.length, false);
+    advancedMenuState.payloadSelected.set(resources.length, false);
     setAdvancesMenuState(advancedMenuState);
   }
 
@@ -447,6 +458,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       setResources(resources);
       advancedMenuState.path.delete(index);
       advancedMenuState.returnType.delete(index);
+      advancedMenuState.payloadSelected.delete(index);
       setAdvancesMenuState(advancedMenuState);
       setToggleResourceDelete(!toggleResourceDelete);
     }
@@ -726,9 +738,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={payloadAvailable} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
+                    button={<SwitchToggle initSwitch={resProps.payload ? true : false} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
                   >
-                    <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
+                    <PayloadEditor disabled={!advancedMenuState.payloadSelected.get(index)} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
                   </Section>
                 </div>
                 <div className={classes.sectionSeparator}>
