@@ -12,10 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React from "react";
-;
+
 import { ControlFlowLineState } from "../../view-state";
 
+import { ControlFlowLineSVG } from "./ControlFlowLineSVG";
 import "./style.scss";
+;
 
 export interface ControlFlowProps {
     controlFlowViewState?: ControlFlowLineState;
@@ -26,14 +28,12 @@ export function ControlFlowLine(props: ControlFlowProps) {
     const { h, x, y } = controlFlowViewState;
     return (
         <g className="control-flow-line">
-            <line
+            <ControlFlowLineSVG
                 x1={x}
                 y1={y}
                 x2={x}
                 y2={y + h}
-                className="line"
             />
         </g>
-
     );
 }
