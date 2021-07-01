@@ -326,6 +326,38 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     return isValidated;
   }
 
+  const validatePaths = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // Validate paths
+      if (!validatePath(res.path)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
+  const validateReturnTypes = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // validate return type
+      if (!validateReturnType(res.returnType)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
   const handleUserConfirm = () => {
     handleUpdateResources();
   };
@@ -630,9 +662,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
-                <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
-                  {toggleMainAdvancedMenu ? "See Less" : "Advanced"}
-                </Link>
+                <div>
+                  {validatePaths() &&
+                    (
+                      <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
+                        {toggleMainAdvancedMenu ? "See Less" : "Advanced"}
+                      </Link>
+                    )
+                  }
+                </div>
               </Grid>
             </Grid>
 
@@ -698,9 +736,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               <Grid container={true} spacing={1}>
                 <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
-                  <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                    {toggleReturnTypeMenu ? "See Less" : "Advanced"}
-                  </Link>
+                  <div>
+                    {validateReturnTypes() &&
+                      (
+                        <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
+                          {toggleReturnTypeMenu ? "See Less" : "Advanced"}
+                        </Link>
+                      )
+                    }
+                  </div>
                 </Grid>
               </Grid>
             </Section>
