@@ -630,7 +630,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
-                <Link component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
+                <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
                   {toggleMainAdvancedMenu ? "See Less" : "Advanced"}
                 </Link>
               </Grid>
@@ -698,7 +698,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               <Grid container={true} spacing={1}>
                 <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
-                  <Link component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
+                  <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
                     {toggleReturnTypeMenu ? "See Less" : "Advanced"}
                   </Link>
                 </Grid>
