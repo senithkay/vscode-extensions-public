@@ -10,14 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import * as React from "react";
+// tslint:disable: jsx
+import React from 'react'
 
+export const CONTROL_FLOW_ITERATION_COUNT_PADDING = 8.5;
 export const ITERATION_LABEL_SVG_WIDTH_WITH_SHADOW = 50;
 export const ITERATION_LABEL_SVG_HEIGHT_WITH_SHADOW = 29;
 
-export function IterationCountSVG(props: { x: number, y: number, count: number }) {
+export interface ControlFlowIterationCountProp {
+    x: number;
+    y: number;
+    count: number
+}
+
+export  function ControlFlowIterationCount (props: ControlFlowIterationCountProp) {
     const { count, ...xyProps } = props;
+
     return (
         <svg {...xyProps}  width={ITERATION_LABEL_SVG_WIDTH_WITH_SHADOW} height={ITERATION_LABEL_SVG_HEIGHT_WITH_SHADOW}>
             <g id="iteration_control_Flow" transform="translate(3 2)">
@@ -43,5 +51,6 @@ export function IterationCountSVG(props: { x: number, y: number, count: number }
                 </text>
             </g>
         </svg>
-    )
+    );
+
 }

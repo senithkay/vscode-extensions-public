@@ -31,6 +31,7 @@ import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -47,7 +48,6 @@ import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSV
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
 import { FOREACH_SVG_HEIGHT } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
-import { LoopControlFlow, LoopControlFlowProp, LOOP_CONTROL_FLOW_PROP_PADDING } from "../LoopControlFlow";
 import { PlusButton } from "../Plus";
 
 import "./style.scss";
@@ -120,11 +120,11 @@ export function While(props: WhileProps) {
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
-    let loopControlFlowProp : LoopControlFlowProp;
+    let controlFlowIterationProp : ControlFlowIterationCountProp;
     if (model.controlFlow?.isReached) {
-         loopControlFlowProp = {
-            x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2) + LOOP_CONTROL_FLOW_PROP_PADDING,
-            y: viewState.whileBodyRect.cy + LOOP_CONTROL_FLOW_PROP_PADDING,
+         controlFlowIterationProp = {
+            x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            y: viewState.whileBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             count: model.controlFlow.numberOfIterations
         }
     }
@@ -206,7 +206,7 @@ export function While(props: WhileProps) {
                 />
                 <>
                     {model.controlFlow?.isReached &&
-                        <LoopControlFlow {...loopControlFlowProp} />
+                        <ControlFlowIterationCount {...controlFlowIterationProp} />
                     }
                 </>
 

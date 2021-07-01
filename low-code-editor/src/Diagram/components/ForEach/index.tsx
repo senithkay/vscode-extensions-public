@@ -25,6 +25,7 @@ import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -37,7 +38,6 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
-import { LoopControlFlow, LoopControlFlowProp, LOOP_CONTROL_FLOW_PROP_PADDING } from "../LoopControlFlow"
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
@@ -106,11 +106,11 @@ export function ForEach(props: ForeachProps) {
         y: y + (FOREACH_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
-    let loopControlFlowProp : LoopControlFlowProp;
+    let controlFlowIterationCountProp: ControlFlowIterationCountProp;
     if (model.controlFlow?.isReached) {
-         loopControlFlowProp = {
-            x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2) + LOOP_CONTROL_FLOW_PROP_PADDING,
-            y: viewState.foreachBodyRect.cy + LOOP_CONTROL_FLOW_PROP_PADDING,
+         controlFlowIterationCountProp = {
+            x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            y: viewState.foreachBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             count: model.controlFlow.numberOfIterations
         }
     }
@@ -229,7 +229,7 @@ export function ForEach(props: ForeachProps) {
                 />
                 <>
                     {model.controlFlow?.isReached &&
-                        <LoopControlFlow {...loopControlFlowProp} />
+                        <ControlFlowIterationCount {...controlFlowIterationCountProp} />
                     }
                 </>
                 <>
