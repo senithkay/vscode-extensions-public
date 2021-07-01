@@ -37,6 +37,7 @@ import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX 
 import {
     BlockViewState,
     CompilationUnitViewState,
+    ControlFlowLineState,
     DoViewState,
     ElseViewState,
     EndpointViewState,
@@ -46,6 +47,7 @@ import {
     OnErrorViewState,
     PlusViewState,
     StatementViewState,
+    ViewState,
     WhileViewState
 } from "../view-state";
 
@@ -156,6 +158,17 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
     }
 
+    private updateFunctionEdgeControlFlow(viewState: FunctionViewState) {
+        // Update First Controll Flow line
+        if (viewState.workerBody.controlFlowLineStates.length > 0) { // The list may contain 0 CF lines
+            const startLine = viewState.workerBody.controlFlowLineStates[0];
+            const newStartLineY = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
+            const newStartLineH = startLine.y - viewState.trigger.cy + startLine.h + DefaultConfig.triggerPortalOffset.y;
+            startLine.h = newStartLineH;
+            startLine.y = newStartLineY;
+        }
+    }
+
     public endVisitFunctionDefinition(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
@@ -203,6 +216,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
+
+        // Update First Controll Flow line
+        this.updateFunctionEdgeControlFlow(viewState);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -226,6 +242,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // Update First Controll Flow line
+        this.updateFunctionEdgeControlFlow(viewState);
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -249,6 +268,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // Update First Controll Flow line
+        this.updateFunctionEdgeControlFlow(viewState);
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -285,6 +307,29 @@ class PositioningVisitor implements Visitor {
                     height += draft.bBox.h;
                 }
             }
+            // Add control flow line above each statement
+            const controlFlowLineState: ControlFlowLineState = {
+                x: 0,
+                y: 0,
+                h: 0
+            };
+            if (index === 0) {
+                controlFlowLineState.x = blockViewState.bBox.cx;
+                controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
+                controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
+            } else {
+                const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                controlFlowLineState.x = statementViewState.bBox.cx;
+                if (node.statements[index - 1].kind === "IfElseStatement") {
+                    controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
+                    controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
+                } else {
+                    controlFlowLineState.y = previousStatementViewState.bBox.cy;
+                    controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
+                }
+
+            }
+            blockViewState.controlFlowLineStates.push(controlFlowLineState);
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                 blockViewState.collapseView.bBox.cx = statementViewState.bBox.cx;
@@ -418,9 +463,32 @@ class PositioningVisitor implements Visitor {
                     height += statementViewState.bBox.h;
                 }
             }
-
             ++index;
         });
+
+        //  Adding last control flow line after last statement for any block
+        if (node.statements.length > 0 && !(node.viewState as BlockViewState).isElseBlock) {
+            const lastStatement = node.statements[node.statements.length - 1];
+            const lastLine: ControlFlowLineState = {
+                x: lastStatement.viewState.bBox.cx,
+                y: lastStatement.viewState.bBox.cy,
+                h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
+            }
+            blockViewState.controlFlowLineStates.push(lastLine);
+
+            //  Adding last control flow line after last statement for else block
+        } else if (node.statements.length > 0 && (node.viewState as BlockViewState).isElseBlock) {
+            const lastStatement = node.statements[node.statements.length - 1];
+            if (lastStatement.kind !== "ReturnStatement") {
+                const lastLine: ControlFlowLineState = {
+                    x: lastStatement.viewState.bBox.cx,
+                    y: lastStatement.viewState.bBox.cy,
+                    h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                }
+                blockViewState.controlFlowLineStates.push(lastLine);
+            }
+
+        }
 
         // Get the last plus view state
         const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
