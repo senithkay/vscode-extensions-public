@@ -308,7 +308,7 @@ class PositioningVisitor implements Visitor {
                 }
             }
             // Add control flow line above each statement
-            if (statement?.controlFlow?.isReached){
+            if (statement?.controlFlow?.isReached) {
                 const controlFlowLineState: ControlFlowLineState = {
                     x: 0,
                     y: 0,
@@ -468,7 +468,7 @@ class PositioningVisitor implements Visitor {
             ++index;
         });
         //  Adding last control flow line after last statement for any block
-        if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached){
+        if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
             const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
                 const lastLine: ControlFlowLineState = {
