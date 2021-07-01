@@ -32,8 +32,7 @@ export  function LoopControlFlow (props: LoopControlFlowProp) {
                 <IterationCountSVG x={x} y={y} count={count} />
             </g>
         );
-
     };
-    
+
     return (getElement())
 }
