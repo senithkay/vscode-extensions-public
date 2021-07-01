@@ -166,6 +166,9 @@ class PositioningVisitor implements Visitor {
             const newStartLineH = startLine.y - viewState.trigger.cy + startLine.h + DefaultConfig.triggerPortalOffset.y;
             startLine.h = newStartLineH;
             startLine.y = newStartLineY;
+
+            const endLine = viewState.workerBody.controlFlowLineStates[viewState.workerBody.controlFlowLineStates.length - 1];
+            endLine.h = viewState.end.bBox.cy - endLine.y
         }
     }
 
@@ -321,7 +324,7 @@ class PositioningVisitor implements Visitor {
                 } else {
                     const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
                     controlFlowLineState.x = statementViewState.bBox.cx;
-                    if (node.statements[index - 1].kind === "IfElseStatement") {
+                    if (STKindChecker.isIfElseStatement(node.statements[index - 1])) {
                         controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
                         controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
                     } else {
@@ -467,20 +470,29 @@ class PositioningVisitor implements Visitor {
             }
             ++index;
         });
-        //  Adding last control flow line after last statement for any block
         if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
             const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
-                const lastLine: ControlFlowLineState = {
-                    x: lastStatement.viewState.bBox.cx,
-                    y: lastStatement.viewState.bBox.cy,
-                    h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
+                //  Adding last control flow line after last statement for any block
+                if (STKindChecker.isIfElseStatement(lastStatement)) {
+                    // For IfElse statements, the starting position of the end line starts at the bottom of last statement
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h - blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom,
+                        h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                    }
+                    blockViewState.controlFlowLineStates.push(lastLine);
+                } else {
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: lastStatement.viewState.bBox.cy,
+                        h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
+                    };
+                    blockViewState.controlFlowLineStates.push(lastLine);
                 }
-                blockViewState.controlFlowLineStates.push(lastLine);
-
-                //  Adding last control flow line after last statement for else block
             } else {
-                if (lastStatement.kind !== "ReturnStatement") {
+                //  Adding last control flow line after last statement for else block
+                if (!STKindChecker.isReturnStatement(lastStatement)) {
                     const lastLine: ControlFlowLineState = {
                         x: lastStatement.viewState.bBox.cx,
                         y: lastStatement.viewState.bBox.cy,
