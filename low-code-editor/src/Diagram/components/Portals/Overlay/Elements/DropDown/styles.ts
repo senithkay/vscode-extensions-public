@@ -290,6 +290,19 @@ export const useStyles = makeStyles((theme: Theme) =>
         editIcon: {
             cursor: "pointer",
             width: "16px"
+        },
+        deleteBtnWrapper: {
+            marginBottom: 10,
+            display: "flex",
+            alignItems: "center"
+        },
+        deleteButtonTitle: {
+            marginLeft: 7,
+            fontSize: 13,
+            color: "#FE523C",
+        },
+        returnTextBoxWrapper: {
+            marginBottom: 10
         }
     })
 );

@@ -17,12 +17,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
-import { DeleteOutline } from "assets/icons";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
+import DeleteButton from "../../../../../../../assets/icons/DeleteButton";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
@@ -405,7 +405,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
-    advancedMenuState.returnType.set(resources.length, false)
+    advancedMenuState.returnType.set(resources.length, false);
     setAdvancesMenuState(advancedMenuState);
   }
 
@@ -413,6 +413,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (index > -1) {
       resources.splice(index, 1);
       setResources(resources);
+      advancedMenuState.path.delete(index);
+      advancedMenuState.returnType.delete(index);
+      setAdvancesMenuState(advancedMenuState);
       setToggleResourceDelete(!toggleResourceDelete);
     }
   }
@@ -505,6 +508,21 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const advancedExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.advanced.tooltip.example",
     defaultMessage: "http:Request request \nhttp:Caller caller"
+  });
+
+  const deleteResourceTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.delete.resource.title",
+    defaultMessage: "Delete Resource"
+  });
+
+  const showLessText = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.show.less.text",
+    defaultMessage: "Show Less"
+  });
+
+  const advancedText = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.advanced.text",
+    defaultMessage: "Advanced"
   });
 
   const title = (
@@ -620,69 +638,36 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </Section>
 
               </Grid>
-              { resources.length > 1 && (
-                  <>
-                    <Grid item={true} xs={6}>
-                      {!advancedMenuState.path.get(index) && (
-                          <Section
-                              title={pathTitle}
-                              tooltipWithExample={{ title, content: pathExample }}
-                          >
-                            <FormTextInput
-                                dataTestId="api-path"
-                                defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                                onChange={(text: string) => handleOnChangePath(text, index)}
-                                customProps={{
-                                  validate: validatePath
-                                }}
-                                errorMessage={pathErrorMessage}
-                                placeholder={pathPlaceholder}
-                            />
-                          </Section>
-                      )}
-                    </Grid>
-                    <Grid item={true} xs={1}>
-                      <DeleteOutline onClick={() => onDeleteResource(index)} className={classes.editIcon} />
-                    </Grid>
-                  </>
-              )}
-              { resources.length === 1 && (
-                  <>
-                    <Grid item={true} xs={7}>
-                      {!advancedMenuState.path.get(index) && (
-                          // <div className={classes.sectionSeparator}>
-                          <Section
-                              title={pathTitle}
-                              tooltipWithExample={{ title, content: pathExample }}
-                          >
-                            <FormTextInput
-                                dataTestId="api-path"
-                                defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                                onChange={(text: string) => handleOnChangePath(text, index)}
-                                customProps={{
-                                  validate: validatePath
-                                }}
-                                errorMessage={pathErrorMessage}
-                                placeholder={pathPlaceholder}
-                            />
-                          </Section>
-                          // </div>
-                      )}
-                    </Grid>
-                  </>
-              )}
+              <Grid item={true} xs={7}>
+                {!advancedMenuState.path.get(index) && (
+                  // <div className={classes.sectionSeparator}>
+                  <Section
+                      title={pathTitle}
+                      tooltipWithExample={{ title, content: pathExample }}
+                  >
+                    <FormTextInput
+                        dataTestId="api-path"
+                        defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                        onChange={(text: string) => handleOnChangePath(text, index)}
+                        customProps={{
+                          validate: validatePath
+                        }}
+                        errorMessage={pathErrorMessage}
+                        placeholder={pathPlaceholder}
+                    />
+                  </Section>
+                  // </div>
+                )}
+              </Grid>
             </Grid>
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
                 <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
-                  {toggleMainAdvancedMenu ? "See Less" : "Advanced"}
+                  {advancedMenuState.path.get(index) ? showLessText : advancedText}
                 </Link>
               </Grid>
             </Grid>
-
-            {!advancedMenuState.path.get(index) && <div className={classes.sectionSeparator} />}
-
             {advancedMenuState.path.get(index) && (
               <div>
                 <div className={classes.sectionSeparator}>
@@ -728,26 +713,34 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               {advancedMenuState.returnType.get(index) ? (
                 <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
               ) : (
-                <FormTextInput
-                  dataTestId="api-return-type"
-                  defaultValue={resProps.returnType}
-                  onChange={(text: string) => handleOnChangeReturnType(text, index)}
-                  customProps={{
-                    validate: validateReturnType
-                  }}
-                  errorMessage={returnErrorMessage}
-                  placeholder={returnTypePlaceholder}
-                />
+                <div className={classes.returnTextBoxWrapper}>
+                  <FormTextInput
+                      dataTestId="api-return-type"
+                      defaultValue={resProps.returnType}
+                      onChange={(text: string) => handleOnChangeReturnType(text, index)}
+                      customProps={{
+                        validate: validateReturnType
+                      }}
+                      errorMessage={returnErrorMessage}
+                      placeholder={returnTypePlaceholder}
+                  />
+                </div>
               )}
               <Grid container={true} spacing={1}>
                 <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
                   <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                    {toggleReturnTypeMenu ? "See Less" : "Advanced"}
+                    {advancedMenuState.returnType.get(index) ? showLessText : advancedText}
                   </Link>
                 </Grid>
               </Grid>
             </Section>
+            {resources.length > 1 && (
+                <div className={classes.deleteBtnWrapper} onClick={() => onDeleteResource(index)}>
+                  <DeleteButton/>
+                  <p className={classes.deleteButtonTitle}>{deleteResourceTitle}</p>
+                </div>
+            )}
           </div>
         ))}
 
