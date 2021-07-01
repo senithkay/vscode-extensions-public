@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx
 import React from 'react'
+import { useLocation } from "react-router-dom";
 
 import { TOP_CURVE_SVG_HEIGHT, TOP_CURVE_SVG_WIDTH } from '../IfElse/Else/TopCurve';
 
@@ -26,6 +27,13 @@ export interface ControlFlowElseStartProp {
 
 export default function ControlFlowElseStart(props: ControlFlowElseStartProp) {
     const { h, w, x, y } = props;
+
+    const location = useLocation();
+    const enableControlFlow = new URLSearchParams(location.search).get("enableControlFlow") === "true";
+    if (!enableControlFlow) {
+        return null;
+    }
+
     return (
         <g className="control-flow-line">
             <ControlFlowTopCurveSVG

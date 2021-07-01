@@ -174,7 +174,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [expand, setExpand] = useState(expandDefault || false);
     const [addCheck, setAddCheck] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
-    const [cursorOnSubEditor, setCursorOnSubEditor] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
@@ -280,9 +279,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 setCursorOnEditor(true);
-                if (subEditor) {
-                    setCursorOnSubEditor(true);
-                }
                 handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
             }));
 
@@ -774,7 +770,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             setCursorOnEditor(false);
             if (subEditor) {
-                setCursorOnSubEditor(false);
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             }
         }
@@ -906,13 +901,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            {subEditor && !cursorOnEditor && cursorOnSubEditor ? null :
-                invalidSourceCode ?
+            {invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(mainDiagnostics[0]?.message)}</FormHelperText>
-                            </TooltipCodeSnippet>
+                            {subEditor && !cursorOnEditor && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
@@ -921,9 +913,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
-                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{truncateDiagnosticMsg(getDiagnosticMessage(expressionEditorState.diagnostic, varType))}</FormHelperText>
-                                    </TooltipCodeSnippet>
+                                    {subEditor && !cursorOnEditor && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
                                     {stringCheck && needQuotes && monacoRef.current ?
                                         (monacoRef.current.editor.getModel().getValue() === "") ? (
                                             <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
@@ -936,6 +926,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         </>
     );
+}
+
+function Diagnostic(props: {message: string}) {
+    const { message } = props
+    const formClasses = useFormStyles();
+
+    return (
+        <TooltipCodeSnippet content={message} placement="right" arrow={true}>
+            <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(message)}</FormHelperText>
+        </TooltipCodeSnippet>
+    )
 }
 
 export default ExpressionEditor;
