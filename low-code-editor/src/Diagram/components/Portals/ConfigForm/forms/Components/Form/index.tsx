@@ -25,6 +25,8 @@ export interface FormProps {
     size?: "small" | "medium"
 }
 
+const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)))
+
 export function Form(props: FormProps) {
     const { fields, onValidate } = props;
 
@@ -36,7 +38,7 @@ export function Form(props: FormProps) {
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (fields.every(field => field.optional)){
+        if (isAllOptionalFields(fields)){
             onValidate(true);
         }
     }, [])
