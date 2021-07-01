@@ -286,6 +286,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: "1px solid #E6E7EC",
             borderRadius: "50%",
             cursor: "pointer"
+        },
+        editIcon: {
+            cursor: "pointer",
+            width: "16px"
         }
     })
 );

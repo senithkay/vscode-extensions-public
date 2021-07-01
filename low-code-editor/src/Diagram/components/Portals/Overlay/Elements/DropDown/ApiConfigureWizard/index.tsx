@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
+import { DeleteOutline } from "assets/icons";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
@@ -47,7 +48,14 @@ import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
-import { Advanced, AdvancedResourceState, Path, Payload, QueryParamCollection, Resource } from "./types";
+import {
+  Advanced,
+  AdvancedResourceState,
+  Path,
+  Payload,
+  QueryParamCollection,
+  Resource
+} from "./types";
 import {
   convertPathStringToSegments,
   convertPayloadStringToPayload,
@@ -115,6 +123,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [advancedMenuState, setAdvancesMenuState] = useState<AdvancedResourceState>(initAdvancedResourceState);
   const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
   const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
+  const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
   const [payloadAvailable, setPayloadAvailable] = useState(false);
 
   useEffect(() => {
@@ -400,6 +409,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setAdvancesMenuState(advancedMenuState);
   }
 
+  const onDeleteResource = (index: number) => {
+    if (index > -1) {
+      resources.splice(index, 1);
+      setResources(resources);
+      setToggleResourceDelete(!toggleResourceDelete);
+    }
+  }
+
   const resourceConfigTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
     defaultMessage: "Configure Resource"
@@ -603,29 +620,57 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </Section>
 
               </Grid>
-              <Grid item={true} xs={7}>
-
-                {!advancedMenuState.path.get(index) && (
-                  // <div className={classes.sectionSeparator}>
-                  <Section
-                    title={pathTitle}
-                    tooltipWithExample={{ title, content: pathExample }}
-                  >
-                    <FormTextInput
-                      dataTestId="api-path"
-                      defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                      onChange={(text: string) => handleOnChangePath(text, index)}
-                      customProps={{
-                        validate: validatePath
-                      }}
-                      errorMessage={pathErrorMessage}
-                      placeholder={pathPlaceholder}
-                    />
-                  </Section>
-                  // </div>
-                )}
-
-              </Grid>
+              { resources.length > 1 && (
+                  <>
+                    <Grid item={true} xs={6}>
+                      {!advancedMenuState.path.get(index) && (
+                          <Section
+                              title={pathTitle}
+                              tooltipWithExample={{ title, content: pathExample }}
+                          >
+                            <FormTextInput
+                                dataTestId="api-path"
+                                defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                                onChange={(text: string) => handleOnChangePath(text, index)}
+                                customProps={{
+                                  validate: validatePath
+                                }}
+                                errorMessage={pathErrorMessage}
+                                placeholder={pathPlaceholder}
+                            />
+                          </Section>
+                      )}
+                    </Grid>
+                    <Grid item={true} xs={1}>
+                      <DeleteOutline onClick={() => onDeleteResource(index)} className={classes.editIcon} />
+                    </Grid>
+                  </>
+              )}
+              { resources.length === 1 && (
+                  <>
+                    <Grid item={true} xs={7}>
+                      {!advancedMenuState.path.get(index) && (
+                          // <div className={classes.sectionSeparator}>
+                          <Section
+                              title={pathTitle}
+                              tooltipWithExample={{ title, content: pathExample }}
+                          >
+                            <FormTextInput
+                                dataTestId="api-path"
+                                defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                                onChange={(text: string) => handleOnChangePath(text, index)}
+                                customProps={{
+                                  validate: validatePath
+                                }}
+                                errorMessage={pathErrorMessage}
+                                placeholder={pathPlaceholder}
+                            />
+                          </Section>
+                          // </div>
+                      )}
+                    </Grid>
+                  </>
+              )}
             </Grid>
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
@@ -637,7 +682,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             </Grid>
 
             {!advancedMenuState.path.get(index) && <div className={classes.sectionSeparator} />}
-            {/* <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={} text={"Advanced"} /> */}
 
             {advancedMenuState.path.get(index) && (
               <div>
