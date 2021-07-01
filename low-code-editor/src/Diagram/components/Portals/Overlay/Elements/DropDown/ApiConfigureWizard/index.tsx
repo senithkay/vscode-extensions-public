@@ -335,6 +335,38 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     return isValidated;
   }
 
+  const validatePaths = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // Validate paths
+      if (!validatePath(res.path)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
+  const validateReturnTypes = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // validate return type
+      if (!validateReturnType(res.returnType)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
   const handleUserConfirm = () => {
     handleUpdateResources();
   };
@@ -646,14 +678,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       tooltipWithExample={{ title, content: pathExample }}
                   >
                     <FormTextInput
-                        dataTestId="api-path"
-                        defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
-                        onChange={(text: string) => handleOnChangePath(text, index)}
-                        customProps={{
-                          validate: validatePath
-                        }}
-                        errorMessage={pathErrorMessage}
-                        placeholder={pathPlaceholder}
+                      dataTestId="api-path"
+                      defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                      onChange={(text: string) => handleOnChangePath(text, index)}
+                      customProps={{
+                        validate: validatePath
+                      }}
+                      errorMessage={pathErrorMessage}
+                      placeholder={pathPlaceholder}
                     />
                   </Section>
                   // </div>
@@ -663,9 +695,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
-                <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
-                  {advancedMenuState.path.get(index) ? showLessText : advancedText}
-                </Link>
+                <div>
+                  {validatePaths() && (
+                      <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
+                        {advancedMenuState.path.get(index) ? showLessText : advancedText}
+                      </Link>
+                  )}
+                </div>
               </Grid>
             </Grid>
             {advancedMenuState.path.get(index) && (
@@ -729,9 +765,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               <Grid container={true} spacing={1}>
                 <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
-                  <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                    {advancedMenuState.returnType.get(index) ? showLessText : advancedText}
-                  </Link>
+                  <div>
+                    {validateReturnTypes() &&
+                      (
+                        <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
+                          {advancedMenuState.returnType.get(index) ? showLessText : advancedText}
+                        </Link>
+                      )
+                    }
+                  </div>
                 </Grid>
               </Grid>
             </Section>
