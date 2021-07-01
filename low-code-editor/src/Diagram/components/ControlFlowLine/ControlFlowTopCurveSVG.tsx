@@ -19,7 +19,7 @@ export function ControlFlowTopCurveSVG(props: { x: number, y: number, height: nu
     return (
         <svg {...props} >
             <defs>
-                <filter id="glowing_filter" {...props} filterUnits="userSpaceOnUse">
+                <filter id="control_flow_glowing_filter" {...props} filterUnits="userSpaceOnUse">
                     <feOffset in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="4" result="blur" />
                     <feFlood flood-color="#36b475" />
@@ -27,7 +27,7 @@ export function ControlFlowTopCurveSVG(props: { x: number, y: number, height: nu
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <path filter="url(#glowing_filter)" className="line" d="M0,0.5c3.3,0,6,2.7,6,6c0,0,0,0,0,0" />
+            <path filter="url(#control_flow_glowing_filter)" className="line" d="M0,0.5c3.3,0,6,2.7,6,6c0,0,0,0,0,0" />
         </svg>
     );
 }

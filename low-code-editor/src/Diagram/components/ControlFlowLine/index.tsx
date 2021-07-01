@@ -18,7 +18,6 @@ import { ControlFlowLineState } from "../../view-state";
 
 import { ControlFlowLineSVG } from "./ControlFlowLineSVG";
 import "./style.scss";
-;
 
 export interface ControlFlowProps {
     controlFlowViewState?: ControlFlowLineState;
