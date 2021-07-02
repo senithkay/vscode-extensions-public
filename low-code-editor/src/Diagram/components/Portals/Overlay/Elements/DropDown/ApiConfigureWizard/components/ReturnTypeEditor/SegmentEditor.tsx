@@ -79,7 +79,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                     <Grid item={true} xs={6}>
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
-                            defaultValue={segmentState?.type}
+                            defaultValue={segmentState?.type === "error" ? "" : segmentState?.type}
                             customProps={
                                 {
                                     values: returnTypes,
