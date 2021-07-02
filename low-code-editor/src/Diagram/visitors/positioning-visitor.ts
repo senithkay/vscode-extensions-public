@@ -632,6 +632,22 @@ class PositioningVisitor implements Visitor {
         }
     }
 
+    public endVisitIfElseStatement(node: IfElseStatement) {
+        const bodyViewState: BlockViewState = node.ifBody.viewState;
+        // For then block add last line
+        if (node.ifBody.statements.length > 0 && node.ifBody.statements[node.ifBody.statements.length - 1]?.controlFlow?.isReached) {
+            const lastStatement = node.ifBody.statements[node.ifBody.statements.length - 1];
+            const lineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h;
+            const lineHeightForIf = bodyViewState.bBox.cy + bodyViewState.bBox.length - lastStatement.viewState.bBox.offsetFromBottom - lineY;
+            const lastLine: ControlFlowLineState = {
+                x: lastStatement.viewState.bBox.cx,
+                y: lineY,
+                h: lineHeightForIf,
+            }
+            bodyViewState.controlFlowLineStates.push(lastLine);
+        }
+    }
+
     public beginVisitDoStatement(node: DoStatement) {
         const viewState = node.viewState as DoViewState;
         if (viewState.isFirstInFunctionBody) {
