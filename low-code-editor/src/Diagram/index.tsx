@@ -68,19 +68,23 @@ export function Diagram(props: DiagramProps) {
         diagnostics,
         isDataMapperShown,
         isConfigOverlayFormOpen,
+        warnings
     } } = useContext(DiagramContext);
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics && diagnostics.length;
+    const numberOfWarnings  = (warnings && warnings.length);
     const diagramErrors = diagnostics && diagnostics.length > 0;
+    const diagramWarnings = warnings && warnings.length > 0;
+    const warningsInDiagram = warnings && warnings.length > 0;
     const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
 
     React.useEffect(() => {
         setIsErrorStateDialogOpen(diagramErrors);
         setIsErrorDetailsOpen(diagramErrors);
-    }, [diagramErrors])
+    }, [diagramErrors, diagramWarnings])
 
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);
@@ -114,18 +118,11 @@ export function Diagram(props: DiagramProps) {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState
-                x={5}
-                y={-100}
-                text={numberOfErrors}
-                onClose={closeErrorDialog}
-                onOpen={openErrorDialog}
-                isErrorMsgVisible={isErrorStateDialogOpen}
-            />
+            <DiagramErrorState x={5} y={-100} errorCount={numberOfErrors} warningCount={numberOfWarnings} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
         </div>
     );
 
-    const diagramStatus = diagnosticInDiagram ? diagramErrorMessage : null;
+    const diagramStatus = (diagnosticInDiagram ||  warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -168,9 +165,9 @@ export function Diagram(props: DiagramProps) {
                 {isCodeEditorActive && diagramDisabledStatus}
             </div>
 
-            {diagnosticInDiagram && (
+            {(diagnosticInDiagram || warningsInDiagram) && (
                 <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>
-                    <OverlayBackground />
+                    {diagnosticInDiagram && <OverlayBackground />}
                     {diagramStatus}
                 </div>
             )}
