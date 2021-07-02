@@ -164,7 +164,7 @@ export function OperationForm(props: OperationFormProps) {
                     <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                         <div className={classes.fullWidth}>
                             <>
-                                <p className={wizardClasses.subTitle}>Operation</p>
+                                <p className={wizardClasses.subTitle}>Operation<span className={wizardClasses.titleLabelRequired}>*</span></p>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
                                         {(operationLabel?.length > operationLabelMaxLength ? operationLabel?.slice(0, operationLabelMaxLength) + "..." : operationLabel)
