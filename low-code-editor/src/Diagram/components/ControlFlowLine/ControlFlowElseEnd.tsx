@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx
-import React from 'react'
+import React from 'react';
 import { useLocation } from "react-router-dom";
 
 import { BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from '../IfElse/Else/BottomCurve';
