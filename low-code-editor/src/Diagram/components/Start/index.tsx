@@ -14,7 +14,7 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import {
-    CaptureBindingPattern,
+    CaptureBindingPattern, DotToken,
     FunctionBodyBlock,
     FunctionDefinition, IdentifierToken,
     ModulePart, ModuleVarDecl,
@@ -201,28 +201,34 @@ export function StartButton(props: StartButtonProps) {
         block = funcModel.functionBody as FunctionBodyBlock;
     }
 
-    let text: string;
+    let triggerText: string;
     let additionalInfo: string;
     if ((model.kind === "ModulePart") || !activeTriggerType) {
-        text = "START";
+        triggerText = "START";
     } else if (activeTriggerType === TRIGGER_TYPE_API) {
         const functionName = (model as FunctionDefinition).functionName.value;
         const identifierTokens: IdentifierToken[] = ((model as FunctionDefinition)?.relativeResourcePath?.filter(
             (relPath: any) => STKindChecker.isIdentifierToken(relPath))) as IdentifierToken[];
+        const dotToken: DotToken = ((model as FunctionDefinition)?.relativeResourcePath?.find(
+            (token: any) => STKindChecker.isDotToken(token))) as DotToken;
         additionalInfo = functionName.toUpperCase();
-        if (identifierTokens && identifierTokens.length > 0) {
-            text = "RESOURCE";
-            const tokens: string[] = []
-            identifierTokens.forEach(token => {
-                tokens.push(token.value);
-            });
-            additionalInfo += ` /${tokens.join("/")}`;
+        if ((identifierTokens && identifierTokens.length > 0) || dotToken) {
+            triggerText = "RESOURCE";
+            const tokens: string[] = [];
+            if (identifierTokens.length > 0) {
+                identifierTokens.forEach(token => {
+                    tokens.push(token.value);
+                });
+                additionalInfo += ` /${tokens.join("/")}`;
+            } else  {
+                additionalInfo += ` .`;
+            }
             if (additionalInfo.length >= 15) {
                 additionalInfo = additionalInfo.substr(0, 15);
                 additionalInfo += "...";
             }
         } else {
-            text = "FUNCTION";
+            triggerText = "FUNCTION";
             additionalInfo = functionName.toUpperCase();
             if (additionalInfo.length >= 15) {
                 additionalInfo = additionalInfo.substr(0, 15);
@@ -230,16 +236,16 @@ export function StartButton(props: StartButtonProps) {
             }
         }
     } else {
-        text = activeTriggerType.toUpperCase();
+        triggerText = activeTriggerType.toUpperCase();
     }
 
     return (
         // hide edit button for triggers and expression bodied functions
-        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK) ? "start-wrapper" : "start-wrapper-edit"}>
+        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK || triggerText === "FUNCTION") ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
-                text={text}
+                text={triggerText}
                 resourceText={additionalInfo}
                 showIcon={true}
                 handleEdit={handleEditClick}
