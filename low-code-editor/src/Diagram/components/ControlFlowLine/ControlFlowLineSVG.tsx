@@ -28,7 +28,7 @@ export function ControlFlowLineSVG(props: { x1: number, y1: number, x2: number, 
                 </filter>
             </defs>
             <g  >
-                <line className="line" filter="url(#control_flow_glowing_filter)" {...props} fill="none" stroke="#36b475" stroke-miterlimit="10" stroke-width="1" />
+                <line className="line" filter="url(#control_flow_glowing_filter)" {...props} fill="none" stroke="#36b475" strokeMiterlimit="10" strokeWidth="1" />
             </g>
         </svg>
     );
