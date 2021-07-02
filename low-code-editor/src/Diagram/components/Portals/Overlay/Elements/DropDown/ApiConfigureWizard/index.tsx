@@ -213,8 +213,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     updatedResources[index].method = methodType.toLowerCase();
     setResources(updatedResources);
     if (methodType === 'PUT' || methodType === 'POST' || methodType === 'DELETE' || methodType === 'PATCH') {
-      setTogglePayload(true);
+      setTogglePayload(!togglePayload);
       advancedMenuState.payloadSelected.set(index, true);
+      setAdvancesMenuState(advancedMenuState);
       const segment: Payload = {
         name: "payload",
         type: "json"
@@ -222,8 +223,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       updatedResources[index].payload = getBallerinaPayloadType(segment);
       setResources(updatedResources);
     } else {
-      setTogglePayload(false);
+      setTogglePayload(!togglePayload);
       advancedMenuState.payloadSelected.set(index, false);
+      setAdvancesMenuState(advancedMenuState);
     }
   }
 
@@ -738,7 +740,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={resProps.payload ? true : false} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
+                    button={<SwitchToggle initSwitch={advancedMenuState.payloadSelected.get(index)} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
                   >
                     <PayloadEditor disabled={!advancedMenuState.payloadSelected.get(index)} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
                   </Section>
