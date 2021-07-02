@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx
 import React from 'react';
-import { useLocation } from "react-router-dom";
 
 export const CONTROL_FLOW_ITERATION_COUNT_PADDING = 8.5;
 export const ITERATION_LABEL_SVG_WIDTH_WITH_SHADOW = 50;
@@ -26,12 +25,6 @@ export interface ControlFlowIterationCountProp {
 
 export function ControlFlowIterationCount(props: ControlFlowIterationCountProp) {
     const { count, ...xyProps } = props;
-
-    const location = useLocation();
-    const enableControlFlow = new URLSearchParams(location.search).get("enableControlFlow") === "true";
-    if (!enableControlFlow) {
-        return null;
-    }
 
     return (
         <svg {...xyProps} width={ITERATION_LABEL_SVG_WIDTH_WITH_SHADOW} height={ITERATION_LABEL_SVG_HEIGHT_WITH_SHADOW}>
