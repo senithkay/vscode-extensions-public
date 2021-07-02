@@ -184,7 +184,7 @@ suite('Ballerina Debug Adapter', () => {
 
             const location = { path: program, line: 17, column: undefined };
             return await Promise.all([
-                dc.waitForEvent('initialized').then(event => {
+                dc.waitForEvent('initialized').then(_event => {
                     return dc.setBreakpointsRequest({
                         lines: [location.line],
                         breakpoints: [{ line: location.line, column: location.column }],
@@ -215,7 +215,7 @@ suite('Ballerina Debug Adapter', () => {
                     await dc.stepInRequest({
                         threadId: event.body.threadId
                     });
-                    const stepInEvent = await dc.waitForEvent('stopped', 12000);
+                    const stepInEvent = await dc.waitForEvent('stopped', 25000);
                     assert.equal(stepInEvent.body.reason, "step", 'Invalid \'step\' stopped event.');
                     return await dc.stackTraceRequest({
                         threadId: stepInEvent.body.threadId,
