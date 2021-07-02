@@ -119,11 +119,12 @@ export function Else(props: ElseProps) {
             );
         }
         if (viewState.controlFlowLineStates.length > 0) {
+            const h = viewState.controlFlowLineStates[0].y - viewState.elseTopHorizontalLine.y;
             controlFlowLines.push(
                 <ControlFlowElseStart
                     x={viewState.elseTopHorizontalLine.x}
                     y={viewState.elseTopHorizontalLine.y}
-                    h={50}
+                    h={h}
                     w={viewState.elseTopHorizontalLine.length}
                 />
             );
