@@ -345,7 +345,7 @@ export function APIOptions(props: APIOptionsProps) {
         covid19Api: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.title",
-                defaultMessage: "Connect with COVID-19 Open API to get the latest status."
+                defaultMessage: "Connect with COVID-19 API to get the latest status."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
