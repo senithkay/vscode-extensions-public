@@ -31,6 +31,7 @@ import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -119,6 +120,15 @@ export function While(props: WhileProps) {
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
+    let controlFlowIterationProp : ControlFlowIterationCountProp;
+    if (model.controlFlow?.isReached) {
+         controlFlowIterationProp = {
+            x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            y: viewState.whileBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            count: model.controlFlow.numberOfIterations
+        }
+    }
+
     if (bodyViewState.collapseView) {
         children.push(<Collapse blockViewState={bodyViewState} />)
     }
@@ -194,6 +204,11 @@ export function While(props: WhileProps) {
                     className="condition-assignment"
                     key_id={getRandomInt(1000)}
                 />
+                <>
+                    {model.controlFlow?.isReached &&
+                        <ControlFlowIterationCount {...controlFlowIterationProp} />
+                    }
+                </>
 
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                     className="while-options-wrapper"
