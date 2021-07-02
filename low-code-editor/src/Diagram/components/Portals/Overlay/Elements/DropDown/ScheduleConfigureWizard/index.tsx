@@ -201,13 +201,13 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const cronForSelectedType = () => {
     if (scheduledComp === "Minute") {
       return minuteGenCron + " * * * *"
-    } else if (scheduledComp === "Hourly") {
+    } else if (scheduledComp === "Hour") {
       return "0 " + hourGenCron + " * * *"
-    } else if (scheduledComp === "Daily") {
+    } else if (scheduledComp === "Day") {
       return cronMinuteValue + " " + cronHourValue + " * * *"
-    } else if (scheduledComp === "Monthly") {
+    } else if (scheduledComp === "Month") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
-    } else if (scheduledComp === "Weekly") {
+    } else if (scheduledComp === "Week") {
       return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
@@ -241,13 +241,13 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
     if (scheduledComp === "Minute") {
       return minuteGenCron + " * * * *"
-    } else if (scheduledComp === "Hourly") {
+    } else if (scheduledComp === "Hour") {
       return "0 " + hourGenCron + " * * *"
-    } else if (scheduledComp === "Daily") {
+    } else if (scheduledComp === "Day") {
       return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *"
-    } else if (scheduledComp === "Monthly") {
+    } else if (scheduledComp === "Month") {
       return cronMinuteValue + " " + cronHourValue + " " + cronDayValue + " * " + cronWeekValue
-    } else if (scheduledComp === "Weekly") {
+    } else if (scheduledComp === "Week") {
       return cronMinuteValue + " " + cronHourValue + " * * " + cronWeekValue
     } else {
       return currentCron;
@@ -257,13 +257,13 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
   const handleChange = (value: string) => {
     if (scheduledComp === "Minute") {
       setCronMinuteValue(value);
-    } else if (scheduledComp === "Hourly") {
+    } else if (scheduledComp === "Hour") {
       setCronHourValue(value);
-    } else if (scheduledComp === "Daily") {
+    } else if (scheduledComp === "Day") {
       setCronDayValue(value);
-    } else if (scheduledComp === "Weekly") {
+    } else if (scheduledComp === "Week") {
       setCronWeekValue(value);
-    } else if (scheduledComp === "Monthly") {
+    } else if (scheduledComp === "Month") {
       setCronMonthValue(value);
     }
   }
@@ -394,7 +394,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
 
   const repeatScheduleDropDown = intl.formatMessage({
     id: "lowcode.develop.scheduleConfigWizar.repeatEveryDropDown.label",
-    defaultMessage: "Schedule:"
+    defaultMessage: "Repeat Every:"
   });
 
   const invalidValueErrorMessage = intl.formatMessage({
@@ -593,10 +593,10 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
           </div>
 
           {scheduledComp === "Minute" && minuteOptionComp}
-          {scheduledComp === "Hourly" && hourOptionComp}
-          {scheduledComp === "Daily" && dayComp}
-          {scheduledComp === "Weekly" && weekComp}
-          {scheduledComp === "Monthly" && monthComp}
+          {scheduledComp === "Hour" && hourOptionComp}
+          {scheduledComp === "Day" && dayComp}
+          {scheduledComp === "Week" && weekComp}
+          {scheduledComp === "Month" && monthComp}
           {scheduledComp === "Custom" && customCron}
 
           {!validCron ? <p className={toggleClasses.invalidCron}> {invalidValueErrorMessage}</p> : null}

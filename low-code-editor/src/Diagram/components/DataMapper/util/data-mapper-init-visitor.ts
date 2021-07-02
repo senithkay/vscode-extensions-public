@@ -26,6 +26,7 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
+    RequiredParam,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
@@ -52,6 +53,26 @@ export class DataMapperInitVisitor implements Visitor {
 
     constructor(visitType: VisitingType) {
         this.visitType = visitType;
+    }
+
+    beginVisitRequiredParam(node: RequiredParam) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new FieldViewState();
+        }
+
+        const viewState = node.dataMapperViewState as FieldViewState;
+        viewState.name = node.paramName?.value;
+
+        const typeName = node.typeName;
+
+        setViewStateTypeInformation(viewState, typeName, node);
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewState.sourcePointViewState = new SourcePointViewState();
+        } else {
+            viewState.targetPointViewState = new TargetPointViewState();
+            viewState.targetPointViewState.type = viewState.type;
+        }
     }
 
     beginVisitAssignmentStatement(node: AssignmentStatement) {
@@ -108,7 +129,6 @@ export class DataMapperInitVisitor implements Visitor {
         if (node.dataMapperTypeDescNode && STKindChecker.isRecordTypeDesc(node.dataMapperTypeDescNode)) {
             viewState.type = PrimitiveBalType.Record;
         }
-
     }
 
     beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -327,6 +347,27 @@ export class DataMapperInitVisitor implements Visitor {
 
         node.expression.dataMapperViewState = new DataMapperViewState();
     }
+
+    // todo: change when syntax tree interfaces are generated
+    public beginVisitResourcePathSegmentParam(node: any) {
+        if (!node.dataMapperViewState) {
+            node.dataMapperViewState = new FieldViewState();
+        }
+
+        const viewstate: FieldViewState = node.dataMapperViewState as FieldViewState;
+
+        viewstate.name = node.paramName.value;
+
+        const typeDescriptor = node.typeDescriptor;
+
+        if (typeDescriptor) {
+            setViewStateTypeInformation(viewstate, typeDescriptor, node);
+        }
+
+        if (this.visitType === VisitingType.INPUT) {
+            viewstate.sourcePointViewState = new SourcePointViewState();
+        }
+    }
 }
 
 function setTypeFromTypeSymbol(viewstate: FieldViewState, typeSymbol: any) {
@@ -421,6 +462,19 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         const realTypeDescNode = typeDescriptor.typeDescriptor;
         viewState.isOptionalType = true;
         setViewStateTypeInformation(viewState, realTypeDescNode, parentNode);
+    } else if (STKindChecker.isArrayTypeDesc(typeDescriptor)) {
+        viewState.type = PrimitiveBalType.Collection;
+        viewState.isArray = true;
+        const memberTypeViewstate = new FieldViewState();
+        setViewStateTypeInformation(memberTypeViewstate, typeDescriptor.memberTypeDesc, typeDescriptor);
+        viewState.memberType = memberTypeViewstate;
+        viewState.isUnsupported = true;
+        viewState.warningTooltip = 'Unsupported variable type of array, please use variables of types string, int, float, decimal, boolean, record and json.'
+    } else if (STKindChecker.isStreamTypeDesc(typeDescriptor)) {
+        viewState.type = 'stream';
+        viewState.isUnsupported = true;
+        viewState.warningTooltip = 'Unsupported variable type of stream, please use variables of types string, int, float, decimal, boolean, record and json.'
     }
-
 }
+
+

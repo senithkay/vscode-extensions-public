@@ -36,6 +36,7 @@ export function ErrorList() {
 
     const { state: {
         diagnostics,
+        handleRightPanelContent,
         setCodeLocationToHighlight: setCodeToHighlight,
         maximize: maximizeCodeView,
         currentApp,
@@ -52,6 +53,7 @@ export function ErrorList() {
 
     const onJumpToCodeClick = (range: any) => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight({
             endColumn: range.end.character,
             endLine: range.end.line,

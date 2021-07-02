@@ -70,6 +70,8 @@ export function VariablePicker() {
                     varName = (el.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
                 } else if (STKindChecker.isRequiredParam(el)) {
                     varName = el.paramName.value;
+                }else if (el.kind === 'ResourcePathSegmentParam') {
+                    varName = (el as any).paramName.value;
                 }
 
                 let isOutputVariable = false
@@ -88,11 +90,18 @@ export function VariablePicker() {
                         node: el
                     })
                 } else if (STKindChecker.isRequiredParam(el)) {
-                    // variables.push({
-                    //     name: el.paramName.value,
-                    //     type,
-                    //     node: el
-                    // })
+                    // TODO: Add support for required params
+                    variables.push({
+                        name: el.paramName.value,
+                        type,
+                        node: el
+                    })
+                } else if (el.kind === 'ResourcePathSegmentParam') {
+                    variables.push({
+                        name: (el as any).paramName.value,
+                        type,
+                        node: el
+                    });
                 }
             });
     });

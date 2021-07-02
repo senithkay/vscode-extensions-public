@@ -352,6 +352,12 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
+        const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID);
+        const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
+        if (connector){
+            const {orgName: org, moduleName: module, version} = connector;
+            diagramState.onAPIClient({org, module, version, name}, operation);
+        }
         if (isNewConnectorInitWizard) {
             setReturnNameState({
                 value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
@@ -368,14 +374,14 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             setOnOperationChange(false);
         }
         setPayloadState({
-            isPayloadSelected: false,
+            isPayloadSelected: true,
             selectedPayload: "",
             isNameProvided: false,
             validPayloadName: true,
             variableName: undefined
         });
         connectorConfig.responsePayloadMap.selectedPayloadType = "";
-        connectorConfig.responsePayloadMap.isPayloadSelected = false;
+        connectorConfig.responsePayloadMap.isPayloadSelected = true;
     };
 
     const handleOperationChange = () => {
@@ -434,7 +440,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                 </div>
 
                                 <SwitchToggle
-                                    text="Do you want to extract a payload?"
+                                    text="Extract payload from response"
                                     onChange={handleSwitchToggleChange}
                                     initSwitch={connectorConfig.responsePayloadMap.isPayloadSelected}
                                 />

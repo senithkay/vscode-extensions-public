@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -52,7 +52,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -144,6 +144,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
+        state.onAPIClient(connector);
         onSave();
     };
 
@@ -177,35 +178,23 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Save & Next"
     });
 
-    const pathInstructionsBullet1 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint1",
-        defaultMessage: "Include spaces and special characters"
-    });
-
-    const pathInstructionsBullet2 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint2",
-        defaultMessage: "Start with a numerical character"
-    });
-
-    const pathInstructionsBullet3 = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.bulletPoint3",
-        defaultMessage: "Include keywords such as Return, Foreach, Resource, Object, etc."
-    });
-
-    const pathInstructions = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.tooltip.instructions.tooltip",
-        defaultMessage: "A valid endpoint name should not:"
-    });
-
     const title = (
         <div>
-            <p>{pathInstructions}</p>
-            <ul>
-                <li>{pathInstructionsBullet1}</li>
-                <li>{pathInstructionsBullet2}</li>
-                <li>{pathInstructionsBullet3}</li>
-            </ul>
-        </div>
+      <p>
+        <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip" defaultMessage="A valid endpoint name should <b>NOT</b> include the following :"values={{b: (chunks: string) => <b>{chunks}</b>}}/>
+      </p>
+      <ul>
+        <li>
+          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint1" defaultMessage="Spaces outside the square brackets"/>
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint2" defaultMessage="A numerical character at the beginning"/>
+        </li>
+        <li>
+          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object"/>
+        </li>
+      </ul>
+    </div>
     );
 
 
@@ -214,6 +203,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
+        state.onAPIClient(connector);
         onSaveNext();
     };
 

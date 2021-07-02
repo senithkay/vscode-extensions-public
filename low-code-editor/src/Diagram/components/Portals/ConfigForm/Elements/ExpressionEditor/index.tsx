@@ -30,7 +30,7 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -42,10 +42,13 @@ import {
     createSortText,
     diagnosticCheckerExp,
     getDiagnosticMessage,
+    getFilteredDiagnostics,
     getInitialValue,
     getRandomInt,
     getTargetPosition,
+    getValueWithoutSemiColon,
     transformFormFieldTypeToString,
+    truncateDiagnosticMsg,
     typeCheckerExp
 } from "./utils";
 
@@ -178,6 +181,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? (customTemplate.defaultCodeSnippet || "") : varType + " " + varName + " = ;";
     const snippetTargetPosition = customTemplate?.targetColumn || defaultCodeSnippet.length;
+    const isCustomTemplate = !!customTemplate;
     const formClasses = useFormStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
@@ -275,11 +279,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(monacoRef.current.editor.onDidFocusEditorText(async () => {
                 setCursorOnEditor(true);
-                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), monacoRef.current.editor);
+                handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
             }));
 
             // event emitted when the content of the editor has changed
-            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent(() => {
+            disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
+                const lastPressedKey = event.changes && event.changes.length > 0 && event.changes[0].text;
                 notValidExpEditor("Please wait for validation");
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
@@ -289,7 +294,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     return;
                 }
 
-                debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
+                debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), lastPressedKey);
             }));
 
             // event emitted when the text inside this editor lost focus (i.e. cursor stops blinking)
@@ -554,7 +559,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }).then((diagResp: any) => {
                 setExpressionEditorState({
                     ...expressionEditorState,
-                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                 })
             });
         });
@@ -578,7 +583,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }
 
     // ExpEditor start
-    const handleOnFocus = async (currentContent: string, EOL: string, monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
+    const handleOnFocus = async (currentContent: string, EOL: string) => {
         let initContent: string = null;
         if (model.optional === true && (currentContent === undefined || currentContent === "")) {
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
@@ -618,7 +623,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }).then((diagResp: any) => {
                 setExpressionEditorState({
                     ...expressionEditorState,
-                    diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                    diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                 })
             });
         });
@@ -640,13 +645,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         //     });
         // });
 
-        if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
-            monacoEditor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
+        const lastCharacter = currentContent.length > 0 && currentContent.charAt(currentContent.length - 1)
+        if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
+            monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
     }
 
     // ExpEditor onChange
-    const handleContentChange = async (currentContent: string, EOL: string) => {
+    const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
@@ -694,7 +700,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }).then((diagResp: any) => {
                     setExpressionEditorState({
                         ...expressionEditorState,
-                        diagnostic: diagResp[0]?.diagnostics ? diagResp[0]?.diagnostics : []
+                        diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
                     })
                 });
             });
@@ -716,7 +722,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             //     });
             // });
 
-            if ((currentContent === "" || currentContent.endsWith(".") || currentContent.endsWith(" ")) && monacoRef.current.editor.hasTextFocus()) {
+            if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastPressedKey)) && monacoRef.current.editor.hasTextFocus()) {
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
@@ -729,6 +735,20 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     // ExpEditor close
     const handleOnOutFocus = async () => {
+        // remove additional semicolon if present
+        const monacoModel = monacoRef?.current?.editor.getModel();
+        if (monacoModel){
+            const currentContent = monacoModel.getValue();
+            // Remove semicolon only if the content ends with a semicolon and if its not a custom template
+            if (currentContent.endsWith(';') && !isCustomTemplate){
+                const contentWithoutSemiColon = getValueWithoutSemiColon(currentContent);
+                model.value = contentWithoutSemiColon;
+                if (onChange){
+                    onChange(contentWithoutSemiColon);
+                }
+            }
+        }
+
         if (expressionEditorState?.uri) {
             expressionEditorState.name = model.name;
             expressionEditorState.content = atob(currentFile.content);
@@ -862,14 +882,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const handleError = (mainDiagnosticsArray: any) => {
-        const errorMsg = mainDiagnosticsArray[0]?.message;
-        if (errorMsg.length > 50)
-            return errorMsg.slice(0, 50) + " ..."
-        else
-            return errorMsg
-    }
-
     setDefaultTooltips();
 
     return (
@@ -889,24 +901,19 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            {subEditor && !cursorOnEditor ? null :
-                invalidSourceCode ?
+            {invalidSourceCode ?
                     (
                         <>
-                            <TooltipCodeSnippet content={mainDiagnostics[0]?.message} placement="right" arrow={true}>
-                                <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{handleError(mainDiagnostics)}</FormHelperText>
-                            </TooltipCodeSnippet>
+                            {subEditor && !cursorOnEditor && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
                         (
                             <ExpressionEditorHint type={HintType.ADD_CHECK} onClickHere={addCheckToExpression}/>
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
-                            (
+                        (
                                 <>
-                                    <TooltipCodeSnippet content={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} placement="right" arrow={true}>
-                                        <FormHelperText data-testid='expr-diagnostics' className={formClasses.invalidCode}>{handleError(expressionEditorState.diagnostic)}</FormHelperText>
-                                    </TooltipCodeSnippet>
+                                    {subEditor && !cursorOnEditor && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
                                     {stringCheck && needQuotes && monacoRef.current ?
                                         (monacoRef.current.editor.getModel().getValue() === "") ? (
                                             <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
@@ -919,6 +926,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         </>
     );
+}
+
+function Diagnostic(props: {message: string}) {
+    const { message } = props
+    const formClasses = useFormStyles();
+
+    return (
+        <TooltipCodeSnippet content={message} placement="right" arrow={true}>
+            <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(message)}</FormHelperText>
+        </TooltipCodeSnippet>
+    )
 }
 
 export default ExpressionEditor;

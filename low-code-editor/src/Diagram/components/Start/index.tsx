@@ -156,7 +156,7 @@ export function StartButton(props: StartButtonProps) {
                 triggerType={activeTriggerType}
                 activeConnectorType={getWebhookType()}
                 onComplete={handleOnComplete}
-                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
+                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition, currentApp)}
             />
         );
         if (plusView) {

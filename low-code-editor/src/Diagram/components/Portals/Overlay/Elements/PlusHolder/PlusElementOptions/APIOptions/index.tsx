@@ -230,7 +230,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
                 defaultMessage: "Create contact, Modify contact"
             }),
-            placement: 'right'
+            placement: 'left'
         },
         azureEventHub: {
             title: intl.formatMessage({
@@ -373,7 +373,7 @@ export function APIOptions(props: APIOptionsProps) {
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
                 defaultMessage: "Country population, \nGDP by country"
             }),
-            placement: 'left'
+            placement: 'right'
         },
     }
     // tslint:disable-next-line: no-shadowed-variable
@@ -507,6 +507,7 @@ export function APIOptions(props: APIOptionsProps) {
         };
         onEvent(event);
         onSelect(connector, undefined);
+        state.onAPIClient(connector);
     }
 
     const onSelectExistingConnector = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
@@ -516,6 +517,7 @@ export function APIOptions(props: APIOptionsProps) {
             property: connector.displayName
         };
         onEvent(event);
+        state.onAPIClient(connector);
         onSelect(connector, selectedConnector);
     }
 

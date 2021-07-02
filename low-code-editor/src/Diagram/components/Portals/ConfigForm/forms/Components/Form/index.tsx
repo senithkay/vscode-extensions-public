@@ -25,6 +25,8 @@ export interface FormProps {
     size?: "small" | "medium"
 }
 
+const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)))
+
 export function Form(props: FormProps) {
     const { fields, onValidate } = props;
 
@@ -33,6 +35,13 @@ export function Form(props: FormProps) {
     const optionalElements: ReactNode[] = [];
 
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
+
+    React.useEffect(() => {
+        // Set form as valid if there aren't any mandatory fields
+        if (isAllOptionalFields(fields)){
+            onValidate(true);
+        }
+    }, [])
 
     const validateField = (field: string, isInvalid: boolean): void => {
         emptyFieldChecker.set(field, isInvalid);

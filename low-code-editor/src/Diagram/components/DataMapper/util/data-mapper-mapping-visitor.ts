@@ -71,6 +71,7 @@ export class DataMapperMappingVisitor implements Visitor {
             this.references.forEach(ref => {
                 let dataPointRef;
                 const refArray = ref.split('.');
+                const sourceMapRef = this.sourcePoints;
 
                 do {
                     dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
@@ -79,11 +80,15 @@ export class DataMapperMappingVisitor implements Visitor {
 
                         if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
                             refArray[refArray.length - 1]
-                            = refArray[refArray.length - 1]
-                                .substring(0, refArray[refArray.length - 1].length - 1);
+                                = refArray[refArray.length - 1]
+                                    .substring(0, refArray[refArray.length - 1].length - 1);
                         }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
+
+                if (!dataPointRef) {
+                    dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
+                }
 
                 if (dataPointRef) {
                     const connectionVS = this._generateConnection(
@@ -164,6 +169,7 @@ export class DataMapperMappingVisitor implements Visitor {
             this.references.forEach(ref => {
                 let dataPointRef;
                 const refArray = ref.split('.');
+                const sourceMapRef = this.sourcePoints;
 
                 do {
                     dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
@@ -172,11 +178,15 @@ export class DataMapperMappingVisitor implements Visitor {
 
                         if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
                             refArray[refArray.length - 1]
-                            = refArray[refArray.length - 1]
-                                .substring(0, refArray[refArray.length - 1].length - 1);
+                                = refArray[refArray.length - 1]
+                                    .substring(0, refArray[refArray.length - 1].length - 1);
                         }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
+
+                if (!dataPointRef) {
+                    dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
+                }
 
                 if (dataPointRef) {
                     const connectionVS = this._generateConnection(
@@ -266,11 +276,15 @@ export class DataMapperMappingVisitor implements Visitor {
 
                         if (/.*\?$/gm.test(refArray[refArray.length - 1])) {
                             refArray[refArray.length - 1]
-                            = refArray[refArray.length - 1]
-                                .substring(0, refArray[refArray.length - 1].length - 1);
+                                = refArray[refArray.length - 1]
+                                    .substring(0, refArray[refArray.length - 1].length - 1);
                         }
                     }
                 } while (dataPointRef === undefined && refArray.length > 1);
+
+                if (!dataPointRef) {
+                    dataPointRef = this.sourcePoints.get(this.generateDataPointName(refArray));
+                }
 
                 if (dataPointRef) {
                     const connectionVS = this._generateConnection(
@@ -280,6 +294,7 @@ export class DataMapperMappingVisitor implements Visitor {
                     );
                     dataPointRef.connections.push(connectionVS);
                 } else {
+
                     const name = this.generateDataPointName(refArray);
                     if (this.missingVariableRefName.indexOf(name) === -1) {
                         this.missingVariableRefName.push(name);

@@ -175,3 +175,23 @@
         }
     }
 }
+
+.datamapper-expression-box {
+    &:hover {
+        .expression-icon {
+            display: none;
+        }
+
+        .edit-icon-wrapper {
+            display: block;
+        }
+    }
+
+    .edit-icon-wrapper {
+        display: none;
+    }
+
+    .expression-icon {
+        display: block;
+    }
+}

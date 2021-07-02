@@ -12,6 +12,7 @@
  */
 import React from 'react';
 
+import "./style.scss";
 export interface AddVariableButtonProps {
     x: number,
     y: number,
@@ -20,15 +21,16 @@ export interface AddVariableButtonProps {
 }
 
 export function AddVariableButton(props: AddVariableButtonProps) {
-    const { disabled, ...xyProps } = props;
+    const { disabled, onClick, ...xyProps } = props;
 
     return (
-        <svg data-testid={'datamapper-json-input-configure-btn'} {...xyProps} width="110px" height="18px" viewBox="0 0 110px 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg data-testid={'datamapper-json-input-configure-btn'} {...xyProps} width="110px" height="18px" onClick={onClick} className="add-button">
+            <rect width="117px" height="22px" fill="#fff" rx="6" y="-2" x="-2"  />
             <g id="add-variable-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="datamaping-start" transform="translate(-356.000000, -131.000000)" stroke="#5567D5" stroke-width="1.5">
                     <g id="Icon/Feedback-Copy-6" transform="translate(356.000000, 131.000000)">
-                        <circle id="Oval" fill-rule="nonzero" cx="9" cy="9" r="6.75"/>
-                        <path d="M9,6 L9,11.9442139 M11.9721069,8.97210693 L6.02789307,8.97210693" id="Combined-Shape" stroke-linecap="round"/>
+                        <circle id="Oval" fill-rule="nonzero" cx="9" cy="9" r="6.75" />
+                        <path d="M9,6 L9,11.9442139 M11.9721069,8.97210693 L6.02789307,8.97210693" id="Combined-Shape" stroke-linecap="round" />
                     </g>
                 </g>
             </g>
