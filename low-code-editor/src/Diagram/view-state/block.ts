@@ -18,7 +18,8 @@ import { ViewState } from "./view-state";
 export interface ControlFlowLineState {
     x: number;
     y: number;
-    h: number;
+    h?: number;
+    w?: number;
 }
 
 export class BlockViewState extends ViewState {

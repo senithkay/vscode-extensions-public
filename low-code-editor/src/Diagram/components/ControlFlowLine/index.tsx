@@ -24,14 +24,14 @@ export interface ControlFlowProps {
 
 export function ControlFlowLine(props: ControlFlowProps) {
     const { controlFlowViewState } = props;
-    const { h, x, y } = controlFlowViewState;
+    const { h = 0, x, y, w = 0 } = controlFlowViewState;
 
     return (
         <g className="control-flow-line">
             <ControlFlowLineSVG
                 x1={x}
                 y1={y}
-                x2={x}
+                x2={x + w}
                 y2={y + h}
             />
         </g>
