@@ -44,9 +44,9 @@ export default function ConfigPanelSection(props: any) {
                     <p className={classes.sectionTitle}>{title}</p>
                 </TooltipIcon>
 
-            ) : (!!tooltip) ? (
+            ) : (!!tooltip?.title || !!tooltip) ? (
                 <TooltipIcon
-                    title={tooltip}
+                    title={tooltip?.title || tooltip}
                     placement="left"
                     arrow={true}
                 >
