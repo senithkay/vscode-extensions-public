@@ -470,6 +470,7 @@ class PositioningVisitor implements Visitor {
             }
             ++index;
         });
+
         if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
             const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
@@ -493,14 +494,19 @@ class PositioningVisitor implements Visitor {
             } else {
                 //  Adding last control flow line after last statement for else block
                 if (!STKindChecker.isReturnStatement(lastStatement)) {
+                    let endLineY;
+                    if (STKindChecker.isIfElseStatement(lastStatement)) {
+                        endLineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h;
+                    } else {
+                        endLineY = lastStatement.viewState.bBox.cy;
+                    }
                     const lastLine: ControlFlowLineState = {
                         x: lastStatement.viewState.bBox.cx,
-                        y: lastStatement.viewState.bBox.cy,
-                        h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                        y: endLineY,
+                        h: blockViewState.bBox.cy + height - endLineY,
                     }
                     blockViewState.controlFlowLineStates.push(lastLine);
                 }
-
             }
         }
 
