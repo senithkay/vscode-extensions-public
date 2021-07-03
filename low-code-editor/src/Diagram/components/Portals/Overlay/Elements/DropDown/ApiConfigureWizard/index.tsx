@@ -458,9 +458,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const onDeleteResource = (index: number) => {
     if (index > -1) {
-      resources.splice(index, 1);
-      setResources(resources);
-      setIsDuplicatedPath(isPathDuplicated(resources));
+      const resourceClone = resources;
+      resourceClone.splice(index, 1);
+      setResources(resourceClone);
+      setIsDuplicatedPath(isPathDuplicated(resourceClone));
       advancedMenuState.path.delete(index);
       advancedMenuState.returnType.delete(index);
       advancedMenuState.payloadSelected.delete(index);
