@@ -27,7 +27,7 @@ export function AdvancedEditor(props: AdvancedProps) {
     };
     const classes = useStyles();
     const initValue: Advanced = segment ? { ...segment } : {
-        isCaller: false,
+        isCaller: true,
         isRequest: false
     };
 

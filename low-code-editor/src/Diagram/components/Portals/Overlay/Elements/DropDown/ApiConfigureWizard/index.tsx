@@ -169,7 +169,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             setTogglePayload(true);
           }
         } else {
-          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
+          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true};
           resourceMembers.push(defaultConfig);
           setResources(resourceMembers);
         }
