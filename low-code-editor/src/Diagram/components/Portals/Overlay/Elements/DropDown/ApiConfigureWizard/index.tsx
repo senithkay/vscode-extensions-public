@@ -27,7 +27,7 @@ import ConfigPanel, { Section } from "../../../../../../../components/ConfigPane
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { validatePath, validateReturnType } from "../../../../../../../utils/validator";
+import { isPathDuplicated, validatePath, validateReturnType } from "../../../../../../../utils/validator";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -128,6 +128,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
   const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
   const [togglePayload, setTogglePayload] = useState(false);
+  const [isDuplicatedPath, setIsDuplicatedPath] = useState(false);
+  const [isValidPath, setIsValidPath] = useState(false);
 
   useEffect(() => {
     const members = syntaxTree && syntaxTree.members;
@@ -458,12 +460,21 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (index > -1) {
       resources.splice(index, 1);
       setResources(resources);
+      setIsDuplicatedPath(isPathDuplicated(resources));
       advancedMenuState.path.delete(index);
       advancedMenuState.returnType.delete(index);
       advancedMenuState.payloadSelected.delete(index);
       setAdvancesMenuState(advancedMenuState);
       setToggleResourceDelete(!toggleResourceDelete);
     }
+  }
+
+  const validateResourcePath = (text: string) : boolean => {
+    const duplicatedPath = isPathDuplicated(resources);
+    const validPath = validatePath(text);
+    setIsDuplicatedPath(duplicatedPath);
+    setIsValidPath(validPath);
+    return !duplicatedPath && validPath;
   }
 
   const resourceConfigTitle = intl.formatMessage({
@@ -489,6 +500,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const pathErrorMessage = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.errorMessage",
     defaultMessage: "Please enter a valid path"
+  });
+
+  const pathDuplicateErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.duplicate.errorMessage",
+    defaultMessage: "Path already exists for the selected method"
   });
 
   const pathPlaceholder = intl.formatMessage({
@@ -696,9 +712,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
-                        validate: validatePath
+                        validate: validateResourcePath
                       }}
-                      errorMessage={pathErrorMessage}
+                      errorMessage={isDuplicatedPath ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}
                     />
                   </Section>
@@ -791,12 +807,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </Grid>
               </Grid>
             </Section>
-            {resources.length > 1 && (
-                <div className={classes.deleteBtnWrapper} onClick={() => onDeleteResource(index)}>
-                  <DeleteButton/>
-                  <p className={classes.deleteButtonTitle}>{deleteResourceTitle}</p>
-                </div>
-            )}
+            <div className={resources.length > 1 ? classes.deleteBtnWrapper : ""} onClick={() => onDeleteResource(index)}>
+              {resources.length > 1 && (
+                  <>
+                    <DeleteButton/>
+                    <p className={classes.deleteButtonTitle}>{deleteResourceTitle}</p>
+                  </>
+              )}
+            </div>
           </div>
         ))}
 

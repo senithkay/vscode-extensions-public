@@ -1,4 +1,5 @@
 import { FormField } from "../ConfigurationSpec/types";
+import { Resource } from "../Diagram/components/Portals/Overlay/Elements/DropDown/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,
     returnTypes
@@ -120,6 +121,21 @@ export function validatePath(text: string) {
     } else {
         return true;
     }
+}
+
+export function isPathDuplicated (resources: Resource[]) : boolean {
+    const resourceSignatures: string[] = [];
+    let isDuplicated = false;
+    resources.forEach((res: any) => {
+        // Validate method signature
+        const signature: string = `${res.method}_${res.path}`;
+        if (resourceSignatures.includes(signature)) {
+            isDuplicated = true;
+        } else {
+            resourceSignatures.push(signature);
+        }
+    });
+    return isDuplicated;
 }
 
 export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
