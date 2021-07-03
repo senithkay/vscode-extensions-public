@@ -292,6 +292,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "16px"
         },
         deleteBtnWrapper: {
+            cursor: "pointer",
             marginBottom: 10,
             display: "flex",
             alignItems: "center"
