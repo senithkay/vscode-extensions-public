@@ -28,6 +28,8 @@ import {
     WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
+import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
@@ -220,7 +222,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 
-        // Update First Controll Flow line
+        // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -246,7 +248,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
-        // Update First Controll Flow line
+        // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -272,7 +274,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
-        // Update First Controll Flow line
+        // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState);
     }
 
@@ -310,6 +312,7 @@ class PositioningVisitor implements Visitor {
                     height += draft.bBox.h;
                 }
             }
+
             // Add control flow line above each statement
             if (statement?.controlFlow?.isReached) {
                 const controlFlowLineState: ControlFlowLineState = {
@@ -494,12 +497,9 @@ class PositioningVisitor implements Visitor {
             } else {
                 //  Adding last control flow line after last statement for else block
                 if (!STKindChecker.isReturnStatement(lastStatement)) {
-                    let endLineY;
-                    if (STKindChecker.isIfElseStatement(lastStatement)) {
-                        endLineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h;
-                    } else {
-                        endLineY = lastStatement.viewState.bBox.cy;
-                    }
+                    const endLineY = STKindChecker.isIfElseStatement(lastStatement)
+                        ? lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h
+                        : lastStatement.viewState.bBox.cy;
                     const lastLine: ControlFlowLineState = {
                         x: lastStatement.viewState.bBox.cx,
                         y: endLineY,
@@ -652,7 +652,7 @@ class PositioningVisitor implements Visitor {
             }
             bodyViewState.controlFlowLineStates.push(lastLine);
         }
-        if (node.elseBody && node.elseBody?.controlFlow?.isReached) {
+        if (node.elseBody && node.elseBody.elseBody.controlFlow?.isReached) {
             if (node.elseBody?.elseBody && node.elseBody.elseBody.kind === "IfElseStatement") {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState;
@@ -669,6 +669,17 @@ class PositioningVisitor implements Visitor {
                 bodyViewState.controlFlowLineStates.push(topLine);
                 bodyViewState.controlFlowLineStates.push(bottomLine);
             }
+        }
+        // Add body control flow line for empty else conditions
+        if (!node.elseBody && node.controlFlow?.isReached && !node.ifBody.controlFlow?.isReached) {
+            // Handling empty else bodies of which if body had not been reached but the overall statement was
+            const defaultElseVS = (node?.viewState as IfViewState)?.defaultElseVS;
+            const defaultBodyControlFlowLine = {
+                x: defaultElseVS.bBox.cx,
+                y: node.ifBody.viewState.bBox.cy + TOP_CURVE_SVG_HEIGHT,
+                h: node.ifBody.viewState.bBox.h - (TOP_CURVE_SVG_HEIGHT + BOTTOM_CURVE_SVG_WIDTH),
+            };
+            defaultElseVS?.controlFlowLineStates.push(defaultBodyControlFlowLine);
         }
     }
 

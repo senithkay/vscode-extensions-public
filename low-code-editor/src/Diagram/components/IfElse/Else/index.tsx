@@ -106,36 +106,35 @@ export function Else(props: ElseProps) {
         />
     );
 
-    if (elseBlock) {
-        if (viewState.controlFlowLineStates.length > 0 && !viewState.isEndComponentAvailable) {
-            const h = viewState.elseBottomHorizontalLine.y - viewState.controlFlowLineStates[viewState.controlFlowLineStates.length - 1].y - viewState.controlFlowLineStates[viewState.controlFlowLineStates.length - 1].h;
-            children.push(
+    if (viewState.controlFlowLineStates.length > 0) {
+        controlFlowLines.push(
+            <ControlFlowElseStart
+                x={viewState.elseTopHorizontalLine.x}
+                y={viewState.elseTopHorizontalLine.y}
+                h={viewState.controlFlowLineStates[0].y - viewState.elseTopHorizontalLine.y}
+                w={viewState.elseTopHorizontalLine.length}
+            />
+        );
+        (viewState.controlFlowLineStates as ControlFlowLineState[]).forEach((controlFlowLine, i) => {
+            controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
+        });
+        if (!viewState.isEndComponentAvailable) {
+            const lastControlFlowLine = viewState.controlFlowLineStates[viewState.controlFlowLineStates.length - 1];
+            controlFlowLines.push(
                 <ControlFlowElseEnd
                     x={viewState.elseBottomHorizontalLine.x}
                     y={viewState.elseBottomHorizontalLine.y}
-                    h={h}
+                    h={viewState.elseBottomHorizontalLine.y - (lastControlFlowLine.y + lastControlFlowLine.h)}
                     w={viewState.elseBottomHorizontalLine.length}
                 />
             );
         }
-        if (viewState.controlFlowLineStates.length > 0) {
-            const h = viewState.controlFlowLineStates[0].y - viewState.elseTopHorizontalLine.y;
-            controlFlowLines.push(
-                <ControlFlowElseStart
-                    x={viewState.elseTopHorizontalLine.x}
-                    y={viewState.elseTopHorizontalLine.y}
-                    h={h}
-                    w={viewState.elseTopHorizontalLine.length}
-                />
-            );
-        }
+    }
+
+    if (elseBlock) {
         for (const plusView of viewState.plusButtons) {
             pluses.push(<PlusButton viewState={plusView} model={elseBlock} initPlus={false} />)
         }
-
-        (viewState.controlFlowLineStates as ControlFlowLineState[]).forEach((controlFlowLine, i) => {
-            controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
-        });
     }
 
     if (viewState.collapseView) {
