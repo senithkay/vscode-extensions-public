@@ -53,6 +53,7 @@ import {
 } from "./ForeachSVG";
 import "./style.scss";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "./ThreeDotsSVG";
+import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface ForeachProps {
     blockViewState?: BlockViewState;
@@ -72,6 +73,7 @@ export function ForEach(props: ForeachProps) {
     const pluses: React.ReactNode[] = [];
     const modelForeach: ForeachStatement = model as ForeachStatement;
     const children = getSTComponents(modelForeach.blockStatement.statements);
+    const controlFlowLines: React.ReactNode[] = [];
 
     const viewState: ForEachViewState = modelForeach.viewState;
     const bodyViewState: BlockViewState = modelForeach.blockStatement.viewState;
@@ -202,6 +204,10 @@ export function ForEach(props: ForeachProps) {
         setCodeToHighlight(model?.position)
     }
 
+    for (const controlFlowLine of bodyViewState.controlFlowLineStates) {
+        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
+    }
+
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
     const forEachModel = model as ForeachStatement
     const variableName = ((forEachModel.typedBindingPattern) as TypedBindingPattern)?.bindingPattern?.source?.trim();
@@ -277,6 +283,7 @@ export function ForEach(props: ForeachProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
+            {controlFlowLines}
             {pluses}
             {children}
             {drafts}
