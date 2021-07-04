@@ -52,6 +52,7 @@ import { PlusButton } from "../Plus";
 
 import "./style.scss";
 import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
+import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface WhileProps {
     blockViewState?: BlockViewState;
@@ -71,6 +72,7 @@ export function While(props: WhileProps) {
     const modelWhile: WhileStatement = model as WhileStatement;
     const conditionExpr: BracedExpression = modelWhile.condition as BracedExpression;
     const children = getSTComponents(modelWhile.whileBody.statements);
+    const controlFlowLines: React.ReactNode[] = [];
 
     const viewState: WhileViewState = modelWhile.viewState;
     const bodyViewState: BlockViewState = modelWhile.whileBody.viewState;
@@ -186,6 +188,10 @@ export function While(props: WhileProps) {
     let assignmentText: any = (!drafts && STKindChecker?.isWhileStatement(model));
     assignmentText = (model as WhileStatement)?.condition.source;
 
+    for (const controlFlowLine of bodyViewState.controlFlowLineStates) {
+        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
+    }
+
     const unFoldedComponent = (
         <g className="while-block" data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
@@ -253,6 +259,7 @@ export function While(props: WhileProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
+            {controlFlowLines}
             {pluses}
             {children}
             {drafts}
