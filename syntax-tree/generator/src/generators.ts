@@ -28,6 +28,7 @@ export function genInterfacesFileCode(modelInfo: any) {
 
         export interface ControlFlow {
             isReached?: boolean;
+            isCompleted?: boolean;
             numberOfIterations?: number;
         }
 

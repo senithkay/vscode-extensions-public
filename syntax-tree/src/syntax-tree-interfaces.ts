@@ -23,6 +23,7 @@ export interface NodePosition {
 
 export interface ControlFlow {
   isReached?: boolean;
+  isCompleted?: boolean;
   numberOfIterations?: number;
 }
 
