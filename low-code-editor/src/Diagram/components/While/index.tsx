@@ -32,6 +32,7 @@ import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
+import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -52,7 +53,6 @@ import { PlusButton } from "../Plus";
 
 import "./style.scss";
 import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
-import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface WhileProps {
     blockViewState?: BlockViewState;

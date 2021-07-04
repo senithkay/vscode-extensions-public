@@ -48,6 +48,7 @@ import {
     IfViewState,
     OnErrorViewState,
     PlusViewState,
+    SimpleBBox,
     StatementViewState,
     ViewState,
     WhileViewState
@@ -567,6 +568,22 @@ class PositioningVisitor implements Visitor {
 
         viewState.whileBodyRect.cx = viewState.whileHead.cx;
         viewState.whileBodyRect.cy = viewState.whileHead.cy;
+    }
+
+    public endVisitForeachStatement(node: ForeachStatement) {
+        this.updateLoopEdgeControlFlow(node.viewState.foreachBody, node.viewState.foreachLifeLine);
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        this.updateLoopEdgeControlFlow(node.viewState.whileBody, node.viewState.whileLifeLine);
+    }
+
+    public updateLoopEdgeControlFlow(bodyViewState: BlockViewState, lifeLine: SimpleBBox) {
+        const controlFlowLines = bodyViewState.controlFlowLineStates;
+        if (controlFlowLines.length > 0) { // The list may contain 0 CF lines
+            const endLine = controlFlowLines[controlFlowLines.length - 1];
+            endLine.h = lifeLine.cy + lifeLine.h - endLine.y
+        }
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {

@@ -26,6 +26,7 @@ import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
+import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -53,7 +54,6 @@ import {
 } from "./ForeachSVG";
 import "./style.scss";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "./ThreeDotsSVG";
-import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface ForeachProps {
     blockViewState?: BlockViewState;
