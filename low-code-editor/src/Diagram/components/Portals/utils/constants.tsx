@@ -64,7 +64,12 @@ export const tooltipMessages: Record<string, any> = {
     IMAP: {
         host: "Host address from your IMAP client configurations",
         username: "Username from your IMAP client configurations",
-        password: "Password from your IMAP client configurations",
+        password: "Password from your IMAP client configurations. \
+        You need to set up an app password for your email account before using this connector. \
+        Click the link below to set up an app password for a Gmail Account. \
+        For other vendor accounts, see the vendor-specific documentation.",
+        passwordLink: "https://support.google.com/mail/answer/185833?hl=en-GB",
+        passwordText: "Click here"
     },
     POP3: {
         host: "Host address from your POP3 client configurations",
