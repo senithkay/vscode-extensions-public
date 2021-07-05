@@ -143,6 +143,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     // TODO:In the first phase of supporting manual connection saving functionality , only the following connectors are supported.
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
+    const [activeConnectionId, setActiveConnectionId] = useState("");
     const updateConfigSuccessMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
         defaultMessage: "Successfully updated the connection configuration."
@@ -180,6 +181,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     if (activeConnection) {
                         setConnection(activeConnection);
                         setActiveConnectionHandler(activeConnection.handle);
+                        setActiveConnectionId(activeConnection.id);
                         if (activeConnection.type === MANUAL_TYPE) {
                             setIsManualConnection(true);
                             setFormState(FormStates.CreateNewConnection);
@@ -464,9 +466,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   });
                               }
                           });
-                          if (updatedFields.length > 0 && config.connectionName) {
+                          if (updatedFields.length > 0 || config.connectionName) {
                               onClose();
-                              response = await updateManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                              response = await updateManualConnection(activeConnectionId, userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response.data, selectedType);

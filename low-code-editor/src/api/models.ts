@@ -297,6 +297,7 @@ export interface ConnectionDetails {
     userAccountIdentifier: string;
     codeVariableKeys: ConnectionMetadata[];
     type?: string;
+    id?: string;
 }
 export interface ConnectionMetadata {
     name: string;

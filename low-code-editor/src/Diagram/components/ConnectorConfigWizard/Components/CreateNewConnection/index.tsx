@@ -77,9 +77,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [connectionNameError, setConnectionNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
+    const [isFieldsUpdated, setIsFieldsUpdated] = useState(false);
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
+        setIsFieldsUpdated(true);
     };
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
@@ -128,6 +130,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isNameProvided: text !== '',
             isValidName: validateConnectionNameValue(text)
         });
+        connectorConfig.connectionName !== text ? setIsFieldsUpdated(true) : setIsFieldsUpdated(false);
     };
 
     const onNameChange = (text: string) => {
@@ -137,13 +140,14 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isValidName: validateNameValue(text)
         });
         onConfigNameChange(text);
+        connectorConfig.name !== text ? setIsFieldsUpdated(true) : setIsFieldsUpdated(false);
     };
 
     const handleOnSave = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
-        connectorConfig.connectionName = connectionNameState.value;
+        isFieldsUpdated ? connectorConfig.connectionName = connectionNameState.value : connectorConfig.connectionName = undefined;
         state.onAPIClient(connector);
         onSave();
     };
@@ -233,7 +237,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     onChange={onConnectionNameChange}
                     errorMessage={connectionNameError}
                     placeholder={createConnectionPlaceholder}
-                    disabled={!isNewConnectorInitWizard}
                 />
             </Section>
         </div>
@@ -243,7 +246,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
         connectorModuleName === "googleapis.calendar";
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
-    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
+    const isFieldsWithConnectionNameValid =  isFieldsUpdated ? true : isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
 
     return (
