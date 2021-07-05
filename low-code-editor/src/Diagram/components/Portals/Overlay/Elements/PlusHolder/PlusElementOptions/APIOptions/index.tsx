@@ -345,7 +345,7 @@ export function APIOptions(props: APIOptionsProps) {
         covid19Api: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.title",
-                defaultMessage: "Connect with Covid 19 Open API to get the latest status."
+                defaultMessage: "Connect with COVID-19 API to get the latest statistics."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
@@ -403,7 +403,7 @@ export function APIOptions(props: APIOptionsProps) {
         "AWS SQS": connectionsTooltipMessages.AWSSQS.title,
         "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.title,
         "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.title,
-        "COVID 19 API": connectionsTooltipMessages.covid19Api.title,
+        "COVID-19 API": connectionsTooltipMessages.covid19Api.title,
         "WEATHER API": connectionsTooltipMessages.weatherApi.title,
         "WORLD BANK API": connectionsTooltipMessages.worldBankApi.title,
     };
@@ -435,7 +435,7 @@ export function APIOptions(props: APIOptionsProps) {
         "AWS SQS": connectionsTooltipMessages.AWSSQS.content,
         "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.content,
         "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.content,
-        "COVID 19 API": connectionsTooltipMessages.covid19Api.content,
+        "COVID-19 API": connectionsTooltipMessages.covid19Api.content,
         "WEATHER API": connectionsTooltipMessages.weatherApi.content,
         "WORLD BANK API": connectionsTooltipMessages.worldBankApi.content,
     };
@@ -466,7 +466,7 @@ export function APIOptions(props: APIOptionsProps) {
         "AWS SQS": connectionsTooltipMessages.AWSSQS.placement,
         "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.placement,
         "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.placement,
-        "COVID 19 API": connectionsTooltipMessages.covid19Api.placement,
+        "COVID-19 API": connectionsTooltipMessages.covid19Api.placement,
         "WEATHER API": connectionsTooltipMessages.weatherApi.placement,
         "WORLD BANK API": connectionsTooltipMessages.worldBankApi.placement,
     };
