@@ -448,7 +448,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   };
 
   const handleAddResource = () => {
-    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
+    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true };
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
     advancedMenuState.returnType.set(resources.length, false);
