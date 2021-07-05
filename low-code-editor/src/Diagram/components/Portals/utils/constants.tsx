@@ -53,18 +53,18 @@ export const tooltipMessages: Record<string, any> = {
         content: "/users/[string name]"
     },
     SMTP: {
-        host: "Host address from your SMTP client configurations",
-        username: "Username from your SMTP client configurations",
-        password: "Password from your SMTP client configurations",
-        from: "Email address of the sender",
-        to: "Email address of the receiver(s)",
-        subject: "Subject of the email",
-        body: "Body of the email"
+        host: "The host address from your SMTP client configurations",
+        username: "The username from your SMTP client configurations",
+        password: "The password from your SMTP client configurations",
+        from: "The email address of the sender",
+        to: "The email address of the receiver(s)",
+        subject: "The subject of the email",
+        body: "The body of the email"
     },
     IMAP: {
-        host: "Host address from your IMAP client configurations",
-        username: "Username from your IMAP client configurations",
-        password: "Password from your IMAP client configurations. \
+        host: "The host address from your IMAP client configurations",
+        username: "The username from your IMAP client configurations",
+        password: "The password from your IMAP client configurations. \
         You need to set up an app password for your email account before using this connector. \
         Click the link below to set up an app password for a Gmail Account. \
         For other vendor accounts, see the vendor-specific documentation.",
@@ -72,19 +72,19 @@ export const tooltipMessages: Record<string, any> = {
         passwordText: "Click here"
     },
     POP3: {
-        host: "Host address from your POP3 client configurations",
-        username: "Username from your POP3 client configurations",
-        password: "Password from your POP3 client configurations",
+        host: "The host address from your POP3 client configurations",
+        username: "The username from your POP3 client configurations",
+        password: "The password from your POP3 client configurations",
     },
     connectorButtons: {
         savaButton: "Save connector initialization",
         savaNextButton: "Configure connector invocation"
     },
     salesforce: {
-        clientID: "Client ID of the connected app",
-        clientSecret: "Client secret of the connected app",
-        refreshToken: "Refresh token of the connected app",
-        refreshTokenURL: "Refresh token URL of the connected app"
+        clientID: "The client ID of the connected app",
+        clientSecret: "The client secret of the connected app",
+        refreshToken: "The refresh token of the connected app",
+        refreshTokenURL: "The refresh token URL of the connected app"
     }
 }
 
