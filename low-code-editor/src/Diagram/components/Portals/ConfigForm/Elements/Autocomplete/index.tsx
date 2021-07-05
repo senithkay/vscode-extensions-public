@@ -54,8 +54,14 @@ export function FormAutocomplete(props: AutocompleteProps) {
         <div
             onWheel={preventDiagramScrolling}
         >
-            <FormHelperText className={classes.titleLabel}>{label}</FormHelperText>
-            <FormHelperText className={classes.titleLabelRequired}>*</FormHelperText>
+            {label ?
+                (
+                    <>
+                        <FormHelperText className={classes.titleLabel}>{label}</FormHelperText>
+                        <FormHelperText className={classes.titleLabelRequired}>*</FormHelperText>
+                    </>
+                ) : null
+            }
 
             <Autocomplete
                 data-testid={dataTestId}

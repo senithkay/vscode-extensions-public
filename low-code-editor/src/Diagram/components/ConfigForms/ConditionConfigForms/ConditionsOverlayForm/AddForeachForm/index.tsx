@@ -214,7 +214,6 @@ export function AddForeachForm(props: ForeachProps) {
                             <FormTextInput
                                 customProps={{
                                     validate: validateNameValue,
-                                    tooltipTitle: forEachTooltipMessages.currentValueVariable.title
                                 }}
                                 onChange={onVariableNameChange}
                                 defaultValue={conditionExpression.variable}

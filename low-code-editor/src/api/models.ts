@@ -270,8 +270,8 @@ export interface AiSuggestionsRes {
 
 export interface AiSuggestionsReq {
     userID: string,
-    mapTo: [{ [key: string]: any }],
-    mapFrom: [{ [key: string]: any }]
+    mapTo: [{[key: string]: any}],
+    mapFrom: [{[key: string]: any}]
 }
 
 // data object that used to create org connection
@@ -291,6 +291,7 @@ export type CONNECTION_TYPE = typeof CONNECTION_TYPE_MANUAL | typeof CONNECTION_
 
 // connection api response
 export interface ConnectionDetails {
+    id?: string;
     handle: string;
     displayName: string;
     connectorName: string;
@@ -298,6 +299,7 @@ export interface ConnectionDetails {
     codeVariableKeys: ConnectionMetadata[];
     type?: string;
     id?: string;
+    isUsed?: boolean;
 }
 export interface ConnectionMetadata {
     name: string;
@@ -356,7 +358,7 @@ export interface APIManagerAPIObj {
     thumbnail?: APIThumbnail,
 }
 
-export interface AdditionalProperties {
+export interface AdditionalProperties{
     application: string,
     applicationId: string,
     organization: string,
@@ -512,13 +514,13 @@ export interface DesignConfigView {
 
 export interface ConnectorRequest {
     organization: string,
-    connectionHandle: string,
-    connectorName: string,
+	   connectionHandle: string,
+	   connectorName: string,
     operationName: string,
     arguments: {}
 }
-export interface GithubRepoRequest extends ConnectorRequest {
-    arguments: {
+export interface GithubRepoRequest extends ConnectorRequest{
+	arguments: {
         user: string;
         recordCount: number;
     }
@@ -537,10 +539,4 @@ export interface ModelCodePosition {
     endLine: number;
     startColumn: number;
     startLine: number;
-}
-export interface DraftUpdateStatement {
-    startLine: number;
-    endLine: number;
-    startColumn: number;
-    endColumn: number;
 }

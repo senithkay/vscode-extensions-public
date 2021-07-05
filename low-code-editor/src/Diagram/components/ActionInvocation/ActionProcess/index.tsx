@@ -51,6 +51,7 @@ export function ActionProcessor(props: ProcessorProps) {
         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
         maximize: maximizeCodeView,
         setCodeLocationToHighlight: setCodeToHighlight,
+        handleRightPanelContent,
         currentApp,
         isCodeEditorActive,
         connectors
@@ -162,6 +163,7 @@ export function ActionProcessor(props: ProcessorProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
