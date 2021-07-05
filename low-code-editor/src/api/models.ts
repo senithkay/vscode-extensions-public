@@ -291,12 +291,14 @@ export type CONNECTION_TYPE = typeof CONNECTION_TYPE_MANUAL | typeof CONNECTION_
 
 // connection api response
 export interface ConnectionDetails {
+    id?: string;
     handle: string;
     displayName: string;
     connectorName: string;
     userAccountIdentifier: string;
     codeVariableKeys: ConnectionMetadata[];
     type?: string;
+    isUsed?: boolean;
 }
 export interface ConnectionMetadata {
     name: string;
@@ -348,7 +350,7 @@ export interface APIManagerAPIObj {
     transport?: string[],
     securityScheme?: string[],
     corsConfiguration?: CorsConfiguration,
-    additionalPropertiesMap?: AdditionalProperties,
+    additionalProperties?: AdditionalProperties,
     version?: string,
     lifeCycleStatus?: ApiState,
     status?: ApiState,
