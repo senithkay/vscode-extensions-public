@@ -69,7 +69,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    <p className={classes.subTitle}>Operation</p>
+                    <p className={classes.subTitle}>Operation<span className={classes.titleLabelRequired}>*</span></p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
                         itemList={sortedOperations()}
