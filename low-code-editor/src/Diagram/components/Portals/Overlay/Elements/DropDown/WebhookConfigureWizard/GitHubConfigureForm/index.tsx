@@ -26,6 +26,7 @@ import { ConnectionDetails } from "../../../../../../../../api/models";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { GithubRepo, STModification } from "../../../../../../../../Definitions";
+import { AccountAvatar } from "../../../../../../../../Diagram/components/OauthConnectButton/AccountAvatar";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import { DiagramContext } from "../../../../../../../../providers/contexts";
 import {
@@ -473,6 +474,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             <div className={classes.activeConnectionWrapper}>
                 <div className={classes.activeConnectionWrapperChild1}>
                     <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <AccountAvatar connection={activeConnection}/>
                         <Typography variant="subtitle2">
                             <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
                         </Typography>

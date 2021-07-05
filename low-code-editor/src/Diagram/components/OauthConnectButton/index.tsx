@@ -28,6 +28,7 @@ import { ConnectorConfig, FormField } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import {STSymbolInfo} from "../../../Definitions";
 
+import { AccountAvatar } from "./AccountAvatar";
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
@@ -203,6 +204,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
         <div className={classes.activeConnectionWrapper}>
           <div className={classes.activeConnectionWrapperChild1}>
             <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+              <AccountAvatar connection={activeConnection}/>
               <Typography variant="subtitle2">
                 <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
               </Typography>
