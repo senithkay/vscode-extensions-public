@@ -350,7 +350,7 @@ export interface APIManagerAPIObj {
     transport?: string[],
     securityScheme?: string[],
     corsConfiguration?: CorsConfiguration,
-    additionalPropertiesMap?: AdditionalProperties,
+    additionalProperties?: AdditionalProperties,
     version?: string,
     lifeCycleStatus?: ApiState,
     status?: ApiState,
