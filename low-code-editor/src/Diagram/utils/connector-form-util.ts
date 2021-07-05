@@ -328,8 +328,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     }
                     if (value.parameters[2].name === "password"){
                         value.parameters[2].tooltip = tooltipMessages.IMAP.password
-                        value.parameters[2].passwordTooltipLink = tooltipMessages.IMAP.passwordLink
-                        value.parameters[2].passwordTooltipText = tooltipMessages.IMAP.passwordText
+                        value.parameters[2].tooltipActionLink = tooltipMessages.IMAP.passwordLink
+                        value.parameters[2].tooltipActionText = tooltipMessages.IMAP.passwordText
                     }
                 }
                 filteredFunctions.set(key, value);

@@ -88,8 +88,8 @@ export interface FormField {
     noCodeGen?: boolean;
     requestName?: string; // only for http form used when there's a request object in the request
     tooltip?: string;
-    passwordTooltipLink?: string;
-    passwordTooltipText?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
     isErrorType?: boolean;
     isDefaultableParam?: boolean;
     isRestParam?: boolean;
