@@ -710,7 +710,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   >
                     <FormTextInput
                       dataTestId="api-path"
-                      defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                      defaultValue={(resProps.path === ".") ? "" : resProps.path}
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
                         validate: validateResourcePath
