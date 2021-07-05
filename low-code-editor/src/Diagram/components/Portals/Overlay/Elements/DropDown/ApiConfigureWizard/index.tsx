@@ -214,21 +214,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const updatedResources = resources;
     updatedResources[index].method = methodType.toLowerCase();
     setResources(updatedResources);
-    if (methodType === 'PUT' || methodType === 'POST' || methodType === 'DELETE' || methodType === 'PATCH') {
-      setTogglePayload(!togglePayload);
-      advancedMenuState.payloadSelected.set(index, true);
-      setAdvancesMenuState(advancedMenuState);
-      const segment: Payload = {
-        name: "payload",
-        type: "json"
-      };
-      updatedResources[index].payload = getBallerinaPayloadType(segment);
-      setResources(updatedResources);
-    } else {
-      setTogglePayload(!togglePayload);
-      advancedMenuState.payloadSelected.set(index, false);
-      setAdvancesMenuState(advancedMenuState);
-    }
   }
 
   function handleOnChangePath(text: string, index: number) {
