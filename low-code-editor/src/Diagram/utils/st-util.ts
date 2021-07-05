@@ -10,7 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { Warning } from 'components/DiagramEditor/utils/diagram';
 import { getPathOfResources } from 'components/DiagramSelector/utils';
 import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
@@ -225,6 +226,28 @@ export function getDiagnosticsFromVisitor(st: ModulePart): Diagnostic[] {
     traversNode(st, DiagnosticVisitor);
     const allDiagnostics = getAllDiagnostics();
     return allDiagnostics;
+}
+
+
+export function checkEmptyBasePath (modulePart: ModulePart): Warning[] {
+    const members: STNode[] = modulePart.members;
+    const warnings : Warning[] =  [];
+    for (const member of members) {
+        const node : STNode = member;
+        if (STKindChecker.isServiceDeclaration(node)) {
+            const serviceDef : ServiceDeclaration = node as ServiceDeclaration;
+            if (serviceDef.absoluteResourcePath && serviceDef.absoluteResourcePath.length === 0) {
+                warnings.push({message: "Observability not supported for services with empty basepaths", type: "Empty Base Path", position: serviceDef.position });
+            }
+        }
+    }
+    return warnings;
+}
+
+
+export function getWarningsFromST (modulePart: ModulePart): Warning[] {
+    const servicesWithEmptyBasePaths = checkEmptyBasePath(modulePart);
+    return servicesWithEmptyBasePaths;
 }
 
 export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>) {
