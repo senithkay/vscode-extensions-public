@@ -58,48 +58,25 @@ export const ConnectionList = (props: ConnectionListProps) => {
     };
 
     const filteredList = activeConnection ? connectionList?.filter(item => item.handle !== activeConnection.handle) : connectionList;
-    const ssoFilteredList = isTriggerConnector ? filteredList?.filter(item => item.type === SSO_TYPE) : connectionList?.filter(item => item.type === SSO_TYPE);
     let connectionListElements;
 
-    // render only sso connections in trigger config flow
-    if (isTriggerConnector) {
-        connectionListElements = ssoFilteredList.map((item) => (
-            // tslint:disable-next-line:jsx-key
-            <div key={item.handle}>
-                <Box border={1} borderRadius={5} className={classes.radioBox}>
-                    <FormControlLabel
-                        value={item.handle}
-                        control={<Radio className={classes.radio}/>}
-                        label={<div>
-                            <p className={classes.radioBtnSubtitle}>
-                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
-                            </p>
-                        </div>}
-                    />
-                </Box>
-                <Divider className={classes.divider} />
-            </div>
-        ));
-    } else {
-        connectionListElements = filteredList.map((item) => (
-            // tslint:disable-next-line:jsx-key
-            <div key={item.handle}>
-                <Box border={1} borderRadius={5} className={classes.radioBox}>
-                    <FormControlLabel
-                        value={item.handle}
-                        control={<Radio className={classes.radio}/>}
-                        label={<div>
-                            <p className={classes.radioBtnSubtitle}>
-                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
-                            </p>
-                        </div>}
-                    />
-                </Box>
-                <Divider className={classes.divider} />
-            </div>
-        ));
-    }
-
+    connectionListElements = filteredList.map((item) => (
+        // tslint:disable-next-line:jsx-key
+        <div key={item.handle}>
+            <Box border={1} borderRadius={5} className={classes.radioBox}>
+                <FormControlLabel
+                    value={item.handle}
+                    control={<Radio className={classes.radio}/>}
+                    label={<div>
+                        <p className={classes.radioBtnSubtitle}>
+                            {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                        </p>
+                    </div>}
+                />
+            </Box>
+            <Divider className={classes.divider} />
+        </div>
+    ));
 
     const connectionListComponents: ReactNode[] = [];
     if (selectedConnection !== "") {

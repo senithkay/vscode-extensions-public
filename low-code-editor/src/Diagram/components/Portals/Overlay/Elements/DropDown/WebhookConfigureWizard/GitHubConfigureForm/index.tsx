@@ -20,8 +20,11 @@ import {
 } from "@ballerina/syntax-tree";
 import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import {triggerErrorNotification} from "store/actions";
+import {store} from "store/index";
 
 import { DiagramOverlayPosition } from "../../../..";
+import {updateManualConnection} from "../../../../../../../../../../../src/api/connector";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
@@ -38,6 +41,7 @@ import { createPropertyStatement, updatePropertyStatement } from "../../../../..
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
+import {FormTextInput} from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
@@ -80,6 +84,8 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const [isRepoListFetching, setIsRepoListFetching] = useState(false);
     const [githubRepoList, setGithubRepoList] = useState<GithubRepo[]>(undefined)
     const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
+    const [customClientSecretKey, setCustomClientSecretKey] = useState("");
+    const [isClientSecretKeySet, setIsClientSecretKeySet] = useState(false);
 
     // HACK: hardcoded event list until get it form connector API
     const githubEvents: ConnectorEvents = {
@@ -294,6 +300,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     };
 
     const Trigger = "GitHub";
+    const fetchGitHubRepositoriesErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.GitHubRepositoryFetch.error",
+        defaultMessage: "An error occurred while fetching GitHub repositories. Please check you GitHub configurations."
+    });
 
     useEffect(() => {
         if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -303,11 +313,19 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
+            const clientSecret = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
+            setIsClientSecretKeySet(!!clientSecret)
+            activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
             setIsRepoListFetching(true);
             (async () => {
                 const repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
-                setGithubRepoList(repoList);
-                setIsRepoListFetching(false);
+                if (repoList.data || repoList.response.status !== 500) {
+                    setGithubRepoList(repoList.data);
+                    setIsRepoListFetching(false);
+                } else {
+                    handleOnDeselectConnection();
+                    store.dispatch(triggerErrorNotification(fetchGitHubRepositoriesErrorMessage));
+                }
             })();
         }
     }, [activeConnection]);
@@ -352,11 +370,35 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             setShowConfirmDialog(true);
         }
     };
+
+    const handleCustomClientSecretOnChange = (value: string) => {
+        setCustomClientSecretKey(value);
+    };
+
     // handle github trigger creation
     const createGithubTrigger = () => {
+        let clientSecretKey;
+        const updatedFields: { name: string; value: string; }[] = [];
+        const lastSelectedOrg = JSON.parse(localStorage.getItem('PORTAL_STATE'))?.userInfo?.selectedOrgHandle;
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
-        const clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
-
+        if (activeConnection.type === "sso") {
+            clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+        } else {
+            clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
+            if (clientSecretKey) {
+                clientSecretKey = clientSecretKey.codeVariableKey;
+            } else {
+                (async () => {
+                    updatedFields.push({
+                        name: "clientSecret",
+                        value: customClientSecretKey
+                    })
+                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName, activeConnection.displayName,
+                        activeConnection.userAccountIdentifier, updatedFields, activeConnection.type, activeConnection.handle);
+                    clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+                })();
+            }
+        }
         setTriggerChanged(true);
         // dispatch and close the wizard
         modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
@@ -468,6 +510,11 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }
     }
 
+    const clientSecretPlaceholder = intl.formatMessage({
+        id: "lowcode.develop.GitHubConfigWizard.clientSecret.placeholder",
+        defaultMessage: "Client Secret"
+    });
+
     const activeConnectionLabel = () => (
         <>
             <div className={classes.activeConnectionWrapper}>
@@ -527,6 +574,19 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         value={activeGithubRepo}
                         getItemLabel={handleItemLabel}
                         onChange={handleGithubRepoChange}
+                    />
+                </div>
+            )}
+
+            { activeConnection && !isRepoListFetching && !isClientSecretKeySet && (
+                <div className={classes.customWrapper}>
+                    <FormTextInput
+                        label={clientSecretPlaceholder}
+                        onChange={handleCustomClientSecretOnChange}
+                        // customProps={ {
+                        //     optional: false,
+                        //     tooltipTitle: sheetConfigTooltips.sheetTrigger.sheetId
+                        // } }
                     />
                 </div>
             )}
