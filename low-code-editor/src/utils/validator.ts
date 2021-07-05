@@ -197,3 +197,17 @@ export function validateReturnType(text: string) {
         return allSegmentsValid;
     }
 }
+
+export function reCalculateDuplicatedResources(resources: Resource[]) {
+    const resourceSignatures: string[] = [];
+    resources.forEach((res: Resource) => {
+        // Validate method signature
+        const signature: string = `${res.method.toLowerCase()}_${res.path}`;
+        if (resourceSignatures.includes(signature)) {
+            res.isPathDuplicated = true;
+        } else {
+            res.isPathDuplicated = false;
+            resourceSignatures.push(signature);
+        }
+    });
+}

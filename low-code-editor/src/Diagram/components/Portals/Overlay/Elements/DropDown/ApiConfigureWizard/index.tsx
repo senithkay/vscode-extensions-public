@@ -27,7 +27,12 @@ import ConfigPanel, { Section } from "../../../../../../../components/ConfigPane
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { isPathDuplicated, validatePath, validateReturnType } from "../../../../../../../utils/validator";
+import {
+  isPathDuplicated,
+  reCalculateDuplicatedResources,
+  validatePath,
+  validateReturnType
+} from "../../../../../../../utils/validator";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -128,8 +133,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
   const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
   const [togglePayload, setTogglePayload] = useState(false);
-  const [isDuplicatedPath, setIsDuplicatedPath] = useState(false);
   const [isValidPath, setIsValidPath] = useState(false);
+  const [validateToggle, setValidateToggle] = useState(false);
 
   useEffect(() => {
     const members = syntaxTree && syntaxTree.members;
@@ -213,11 +218,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // Update selected method
     const updatedResources = resources;
     updatedResources[index].method = methodType.toLowerCase();
+    updatedResources[index].isPathDuplicated = isPathDuplicated(updatedResources);
     setResources(updatedResources);
-    setIsDuplicatedPath(isPathDuplicated(updatedResources));
   }
 
   function handleOnChangePath(text: string, index: number) {
+    const resClone = resources;
+    resClone[index].path = text;
+    resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    setResources(resClone);
+    setValidateToggle(!validateToggle);
     setCurrentPath(text);
     if (text === 'hello') {
       // todo: handle dispatch
@@ -231,7 +241,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     updatedResources[index].path = formattedPath.path;
     updatedResources[index].queryParams = formattedPath.queryParams;
     setResources(updatedResources);
-    setIsDuplicatedPath(isPathDuplicated(updatedResources));
   }
 
   function handleOnChangeReturnType(text: string, index: number) {
@@ -242,6 +251,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   function handleOnChangePathFromUI(text: string, index: number) {
+    const resClone = resources;
+    resClone[index].path = text;
+    resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    setResources(resClone);
+    setValidateToggle(!validateToggle);
+    setResources(resClone);
     setCurrentPath(text);
     if (text === 'hello') {
       // todo: handle dispatch
@@ -435,7 +450,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   };
 
   const handleAddResource = () => {
+    isPathDuplicated(resources);
     const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true };
+    defaultConfig.isPathDuplicated = isPathDuplicated([...resources, defaultConfig]);
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
     advancedMenuState.returnType.set(resources.length, false);
@@ -448,7 +465,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const resourceClone = resources;
       resourceClone.splice(index, 1);
       setResources(resourceClone);
-      setIsDuplicatedPath(isPathDuplicated(resourceClone));
       advancedMenuState.path.delete(index);
       advancedMenuState.returnType.delete(index);
       advancedMenuState.payloadSelected.delete(index);
@@ -458,11 +474,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const validateResourcePath = (text: string) : boolean => {
-    const duplicatedPath = isPathDuplicated(resources);
+    // const duplicatedPath = isPathDuplicated(resources);
     const validPath = validatePath(text);
-    setIsDuplicatedPath(duplicatedPath);
     setIsValidPath(validPath);
-    return !duplicatedPath && validPath;
+    return validPath;
   }
 
   const resourceConfigTitle = intl.formatMessage({
@@ -648,6 +663,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     </div>
   );
 
+  reCalculateDuplicatedResources(resources);
+
   return (
     <DiagramOverlay
       className={cn(classes.container)}
@@ -701,9 +718,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
                         validate: validateResourcePath,
-                        isErrored: isDuplicatedPath
+                        isErrored: resProps.isPathDuplicated
                       }}
-                      errorMessage={isDuplicatedPath ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
+                      errorMessage={resProps.isPathDuplicated ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}
                     />
                   </Section>

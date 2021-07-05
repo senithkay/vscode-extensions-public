@@ -53,18 +53,27 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
     // to render invalid variable
     const [isInvalid, setIsInvalid] = useState(customProps?.isErrored);
 
-    useEffect(() => {
-        setIsInvalid(customProps?.isErrored);
-    }, [customProps?.isErrored])
+    const [errorMsg, setErrorMsg] = useState(errorMessage);
 
     useEffect(() => {
-        const checkValidity: boolean = (customProps?.validate !== undefined && ((customProps &&
-            customProps?.disableValidation !== undefined && !customProps?.disableValidation) ||
-            (customProps && customProps?.disableValidation === undefined)))
-            ? customProps?.validate(defaultValue)
-            : true;
+        setErrorMsg(errorMessage);
+    }, [errorMessage]);
+
+    useEffect(() => {
+        setIsInvalid(customProps?.isErrored);
+    }, [customProps?.isErrored]);
+
+    useEffect(() => {
+        let checkValidity: boolean = false;
+        if (!customProps?.isErrored) {
+            checkValidity = (customProps?.validate !== undefined && ((customProps &&
+                customProps?.disableValidation !== undefined && !customProps?.disableValidation) ||
+                (customProps && customProps?.disableValidation === undefined)))
+                ? customProps?.validate(defaultValue)
+                : true;
+        }
         setIsInvalid(!checkValidity);
-    }, [defaultValue])
+    }, [defaultValue, customProps?.isErrored])
 
     const handleOnChange = (event: any) => {
         event.stopPropagation();
@@ -133,7 +142,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 InputLabelProps={{ shrink: true }}
                 onChange={handleOnChange}
                 value={inputValue}
-                helperText={isInvalid ? errorMessage : ""}
+                helperText={isInvalid ? errorMsg : ""}
                 autoFocus={customProps?.focused}
                 disabled={disabled}
                 type={customProps?.secret ? "password" : "text"}

@@ -48,6 +48,7 @@ export interface Resource {
     isCaller?: boolean;
     isRequest?: boolean;
     returnType?: string;
+    isPathDuplicated?: boolean;
     returnTypeDefaultValue?: string;
 }
 
