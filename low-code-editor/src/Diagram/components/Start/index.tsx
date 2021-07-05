@@ -207,26 +207,20 @@ export function StartButton(props: StartButtonProps) {
         triggerText = "START";
     } else if (activeTriggerType === TRIGGER_TYPE_API) {
         const functionName = (model as FunctionDefinition).functionName.value;
-        const identifierTokens: IdentifierToken[] = ((model as FunctionDefinition)?.relativeResourcePath?.filter(
-            (relPath: any) => STKindChecker.isIdentifierToken(relPath))) as IdentifierToken[];
-        const dotToken: DotToken = ((model as FunctionDefinition)?.relativeResourcePath?.find(
-            (token: any) => STKindChecker.isDotToken(token))) as DotToken;
-        additionalInfo = functionName.toUpperCase();
-        if ((identifierTokens && identifierTokens.length > 0) || dotToken) {
+        additionalInfo = `${functionName.toUpperCase()} /`;
+        if ((model as FunctionDefinition)?.relativeResourcePath?.length > 0) {
             triggerText = "RESOURCE";
-            const tokens: string[] = [];
-            if (identifierTokens.length > 0) {
-                identifierTokens.forEach(token => {
-                    tokens.push(token.value);
-                });
-                additionalInfo += ` /${tokens.join("/")}`;
-            } else  {
-                additionalInfo += ` .`;
-            }
-            if (additionalInfo.length >= 15) {
-                additionalInfo = additionalInfo.substr(0, 15);
-                additionalInfo += "...";
-            }
+            (model as FunctionDefinition).relativeResourcePath.forEach((resourcePath: any) => {
+                if (resourcePath.value) {
+                    additionalInfo += (resourcePath.value?.trim());
+                } else {
+                    additionalInfo += (resourcePath.source?.trim());
+                }
+                if (additionalInfo.length >= 15) {
+                    additionalInfo = additionalInfo.substr(0, 15);
+                    additionalInfo += "...";
+                }
+            });
         } else {
             triggerText = "FUNCTION";
             additionalInfo = functionName.toUpperCase();

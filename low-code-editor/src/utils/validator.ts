@@ -30,7 +30,7 @@ export function validatePath(text: string) {
                 }
             }
 
-            if (paths.includes("/") && paths.includes("[") && paths.includes("]")) {
+            if (paths.includes("[") && paths.includes("]")) {
                 if (paths.match(/\/\d/g)) return false;
                 const paramArray = (paths.match(/\[([^\[\]]*)\]/g));
                 const arrayLength = paramArray.length;
@@ -41,7 +41,7 @@ export function validatePath(text: string) {
                     }
                     paths = paths.replace(paramArray[i], "")
                 }
-                isPathValid = ((/^['a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)))
+                isPathValid = paths === "" ? true : ((/^['a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)));
             } else if (paths.includes("/") && paths.includes("{") && paths.includes("}")) {
                 if (paths.match(/\/\d/g)) return false;
                 const paramArray = (paths.match(/\{([^\[\]]*)\}/g));
