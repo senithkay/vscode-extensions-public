@@ -229,6 +229,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       advancedMenuState.payloadSelected.set(index, false);
       setAdvancesMenuState(advancedMenuState);
     }
+    setIsDuplicatedPath(isPathDuplicated(updatedResources));
   }
 
   function handleOnChangePath(text: string, index: number) {
@@ -321,7 +322,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     resources.forEach((res: any) => {
       // Validate method signature
-      const signature: string = `${res.method}_${res.path}`;
+      const signature: string = `${res.method.toLowerCase()}_${res.path}`;
       if (resourceSignatures.includes(signature)) {
         isValidated = false;
         return;
@@ -713,7 +714,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       defaultValue={(resProps.path === ".") ? "" : resProps.path}
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
-                        validate: validateResourcePath
+                        validate: validateResourcePath,
+                        isErrored: isDuplicatedPath
                       }}
                       errorMessage={isDuplicatedPath ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}

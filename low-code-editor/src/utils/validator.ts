@@ -128,11 +128,13 @@ export function isPathDuplicated (resources: Resource[]) : boolean {
     let isDuplicated = false;
     resources.forEach((res: any) => {
         // Validate method signature
-        const signature: string = `${res.method}_${res.path}`;
-        if (resourceSignatures.includes(signature)) {
-            isDuplicated = true;
-        } else {
-            resourceSignatures.push(signature);
+        if (res.method) {
+            const signature: string = `${res.method.toLocaleLowerCase()}_${res.path}`;
+            if (resourceSignatures.includes(signature)) {
+                isDuplicated = true;
+            } else {
+                resourceSignatures.push(signature);
+            }
         }
     });
     return isDuplicated;

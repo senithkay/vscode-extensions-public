@@ -32,6 +32,7 @@ interface FormTextInputProps {
     focused?: boolean;
     disabled?: boolean;
     secret?: boolean;
+    isErrored?: boolean;
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
@@ -50,7 +51,11 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
     }
 
     // to render invalid variable
-    const [isInvalid, setIsInvalid] = useState(false);
+    const [isInvalid, setIsInvalid] = useState(customProps?.isErrored);
+
+    useEffect(() => {
+        setIsInvalid(customProps?.isErrored);
+    }, [customProps?.isErrored])
 
     useEffect(() => {
         const checkValidity: boolean = (customProps?.validate !== undefined && ((customProps &&
