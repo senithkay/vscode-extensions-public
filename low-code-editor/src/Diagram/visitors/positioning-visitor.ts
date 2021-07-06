@@ -477,7 +477,8 @@ class PositioningVisitor implements Visitor {
             ++index;
         });
 
-        if (node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
+        if (!blockViewState.isEndComponentAvailable
+            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
             const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
                 //  Adding last control flow line after last statement for any block
