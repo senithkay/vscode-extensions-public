@@ -15,7 +15,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
@@ -98,6 +98,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
+    originalSyntaxTree,
     onEvent
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -135,11 +136,34 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [togglePayload, setTogglePayload] = useState(false);
   const [isValidPath, setIsValidPath] = useState(false);
   const [validateToggle, setValidateToggle] = useState(false);
+  const [existingResources, setExistingResources] = useState<string[]>();
+  const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
+  const [defaultResourceSignature, setDefaultResourceSignature] = useState<string>("");
 
   useEffect(() => {
     const members = syntaxTree && syntaxTree.members;
     if (!members) setIsNewService(false);
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    const addedResources: string[] = [];
+    // Hack: assuming that only one service is there
+    if (originalSyntaxTree?.members[0] && STKindChecker.isServiceDeclaration(originalSyntaxTree.members[0])) {
+      originalSyntaxTree?.members[0]?.members?.forEach(member => {
+        let finalPath = "";
+        member.relativeResourcePath.forEach((resourcePath: any) => {
+          if (resourcePath.value) {
+            finalPath += (resourcePath.value?.trim());
+          } else {
+            finalPath += (resourcePath.source?.trim());
+          }
+        });
+        const resource = `${member.functionName.value}_${finalPath}`;
+        addedResources.push(resource);
+      })
+    }
+    setExistingResources(addedResources);
+  }, [originalSyntaxTree]);
 
   useEffect(() => {
     if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -158,6 +182,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
+      if (stMethod) {
+        setDefaultResourceSignature(`${method.toLowerCase()}_${stPath === "" ? "." : stPath}`);
+      }
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
@@ -218,14 +245,30 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // Update selected method
     const updatedResources = resources;
     updatedResources[index].method = methodType.toLowerCase();
-    updatedResources[index].isPathDuplicated = isPathDuplicated(updatedResources);
+    if (existingResources?.length > 0 && !isNewService) {
+      updatedResources[index].isPathDuplicated =
+          existingResources.includes(`${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." :
+              updatedResources[index].path}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !==
+          `${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." : updatedResources[index].path}`
+          && existingResources.includes(`${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." :
+              updatedResources[index].path}`));
+    } else {
+      updatedResources[index].isPathDuplicated = isPathDuplicated(updatedResources);
+    }
     setResources(updatedResources);
   }
 
   function handleOnChangePath(text: string, index: number) {
     const resClone = resources;
     resClone[index].path = text;
-    resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    if (existingResources?.length > 0 && !isNewService) {
+      resClone[index].isPathDuplicated = existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !== `${method.toLowerCase()}_${text === "" ? "." : text}`
+          && existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`));
+    } else {
+      resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    }
     setResources(resClone);
     setValidateToggle(!validateToggle);
     setCurrentPath(text);
@@ -253,7 +296,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   function handleOnChangePathFromUI(text: string, index: number) {
     const resClone = resources;
     resClone[index].path = text;
-    resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    if (existingResources?.length > 0 && !isNewService) {
+      resClone[index].isPathDuplicated = existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !== `${method.toLowerCase()}_${text === "" ? "." : text}`
+          && existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`));
+    } else {
+      resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    }
     setResources(resClone);
     setValidateToggle(!validateToggle);
     setResources(resClone);
@@ -718,9 +767,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
                         validate: validateResourcePath,
-                        isErrored: resProps.isPathDuplicated
+                        isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit
                       }}
-                      errorMessage={resProps.isPathDuplicated ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
+                      errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}
                     />
                   </Section>
@@ -837,7 +886,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         )}
 
         <div>
-          {validateResources() &&
+          {validateResources() && !duplicatedPathsInEdit &&
             (
               <div className={classes.serviceFooterWrapper}>
                 <div id="product-tour-save" >
