@@ -87,8 +87,8 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                     <TooltipIcon
                                         title={model?.tooltip}
                                         interactive={customProps?.interactive || true}
-                                        actionText={customProps?.tooltipActionText}
-                                        actionLink={customProps?.tooltipActionLink}
+                                        actionText={customProps?.tooltipActionText || model?.tooltipActionText}
+                                        actionLink={customProps?.tooltipActionLink || model?.tooltipActionLink}
                                         arrow={true}
                                     />
                                 )
