@@ -161,7 +161,7 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
     }
 
-    private updateFunctionEdgeControlFlow(viewState: FunctionViewState) {
+    private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
         // Update First Controll Flow line
         if (viewState.workerBody.controlFlowLineStates.length > 0) { // The list may contain 0 CF lines
             const startLine = viewState.workerBody.controlFlowLineStates[0];
@@ -170,8 +170,10 @@ class PositioningVisitor implements Visitor {
             startLine.h = newStartLineH;
             startLine.y = newStartLineY;
 
-            const endLine = viewState.workerBody.controlFlowLineStates[viewState.workerBody.controlFlowLineStates.length - 1];
-            endLine.h = viewState.end.bBox.cy - endLine.y
+            if (body.statements[body.statements.length - 1].controlFlow?.isReached) {
+                const endLine = viewState.workerBody.controlFlowLineStates[viewState.workerBody.controlFlowLineStates.length - 1];
+                endLine.h = viewState.end.bBox.cy - endLine.y
+            }
         }
     }
 
@@ -224,7 +226,7 @@ class PositioningVisitor implements Visitor {
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 
         // Update First Control Flow line
-        this.updateFunctionEdgeControlFlow(viewState);
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -250,7 +252,7 @@ class PositioningVisitor implements Visitor {
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
-        this.updateFunctionEdgeControlFlow(viewState);
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -276,7 +278,7 @@ class PositioningVisitor implements Visitor {
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
-        this.updateFunctionEdgeControlFlow(viewState);
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
