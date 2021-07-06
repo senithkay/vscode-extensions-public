@@ -66,7 +66,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const initialConnectionNameState: NameState = {
         value: connectorConfig.connectionName,
         isValidName:  !!connectorConfig.connectionName,
-        isNameProvided: nameRegex.test(connectorConfig.connectionName)
+        isNameProvided: !!connectorConfig.connectionName
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
@@ -77,11 +77,10 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [connectionNameError, setConnectionNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
-    const [isFieldsUpdated, setIsFieldsUpdated] = useState(false);
+    const [isEndpointNameUpdated, setIsEndpointNameUpdated] = useState(false);
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
-        setIsFieldsUpdated(true);
     };
 
     const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
@@ -130,7 +129,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isNameProvided: text !== '',
             isValidName: validateConnectionNameValue(text)
         });
-        connectorConfig.connectionName !== text ? setIsFieldsUpdated(true) : setIsFieldsUpdated(false);
+        connectorConfig.connectionName !== text ? connectorConfig.isConnectionNameUpdated = true : connectorConfig.isConnectionNameUpdated = false;
     };
 
     const onNameChange = (text: string) => {
@@ -140,14 +139,19 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isValidName: validateNameValue(text)
         });
         onConfigNameChange(text);
-        connectorConfig.name !== text ? setIsFieldsUpdated(true) : setIsFieldsUpdated(false);
+        connectorConfig.name !== text ? setIsEndpointNameUpdated(true) : setIsEndpointNameUpdated(false);
     };
 
     const handleOnSave = () => {
         // update config connector name, when user click next button
-        connectorConfig.name = nameState.value;
+        if (isNewConnectorInitWizard) {
+            connectorConfig.connectionName = connectionNameState.value;
+            connectorConfig.name = nameState.value;
+        } else {
+            connectorConfig.connectionName = connectionNameState.value;
+            connectorConfig.name = isEndpointNameUpdated ? nameState.value : undefined;
+        }
         connectorConfig.connectorInit = configForm;
-        isFieldsUpdated ? connectorConfig.connectionName = connectionNameState.value : connectorConfig.connectionName = undefined;
         state.onAPIClient(connector);
         onSave();
     };
@@ -234,7 +238,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
         connectorModuleName === "googleapis.calendar";
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
-    const isFieldsWithConnectionNameValid =  isFieldsUpdated ? true : isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
+    const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
 
     return (

@@ -128,6 +128,7 @@ export class ConnectorConfig {
     public responsePayloadMap?: ResponsePayloadMap;
     public initPosition?: DraftUpdatePosition;
     public isReturnError?: boolean;
+    public isConnectionNameUpdated?: boolean;
 }
 
 export interface ConfigurationSpec {

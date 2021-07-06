@@ -315,16 +315,23 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (action === ConnectionAction.create) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
-            } else if (status !== 200) {
+            } else if (!status || status !== 200) {
                 store.dispatch(triggerErrorNotification(createConfigErrorMessage));
             }
         } else if (action === ConnectionAction.update) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
-            } else if (status !== 200) {
+            } else if (!status || status !== 200) {
                 store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
             }
         }
+    }
+
+    const handleModifyDiagram = (modifications: STModification[]) => {
+        if (modifications.length > 0) {
+            modifyDiagram(modifications);
+        }
+        onClose();
     }
 
     const handleClientOnSave = () => {
@@ -408,15 +415,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     }
                 });
                 (async () => {
+                    let apiResponseStatus;
                     if (isNewConnectorInitWizard && targetPosition) {
                         if (formattedFieldValues.length > 0) {
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                 config.connectionName, userInfo.user.email, formattedFieldValues);
-                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                response.data, selectedType);
-                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
-                                response.data, symbolInfo.configurables, selectedType);
-                            showNotification(response.status, ConnectionAction.create);
+                            apiResponseStatus = response.status;
+                            if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                                configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                    response.data, selectedType);
+                                connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
+                                    response.data, symbolInfo.configurables, selectedType);
+                            }
+                            showNotification(apiResponseStatus, ConnectionAction.create)
                         }
                         else {
                             // tslint:disable-next-line: no-shadowed-variable
@@ -441,26 +452,29 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             );
                             modifications.push(addConnectorInit);
                         }
-                        // new connector client initialization
-                        const addImport: STModification = createImportStatement(
-                            connectorInfo.org,
-                            connectorInfo.module,
-                            targetPosition
-                        );
-                        modifications.push(addImport);
-                        if (connectorConfigurables) {
-                            const addConfigurableVars = createPropertyStatement(
-                                connectorConfigurables,
-                                { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                        if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                            // new connector client initialization
+                            const addImport: STModification = createImportStatement(
+                                connectorInfo.org,
+                                connectorInfo.module,
+                                targetPosition
                             );
-                            modifications.push(addConfigurableVars);
-                        }
+                            modifications.push(addImport);
+                            if (connectorConfigurables) {
+                                const addConfigurableVars = createPropertyStatement(
+                                    connectorConfigurables,
+                                    {column: 0, line: syntaxTree?.configurablePosition?.startLine || 1}
+                                );
+                                modifications.push(addConfigurableVars);
+                            }
 
-                        const addConnectorInit: STModification = createPropertyStatement(
-                            `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                            targetPosition
-                        );
-                        modifications.push(addConnectorInit);
+                            const addConnectorInit: STModification = createPropertyStatement(
+                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                targetPosition
+                            );
+                            modifications.push(addConnectorInit);
+                            handleModifyDiagram(modifications);
+                        }
 
                     } else {
                         // update connector client initialization
@@ -473,24 +487,28 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   });
                               }
                           });
-                          if (updatedFields.length > 0 || config.connectionName) {
-                              onClose();
+                          if (config.isConnectionNameUpdated || updatedFields.length > 0) {
                               response = await updateManualConnection(activeConnectionId, userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                   response.data, selectedType);
+                              if (config.name) {
+                                  const updateConnectorInit = updatePropertyStatement(
+                                      `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                      connectorConfig.initPosition
+                                  );
+                                  modifications.push(updateConnectorInit);
+                              }
+                              handleModifyDiagram(modifications);
                               showNotification(response.status, ConnectionAction.update);
-                          } else {
+                          }
+                          if (!(updatedFields.length > 0) && !config.isConnectionNameUpdated && config.name) {
                               const updateConnectorInit = updatePropertyStatement(
                                   `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
                                   connectorConfig.initPosition
                               );
                               modifications.push(updateConnectorInit);
                           }
-                    }
-                    if (modifications.length > 0) {
-                        modifyDiagram(modifications);
-                        onClose();
                     }
                 })();
             }
@@ -581,64 +599,70 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         }
                     });
                     (async () => {
-                        if (config.connectorInit.length > 0){
+                        let apiResponseStatus;
+                        if (config.connectorInit.length > 0) {
                             // save action with client path
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                 config.connectionName, userInfo.user.email, formattedFieldValues);
-                            configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                response.data, selectedType);
-                            connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
-                                response.data, symbolInfo.configurables, selectedType);
-                            const addImport: STModification = createImportStatement(
-                                connectorInfo.org,
-                                connectorInfo.module,
-                                targetPosition
-                            );
-                            modifications.push(addImport);
-
-                            if (connectorConfigurables) {
-                                const addConfigurableVars = createPropertyStatement(
-                                    connectorConfigurables,
-                                    { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                            apiResponseStatus = response.status;
+                            if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                                configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                    response.data, selectedType);
+                                connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
+                                    response.data, symbolInfo.configurables, selectedType);
+                                const addImport: STModification = createImportStatement(
+                                    connectorInfo.org,
+                                    connectorInfo.module,
+                                    targetPosition
                                 );
-                                modifications.push(addConfigurableVars);
+                                modifications.push(addImport);
+
+                                if (connectorConfigurables) {
+                                    const addConfigurableVars = createPropertyStatement(
+                                        connectorConfigurables,
+                                        { column: 0, line: syntaxTree?.configurablePosition?.startLine || 1 }
+                                    );
+                                    modifications.push(addConfigurableVars);
+                                }
+
+                                const addConnectorInit: STModification = createPropertyStatement(
+                                    `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                    targetPosition
+                                );
+                                modifications.push(addConnectorInit);
+                            }
+                        }
+                        if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                            // Add an action invocation on the initialized client.
+                            if (currentActionReturnType.hasReturn) {
+                                const addActionInvocation = createPropertyStatement(
+                                    `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                                    targetPosition
+                                );
+                                modifications.push(addActionInvocation);
+                            } else {
+                                const addActionInvocation = createPropertyStatement(
+                                    `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
+                                    targetPosition
+                                );
+                                modifications.push(addActionInvocation);
                             }
 
-                            const addConnectorInit: STModification = createPropertyStatement(
-                                `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                                targetPosition
-                            );
-                            modifications.push(addConnectorInit);
-                        }
-                        // Add an action invocation on the initialized client.
-                        if (currentActionReturnType.hasReturn) {
-                            const addActionInvocation = createPropertyStatement(
-                                `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
-                                targetPosition
-                            );
-                            modifications.push(addActionInvocation);
-                        } else {
-                            const addActionInvocation = createPropertyStatement(
-                                `${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
-                                targetPosition
-                            );
-                            modifications.push(addActionInvocation);
-                        }
-
-                        if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
-                            const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                                config.responsePayloadMap.payloadVariableName,
-                                "var",
-                                config.action.returnVariableName,
-                                config.responsePayloadMap.payloadTypes.get(
-                                    config.responsePayloadMap.selectedPayloadType),
-                                targetPosition
-                            );
-                            modifications.push(addPayload);
-                        }
-                        if (modifications.length > 0) {
-                            modifyDiagram(modifications);
-                            onClose();
+                            if (config.responsePayloadMap && config.responsePayloadMap.isPayloadSelected) {
+                                const addPayload: STModification = createCheckedPayloadFunctionInvocation(
+                                    config.responsePayloadMap.payloadVariableName,
+                                    "var",
+                                    config.action.returnVariableName,
+                                    config.responsePayloadMap.payloadTypes.get(
+                                        config.responsePayloadMap.selectedPayloadType),
+                                    targetPosition
+                                );
+                                modifications.push(addPayload);
+                            }
+                            if (modifications.length > 0) {
+                                modifyDiagram(modifications);
+                                onClose();
+                            }
                         }
                         showNotification(response.status, ConnectionAction.create);
                     })();

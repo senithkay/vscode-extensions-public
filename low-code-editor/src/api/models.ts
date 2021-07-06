@@ -298,7 +298,6 @@ export interface ConnectionDetails {
     userAccountIdentifier: string;
     codeVariableKeys: ConnectionMetadata[];
     type?: string;
-    id?: string;
     isUsed?: boolean;
 }
 export interface ConnectionMetadata {
