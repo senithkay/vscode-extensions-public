@@ -672,7 +672,7 @@ class PositioningVisitor implements Visitor {
             bodyViewState.controlFlowLineStates.push(lastLine);
         }
         if (node.elseBody && node.elseBody.elseBody.controlFlow?.isReached) {
-            if (node.elseBody?.elseBody && node.elseBody.elseBody.kind === "IfElseStatement") {
+            if (node.elseBody?.elseBody && STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState;
                 const topLine: ControlFlowLineState = {
@@ -680,13 +680,16 @@ class PositioningVisitor implements Visitor {
                     y: elseIfViewState.elseIfTopHorizontalLine.y,
                     w: elseIfViewState.elseIfLifeLine.x - elseIfViewState.elseIfTopHorizontalLine.x - elseIfViewState.elseIfHeadWidthOffset,
                 };
-                const bottomLine: ControlFlowLineState = {
-                    x: elseIfViewState.elseIfBottomHorizontalLine.x,
-                    y: elseIfViewState.elseIfBottomHorizontalLine.y,
-                    w: elseIfViewState.elseIfLifeLine.x - elseIfViewState.elseIfBottomHorizontalLine.x
-                };
                 bodyViewState.controlFlowLineStates.push(topLine);
-                bodyViewState.controlFlowLineStates.push(bottomLine);
+
+                if (elseIfStmt.controlFlow?.isCompleted) {
+                    const bottomLine: ControlFlowLineState = {
+                        x: elseIfViewState.elseIfBottomHorizontalLine.x,
+                        y: elseIfViewState.elseIfBottomHorizontalLine.y,
+                        w: elseIfViewState.elseIfLifeLine.x - elseIfViewState.elseIfBottomHorizontalLine.x
+                    };
+                    bodyViewState.controlFlowLineStates.push(bottomLine);
+                }
             }
         }
         // Add body control flow line for empty else conditions
