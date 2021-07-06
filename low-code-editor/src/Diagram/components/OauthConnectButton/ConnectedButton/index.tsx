@@ -17,6 +17,7 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 
 import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
+import { AccountAvatar } from '../AccountAvatar';
 import { useStyles } from "../styles";
 
 export interface ConnectedButtonProps {
@@ -33,6 +34,7 @@ export function ConnectedButton(props: ConnectedButtonProps) {
             <div className={classes.activeConnectionWrapper}>
                 <div className={classes.activeConnectionWrapperChild1}>
                     <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+                        <AccountAvatar connection={activeConnection}/>
                         <Typography variant="subtitle2">
                             <p className={classes.radioBtnSubtitle}>
                                 {(activeConnection.type === CONNECTION_TYPE_MANUAL) ? activeConnection.displayName : activeConnection.userAccountIdentifier}
