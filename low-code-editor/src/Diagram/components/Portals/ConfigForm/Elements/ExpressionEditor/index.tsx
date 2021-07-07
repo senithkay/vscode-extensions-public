@@ -49,7 +49,8 @@ import {
     getValueWithoutSemiColon,
     transformFormFieldTypeToString,
     truncateDiagnosticMsg,
-    typeCheckerExp
+    typeCheckerExp,
+    validateWithRegex
 } from "./utils";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
@@ -198,9 +199,32 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
-        validate(model.name, false);
-        if (monacoRef.current) {
-            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+        if (model.validationRegex) {
+            if (validateWithRegex(monacoRef.current?.editor?.getModel()?.getValue(), model.validationRegex)) {
+                validate(model.name, false);
+            }  else {
+                validate(model.name, true);
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
+                    startLineNumber: 1,
+                    startColumn: 1,
+                    endLineNumber: 2,
+                    endColumn: 1000,
+                    message: "Invalid URL",
+                    severity: monaco.MarkerSeverity.Error
+                }]);
+                setExpressionEditorState({
+                    ...expressionEditorState,
+                    diagnostic: [{
+                        message: "Invalid URL",
+                        code: ""
+                    }]
+                })
+            }
+        } else {
+            validate(model.name, false);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 

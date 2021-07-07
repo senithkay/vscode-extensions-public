@@ -348,3 +348,10 @@ export function getDiagnosticMessage(diagnostics: any, varType: string): string 
         return diagnostics[0]?.message;
     }
 }
+
+export function validateWithRegex(userInput: string, regex: any) {
+    if (regex.test(userInput)) {
+        return true;
+    }
+    return false;
+}
