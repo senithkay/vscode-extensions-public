@@ -252,7 +252,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
-    const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated);
+    const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
 
     return (
         <div>
