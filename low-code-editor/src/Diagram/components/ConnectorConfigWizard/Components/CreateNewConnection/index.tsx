@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
@@ -27,7 +27,7 @@ import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/Sec
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { checkVariableName } from "../../../Portals/utils";
+import {checkVariableName, getManualConnectionDetailsFromFormFields} from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {
@@ -78,8 +78,20 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
     const [isEndpointNameUpdated, setIsEndpointNameUpdated] = useState(false);
+    const [isTokenFieldsUpdated, setIsTokenFieldsUpdated] = useState(false)
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
+        const manualConnectionFormFields = getManualConnectionDetailsFromFormFields(connectorConfig.connectorInit);
+        const formattedFields: { name: string; value: string; }[] = [];
+        manualConnectionFormFields.selectedFields.forEach((item: any) => {
+            if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
+                formattedFields.push({
+                    name: item.name,
+                    value: item.value.substring(1, (item.value.length - 1))
+                });
+            }
+        });
+        formattedFields.length > 0 ? setIsTokenFieldsUpdated(true) : setIsTokenFieldsUpdated(false);
         setIsGenFieldsFilled(isRequiredFieldsFilled);
     };
 
@@ -240,6 +252,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
+    const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated);
 
     return (
         <div>
@@ -282,7 +295,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isEnabled)}
+                                disabled={!(isSaveDisabled)}
                                 onClick={handleOnSave}
                             />
                         )}
