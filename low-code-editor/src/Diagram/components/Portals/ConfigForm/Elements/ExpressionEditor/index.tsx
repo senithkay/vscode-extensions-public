@@ -49,8 +49,7 @@ import {
     getValueWithoutSemiColon,
     transformFormFieldTypeToString,
     truncateDiagnosticMsg,
-    typeCheckerExp,
-    validateWithRegex
+    typeCheckerExp
 } from "./utils";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
@@ -199,7 +198,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
-        if (model.validationRegex && !validateWithRegex(monacoRef.current?.editor?.getModel()?.getValue(), model.validationRegex)) {
+        if (model.validationRegex && !model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
                 if (monacoRef.current) {
                     notValidExpEditor(`Invalid ${model.displayName}`);
                 }
