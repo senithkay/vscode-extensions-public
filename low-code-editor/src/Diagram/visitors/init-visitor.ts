@@ -371,7 +371,7 @@ class InitVisitor implements Visitor {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
                 const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
-                if(endpoint){
+                if (endpoint){
                     const vEp = endpoint.visibleEndpoint;
                     stmtViewState.isEndpoint = true;
                     stmtViewState.endpoint.iconId = vEp.moduleName + "_" + vEp.typeName;
@@ -427,7 +427,7 @@ class InitVisitor implements Visitor {
                 if (!stmtViewState.isCallerAction) {
                     // Set icon id for an action.
                     const endpoint = allEndpoints.get(stmtViewState.action.endpointName);
-                    if(endpoint){
+                    if (endpoint){
                         const vEp = endpoint.visibleEndpoint;
                         stmtViewState.action.iconId = vEp.moduleName + "_" + vEp.typeName;
                     }
