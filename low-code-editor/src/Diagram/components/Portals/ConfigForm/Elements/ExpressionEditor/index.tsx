@@ -932,7 +932,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             {invalidSourceCode ?
                     (
                         <>
-                            {subEditor && !cursorOnEditor && <Diagnostic message={mainDiagnostics[0]?.message} />}
+                            {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
@@ -941,7 +941,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
-                                    {subEditor && !cursorOnEditor && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
+                                    {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
                                     {stringCheck && needQuotes && monacoRef.current ?
                                         (monacoRef.current.editor.getModel().getValue() === "") ? (
                                             <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
