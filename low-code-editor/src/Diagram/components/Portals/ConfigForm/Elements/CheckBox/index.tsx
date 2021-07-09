@@ -32,10 +32,11 @@ interface CheckBoxGroupProps {
     onChange?: (values: string[]) => void;
     className?: string;
     checkOptional?: boolean;
+    testId?: string;
 }
 
 export default function CheckBoxGroup(props: CheckBoxGroupProps) {
-    const { values, className, onChange, label, defaultValues, checkOptional } = props;
+    const { values, className, onChange, label, defaultValues, checkOptional, testId } = props;
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const [selected, setSelected] = React.useState(defaultValues);
@@ -80,6 +81,7 @@ export default function CheckBoxGroup(props: CheckBoxGroupProps) {
                 <FormGroup>
                     {values.map((val) => (
                         <FormControlLabel
+                            data-testid={testId}
                             key={val}
                             control={
                                 <Checkbox
@@ -91,6 +93,9 @@ export default function CheckBoxGroup(props: CheckBoxGroupProps) {
                                     }}
                                     name={val}
                                     value={selected}
+                                    disableFocusRipple={true}
+                                    disableRipple={true}
+                                    disableTouchRipple={true}
                                 />
                             }
                             label={val}

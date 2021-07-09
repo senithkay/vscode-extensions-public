@@ -48,6 +48,9 @@ const useStyles = makeStyles(() =>
             // marginRight: "0.5rem",
             alignSelf: "center"
         },
+        content: {
+            width: "100%"
+        },
         buttonLink: {
             color: "#526acf",
             cursor: "pointer",
