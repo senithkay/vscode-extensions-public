@@ -15,6 +15,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+export const SSO_TYPE = "sso";
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -28,6 +29,7 @@ import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/model
 import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import { AccountAvatar } from '../AccountAvatar';
 
 import { useStyles } from "./../styles";
 
@@ -57,24 +59,50 @@ export const ConnectionList = (props: ConnectionListProps) => {
     };
 
     const filteredList = activeConnection ? connectionList?.filter(item => item.handle !== activeConnection.handle) : connectionList;
+    const ssoFilteredList = isTriggerConnector ? filteredList?.filter(item => item.type === SSO_TYPE) : connectionList?.filter(item => item.type === SSO_TYPE);
+    let connectionListElements;
 
-    const connectionListElements = filteredList.map((item) => (
-        // tslint:disable-next-line:jsx-key
-        <div key={item.handle}>
-            <Box border={1} borderRadius={5} className={classes.radioBox}>
-                <FormControlLabel
-                    value={item.handle}
-                    control={<Radio className={classes.radio}/>}
-                    label={<div>
-                        <p className={classes.radioBtnSubtitle}>
-                            {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
-                        </p>
-                    </div>}
-                />
-            </Box>
-            <Divider className={classes.divider} />
-        </div>
-    ));
+    // render only sso connections in trigger config flow
+    if (isTriggerConnector) {
+        connectionListElements = ssoFilteredList.map((item) => (
+            // tslint:disable-next-line:jsx-key
+            <div key={item.handle}>
+                <Box border={1} borderRadius={5} className={classes.radioBox}>
+                    <FormControlLabel
+                        value={item.handle}
+                        control={<Radio className={classes.radio}/>}
+                        label={<div className={classes.listItem}>
+                            <AccountAvatar connection={item}/>
+                            <p className={classes.radioBtnSubtitle}>
+                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                            </p>
+                        </div>}
+                    />
+                </Box>
+                <Divider className={classes.divider} />
+            </div>
+        ));
+    } else {
+        connectionListElements = filteredList.map((item) => (
+            // tslint:disable-next-line:jsx-key
+            <div key={item.handle}>
+                <Box border={1} borderRadius={5} className={classes.radioBox}>
+                    <FormControlLabel
+                        value={item.handle}
+                        control={<Radio className={classes.radio}/>}
+                        label={<div className={classes.listItem}>
+                            <AccountAvatar connection={item}/>
+                            <p className={classes.radioBtnSubtitle}>
+                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                            </p>
+                        </div>}
+                    />
+                </Box>
+                <Divider className={classes.divider} />
+            </div>
+        ));
+    }
+
 
     const connectionListComponents: ReactNode[] = [];
     if (selectedConnection !== "") {

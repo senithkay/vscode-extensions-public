@@ -10,8 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+import { Warning } from 'components/DiagramEditor/utils/diagram';
 import { getPathOfResources } from 'components/DiagramSelector/utils';
+import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
 
@@ -224,6 +226,28 @@ export function getDiagnosticsFromVisitor(st: ModulePart): Diagnostic[] {
     traversNode(st, DiagnosticVisitor);
     const allDiagnostics = getAllDiagnostics();
     return allDiagnostics;
+}
+
+
+export function checkEmptyBasePath (modulePart: ModulePart): Warning[] {
+    const members: STNode[] = modulePart.members;
+    const warnings : Warning[] =  [];
+    for (const member of members) {
+        const node : STNode = member;
+        if (STKindChecker.isServiceDeclaration(node)) {
+            const serviceDef : ServiceDeclaration = node as ServiceDeclaration;
+            if (serviceDef.absoluteResourcePath && serviceDef.absoluteResourcePath.length === 0) {
+                warnings.push({message: "Observability not supported for services with empty basepaths", type: "Empty Base Path", position: serviceDef.position });
+            }
+        }
+    }
+    return warnings;
+}
+
+
+export function getWarningsFromST (modulePart: ModulePart): Warning[] {
+    const servicesWithEmptyBasePaths = checkEmptyBasePath(modulePart);
+    return servicesWithEmptyBasePaths;
 }
 
 export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>) {
@@ -542,8 +566,7 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
     return (resourceKeyword !== undefined);
 }
 
-export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
-    const scheduleRegex = /\/\/ Schedule: (Minute|Hourly|Daily|Monthly|Weekly|Custom): ((\*\/)?[1-5]?[0-9]|\*) ((\*\/)?2[0-3]|(\*\/)?[1]?[0-9]|\*) (3[0-1]|2[0-9]|[1]?[0-9]|\*) (1[0-2]|[0-9]|\*) ((Sun|Mon|Tue|Wed|Thu|Fri|Sat)((Sun)?(,)?(Mon)?(,)?(Tue)?(,)?(Wed)?(,)?(Thu)?(,)?(Fri)?(,)?(Sat)?)?|\*)\n/g;
+export function getConfigDataFromSt(triggerType: TriggerType, model: any, currentApp: any): any {
     switch (triggerType) {
         case "API":
         case "Webhook":
@@ -560,11 +583,46 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any): any {
             }
         case "Schedule":
             return {
-                cron: model?.source?.match(scheduleRegex)[0].split(":")[2].replace("\n", "").trim(),
-                schType: model?.source?.match(scheduleRegex)[0].split(":")[1].trim()
+                cron: getCronFromUtcCron(currentApp.cronSchedule),
+                schType: getSchType(currentApp.cronSchedule)
             }
         default:
             return undefined;
+    }
+}
+
+export function getCronFromUtcCron(utcCron: string) : string {
+    const cronSplit = utcCron?.split(" ", 5);
+    if (getSchType(utcCron) === "Day") {
+        const updateCronStartTime = new Date();
+        updateCronStartTime.setHours(Number(cronSplit[1]));
+        updateCronStartTime.setMinutes(Number(cronSplit[0]));
+
+        const timezoneOffsetMinutes = subMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getMinutes();
+        const timezoneOffsetHours = subMinutes(new Date(updateCronStartTime), (new Date()).getTimezoneOffset()).getHours();
+
+        return timezoneOffsetMinutes + " " + timezoneOffsetHours + " * * *";
+    } else {
+        return utcCron;
+    }
+}
+
+export function getSchType(cron: string) : string {
+    const cronSplit = cron?.split(" ", 5);
+    const count = cronSplit.filter(value => value === "*").length;
+
+    if (cronSplit[1].includes("*/") && cronSplit[0] === "0") {
+        return "Hour";
+    } else if (cronSplit[0].includes("*/") && count === 4) {
+        return "Minute";
+    } else if (count === 3) {
+        return "Day";
+    } else if (count === 2) {
+        return "Week";
+    } else if (count === 1) {
+        return "Month";
+    } else {
+        return "Custom";
     }
 }
 

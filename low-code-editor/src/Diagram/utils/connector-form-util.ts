@@ -278,6 +278,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     value.parameters[0].fields = formField;
                     filteredFunctions.set(key, value);
+                } else if (key === 'send'){
+                    value.parameters.forEach((param) => {
+                        if (param.typeName === "Options") {
+                            param.fields.forEach(field => {
+                                // Temporarily setting default value to contentType to avoid running into run-time errors
+                                if (field.name === "contentType"){
+                                    field.value = `"text/plain"`;
+                                }
+                            })
+                        }
+                    });
+                    filteredFunctions.set(key, value);
                 }
                 else if (key === INIT) {
                     if (value.parameters[3].name === CLIENT_CONFIG) {
@@ -316,6 +328,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     }
                     if (value.parameters[2].name === "password"){
                         value.parameters[2].tooltip = tooltipMessages.IMAP.password
+                        value.parameters[2].tooltipActionLink = tooltipMessages.IMAP.passwordLink
+                        value.parameters[2].tooltipActionText = tooltipMessages.IMAP.passwordText
                     }
                 }
                 filteredFunctions.set(key, value);

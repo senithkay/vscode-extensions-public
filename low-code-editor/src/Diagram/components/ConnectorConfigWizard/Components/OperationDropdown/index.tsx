@@ -43,9 +43,10 @@ export function OperationDropdown(props: OperationDropdownProps) {
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value.name);
         const connector = (state.stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.moduleID);
+        const name = state.stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.name;
         if (connector){
             const {orgName: org, moduleName: module, version} = connector;
-            state.onAPIClient({org, module, version}, value.name);
+            state.onAPIClient({org, module, version, name}, value.name);
         }
 
     };
@@ -68,7 +69,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
         <div>
             <div className={classNames(classes.configWizardAPIContainerAuto, classes.bottomRadius)}>
                 <div className={classes.fullWidth}>
-                    <p className={classes.subTitle}>Operation</p>
+                    <p className={classes.subTitle}>Operation<span className={classes.titleLabelRequired}>*</span></p>
                     <FormAutocomplete
                         placeholder={operationDropdownPlaceholder}
                         itemList={sortedOperations()}

@@ -14,9 +14,9 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import {
-    CaptureBindingPattern,
+    CaptureBindingPattern, DotToken,
     FunctionBodyBlock,
-    FunctionDefinition,
+    FunctionDefinition, IdentifierToken,
     ModulePart, ModuleVarDecl,
     ServiceDeclaration, SimpleNameReference,
     STKindChecker,
@@ -26,6 +26,7 @@ import { Context } from "../../../Contexts/Diagram";
 import {
     TriggerType,
     TRIGGER_TYPES,
+    TRIGGER_TYPE_API,
     TRIGGER_TYPE_WEBHOOK
 } from "../../models";
 import { getConfigDataFromSt } from "../../utils/st-util";
@@ -156,7 +157,7 @@ export function StartButton(props: StartButtonProps) {
                 triggerType={activeTriggerType}
                 activeConnectorType={getWebhookType()}
                 onComplete={handleOnComplete}
-                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition)}
+                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition, currentApp)}
             />
         );
         if (plusView) {
@@ -200,17 +201,46 @@ export function StartButton(props: StartButtonProps) {
         block = funcModel.functionBody as FunctionBodyBlock;
     }
 
-    const text: string = (model.kind === "ModulePart") || !activeTriggerType
-        ? "START"
-        : activeTriggerType.toUpperCase();
+    let triggerText: string;
+    let additionalInfo: string;
+    if ((model.kind === "ModulePart") || !activeTriggerType) {
+        triggerText = "START";
+    } else if (activeTriggerType === TRIGGER_TYPE_API) {
+        const functionName = (model as FunctionDefinition).functionName.value;
+        additionalInfo = `${functionName.toUpperCase()} /`;
+        if ((model as FunctionDefinition)?.relativeResourcePath?.length > 0) {
+            triggerText = "RESOURCE";
+            (model as FunctionDefinition).relativeResourcePath.forEach((resourcePath: any) => {
+                if (resourcePath.value) {
+                    additionalInfo += (resourcePath.value?.trim());
+                } else {
+                    additionalInfo += (resourcePath.source?.trim());
+                }
+                if (additionalInfo.length >= 15) {
+                    additionalInfo = additionalInfo.substr(0, 15);
+                    additionalInfo += "...";
+                }
+            });
+        } else {
+            triggerText = "FUNCTION";
+            additionalInfo = functionName.toUpperCase();
+            if (additionalInfo.length >= 15) {
+                additionalInfo = additionalInfo.substr(0, 15);
+                additionalInfo += "...";
+            }
+        }
+    } else {
+        triggerText = activeTriggerType.toUpperCase();
+    }
 
     return (
         // hide edit button for triggers and expression bodied functions
-        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK) ? "start-wrapper" : "start-wrapper-edit"}>
+        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK || triggerText === "FUNCTION") ? "start-wrapper" : "start-wrapper-edit"}>
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
                 y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
-                text={text}
+                text={triggerText}
+                resourceText={additionalInfo}
                 showIcon={true}
                 handleEdit={handleEditClick}
             />
