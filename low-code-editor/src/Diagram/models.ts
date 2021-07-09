@@ -56,6 +56,7 @@ export const START_CONNECTOR_ADD_INSIGHTS = "startConnector";
 export const START_EXISTING_CONNECTOR_ADD_INSIGHTS = "startExistingConnector";
 export const FINISH_CONNECTOR_INIT_ADD_INSIGHTS = "finishConnectorInit";
 export const CONTINUE_TO_INVOKE_API = "continueToInvokeAPI";
+export const CONNECTOR_CLOSED = "connectorClosed";
 export const FINISH_CONNECTOR_ACTION_ADD_INSIGHTS = "finishConnectorAction";
 export const API_TAB_SELECTION_INSIGHTS = "apiTabSelection";
 
@@ -63,7 +64,8 @@ export type EVENT_TYPE = typeof EVENT_TYPE_AZURE_APP_INSIGHTS;
 export type EVENT_NAME = typeof TRIGGER_SELECTED_INSIGHTS | typeof START_STATEMENT_ADD_INSIGHTS |
     typeof FINISH_STATEMENT_ADD_INSIGHTS | typeof START_CONNECTOR_ADD_INSIGHTS |
     typeof FINISH_CONNECTOR_INIT_ADD_INSIGHTS | typeof FINISH_CONNECTOR_ACTION_ADD_INSIGHTS |
-    typeof START_EXISTING_CONNECTOR_ADD_INSIGHTS | typeof API_TAB_SELECTION_INSIGHTS | typeof CONTINUE_TO_INVOKE_API;
+    typeof START_EXISTING_CONNECTOR_ADD_INSIGHTS | typeof API_TAB_SELECTION_INSIGHTS | typeof CONTINUE_TO_INVOKE_API |
+    typeof CONNECTOR_CLOSED;
 
 export interface LowcodeEvent {
     type: EVENT_TYPE;

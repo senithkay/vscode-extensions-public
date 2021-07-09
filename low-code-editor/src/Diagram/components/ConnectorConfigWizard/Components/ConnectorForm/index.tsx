@@ -37,6 +37,7 @@ import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVer
 import { DiagramContext } from "../../../../../providers/contexts";
 import { ConnectionType, OauthConnectButton } from "../../../../components/OauthConnectButton";
 import {
+    CONNECTOR_CLOSED,
     CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -805,6 +806,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     };
 
+    const handleFormClose = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: CONNECTOR_CLOSED,
+            property: connectorInfo.displayName
+        };
+        onEvent(event);
+        onClose();
+    };
+
     const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
     if (!isNewConnectorInitWizard && actionReturnType?.hasReturn) {
         if (STKindChecker.isLocalVarDecl(model) && (config.action.name === selectedOperation)) {
@@ -967,7 +978,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     <div className={wizardClasses.topTitleWrapper}>
                         <ButtonWithIcon
                             className={wizardClasses.closeBtnAutoGen}
-                            onClick={onClose}
+                            onClick={handleFormClose}
                             icon={<CloseRounded fontSize="small" />}
                         />
                         <div className={wizardClasses.titleWrapper}>
