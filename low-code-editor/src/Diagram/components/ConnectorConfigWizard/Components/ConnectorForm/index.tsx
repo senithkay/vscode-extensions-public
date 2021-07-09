@@ -318,6 +318,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     }
 
+    const generateUuid = () => {
+        return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+    }
+
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -398,6 +402,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         });
                     }
                 });
+                if (connectorInfo.displayName === "GitHub") {
+                    formattedFieldValues.push({
+                        name: "clientSecret",
+                        value: generateUuid()
+                    })
+                }
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
                         if (formattedFieldValues.length > 0) {
