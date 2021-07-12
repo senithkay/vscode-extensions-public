@@ -106,7 +106,7 @@ export function Union(props: FormElementProps<UnionProps>) {
     );
 
     return (
-        <div className={classes.groupedForm}>
+        <div className={classes.groupedFormUnion}>
             {model && model.optional ?
                 (
                     <div className={classes.labelWrapper}>
