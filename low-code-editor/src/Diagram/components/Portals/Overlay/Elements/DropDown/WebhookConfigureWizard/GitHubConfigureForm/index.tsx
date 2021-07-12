@@ -584,7 +584,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     />
                 </div>
             )}
-            { activeGithubRepo && (
+            { activeGithubRepo && activeConnection && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
                         title={gitHubTriggerTooltipMessages.gitHubEvent.title}
@@ -602,7 +602,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                 </div>
             )}
 
-            { activeGithubRepo && activeEvent && (
+            { activeGithubRepo && activeConnection && activeEvent && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
                         title={gitHubTriggerTooltipMessages.gitHubAction.title}
