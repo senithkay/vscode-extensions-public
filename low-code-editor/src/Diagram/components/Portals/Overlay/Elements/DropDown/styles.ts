@@ -102,6 +102,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             padding: "5px 0"
         },
+        sectionSeparator: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
+        sectionSeparatorTop: {
+            borderTop: "1px solid #D8D8D8",
+            marginTop: "15px",
+            padding: "5px 0"
+        },
         customWrapper: {
             marginLeft: 24,
             marginRight: 24,
@@ -251,6 +261,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexGrow: 1
         },
         activeConnectionBox: {
+            display: "flex",
+            alignItems: "center",
             width: "100%",
             borderRadius: 5,
             padding: theme.spacing(0.5),
@@ -270,12 +282,42 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 13,
             color: "#222228",
             margin: "-5px 0",
+            paddingLeft: theme.spacing(1.5)
         },
         changeConnectionBtn: {
             padding: 9,
             border: "1px solid #E6E7EC",
             borderRadius: "50%",
             cursor: "pointer"
+        },
+        avatar: {
+            height: theme.spacing(4),
+            width: theme.spacing(4),
+            background: "linear-gradient(219.72deg, #5567D5 0%, #7148CF 44.71%, #BB43B2 78.02%, #ED477D 100%)",
+            color: theme.palette.common.white,
+            fontSize: 13
+        },
+        letterAvatar: {
+            opacity: 0.73
+        },
+        editIcon: {
+            cursor: "pointer",
+            width: "16px"
+        },
+        deleteBtnWrapper: {
+            cursor: "pointer",
+            width: 130,
+            marginBottom: 10,
+            display: "flex",
+            alignItems: "center"
+        },
+        deleteButtonTitle: {
+            marginLeft: 7,
+            fontSize: 13,
+            color: "#FE523C",
+        },
+        returnTextBoxWrapper: {
+            marginBottom: 10
         }
     })
 );

@@ -30,11 +30,12 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
     addQuotesChecker,
+    addToStringChecker,
     addToTargetLine,
     addToTargetPosition,
     checkIfStringExist,
@@ -82,7 +83,10 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     find: { addExtraSpaceOnTop: false, autoFindInSelection: 'never', seedSearchStringFromSelection: false },
     autoClosingBrackets: "always",
     autoClosingQuotes: "always",
-    autoClosingOvertype: "always"
+    autoClosingOvertype: "always",
+    hover: {
+        enabled: false
+    }
 };
 
 monaco.editor.defineTheme('exp-theme', {
@@ -172,6 +176,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
+    const [superExpand, setSuperExpand] = useState(false);
     const [addCheck, setAddCheck] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
@@ -186,6 +191,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
     const [needQuotes, setNeedQuotes] = useState(false);
+    const [needToString, setNeedToString] = useState(false);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -200,13 +206,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
-    const notValidExpEditor = (message: string) => {
+    const notValidExpEditor = (message: string, updateState: boolean = true) => {
         const currentContent = monacoRef.current ? monacoRef.current?.editor?.getModel()?.getValue() : model.value;
         if (model.optional === true && (currentContent === undefined || currentContent === "") && !invalidSourceCode) {
             validExpEditor();
         } else {
             validate(model.name, true);
             setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
+            setNeedToString(addToStringChecker(expressionEditorState.diagnostic))
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                     startLineNumber: 1,
@@ -215,7 +222,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     endColumn: 1000,
                     message,
                     severity: monaco.MarkerSeverity.Error
-                }])
+                }]);
+                if (updateState) {
+                    setExpressionEditorState({
+                        ...expressionEditorState,
+                        diagnostic: [{
+                            message,
+                            code: ""
+                        }]
+                    })
+                }
             }
         }
     }
@@ -240,7 +256,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
-                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType));
+                    notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
                 }
             } else {
                 if (monacoRef.current) {
@@ -345,19 +361,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                     }
                                     completionItems.push(completionItemAI);
                                 }
-                                if (varType === "string") {
-                                    const completionItemTemplate: monaco.languages.CompletionItem = {
-                                        preselect: true,
-                                        range: null,
-                                        label: 'Custom string template',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        // tslint:disable-next-line: no-invalid-template-strings
-                                        insertText: '"${1:}"',
-                                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                        sortText: '2'
-                                    }
-                                    completionItems.push(completionItemTemplate);
-                                } else if (varType === "boolean") {
+                                if (varType === "boolean") {
                                     const completionItemTemplate: monaco.languages.CompletionItem = {
                                         preselect: true,
                                         range: null,
@@ -728,6 +732,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
                 setExpand(true);
+                if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
+                    setSuperExpand(true);
+                }
             }
         }
     }
@@ -882,14 +889,25 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const addToStringToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`(${editorContent}).toString()`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
     setDefaultTooltips();
 
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? '114px' : '32px' }}>
+            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? '100px' : '32px' }} >
+                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -904,7 +922,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             {invalidSourceCode ?
                     (
                         <>
-                            {subEditor && !cursorOnEditor && <Diagnostic message={mainDiagnostics[0]?.message} />}
+                            {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
                     ) : addCheck ?
@@ -913,12 +931,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
-                                    {subEditor && !cursorOnEditor && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
+                                    {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
+                                    {stringCheck && needToString && monacoRef.current && (
+                                        <ExpressionEditorHint type={HintType.ADD_TO_STRING} onClickHere={addToStringToExpression}/>
+                                    )}
                                     {stringCheck && needQuotes && monacoRef.current ?
                                         (monacoRef.current.editor.getModel().getValue() === "") ? (
                                             <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
                                         ) : (
-                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion}/>
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion} editorContent={monacoRef.current.editor.getModel().getValue()}/>
                                         ) : null
                                     }
                                 </>

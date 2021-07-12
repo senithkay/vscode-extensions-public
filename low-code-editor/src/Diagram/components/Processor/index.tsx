@@ -111,7 +111,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
 
-            if (STKindChecker.isMappingConstructor(model.initializer)) {
+            if (model?.initializer && STKindChecker.isMappingConstructor(model?.initializer)) {
                 processType = 'DataMapper';
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {

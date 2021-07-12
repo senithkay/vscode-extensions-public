@@ -368,6 +368,15 @@ export class DataMapperMappingVisitor implements Visitor {
             name += `${i !== 0 ? '.' : ''}${part}`;
         });
 
+        // Temporary fix to prevent the browser from crashing when opening array type data points
+        // Will need to remove following segments once proper array support is added to data mapper
+        const squareBrackets = name.match(/\[[^\]]*]/g);
+        if (squareBrackets && squareBrackets.length > 0){
+            for (const bracket of squareBrackets){
+                name = name.replace(bracket, "");
+            }
+        }
+
         return name;
     }
 
