@@ -102,6 +102,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             padding: "5px 0"
         },
+        sectionSeparator: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
+        sectionSeparatorTop: {
+            borderTop: "1px solid #D8D8D8",
+            marginTop: "15px",
+            padding: "5px 0"
+        },
         customWrapper: {
             marginLeft: 24,
             marginRight: 24,
@@ -289,6 +299,25 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         letterAvatar: {
             opacity: 0.73
+        },
+        editIcon: {
+            cursor: "pointer",
+            width: "16px"
+        },
+        deleteBtnWrapper: {
+            cursor: "pointer",
+            width: 130,
+            marginBottom: 10,
+            display: "flex",
+            alignItems: "center"
+        },
+        deleteButtonTitle: {
+            marginLeft: 7,
+            fontSize: 13,
+            color: "#FE523C",
+        },
+        returnTextBoxWrapper: {
+            marginBottom: 10
         }
     })
 );

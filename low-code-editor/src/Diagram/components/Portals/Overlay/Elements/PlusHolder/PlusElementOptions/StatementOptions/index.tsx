@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { ReactNode, useContext, useState } from "react";
 
-import { STKindChecker } from "@ballerina/syntax-tree";
+import { QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
@@ -21,7 +21,7 @@ import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, Cu
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
-import { PlusViewState } from "../../../../../../../view-state/plus";
+import { PlusViewState } from "../../../../../../../view-state";
 import Tooltip from "../../../../../../../../components/Tooltip";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
@@ -29,7 +29,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
-    START_CONNECTOR_ADD_INSIGHTS,
     START_STATEMENT_ADD_INSIGHTS
 } from "../../../../../../../models";
 
@@ -56,6 +55,15 @@ export function StatementOptions(props: StatementOptionsProps) {
     const intl = useIntl();
     const { syntaxTree, onEvent } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
+    let isCallerAdded = false;
+    if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+        syntaxTree?.functionSignature?.parameters?.forEach(param => {
+            if (STKindChecker.isRequiredParam(param) && (param?.typeName as QualifiedNameReference)?.
+                typeData?.symbol?.name === "Caller") {
+                isCallerAdded = true;
+            }
+        });
+    }
     const { onSelect, viewState } = props;
 
     const plusHolderStatementTooltipMessages = {
@@ -233,8 +241,8 @@ export function StatementOptions(props: StatementOptionsProps) {
             >
                 <div
                     data-testid="addReturn"
-                    className={cn("sub-option", { enabled: !isResource && viewState.isLast })}
-                    onClick={!isResource && viewState.isLast ? onSelectStatement.bind(undefined, 'Return') : null}
+                    className={cn("sub-option", { enabled: viewState.isLast })}
+                    onClick={viewState.isLast ? onSelectStatement.bind(undefined, 'Return') : null}
                 >
                     <div className="icon-wrapper">
                         <ReturnIcon />
@@ -256,9 +264,9 @@ export function StatementOptions(props: StatementOptionsProps) {
                 interactive={true}
             >
                 <div
-                    className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource })}
+                    className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource && isCallerAdded })}
                     data-testid="addrespond"
-                    onClick={isResource ? onSelectStatement.bind(undefined, 'Respond') : null}
+                    onClick={isResource && isCallerAdded ? onSelectStatement.bind(undefined, 'Respond') : null}
                 >
                     <div className="icon-wrapper">
                         <RespondIcon />

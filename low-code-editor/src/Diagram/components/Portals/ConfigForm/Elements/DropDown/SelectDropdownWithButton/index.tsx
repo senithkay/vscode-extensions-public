@@ -42,7 +42,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const textFieldClasses = useTextInputStyles();
-    const { onChange, onClick, defaultValue, label, placeholder, customProps = {} } = props;
+    const { onChange, onClick, defaultValue, label, placeholder, customProps = {}, disabled } = props;
     const { values, disableCreateNew, optional, className,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
@@ -143,7 +143,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                 onWheel={preventDiagramScrolling}
                 onClose={onCloseSelect}
                 displayEmpty={true}
-                disabled={!(values?.length > 0)}
+                disabled={!(values?.length > 0) || disabled}
                 className={classNames(dropDownClasses.selectDropDownSm, className)}
                 inputProps={{ 'aria-label': 'Without label' }}
                 MenuProps={{

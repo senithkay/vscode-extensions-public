@@ -285,7 +285,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                             ConnectorType.G_SHEET,
                             'googleapis_sheets_Sheet',
                             "To trigger an application based on Google Sheet events.",
-                            "Sheet",
+                            "Sheets",
                             "right"
                         ) }
 
