@@ -375,31 +375,11 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         setCustomClientSecretKey(value);
     };
 
-    // handle github trigger creation
-    const createGithubTrigger = () => {
-        let clientSecretKey;
-        const updatedFields: { name: string; value: string; }[] = [];
-        const lastSelectedOrg = JSON.parse(localStorage.getItem('PORTAL_STATE'))?.userInfo?.selectedOrgHandle;
-        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
-        if (activeConnection.type === "sso") {
-            clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
-        } else {
-            clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
-            if (clientSecretKey) {
-                clientSecretKey = clientSecretKey.codeVariableKey;
-            } else {
-                (async () => {
-                    updatedFields.push({
-                        name: "clientSecret",
-                        value: customClientSecretKey
-                    })
-                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName, activeConnection.displayName,
-                        activeConnection.userAccountIdentifier, updatedFields, activeConnection.type, activeConnection.handle);
-                    clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
-                })();
-            }
-        }
-        setTriggerChanged(true);
+    const generateUuid = () => {
+        return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+    }
+
+    const handleModifyTrigger = (accessTokenKey: string, clientSecretKey: string) => {
         // dispatch and close the wizard
         modifyTrigger(TRIGGER_TYPE_WEBHOOK, undefined, {
             TRIGGER_NAME: 'github',
@@ -417,6 +397,36 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             property: "Github"
         };
         onEvent(event);
+        setTriggerChanged(true);
+    }
+
+    // handle github trigger creation
+    const createGithubTrigger = () => {
+        let clientSecretKey;
+        const updatedFields: { name: string; value: string; }[] = [];
+        const lastSelectedOrg = JSON.parse(localStorage.getItem('PORTAL_STATE'))?.userInfo?.selectedOrgHandle;
+        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
+        if (activeConnection.type === "sso") {
+            clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+            handleModifyTrigger(accessTokenKey, clientSecretKey);
+        } else {
+            clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
+            if (clientSecretKey) {
+                clientSecretKey = clientSecretKey.codeVariableKey;
+                handleModifyTrigger(accessTokenKey, clientSecretKey);
+            } else {
+                (async () => {
+                    updatedFields.push({
+                        name: "clientSecret",
+                        value: generateUuid()
+                    })
+                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName, activeConnection.displayName,
+                        activeConnection.userAccountIdentifier, updatedFields, activeConnection.type, activeConnection.handle);
+                    clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+                    handleModifyTrigger(accessTokenKey, clientSecretKey);
+                })();
+            }
+        }
     };
 
     const updateGithubTrigger = () => {
