@@ -521,11 +521,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }
     }
 
-    const clientSecretPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.GitHubConfigWizard.clientSecret.placeholder",
-        defaultMessage: "Client Secret"
-    });
-
     const activeConnectionLabel = () => (
         <>
             <div className={classes.activeConnectionWrapper}>
@@ -589,20 +584,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     />
                 </div>
             )}
-
-            { activeConnection && !isRepoListFetching && !isClientSecretKeySet && (
-                <div className={classes.customWrapper}>
-                    <FormTextInput
-                        label={clientSecretPlaceholder}
-                        onChange={handleCustomClientSecretOnChange}
-                        // customProps={ {
-                        //     optional: false,
-                        //     tooltipTitle: sheetConfigTooltips.sheetTrigger.sheetId
-                        // } }
-                    />
-                </div>
-            )}
-
             { activeGithubRepo && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
