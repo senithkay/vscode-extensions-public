@@ -512,8 +512,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                   handleModifyDiagram(modifications);
                               }
                               showNotification(apiResponseStatus, ConnectionAction.update, response.data.message);
-                          }
-                          if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                          } else {
                             if (!(updatedFields.length > 0) && !config.isConnectionNameUpdated && config.name) {
                                 const updateConnectorInit = updatePropertyStatement(
                                     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
