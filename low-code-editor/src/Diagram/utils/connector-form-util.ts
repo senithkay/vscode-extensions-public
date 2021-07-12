@@ -278,6 +278,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     value.parameters[0].fields = formField;
                     filteredFunctions.set(key, value);
+                } else if (key === 'send'){
+                    value.parameters.forEach((param) => {
+                        if (param.typeName === "Options") {
+                            param.fields.forEach(field => {
+                                // Temporarily setting default value to contentType to avoid running into run-time errors
+                                if (field.name === "contentType"){
+                                    field.value = `"text/plain"`;
+                                }
+                            })
+                        }
+                    });
+                    filteredFunctions.set(key, value);
                 }
                 else if (key === INIT) {
                     if (value.parameters[3].name === CLIENT_CONFIG) {
@@ -316,6 +328,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     }
                     if (value.parameters[2].name === "password"){
                         value.parameters[2].tooltip = tooltipMessages.IMAP.password
+                        value.parameters[2].tooltipActionLink = tooltipMessages.IMAP.passwordLink
+                        value.parameters[2].tooltipActionText = tooltipMessages.IMAP.passwordText
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -487,6 +501,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.
                         find(fields => fields.name === "baseUrl").tooltip = tooltipMessages.salesforce.baseURL;
+                } else if (key === "createJob") {
+                    value.parameters.forEach(field => {
+                        if (field.name === "operation"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.type = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"insert"`, `"update"`, `"delete"`, `"upsert"`, `"query"`];
+                        } else if (field.name === "contentType"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.type = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"JSON"`, `"XML"`, `"CSV"`];
+                        }
+                    })
                 }
                 filteredFunctions.set(key, value);
             });

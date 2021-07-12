@@ -1,4 +1,5 @@
 import { FormField } from "../ConfigurationSpec/types";
+import { Resource } from "../Diagram/components/Portals/Overlay/Elements/DropDown/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,
     returnTypes
@@ -11,7 +12,7 @@ export function validatePath(text: string) {
         const isQueryParamValid = true;
 
         if ((text.match(/\[/g)?.length !== text.match(/\]/g)?.length) ||
-            (text.charAt(text.length - 1) === "/") || (text.charAt(0) === "/")) {
+            (text.charAt(text.length - 1) === "/")) {
             return false;
         }
 
@@ -29,7 +30,7 @@ export function validatePath(text: string) {
                 }
             }
 
-            if (paths.includes("/") && paths.includes("[") && paths.includes("]")) {
+            if (paths.includes("[") && paths.includes("]")) {
                 if (paths.match(/\/\d/g)) return false;
                 const paramArray = (paths.match(/\[([^\[\]]*)\]/g));
                 const arrayLength = paramArray.length;
@@ -40,7 +41,7 @@ export function validatePath(text: string) {
                     }
                     paths = paths.replace(paramArray[i], "")
                 }
-                isPathValid = ((/^['a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)))
+                isPathValid = paths === "" ? true : ((/^['a-zA-Z0-9\/\[\].]+$/g.test(paths)) && (!/^\d/g.test(paths)));
             } else if (paths.includes("/") && paths.includes("{") && paths.includes("}")) {
                 if (paths.match(/\/\d/g)) return false;
                 const paramArray = (paths.match(/\{([^\[\]]*)\}/g));
@@ -122,6 +123,23 @@ export function validatePath(text: string) {
     }
 }
 
+export function isPathDuplicated (resources: Resource[]) : boolean {
+    const resourceSignatures: string[] = [];
+    let isDuplicated = false;
+    resources.forEach((res: any) => {
+        // Validate method signature
+        if (res.method) {
+            const signature: string = `${res.method.toLocaleLowerCase()}_${res.path}`;
+            if (resourceSignatures.includes(signature)) {
+                isDuplicated = true;
+            } else {
+                resourceSignatures.push(signature);
+            }
+        }
+    });
+    return isDuplicated;
+}
+
 export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
     let allFieldsValid = true;
     if (field.type === "record" && !field.optional) {
@@ -178,4 +196,18 @@ export function validateReturnType(text: string) {
         })
         return allSegmentsValid;
     }
+}
+
+export function reCalculateDuplicatedResources(resources: Resource[]) {
+    const resourceSignatures: string[] = [];
+    resources.forEach((res: Resource) => {
+        // Validate method signature
+        const signature: string = `${res.method.toLowerCase()}_${res.path}`;
+        if (resourceSignatures.includes(signature)) {
+            res.isPathDuplicated = true;
+        } else {
+            res.isPathDuplicated = false;
+            resourceSignatures.push(signature);
+        }
+    });
 }

@@ -48,6 +48,7 @@ export interface Resource {
     isCaller?: boolean;
     isRequest?: boolean;
     returnType?: string;
+    isPathDuplicated?: boolean;
     returnTypeDefaultValue?: string;
 }
 
@@ -63,5 +64,6 @@ export interface Advanced {
 
 export interface AdvancedResourceState {
     path: Map<number, boolean>;
+    payloadSelected: Map<number, boolean>;
     returnType: Map<number, boolean>;
 }

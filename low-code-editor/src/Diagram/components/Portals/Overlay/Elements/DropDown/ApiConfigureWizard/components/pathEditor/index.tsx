@@ -54,7 +54,9 @@ export function PathEditor(props: PathEditorProps) {
 
     const pathSegements: React.ReactElement[] = [];
     pathState.segments.forEach((value, index) => {
-        pathSegements.push(<PathSegmentItem segment={value} onDelete={onDelete} />);
+        if (value.name) {
+            pathSegements.push(<PathSegmentItem segment={value} onDelete={onDelete} />);
+        }
     });
 
     const onSave = (pathSegment: PathSegment) => {

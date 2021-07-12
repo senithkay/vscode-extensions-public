@@ -56,6 +56,7 @@ export function DataProcessor(props: ProcessorProps) {
         isWaitingOnWorkspace,
         isReadOnly,
         maximize: maximizeCodeView,
+        handleRightPanelContent,
         setCodeLocationToHighlight: setCodeToHighlight,
         currentApp,
         isCodeEditorActive
@@ -110,7 +111,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
 
-            if (STKindChecker.isMappingConstructor(model.initializer)) {
+            if (model?.initializer && STKindChecker.isMappingConstructor(model?.initializer)) {
                 processType = 'DataMapper';
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
@@ -190,6 +191,7 @@ export function DataProcessor(props: ProcessorProps) {
 
     const onClickOpenInCodeView = () => {
         maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 

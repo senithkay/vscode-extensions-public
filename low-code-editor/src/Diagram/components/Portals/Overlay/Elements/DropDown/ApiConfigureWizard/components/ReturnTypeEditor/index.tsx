@@ -69,7 +69,9 @@ export function ReturnTypeEditor(props: PathEditorProps) {
     });
 
     const onSave = (returnType: ReturnType) => {
-        returnTypeCollection.types.push(returnType);
+        if (returnType.type !== "error") {
+            returnTypeCollection.types.push(returnType);
+        }
         setReturnTypeCollection(returnTypeCollection);
         setAddingReturnType(!addingReturnType);
         if (onChange) {

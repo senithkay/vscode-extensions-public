@@ -13,10 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { Checkbox, Grid } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
+import { Grid } from "@material-ui/core";
 
-import { ButtonWithIcon } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals/ConfigForm/Elements/CheckBox";
@@ -45,6 +43,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
     };
 
     const [segmentState, setSegmentState] = useState<PathSegment>(initValue);
+    const [pathError, setPathError] = useState<string>("");
 
     const onChangeSegmentName = (text: string) => {
         setSegmentState({
@@ -69,6 +68,25 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
         }
     };
 
+    const validatePath = (text: string) : string => {
+        const pathRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9]*$");
+        if (!pathRegex.test(text)) {
+            return "Invalid path value";
+        } else {
+            return "";
+        }
+    };
+
+    const validateNameValue = (value: string) => {
+        if (value) {
+            const pathResponse = validatePath(value);
+            setPathError(pathResponse);
+            return !pathResponse;
+        }
+        setPathError("");
+        return true;
+    };
+
     const handleOnSave = () => {
         onSave(segmentState);
     };
@@ -90,6 +108,10 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 dataTestId="api-path-segment"
                                 defaultValue={segmentState?.name}
                                 onChange={onChangeSegmentName}
+                                customProps={{
+                                    validate: validateNameValue,
+                                }}
+                                errorMessage={pathError}
                             />
                         </Grid>
                     </Grid>
@@ -123,7 +145,8 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={"Add"}
-                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === ""))}
+                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam &&
+                                        (!segmentState.type || segmentState.type === "")) || pathError !== ""}
                                     fullWidth={false}
                                     onClick={handleOnSave}
                                     className={classes.actionBtn}

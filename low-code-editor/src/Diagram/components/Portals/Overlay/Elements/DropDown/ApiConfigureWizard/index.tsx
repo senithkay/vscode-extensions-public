@@ -15,18 +15,24 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
 import { getPathOfResources } from "components/DiagramSelector/utils";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
+import DeleteButton from "../../../../../../../assets/icons/DeleteButton";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { validatePath, validateReturnType } from "../../../../../../../utils/validator";
+import {
+  isPathDuplicated,
+  reCalculateDuplicatedResources,
+  validatePath,
+  validateReturnType
+} from "../../../../../../../utils/validator";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -47,7 +53,14 @@ import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
-import { Advanced, AdvancedResourceState, Path, Payload, QueryParamCollection, Resource } from "./types";
+import {
+  Advanced,
+  AdvancedResourceState,
+  Path,
+  Payload,
+  QueryParamCollection,
+  Resource
+} from "./types";
 import {
   convertPathStringToSegments,
   convertPayloadStringToPayload,
@@ -85,6 +98,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
+    originalSyntaxTree,
     onEvent
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
@@ -108,19 +122,48 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [payloadError, setPayloadError] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
+  const funcSignature = (syntaxTree as FunctionDefinition)?.functionSignature;
+  const extPayload: string = extractPayloadFromST(funcSignature?.parameters);
   const initAdvancedResourceState: AdvancedResourceState = {
     path: new Map([[0, false]]),
     returnType: new Map([[0, false]]),
+    payloadSelected: new Map([[0, extPayload ? true : false]]),
   }
   const [advancedMenuState, setAdvancesMenuState] = useState<AdvancedResourceState>(initAdvancedResourceState);
   const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
   const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
-  const [payloadAvailable, setPayloadAvailable] = useState(false);
+  const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
+  const [togglePayload, setTogglePayload] = useState(false);
+  const [isValidPath, setIsValidPath] = useState(false);
+  const [validateToggle, setValidateToggle] = useState(false);
+  const [existingResources, setExistingResources] = useState<string[]>();
+  const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
+  const [defaultResourceSignature, setDefaultResourceSignature] = useState<string>("");
 
   useEffect(() => {
     const members = syntaxTree && syntaxTree.members;
     if (!members) setIsNewService(false);
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    const addedResources: string[] = [];
+    // Hack: assuming that only one service is there
+    if (originalSyntaxTree?.members[0] && STKindChecker.isServiceDeclaration(originalSyntaxTree.members[0])) {
+      originalSyntaxTree?.members[0]?.members?.forEach(member => {
+        let finalPath = "";
+        member.relativeResourcePath.forEach((resourcePath: any) => {
+          if (resourcePath.value) {
+            finalPath += (resourcePath.value?.trim());
+          } else {
+            finalPath += (resourcePath.source?.trim());
+          }
+        });
+        const resource = `${member.functionName.value}_${finalPath}`;
+        addedResources.push(resource);
+      })
+    }
+    setExistingResources(addedResources);
+  }, [originalSyntaxTree]);
 
   useEffect(() => {
     if (!isFileSaving && isFileSaved && triggerChanged) {
@@ -139,17 +182,26 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
       const stMethod: string = functionName?.value;
       const stPath: string = getPathOfResources(relativeResourcePath) || "";
+      if (stMethod) {
+        setDefaultResourceSignature(`${method.toLowerCase()}_${stPath === "" ? "." : stPath}`);
+      }
 
       const resourceMembers: Resource[] = [];
       if (resources.length === 0) {
         if (stMethod && stPath) {
-          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeDesc });
+          let returnTypeWithoutError = returnTypeDesc;
+          if (returnTypeDesc.includes('|error?')) {
+            returnTypeWithoutError = returnTypeDesc.replace('|error?', '');
+          } else if (returnTypeDesc.includes('error?')) {
+            returnTypeWithoutError = returnTypeDesc.replace('error?', '');
+          }
+          resourceMembers.push({ id: 0, method: stMethod.toUpperCase(), path: (stPath === "." ? "" : stPath), queryParams: queryParam, payload, isCaller: callerParam, isRequest: requestParam, returnType: returnTypeWithoutError });
           setResources(resourceMembers);
           if (payload && payload !== "") {
-            setPayloadAvailable(true);
+            setTogglePayload(true);
           }
         } else {
-          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
+          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true};
           resourceMembers.push(defaultConfig);
           setResources(resourceMembers);
         }
@@ -170,7 +222,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   const onPayloadToggleSelect = (checked: boolean, index: number) => {
-    setPayloadAvailable(!checked);
+    setTogglePayload(!togglePayload);
+    advancedMenuState.payloadSelected.set(index, !advancedMenuState.payloadSelected.get(index));
+    setAdvancesMenuState(advancedMenuState);
     const updatedResources = resources;
     if (!checked && (!updatedResources[index].payload || updatedResources[index].payload !== "")) {
       const segment: Payload = {
@@ -178,6 +232,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         type: "json"
       };
       updatedResources[index].payload = getBallerinaPayloadType(segment);
+      setResources(updatedResources);
+    } else {
+      updatedResources[index].payload = undefined;
       setResources(updatedResources);
     }
   }
@@ -188,10 +245,32 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // Update selected method
     const updatedResources = resources;
     updatedResources[index].method = methodType.toLowerCase();
+    if (existingResources?.length > 0 && !isNewService) {
+      updatedResources[index].isPathDuplicated =
+          existingResources.includes(`${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." :
+              updatedResources[index].path}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !==
+          `${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." : updatedResources[index].path}`
+          && existingResources.includes(`${methodType.toLowerCase()}_${updatedResources[index].path === "" ? "." :
+              updatedResources[index].path}`));
+    } else {
+      updatedResources[index].isPathDuplicated = isPathDuplicated(updatedResources);
+    }
     setResources(updatedResources);
   }
 
   function handleOnChangePath(text: string, index: number) {
+    const resClone = resources;
+    resClone[index].path = text;
+    if (existingResources?.length > 0 && !isNewService) {
+      resClone[index].isPathDuplicated = existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !== `${method.toLowerCase()}_${text === "" ? "." : text}`
+          && existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`));
+    } else {
+      resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    }
+    setResources(resClone);
+    setValidateToggle(!validateToggle);
     setCurrentPath(text);
     if (text === 'hello') {
       // todo: handle dispatch
@@ -215,6 +294,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   function handleOnChangePathFromUI(text: string, index: number) {
+    const resClone = resources;
+    resClone[index].path = text;
+    if (existingResources?.length > 0 && !isNewService) {
+      resClone[index].isPathDuplicated = existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`);
+      setDuplicatedPathsInEdit(defaultResourceSignature !== `${method.toLowerCase()}_${text === "" ? "." : text}`
+          && existingResources.includes(`${method.toLowerCase()}_${text === "" ? "." : text}`));
+    } else {
+      resClone[index].isPathDuplicated = isPathDuplicated(resClone);
+    }
+    setResources(resClone);
+    setValidateToggle(!validateToggle);
+    setResources(resClone);
     setCurrentPath(text);
     if (text === 'hello') {
       // todo: handle dispatch
@@ -281,7 +372,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     resources.forEach((res: any) => {
       // Validate method signature
-      const signature: string = `${res.method}_${res.path}`;
+      const signature: string = `${res.method.toLowerCase()}_${res.path}`;
       if (resourceSignatures.includes(signature)) {
         isValidated = false;
         return;
@@ -309,6 +400,38 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     return isValidated;
   }
 
+  const validatePaths = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // Validate paths
+      if (!validatePath(res.path)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
+  const validateReturnTypes = () => {
+    if (!resources || resources.length === 0) return false;
+
+    let isValidated = true;
+
+    resources.forEach((res: any) => {
+      // validate return type
+      if (!validateReturnType(res.returnType)) {
+        isValidated = false;
+        return;
+      }
+    });
+
+    return isValidated;
+  }
+
   const handleUserConfirm = () => {
     handleUpdateResources();
   };
@@ -327,13 +450,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           const payload: Payload = convertPayloadStringToPayload(res.payload);
           const queryParams: QueryParamCollection = convertQueryParamStringToSegments(res.queryParams);
           return {
-            "PATH": (res.path === "" ? "." : res.path),
+            "PATH": (res.path === "" ? "." : res.path.charAt(0) === "/" ? res.path.substr(1, res.path.length) : res.path),
             "QUERY_PARAM": genrateBallerinaQueryParams(queryParams, (res.isCaller || res.isRequest || (res.payload && res.payload !== ""))),
             "METHOD": res.method.toLowerCase(),
             "PAYLOAD": res.payload ? getBallerinaPayloadType(payload, (res.isCaller || res.isRequest)) : "",
             "ADD_CALLER": res.isCaller,
             "ADD_REQUEST": res.isRequest,
-            "ADD_RETURN": res.returnType
+            "ADD_RETURN": ((res.returnType) ? res.returnType + "|error?" : "error?")
           }
         })
       });
@@ -364,8 +487,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
       }
 
-      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(), (selectedResource.path === "" ? "." : selectedResource.path),
-        selectedResource.queryParams, (payloadAvailable ? selectedResource.payload : ""), selectedResource.isCaller,
+      mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(),
+        (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
+          selectedResource.path.substr(1, selectedResource.path.length) : selectedResource.path),
+        selectedResource.queryParams, (togglePayload ? selectedResource.payload : ""), selectedResource.isCaller,
         selectedResource.isRequest, selectedResource.returnType, updatePosition));
 
       setTriggerChanged(true);
@@ -374,11 +499,34 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   };
 
   const handleAddResource = () => {
-    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "" };
+    isPathDuplicated(resources);
+    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true };
+    defaultConfig.isPathDuplicated = isPathDuplicated([...resources, defaultConfig]);
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
-    advancedMenuState.returnType.set(resources.length, false)
+    advancedMenuState.returnType.set(resources.length, false);
+    advancedMenuState.payloadSelected.set(resources.length, false);
     setAdvancesMenuState(advancedMenuState);
+  }
+
+  const onDeleteResource = (index: number) => {
+    if (index > -1) {
+      const resourceClone = resources;
+      resourceClone.splice(index, 1);
+      setResources(resourceClone);
+      advancedMenuState.path.delete(index);
+      advancedMenuState.returnType.delete(index);
+      advancedMenuState.payloadSelected.delete(index);
+      setAdvancesMenuState(advancedMenuState);
+      setToggleResourceDelete(!toggleResourceDelete);
+    }
+  }
+
+  const validateResourcePath = (text: string) : boolean => {
+    // const duplicatedPath = isPathDuplicated(resources);
+    const validPath = validatePath(text);
+    setIsValidPath(validPath);
+    return validPath;
   }
 
   const resourceConfigTitle = intl.formatMessage({
@@ -404,6 +552,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const pathErrorMessage = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.errorMessage",
     defaultMessage: "Please enter a valid path"
+  });
+
+  const pathDuplicateErrorMessage = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.path.duplicate.errorMessage",
+    defaultMessage: "Path already exists for the selected method"
   });
 
   const pathPlaceholder = intl.formatMessage({
@@ -448,7 +601,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const pathExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.path.tooltip.example",
-    defaultMessage: "/users \n/users/[string name] \n/users/[int userId]/groups"
+    defaultMessage: "users \nusers/[string name] \nusers/[int userId]/groups"
   });
 
   const queryParamExample = intl.formatMessage({
@@ -469,6 +622,21 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const advancedExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.advanced.tooltip.example",
     defaultMessage: "http:Request request \nhttp:Caller caller"
+  });
+
+  const deleteResourceTitle = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.delete.resource.title",
+    defaultMessage: "Delete Resource"
+  });
+
+  const showLessText = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.show.less.text",
+    defaultMessage: "Show Less"
+  });
+
+  const advancedText = intl.formatMessage({
+    id: "lowcode.develop.apiConfigWizard.advanced.text",
+    defaultMessage: "Advanced"
   });
 
   const title = (
@@ -544,6 +712,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     </div>
   );
 
+  reCalculateDuplicatedResources(resources);
+
   return (
     <DiagramOverlay
       className={cn(classes.container)}
@@ -585,41 +755,40 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
               </Grid>
               <Grid item={true} xs={7}>
-
                 {!advancedMenuState.path.get(index) && (
                   // <div className={classes.sectionSeparator}>
                   <Section
-                    title={pathTitle}
-                    tooltipWithExample={{ title, content: pathExample }}
+                      title={pathTitle}
+                      tooltipWithExample={{ title, content: pathExample }}
                   >
                     <FormTextInput
                       dataTestId="api-path"
-                      defaultValue={(resProps.path === ".") ? "" : resProps.path + (resProps.queryParams ? resProps.queryParams : "")}
+                      defaultValue={(resProps.path === ".") ? "" : resProps.path}
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
-                        validate: validatePath
+                        validate: validateResourcePath,
+                        isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit
                       }}
-                      errorMessage={pathErrorMessage}
+                      errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}
                     />
                   </Section>
                   // </div>
                 )}
-
               </Grid>
             </Grid>
             <Grid container={true} spacing={1}>
               <Grid item={true} xs={9} />
               <Grid item={true} xs={3}>
-                <Link component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
-                  Advanced
-                </Link>
+                <div>
+                  {validatePaths() && (
+                      <Link data-testid="advanced-path-config" component="button" variant="body2" onClick={onPathUIToggleSelect.bind(this, index)}>
+                        {advancedMenuState.path.get(index) ? showLessText : advancedText}
+                      </Link>
+                  )}
+                </div>
               </Grid>
             </Grid>
-
-            {!advancedMenuState.path.get(index) && <div className={classes.sectionSeparator} />}
-            {/* <SwitchToggle initSwitch={advancedMenuState.path.get(index)} onChange={} text={"Advanced"} /> */}
-
             {advancedMenuState.path.get(index) && (
               <div>
                 <div className={classes.sectionSeparator}>
@@ -642,9 +811,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                   <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={payloadAvailable} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
+                    button={<SwitchToggle initSwitch={advancedMenuState.payloadSelected.get(index)} onChange={(checked: boolean) => onPayloadToggleSelect(checked, index)} />}
                   >
-                    <PayloadEditor disabled={!payloadAvailable} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
+                    <PayloadEditor disabled={!advancedMenuState.payloadSelected.get(index)} payload={resProps.payload} onChange={(segment: Payload) => handleOnChangePayloadFromUI(segment, index)} onError={(isError: boolean) => handleOnPayloadErrorFromUI(isError, index)} />
                   </Section>
                 </div>
                 <div className={classes.sectionSeparator}>
@@ -665,26 +834,42 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               {advancedMenuState.returnType.get(index) ? (
                 <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
               ) : (
-                <FormTextInput
-                  dataTestId="api-return-type"
-                  defaultValue={resProps.returnType}
-                  onChange={(text: string) => handleOnChangeReturnType(text, index)}
-                  customProps={{
-                    validate: validateReturnType
-                  }}
-                  errorMessage={returnErrorMessage}
-                  placeholder={returnTypePlaceholder}
-                />
+                <div className={classes.returnTextBoxWrapper}>
+                  <FormTextInput
+                      dataTestId="api-return-type"
+                      defaultValue={resProps.returnType}
+                      onChange={(text: string) => handleOnChangeReturnType(text, index)}
+                      customProps={{
+                        validate: validateReturnType
+                      }}
+                      errorMessage={returnErrorMessage}
+                      placeholder={returnTypePlaceholder}
+                  />
+                </div>
               )}
               <Grid container={true} spacing={1}>
                 <Grid item={true} xs={9} />
                 <Grid item={true} xs={3}>
-                  <Link component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                    Advanced
-                  </Link>
+                  <div>
+                    {validateReturnTypes() &&
+                      (
+                        <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
+                          {advancedMenuState.returnType.get(index) ? showLessText : advancedText}
+                        </Link>
+                      )
+                    }
+                  </div>
                 </Grid>
               </Grid>
             </Section>
+            <div className={resources.length > 1 ? classes.deleteBtnWrapper : ""} onClick={() => onDeleteResource(index)}>
+              {resources.length > 1 && (
+                  <>
+                    <DeleteButton/>
+                    <p className={classes.deleteButtonTitle}>{deleteResourceTitle}</p>
+                  </>
+              )}
+            </div>
           </div>
         ))}
 
@@ -701,7 +886,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         )}
 
         <div>
-          {validateResources() &&
+          {validateResources() && !duplicatedPathsInEdit &&
             (
               <div className={classes.serviceFooterWrapper}>
                 <div id="product-tour-save" >

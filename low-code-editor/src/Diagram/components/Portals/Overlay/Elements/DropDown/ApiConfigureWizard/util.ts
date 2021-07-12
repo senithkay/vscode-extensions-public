@@ -13,7 +13,7 @@ import {
 export const payloadTypes: string[] = ["json", "xml", "byte[]", "string"];
 export const queryParamTypes: string[] = ["string", "int"];
 export const pathParamTypes: string[] = ["string", "int"];
-export const returnTypes: string[] = ["http:Response", "json", "xml", "string", "int", "boolean", "float", "error"];
+export const returnTypes: string[] = ["http:Response", "json", "xml", "string", "int", "boolean", "float"];
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
     const payload: Payload = {

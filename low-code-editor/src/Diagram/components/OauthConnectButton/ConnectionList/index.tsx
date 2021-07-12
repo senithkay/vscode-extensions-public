@@ -29,6 +29,7 @@ import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/model
 import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import { AccountAvatar } from '../AccountAvatar';
 
 import { useStyles } from "./../styles";
 
@@ -174,7 +175,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
             <div className={classes.oauthConnectionAltTextWrapper}>
                 <p className={classes.oauthConnectionAltText}>
                     <FormattedMessage
-                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        id="lowcode.develop.connectorForms.newConnectionAltText3"
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
@@ -193,7 +194,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     <div className={classes.oauthConnectionAltTextWrapper}>
                         <p className={classes.oauthConnectionAltText}>
                             <FormattedMessage
-                                id="lowcode.develop.connectorForms.newConnectionAltText"
+                                id="lowcode.develop.connectorForms.newConnectionAltText4"
                                 defaultMessage={"You will be prompted to enter configuration details"}
                             />
                         </p>

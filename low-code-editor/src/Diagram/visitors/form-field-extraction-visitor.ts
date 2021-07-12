@@ -18,6 +18,7 @@ import {
     DefaultableParam,
     ErrorTypeDesc,
     FloatTypeDesc,
+    IncludedRecordParam,
     IntTypeDesc,
     JsonTypeDesc,
     MarkdownParameterDocumentationLine,
@@ -229,6 +230,12 @@ class FieldVisitor implements Visitor {
     beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             node.typedesc.viewState = node.viewState;
+        }
+    }
+
+    beginVisitIncludedRecordParam(node: IncludedRecordParam) {
+        if (node.viewState && node.viewState.isParam) {
+            node.typeName.viewState = node.viewState;
         }
     }
 
@@ -493,7 +500,7 @@ class FieldVisitor implements Visitor {
             if (node.functionSignature.parameters.length > 0) {
                 node.functionSignature.parameters
                     .filter(paramElement =>
-                        (paramElement.kind === 'RequiredParam' || paramElement.kind === 'DefaultableParam' || STKindChecker.isRestParam(paramElement)))
+                        (['RequiredParam', 'DefaultableParam', 'IncludedRecordParam'].includes(paramElement.kind) || STKindChecker.isRestParam(paramElement)))
                     .forEach((paramElement: RequiredParam | DefaultableParam | RestParam) => {
                         const params = functionDefinitionMap.get(node.functionName.value).parameters;
                         paramElement.viewState.description = parameterDescriptions.get(paramElement.paramName.value);

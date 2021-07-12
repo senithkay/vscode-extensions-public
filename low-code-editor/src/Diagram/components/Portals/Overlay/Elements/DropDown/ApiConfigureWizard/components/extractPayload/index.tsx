@@ -53,6 +53,16 @@ export function PayloadEditor(props: PayloadProps) {
     const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(segmentState.name);
     const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
 
+    useEffect(() => {
+        if (disabled) {
+            onError(false);
+            setPayloadVarNameError("");
+        } else {
+            const validPayload = validatePayloadNameValue(segmentState.name);
+            onError(!validPayload);
+        }
+    }, [disabled]);
+
     const onChangeSegmentType = (text: string) => {
         const payloadSegment: Payload = {
             ...segmentState,
@@ -76,14 +86,12 @@ export function PayloadEditor(props: PayloadProps) {
     };
 
     const validatePayloadNameValue = (value: string) => {
-        if (value) {
-            const varValidationResponse = checkVariableName("payload name", value,
-                defaultPayloadVarName, diagramState);
-            setPayloadVarNameError(varValidationResponse.message);
-            if (varValidationResponse?.error) {
-                onError(true);
-                return false;
-            }
+        const varValidationResponse = checkVariableName("payload name", value,
+            defaultPayloadVarName, diagramState);
+        setPayloadVarNameError(varValidationResponse.message);
+        if (varValidationResponse?.error) {
+            onError(true);
+            return false;
         }
         onError(false);
         return true;
@@ -122,6 +130,7 @@ export function PayloadEditor(props: PayloadProps) {
                         <Grid item={true} xs={7}>
                             <FormTextInput
                                 dataTestId="api-extract-segment"
+                                disabled={disabled}
                                 defaultValue={segmentState?.name}
                                 customProps={{
                                     validate: validatePayloadNameValue,
