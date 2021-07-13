@@ -200,7 +200,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
             <div className={classes.oauthConnectionAltTextWrapper}>
                 <p className={classes.oauthConnectionAltText}>
                     <FormattedMessage
-                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        id="lowcode.develop.connectorForms.newConnectionAltText3"
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
@@ -219,7 +219,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     <div className={classes.oauthConnectionAltTextWrapper}>
                         <p className={classes.oauthConnectionAltText}>
                             <FormattedMessage
-                                id="lowcode.develop.connectorForms.newConnectionAltText"
+                                id="lowcode.develop.connectorForms.newConnectionAltText4"
                                 defaultMessage={"You will be prompted to enter configuration details"}
                             />
                         </p>

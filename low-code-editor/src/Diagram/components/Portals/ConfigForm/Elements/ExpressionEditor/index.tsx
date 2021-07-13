@@ -35,6 +35,7 @@ import "./style.scss";
 import {
     addImportModuleToCode,
     addQuotesChecker,
+    addToStringChecker,
     addToTargetLine,
     addToTargetPosition,
     checkIfStringExist,
@@ -190,6 +191,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [stringCheck, setStringCheck] = useState(checkIfStringExist(varType));
     const [needQuotes, setNeedQuotes] = useState(false);
+    const [needToString, setNeedToString] = useState(false);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -198,9 +200,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
-        validate(model.name, false);
-        if (monacoRef.current) {
-            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+        if (model.validationRegex) {
+            if (monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
+                validate(model.name, false);
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            } else {
+                notValidExpEditor(`Invalid ${textLabel}`);
+            }
+        } else {
+            validate(model.name, false);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 
@@ -211,6 +222,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         } else {
             validate(model.name, true);
             setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
+            setNeedToString(addToStringChecker(expressionEditorState.diagnostic))
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                     startLineNumber: 1,
@@ -886,6 +898,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         }
     }
 
+    const addToStringToExpression = () => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`(${editorContent}).toString()`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+
     setDefaultTooltips();
 
     return (
@@ -918,11 +941,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
+                                    {stringCheck && needToString && monacoRef.current && (
+                                        <ExpressionEditorHint type={HintType.ADD_TO_STRING} onClickHere={addToStringToExpression}/>
+                                    )}
                                     {stringCheck && needQuotes && monacoRef.current ?
                                         (monacoRef.current.editor.getModel().getValue() === "") ? (
                                             <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
                                         ) : (
-                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion}/>
+                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion} editorContent={monacoRef.current.editor.getModel().getValue()}/>
                                         ) : null
                                     }
                                 </>

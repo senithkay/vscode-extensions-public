@@ -104,6 +104,22 @@ export const useStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             },
         },
+        groupedFormUnion: {
+            boxSizing: "border-box",
+            height: "auto",
+            width: "100%",
+            border: "1px solid #DEE0E7",
+            borderRadius: "6px",
+            backgroundColor: "#FFF",
+            padding: "0.5rem 1rem 1rem",
+            marginTop: "0.5rem !important",
+            "& .MuiInputBase-root": {
+                width: '100% !important',
+            },
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            },
+        },
         buttonHolder: {
             display: "flex",
             justifyContent: "flex-end",
@@ -428,6 +444,18 @@ export const useStyles = makeStyles((theme: Theme) =>
                 cursor: 'pointer',
                 textDecoration: 'underline'
             }
+        },
+        suggestionsTextCodeSnippet: {
+            backgroundColor: "#eff1f5",
+            color: "#526acf",
+            fontSize: "12px",
+            padding: "5px"
+        },
+        pre: {
+            margin: 0,
+            display: "contents",
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word"
         },
         toFieldTooltipWrapper: {
             display: "flex",

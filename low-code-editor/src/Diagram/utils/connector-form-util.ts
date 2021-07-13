@@ -153,6 +153,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "url") {
                             param.displayName = "URL";
                             param.description = "URL of the target service";
+                            param.validationRegex = new RegExp("[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)");
                         } else if (param.name === "config") {
                             param.hide = true;
                             param.noCodeGen = true;
@@ -501,6 +502,18 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     });
                     value.parameters.find(fields => fields.name === "salesforceConfig").fields.
                         find(fields => fields.name === "baseUrl").tooltip = tooltipMessages.salesforce.baseURL;
+                } else if (key === "createJob") {
+                    value.parameters.forEach(field => {
+                        if (field.name === "operation"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.type = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"insert"`, `"update"`, `"delete"`, `"upsert"`, `"query"`];
+                        } else if (field.name === "contentType"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.type = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"JSON"`, `"XML"`, `"CSV"`];
+                        }
+                    })
                 }
                 filteredFunctions.set(key, value);
             });
