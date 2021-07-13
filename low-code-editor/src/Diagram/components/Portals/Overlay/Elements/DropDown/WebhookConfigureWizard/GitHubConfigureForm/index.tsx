@@ -59,6 +59,10 @@ export interface ConnectorEvents {
     [key: string]: any;
 }
 
+const CLIENT_SECRET_KEY = "clientSecretKey";
+const ACCESS_TOKEN_KEY = "accessTokenKey";
+const SSO_TYPE = "sso";
+
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
@@ -399,13 +403,13 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         let clientSecretKey;
         const updatedFields: { name: string; value: string; }[] = [];
         const lastSelectedOrg = JSON.parse(localStorage.getItem('PORTAL_STATE'))?.userInfo?.selectedOrgHandle;
-        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
-        if (activeConnection.type === "sso") {
+        const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === ACCESS_TOKEN_KEY).codeVariableKey;
+        if (activeConnection.type === SSO_TYPE) {
             // if the active connection is SSO
-            clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+            clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === CLIENT_SECRET_KEY).codeVariableKey;
             handleModifyTrigger(accessTokenKey, clientSecretKey);
         } else {
-            clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
+            clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === CLIENT_SECRET_KEY);
             if (clientSecretKey) {
                 // if the active connection is manual but has a CS
                 clientSecretKey = clientSecretKey.codeVariableKey;
@@ -416,11 +420,11 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     updatedFields.push({
                         name: "clientSecret",
                         value: generateUuid()
-                    })
+                    });
                     const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName,
                         activeConnection.displayName, activeConnection.userAccountIdentifier, updatedFields,
                         activeConnection.type, activeConnection.handle);
-                    clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
+                    clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === CLIENT_SECRET_KEY).codeVariableKey;
                     handleModifyTrigger(accessTokenKey, clientSecretKey);
                 })();
             }

@@ -21,6 +21,7 @@ import classNames from "classnames";
 import { triggerErrorNotification, triggerSuccessNotification } from "store/actions";
 import { store } from "store/index";
 
+const GITHUB_CONNECTOR = "GitHub";
 import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
     AiSuggestionsReq,
@@ -409,11 +410,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         });
                     }
                 });
-                if (connectorInfo.displayName === "GitHub") {
+                if (connectorInfo.displayName === GITHUB_CONNECTOR) {
                     formattedFieldValues.push({
                         name: "clientSecret",
                         value: generateUuid()
-                    })
+                    });
                 }
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
