@@ -28,6 +28,8 @@ import {
     WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
+import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
@@ -37,6 +39,7 @@ import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX 
 import {
     BlockViewState,
     CompilationUnitViewState,
+    ControlFlowLineState,
     DoViewState,
     ElseViewState,
     EndpointViewState,
@@ -45,7 +48,9 @@ import {
     IfViewState,
     OnErrorViewState,
     PlusViewState,
+    SimpleBBox,
     StatementViewState,
+    ViewState,
     WhileViewState
 } from "../view-state";
 
@@ -156,6 +161,22 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
     }
 
+    private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
+        // Update First Controll Flow line
+        if (viewState.workerBody.controlFlowLineStates.length > 0) { // The list may contain 0 CF lines
+            const startLine = viewState.workerBody.controlFlowLineStates[0];
+            const newStartLineY = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
+            const newStartLineH = startLine.y - viewState.trigger.cy + startLine.h + DefaultConfig.triggerPortalOffset.y;
+            startLine.h = newStartLineH;
+            startLine.y = newStartLineY;
+
+            if (body.statements[body.statements.length - 1].controlFlow?.isReached) {
+                const endLine = viewState.workerBody.controlFlowLineStates[viewState.workerBody.controlFlowLineStates.length - 1];
+                endLine.h = viewState.end.bBox.cy - endLine.y
+            }
+        }
+    }
+
     public endVisitFunctionDefinition(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
@@ -203,6 +224,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
+
+        // Update First Control Flow line
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -226,6 +250,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // Update First Control Flow line
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -249,6 +276,9 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
         viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // Update First Control Flow line
+        this.updateFunctionEdgeControlFlow(viewState, body);
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -284,6 +314,32 @@ class PositioningVisitor implements Visitor {
                     statementViewState.bBox.cy += draft.bBox.h;
                     height += draft.bBox.h;
                 }
+            }
+
+            // Add control flow line above each statement
+            if (statement?.controlFlow?.isReached) {
+                const controlFlowLineState: ControlFlowLineState = {
+                    x: 0,
+                    y: 0,
+                    h: 0
+                };
+                if (index === 0) {
+                    controlFlowLineState.x = blockViewState.bBox.cx;
+                    controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
+                    controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
+                } else {
+                    const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                    controlFlowLineState.x = statementViewState.bBox.cx;
+                    if (STKindChecker.isIfElseStatement(node.statements[index - 1])) {
+                        controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
+                        controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
+                    } else {
+                        controlFlowLineState.y = previousStatementViewState.bBox.cy;
+                        controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
+                    }
+
+                }
+                blockViewState.controlFlowLineStates.push(controlFlowLineState);
             }
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
@@ -418,9 +474,45 @@ class PositioningVisitor implements Visitor {
                     height += statementViewState.bBox.h;
                 }
             }
-
             ++index;
         });
+
+        if (!blockViewState.isEndComponentAvailable
+            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
+            const lastStatement = node.statements[node.statements.length - 1];
+            if (!(node.viewState as BlockViewState).isElseBlock) {
+                //  Adding last control flow line after last statement for any block
+                if (STKindChecker.isIfElseStatement(lastStatement)) {
+                    // For IfElse statements, the starting position of the end line starts at the bottom of last statement
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h - blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom,
+                        h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
+                    }
+                    blockViewState.controlFlowLineStates.push(lastLine);
+                } else {
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: lastStatement.viewState.bBox.cy,
+                        h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
+                    };
+                    blockViewState.controlFlowLineStates.push(lastLine);
+                }
+            } else {
+                //  Adding last control flow line after last statement for else block
+                if (!STKindChecker.isReturnStatement(lastStatement)) {
+                    const endLineY = STKindChecker.isIfElseStatement(lastStatement)
+                        ? lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h
+                        : lastStatement.viewState.bBox.cy;
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: endLineY,
+                        h: blockViewState.bBox.cy + height - endLineY,
+                    }
+                    blockViewState.controlFlowLineStates.push(lastLine);
+                }
+            }
+        }
 
         // Get the last plus view state
         const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
@@ -479,6 +571,22 @@ class PositioningVisitor implements Visitor {
 
         viewState.whileBodyRect.cx = viewState.whileHead.cx;
         viewState.whileBodyRect.cy = viewState.whileHead.cy;
+    }
+
+    public endVisitForeachStatement(node: ForeachStatement) {
+        this.updateLoopEdgeControlFlow(node.viewState.foreachBody, node.viewState.foreachLifeLine);
+    }
+
+    public endVisitWhileStatement(node: WhileStatement) {
+        this.updateLoopEdgeControlFlow(node.viewState.whileBody, node.viewState.whileLifeLine);
+    }
+
+    public updateLoopEdgeControlFlow(bodyViewState: BlockViewState, lifeLine: SimpleBBox) {
+        const controlFlowLines = bodyViewState.controlFlowLineStates;
+        if (controlFlowLines.length > 0) { // The list may contain 0 CF lines
+            const endLine = controlFlowLines[controlFlowLines.length - 1];
+            endLine.h = lifeLine.cy + lifeLine.h - endLine.y
+        }
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
@@ -547,6 +655,54 @@ class PositioningVisitor implements Visitor {
             if (viewState.childElseViewState) {
                 defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
             }
+        }
+    }
+
+    public endVisitIfElseStatement(node: IfElseStatement) {
+        const bodyViewState: BlockViewState = node.ifBody.viewState;
+        // For then block add last line
+        if (node.ifBody.statements.length > 0 && node.ifBody.statements[node.ifBody.statements.length - 1]?.controlFlow?.isReached) {
+            const lastStatement = node.ifBody.statements[node.ifBody.statements.length - 1];
+            const lineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h;
+            const lineHeightForIf = bodyViewState.bBox.cy + bodyViewState.bBox.length - lastStatement.viewState.bBox.offsetFromBottom - lineY;
+            const lastLine: ControlFlowLineState = {
+                x: lastStatement.viewState.bBox.cx,
+                y: lineY,
+                h: lineHeightForIf,
+            }
+            bodyViewState.controlFlowLineStates.push(lastLine);
+        }
+        if (node.elseBody && node.elseBody.elseBody.controlFlow?.isReached) {
+            if (node.elseBody?.elseBody && STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
+                const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
+                const elseIfViewState: IfViewState = elseIfStmt.viewState;
+                const topLine: ControlFlowLineState = {
+                    x: elseIfViewState.elseIfTopHorizontalLine.x,
+                    y: elseIfViewState.elseIfTopHorizontalLine.y,
+                    w: elseIfViewState.elseIfLifeLine.x - elseIfViewState.elseIfTopHorizontalLine.x - elseIfViewState.elseIfHeadWidthOffset,
+                };
+                bodyViewState.controlFlowLineStates.push(topLine);
+
+                if (elseIfStmt.controlFlow?.isCompleted) {
+                    const bottomLine: ControlFlowLineState = {
+                        x: elseIfViewState.elseIfBottomHorizontalLine.x,
+                        y: elseIfViewState.elseIfBottomHorizontalLine.y,
+                        w: elseIfViewState.elseIfLifeLine.x - elseIfViewState.elseIfBottomHorizontalLine.x
+                    };
+                    bodyViewState.controlFlowLineStates.push(bottomLine);
+                }
+            }
+        }
+        // Add body control flow line for empty else conditions
+        if (!node.elseBody && node.controlFlow?.isReached && !node.ifBody.controlFlow?.isReached) {
+            // Handling empty else bodies of which if body had not been reached but the overall statement was
+            const defaultElseVS = (node?.viewState as IfViewState)?.defaultElseVS;
+            const defaultBodyControlFlowLine = {
+                x: defaultElseVS.bBox.cx,
+                y: node.ifBody.viewState.bBox.cy + TOP_CURVE_SVG_HEIGHT,
+                h: node.ifBody.viewState.bBox.h - (TOP_CURVE_SVG_HEIGHT + BOTTOM_CURVE_SVG_WIDTH),
+            };
+            defaultElseVS?.controlFlowLineStates.push(defaultBodyControlFlowLine);
         }
     }
 
