@@ -20,11 +20,11 @@ import {
 } from "@ballerina/syntax-tree";
 import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import {triggerErrorNotification} from "store/actions";
-import {store} from "store/index";
+import { triggerErrorNotification } from "store/actions";
+import { store } from "store/index";
 
 import { DiagramOverlayPosition } from "../../../..";
-import {updateManualConnection} from "../../../../../../../../../../../src/api/connector";
+import { updateManualConnection } from "../../../../../../../../../../../src/api/connector";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
@@ -42,7 +42,6 @@ import { createPropertyStatement, updatePropertyStatement } from "../../../../..
 import { ConnectionType, OauthConnectButton } from "../../../../../../OauthConnectButton";
 import { FormAutocomplete } from "../../../../../ConfigForm/Elements/Autocomplete";
 import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/PrimaryButton";
-import {FormTextInput} from "../../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
@@ -85,8 +84,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const [isRepoListFetching, setIsRepoListFetching] = useState(false);
     const [githubRepoList, setGithubRepoList] = useState<GithubRepo[]>(undefined)
     const [activeGithubRepo, setActiveGithubRepo] = useState<GithubRepo>(null);
-    const [customClientSecretKey, setCustomClientSecretKey] = useState("");
-    const [isClientSecretKeySet, setIsClientSecretKeySet] = useState(false);
 
     // HACK: hardcoded event list until get it form connector API
     const githubEvents: ConnectorEvents = {
@@ -314,13 +311,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }, [isFileSaving, isFileSaved]);
     useEffect(() => {
         if (activeConnection) {
-            const clientSecret = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
-            setIsClientSecretKeySet(!!clientSecret)
-            activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
             setIsRepoListFetching(true);
             (async () => {
                 const repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
-                if (repoList.data || repoList.response.status !== 500) {
+                if (repoList.status !== 500) {
                     setGithubRepoList(repoList.data);
                     setIsRepoListFetching(false);
                 } else {
@@ -348,6 +342,9 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     }
     function handleOnDeselectConnection() {
         setActiveConnection(undefined);
+        setActiveAction(undefined);
+        setActiveEvent(undefined);
+        setActiveGithubRepo(undefined);
     }
     function handleError() {
         setActiveConnection(undefined);
@@ -370,10 +367,6 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         } else {
             setShowConfirmDialog(true);
         }
-    };
-
-    const handleCustomClientSecretOnChange = (value: string) => {
-        setCustomClientSecretKey(value);
     };
 
     const generateUuid = () => {
@@ -408,21 +401,25 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
         const lastSelectedOrg = JSON.parse(localStorage.getItem('PORTAL_STATE'))?.userInfo?.selectedOrgHandle;
         const accessTokenKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'accessTokenKey').codeVariableKey;
         if (activeConnection.type === "sso") {
+            // if the active connection is SSO
             clientSecretKey = activeConnection?.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
             handleModifyTrigger(accessTokenKey, clientSecretKey);
         } else {
             clientSecretKey = activeConnection?.codeVariableKeys?.find(keys => keys.name === 'clientSecretKey')
             if (clientSecretKey) {
+                // if the active connection is manual but has a CS
                 clientSecretKey = clientSecretKey.codeVariableKey;
                 handleModifyTrigger(accessTokenKey, clientSecretKey);
             } else {
+                // if the active connection is manual but doesn't have a CS
                 (async () => {
                     updatedFields.push({
                         name: "clientSecret",
                         value: generateUuid()
                     })
-                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName, activeConnection.displayName,
-                        activeConnection.userAccountIdentifier, updatedFields, activeConnection.type, activeConnection.handle);
+                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName,
+                        activeConnection.displayName, activeConnection.userAccountIdentifier, updatedFields,
+                        activeConnection.type, activeConnection.handle);
                     clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === 'clientSecretKey').codeVariableKey;
                     handleModifyTrigger(accessTokenKey, clientSecretKey);
                 })();
@@ -584,7 +581,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                     />
                 </div>
             )}
-            { activeGithubRepo && activeConnection && (
+            { activeGithubRepo && !isRepoListFetching && activeConnection && (
                 <div className={classes.customWrapper}>
                     <TooltipIcon
                         title={gitHubTriggerTooltipMessages.gitHubEvent.title}
