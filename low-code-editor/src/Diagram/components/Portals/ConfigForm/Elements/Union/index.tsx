@@ -72,7 +72,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         if (selectedField && selectedField.type) {
             element = (
                 <div className={classes.removeInnerMargin}>
-                    <Form fields={selectedField.fields} onValidate={validateForm} />
+                    <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
                 </div>
             );
         }
