@@ -153,6 +153,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         if (param.name === "url") {
                             param.displayName = "URL";
                             param.description = "URL of the target service";
+                            param.validationRegex = new RegExp("[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)");
                         } else if (param.name === "config") {
                             param.hide = true;
                             param.noCodeGen = true;
