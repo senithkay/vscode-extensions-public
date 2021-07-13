@@ -482,22 +482,20 @@ class PositioningVisitor implements Visitor {
             const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
                 //  Adding last control flow line after last statement for any block
+                let lastLineY;
                 if (STKindChecker.isIfElseStatement(lastStatement)) {
                     // For IfElse statements, the starting position of the end line starts at the bottom of last statement
-                    const lastLine: ControlFlowLineState = {
-                        x: lastStatement.viewState.bBox.cx,
-                        y: lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h - blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom,
-                        h: blockViewState.bBox.cy + height - lastStatement.viewState.bBox.cy,
-                    }
-                    blockViewState.controlFlowLineStates.push(lastLine);
+                    lastLineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h -
+                        blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom;
                 } else {
-                    const lastLine: ControlFlowLineState = {
-                        x: lastStatement.viewState.bBox.cx,
-                        y: lastStatement.viewState.bBox.cy,
-                        h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastStatement.viewState.bBox.cy,
-                    };
-                    blockViewState.controlFlowLineStates.push(lastLine);
+                    lastLineY = lastStatement.viewState.bBox.cy
                 }
+                const lastLine: ControlFlowLineState = {
+                    x: lastStatement.viewState.bBox.cx,
+                    y: lastLineY,
+                    h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastLineY,
+                };
+                blockViewState.controlFlowLineStates.push(lastLine);
             } else {
                 //  Adding last control flow line after last statement for else block
                 if (!STKindChecker.isReturnStatement(lastStatement)) {
