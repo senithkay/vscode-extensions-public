@@ -60,9 +60,9 @@ export function Function(props: FunctionProps) {
                 {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
                 {isInitPlusAvailable && <StartButton model={model} />}
                 {!isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
                 {isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
                 {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
-                {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
                 {!isInitPlusAvailable && isStatementsAvailable && (!bodyViewState?.isEndComponentInMain ||
                     bodyViewState?.collapseView) && <End viewState={viewState.end} />}
             </g>

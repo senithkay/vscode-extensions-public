@@ -402,6 +402,7 @@ class SizingVisitor implements Visitor {
 
                 elseViewState.ifHeadWidthOffset = viewState.headIf.w / 2;
                 elseViewState.ifHeadHeightOffset = viewState.headIf.h / 2;
+                elseViewState.isElseBlock = true;
             } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
                 const elseIfViewState: IfViewState = node.elseBody.elseBody.viewState as IfViewState;
                 elseIfViewState.childElseIfViewState = [];
