@@ -97,6 +97,9 @@ export function PlusElements(props: PlusElementsProps) {
             // todo: handle the dispatch for the tour
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
         }
+        if (processType === "DataMapper") {
+            state.onAPIClient({org: processType});
+        }
     };
 
     const onAPITypeSelect = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
