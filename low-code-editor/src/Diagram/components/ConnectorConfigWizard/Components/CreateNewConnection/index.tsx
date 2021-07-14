@@ -191,7 +191,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
           <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint2" defaultMessage="A numerical character at the beginning"/>
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint3" defaultMessage="Keywords such as Return, Foreach, Resource, and Object"/>
+          <FormattedMessage id="lowcode.develop.connectorForms.createConnection.endPointName.tooltip.bulletPoint3" defaultMessage="Keywords such as <code>Return</code>, <code>Foreach</code>, <code>Resource</code>, <code>Object</code>, etc." values={{ code: (chunks: string) => <code>{chunks}</code>}} />
         </li>
       </ul>
     </div>
