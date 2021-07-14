@@ -15,6 +15,12 @@ import { DraftStatementViewState } from "./draft";
 import { PlusViewState } from "./plus";
 import { ViewState } from "./view-state";
 
+export interface ControlFlowExecutionTimeState {
+    value: number;
+    x?: number;
+    y?: number;
+    h?: number;
+}
 export interface ControlFlowLineState {
     x: number;
     y: number;
@@ -34,7 +40,7 @@ export class BlockViewState extends ViewState {
     public isDoBlock: boolean = false;
     public isOnErrorBlock: boolean = false;
     public controlFlowLineStates?: ControlFlowLineState[] = [];
-
+    public controlFlowExecutionTimeState?: ControlFlowExecutionTimeState[] = [];
     constructor() {
         super();
     }

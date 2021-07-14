@@ -28,6 +28,7 @@ import {
     WhileStatement
 } from "@ballerina/syntax-tree";
 
+import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../components/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
@@ -39,6 +40,7 @@ import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX 
 import {
     BlockViewState,
     CompilationUnitViewState,
+    ControlFlowExecutionTimeState,
     ControlFlowLineState,
     DoViewState,
     ElseViewState,
@@ -162,7 +164,7 @@ class PositioningVisitor implements Visitor {
     }
 
     private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
-        // Update First Controll Flow line
+        // Update First Control Flow line
         if (viewState.workerBody.controlFlowLineStates.length > 0) { // The list may contain 0 CF lines
             const startLine = viewState.workerBody.controlFlowLineStates[0];
             const newStartLineY = viewState.trigger.cy - DefaultConfig.triggerPortalOffset.y;
@@ -299,6 +301,8 @@ class PositioningVisitor implements Visitor {
         let height = 0;
         let index = 0;
         const epGap = DefaultConfig.epGap;
+        // Clean rendered labels
+        blockViewState.controlFlowExecutionTimeState = [];
         node.statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;
@@ -315,7 +319,19 @@ class PositioningVisitor implements Visitor {
                     height += draft.bBox.h;
                 }
             }
-
+            // Control flow execution time
+            if (statement?.controlFlow?.executionTime !== undefined) {
+                const isIf = STKindChecker.isIfElseStatement(statement)
+                // Neglect if width dueto drawing lines in left side
+                const offset = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.w / 2) + EXECUTION_TIME_DEFAULT_X_OFFSET);
+                const executionTime: ControlFlowExecutionTimeState = {
+                    x: (blockViewState.bBox.cx) - offset,
+                    y: blockViewState.bBox.cy + height + (statementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromTop),
+                    h: statementViewState.bBox.h - (statementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromBottom),
+                    value: statement.controlFlow?.executionTime
+                };
+                blockViewState.controlFlowExecutionTimeState.push(executionTime);
+            }
             // Add control flow line above each statement
             if (statement?.controlFlow?.isReached) {
                 const controlFlowLineState: ControlFlowLineState = {
