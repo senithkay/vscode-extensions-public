@@ -41,6 +41,7 @@ import {
     checkIfStringExist,
     createContentWidget,
     createSortText,
+    customErrorMessage,
     diagnosticCheckerExp,
     getDiagnosticMessage,
     getFilteredDiagnostics,
@@ -267,6 +268,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
                 }
+            } else if (customErrorMessage(expressionEditorState.diagnostic)) {
+                return
             } else {
                 if (monacoRef.current) {
                     validExpEditor();
