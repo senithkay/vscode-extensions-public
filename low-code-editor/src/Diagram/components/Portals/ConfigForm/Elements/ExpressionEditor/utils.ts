@@ -31,7 +31,8 @@ import {
     IGNORED_DIAGNOSTIC_MESSAGES,
     SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS,
     SUGGEST_TO_STRING_TYPE,
-    UNDEFINED_SYMBOL_ERR_CODE
+    UNDEFINED_SYMBOL_ERR_CODE,
+    DIAGNOSTIC_MAX_LENGTH,
 } from "./constants";
 import "./style.scss";
 
@@ -335,8 +336,8 @@ export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomState
 
 
 export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
-    if (diagnosticsMessage && diagnosticsMessage.length > 50)
-        return diagnosticsMessage.slice(0, 50) + " ..."
+    if (diagnosticsMessage && diagnosticsMessage.length > DIAGNOSTIC_MAX_LENGTH)
+        return diagnosticsMessage.slice(0, DIAGNOSTIC_MAX_LENGTH) + " ..."
     else
         return diagnosticsMessage
 }
