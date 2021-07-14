@@ -107,6 +107,10 @@ export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
     return diagnosticChecker(diagnostics)
 }
 
+export function customErrorMessage(diagnostics: Diagnostic[]): boolean {
+    return (Array.isArray(diagnostics) && diagnostics.length === 1 && diagnostics[0].code === "")
+}
+
 export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
     if (!diagnostics) {
         return false
