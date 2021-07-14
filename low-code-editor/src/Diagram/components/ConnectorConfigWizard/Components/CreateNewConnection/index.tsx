@@ -40,6 +40,7 @@ interface CreateConnectorFormProps {
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
+    responseStatus: number;
 }
 
 interface NameState {
@@ -52,7 +53,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -254,6 +255,12 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
     const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
 
+    const tokenError = (
+        <div>
+            <p>Invalid Access Token. Please try again.</p>
+        </div>
+    )
+
     return (
         <div>
             <FormControl className={wizardClasses.mainWrapper}>
@@ -280,6 +287,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>
+                        {responseStatus === 2001 && (
+                            tokenError
+                        )}
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>

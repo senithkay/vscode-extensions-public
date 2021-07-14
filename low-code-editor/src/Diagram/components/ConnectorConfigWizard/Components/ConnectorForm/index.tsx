@@ -145,6 +145,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const connectorTypes = ["Google Sheets", "Google Calendar", "Gmail", "GitHub"];
     const [activeConnectionHandler, setActiveConnectionHandler] = useState("");
     const [activeConnectionId, setActiveConnectionId] = useState("");
+    const [responseStatus, setResponseStatus] = useState<number>();
+
     const updateConfigSuccessMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.updateConfig.success",
         defaultMessage: "Successfully updated the connection configuration."
@@ -429,6 +431,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                 config.connectionName, userInfo.user.email, formattedFieldValues);
                             apiResponseStatus = response.status === 500 ? response.data.code : response.status;
+                            setResponseStatus(apiResponseStatus)
                             if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                                 configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                     response.data, selectedType);
@@ -1072,6 +1075,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             connector={connectorInfo}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
+                            responseStatus={responseStatus}
                         />
                     )}
                     {(formState === FormStates.CreateNewConnection) && (
@@ -1085,6 +1089,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             connector={connectorInfo}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
+                            responseStatus={responseStatus}
                         />
                     )}
                     {(formState === FormStates.SingleForm) && (
