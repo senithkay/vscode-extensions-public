@@ -324,7 +324,7 @@ class PositioningVisitor implements Visitor {
             if (statement?.controlFlow?.executionTime !== undefined) {
                 const isIf = STKindChecker.isIfElseStatement(statement)
                 // Neglect if width dueto drawing lines in left side
-                const offset = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.w / 2) + EXECUTION_TIME_DEFAULT_X_OFFSET);
+                const offsetX = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.w / 2) + EXECUTION_TIME_DEFAULT_X_OFFSET);
                 let offsetY;
                 if (STKindChecker.isIfElseStatement(statement)) {
                     offsetY = (statementViewState as IfViewState).headIf.h / 2;
@@ -335,7 +335,7 @@ class PositioningVisitor implements Visitor {
                 }
 
                 const executionTime: ControlFlowExecutionTimeState = {
-                    x: blockViewState.bBox.cx - offset,
+                    x: blockViewState.bBox.cx - offsetX,
                     y: statementViewState.bBox.cy + offsetY,
                     h: statementViewState.bBox.h - (statementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop + offsetY),
                     value: statement.controlFlow?.executionTime

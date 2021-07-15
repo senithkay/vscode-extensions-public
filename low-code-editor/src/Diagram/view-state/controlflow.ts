@@ -12,7 +12,6 @@ export interface ControlFlowLineState {
     w?: number;
 }
 
-
 export class ControlFlowState {
     public lineStates?: ControlFlowLineState[] = [];
     public executionTimeStates?: ControlFlowExecutionTimeState[] = [];
