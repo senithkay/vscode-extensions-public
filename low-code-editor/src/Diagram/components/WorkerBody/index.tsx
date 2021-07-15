@@ -18,6 +18,8 @@ import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
 import { Collapse } from "../Collapse";
+import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
+import { ControlFlowLine } from "../ControlFlowLine";
 import { PlusButton } from "../Plus";
 export interface DiagramProps {
     model: FunctionBodyBlock,
@@ -31,11 +33,22 @@ export function WorkerBody(props: DiagramProps) {
     const pluses: React.ReactNode[] = [];
     const children = getSTComponents(model.statements);
     let drafts: React.ReactNode[] = [];
+    const controlFlowLines: React.ReactNode[] = [];
+    const controlFlowExecutionTime: React.ReactNode[] = [];
+
+    for (const controlFlowLine of viewState.controlFlow.lineStates) {
+        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
+    }
 
     for (const plusView of viewState.plusButtons) {
         pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
     }
 
+    for (const executionTime of viewState?.controlFlow.executionTimeStates) {
+        if (executionTime.value) {
+            controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
+        }
+    }
     if (viewState?.collapseView) {
         children.push(<Collapse blockViewState={viewState} />)
     }
@@ -46,9 +59,11 @@ export function WorkerBody(props: DiagramProps) {
 
     return (
         <g>
+            {controlFlowLines}
             {pluses}
             {children}
             {drafts}
+            {controlFlowExecutionTime}
         </g>
     );
 }

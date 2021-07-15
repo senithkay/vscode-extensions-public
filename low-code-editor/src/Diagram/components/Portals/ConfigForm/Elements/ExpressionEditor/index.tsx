@@ -30,7 +30,7 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
+import { acceptedKind, COLLAPSE_WIDGET_ID, DIAGNOSTIC_MAX_LENGTH, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -41,6 +41,7 @@ import {
     checkIfStringExist,
     createContentWidget,
     createSortText,
+    customErrorMessage,
     diagnosticCheckerExp,
     getDiagnosticMessage,
     getFilteredDiagnostics,
@@ -200,9 +201,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
-        validate(model.name, false);
-        if (monacoRef.current) {
-            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+        if (model.validationRegex) {
+            if (monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
+                validate(model.name, false);
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            } else {
+                notValidExpEditor(`Invalid ${textLabel}`);
+            }
+        } else {
+            validate(model.name, false);
+            if (monacoRef.current) {
+                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            }
         }
     }
 
@@ -258,6 +268,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
                 }
+            } else if (customErrorMessage(expressionEditorState.diagnostic)) {
+                return
             } else {
                 if (monacoRef.current) {
                     validExpEditor();
@@ -954,7 +966,7 @@ export function Diagnostic(props: {message: string}) {
     const formClasses = useFormStyles();
 
     return (
-        <TooltipCodeSnippet content={message} placement="right" arrow={true}>
+        <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
             <FormHelperText className={formClasses.invalidCode} data-testid='expr-diagnostics'>{truncateDiagnosticMsg(message)}</FormHelperText>
         </TooltipCodeSnippet>
     )

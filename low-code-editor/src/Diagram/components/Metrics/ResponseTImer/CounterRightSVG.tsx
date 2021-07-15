@@ -16,7 +16,7 @@ import * as React from "react";
 export const COUNTERRIGHT_SVG_WIDTH = 50.055;
 export const COUNTERRIGHT_SVG_HEIGHT = 29;
 
-export function CounterRightSVG(props: { x: number, y: number }) {
+export function CounterRightSVG(props: { x: number, y: number, text: string }) {
     const { ...xyProps } = props;
     return (
         <svg {...xyProps} width={COUNTERRIGHT_SVG_WIDTH} height={COUNTERRIGHT_SVG_HEIGHT} className="plus-holder" >
@@ -57,7 +57,7 @@ export function CounterRightSVG(props: { x: number, y: number }) {
                     fontSize="11"
                     fontFamily="GilmerMedium, Gilmer Medium"
                 >
-                    <tspan x="-12.501" y="0">2 ms</tspan>
+                    <tspan x="-12.501" y="0">{props.text}</tspan>
                 </text>
             </g>
         </svg>

@@ -38,3 +38,5 @@ export const EXPAND_EDITOR_MAXIMUM_CHARACTERS = 60;
 
 /** Messages to be ignored when displaying diagnostics in expression editor */
 export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];
+
+export const DIAGNOSTIC_MAX_LENGTH = 125;

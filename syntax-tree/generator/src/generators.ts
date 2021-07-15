@@ -26,6 +26,13 @@ export function genInterfacesFileCode(modelInfo: any) {
             endColumn?: number;
         }
 
+        export interface ControlFlow {
+            isReached?: boolean;
+            isCompleted?: boolean;
+            numberOfIterations?: number;
+            executionTime?: number;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;
@@ -38,6 +45,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             VisibleEndpoints?: VisibleEndpoint[];
             source: string;
             configurablePosition?: NodePosition;
+            controlFlow?: ControlFlow;
         }
 
         ${interfaces.join("\n")}

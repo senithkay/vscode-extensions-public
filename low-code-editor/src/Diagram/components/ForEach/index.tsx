@@ -25,6 +25,8 @@ import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
+import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -71,6 +73,7 @@ export function ForEach(props: ForeachProps) {
     const pluses: React.ReactNode[] = [];
     const modelForeach: ForeachStatement = model as ForeachStatement;
     const children = getSTComponents(modelForeach.blockStatement.statements);
+    const controlFlowLines: React.ReactNode[] = [];
 
     const viewState: ForEachViewState = modelForeach.viewState;
     const bodyViewState: BlockViewState = modelForeach.blockStatement.viewState;
@@ -104,6 +107,15 @@ export function ForEach(props: ForeachProps) {
         x: x + (viewState.foreachBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (FOREACH_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
+
+    let controlFlowIterationCountProp: ControlFlowIterationCountProp;
+    if (model.controlFlow?.isReached) {
+        controlFlowIterationCountProp = {
+            x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            y: viewState.foreachBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
+            count: model.controlFlow.numberOfIterations
+        }
+    }
 
     if (bodyViewState.collapseView) {
         children.push(<Collapse blockViewState={bodyViewState} />)
@@ -192,6 +204,10 @@ export function ForEach(props: ForeachProps) {
         setCodeToHighlight(model?.position)
     }
 
+    for (const controlFlowLine of bodyViewState.controlFlow.lineStates) {
+        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
+    }
+
     let assignmentText: any = (!drafts && STKindChecker?.isForeachStatement(model));
     const forEachModel = model as ForeachStatement
     const variableName = ((forEachModel.typedBindingPattern) as TypedBindingPattern)?.bindingPattern?.source?.trim();
@@ -217,6 +233,11 @@ export function ForEach(props: ForeachProps) {
                     className="condition-assignment"
                     key_id={getRandomInt(1000)}
                 />
+                <>
+                    {model.controlFlow?.isReached &&
+                        <ControlFlowIterationCount {...controlFlowIterationCountProp} />
+                    }
+                </>
                 <>
                     {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
                         className="foreach-options-wrapper"
@@ -262,6 +283,7 @@ export function ForEach(props: ForeachProps) {
             </g>
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
+            {controlFlowLines}
             {pluses}
             {children}
             {drafts}

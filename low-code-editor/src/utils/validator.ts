@@ -140,27 +140,43 @@ export function isPathDuplicated (resources: Resource[]) : boolean {
     return isDuplicated;
 }
 
-export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
+export function checkFieldValidity(field: FormField, emptyFieldChecker: Map<string, boolean>) : boolean {
+    const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
+    // breaks the loop if one field is empty
+    if (isFieldValueInValid !== undefined && isFieldValueInValid) {
+        return !isFieldValueInValid;
+    }
+    return true;
+}
+
+export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>,
+                                   parentOptional?: boolean, hasParentValue?: boolean): boolean {
     let allFieldsValid = true;
-    if (field.type === "record" && !field.optional) {
+    if (field.type === "record" && field.fields) {
+        let hasValue = false;
+        field.fields.forEach(recordField => {
+            if (recordField.value) {
+                hasValue = true;
+            }
+        })
         for (const recordField of field.fields) {
-            allFieldsValid = validateFormFields(recordField, emptyFieldChecker);
+            allFieldsValid = validateFormFields(recordField, emptyFieldChecker, field.optional, hasValue);
             if (!allFieldsValid) {
                 break;
             }
         }
-    } else if (field.type === "union" && !field.optional) {
-        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
-        // breaks the loop if one field is empty
-        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-            allFieldsValid = !isFieldValueInValid;
-        }
-    } else if (!field.optional) {
-        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
-        // breaks the loop if one field is empty
-        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-            allFieldsValid = !isFieldValueInValid;
-        }
+    } else if (field.type === "union" && !field.optional && !parentOptional) {
+        allFieldsValid = checkFieldValidity(field, emptyFieldChecker);
+    } else if (!field.optional && !parentOptional) {
+        // checks for required fields of required parents(records)
+        allFieldsValid = checkFieldValidity(field, emptyFieldChecker);
+    } else if (parentOptional && hasParentValue) {
+        // this is to validate field if one field in record has a value. If one field of the record has a value
+        // and record is optional all the field record fields must have values
+        allFieldsValid = checkFieldValidity(field, emptyFieldChecker);
+    } else if (field.optional && field.value) {
+        // to check whether all optional fields have values
+        allFieldsValid = checkFieldValidity(field, emptyFieldChecker);
     }
     return allFieldsValid;
 }
