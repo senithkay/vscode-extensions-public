@@ -36,7 +36,7 @@ export function WorkerBody(props: DiagramProps) {
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
 
-    for (const controlFlowLine of viewState.controlFlowLineStates) {
+    for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 
@@ -44,7 +44,7 @@ export function WorkerBody(props: DiagramProps) {
         pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
     }
 
-    for (const executionTime of viewState?.controlFlowExecutionTimeState) {
+    for (const executionTime of viewState?.controlFlow.executionTimeStates) {
         if (executionTime.value) {
             controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
         }

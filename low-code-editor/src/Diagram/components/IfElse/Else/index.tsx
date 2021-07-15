@@ -106,20 +106,20 @@ export function Else(props: ElseProps) {
         />
     );
 
-    if (viewState.controlFlowLineStates.length > 0) {
+    if (viewState.controlFlow.lineStates.length > 0) {
         controlFlowLines.push(
             <ControlFlowElseStart
                 x={viewState.elseTopHorizontalLine.x}
                 y={viewState.elseTopHorizontalLine.y}
-                h={viewState.controlFlowLineStates[0].y - viewState.elseTopHorizontalLine.y}
+                h={viewState.controlFlow.lineStates[0].y - viewState.elseTopHorizontalLine.y}
                 w={viewState.elseTopHorizontalLine.length}
             />
         );
-        (viewState.controlFlowLineStates as ControlFlowLineState[]).forEach((controlFlowLine, i) => {
+        (viewState.controlFlow.lineStates as ControlFlowLineState[]).forEach((controlFlowLine, i) => {
             controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
         });
         if (!viewState.isEndComponentAvailable) {
-            const lastControlFlowLine = viewState.controlFlowLineStates[viewState.controlFlowLineStates.length - 1];
+            const lastControlFlowLine = viewState.controlFlow.lineStates[viewState.controlFlow.lineStates.length - 1];
             controlFlowLines.push(
                 <ControlFlowElseEnd
                     x={viewState.elseBottomHorizontalLine.x}
