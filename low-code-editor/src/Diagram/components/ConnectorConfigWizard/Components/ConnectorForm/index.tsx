@@ -163,10 +163,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         id: "lowcode.develop.connectorForms.manualConnection.create Config.error",
         defaultMessage: "An error occurred while saving the connection configuration. Please try again."
     });
-    const configTokenErrorMessage = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.manualConnection.Config.error",
-        defaultMessage: "Invalid Access Token. Please try again."
-    });
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -322,7 +318,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
             } else if (status === 2001) {
-                store.dispatch(triggerErrorNotification(configTokenErrorMessage));
+                store.dispatch(triggerErrorNotification(createConfigErrorMessage));
             } else {
                 store.dispatch(triggerErrorNotification(message));
             }
@@ -330,7 +326,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
             } else if (status === 2001) {
-                store.dispatch(triggerErrorNotification(configTokenErrorMessage));
+                store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
             } else {
                 store.dispatch(triggerErrorNotification(message));
             }
@@ -502,6 +498,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                               response = await updateManualConnection(activeConnectionId, userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                   config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
                               apiResponseStatus = response.status === 500 ? response.data.code : response.status;
+                              setResponseStatus(apiResponseStatus)
                               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                                   configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                       response.data, selectedType);
@@ -620,6 +617,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             response = await createManualConnection(userInfo?.selectedOrgHandle, connectorInfo.displayName,
                                 config.connectionName, userInfo.user.email, formattedFieldValues);
                             apiResponseStatus = response.status === 500 ? response.data.code : response.status;
+                            setResponseStatus(apiResponseStatus);
                             if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                                 configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                     response.data, selectedType);

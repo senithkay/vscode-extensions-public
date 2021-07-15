@@ -949,7 +949,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     );
 }
 
-function Diagnostic(props: {message: string}) {
+export function Diagnostic(props: {message: string}) {
     const { message } = props
     const formClasses = useFormStyles();
 

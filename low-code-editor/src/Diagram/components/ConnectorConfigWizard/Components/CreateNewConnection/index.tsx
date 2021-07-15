@@ -24,11 +24,14 @@ import { Connector } from "../../../../../Definitions/lang-client-extended";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import {Diagnostic} from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import {checkVariableName, getManualConnectionDetailsFromFormFields} from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
+import {store} from "store/index";
+import {triggerErrorNotification, triggerSuccessNotification} from "store/actions";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -255,10 +258,13 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
     const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
 
+    const configTokenErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.Config.error",
+        defaultMessage: "Invalid Access Token. Please try again."
+    });
+
     const tokenError = (
-        <div>
-            <p>Invalid Access Token. Please try again.</p>
-        </div>
+        <Diagnostic message={configTokenErrorMessage} />
     )
 
     return (
@@ -287,9 +293,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
                         </div>
-                        {responseStatus === 2001 && (
-                            tokenError
-                        )}
+                        {responseStatus === 2001 && tokenError}
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
