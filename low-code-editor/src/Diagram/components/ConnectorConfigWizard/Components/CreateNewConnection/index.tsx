@@ -30,8 +30,6 @@ import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import {checkVariableName, getManualConnectionDetailsFromFormFields} from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
-import {store} from "store/index";
-import {triggerErrorNotification, triggerSuccessNotification} from "store/actions";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -292,8 +290,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         </div>
                         <div className={wizardClasses.formWrapper}>
                             <Form fields={configForm} onValidate={onValidate} />
+                            {responseStatus === 2001 && tokenError}
                         </div>
-                        {responseStatus === 2001 && tokenError}
                     </div>
                 </div>
                 <div className={classes.wizardBtnHolder}>
