@@ -547,6 +547,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (currentActionReturnType.hasReturn) {
+                if (currentActionReturnType.importTypeInfo) {
+                    currentActionReturnType.importTypeInfo?.forEach(importTypeInfo => {
+                        const addImport: STModification = createImportStatement(importTypeInfo.orgName, importTypeInfo.modName, model.position);
+                        modifications.push(addImport);
+                    });
+                }
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -610,6 +616,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         }
                         // Add an action invocation on the initialized client.
                         if (currentActionReturnType.hasReturn) {
+                            if (currentActionReturnType.importTypeInfo) {
+                                currentActionReturnType.importTypeInfo?.forEach(importTypeInfo => {
+                                    const addImport: STModification = createImportStatement(importTypeInfo.orgName, importTypeInfo.modName, targetPosition);
+                                    modifications.push(addImport);
+                                });
+                            }
                             const addActionInvocation = createPropertyStatement(
                                 `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                                 targetPosition
@@ -686,6 +698,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         modifications.push(addConnectorInit);
                     }
                     if (currentActionReturnType.hasReturn) {
+                        if (currentActionReturnType.importTypeInfo) {
+                            currentActionReturnType.importTypeInfo?.forEach(importTypeInfo => {
+                                const addImport: STModification = createImportStatement(importTypeInfo.orgName, importTypeInfo.modName, targetPosition);
+                                modifications.push(addImport);
+                            });
+                        }
                         const addActionInvocation = createPropertyStatement(
                             `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -736,6 +754,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (currentActionReturnType.hasReturn) {
+                if (currentActionReturnType.importTypeInfo) {
+                    currentActionReturnType.importTypeInfo?.forEach(importTypeInfo => {
+                        const addImport: STModification = createImportStatement(importTypeInfo.orgName, importTypeInfo.modName, model.position);
+                        modifications.push(addImport);
+                    });
+                }
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -767,6 +791,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
                 // Add an action invocation on the initialized client.
                 if (currentActionReturnType.hasReturn) {
+                    if (currentActionReturnType.importTypeInfo) {
+                        currentActionReturnType.importTypeInfo?.forEach(importTypeInfo => {
+                            const addImport: STModification = createImportStatement(importTypeInfo.orgName, importTypeInfo.modName, targetPosition);
+                            modifications.push(addImport);
+                        });
+                    }
                     const addActionInvocation = createPropertyStatement(
                         `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${existingEndpointName || config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         targetPosition

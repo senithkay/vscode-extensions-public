@@ -100,6 +100,7 @@ export interface FormFieldReturnType {
     hasError: boolean;
     hasReturn: boolean;
     returnType: string;
+    importTypeInfo?: NonPrimitiveBal[];
 }
 
 // tslint:disable-next-line: max-classes-per-file
