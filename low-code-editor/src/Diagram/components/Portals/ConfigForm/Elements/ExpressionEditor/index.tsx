@@ -200,18 +200,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
-        if (model.validationRegex) {
-            if (monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
-                validate(model.name, false);
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
-            } else {
-                notValidExpEditor(`Invalid ${textLabel}`);
-            }
-        } else {
-            validate(model.name, false);
-            if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
-            }
+        validate(model.name, false);
+        if (monacoRef.current) {
+            monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
         }
     }
 
