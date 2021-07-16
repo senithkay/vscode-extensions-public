@@ -559,6 +559,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                                 "twilio:TWIML_URL",
                                 "twilio:MESSAGE_IN_TEXT"
                             ];
+                            field.type = PrimitiveBalType.String
                         }
                     });
                 }
