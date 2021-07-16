@@ -652,7 +652,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc." values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as <code>Return</code>, <code>Foreach</code>, <code>Resource</code>, <code>Object</code>, etc." values={{ b: (chunks: string) => <b>{chunks}</b>, code: (chunks: string) => <code>{chunks}</code>}} />
         </li>
       </ul>
     </div>
@@ -671,7 +671,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc. in the name" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.queryparam.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as <code>Return</code>, <code>Foreach</code>, <code>Resource</code>, <code>Object</code>, etc." values={{ b: (chunks: string) => <b>{chunks}</b>, code: (chunks: string) => <code>{chunks}</code>}} />
         </li>
       </ul>
     </div>
@@ -690,7 +690,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint2" defaultMessage="<b>NOT</b> start with a numerical character" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
         </li>
         <li>
-          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as Return, Foreach, Resource, Object, etc. in the name" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+          <FormattedMessage id="lowcode.develop.apiConfigWizard.payload.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as <code>Return</code>, <code>Foreach</code>, <code>Resource</code>, <code>Object</code>, etc." values={{ b: (chunks: string) => <b>{chunks}</b>, code: (chunks: string) => <code>{chunks}</code>}} />
         </li>
       </ul>
     </div>
