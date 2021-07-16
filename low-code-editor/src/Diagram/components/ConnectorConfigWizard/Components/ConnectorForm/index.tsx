@@ -21,6 +21,7 @@ import classNames from "classnames";
 import { triggerErrorNotification, triggerSuccessNotification } from "store/actions";
 import { store } from "store/index";
 
+const GITHUB_CONNECTOR = "GitHub";
 import { createManualConnection, MANUAL_TYPE, updateManualConnection } from '../../../../../../../../src/api/connector';
 import {
     AiSuggestionsReq,
@@ -325,6 +326,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
     }
 
+    const generateUuid = () => {
+        return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+    }
+
     const handleClientOnSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -405,6 +410,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         });
                     }
                 });
+                if (connectorInfo.displayName === GITHUB_CONNECTOR) {
+                    formattedFieldValues.push({
+                        name: "clientSecret",
+                        value: generateUuid()
+                    });
+                }
                 (async () => {
                     if (isNewConnectorInitWizard && targetPosition) {
                         if (formattedFieldValues.length > 0) {
