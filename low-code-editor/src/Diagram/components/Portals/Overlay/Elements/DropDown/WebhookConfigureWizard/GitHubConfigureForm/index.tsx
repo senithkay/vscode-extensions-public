@@ -304,7 +304,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const Trigger = "GitHub";
     const fetchGitHubRepositoriesErrorMessage = intl.formatMessage({
         id: "lowcode.develop.GitHubConfigWizard.GitHubRepositoryFetch.error",
-        defaultMessage: "An error occurred while saving the connection configuration. Please check your github configurations and try again."
+        defaultMessage: "An error occurred while saving the connection configuration. Please check your GitHub configurations and try again."
     });
 
     useEffect(() => {
