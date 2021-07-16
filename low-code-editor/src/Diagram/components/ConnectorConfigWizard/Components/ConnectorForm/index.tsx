@@ -163,6 +163,10 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         id: "lowcode.develop.connectorForms.manualConnection.create Config.error",
         defaultMessage: "An error occurred while saving the connection configuration. Please try again."
     });
+    const configTokenErrorMessage = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.manualConnection.Config.error",
+        defaultMessage: "Invalid Access Token. Please try again."
+    });
 
     useEffect(() => {
         if (isNewConnection && isOauthConnector) {
@@ -318,17 +322,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(createConfigSuccessMessage));
             } else if (status === 2001) {
-                store.dispatch(triggerErrorNotification(createConfigErrorMessage));
+                store.dispatch(triggerErrorNotification(configTokenErrorMessage));
             } else {
-                store.dispatch(triggerErrorNotification(message));
+                store.dispatch(triggerErrorNotification(createConfigErrorMessage));
             }
         } else if (action === ConnectionAction.update) {
             if (status === 200 || status === 201) {
                 store.dispatch(triggerSuccessNotification(updateConfigSuccessMessage));
             } else if (status === 2001) {
-                store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
+                store.dispatch(triggerErrorNotification(configTokenErrorMessage));
             } else {
-                store.dispatch(triggerErrorNotification(message));
+                store.dispatch(triggerErrorNotification(updateConfigErrorMessage));
             }
         }
     }
