@@ -94,7 +94,6 @@ export interface FormField {
     isDefaultableParam?: boolean;
     isRestParam?: boolean;
     customAutoComplete?: string[];
-    validationRegex?: any;
 }
 export interface FormFieldReturnType {
     hasError: boolean;
