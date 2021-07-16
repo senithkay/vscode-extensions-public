@@ -164,7 +164,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         defaultMessage: "An error occurred while saving the connection configuration. Please try again."
     });
     const configTokenErrorMessage = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.manualConnection.ConfigAccessToken.error",
+        id: "lowcode.develop.connectorForms.manualConnection.configAccessToken.error",
         defaultMessage: "Invalid Access Token. Please try again."
     });
 
