@@ -23,6 +23,7 @@ import { Context } from "../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../Definitions";
 import { Connector, STModification } from "../../../../Definitions/lang-client-extended";
 import {
+    CONNECTOR_CLOSED,
     CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -154,6 +155,16 @@ export function HTTPWizard(props: WizardProps) {
         setSelectedOperation(operation);
         setState(InitFormState.SelectInputOutput);
         connectorConfig.action.returnVariableName = undefined;
+    };
+
+    const handleFormClose = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: CONNECTOR_CLOSED,
+            property: connector.displayName
+        };
+        diagramState.onEvent(event);
+        onClose();
     };
 
     const handleCreateConnectorOnSave = () => {
@@ -622,7 +633,7 @@ export function HTTPWizard(props: WizardProps) {
             <div className={wizardClasses.topTitleWrapper}>
                 <ButtonWithIcon
                     className={wizardClasses.closeBtnAutoGen}
-                    onClick={onClose}
+                    onClick={handleFormClose}
                     icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={wizardClasses.titleWrapper}>
