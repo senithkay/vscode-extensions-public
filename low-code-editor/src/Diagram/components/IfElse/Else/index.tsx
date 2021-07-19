@@ -18,9 +18,12 @@ import cn from "classnames";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../utils";
-import { ElseViewState } from "../../../view-state";
+import { ControlFlowLineState, ElseViewState } from "../../../view-state";
 import { DefaultConfig } from "../../../visitors/default";
 import { Collapse } from "../../Collapse";
+import { ControlFlowLine } from "../../ControlFlowLine";
+import ControlFlowElseEnd from "../../ControlFlowLine/ControlFlowElseEnd";
+import ControlFlowElseStart from "../../ControlFlowLine/ControlFlowElseStart";
 import { PlusButton } from "../../Plus";
 
 import { BottomCurveSVG, BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from "./BottomCurve";
@@ -51,7 +54,7 @@ export function Else(props: ElseProps) {
     const yOffsetForCurve = DefaultConfig.elseCurveYOffset;
     let drafts: React.ReactNode[] = [];
     const components: React.ReactNode[] = [];
-
+    const controlFlowLines: React.ReactNode[] = [];
     if (viewState.draft) {
         drafts = getDraftComponent(viewState, state, insertComponentStart);
     }
@@ -103,6 +106,31 @@ export function Else(props: ElseProps) {
         />
     );
 
+    if (viewState.controlFlow.lineStates.length > 0) {
+        controlFlowLines.push(
+            <ControlFlowElseStart
+                x={viewState.elseTopHorizontalLine.x}
+                y={viewState.elseTopHorizontalLine.y}
+                h={viewState.controlFlow.lineStates[0].y - viewState.elseTopHorizontalLine.y}
+                w={viewState.elseTopHorizontalLine.length}
+            />
+        );
+        (viewState.controlFlow.lineStates as ControlFlowLineState[]).forEach((controlFlowLine, i) => {
+            controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />)
+        });
+        if (!viewState.isEndComponentAvailable) {
+            const lastControlFlowLine = viewState.controlFlow.lineStates[viewState.controlFlow.lineStates.length - 1];
+            controlFlowLines.push(
+                <ControlFlowElseEnd
+                    x={viewState.elseBottomHorizontalLine.x}
+                    y={viewState.elseBottomHorizontalLine.y}
+                    h={viewState.elseBottomHorizontalLine.y - (lastControlFlowLine.y + lastControlFlowLine.h)}
+                    w={viewState.elseBottomHorizontalLine.length}
+                />
+            );
+        }
+    }
+
     if (elseBlock) {
         for (const plusView of viewState.plusButtons) {
             pluses.push(<PlusButton viewState={plusView} model={elseBlock} initPlus={false} />)
@@ -125,6 +153,7 @@ export function Else(props: ElseProps) {
     return (
         <g className={classes}>
             {components}
+            {controlFlowLines}
             {children}
             {pluses}
             {drafts}

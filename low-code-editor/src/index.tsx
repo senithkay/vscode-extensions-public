@@ -56,6 +56,7 @@ export {
 export { Diagram } from "./Diagram";
 export {
     getDiagnosticsFromVisitor,
+    getWarningsFromST,
     getLowCodeSTFn,
     getLowCodeSTFnSelected,
     sizingAndPositioningST,

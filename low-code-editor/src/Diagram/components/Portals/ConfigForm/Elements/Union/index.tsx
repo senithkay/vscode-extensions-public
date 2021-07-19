@@ -72,7 +72,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         if (selectedField && selectedField.type) {
             element = (
                 <div className={classes.removeInnerMargin}>
-                    <Form fields={selectedField.fields} onValidate={validateForm} />
+                    <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
                 </div>
             );
         }
@@ -106,7 +106,7 @@ export function Union(props: FormElementProps<UnionProps>) {
     );
 
     return (
-        <div className={classes.groupedForm}>
+        <div className={classes.groupedFormUnion}>
             {model && model.optional ?
                 (
                     <div className={classes.labelWrapper}>

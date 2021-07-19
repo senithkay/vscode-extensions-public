@@ -121,7 +121,7 @@ export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const { title, children, ...restProps } = props;
 
     if (children) {
-        iconComponent = <><div>{children}</div> <div className={styles.iconWrapper}>{infoIcon}</div></>;
+        iconComponent = <><div className={styles.content}>{children}</div> <div className={styles.iconWrapper}>{infoIcon}</div></>;
     }
 
     return (

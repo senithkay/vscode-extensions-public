@@ -256,16 +256,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         onChange={handleOtherTypeOnChange}
                                         label={otherTypeLabel}
                                         placeholder={enterTypePlaceholder}
-                                        customProps={{
-                                            tooltipTitle: variableTooltipMessages.customVariableType.title,
-                                        }}
                                     />
                                 )}
                                 <FormTextInput
                                     dataTestId="variable-name"
                                     customProps={{
                                         validate: validateNameValue,
-                                        tooltipTitle: "Name of the {0}".replace("{0}", selectedType),
                                         disabled: variableHasReferences
                                     }}
                                     defaultValue={varName}

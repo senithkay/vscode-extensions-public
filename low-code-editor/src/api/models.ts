@@ -391,6 +391,7 @@ export interface ConnectionDetails {
     codeVariableKeys: ConnectionMetadata[];
     isUsed?: boolean;
     type?: string;
+    isUsed?: boolean;
 }
 export interface ConnectorApiResponse {
     data?: ConnectionDetails;
@@ -481,6 +482,7 @@ export interface ApiManagerApiObj {
     corsConfiguration?: CorsConfiguration,
     additionalProperties?: AdditionalProperties,
     endpointConfig?: EndpointConfiguration,
+    additionalPropertiesMap?: AdditionalProperties,
     version?: string,
     lifeCycleStatus?: ApiState,
     thumbnail?: ApiThumbnail,
@@ -504,11 +506,18 @@ export interface ApiTestJwt {
     validityTime: number
 }
 
+// export interface AdditionalProperties {
+//     application?: AdditionalProperty,
+//     applicationId?: AdditionalProperty,
+//     organization?: AdditionalProperty,
+//     apiEndpoint?: AdditionalProperty
+// }
+
 export interface AdditionalProperties {
-    application?: AdditionalProperty,
-    applicationId?: AdditionalProperty,
-    organization?: AdditionalProperty,
-    apiEndpoint?: AdditionalProperty
+    application: string,
+    applicationId: string,
+    organization: string,
+    appIngressEnabled: string,
 }
 
 export interface AdditionalProperty {
@@ -810,3 +819,9 @@ export const INTEGRATION_DISPLAY_TYPES = [APP_TYPE_WEBHOOK, APP_TYPE_MANUAL, APP
 export const SERVICE_APP_DISPLAY_TYPES = [APP_TYPE_API, APP_TYPE_SERVICE_DRAFT];
 
 export interface Resource { }
+export interface DraftUpdateStatement {
+    startLine: number;
+    endLine: number;
+    startColumn: number;
+    endColumn: number;
+}

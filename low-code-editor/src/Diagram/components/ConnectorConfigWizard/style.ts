@@ -262,6 +262,14 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column',
             justifyContent: "space-between",
             paddingTop: theme.spacing(2.5)
-        }
+        },
+        titleLabelRequired: {
+            padding: 0,
+            color: '#DC143C',
+            fontSize: "13px",
+            textTransform: 'capitalize',
+            display: 'inline-block',
+            paddingTop: '0.25rem'
+          }
     }),
 );

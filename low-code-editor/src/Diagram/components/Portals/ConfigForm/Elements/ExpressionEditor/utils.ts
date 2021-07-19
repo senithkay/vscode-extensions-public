@@ -26,9 +26,13 @@ import {
     COLLAPSE_WIDGET_ID,
     DOUBLE_QUOTE_ERR_CODE,
     EXPAND_WIDGET_ID,
+    INCOMPATIBLE_TYPE_ERR_CODE,
+    INCOMPATIBLE_TYPE_MAP_ERR_CODE,
     IGNORED_DIAGNOSTIC_MESSAGES,
     SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS,
-    UNDEFINED_SYMBOL_ERR_CODE
+    SUGGEST_TO_STRING_TYPE,
+    UNDEFINED_SYMBOL_ERR_CODE,
+    DIAGNOSTIC_MAX_LENGTH,
 } from "./constants";
 import "./style.scss";
 
@@ -126,6 +130,23 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
         return Array.from(diagnostics).some((diagnostic: Diagnostic) => SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS.includes((diagnostic.code).toString()));
+    }
+    return false;
+}
+
+export function addToStringChecker(diagnostics: Diagnostic[]) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        const selectedDiagnostic: Diagnostic = diagnostics[0];
+        if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
+            // Remove "incompatible types: expected 'string', found '" part of the diagnostic message
+            const trimmedErrorMessage = selectedDiagnostic.message.replace("incompatible types: expected 'string', found '", "");
+            return SUGGEST_TO_STRING_TYPE.some((type: string) => trimmedErrorMessage.startsWith(type));
+        } else if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_MAP_ERR_CODE) {
+            return true;
+        }
     }
     return false;
 }
@@ -315,8 +336,8 @@ export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomState
 
 
 export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
-    if (diagnosticsMessage && diagnosticsMessage.length > 50)
-        return diagnosticsMessage.slice(0, 50) + " ..."
+    if (diagnosticsMessage && diagnosticsMessage.length > DIAGNOSTIC_MAX_LENGTH)
+        return diagnosticsMessage.slice(0, DIAGNOSTIC_MAX_LENGTH) + " ..."
     else
         return diagnosticsMessage
 }

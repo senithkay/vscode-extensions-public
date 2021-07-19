@@ -28,6 +28,7 @@ import { ConnectorConfig, FormField } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import {STSymbolInfo} from "../../../Definitions";
 
+import { AccountAvatar } from "./AccountAvatar";
 import ConnectedButton from "./ConnectedButton";
 import ConnectionList from './ConnectionList';
 import CustomPreloader from "./Preloader";
@@ -203,6 +204,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
         <div className={classes.activeConnectionWrapper}>
           <div className={classes.activeConnectionWrapperChild1}>
             <Box border={1} borderRadius={5} className={classes.activeConnectionBox} key={activeConnection?.handle}>
+              <AccountAvatar connection={activeConnection}/>
               <Typography variant="subtitle2">
                 <p className={classes.radioBtnSubtitle}>{activeConnection.userAccountIdentifier}</p>
               </Typography>
@@ -306,7 +308,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
             <div className={classes.oauthConnectionAltTextWrapper}>
                 <p className={classes.oauthConnectionAltText}>
                     <FormattedMessage
-                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        id="lowcode.develop.connectorForms.newConnectionAltText1"
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
@@ -325,7 +327,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
               <div className={classes.oauthConnectionAltTextWrapper}>
                 <p className={classes.oauthConnectionAltText}>
                   <FormattedMessage
-                      id="lowcode.develop.connectorForms.newConnectionAltText"
+                      id="lowcode.develop.connectorForms.newConnectionAltText2"
                       defaultMessage={"You will be prompted to enter configuration details"}
                   />
                 </p>

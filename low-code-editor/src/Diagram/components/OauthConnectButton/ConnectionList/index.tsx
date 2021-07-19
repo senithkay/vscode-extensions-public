@@ -16,6 +16,7 @@
 import React, { ReactNode, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 export const SSO_TYPE = "sso";
+const GITHUB_CONNECTION = "GitHub";
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -29,6 +30,7 @@ import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/model
 import { TooltipIcon } from "../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 import { LinePrimaryButton } from "../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
+import { AccountAvatar } from '../AccountAvatar';
 
 import { useStyles } from "./../styles";
 
@@ -43,7 +45,8 @@ export interface ConnectionListProps {
 }
 
 export const ConnectionList = (props: ConnectionListProps) => {
-    const { activeConnection, connectionList, onChangeConnection, onInitConnection, onClickManualConnection, isTriggerConnector } = props;
+    const { activeConnection, connectionList, onChangeConnection, onInitConnection, onClickManualConnection,
+            isTriggerConnector, connectionName } = props;
     const classes = useStyles();
     const intl = useIntl();
     const [selectedConnection, setSelectedConnection] = useState("");
@@ -61,25 +64,46 @@ export const ConnectionList = (props: ConnectionListProps) => {
     const ssoFilteredList = isTriggerConnector ? filteredList?.filter(item => item.type === SSO_TYPE) : connectionList?.filter(item => item.type === SSO_TYPE);
     let connectionListElements;
 
-    // render only sso connections in trigger config flow
     if (isTriggerConnector) {
-        connectionListElements = ssoFilteredList.map((item) => (
-            // tslint:disable-next-line:jsx-key
-            <div key={item.handle}>
-                <Box border={1} borderRadius={5} className={classes.radioBox}>
-                    <FormControlLabel
-                        value={item.handle}
-                        control={<Radio className={classes.radio}/>}
-                        label={<div>
-                            <p className={classes.radioBtnSubtitle}>
-                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
-                            </p>
-                        </div>}
-                    />
-                </Box>
-                <Divider className={classes.divider} />
-            </div>
-        ));
+        if (connectionName === GITHUB_CONNECTION) {
+            connectionListElements = filteredList.map((item) => (
+                // tslint:disable-next-line:jsx-key
+                <div key={item.handle}>
+                    <Box border={1} borderRadius={5} className={classes.radioBox}>
+                        <FormControlLabel
+                            value={item.handle}
+                            control={<Radio className={classes.radio}/>}
+                            label={<div className={classes.listItem}>
+                                <AccountAvatar connection={item}/>
+                                <p className={classes.radioBtnSubtitle}>
+                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                                </p>
+                            </div>}
+                        />
+                    </Box>
+                    <Divider className={classes.divider} />
+                </div>
+            ));
+        } else {
+            connectionListElements = ssoFilteredList.map((item) => (
+                // tslint:disable-next-line:jsx-key
+                <div key={item.handle}>
+                    <Box border={1} borderRadius={5} className={classes.radioBox}>
+                        <FormControlLabel
+                            value={item.handle}
+                            control={<Radio className={classes.radio}/>}
+                            label={<div className={classes.listItem}>
+                                <AccountAvatar connection={item}/>
+                                <p className={classes.radioBtnSubtitle}>
+                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                                </p>
+                            </div>}
+                        />
+                    </Box>
+                    <Divider className={classes.divider} />
+                </div>
+            ));
+        }
     } else {
         connectionListElements = filteredList.map((item) => (
             // tslint:disable-next-line:jsx-key
@@ -88,7 +112,8 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     <FormControlLabel
                         value={item.handle}
                         control={<Radio className={classes.radio}/>}
-                        label={<div>
+                        label={<div className={classes.listItem}>
+                            <AccountAvatar connection={item}/>
                             <p className={classes.radioBtnSubtitle}>
                                 {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
                             </p>
@@ -99,7 +124,6 @@ export const ConnectionList = (props: ConnectionListProps) => {
             </div>
         ));
     }
-
 
     const connectionListComponents: ReactNode[] = [];
     if (selectedConnection !== "") {
@@ -197,7 +221,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
             <div className={classes.oauthConnectionAltTextWrapper}>
                 <p className={classes.oauthConnectionAltText}>
                     <FormattedMessage
-                        id="lowcode.develop.connectorForms.newConnectionAltText"
+                        id="lowcode.develop.connectorForms.newConnectionAltText3"
                         defaultMessage={"Connect via OAuth"}
                     />
                 </p>
@@ -216,7 +240,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                     <div className={classes.oauthConnectionAltTextWrapper}>
                         <p className={classes.oauthConnectionAltText}>
                             <FormattedMessage
-                                id="lowcode.develop.connectorForms.newConnectionAltText"
+                                id="lowcode.develop.connectorForms.newConnectionAltText4"
                                 defaultMessage={"You will be prompted to enter configuration details"}
                             />
                         </p>
