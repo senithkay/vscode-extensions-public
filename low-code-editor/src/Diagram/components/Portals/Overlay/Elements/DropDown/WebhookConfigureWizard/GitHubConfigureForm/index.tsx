@@ -421,7 +421,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                         name: "clientSecret",
                         value: generateUuid()
                     });
-                    const response = await updateManualConnection(activeConnection.id, lastSelectedOrg, activeConnection.connectorName,
+                    const response = await updateManualConnection(lastSelectedOrg, activeConnection.connectorName,
                         activeConnection.displayName, activeConnection.userAccountIdentifier, updatedFields,
                         activeConnection.type, activeConnection.handle);
                     clientSecretKey = response.data.codeVariableKeys.find(keys => keys.name === CLIENT_SECRET_KEY).codeVariableKey;
