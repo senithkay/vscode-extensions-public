@@ -11,27 +11,50 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React from "react";
 
-import Avatar from '@material-ui/core/Avatar';
-import classNames from 'classnames';
-import { OAUTH_PROVIDER } from 'views/AppView/IntegrationConfigForm/model';
+import Avatar from "@material-ui/core/Avatar";
+import classNames from "classnames";
 
-import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
-import { SSO_TYPE } from '../ConnectionList';
+import {
+  ConnectionDetails,
+  CONNECTION_TYPE_MANUAL,
+} from "../../../../api/models";
+import { SSO_TYPE } from "../ConnectionList";
 import { useStyles } from "../styles";
 
 export interface AccountAvatarProps {
-    connection: ConnectionDetails;
+  connection: ConnectionDetails;
 }
 
-export function AccountAvatar (props: AccountAvatarProps) {
-    const classes = useStyles();
-    const { connection } = props;
-    const accountName = connection.type === CONNECTION_TYPE_MANUAL ? connection.displayName : connection.userAccountIdentifier;
-    if (connection.type === SSO_TYPE && connection.connectorName === OAUTH_PROVIDER.GITHUB){
-        return <Avatar src={`https://avatars.githubusercontent.com/${connection.userAccountIdentifier}`} className={classes.avatar}/>
-    } else {
-        return <Avatar className={classNames(classes.avatar, classes.letterAvatar)}>{accountName.substring(0, 2).toUpperCase()}</Avatar>
-    }
+export const OAUTH_PROVIDER = {
+  GITHUB: "GitHub",
+  GOOGLE_SHEETS: "Google Sheets",
+  GOOGLE_CALENDAR: "Google Calendar",
+};
+
+export function AccountAvatar(props: AccountAvatarProps) {
+  const classes = useStyles();
+  const { connection } = props;
+  const accountName =
+    connection.type === CONNECTION_TYPE_MANUAL
+      ? connection.displayName
+      : connection.userAccountIdentifier;
+  if (
+    connection.type === SSO_TYPE &&
+    connection.connectorName === OAUTH_PROVIDER.GITHUB
+  ) {
+    return (
+      <Avatar
+        src={`https://avatars.githubusercontent.com/${connection.userAccountIdentifier}`}
+        className={classes.avatar}
+      />
+    );
+  } else {
+    return (
+      <Avatar className={classNames(classes.avatar, classes.letterAvatar)}>
+        {accountName.substring(0, 2).toUpperCase()}
+      </Avatar>
+    );
+  }
 }
