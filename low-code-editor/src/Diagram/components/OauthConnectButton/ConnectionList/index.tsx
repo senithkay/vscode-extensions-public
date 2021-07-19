@@ -76,7 +76,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                             label={<div className={classes.listItem}>
                                 <AccountAvatar connection={item}/>
                                 <p className={classes.radioBtnSubtitle}>
-                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier + ' - ' + item.displayName.split('#')[1]}
                                 </p>
                             </div>}
                         />
@@ -95,7 +95,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                             label={<div className={classes.listItem}>
                                 <AccountAvatar connection={item}/>
                                 <p className={classes.radioBtnSubtitle}>
-                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                                    {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier + ' - ' + item.displayName.split('#')[1]}
                                 </p>
                             </div>}
                         />
@@ -115,7 +115,7 @@ export const ConnectionList = (props: ConnectionListProps) => {
                         label={<div className={classes.listItem}>
                             <AccountAvatar connection={item}/>
                             <p className={classes.radioBtnSubtitle}>
-                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier}
+                                {item.type === CONNECTION_TYPE_MANUAL ? item.displayName : item.userAccountIdentifier + ' - ' + item.displayName.split('#')[1]}
                             </p>
                         </div>}
                     />
