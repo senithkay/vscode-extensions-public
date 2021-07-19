@@ -316,12 +316,13 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     useEffect(() => {
         if (activeConnection) {
             setIsRepoListFetching(true);
+            let repoList;
             (async () => {
-                const repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
-                if (repoList.status !== 500) {
-                    setGithubRepoList(repoList.data);
+                try {
+                    repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
+                    setGithubRepoList(repoList);
                     setIsRepoListFetching(false);
-                } else {
+                } catch (err) {
                     handleOnDeselectConnection();
                     store.dispatch(triggerErrorNotification(fetchGitHubRepositoriesErrorMessage));
                 }
