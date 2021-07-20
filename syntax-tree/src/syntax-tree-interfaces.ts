@@ -25,6 +25,7 @@ export interface ControlFlow {
   isReached?: boolean;
   isCompleted?: boolean;
   numberOfIterations?: number;
+  executionTime?: number;
 }
 
 export interface STNode {

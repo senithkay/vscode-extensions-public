@@ -110,7 +110,7 @@ export function ForEach(props: ForeachProps) {
 
     let controlFlowIterationCountProp: ControlFlowIterationCountProp;
     if (model.controlFlow?.isReached) {
-         controlFlowIterationCountProp = {
+        controlFlowIterationCountProp = {
             x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             y: viewState.foreachBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             count: model.controlFlow.numberOfIterations
@@ -204,7 +204,7 @@ export function ForEach(props: ForeachProps) {
         setCodeToHighlight(model?.position)
     }
 
-    for (const controlFlowLine of bodyViewState.controlFlowLineStates) {
+    for (const controlFlowLine of bodyViewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 

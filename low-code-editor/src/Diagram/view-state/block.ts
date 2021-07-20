@@ -11,17 +11,10 @@
  * associated services.
  */
 import { CollapseViewState } from "./collapse";
+import { ControlFlowState } from './controlflow';
 import { DraftStatementViewState } from "./draft";
 import { PlusViewState } from "./plus";
 import { ViewState } from "./view-state";
-
-export interface ControlFlowLineState {
-    x: number;
-    y: number;
-    h?: number;
-    w?: number;
-}
-
 export class BlockViewState extends ViewState {
     public plusButtons: PlusViewState[] = [];
     public connectors = new Map();
@@ -33,7 +26,7 @@ export class BlockViewState extends ViewState {
     public isElseBlock: boolean = false;
     public isDoBlock: boolean = false;
     public isOnErrorBlock: boolean = false;
-    public controlFlowLineStates?: ControlFlowLineState[] = [];
+    public controlFlow = new ControlFlowState();
 
     constructor() {
         super();

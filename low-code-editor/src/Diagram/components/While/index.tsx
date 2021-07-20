@@ -122,9 +122,9 @@ export function While(props: WhileProps) {
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 
-    let controlFlowIterationProp : ControlFlowIterationCountProp;
+    let controlFlowIterationProp: ControlFlowIterationCountProp;
     if (model.controlFlow?.isReached) {
-         controlFlowIterationProp = {
+        controlFlowIterationProp = {
             x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2) + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             y: viewState.whileBodyRect.cy + CONTROL_FLOW_ITERATION_COUNT_PADDING,
             count: model.controlFlow.numberOfIterations
@@ -188,7 +188,7 @@ export function While(props: WhileProps) {
     let assignmentText: any = (!drafts && STKindChecker?.isWhileStatement(model));
     assignmentText = (model as WhileStatement)?.condition.source;
 
-    for (const controlFlowLine of bodyViewState.controlFlowLineStates) {
+    for (const controlFlowLine of bodyViewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 

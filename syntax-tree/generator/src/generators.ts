@@ -30,6 +30,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             isReached?: boolean;
             isCompleted?: boolean;
             numberOfIterations?: number;
+            executionTime?: number;
         }
 
         export interface STNode {
