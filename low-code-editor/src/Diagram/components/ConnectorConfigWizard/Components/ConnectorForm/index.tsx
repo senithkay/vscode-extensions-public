@@ -834,7 +834,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             });
         }
     }
-    
+
     const handleFormClose = () => {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
