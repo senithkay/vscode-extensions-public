@@ -59,7 +59,7 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const { state } = useContext(Context);
-    const { connectors, stSymbolInfo, targetPosition, viewState, onEvent } = state;
+    const { connectors, stSymbolInfo, onEvent } = state;
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const intl = useIntl();
@@ -73,9 +73,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.content",
                 defaultMessage: "Send a GET or POST request"
-            }),
-            placement: 'left'
-
+            })
         },
         smtpConnector: {
             title: intl.formatMessage({
@@ -85,8 +83,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
                 defaultMessage: "Send email messages"
-            }),
-            placement: 'right'
+            })
         },
         pop3Connector: {
             title: intl.formatMessage({
@@ -96,8 +93,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.content",
                 defaultMessage: "Receive email messages"
-            }),
-            placement: 'left'
+            })
         },
         imapConnector: {
             title: intl.formatMessage({
@@ -108,8 +104,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
                 defaultMessage: "Receive email messages"
-            }),
-            placement: 'right'
+            })
         },
         gitHubConnector: {
             title: intl.formatMessage({
@@ -119,8 +114,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
                 defaultMessage: "Create issues and pull requests"
-            }),
-            placement: 'left'
+            })
         },
         gmailConnector: {
             title: intl.formatMessage({
@@ -130,8 +124,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.content",
                 defaultMessage: "Send and receive email messages"
-            }),
-            placement: 'right'
+            })
         },
         gCalendarConnector: {
             title: intl.formatMessage({
@@ -141,8 +134,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.content",
                 defaultMessage: "Create events, Set reminders"
-            }),
-            placement: 'left'
+            })
         },
         gSheetConnector: {
             title: intl.formatMessage({
@@ -152,8 +144,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.content",
                 defaultMessage: "Create and edit Google Sheets"
-            }),
-            placement: 'right'
+            })
         },
         slackConnector: {
             title: intl.formatMessage({
@@ -163,19 +154,17 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
                 defaultMessage: "Post messages, Send files"
-            }),
-            placement: 'right'
+            })
         },
         twilioConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.title",
-                defaultMessage: "Connect with Twilio API, and communicate with external services."
+                defaultMessage: "Connect with Twilio API and communicate with external services."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.content",
                 defaultMessage: "Send SMS, Make voice calls"
-            }),
-            placement: 'left'
+            })
         },
         netsuite: {
             title: intl.formatMessage({
@@ -184,9 +173,8 @@ export function APIOptions(props: APIOptionsProps) {
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.content",
-                defaultMessage: "Search customer details \nSearch transactions"
-            }),
-            placement: 'right'
+                defaultMessage: "Search customer details, \nSearch transactions"
+            })
         },
         salesforce: {
             title: intl.formatMessage({
@@ -196,19 +184,17 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
                 defaultMessage: "Create records, Create leads"
-            }),
-            placement: 'left'
+            })
         },
         postgreSQL: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.title",
-                defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL"
+                defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.content",
                 defaultMessage: "Execute SQL queries"
-            }),
-            placement: 'right'
+            })
         },
         gDrive: {
             title: intl.formatMessage({
@@ -218,8 +204,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.content",
                 defaultMessage: "Create file, Download file "
-            }),
-            placement: 'left'
+            })
         },
         gPeopleAPI: {
             title: intl.formatMessage({
@@ -229,8 +214,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
                 defaultMessage: "Create contact, Modify contact"
-            }),
-            placement: 'left'
+            })
         },
         azureEventHub: {
             title: intl.formatMessage({
@@ -240,8 +224,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.content",
                 defaultMessage: "List partitions, Update event hub"
-            }),
-            placement: 'left'
+            })
         },
         azureCosmosDB: {
             title: intl.formatMessage({
@@ -250,9 +233,8 @@ export function APIOptions(props: APIOptionsProps) {
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
-                defaultMessage: "Create document \nCreate stored procedure"
-            }),
-            placement: 'right'
+                defaultMessage: "Create document, \nCreate stored procedure"
+            })
         },
         azureFileService: {
             title: intl.formatMessage({
@@ -262,8 +244,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.content",
                 defaultMessage: "Create directory, Upload file"
-            }),
-            placement: 'left'
+            })
         },
         azureBlobService: {
             title: intl.formatMessage({
@@ -273,19 +254,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.content",
                 defaultMessage: "Create blob, Update blob"
-            }),
-            placement: 'left'
-        },
-        asb: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.title",
-                defaultMessage: "Connect with Microsoft Azure Service Bus to access fully managed enterprise message broker."
-            }),
-            content: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.content",
-                defaultMessage: "Message queues, \nPublish-subscribe topics"
-            }),
-            placement: 'left'
+            })
         },
         mongoDB: {
             title: intl.formatMessage({
@@ -295,8 +264,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
                 defaultMessage: "Insert document, List collections"
-            }),
-            placement: 'left'
+            })
         },
         redis: {
             title: intl.formatMessage({
@@ -306,8 +274,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
                 defaultMessage: "Insert string value to a cache"
-            }),
-            placement: 'right'
+            })
         },
         AWSS3: {
             title: intl.formatMessage({
@@ -317,8 +284,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
                 defaultMessage: "Create bucket, List objects"
-            }),
-            placement: 'left'
+            })
         },
         AWSSQS: {
             title: intl.formatMessage({
@@ -328,8 +294,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
                 defaultMessage: "Create SQS queue, \nReceive a message from a SQS Queue"
-            }),
-            placement: 'right'
+            })
         },
         mailByChoreo: {
             title: intl.formatMessage({
@@ -339,8 +304,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.content",
                 defaultMessage: "Send Email"
-            }),
-            placement: 'left'
+            })
         },
         smsByChoreo: {
             title: intl.formatMessage({
@@ -350,8 +314,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.content",
                 defaultMessage: "Send SMS"
-            }),
-            placement: 'right'
+            })
         },
         covid19Api: {
             title: intl.formatMessage({
@@ -361,8 +324,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
                 defaultMessage: "Global status, \nCountry status"
-            }),
-            placement: 'left'
+            })
         },
         weatherApi: {
             title: intl.formatMessage({
@@ -372,8 +334,7 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.content",
                 defaultMessage: "Get current weather data, \nGet weather forecast"
-            }),
-            placement: 'right'
+            })
         },
         worldBankApi: {
             title: intl.formatMessage({
@@ -383,8 +344,67 @@ export function APIOptions(props: APIOptionsProps) {
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
                 defaultMessage: "Country population, \nGDP by country"
+            })
+        },
+        asb: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.title",
+                defaultMessage: "Connect with Microsoft Azure Service Bus to perform messaging services."
             }),
-            placement: 'right'
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.content",
+                defaultMessage: "Send message, \nReceive message"
+            })
+        },
+        zoom: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.zoom.tooltip.title",
+                defaultMessage: "Connect with Zoom API to access your meeting information."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.zoom.tooltip.content",
+                defaultMessage: "Create meeting, \nList meetings"
+            })
+        },
+        spotify: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.spotify.tooltip.title",
+                defaultMessage: "Connect with Spotify API to access your favorite playlists."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.spotify.tooltip.content",
+                defaultMessage: "Create playlist, \nGet my playlist"
+            })
+        },
+        sendgrid: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.sendgrid.tooltip.title",
+                defaultMessage: "Connect with SendGrid API to deliver transactional and marketing emails."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.sendgrid.tooltip.content",
+                defaultMessage: "Send mail, \nRetrieve all alerts, \nList all subusers"
+            })
+        },
+        medium: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.medium.tooltip.title",
+                defaultMessage: "Connect with Medium API to access online publications."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.medium.tooltip.content",
+                defaultMessage: "Get publication list, \nCreate user post"
+            })
+        },
+        leanix: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.leanix.tooltip.title",
+                defaultMessage: "Connect with LeanIX Integration API."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.leanix.tooltip.content",
+                defaultMessage: "Set data provider, Set data consumer"
+            })
         },
     }
     // tslint:disable-next-line: no-shadowed-variable
@@ -408,16 +428,21 @@ export function APIOptions(props: APIOptionsProps) {
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.title,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.title,
         "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.title,
-        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.title,
         "MONGO DB": connectionsTooltipMessages.mongoDB.title,
         "REDIS": connectionsTooltipMessages.redis.title,
         "AWS S3": connectionsTooltipMessages.AWSS3.title,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.title,
         "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.title,
         "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.title,
-        "COVID-19 API": connectionsTooltipMessages.covid19Api.title,
+        "COVID 19 API": connectionsTooltipMessages.covid19Api.title,
         "WEATHER API": connectionsTooltipMessages.weatherApi.title,
         "WORLD BANK API": connectionsTooltipMessages.worldBankApi.title,
+        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.title,
+        "ZOOM": connectionsTooltipMessages.zoom.title,
+        "SPOTIFY": connectionsTooltipMessages.spotify.title,
+        "SENDGRID": connectionsTooltipMessages.sendgrid.title,
+        "MEDIUM": connectionsTooltipMessages.medium.title,
+        "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.title,
     };
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -441,47 +466,21 @@ export function APIOptions(props: APIOptionsProps) {
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.content,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.content,
         "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.content,
-        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.content,
         "MONGO DB": connectionsTooltipMessages.mongoDB.content,
         "REDIS": connectionsTooltipMessages.redis.content,
         "AWS S3": connectionsTooltipMessages.AWSS3.content,
         "AWS SQS": connectionsTooltipMessages.AWSSQS.content,
         "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.content,
         "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.content,
-        "COVID-19 API": connectionsTooltipMessages.covid19Api.content,
+        "COVID 19 API": connectionsTooltipMessages.covid19Api.content,
         "WEATHER API": connectionsTooltipMessages.weatherApi.content,
         "WORLD BANK API": connectionsTooltipMessages.worldBankApi.content,
-    };
-
-    const tooltipPlacement: Record<any, any> = {
-        HTTP: connectionsTooltipMessages.httpConnector.placement,
-        SMTP: connectionsTooltipMessages.smtpConnector.placement,
-        POP3: connectionsTooltipMessages.pop3Connector.placement,
-        IMAP: connectionsTooltipMessages.imapConnector.placement,
-        TWILIO: connectionsTooltipMessages.twilioConnector.placement,
-        GITHUB: connectionsTooltipMessages.gitHubConnector.placement,
-        GMAIL: connectionsTooltipMessages.gmailConnector.placement,
-        "GOOGLE CALENDAR": connectionsTooltipMessages.gCalendarConnector.placement,
-        "GOOGLE SHEETS": connectionsTooltipMessages.gSheetConnector.placement,
-        SLACK: connectionsTooltipMessages.slackConnector.placement,
-        SALESFORCE: connectionsTooltipMessages.salesforce.placement,
-        POSTGRESQL: connectionsTooltipMessages.postgreSQL.placement,
-        NETSUITE: connectionsTooltipMessages.netsuite.placement,
-        "GOOGLE DRIVE": connectionsTooltipMessages.gDrive.placement,
-        "PEOPLE API": connectionsTooltipMessages.gPeopleAPI.placement,
-        "AZURE EVENTHUB": connectionsTooltipMessages.azureEventHub.placement,
-        "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.placement,
-        "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.placement,
-        "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.placement,
-        "MONGO DB": connectionsTooltipMessages.mongoDB.placement,
-        "REDIS": connectionsTooltipMessages.redis.placement,
-        "AWS S3": connectionsTooltipMessages.AWSS3.placement,
-        "AWS SQS": connectionsTooltipMessages.AWSSQS.placement,
-        "MAIL BY CHOREO": connectionsTooltipMessages.mailByChoreo.placement,
-        "SMS BY CHOREO": connectionsTooltipMessages.smsByChoreo.placement,
-        "COVID-19 API": connectionsTooltipMessages.covid19Api.placement,
-        "WEATHER API": connectionsTooltipMessages.weatherApi.placement,
-        "WORLD BANK API": connectionsTooltipMessages.worldBankApi.placement,
+        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.content,
+        "ZOOM": connectionsTooltipMessages.zoom.content,
+        "SPOTIFY": connectionsTooltipMessages.spotify.content,
+        "SENDGRID": connectionsTooltipMessages.sendgrid.content,
+        "MEDIUM": connectionsTooltipMessages.medium.content,
+        "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.content,
     };
 
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
@@ -490,7 +489,6 @@ export function APIOptions(props: APIOptionsProps) {
     const [isSelectConnectorCollapsed, setSelectConnectorCollapsed] = useState(false);
 
     const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
-
 
     const toggleExistingCon = () => {
         setToggledExistingConnector(!isToggledExistingConnector);
@@ -537,14 +535,15 @@ export function APIOptions(props: APIOptionsProps) {
     const exsitingConnectorComponents: ExisitingConnctorComponent[] = [];
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
-        connectors.forEach((connector: any, index: number) => {
+        let tooltipSideCount = 0;
+        connectors.forEach((connector: any) => {
             // filter connectors due to maintenance
             const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "choreo.sendwhatsapp"];
             if (filteredConnectors.includes(connector.module)) {
                 return;
             }
 
-            const placement = tooltipPlacement[connector.displayName.toUpperCase()]
+            const placement = (tooltipSideCount++) % 2 === 0 ? "left" : "right";
             const tooltipTitle = tooltipTitles[connector.displayName.toUpperCase()];
             const tooltipExample = tooltipExamples[connector.displayName.toUpperCase()];
             const tooltipText = {
@@ -647,15 +646,7 @@ export function APIOptions(props: APIOptionsProps) {
         });
     }
 
-    const chooseFromListLabel = intl.formatMessage({
-        id: "lowcode.develop.elements.plusHolder.APIoptions.chooseFromList.label",
-        defaultMessage: "Select from list"
-    });
 
-    const searchPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.elements.plusHolder.APIoptions.search.placeholder",
-        defaultMessage: "Search"
-    });
 
     return (
         <div className="connector-option-holder" >

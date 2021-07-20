@@ -304,7 +304,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     const Trigger = "GitHub";
     const fetchGitHubRepositoriesErrorMessage = intl.formatMessage({
         id: "lowcode.develop.GitHubConfigWizard.GitHubRepositoryFetch.error",
-        defaultMessage: "An error occurred while saving the connection configuration. Please check your GitHub configurations and try again."
+        defaultMessage: "An error occurred while fetching GitHub repositories. Please check your GitHub configurations and try again."
     });
 
     useEffect(() => {
@@ -316,12 +316,13 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     useEffect(() => {
         if (activeConnection) {
             setIsRepoListFetching(true);
+            let repoList;
             (async () => {
-                const repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
-                if (repoList.status !== 500) {
-                    setGithubRepoList(repoList.data);
+                try {
+                    repoList = await getGithubRepoList(currentApp?.org, activeConnection.handle, activeConnection.userAccountIdentifier);
+                    setGithubRepoList(repoList);
                     setIsRepoListFetching(false);
-                } else {
+                } catch (err) {
                     handleOnDeselectConnection();
                     store.dispatch(triggerErrorNotification(fetchGitHubRepositoriesErrorMessage));
                 }

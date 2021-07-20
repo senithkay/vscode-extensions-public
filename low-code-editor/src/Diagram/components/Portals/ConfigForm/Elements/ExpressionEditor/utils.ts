@@ -330,7 +330,7 @@ export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomState
     if (isCustomStatement) {
         return diagnostics;
     } else {
-        return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()));
+        return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
     }
 }
 
