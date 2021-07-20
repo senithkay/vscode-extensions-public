@@ -18,6 +18,7 @@ import {
     DefaultableParam,
     ErrorTypeDesc,
     FloatTypeDesc,
+    HandleTypeDesc,
     IncludedRecordParam,
     IntTypeDesc,
     JsonTypeDesc,
@@ -231,6 +232,13 @@ class FieldVisitor implements Visitor {
         }
     }
 
+    beginVisitHandleTypeDesc(node: HandleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.viewState.type = node.name.value;
+            node.viewState.name = node.name.value;
+        }
+    }
+
     beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
             node.typedesc.viewState = node.viewState;
@@ -384,6 +392,9 @@ class FieldVisitor implements Visitor {
                             orgName: typeSymbol.moduleID.orgName,
                             version: typeSymbol.moduleID.version
                         };
+                    }
+                    if (node.name.value === "Error"){
+                        viewState.isErrorType = true;
                     }
                 }
             }

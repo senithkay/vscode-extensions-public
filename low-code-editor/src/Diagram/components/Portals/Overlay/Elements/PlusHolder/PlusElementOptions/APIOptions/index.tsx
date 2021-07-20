@@ -276,6 +276,17 @@ export function APIOptions(props: APIOptionsProps) {
             }),
             placement: 'left'
         },
+        asb: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.title",
+                defaultMessage: "Connect with Microsoft Azure Service Bus to access fully managed enterprise message broker."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.content",
+                defaultMessage: "Message queues, \nPublish-subscribe topics"
+            }),
+            placement: 'left'
+        },
         mongoDB: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.title",
@@ -397,6 +408,7 @@ export function APIOptions(props: APIOptionsProps) {
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.title,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.title,
         "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.title,
+        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.title,
         "MONGO DB": connectionsTooltipMessages.mongoDB.title,
         "REDIS": connectionsTooltipMessages.redis.title,
         "AWS S3": connectionsTooltipMessages.AWSS3.title,
@@ -429,6 +441,7 @@ export function APIOptions(props: APIOptionsProps) {
         "AZURE COSMOSDB": connectionsTooltipMessages.azureCosmosDB.content,
         "AZURE FILE SERVICE": connectionsTooltipMessages.azureFileService.content,
         "AZURE BLOB SERVICE": connectionsTooltipMessages.azureBlobService.content,
+        "AZURE SERVICE BUS": connectionsTooltipMessages.asb.content,
         "MONGO DB": connectionsTooltipMessages.mongoDB.content,
         "REDIS": connectionsTooltipMessages.redis.content,
         "AWS S3": connectionsTooltipMessages.AWSS3.content,
@@ -526,7 +539,7 @@ export function APIOptions(props: APIOptionsProps) {
     if (connectors) {
         connectors.forEach((connector: any, index: number) => {
             // filter connectors due to maintenance
-            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "asb", "choreo.sendwhatsapp"];
+            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "choreo.sendwhatsapp"];
             if (filteredConnectors.includes(connector.module)) {
                 return;
             }
