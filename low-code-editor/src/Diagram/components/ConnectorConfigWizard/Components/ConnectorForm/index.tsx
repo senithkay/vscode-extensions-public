@@ -595,6 +595,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (currentActionReturnType.hasReturn) {
+                addReturnImportsModifications(modifications, currentActionReturnType);
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -664,6 +665,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                             // Add an action invocation on the initialized client.
                             if (currentActionReturnType.hasReturn) {
+                                addReturnImportsModifications(modifications, currentActionReturnType);
                                 const addActionInvocation = createPropertyStatement(
                                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                                     targetPosition
