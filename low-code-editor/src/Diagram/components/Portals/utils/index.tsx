@@ -906,6 +906,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
         returnType: "var",
+        importTypeInfo: []
     };
     const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
     const returnTypes: string[] = [];
@@ -919,6 +920,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                        response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
 
                         // collector
                         if (type && type !== "var") {
@@ -948,6 +950,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                 }
 
                 if (response.returnType && formField?.isArray) {
@@ -963,6 +966,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                        response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                         // collector
                         if (type && type !== "var") {
                             returnTypes.push(type);
@@ -986,11 +990,13 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         // set class/record types
                         type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name}`;
                         response.hasReturn = true;
+                        response.importTypeInfo.push(formField.typeInfo);
                     }
                     if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
                         // set stream record type with error
                         type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name},error`;
                         response.hasReturn = true;
+                        response.importTypeInfo.push(formField.typeInfo);
                         // remove error return
                         response.hasError = false;
                     }
