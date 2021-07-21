@@ -30,7 +30,7 @@ import {
     OauthProviderConfig
 } from "../../../../../api/models";
 import { CloseRounded } from "../../../../../assets/icons";
-import { ActionConfig, ConnectorConfig, FormField, WizardType } from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { BallerinaConnectorsInfo, STModification } from "../../../../../Definitions/lang-client-extended";
@@ -741,6 +741,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                         modifications.push(addConnectorInit);
                     }
                     if (currentActionReturnType.hasReturn) {
+                        addReturnImportsModifications(modifications, currentActionReturnType);
                         const addActionInvocation = createPropertyStatement(
                             `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                             targetPosition
@@ -791,6 +792,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         onEvent(event);
         if (!isNewConnectorInitWizard) {
             if (currentActionReturnType.hasReturn) {
+                addReturnImportsModifications(modifications, currentActionReturnType);
                 const updateActionInvocation = updatePropertyStatement(
                     `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                     model.position
@@ -822,6 +824,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
                 // Add an action invocation on the initialized client.
                 if (currentActionReturnType.hasReturn) {
+                    addReturnImportsModifications(modifications, currentActionReturnType);
                     const addActionInvocation = createPropertyStatement(
                         `${currentActionReturnType.returnType} ${config.action.returnVariableName} = ${currentActionReturnType.hasError ? 'check' : ''} ${existingEndpointName || config.name}->${config.action.name}(${getParams(config.action.fields).join()});`,
                         targetPosition
@@ -859,6 +862,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             setFormState(FormStates.OauthConnect);
         }
     };
+
+    // add action/operation return type imports modifications
+    const addReturnImportsModifications = (modifications: STModification[], returnType: FormFieldReturnType) => {
+        if (returnType.importTypeInfo) {
+            returnType.importTypeInfo?.forEach(typeInfo => {
+                const addImport: STModification = createImportStatement(
+                    typeInfo.orgName,
+                    typeInfo.modName,
+                    { column: 0, line: 0 });
+                modifications.push(addImport);
+            });
+        }
+    }
 
     const handleFormClose = () => {
         const event: LowcodeEvent = {
