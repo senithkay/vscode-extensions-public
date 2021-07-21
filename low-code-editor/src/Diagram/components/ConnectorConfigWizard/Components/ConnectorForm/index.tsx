@@ -501,34 +501,34 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
                     } else {
                         // update connector client initialization
-                          const updatedFields: { name: string; value: string; }[] = [];
-                          manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
-                              if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
-                                  updatedFields.push({
-                                      name: item.name,
-                                      value: item.value.substring(1, (item.value.length - 1))
-                                  });
-                              }
-                          });
-                          if (config.isConnectionNameUpdated || updatedFields.length > 0) {
-                              response = await updateManualConnection(activeConnectionId, userInfo?.selectedOrgHandle, connectorInfo.displayName,
-                                  config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
-                              apiResponseStatus = response.status === 500 ? response.data.code : response.status;
-                              setResponseStatus(apiResponseStatus)
-                              if (apiResponseStatus === 200 || apiResponseStatus === 201) {
-                                  configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
-                                      response.data, selectedType);
-                                  if (config.name) {
-                                      const updateConnectorInit = updatePropertyStatement(
-                                          `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
-                                          connectorConfig.initPosition
-                                      );
-                                      modifications.push(updateConnectorInit);
-                                  }
-                                  handleModifyDiagram(modifications);
-                              }
-                              showNotification(apiResponseStatus, ConnectionAction.update, response.data.message);
-                          } else {
+                        const updatedFields: { name: string; value: string; }[] = [];
+                        manualConnectionFormFieldValues.selectedFields.forEach((item: any) => {
+                            if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"'){
+                                updatedFields.push({
+                                    name: item.name,
+                                    value: item.value.substring(1, (item.value.length - 1))
+                                });
+                            }
+                        });
+                        if (config.isConnectionNameUpdated || updatedFields.length > 0) {
+                            response = await updateManualConnection(activeConnectionId, userInfo?.selectedOrgHandle, connectorInfo.displayName,
+                                config?.connectionName, userInfo.user.email, updatedFields, selectedType, activeConnectionHandler);
+                            apiResponseStatus = response.status === 500 ? response.data.code : response.status;
+                            setResponseStatus(apiResponseStatus)
+                            if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                                configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
+                                    response.data, selectedType);
+                                if (config.name) {
+                                    const updateConnectorInit = updatePropertyStatement(
+                                        `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
+                                        connectorConfig.initPosition
+                                    );
+                                    modifications.push(updateConnectorInit);
+                                }
+                                handleModifyDiagram(modifications);
+                            }
+                            showNotification(apiResponseStatus, ConnectionAction.update, response.data.message);
+                        } else {
                             if (!(updatedFields.length > 0) && !config.isConnectionNameUpdated && config.name) {
                                 const updateConnectorInit = updatePropertyStatement(
                                     `${moduleName}:${connectorInfo.name} ${config.name} = ${isInitReturnError ? 'check' : ''} new (${configSource});`,
@@ -536,7 +536,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                                 );
                                 modifications.push(updateConnectorInit);
                             }
-                          }
+                        }
                     }
                 })();
             }
@@ -1015,17 +1015,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (connectorInfo.module === "http") {
             connectorComponent = getConnectorComponent(
                 connectorInfo.module + connectorInfo.name, {
-                functionDefinitions: functionDefInfo,
-                connectorConfig: config,
-                onSave,
-                onClose,
-                connector: connectorInfo,
-                isNewConnectorInitWizard,
-                targetPosition,
-                model,
-                selectedConnector,
-                isAction
-            });
+                    functionDefinitions: functionDefInfo,
+                    connectorConfig: config,
+                    onSave,
+                    onClose,
+                    connector: connectorInfo,
+                    isNewConnectorInitWizard,
+                    targetPosition,
+                    model,
+                    selectedConnector,
+                    isAction
+                });
         } else {
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
