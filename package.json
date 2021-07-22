@@ -122,6 +122,11 @@
                     "type": "boolean",
                     "default": false,
                     "markdownDescription": "Enable Ballerina low-code mode."
+                },
+                "ballerina.enableSemanticHighlighting": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable semantic highlighting for Ballerina source."
                 }
             }
         },
