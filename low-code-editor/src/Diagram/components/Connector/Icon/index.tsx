@@ -33,6 +33,7 @@ import { GooglePeopleAPILogo } from "./GooglePeopleAPILogo";
 import { GoogleSheetLogo } from "./GoogleSheetLogo";
 import { HttpLogo } from "./HttpLogo";
 import { ImapLogo } from "./ImapLogo"
+import { LeanIXLogo } from "./LeanIXLogo";
 import { MediumLogo } from "./MediumLogo";
 import { MongoDBLogo } from "./MongoDBLogo";
 import { NetsuiteLogo } from "./NetsuiteLogo";
@@ -93,3 +94,4 @@ export { SendGridLogo as sendgrid_Client};
 export { ChoreoMailLogo as choreo_sendemail_Client };
 export { ChoreoSMSLogo as choreo_sendsms_Client };
 export { ChoreoWhatsAppLogo as choreo_sendwhatsapp_Client };
+export { LeanIXLogo as leanix_integrationapi_Client };
