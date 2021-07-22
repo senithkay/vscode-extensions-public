@@ -25,7 +25,7 @@ export class StatementViewState extends ViewState {
     public variableAssignment: SimpleBBox = new SimpleBBox();
     public conditionAssignment: SimpleBBox = new SimpleBBox();
     public action: ActionViewState = new ActionViewState();
-
+    public isReached: boolean;
     constructor() {
         super();
         this.isAction = false;
