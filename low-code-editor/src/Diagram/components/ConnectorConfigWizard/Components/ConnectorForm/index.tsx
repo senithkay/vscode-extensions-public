@@ -118,7 +118,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         getAiSuggestions,
         onEvent,
         syntaxTree,
-        getAllConnections
+        getAllConnections,
+        dispatchGetAllConfiguration,
+        dispatchGetConfig
     } = state;
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const configurations: OauthProviderConfigState = oauthProviderConfigs;
@@ -445,6 +447,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             apiResponseStatus = response.status === 500 ? response.data.code : response.status;
                             setResponseStatus(apiResponseStatus)
                             if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                                dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
                                 configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                     response.data, selectedType);
                                 connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
@@ -636,6 +639,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                             apiResponseStatus = response.status === 500 ? response.data.code : response.status;
                             setResponseStatus(apiResponseStatus);
                             if (apiResponseStatus === 200 || apiResponseStatus === 201) {
+                                dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
                                 configSource = getOauthParamsFromConnection(connectorInfo.displayName.toLocaleLowerCase(),
                                     response.data, selectedType);
                                 connectorConfigurables = getOauthConnectionConfigurables(connectorInfo.displayName.toLocaleLowerCase(),
