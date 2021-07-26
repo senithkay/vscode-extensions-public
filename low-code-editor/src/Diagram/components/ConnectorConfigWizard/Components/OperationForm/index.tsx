@@ -211,6 +211,7 @@ export function OperationForm(props: OperationFormProps) {
                             fullWidth={false}
                             disabled={isSaveButtonDisabled}
                             onClick={handleOnSave}
+                            dataTestId="save-operation-btn"
                         />
                     </div>
                 </div>
