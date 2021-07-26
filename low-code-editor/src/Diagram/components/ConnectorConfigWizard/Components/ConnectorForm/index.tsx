@@ -169,7 +169,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     });
     const configTokenErrorMessage = intl.formatMessage({
         id: "lowcode.develop.connectorForms.manualConnection.configAccessToken.error",
-        defaultMessage: "Invalid access token. Please try again."
+        defaultMessage: "Invalid access token."
     });
 
     useEffect(() => {
