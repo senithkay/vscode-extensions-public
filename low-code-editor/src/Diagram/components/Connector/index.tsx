@@ -77,7 +77,7 @@ export function Connector(props: ConnectorProps) {
 
         const connectorHeadX = x - (CLIENT_SVG_WIDTH_WITH_SHADOW / 2);
         const connectorHeadY = viewState.bBox.cy - (CLIENT_SHADOW_OFFSET / 2);
-        const controlFlowArrow = viewState?.isReached ? <ControlFlowArrow isDotted={false} x={actionLineStartX} y={actionRightLineY} w={actionLineEndX - actionLineStartX} /> : <g />;
+        const controlFlowArrow = viewState?.isReached ? <ControlFlowArrow isDotted={false} x={actionLineStartX} y={actionRightLineY} w={actionLineEndX - actionLineStartX} /> : null;
         component = (
             <g>
                 <ConnectorProcess model={model} />
