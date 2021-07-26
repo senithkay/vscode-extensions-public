@@ -69,7 +69,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
             <ControlFlowArrow isDotted={true} x={actionLineStartX} y={actionLeftLineY} w={actionLineWidth} />
         </g>
     );
-    const controlFlowArrow = viewState?.isReached ? controlFlowArrowC : <g />;
+    const controlFlowArrow = viewState?.isReached ? controlFlowArrowC : null;
 
     return (
         <g>
