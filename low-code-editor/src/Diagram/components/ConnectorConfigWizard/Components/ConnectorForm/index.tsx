@@ -876,8 +876,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 const addImport: STModification = createImportStatement(
                     typeInfo.orgName,
                     typeInfo.modName,
-                    { column: 0, line: 0 });
-                modifications.push(addImport);
+                    { column: 0, line: 0 }
+                );
+                // check already exists modification statements
+                const existsMod = modifications.find(modification => (JSON.stringify(addImport) === JSON.stringify(modification)));
+                if (!existsMod) {
+                    modifications.push(addImport);
+                }
             });
         }
     }
