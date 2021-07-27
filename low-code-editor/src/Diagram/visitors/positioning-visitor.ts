@@ -366,6 +366,7 @@ class PositioningVisitor implements Visitor {
 
                 }
                 blockViewState.controlFlow.lineStates.push(controlFlowLineState);
+                statementViewState.isReached = true;
             }
 
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
