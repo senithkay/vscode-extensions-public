@@ -13,6 +13,7 @@ export default function Provider(props: any) {
     createManualConnection,
     triggerErrorNotification,
     triggerSuccessNotification,
+    updateManualConnection,
     ...restProps
   } = props;
 
@@ -36,7 +37,8 @@ export default function Provider(props: any) {
     diagramPanLocation,
     createManualConnection,
     triggerErrorNotification,
-    triggerSuccessNotification
+    triggerSuccessNotification,
+    updateManualConnection,
   };
 
   return (

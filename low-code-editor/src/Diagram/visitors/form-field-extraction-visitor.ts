@@ -18,6 +18,7 @@ import {
     DefaultableParam,
     ErrorTypeDesc,
     FloatTypeDesc,
+    HandleTypeDesc,
     IncludedRecordParam,
     IntTypeDesc,
     JsonTypeDesc,
@@ -120,6 +121,10 @@ class FieldVisitor implements Visitor {
             // viewState.typeName = undefined;
             node.typeName.viewState = viewState;
             viewState.optional = true;
+            if ((node?.expression as any)?.literalToken?.value) {
+                // casted to any since literal token is not accessible according to ST interfaces
+                viewState.value = (node?.expression as any)?.literalToken?.value;
+            }
             viewState.isDefaultableParam = true;
 
             if (node.annotations.length > 0){
@@ -224,6 +229,13 @@ class FieldVisitor implements Visitor {
 
             node.leftTypeDesc.viewState = { isParam: true, type: undefined };
             node.rightTypeDesc.viewState = { isParam: true, type: undefined };
+        }
+    }
+
+    beginVisitHandleTypeDesc(node: HandleTypeDesc) {
+        if (node.viewState && node.viewState.isParam) {
+            node.viewState.type = node.name.value;
+            node.viewState.name = node.name.value;
         }
     }
 
@@ -381,6 +393,9 @@ class FieldVisitor implements Visitor {
                             version: typeSymbol.moduleID.version
                         };
                     }
+                    if (node.name.value === "Error"){
+                        viewState.isErrorType = true;
+                    }
                 }
             }
         }
@@ -433,6 +448,7 @@ class FieldVisitor implements Visitor {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
             viewState.name = node.fieldName.value;
+            viewState.value = node?.expression?.literalToken?.value;
             node.typeName.viewState = node.viewState;
         }
     }

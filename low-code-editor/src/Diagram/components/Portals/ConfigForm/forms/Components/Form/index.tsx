@@ -37,14 +37,10 @@ export function Form(props: FormProps) {
     const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
 
     React.useEffect(() => {
-        let allFieldsValid = true;
-        for (const formValue of fields) {
-            allFieldsValid = validateFormFields(formValue, emptyFieldChecker);
-            if (!allFieldsValid) {
-                break;
-            }
+        // Set form as valid if there aren't any mandatory fields
+        if (isAllOptionalFields(fields)){
+            onValidate(true);
         }
-        onValidate(allFieldsValid);
     }, [])
 
     const validateField = (field: string, isInvalid: boolean): void => {
@@ -64,7 +60,7 @@ export function Form(props: FormProps) {
         if (!field.hide && (field.type === "string" || (field.type === 'record' && !field.isReference) || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
             || field.type === "map" || field.type === "union" || field.type === "json" ||
-            field.type === "httpRequest")) {
+            field.type === "httpRequest" || field.type === "handle")) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -86,6 +82,8 @@ export function Form(props: FormProps) {
                 });
             } else if (field.isRestParam) {
                 type = "restParam"
+            } else if (field.type === "handle"){
+                type = "expression";
             }
             const element = getFormElement(elementProps, type);
 

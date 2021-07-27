@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
@@ -27,7 +27,7 @@ import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/Sec
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { checkVariableName } from "../../../Portals/utils";
+import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../Portals/utils";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {
@@ -40,6 +40,7 @@ interface CreateConnectorFormProps {
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
+    responseStatus: number;
 }
 
 interface NameState {
@@ -52,7 +53,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { state } = useContext(Context);
     const { stSymbolInfo: symbolInfo } = state;
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard, connector } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -66,7 +67,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const initialConnectionNameState: NameState = {
         value: connectorConfig.connectionName,
         isValidName:  !!connectorConfig.connectionName,
-        isNameProvided: nameRegex.test(connectorConfig.connectionName)
+        isNameProvided: !!connectorConfig.connectionName
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
@@ -77,8 +78,21 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const [connectionNameError, setConnectionNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
+    const [isEndpointNameUpdated, setIsEndpointNameUpdated] = useState(false);
+    const [isTokenFieldsUpdated, setIsTokenFieldsUpdated] = useState(false)
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
+        const manualConnectionFormFields = getManualConnectionDetailsFromFormFields(connectorConfig.connectorInit);
+        const formattedFields: { name: string; value: string; }[] = [];
+        manualConnectionFormFields.selectedFields.forEach((item: any) => {
+            if (item.value.slice(0, 1) === '\"' && item.value.slice(-1) === '\"') {
+                formattedFields.push({
+                    name: item.name,
+                    value: item.value.substring(1, (item.value.length - 1))
+                });
+            }
+        });
+        formattedFields.length > 0 ? setIsTokenFieldsUpdated(true) : setIsTokenFieldsUpdated(false);
         setIsGenFieldsFilled(isRequiredFieldsFilled);
     };
 
@@ -128,6 +142,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isNameProvided: text !== '',
             isValidName: validateConnectionNameValue(text)
         });
+        connectorConfig.connectionName !== text ? connectorConfig.isConnectionNameUpdated = true : connectorConfig.isConnectionNameUpdated = false;
     };
 
     const onNameChange = (text: string) => {
@@ -137,13 +152,19 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
             isValidName: validateNameValue(text)
         });
         onConfigNameChange(text);
+        connectorConfig.name !== text ? setIsEndpointNameUpdated(true) : setIsEndpointNameUpdated(false);
     };
 
     const handleOnSave = () => {
         // update config connector name, when user click next button
-        connectorConfig.name = nameState.value;
+        if (isNewConnectorInitWizard) {
+            connectorConfig.connectionName = connectionNameState.value;
+            connectorConfig.name = nameState.value;
+        } else {
+            connectorConfig.connectionName = connectionNameState.value;
+            connectorConfig.name = isEndpointNameUpdated ? nameState.value : undefined;
+        }
         connectorConfig.connectorInit = configForm;
-        connectorConfig.connectionName = connectionNameState.value;
         state.onAPIClient(connector);
         onSave();
     };
@@ -221,7 +242,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                     onChange={onConnectionNameChange}
                     errorMessage={connectionNameError}
                     placeholder={createConnectionPlaceholder}
-                    disabled={!isNewConnectorInitWizard}
                 />
             </Section>
         </div>
@@ -233,6 +253,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
+    const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
 
     return (
         <div>
@@ -275,7 +296,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isEnabled)}
+                                disabled={!(isSaveDisabled)}
                                 onClick={handleOnSave}
                             />
                         )}

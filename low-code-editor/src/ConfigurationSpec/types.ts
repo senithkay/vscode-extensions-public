@@ -99,6 +99,7 @@ export interface FormFieldReturnType {
     hasError: boolean;
     hasReturn: boolean;
     returnType: string;
+    importTypeInfo?: NonPrimitiveBal[];
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -130,6 +131,7 @@ export class ConnectorConfig {
     public responsePayloadMap?: ResponsePayloadMap;
     public initPosition?: DraftUpdatePosition;
     public isReturnError?: boolean;
+    public isConnectionNameUpdated?: boolean;
 }
 
 export interface ConfigurationSpec {

@@ -265,7 +265,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         if (name) {
                             const selectedField: FormField = field.fields?.find((subField: FormField) => {
                                 const fieldName = getUnionFormFieldName(subField);
-                                return fieldName === field.selectedDataType;
+                                return (fieldName !== undefined) && (fieldName === field.selectedDataType);
                             });
                             if (selectedField) {
                                 const params = getParams([selectedField], depth + 1);
@@ -330,6 +330,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 } else {
                     paramString += "xml `" + formField.value + "`";
                 }
+            } else if (formField.type === "handle" && formField.value) {
+                paramString += formField.value;
             }
 
             if (paramString !== "") {
@@ -518,6 +520,9 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                nextValueIndex++;
+            } else if (formField.type === 'handle') {
+                formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.type === 'collection') {
                 formField.value = positionalArg.expression?.source;
@@ -751,10 +756,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         await addToFormFieldCache(connector, functionDefInfo);
 
         // INFO: uncomment below code to get connector form field json object
-        const formFieldJsonObject: any = {};
-        functionDefInfo.forEach((value, key) => {
-            formFieldJsonObject[key] = value;
-        });
+        // const formFieldJsonObject: any = {};
+        // functionDefInfo.forEach((value, key) => {
+        //     formFieldJsonObject[key] = value;
+        // });
         // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
         // console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
@@ -906,8 +911,9 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
         returnType: "var",
+        importTypeInfo: []
     };
-    const primitives = [ "string", "int", "float", "boolean", "json", "xml" ];
+    const primitives = [ "string", "int", "float", "boolean", "json", "xml", "handle" ];
     const returnTypes: string[] = [];
 
     if (formField && formField?.isParam) {
@@ -919,6 +925,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                        response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
 
                         // collector
                         if (type && type !== "var") {
@@ -948,6 +955,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                 }
 
                 if (response.returnType && formField?.isArray) {
@@ -963,6 +971,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         const type = returnTypeResponse.returnType;
                         response.hasError = returnTypeResponse.hasError || response.hasError;
                         response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                        response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                         // collector
                         if (type && type !== "var") {
                             returnTypes.push(type);
@@ -986,11 +995,13 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         // set class/record types
                         type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name}`;
                         response.hasReturn = true;
+                        response.importTypeInfo.push(formField.typeInfo);
                     }
                     if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
                         // set stream record type with error
                         type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name},error`;
                         response.hasReturn = true;
+                        response.importTypeInfo.push(formField.typeInfo);
                         // remove error return
                         response.hasError = false;
                     }
