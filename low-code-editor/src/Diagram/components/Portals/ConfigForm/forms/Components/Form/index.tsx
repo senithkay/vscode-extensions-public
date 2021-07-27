@@ -60,7 +60,7 @@ export function Form(props: FormProps) {
         if (!field.hide && (field.type === "string" || (field.type === 'record' && !field.isReference) || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
             || field.type === "map" || field.type === "union" || field.type === "json" ||
-            field.type === "httpRequest")) {
+            field.type === "httpRequest" || field.type === "handle")) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -82,6 +82,8 @@ export function Form(props: FormProps) {
                 });
             } else if (field.isRestParam) {
                 type = "restParam"
+            } else if (field.type === "handle"){
+                type = "expression";
             }
             const element = getFormElement(elementProps, type);
 

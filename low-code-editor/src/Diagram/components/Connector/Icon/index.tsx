@@ -80,7 +80,7 @@ export { AzureEventhubLogo as azure_eventhub_Client};
 export { AzureCosmosDBLogo as azure_cosmosdb_DataPlaneClient};
 export { AzureFileServiceLogo as azure_storage_service_files_FileClient};
 export { AzureBlobServiceLogo as azure_storage_service_blobs_BlobClient};
-export { AzureServiceBusLogo as azure_service_bus_AsbClient};
+export { AzureServiceBusLogo as asb_AsbClient};
 export { MongoDBLogo as mongodb_Client};
 export { RedisLogo as redis_Client};
 export { WeatherLogo as openweathermap_Client};
