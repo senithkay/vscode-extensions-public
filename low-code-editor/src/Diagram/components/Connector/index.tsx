@@ -19,6 +19,7 @@ import { EndpointViewState, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
 import { ARROW_WIDTH } from "../ArrowHead";
+import ControlFlowArrow from "../ControlFlowArrow";
 
 import { ConnectorHeader } from "./ConnectorHeader";
 import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW, ConnectorSVG } from "./ConnectorHeader/ConnectorClientSVG";
@@ -76,6 +77,7 @@ export function Connector(props: ConnectorProps) {
 
         const connectorHeadX = x - (CLIENT_SVG_WIDTH_WITH_SHADOW / 2);
         const connectorHeadY = viewState.bBox.cy - (CLIENT_SHADOW_OFFSET / 2);
+        const controlFlowArrow = viewState?.isReached ? <ControlFlowArrow isDotted={false} x={actionLineStartX} y={actionRightLineY} w={actionLineEndX - actionLineStartX} /> : null;
         component = (
             <g>
                 <ConnectorProcess model={model} />
@@ -103,6 +105,9 @@ export function Connector(props: ConnectorProps) {
                         direction={"right"}
                         className={leftline}
                     />
+                </g>
+                <g>
+                    {controlFlowArrow}
                 </g>
             </g>
         );

@@ -310,6 +310,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     fullWidth={false}
                                     disabled={!(isEnabled)}
                                     onClick={handleOnSave}
+                                    dataTestId="save-connection-btn"
                                 />
                                 <PrimaryButton
                                     text={intl.formatMessage({
@@ -319,6 +320,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     fullWidth={false}
                                     disabled={!(isEnabled)}
                                     onClick={handleOnSaveNext}
+                                    dataTestId="save-and-continue-connection-btn"
                                 />
                             </>
                         )}

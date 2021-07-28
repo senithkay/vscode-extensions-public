@@ -18,8 +18,8 @@ import { CaptureBindingPattern, LocalVarDecl, SimpleNameReference, STKindChecker
 import { Box, FormControl, Typography } from '@material-ui/core';
 import { CloseRounded } from '@material-ui/icons';
 
-import DataMapperIcon from '../../../../../../../src/assets/icons/DataMapper';
 import { LogIcon } from "../../../../../../assets/icons";
+import DataMapperIcon from '../../../../../../assets/icons/DataMapper';
 import { PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";

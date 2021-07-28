@@ -14,7 +14,7 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -26,7 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CloseRounded } from "../../../../../../assets/icons";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 
 interface LogConfigProps {
     config: ProcessConfig;

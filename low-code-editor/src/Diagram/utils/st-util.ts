@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl, ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration, SimpleNameReference, STKindChecker, STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
-import { Warning } from 'components/DiagramEditor/utils/diagram';
-import { getPathOfResources } from 'components/DiagramSelector/utils';
+import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
+    ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    SimpleNameReference, STKindChecker,
+    STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
@@ -55,6 +56,14 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
 
 export const MAIN_FUNCTION = "main";
 
+export interface Warning {
+    type: string;
+    message: string;
+    position?: any;
+}
+
+export const getPathOfResources = (resources: any[] = []) => resources?.map((path: any) => path?.value || path?.source).join('');
+
 const findResourceIndex = (resourceMembers: any, targetResource: any) => {
     const index = resourceMembers.findIndex(
         (m: any) => {
@@ -70,18 +79,22 @@ const findResourceIndex = (resourceMembers: any, targetResource: any) => {
 };
 
 const findServiceForGivenResource = (serviceMembers: any, targetResource: any) => {
-    const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath } = targetResource;
+    const { functionName: tFunctionName, relativeResourcePath: tRelativeResourcePath, position: tPosition } = targetResource;
     const targetMethod = tFunctionName?.value;
     const targetPath = getPathOfResources(tRelativeResourcePath);
+    const targetStartLine = tPosition?.startLine.toString();
 
     let service = serviceMembers[0];
     serviceMembers.forEach((m: any) => {
         const resources = m.members;
         const found = resources?.find((r: any) => {
-            const { functionName, relativeResourcePath } = r;
+            const { functionName, relativeResourcePath, position } = r;
             const method = functionName?.value;
             const path = getPathOfResources(relativeResourcePath);
+            const startLine = position?.startLine.toString();
+            const lineCheck = (targetStartLine && startLine) ? (targetStartLine === startLine) : true;
             return method === targetMethod && path === targetPath;
+
         });
         if (found) service = m;
     });

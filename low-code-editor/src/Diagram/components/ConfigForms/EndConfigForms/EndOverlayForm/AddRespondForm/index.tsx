@@ -17,10 +17,10 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 import { CloseRounded } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";

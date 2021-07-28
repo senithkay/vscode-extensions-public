@@ -15,12 +15,12 @@
 // Should move these to ../Definitions/*
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
-import { LowcodeEvent } from "components/DiagramEditor";
 import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
 
 import { AppInfo, ApplicationFile } from "../api/models";
 import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
+import { LowcodeEvent } from "../Diagram/models";
 
 import {
     APIViewState, AppViewState, ConnectionData, Feedback, HomeViewState, LinkerState, Notification, OauthProviderConfigState,

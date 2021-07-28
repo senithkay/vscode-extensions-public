@@ -538,7 +538,7 @@ export function APIOptions(props: APIOptionsProps) {
         let tooltipSideCount = 0;
         connectors.forEach((connector: any) => {
             // filter connectors due to maintenance
-            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "asb", "choreo.sendwhatsapp"];
+            const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "choreo.sendwhatsapp"];
             if (filteredConnectors.includes(connector.module)) {
                 return;
             }

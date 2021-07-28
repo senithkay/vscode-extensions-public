@@ -18,7 +18,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
-import { getPathOfResources } from "components/DiagramSelector/utils";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { AddIcon } from "../../../../../../../assets/icons";
@@ -90,6 +89,8 @@ interface ApiConfigureWizardProps {
 export interface ConnectorEvents {
   [key: string]: any;
 }
+
+export const getPathOfResources = (resources: any[] = []) => resources?.map((path: any) => path?.value || path?.source).join('');
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;

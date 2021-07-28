@@ -41,7 +41,7 @@ import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
 import { DiagramContext } from "../../../../../../../providers/contexts";
-import { CHOREO_DOCS } from '../../../../../../../../../../src/api/app-client';
+import { CHOREO_DOCS } from '../../../../../../../utils/constants';
 
 interface TriggerDropDownProps {
     position: DiagramOverlayPosition;
@@ -314,7 +314,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
 
                         { getConnectorTriggerButton(
                             ConnectorType.ASB,
-                            'azure_service_bus_AsbClient',
+                            'asb_AsbClient',
                             "To trigger an application based on Azure Service Bus events.",
                             "Azure SB",
                             "left"

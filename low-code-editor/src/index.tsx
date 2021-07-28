@@ -87,13 +87,11 @@ export default function LowCodeEditor(props: Props) {
 
     return (
         <Provider {...props}>
-            <DiagramErrorBoundary>
-                <DiagramProvider initialState={initialState} >
-                    <div>
-                        <DiagramContainer {...props} />
-                    </div>
-                </DiagramProvider>
-            </DiagramErrorBoundary>
+            <DiagramProvider initialState={initialState} >
+                <div>
+                    <DiagramContainer {...props} />
+                </div>
+            </DiagramProvider>
         </Provider>
     );
 }

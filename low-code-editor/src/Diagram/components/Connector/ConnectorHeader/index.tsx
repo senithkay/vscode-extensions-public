@@ -28,8 +28,6 @@ import {
     ConnectorSVG
 } from "./ConnectorClientSVG";
 import "./style.scss";
-// import { connect } from "react-redux";
-
 
 export interface ConnectorClientProps {
     model: STNode;

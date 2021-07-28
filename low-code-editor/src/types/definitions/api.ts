@@ -1,13 +1,12 @@
-import { APICreateView, APIManagerAPIObj, APIThumbnail, BusinessPlan, ConfigView } from "../../api/models";
+import { ApiCreateView, ApiManagerApiObj, ApiThumbnail, BusinessPlan } from "../../api/models";
 
 export interface APIViewState {
     error?: Error;
     businessPlans?: BusinessPlan[];
-    currentApi?: APIManagerAPIObj;
-    apiThumbnail?: APIThumbnail;
+    currentApi?: ApiManagerApiObj;
+    apiThumbnail?: ApiThumbnail;
     isApiDeleting: boolean;
     isMoreAPIDetailsFetching: boolean;
-
-    apiCreateView: APICreateView;
-    configView: ConfigView;
+    apiCreateView: ApiCreateView;
+    configView: any; // TODO Use accurate type def.
 }

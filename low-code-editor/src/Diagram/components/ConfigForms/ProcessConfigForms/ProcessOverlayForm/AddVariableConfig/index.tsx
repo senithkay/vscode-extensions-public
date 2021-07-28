@@ -17,10 +17,10 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
 import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";

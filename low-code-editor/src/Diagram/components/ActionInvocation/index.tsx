@@ -19,6 +19,7 @@ import { Context } from "../../../Contexts/Diagram";
 import { SimpleBBox, StatementViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
+import ControlFlowArrow from "../ControlFlowArrow";
 import { Metrics } from "../Metrics";
 import { Performance } from "../Performace";
 import { DataProcessor } from "../Processor";
@@ -61,6 +62,14 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const truncatedActionName = (
         viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
     );
+
+    const controlFlowArrowC = (
+        <g>
+            <ControlFlowArrow isDotted={false} x={actionLineStartX} y={actionRightLineY} w={actionLineWidth} />
+            <ControlFlowArrow isDotted={true} x={actionLineStartX} y={actionLeftLineY} w={actionLineWidth} />
+        </g>
+    );
+    const controlFlowArrow = viewState?.isReached ? controlFlowArrowC : null;
 
     return (
         <g>
@@ -108,6 +117,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     triggerSVGY={triggerSVGY}
                 />
             </g>
+            {controlFlowArrow}
         </g>
     );
 }

@@ -15,7 +15,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import classNames from "classnames";
 
-import Tooltip from '../../../../../low-code-editor/src/components/Tooltip';
+import Tooltip from '../../../components/Tooltip';
 
 import "./style.scss";
 

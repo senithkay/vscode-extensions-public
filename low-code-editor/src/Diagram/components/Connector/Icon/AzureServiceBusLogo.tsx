@@ -12,13 +12,13 @@
  */
 import * as React from "react";
 
-export const BULK_JOB_LOGO_WIDTH = 48;
-export const BULK_JOB_LOGO_HEIGHT = 48;
+export const LOGO_WIDTH = 20;
+export const LOGO_HEIGHT = 20;
 
 export function AzureServiceBusLogo(props: { cx?: number, cy?: number, scale?: number; }) {
     const { cx, cy, scale } = props;
     return (
-        <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (BULK_JOB_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (BULK_JOB_LOGO_HEIGHT / 2)} width={BULK_JOB_LOGO_WIDTH} height={BULK_JOB_LOGO_HEIGHT} >
+        <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (LOGO_HEIGHT / 2)} width={LOGO_WIDTH} height={LOGO_HEIGHT} >
             <title>ECFAEF0E-C86E-4CAE-9B66-F864789D106A</title>
             <g id="Adding" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="new-adding-new" transform="translate(-1204.000000, -674.000000)" fill="#0072C6">
