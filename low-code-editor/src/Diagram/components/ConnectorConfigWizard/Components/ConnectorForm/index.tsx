@@ -579,6 +579,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (modifications.length > 0) {
             modifyDiagram(modifications);
             onClose();
+            dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
         }
     };
 
@@ -775,6 +776,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                     if (modifications.length > 0) {
                         modifyDiagram(modifications);
                         onClose();
+                        dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
                     }
                 }
             }
