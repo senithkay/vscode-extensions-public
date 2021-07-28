@@ -449,7 +449,7 @@ class PositioningVisitor implements Visitor {
                     statementViewState.action.trigger.cx = mainEp.lifeLine.cx;
                     statementViewState.action.trigger.cy = statementViewState.bBox.cy;
 
-                    if (endpoint.visibleEndpoint.isExternal && !endpoint.firstAction) {
+                    if ((endpoint?.visibleEndpoint as any)?.isExternal && !endpoint.firstAction) {
                         statementViewState.endpoint = mainEp;
                         // Add endpoint in to the action view statement.
                         const endpointViewState: EndpointViewState = statementViewState.endpoint;
@@ -459,7 +459,7 @@ class PositioningVisitor implements Visitor {
                         endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
                             (endpointViewState.bBox.w / 2) + epGap + (epGap * epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy - (DefaultConfig.connectorLine.gap);
-                        endpointViewState.isExternal = endpoint.visibleEndpoint.isExternal;
+                        endpointViewState.isExternal = (endpoint.visibleEndpoint as any)?.isExternal;
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;

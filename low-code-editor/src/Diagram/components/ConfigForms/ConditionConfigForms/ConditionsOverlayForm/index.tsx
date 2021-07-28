@@ -11,14 +11,12 @@
  * associated services.
  */
 import React, { useContext } from "react";
-import { useDispatch } from "react-redux";
 
-import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
-
-import { Context } from "../../../../../../src/Contexts/Diagram";
-import { DefaultConfig } from "../../../../../../src/Diagram/visitors/default";
+import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
+import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { DiagramContext } from "../../../../../providers/contexts";
 import { ConditionConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
@@ -37,13 +35,12 @@ interface ConditionsWizardProps {
 
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
+    const { diagramPanLocation } = useContext(DiagramContext).callbacks;
     const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const { state } = useContext(Context);
     const { onFitToScreen, appInfo } = state;
 
-    const dispatch = useDispatch();
-    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
     const currentAppid = appInfo?.currentApp?.id;
 
     React.useEffect(() => {

@@ -30,7 +30,7 @@ import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms
 import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 
 interface LogConfigProps {
     config: ProcessConfig;

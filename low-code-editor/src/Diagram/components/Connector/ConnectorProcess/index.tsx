@@ -16,8 +16,8 @@ import React, { useContext, useState } from "react";
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { BallerinaConnectorsInfo } from "../../../../../src/Definitions";
 import { Context } from "../../../../Contexts/Diagram";
+import { BallerinaConnectorsInfo } from "../../../../Definitions";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState, ViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";

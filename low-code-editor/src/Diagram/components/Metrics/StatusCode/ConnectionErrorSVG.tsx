@@ -15,7 +15,8 @@ import * as React from "react";
 
 import { Grid, IconButton,  withStyles } from "@material-ui/core";
 import TooltipBase from '@material-ui/core/Tooltip';
-import { CopyToClipboard } from 'components/CopyToClipboard';
+
+import { CopyToClipboard } from '../../../../components/CopyToClipboard';
 
 export const ERROR_LABEL_SVG_WIDTH_WITH_SHADOW = 65;
 export const ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW = 31;

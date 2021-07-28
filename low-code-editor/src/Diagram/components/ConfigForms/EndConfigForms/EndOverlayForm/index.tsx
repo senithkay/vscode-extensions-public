@@ -11,16 +11,15 @@
  * associated services.
  */
 import React, { useContext } from "react";
-import { useDispatch } from "react-redux";
 
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, SimpleNameReference, STKindChecker } from "@ballerina/syntax-tree";
-import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
 
-import { Context } from "../../../../../..//src/Contexts/Diagram";
-import { DefaultConfig } from "../../../../../../src/Diagram/visitors/default";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
+import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
+import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { DiagramContext } from "../../../../../providers/contexts";
 import { EndConfig, RespondConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
@@ -35,6 +34,7 @@ interface EndOverlayFormProps {
 }
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
+    const { diagramPanLocation } = useContext(DiagramContext).callbacks;
     const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
@@ -42,8 +42,6 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { state } = useContext(Context);
     const { onFitToScreen, appInfo } = state;
 
-    const dispatch = useDispatch();
-    const diagramPanLocation = (appId: number, panX: number, panY: number) => dispatch(acDiagramPanLocation(appId, panX, panY));
     const currentAppid = appInfo?.currentApp?.id;
 
     React.useEffect(() => {

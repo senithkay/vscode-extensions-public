@@ -26,7 +26,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "column",
             position: "absolute",
-            top: theme.spacing(31.25),
+            top: "40vh",
             right: 15,
             zIndex: 400
         },
@@ -75,6 +75,21 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:hover, &:focus': {
                 boxShadow: "0 1px 2px 0 #CBCFDA",
                 background: `url("/images/fit-to-screen-hover.svg") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%)`,
+            }
+        },
+        zoomControlWrapper: {
+            height: 32,
+            width: 32,
+            borderRadius: 20,
+            boxShadow: '0 1px 1px 0 #CBCFDA',
+            background:  "#fff",
+            marginTop: theme.spacing(0.5),
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            '&:hover, &:focus': {
+                boxShadow: "0 1px 2px 0 #CBCFDA",
+                background: "#f1f1f1",
             }
         }
     })

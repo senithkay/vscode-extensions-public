@@ -18,11 +18,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { STNode } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
-import { DefaultConfig } from '../../../../../../../../low-code-editor/src/Diagram/visitors/default';
 import Tooltip from '../../../../../../components/Tooltip';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
 import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
+import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { convertMemberViewStateToString, hasReferenceConnections } from '../../../util';

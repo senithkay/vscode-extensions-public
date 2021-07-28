@@ -11,7 +11,6 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import color = Mocha.reporters.Base.color;
 
 export const wizardStyles = makeStyles((theme: Theme) =>
     createStyles({

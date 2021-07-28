@@ -15,15 +15,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, IconButton, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 import classNames from "classnames";
-import { LinePrimaryButton } from "components/DiagramEditor/components/Button/LinePrimaryButton";
-import { PrimaryButton } from "components/DiagramEditor/components/Button/PrimaryButton";
-import { Status } from "components/Status";
 import camelCase from "lodash.camelcase";
 
 import { ConnectionDetails, OauthProviderConfig } from "../../../api/models";
+import { LinePrimaryButton } from "../../../components/Buttons/LinePrimaryButton";
+import { PrimaryButton } from "../../../components/Buttons/PrimaryButton";
+import { Status } from "../../../components/Status";
 import { ConnectorConfig, FormField } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import {STSymbolInfo} from "../../../Definitions";

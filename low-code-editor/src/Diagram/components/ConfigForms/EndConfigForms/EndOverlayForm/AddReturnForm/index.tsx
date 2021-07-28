@@ -28,7 +28,7 @@ import { wizardStyles } from "../../../style";
 import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../../../src/api/app-client";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 
 interface ReturnFormProps {
     config: EndConfig;
