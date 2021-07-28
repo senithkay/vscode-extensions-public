@@ -66,7 +66,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         const items: string[] = values;
         items.forEach((value) => {
             menuItems.push(
-                <MenuItem key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`}>
+                <MenuItem key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
                     <span className="TextSpan">{value}</span>
                 </MenuItem>
             );
