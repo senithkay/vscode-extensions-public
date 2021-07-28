@@ -75,6 +75,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
                         itemList={sortedOperations()}
                         getItemLabel={renderOperation}
                         onChange={handleSelect}
+                        dataTestId="operation-list"
                     />
                 </div>
             </div>
