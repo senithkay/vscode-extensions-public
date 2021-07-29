@@ -6,14 +6,6 @@ export interface CollectedLogLine {
     logLine: string;
 }
 
-export interface CollectedLogs {
-    searchPhrase?: string;
-    timeRange?: TimeRangeISO;
-    logs: CollectedLogLine[];
-    isLoading: boolean;
-    error?: Error;
-}
-
 export interface GroupedLogLine {
     bin: string;
     groupLogs: string;
