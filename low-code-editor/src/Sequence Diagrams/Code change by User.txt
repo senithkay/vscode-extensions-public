@@ -1,0 +1,51 @@
+title Code change by User
+
+participant Main
+participant App Service
+participant Language Sever
+participant Redux
+participant Local Store
+
+Main->Redux: FILE_SAVE_START
+Main->Redux: SET_CODE_CHANGE_IN_PROGRESS
+Main->+Redux: waitForCurrentWorkspace()
+Redux-->-Main: 
+
+
+alt try
+    Main->+App Service: updateAppFile()
+    App Service-->-Main: newFile
+    Main->Redux: FILE_SAVE_SUCCESS
+    Main->Redux: DIAGRAM_AST_UPDATE_START
+    
+    alt try
+        Main->+Language Sever: getLangClient()
+        Language Sever-->-Main: lsClient
+        Main->+Language Sever: getAST()
+        Language Sever-->-Main: astResp
+        alt if(astResp.parseSucess)
+            Main->Redux: DIAGRAM_AST_UPDATE_SUCCESS
+            Main->Local Store: addASTToCache()
+        else 
+            Main->+Local Store: getASTFromCache()
+            Local Store-->-Main: currentCache
+            Main->Local Store: addASTToCache()
+            Main->Redux: SET_CONSOLE_ERROR
+            Main->Redux: DIAGRAM_AST_UPDATE_FAILURE
+        end
+    else except
+        Main->Redux: SET_CONSOLE_ERROR
+        Main->Redux: DIAGRAM_AST_UPDATE_FAILURE
+    end
+    Main->Redux: SET_CODE_CHANGE_IN_PROGRESS
+    Main->+App Service: getLangServerURL()
+    App Service-->-Main: lsURL
+    opt lsURL
+        Main->+Language Sever: getLangClient()
+        Language Sever-->-Main: 
+    end
+    Main->Language Sever: ls.didChange
+else except
+    Main->Redux: SET_CONSOLE_ERROR
+    Main->Redux: FILE_SAVE_FAILURE
+end

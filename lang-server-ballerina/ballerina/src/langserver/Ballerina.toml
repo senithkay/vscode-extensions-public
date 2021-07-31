@@ -1,0 +1,7 @@
+[package]
+org = "choreo"
+name = "langserver"
+version = "1.0.0"
+
+[[platform.java11.dependency]]
+path = "../../libs/choreo-workspace-langserver.jar"

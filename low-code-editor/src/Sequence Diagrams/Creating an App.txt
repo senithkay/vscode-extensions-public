@@ -1,0 +1,19 @@
+title Creating an App
+
+participant Main
+participant App Service
+participant Language Sever
+participant Redux
+participant Local Store
+
+Main->Redux: APP_CREATE_START
+alt try
+    Main->+App Service: createApp()
+    App Service-->-Main: 
+    Main->Redux: CREATE_APP_PREFERENCE_IF_NOT_EXIST
+    Main->Local Store: addASTToCache()
+    Main->Redux: APP_CREATE_SUCCESS
+else except
+    Main->Redux: SET_CONSOLE_ERROR
+    Main->Redux: APP_CREATE_FAILURE
+end

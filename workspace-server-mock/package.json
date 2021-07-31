@@ -1,0 +1,20 @@
+{
+  "name": "file-server-mock",
+  "version": "1.0.0",
+  "description": "A mock implementation for workspace/files API",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "exit-hook": "^2.2.0",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "get-port": "^5.1.1",
+    "ws": "^7.3.0"
+  }
+}
