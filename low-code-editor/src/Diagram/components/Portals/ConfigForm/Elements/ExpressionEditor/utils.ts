@@ -1,0 +1,375 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: ordered-imports
+import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+
+import { ExpressionEditorState } from '../../../../../../Definitions';
+import { DraftInsertPosition } from '../../../../../view-state/draft';
+
+import {
+    FormField,
+    NonPrimitiveBal,
+    PrimitiveBalType
+} from "../../../../../../ConfigurationSpec/types";
+import {
+    COLLAPSE_WIDGET_ID,
+    DOUBLE_QUOTE_ERR_CODE,
+    EXPAND_WIDGET_ID,
+    INCOMPATIBLE_TYPE_ERR_CODE,
+    INCOMPATIBLE_TYPE_MAP_ERR_CODE,
+    IGNORED_DIAGNOSTIC_MESSAGES,
+    SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS,
+    SUGGEST_TO_STRING_TYPE,
+    UNDEFINED_SYMBOL_ERR_CODE,
+    DIAGNOSTIC_MAX_LENGTH,
+} from "./constants";
+import "./style.scss";
+
+
+// return true if there is any diagnostic of severity === 1
+export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
+    if (!diagnostics) {
+        return false
+    }
+    // ignore certain codes and check if there are any diagnostics with severity of level 1
+    return diagnostics.some(diagnostic => diagnostic.severity === 1)
+}
+
+export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    modelContent.splice(targetLine, 0, codeSnippet);
+    return modelContent.join('\n');
+}
+
+export function addToZerothLine(oldModelValue: string, codeSnippet: string): string {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    modelContent[0] = codeSnippet + modelContent[0];
+    return modelContent.join('\n');
+}
+
+export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string): string {
+    return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(targetColumn);
+}
+
+export function getExpState(state: any): ExpressionEditorState {
+    return state?.exprEditorState
+}
+
+export function getDiagnostics(state: any): Diagnostic[] {
+    return state?.diagnostics
+}
+
+export function getCurrentSyntaxTree(state: any): STNode {
+    return state?.syntaxTree
+}
+
+export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftInsertPosition {
+    if (targetPosition?.line) {
+        return targetPosition
+    } else if (targetPosition?.startLine) {
+        return {
+            line: targetPosition.startLine,
+            column: undefined
+        }
+    } else {
+        if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
+            const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
+            return {
+                line: functionBodyPosition.endLine,
+                column: undefined
+            }
+        } else {
+            return {
+                line: 1,
+                column: undefined
+            }
+        }
+    }
+}
+
+export function getInitialValue(defaultValue: string, model: FormField): string {
+    const initVal = defaultValue ? defaultValue : model.value;
+    return initVal;
+}
+
+export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {
+    // check for severity level == 1
+    return diagnosticChecker(diagnostics)
+}
+
+export function customErrorMessage(diagnostics: Diagnostic[]): boolean {
+    return (Array.isArray(diagnostics) && diagnostics.length === 1 && diagnostics[0].code === "")
+}
+
+export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varType: string): boolean {
+    if (!diagnostics) {
+        return false
+    }
+    // check if message contains temp_Expression
+    let typeCheck = false;
+    Array.from(diagnostics).forEach((diagnostic: Diagnostic) => {
+        if ((diagnostic.message).includes(varName) && varType === "var") {
+            typeCheck = true;
+            return
+        }
+    });
+    return typeCheck;
+}
+
+export function addQuotesChecker(diagnostics: Diagnostic[]) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        // check if message contains incorrect string diagnostic code
+        return Array.from(diagnostics).some((diagnostic: Diagnostic) => SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS.includes((diagnostic.code).toString()));
+    }
+    return false;
+}
+
+export function addToStringChecker(diagnostics: Diagnostic[]) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        const selectedDiagnostic: Diagnostic = diagnostics[0];
+        if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
+            // Remove "incompatible types: expected 'string', found '" part of the diagnostic message
+            const trimmedErrorMessage = selectedDiagnostic.message.replace("incompatible types: expected 'string', found '", "");
+            return SUGGEST_TO_STRING_TYPE.some((type: string) => trimmedErrorMessage.startsWith(type));
+        } else if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_MAP_ERR_CODE) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Helper function to convert the model type into string.
+ * Currently simply returns the type name for non primitive types.
+ */
+export const transformFormFieldTypeToString = (model?: FormField, returnUndefined?: boolean): string => {
+    if (model.type === "record" || model.typeInfo) {
+        if (model.typeInfo) {
+            let modName = model.typeInfo.modName;
+            if (modName.includes('.')) {
+                modName = modName.split('.')[1];
+            }
+            if (model.isArray) {
+                return modName + ":" + model.typeInfo.name + "[]"
+            } else {
+                return modName + ":" + model.typeInfo.name
+            }
+        }
+    } else if (model.type === "union") {
+        if (model.fields) {
+            const allTypes: string[] = [];
+            for (const field of model.fields) {
+                let type;
+                if (field.type === "record" || field.typeInfo) {
+                    if (field.typeInfo) {
+                        type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                    }
+                } else if (field.type === "tuple") {
+                    type = transformFormFieldTypeToString(field);
+                } else if (field.type === "collection") {
+                    if (field.collectionDataType?.type) {
+                        type = field.collectionDataType.type + "[]";
+                    }
+                } else if (field.type) {
+                    type = field.type;
+                }
+
+                if (type && !field.noCodeGen && !allTypes.includes(type.toString())) {
+                    allTypes.push(type.toString());
+                }
+            }
+            return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
+        }
+    } else if (model.type === "tuple") {
+        if (model.fields) {
+            const allTypes: string[] = [];
+            for (const field of model.fields) {
+                let type;
+                if (field.type === "record" && field.typeInfo) {
+                    type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                } else if (field.type) {
+                    type = field.type;
+                }
+                if (type && field.isParam && !field.noCodeGen) {
+                    allTypes.push(type.toString());
+                }
+            }
+            return "[" + allTypes.join(",") + "]";
+        }
+    } else if (model.type === "collection") {
+        if (model.typeInfo) {
+            return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
+        } else if (model.collectionDataType) {
+            const returnTypeString = transformFormFieldTypeToString(model.collectionDataType);
+            if (model?.isArray) {
+                // check end with array
+                // eg: (int|string)[][]
+                if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]") {
+                    return `${returnTypeString}[]`;
+                }
+                return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
+            }
+            return returnTypeString;
+        }
+    } else if (model.type === "map") {
+        if (model.fields) {
+            const returnTypesList: string[] = [];
+            model.fields.forEach(field => {
+                const fieldTypeString = transformFormFieldTypeToString(field);
+                returnTypesList.push(fieldTypeString);
+            });
+            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
+        }
+    } else if (model.type) {
+        return model.type;
+    }
+    if (returnUndefined && !model.type) {
+        return undefined;
+    }
+    return PrimitiveBalType.Var.toString();
+}
+
+export function checkIfStringExist(varType: string): boolean {
+    if (varType.endsWith(")[]")) {
+        // Check for union array
+        return false;
+    }
+    const types: string[] = varType.split("|");
+    return types.includes("string")
+}
+
+/**
+ * Helper function to add import statements to a given code.
+ * Import statements are only added if a given type is a non primitive type and if already not imported.
+ * @param codeSnipet Existing code to which the imports will be added
+ * @param model formfield model to check the types of the imports
+ */
+export const addImportModuleToCode = (codeSnipet: string, model: FormField): string => {
+    let code = codeSnipet;
+    if (model.type === "record" || model.typeInfo) {
+        if (model.typeInfo) {
+            const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
+            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+            const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+            if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
+                // Add import only if its already not imported
+                code = addToZerothLine(code, `${importSnippet}`);
+            }
+        }
+    } else if (model.type === "union") {
+        if (model.fields) {
+            for (const field of model.fields) {
+                if (field.type === "record" || model.typeInfo) {
+                    if (field.typeInfo) {
+                        const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
+                        const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
+                        const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+                        if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
+                            // Add import only if its already not imported
+                            code = addToZerothLine(code, `${importSnippet}`);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return code;
+}
+
+export function createContentWidget(id: string): monaco.editor.IContentWidget {
+    return {
+        allowEditorOverflow: true,
+        getId() {
+            return id;
+        },
+        getDomNode() {
+            if (!this.domNode) {
+                this.domNode = document.createElement('div');
+                if (id === EXPAND_WIDGET_ID) {
+                    this.domNode.className = "expand-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-expand.svg"/>';
+                } else if (id === COLLAPSE_WIDGET_ID) {
+                    this.domNode.className = "collapse-icon";
+                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-collapse.svg"/>';
+                }
+            }
+            return this.domNode;
+        },
+        getPosition() {
+            return {
+                position: { lineNumber: 1, column: 1 },
+                preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
+            };
+        }
+    }
+}
+
+export function createSortText(index: number): string {
+    const alpList = "abcdefghijklmnopqrstuvwxyz".split("");
+    return "z".repeat(Math.floor(index / 26)) + alpList[index]
+}
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomStatement: boolean) {
+    if (isCustomStatement) {
+        return diagnostics;
+    } else {
+        return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+    }
+}
+
+
+export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
+    if (diagnosticsMessage && diagnosticsMessage.length > DIAGNOSTIC_MAX_LENGTH)
+        return diagnosticsMessage.slice(0, DIAGNOSTIC_MAX_LENGTH) + " ..."
+    else
+        return diagnosticsMessage
+}
+
+export const getValueWithoutSemiColon = (currentContent: string) => {
+    if (currentContent.endsWith(';')) {
+        let semiColonCount = 0;
+        // Loop through content and remove if multiple semicolons exist
+        for (let i = currentContent.length; i > 0; i--) {
+            if (currentContent.charAt(i - 1) === ';') {
+                semiColonCount--;
+            } else {
+                break;
+            }
+        }
+        if (semiColonCount < 0) {
+            return currentContent.slice(0, semiColonCount);
+        }
+    }
+    return currentContent;
+}
+
+export function getDiagnosticMessage(diagnostics: any, varType: string): string {
+    if (varType === 'string') {
+        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
+        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : diagnostics[0]?.message;
+    } else {
+        return diagnostics[0]?.message;
+    }
+}

@@ -1,0 +1,45 @@
+
+.genStepWrapper.genStepActive {
+    .genCurrentStep {
+        background-color: #5567d5;
+    }
+}
+
+.MuiStep-horizontal {
+    padding-left: 0 !important;
+    padding-right: 1px !important;
+}
+
+.genStepperWrapper {
+    .genStepContainer:first-child {
+        .genStepLabel {
+            .MuiStepLabel-iconContainer {
+                .genStepWrapper {
+                    border-radius: 10px 0 0 10px !important;
+
+                    .genCurrentStep {
+                        border-radius: 10px 0 0 10px !important;
+                    }
+
+                    .genCompletedStep {
+                        border-radius: 10px 0 0 10px !important;
+                    }
+                }
+            }
+        }
+    }
+
+    .genStepContainer:last-child {
+        .genStepLabel {
+            .MuiStepLabel-iconContainer {
+                .genStepWrapper {
+                    border-radius: 0 10px 10px 0 !important;
+
+                    .genCurrentStep {
+                        border-radius: 0 10px 10px 0 !important;
+                    }
+                }
+            }
+        }
+    }
+}
