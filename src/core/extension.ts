@@ -182,6 +182,8 @@ export class BallerinaExtension {
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
                         log(message);
                         this.showPluginActivationError();
+                    } else if (stateChangeEvent.newState === LS_STATE.Running) {
+                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
 
@@ -217,8 +219,6 @@ export class BallerinaExtension {
             this.telemetryReporter.dispose();
             return Promise.reject('BallerinaExtension is not initialized');
         }
-
-        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
         return this.langClient.onReady();
     }
 

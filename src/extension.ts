@@ -29,7 +29,9 @@ import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient/node';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
-import { log } from './utils';
+import { debug, log } from './utils';
+
+let langClient: ExtendedLangClient;
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
@@ -41,7 +43,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.introspection = true;
         }
-        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
         }
     }
 
@@ -54,7 +56,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
             capabilities.experimental = capabilities.experimental || {};
             capabilities.experimental.showTextDocument = true;
         }
-        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
         }
     }
 
@@ -63,6 +65,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 }
 
 export function activate(context: ExtensionContext): Promise<any> {
+    debug('Active the Ballerina VS Code extension.');
     ballerinaExtInstance.setContext(context);
     return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
@@ -84,7 +87,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         }
 
         ballerinaExtInstance.onReady().then(() => {
-            const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+            langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
             // Register showTextDocument listener
             langClient.onNotification('window/showTextDocument', (location: Location) => {
                 if (location.uri !== undefined) {
@@ -118,4 +121,12 @@ export function activate(context: ExtensionContext): Promise<any> {
             });
         }
     });
+}
+
+export function deactivate(): Thenable<void> | undefined {
+    debug('Deactive the Ballerina VS Code extension.');
+    if (!langClient) {
+        return;
+    }
+    return langClient.stop();
 }
