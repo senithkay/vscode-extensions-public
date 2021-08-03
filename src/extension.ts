@@ -27,7 +27,7 @@ import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
-import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
+import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient/node';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
 
