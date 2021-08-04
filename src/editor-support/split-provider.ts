@@ -20,7 +20,7 @@
 import { BallerinaExtension } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
-import { isWindows } from "../utils";
+import { isSupportedVersion, isWindows, VERSION } from "../utils";
 
 const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
@@ -55,11 +55,11 @@ export class StringSplitter {
             }
 
             const range: Range = documentChange!.range;
-
-            if (!this.langClient) {
+            const extension: BallerinaExtension = this;
+            if (!this.langClient || !isSupportedVersion(extension, VERSION.ALPHA, 5)) {
                 return;
             }
-            const extension: BallerinaExtension = this;
+
             this.langClient.getSyntaxTreeNode({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()

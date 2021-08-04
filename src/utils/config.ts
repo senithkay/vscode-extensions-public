@@ -17,18 +17,54 @@
  *
  */
 
+import { BallerinaExtension } from '../core';
 import { WorkspaceConfiguration, workspace } from 'vscode';
 
-export interface BallerinaPluginConfig extends WorkspaceConfiguration {
+export enum VERSION {
+    BETA = 'beta',
+    ALPHA = 'alpha',
+    PREVIEW = 'preview'
+}
+
+interface BallerinaPluginConfig extends WorkspaceConfiguration {
     home?: string;
     debugLog?: boolean;
     classpath?: string;
 }
 
-export function getPluginConfig() : BallerinaPluginConfig {
+export function getPluginConfig(): BallerinaPluginConfig {
     return workspace.getConfiguration('ballerina');
 }
 
 export function isWindows(): boolean {
-	return process.platform === "win32";
+    return process.platform === "win32";
+}
+
+export function isSupportedVersion(ballerinaExtInstance: BallerinaExtension, supportedRelease: VERSION,
+    supportedVersion: number): boolean {
+    if (!ballerinaExtInstance.isSwanLake()) {
+        return false;
+    }
+
+    const ballerinaVersion: string = ballerinaExtInstance.ballerinaVersion.toLocaleLowerCase();
+    const isPreview: boolean = ballerinaVersion.includes(VERSION.PREVIEW);
+    const isAlpha: boolean = ballerinaVersion.includes(VERSION.ALPHA);
+    if ((supportedRelease == VERSION.BETA && (isAlpha || isPreview)) || (supportedRelease == VERSION.ALPHA &&
+        isPreview)) {
+        return false;
+    }
+
+    const isBeta: boolean = ballerinaVersion.includes(VERSION.BETA);
+    if ((!isAlpha && !isBeta && !isPreview) || (supportedRelease == VERSION.ALPHA && isBeta)) {
+        return true;
+    }
+
+    if ((supportedRelease == VERSION.ALPHA && isAlpha) || (supportedRelease == VERSION.BETA && isBeta)) {
+        const digits = ballerinaVersion.replace(/[^0-9]/g, "");
+        const versionNumber = +digits;
+        if (supportedVersion > versionNumber) {
+            return true;
+        }
+    }
+    return false;
 }

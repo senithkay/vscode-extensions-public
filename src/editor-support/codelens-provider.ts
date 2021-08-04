@@ -28,6 +28,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
+import { isSupportedVersion, VERSION } from '../utils';
 
 enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -88,7 +89,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        if (this.ballerinaExtension.langClient && window.activeTextEditor) {
+        if (this.ballerinaExtension.langClient && window.activeTextEditor &&
+            isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
             return this.getCodeLensList();
         }
         return [];

@@ -31,7 +31,7 @@ import { ballerinaExtInstance, BallerinaExtension, LANGUAGE } from '../core';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
-import { log, debug as debugLog } from "../utils";
+import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient';
 
 const BALLERINA_COMMAND = "ballerina.command";
@@ -81,7 +81,8 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (ballerinaExtInstance.isSwanLake() && ballerinaExtInstance.langClient) {
+    if (ballerinaExtInstance.isSwanLake() && ballerinaExtInstance.langClient &&
+        isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
         await ballerinaExtInstance.langClient.getBallerinaProject({
             documentIdentifier: {
                 uri: activeDoc.uri.toString()
