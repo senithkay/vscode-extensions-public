@@ -18,7 +18,7 @@
  *
  */
 
-import { ClientCapabilities, LanguageClient } from "vscode-languageclient/node";
+import { ClientCapabilities, LanguageClient } from "vscode-languageclient";
 import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
