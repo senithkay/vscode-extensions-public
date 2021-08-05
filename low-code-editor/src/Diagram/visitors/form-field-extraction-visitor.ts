@@ -448,7 +448,7 @@ class FieldVisitor implements Visitor {
         if (node.viewState && node.viewState.isParam) {
             const viewState: FormField = node.viewState as FormField;
             viewState.name = node.fieldName.value;
-            viewState.value = node?.expression?.literalToken?.value;
+            viewState.defaultValue = node?.expression?.literalToken?.value;
             node.typeName.viewState = node.viewState;
         }
     }
