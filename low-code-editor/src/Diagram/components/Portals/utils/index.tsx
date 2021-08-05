@@ -210,26 +210,30 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const isDefaultValue = (formField.defaultValue === formField.value);
+        const isDefaultValue = formField.defaultValue && (formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (formField.isParam && !formField.noCodeGen) {
-            if (formField.isDefaultableParam && formField.value && !isDefaultValue) {
+        if (formField.isParam && !formField.noCodeGen && !isDefaultValue) {
+            if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
-            if (formField.type === "string" && formField.value && !isDefaultValue) {
+            if (formField.type === "string" && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "collection" && !formField.hide && formField.value && !isDefaultValue) {
+            } else if (formField.type === "collection" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
-            } else if (formField.type === "map" && formField.value && !isDefaultValue) {
+            } else if (formField.type === "map" && formField.value) {
                 paramString += formField.value;
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
-                formField.type === "json" || formField.type === "httpRequest") && formField.value && !isDefaultValue) {
+                formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && !isDefaultValue && formField.fields.length > 0 && !formField.isReference) {
+            } else if (formField.type === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
                 formField.fields.forEach(field => {
+                    // Skip default values if no changes
+                    if (field.defaultValue && field.defaultValue === field.value) {
+                        return;
+                    }
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -320,18 +324,18 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (paramString.includes("RefreshTokenGrantConfig")) {
                     paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
-            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value && !isDefaultValue) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
-            } else if (formField.type === PrimitiveBalType.Xml && formField.value && !isDefaultValue) {
+            } else if (formField.type === PrimitiveBalType.Xml && formField.value) {
                 const xmlRegex = /^xml\ `(.*)`$/g;
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
                     paramString += "xml `" + formField.value + "`";
                 }
-            } else if (formField.type === "handle" && formField.value && !isDefaultValue) {
+            } else if (formField.type === "handle" && formField.value) {
                 paramString += formField.value;
             }
 
@@ -403,7 +407,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
 
         const positionalArg: PositionalArg = arg as PositionalArg;
         const formField = formFields[nextValueIndex];
-        if (positionalArg.kind === "PositionalArg") {
+        if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" ||
                 formField.type === "float" || formField.type === "json" || formField.type === "xml") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression)) {
