@@ -92,6 +92,9 @@ async function getModifiedConfigs(config: DebugConfiguration) {
                 ballerinaExtInstance.showMessageInvalidProject();
                 return Promise.reject();
             }
+        }, error => {
+            log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
+            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
         });
     } else if (!activeDoc.fileName.endsWith('.bal')) {
         ballerinaExtInstance.showMessageInvalidFile();

@@ -25,6 +25,7 @@ import { join, sep } from 'path';
 import fileUriToPath from 'file-uri-to-path';
 import { BAL_TOML, PROJECT_TYPE } from '../project';
 import { DiagramOptions } from '../diagram';
+import { isSupportedVersion, VERSION } from '../utils';
 
 /**
  * Data provider class for package tree.
@@ -67,8 +68,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake()) {
-            window.showErrorMessage("Ballerina package overview is only supported in Swan Lake.");
+        if (!this.ballerinaExtension.isSwanLake() || !isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
+            window.showErrorMessage("Ballerina package overview is not supported in this Ballerina runtime version.");
             return;
         }
         if (!element) {

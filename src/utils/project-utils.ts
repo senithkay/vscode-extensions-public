@@ -41,6 +41,8 @@ function getCurrentBallerinaProject(): Promise<BallerinaProject> {
                         reject(`Current file does not belong to a ballerina project.`);
                     }
                     resolve(project);
+                }, _error => {
+                    reject("Language Client is not available.");
                 });
             } else {
                 reject("Language Client is not available.");

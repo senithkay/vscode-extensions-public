@@ -22,7 +22,6 @@ import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } 
 import { commands, window } from 'vscode';
 import { CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
 import { PackageOverviewDataProvider } from "./tree-data-provider";
-import { isSupportedVersion, VERSION } from "../utils";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -37,7 +36,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         packageTreeDataProvider.refresh()
     );
 
-    if (!ballerinaExtInstance.isSwanLake() || !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+    if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
 

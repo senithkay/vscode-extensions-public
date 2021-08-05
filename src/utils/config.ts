@@ -62,7 +62,7 @@ export function isSupportedVersion(ballerinaExtInstance: BallerinaExtension, sup
     if ((supportedRelease == VERSION.ALPHA && isAlpha) || (supportedRelease == VERSION.BETA && isBeta)) {
         const digits = ballerinaVersion.replace(/[^0-9]/g, "");
         const versionNumber = +digits;
-        if (supportedVersion > versionNumber) {
+        if (supportedVersion <= versionNumber) {
             return true;
         }
     }
