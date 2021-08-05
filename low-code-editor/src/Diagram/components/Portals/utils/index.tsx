@@ -210,8 +210,9 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
+        const isDefaultValue = formField.defaultValue && (formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (formField.isParam && !formField.noCodeGen) {
+        if (formField.isParam && !formField.noCodeGen && !isDefaultValue) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -224,11 +225,15 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
                 formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
+            } else if (formField.type === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
                 formField.fields.forEach(field => {
+                    // Skip default values if no changes
+                    if (field.defaultValue && field.defaultValue === field.value) {
+                        return;
+                    }
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -402,7 +407,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
 
         const positionalArg: PositionalArg = arg as PositionalArg;
         const formField = formFields[nextValueIndex];
-        if (positionalArg.kind === "PositionalArg") {
+        if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" ||
                 formField.type === "float" || formField.type === "json" || formField.type === "xml") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression)) {
