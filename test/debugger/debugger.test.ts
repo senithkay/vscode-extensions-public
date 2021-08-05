@@ -27,7 +27,7 @@ import * as http from 'http';
 
 import { getBallerinaHome, isWindows } from '../test-util';
 import { DebugClient } from "vscode-debugadapter-testsupport";
-import { ExecutableOptions } from 'vscode-languageclient/node';
+import { ExecutableOptions } from 'vscode-languageclient';
 
 suite('Ballerina Debug Adapter', () => {
 

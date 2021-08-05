@@ -20,7 +20,7 @@
 
 import { delimiter, join, sep } from 'path';
 import { debug } from '../utils/logger';
-import { ServerOptions, ExecutableOptions } from 'vscode-languageclient/node';
+import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 import { isWindows } from '../utils';
 
 export function getServerOptions(ballerinaCmd: string): ServerOptions {
