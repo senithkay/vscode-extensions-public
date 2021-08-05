@@ -210,21 +210,22 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
+        const isDefaultValue = (formField.defaultValue === formField.value);
         let paramString: string = "";
         if (formField.isParam && !formField.noCodeGen) {
-            if (formField.isDefaultableParam && formField.value) {
+            if (formField.isDefaultableParam && formField.value && !isDefaultValue) {
                 paramString += `${formField.name} = `;
             }
-            if (formField.type === "string" && formField.value) {
+            if (formField.type === "string" && formField.value && !isDefaultValue) {
                 paramString += formField.value;
-            } else if (formField.type === "collection" && !formField.hide && formField.value) {
+            } else if (formField.type === "collection" && !formField.hide && formField.value && !isDefaultValue) {
                 paramString += formField.value.toString();
-            } else if (formField.type === "map" && formField.value) {
+            } else if (formField.type === "map" && formField.value && !isDefaultValue) {
                 paramString += formField.value;
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
-                formField.type === "json" || formField.type === "httpRequest") && formField.value) {
+                formField.type === "json" || formField.type === "httpRequest") && formField.value && !isDefaultValue) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
+            } else if (formField.type === "record" && formField.fields && !isDefaultValue && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
@@ -319,18 +320,18 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (paramString.includes("RefreshTokenGrantConfig")) {
                     paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
-            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value && !isDefaultValue) {
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
-            } else if (formField.type === PrimitiveBalType.Xml && formField.value) {
+            } else if (formField.type === PrimitiveBalType.Xml && formField.value && !isDefaultValue) {
                 const xmlRegex = /^xml\ `(.*)`$/g;
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
                     paramString += "xml `" + formField.value + "`";
                 }
-            } else if (formField.type === "handle" && formField.value) {
+            } else if (formField.type === "handle" && formField.value && !isDefaultValue) {
                 paramString += formField.value;
             }
 

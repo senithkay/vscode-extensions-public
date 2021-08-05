@@ -99,7 +99,7 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftIn
 }
 
 export function getInitialValue(defaultValue: string, model: FormField): string {
-    const initVal = defaultValue ? defaultValue : model.value;
+    const initVal = defaultValue ? defaultValue : (model.value ? model.value : (model.defaultValue ? model.defaultValue : ""));
     return initVal;
 }
 
