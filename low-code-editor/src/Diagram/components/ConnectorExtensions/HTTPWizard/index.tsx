@@ -45,14 +45,12 @@ import {
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
 import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
-import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
-import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -223,18 +221,18 @@ export function HTTPWizard(props: WizardProps) {
 
             if (actionInitializer) {
                 const params: string[] = getParams(connectorConfig.action.fields);
+                const returnType = connectorConfig.action.fields.find(field => field.name === "targetType").selectedDataType;
 
-                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
+                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected && returnType) {
                     // payload update
                     const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
                         connectorConfig.responsePayloadMap.selectedPayloadType);
-                    const paramString = `${params.join(",")}, targetType = ${payloadType}`;
                     const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        payloadType,
+                        returnType,
                         connectorConfig.action.returnVariableName,
                         connectorConfig.name,
                         connectorConfig.action.name,
-                        [paramString],
+                        params,
                         model.position
                     );
                     modifications.push(addActionInvocation);
@@ -272,17 +270,18 @@ export function HTTPWizard(props: WizardProps) {
 
                     // Add an action invocation on the initialized client.
                     const params: string[] = getParams(connectorConfig.action.fields);
-                    if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
+                    const returnType = connectorConfig.action.fields.find(field => field.name === "targetType").selectedDataType;
+
+                    if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected && returnType) {
                         const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
                             connectorConfig.responsePayloadMap.selectedPayloadType);
                         // append targetType arg to params
-                        const paramString = `${params.join(",")}, targetType = ${payloadType}`;
                         const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            payloadType,
+                            returnType,
                             connectorConfig.action.returnVariableName,
                             connectorConfig.name,
                             connectorConfig.action.name,
-                            [paramString],
+                            params,
                             targetPosition
                         );
 
