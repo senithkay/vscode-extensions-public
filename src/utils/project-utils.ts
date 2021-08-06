@@ -20,6 +20,7 @@
 import { BallerinaProject, ballerinaExtInstance } from "../core";
 import { window } from "vscode";
 import * as path from 'path';
+import { isSupportedVersion, VERSION } from "./config";
 
 function getCurrentBallerinaProject(): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {
@@ -28,7 +29,7 @@ function getCurrentBallerinaProject(): Promise<BallerinaProject> {
         if (activeEditor) {
             // get path of the current bal file
             const uri = activeEditor.document.uri.toString();
-            if (ballerinaExtInstance.langClient) {
+            if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
                 // get Ballerina Project path for current Ballerina file
                 ballerinaExtInstance.langClient.getBallerinaProject({
                     documentIdentifier: {
@@ -40,6 +41,8 @@ function getCurrentBallerinaProject(): Promise<BallerinaProject> {
                         reject(`Current file does not belong to a ballerina project.`);
                     }
                     resolve(project);
+                }, _error => {
+                    reject("Language Client is not available.");
                 });
             } else {
                 reject("Language Client is not available.");

@@ -17,6 +17,7 @@
  *
  */
 
+import { isSupportedVersion, VERSION } from "../utils";
 import { languages } from "vscode";
 import { BallerinaExtension, LANGUAGE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
@@ -27,10 +28,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient || !ballerinaExtInstance.isSwanLake()) {
         return;
     }
-    ballerinaExtInstance.context!.subscriptions.push(new StringSplitFeature(new StringSplitter(),
-        ballerinaExtInstance));
+    if (isSupportedVersion(ballerinaExtInstance, VERSION.ALPHA, 5)) {
+        ballerinaExtInstance.context!.subscriptions.push(new StringSplitFeature(new StringSplitter(),
+            ballerinaExtInstance));
+    }
 
-    if (ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) {
+    if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) &&
+        isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }

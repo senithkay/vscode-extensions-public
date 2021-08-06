@@ -107,6 +107,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
                 });
             }
+        }, _error => {
+            return codeLenses;
         });
         return codeLenses;
     }

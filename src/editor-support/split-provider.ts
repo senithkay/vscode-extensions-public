@@ -55,11 +55,11 @@ export class StringSplitter {
             }
 
             const range: Range = documentChange!.range;
-
+            const extension: BallerinaExtension = this;
             if (!this.langClient) {
                 return;
             }
-            const extension: BallerinaExtension = this;
+
             this.langClient.getSyntaxTreeNode({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()
