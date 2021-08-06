@@ -29,6 +29,9 @@ export const initParams: InitializeParams = {
 	"rootUri": null,
 	"capabilities": {
 		"textDocument": {
+			"rename": {
+				"prepareSupport": false,
+			},
 			"publishDiagnostics": {
 				"relatedInformation": true,
 			},
