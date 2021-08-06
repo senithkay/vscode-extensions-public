@@ -152,14 +152,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     if (originalSyntaxTree?.members[0] && STKindChecker.isServiceDeclaration(originalSyntaxTree.members[0])) {
       originalSyntaxTree?.members[0]?.members?.forEach(member => {
         let finalPath = "";
-        member.relativeResourcePath.forEach((resourcePath: any) => {
+        member.relativeResourcePath?.forEach((resourcePath: any) => {
           if (resourcePath.value) {
             finalPath += (resourcePath.value?.trim());
           } else {
             finalPath += (resourcePath.source?.trim());
           }
         });
-        const resource = `${member.functionName.value}_${finalPath}`;
+        const resource = `${member.functionName?.value}_${finalPath}`;
         addedResources.push(resource);
       })
     }
