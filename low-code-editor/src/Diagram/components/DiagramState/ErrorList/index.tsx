@@ -10,8 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js jsx-no-lambda
-
+// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js jsx-no-lambda ordered-imports
 import React, { useContext, useEffect, useState } from "react";
 
 import Menu from '@material-ui/core/Menu';
