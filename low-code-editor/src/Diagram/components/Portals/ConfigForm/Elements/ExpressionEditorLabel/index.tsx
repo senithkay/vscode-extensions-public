@@ -15,7 +15,7 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import * as MonacoEditor from 'monaco-editor';
 
 import { TooltipCodeSnippet, TooltipIcon } from "../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../forms/style";

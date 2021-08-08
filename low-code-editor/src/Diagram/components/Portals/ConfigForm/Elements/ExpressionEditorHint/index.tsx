@@ -15,7 +15,7 @@ import React, { ReactNode } from "react";
 import { useIntl } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import * as MonacoEditor from 'monaco-editor';
 
 import { useStyles as useFormStyles } from "../../forms/style";
 

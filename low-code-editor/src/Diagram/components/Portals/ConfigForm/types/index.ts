@@ -11,7 +11,7 @@
  * associated services.
  */
 import { STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic } from "monaco-languageclient";
 
 import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";

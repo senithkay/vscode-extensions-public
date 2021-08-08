@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { CodeAction, CodeActionParams, TextDocumentEdit } from "monaco-languageclient";
+import * as monaco from 'monaco-editor';
 
 import { GreyButton } from "../../../../components/Buttons/GreyButton";
 import { PrimaryButtonSquare } from "../../../../components/Buttons/PrimaryButtonSquare";
