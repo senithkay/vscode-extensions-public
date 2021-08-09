@@ -65,7 +65,20 @@ Currently you can't test `low-code-editor` locally without support of `choreo-co
 
 #### Publishing guide for `low-code-editor`
 
-TODO
+- [Generate a personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)  in github if you dont have one already.
+- Create new file named `.npmrc` inside `low-code-editor` directory.
+- Add the follwing lines to the file.
+
+```bash
+@wso2-enterprise:registry = https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken = [PERSONAL_ACCESS_TOKEN]
+always-auth = true
+```
+- Run the following command inside `low-code-editor` directory.
+```bash
+npm publish
+```
+- This will publish the package to `@wso2-enterprise` github package registry. You can check the published package from the [packages page](https://github.com/wso2-enterprise/ballerina-low-code-editor/packages).
 
 ## Links
 
