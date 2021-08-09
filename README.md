@@ -66,3 +66,8 @@ Currently you can't test `low-code-editor` locally without support of `choreo-co
 #### Publishing guide for `low-code-editor`
 
 TODO
+
+## Links
+
+- [npm-link](https://docs.npmjs.com/cli/v7/commands/npm-link)
+- [Understanding npm-link @ dailyjs](https://medium.com/dailyjs/how-to-use-npm-link-7375b6219557)
