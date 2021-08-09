@@ -18,6 +18,7 @@
     "postbuild": "npm run clean:nm",
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
+    "watch": "tsc --pretty --watch",
     "deploy": "npm publish"
   },
   "dependencies": {
