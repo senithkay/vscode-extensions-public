@@ -9,6 +9,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "npm run build:tsc && npm run copy:assets",
     "build:tsc": "tsc --pretty",
     "build:webpack": "webpack --config webpack.config.js",
@@ -18,6 +19,7 @@
     "postbuild": "npm run clean:nm",
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
+    "watch": "tsc --pretty --watch",
     "deploy": "npm publish"
   },
   "dependencies": {
