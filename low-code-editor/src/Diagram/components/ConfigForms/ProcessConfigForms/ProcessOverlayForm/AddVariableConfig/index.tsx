@@ -39,6 +39,10 @@ interface AddVariableConfigProps {
     onSave: () => void;
 }
 
+const defaultJsonVal = `{"name" : "some_name"}`;
+const defaultXmlVal = `xml \`\``;
+const defaultValues = [defaultJsonVal, defaultXmlVal];
+
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
@@ -82,7 +86,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [varNameError, setVarNameError] = useState("");
     const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
-    const [variableExpression, setVariableExpression] = useState<string>("");
+    const [variableExpression, setVariableExpression] = useState<string>(config.config.toString());
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
 
     if (defaultVarName === undefined) {
@@ -111,6 +115,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             setOtherType("var");
         }
         setEditorFocus(true);
+
+        if (!!!variableExpression || defaultValues.includes(variableExpression)) {
+            if(type === "xml" ){
+                onPropertyChange(defaultXmlVal);
+            } else if(type === 'json'){
+                onPropertyChange(defaultJsonVal);
+            }
+        }
     };
 
     const validateNameValue = (value: string) => {
@@ -272,7 +284,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 />
                                 <div className="exp-wrapper">
                                     <ExpressionEditor
-                                        model={{ name: "Expression", type: (modelType ? modelType : "other") as PrimitiveBalType }}
+                                        key={selectedType}
+                                        model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
                                         customProps={{
                                             validate: validateExpression,
                                             expandDefault: (selectedType === "other"),
@@ -285,7 +298,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                             revertFocus: revertEditorFocus
                                         }}
                                         onChange={onPropertyChange}
-                                        defaultValue={config.config}
                                     />
                                 </div>
                             </div>
