@@ -10,8 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js jsx-no-lambda
-
+// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js jsx-no-lambda ordered-imports
 import React, { useContext, useEffect, useState } from "react";
 
 import Menu from '@material-ui/core/Menu';
@@ -19,6 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import * as monaco from 'monaco-editor';
 import { CodeAction, CodeActionParams, TextDocumentEdit } from "monaco-languageclient";
 
 import { GreyButton } from "../../../../components/Buttons/GreyButton";

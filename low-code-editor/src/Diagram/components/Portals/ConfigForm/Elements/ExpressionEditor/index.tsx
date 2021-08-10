@@ -17,7 +17,7 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { FormHelperText } from "@material-ui/core";
 import debounce from "lodash.debounce";
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
 
 import grammar from "../../../../../../ballerina.monarch.json";

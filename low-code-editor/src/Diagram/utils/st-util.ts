@@ -16,7 +16,7 @@ import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, Functio
     STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
-import { Diagnostic } from 'monaco-languageclient/lib/monaco-language-client';
+import { Diagnostic } from 'monaco-languageclient';
 
 import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
