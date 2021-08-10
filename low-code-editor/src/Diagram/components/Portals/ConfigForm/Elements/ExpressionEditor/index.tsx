@@ -18,7 +18,7 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 import { FormHelperText } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
+import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
 
 import grammar from "../../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
@@ -43,10 +43,12 @@ import {
     createSortText,
     customErrorMessage,
     diagnosticCheckerExp,
+    diagnosticInRange,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     getInitialValue,
     getRandomInt,
+    getSelectedDiagnostics,
     getTargetPosition,
     getValueWithoutSemiColon,
     transformFormFieldTypeToString,
@@ -225,15 +227,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
             setNeedToString(addToStringChecker(expressionEditorState.diagnostic))
             if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
-                    startLineNumber: 1,
-                    startColumn: 1,
-                    endLineNumber: 2,
-                    endColumn: 1000,
-                    message,
-                    severity: monaco.MarkerSeverity.Error
-                }]);
                 if (updateState) {
+                    monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
+                        startLineNumber: 1,
+                        startColumn: 1,
+                        endLineNumber: 2,
+                        endColumn: 1000,
+                        message,
+                        severity: monaco.MarkerSeverity.Error
+                    }]);
                     setExpressionEditorState({
                         ...expressionEditorState,
                         diagnostic: [{
@@ -241,6 +243,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             code: ""
                         }]
                     })
+                } else {
+                    const range: Range = getSelectedDiagnostics(expressionEditorState.diagnostic, varType).range;
+                    const inRange: boolean = diagnosticInRange(range, targetPosition, snippetTargetPosition);
+                    monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
+                        startLineNumber: 1,
+                        startColumn: inRange ? (range.start.character - snippetTargetPosition) + 2 : 1,
+                        endLineNumber: 1,
+                        endColumn: inRange ? (range.end.character - snippetTargetPosition) + 2 : 1,
+                        message,
+                        severity: monaco.MarkerSeverity.Error
+                    }]);
                 }
             }
         }
