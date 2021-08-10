@@ -74,6 +74,10 @@ Currently you can't test `low-code-editor` locally without support of `choreo-co
 //npm.pkg.github.com/:_authToken = [PERSONAL_ACCESS_TOKEN]
 always-auth = true
 ```
+- Run below command to state package version you want to publish. It'll update the package.json.
+```bash
+npm version <major|minor|patch>
+```
 - Run the following command inside `low-code-editor` directory.
 ```bash
 npm publish
