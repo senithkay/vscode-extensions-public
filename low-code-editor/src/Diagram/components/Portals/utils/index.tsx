@@ -211,6 +211,9 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
         let paramString: string = "";
+        if (!formField) {
+            return;
+        }
         if (formField.isParam && !formField.noCodeGen) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;

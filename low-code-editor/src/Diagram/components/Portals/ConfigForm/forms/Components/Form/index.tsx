@@ -74,10 +74,10 @@ export function Form(props: FormProps) {
             // validate union types
             // only union record types will get Union element
             // other union types will get expression editor
-            if (field.type === "union"){
+            if (field.type === "union" && field.name !== "targetType"){
                 field.fields?.forEach((subField: FormField) => {
                     if (subField.type !== "record"){
-                        // type = "expression";
+                        type = "expression";
                     }
                 });
             } else if (field.isRestParam) {
