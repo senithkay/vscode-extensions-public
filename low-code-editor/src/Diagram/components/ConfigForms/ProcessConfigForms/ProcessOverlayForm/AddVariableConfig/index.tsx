@@ -117,9 +117,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setEditorFocus(true);
 
         if (!!!variableExpression || defaultValues.includes(variableExpression)) {
-            if(type === "xml" ){
+            if (type === "xml"){
                 onPropertyChange(defaultXmlVal);
-            } else if(type === 'json'){
+            } else if (type === 'json'){
                 onPropertyChange(defaultJsonVal);
             }
         }
