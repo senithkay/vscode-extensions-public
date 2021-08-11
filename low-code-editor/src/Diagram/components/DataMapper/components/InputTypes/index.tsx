@@ -25,6 +25,7 @@ export {
     ValueType as union,
     ValueType as var,
     JsonType as json,
+    JsonType as map,
     JsonType as mapconstructor,
     DraftType as draft,
     Constant as constant
