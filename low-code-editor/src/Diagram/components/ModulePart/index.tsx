@@ -12,18 +12,27 @@
  */
 import React from "react";
 
-import { ModulePart } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { StartButton } from "../Start"
+import { getSTComponent } from "../../utils";
 
 export interface ModulePartProps {
     model: ModulePart
 }
 
 export function ModulePartComponent(props: ModulePartProps) {
-    const {model} = props;
+    const { model } = props;
+
+    const child: JSX.Element[] = [];
+
+    model.members.forEach((member:STNode) => {
+        child.push(getSTComponent(member))
+    });
 
     return (
-        <StartButton model={model} />
+        <>
+            {child}
+        </>
     );
 }

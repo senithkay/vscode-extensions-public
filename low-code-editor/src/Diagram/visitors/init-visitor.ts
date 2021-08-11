@@ -11,6 +11,7 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
+    ListenerDeclaration,
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
@@ -74,6 +75,13 @@ class InitVisitor implements Visitor {
             if (viewState.initPlus) {
                 viewState.initPlus = undefined;
             }
+        }
+    }
+
+    public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
+        if (!node.viewState) {
+            const viewState = new StatementViewState();
+            node.viewState = viewState;
         }
     }
 

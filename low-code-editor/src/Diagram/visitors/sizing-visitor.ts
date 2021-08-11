@@ -22,6 +22,7 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
+    ListenerDeclaration,
     LocalVarDecl,
     ModulePart,
     ObjectMethodDefinition,
@@ -69,12 +70,36 @@ class SizingVisitor implements Visitor {
 
     public endVisitModulePart(node: ModulePart) {
         const viewState: CompilationUnitViewState = node.viewState;
-        if (node.members.length <= 0) { // if the bal file is empty.
+        if (node.members.length === 0) { // if the bal file is empty.
             viewState.trigger.h = START_SVG_HEIGHT;
             viewState.trigger.w = START_SVG_WIDTH;
 
             viewState.bBox.h = DefaultConfig.canvas.height;
             viewState.bBox.w = DefaultConfig.canvas.width;
+        } else {
+            let height: number = 0;
+            let width: number = 0;
+
+            node.members.forEach(member => {
+                const memberVS = member.viewState;
+
+                if (memberVS) {
+                    height = memberVS.bBox.h;
+
+                    if (memberVS.bBox.w > width) {
+                        width = memberVS.bBox.w
+                    }
+                }
+            });
+
+            viewState.bBox.h = height;
+            viewState.bBox.w = width;
+        }
+    }
+
+    public beginVisitListenerDeclaration(node: ListenerDeclaration) {
+        if (node.viewState) {
+            this.sizeStatement(node);
         }
     }
 

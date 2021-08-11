@@ -25,6 +25,7 @@ export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
+export { Statement as ListenerDeclaration };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
 export { ModulePartComponent as ModulePart};

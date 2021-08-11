@@ -23,6 +23,7 @@ import {
     OnFailClause,
     ResourceAccessorDefinition,
     STKindChecker,
+    STNode,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -65,14 +66,33 @@ class PositioningVisitor implements Visitor {
     public beginVisitModulePart(node: ModulePart) {
         // replaces beginVisitCompilationUnit
         const viewState: CompilationUnitViewState = node.viewState;
-        if (node.members.length <= 0) {
+        if (node.members.length === 0) {
             viewState.trigger.cx = DefaultConfig.canvas.paddingX;
             viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
             const plusBtnViewState: PlusViewState = new PlusViewState();
             plusBtnViewState.bBox.cx = viewState.trigger.cx;
             plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2);
             plusBtnViewState.expanded = false;
-            viewState.initPlus = plusBtnViewState;
+            viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
+        } else {
+            let height = 0;
+            let index = 0;
+            const epGap = DefaultConfig.epGap;
+            // Clean rendered labels
+            node.members.forEach((member: STNode, i: number) => {
+                const memberVS = member.viewState;
+
+                if (memberVS) {
+                    memberVS.bBox.cx = viewState.bBox.cx;
+                    memberVS.bBox.cy = viewState.bBox.cy + memberVS.bBox.offsetFromTop + height;
+                }
+
+                if (i !== node.members.length - 1) {
+                    // todo: keep gap
+                    height += epGap;
+                }
+            });
+
         }
     }
 
@@ -83,8 +103,8 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+        viewState.trigger.cx = viewState.bBox.cx;
+        viewState.trigger.cy = viewState.bBox.cy;
 
         if (viewState.triggerParams) {
             viewState.triggerParams.bBox.cx = viewState.trigger.cx;
