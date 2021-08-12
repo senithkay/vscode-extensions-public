@@ -39,8 +39,8 @@ interface AddVariableConfigProps {
     onSave: () => void;
 }
 
-const defaultJsonVal = `{"name" : "some_name"}`;
-const defaultXmlVal = `xml \`\``;
+const defaultJsonVal = `{“key”: “Click the Tooltip for examples”}`;
+const defaultXmlVal = `xml \`<obj>Click the Tooltip for examples</obj>\``;
 const defaultValues = [defaultJsonVal, defaultXmlVal];
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
@@ -121,6 +121,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 onPropertyChange(defaultXmlVal);
             } else if (type === 'json'){
                 onPropertyChange(defaultJsonVal);
+            }else if (defaultValues.includes(variableExpression)){
+                onPropertyChange("");
             }
         }
     };
