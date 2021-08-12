@@ -97,9 +97,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                         uri: activeDocument.uri.toString()
                     }
                 }).then(project => {
-                    const uri: string = activeDocument.fileName.endsWith(BAL_TOML) ?
-                        activeDocument.uri.toString(true).replace(BAL_TOML, '') : activeDocument.uri.toString(true);
-                    const documentIdentifiers: DocumentIdentifier[] = [{ uri }];
+                    const documentIdentifiers: DocumentIdentifier[] = [{ uri: activeDocument.uri.toString(true) }];
                     if (project.kind === PROJECT_TYPE.BUILD_PROJECT || project.kind === PROJECT_TYPE.SINGLE_FILE) {
                         this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
                             if (response.packages) {
