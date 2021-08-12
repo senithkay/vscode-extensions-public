@@ -1,6 +1,6 @@
 // This is an auto-generated file. Do not edit.
 // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-models' to generate.
-import * as Ballerina from "./syntax-tree-interfaces";
+import * as Ballerina from './syntax-tree-interfaces';
 
 export interface Visitor {
   beginVisitSTNode?(node: Ballerina.STNode, parent?: Ballerina.STNode): void;

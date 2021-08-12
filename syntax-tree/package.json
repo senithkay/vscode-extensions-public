@@ -14,9 +14,11 @@
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
     "build": "tsc --pretty",
-    "watch": "tsc --pretty --watch"
+    "watch": "tsc --pretty --watch",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
+    "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
     "tslint": "^6.1.3",
     "typescript": "^4.0.5"
