@@ -33,6 +33,10 @@ const ACCESS_TOKEN = "accessToken";
 const DRIVE_CONFIG = "driveConfig";
 const CLIENT_CONFIG = "clientConfig";
 
+const SMTP_CONFIG = "SmtpConfiguration";
+const IMAP_CONFIG = "ImapConfiguration";
+const POP_CONFIG = "PopConfiguration";
+
 const headerKeys = [`"Accept"`,
     `"Accept-Charset"`,
     `"Accept-Datetime"`,
@@ -108,8 +112,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         const optionalFields = allFields.find(field => field.name !== oauthConfigName);
         optionalFields.hide = true;
 
-        if (oauthConfigName !== ACCESS_TOKEN)
-        {
+        if (oauthConfigName !== ACCESS_TOKEN) {
             // Set mandatory fields of OAuth2RefreshTokenGrantConfig
             mandatoryFields.fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = [
                 {
@@ -154,7 +157,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.displayName = "URL";
                             param.description = "URL of the target service";
                             param.validationRegex = new RegExp("[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)");
-                        } else if (param.name === "config") {
+                        } else {
                             param.hide = true;
                             param.noCodeGen = true;
                             param.displayName = "Advance Configurations";
@@ -187,13 +190,10 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.hide = true;
                             param.noCodeGen = true;
                             param.displayName = "Message";
-                        } else if (param.name === "targetType") {
-                            param.hide = true;
-                            param.noCodeGen = true;
-                        } else if (param.name === "headers") {
+                        }
+                        else if (param.name === "headers") {
                             param.displayName = "Headers";
                             param.customAutoComplete = headerKeys;
-                            param.fields[0].customAutoComplete = headerVal;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -204,13 +204,19 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = "\"/\"";
                         } else if (param.name === "message") {
                             param.displayName = "Message";
-                        } else if (param.name === "targetType") {
-                            param.hide = true;
-                            param.noCodeGen = true;
-                        } else if (param.name === "headers") {
+                        }
+                         else if (param.name === "targetType") {
+                             param.optional = (key === "delete");
+                             param.type = PrimitiveBalType.Union;
+                             param.isUnion = true;
+                             param.isDefaultableParam = false;
+                             param.fields = [{ "type": "string", "isParam": true, "displayName" : "Message" },
+                             { "type": "xml", "isParam": true, "displayName" : "Message"},
+                             { "type": "json", "isParam": true, "displayName" : "Message" }];
+                        }
+                        else if (param.name === "headers") {
                             param.displayName = "Headers";
                             param.customAutoComplete = headerKeys;
-                            param.fields[0].customAutoComplete = headerVal;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -223,9 +229,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.displayName = "Request";
                             param.type = "httpRequest";
                             param.typeInfo = httpRequest;
-                        } else if (param.name === "targetType") {
-                            param.hide = true;
-                            param.noCodeGen = true;
+                        // } else if (param.name === "targetType") {
+                        //     param.hide = true;
+                        //     param.noCodeGen = true;
                         }
                     });
                     filteredFunctions.set(key, value);
@@ -293,10 +299,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     filteredFunctions.set(key, value);
                 }
                 else if (key === INIT) {
-                    if (value.parameters[3].name === CLIENT_CONFIG) {
+                    if (value.parameters[3].typeName === SMTP_CONFIG) {
                         value.parameters[3].fields.forEach((param) => {
                             if (param.name === "properties" || param.name === "secureSocket") {
                                 param.hide = true;
+                            }
+                            if (param.name === "port") {
+                                param.optional = true;
                             }
                         })
                     }
@@ -319,8 +328,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_ImapClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
-                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
-                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
+                    value.parameters.find(field => field.typeName === IMAP_CONFIG).hide = true;
+                    value.parameters.find(field => field.typeName === IMAP_CONFIG).noCodeGen = true;
                     if (value.parameters[0].name === "host"){
                         value.parameters[0].tooltip = tooltipMessages.IMAP.host
                     }
@@ -339,8 +348,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case "ballerina_email_PopClient":
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
-                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
-                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
+                    value.parameters.find(field => field.typeName === POP_CONFIG).hide = true;
+                    value.parameters.find(field => field.typeName === POP_CONFIG).noCodeGen = true;
                     if (value.parameters[0].name === "host"){
                         value.parameters[0].tooltip = tooltipMessages.POP3.host
                     }
@@ -664,7 +673,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
         case 'ballerina_email_ImapClient':
             functionDefInfoMap.forEach((value, key) => {
                 if (key === INIT) {
-                    value.parameters.filter(field => field.name === CLIENT_CONFIG)[0].fields.forEach(subField => {
+                    value.parameters.filter(field => field.typeName === IMAP_CONFIG)[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
@@ -675,7 +684,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
         case 'ballerina_email_PopClient':
             functionDefInfoMap.forEach((value, key) => {
                 if (key === INIT) {
-                    value.parameters.filter(field => field.name === CLIENT_CONFIG)[0].fields.forEach(subField => {
+                    value.parameters.filter(field => field.name === POP_CONFIG)[0].fields.forEach(subField => {
                         if (subField.name === 'properties') {
                             subField.noCodeGen = true;
                         }
