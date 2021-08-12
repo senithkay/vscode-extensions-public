@@ -210,11 +210,9 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
+        const isDefaultValue = formField.defaultValue && (formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (!formField) {
-            return;
-        }
-        if (formField.isParam && !formField.noCodeGen) {
+        if (formField.isParam && !formField.noCodeGen && !isDefaultValue) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -227,11 +225,15 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             } else if ((formField.type === "int" || formField.type === "boolean" || formField.type === "float" ||
                 formField.type === "json" || formField.type === "httpRequest") && formField.value) {
                 paramString += formField.value;
-            } else if (formField.type === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
+            } else if (formField.type === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
                 formField.fields.forEach(field => {
+                    // Skip default values if no changes
+                    if (field.defaultValue && field.defaultValue === field.value) {
+                        return;
+                    }
                     if (field.type === "string" && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
@@ -322,16 +324,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (paramString.includes("RefreshTokenGrantConfig")) {
                     paramString = paramString.replace("{RefreshTokenGrantConfig: ", "").replace("}", "");
                 }
-            } else if (formField.type === "union" && !formField.hide) {
-                const selectedField: FormField = formField.fields?.find((subField: FormField) => {
-                    const fieldName = getUnionFormFieldName(subField);
-                    return (fieldName !== undefined) && (fieldName === formField.selectedDataType);
-                });
-                const params = getParams([selectedField], depth + 1);
-                if (params) {
-                    paramString += params;
-                }
-            }else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
+            } else if (formField.type === PrimitiveBalType.Union && formField.isUnion && formField.value) {
                 paramString += formField.value;
             } else if (formField.type === PrimitiveBalType.Nil) {
                 paramString += "()";
@@ -340,7 +333,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
-                    paramString += formField.value;
+                    paramString += "xml `" + formField.value + "`";
                 }
             } else if (formField.type === "handle" && formField.value) {
                 paramString += formField.value;
@@ -414,7 +407,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
 
         const positionalArg: PositionalArg = arg as PositionalArg;
         const formField = formFields[nextValueIndex];
-        if (positionalArg.kind === "PositionalArg") {
+        if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.type === "string" || formField.type === "int" || formField.type === "boolean" ||
                 formField.type === "float" || formField.type === "json" || formField.type === "xml") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression)) {
@@ -732,7 +725,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         if (functionDefInfo) {
             await addToFormFieldCache(connector, functionDefInfo);
         }
-   }
+    }
 
     if (!functionDefInfo) {
         // generate form fields form connector syntax tree

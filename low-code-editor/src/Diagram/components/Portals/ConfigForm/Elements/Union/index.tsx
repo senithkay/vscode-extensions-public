@@ -69,16 +69,10 @@ export function Union(props: FormElementProps<UnionProps>) {
         let element: React.ReactNode = null;
         const selectedField = getSelectedFormField();
         model.selectedDataType = selectedType;
-        if (selectedField && selectedField.type && selectedField.fields) {
+        if (selectedField && selectedField.type) {
             element = (
                 <div className={classes.removeInnerMargin}>
                     <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
-                </div>
-            );
-        } else if (selectedField && selectedField.type) {
-            element = (
-                <div className={classes.removeInnerMargin}>
-                    <Form fields={[selectedField]} onValidate={validateForm} key={selectedType} />
                 </div>
             );
         }
@@ -140,9 +134,6 @@ export function getUnionFormFieldName(field: FormField): string {
     }
     if (!name) {
         name = field.typeInfo?.name;
-    }
-    if (!name && field.type) {
-        name = field.type;
     }
 
     return name;

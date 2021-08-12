@@ -178,8 +178,7 @@ function getType(typeNode: any): any {
         STKindChecker.isStringTypeDesc(typeNode) || STKindChecker.isJsonTypeDesc(typeNode)) {
         return typeNode.name.value;
     } else if (STKindChecker.isXmlTypeDesc(typeNode)) {
-        // todo:The xmlTypeDec contain XmlKeywordToken, but the value is in 'keywordToken'.
-        return (typeNode as any).keywordToken.value;
+        return typeNode.xmlKeywordToken.value;
     } else if (STKindChecker.isQualifiedNameReference(typeNode)) {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";
