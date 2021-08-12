@@ -25,6 +25,8 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo,
+    httpRequest,
+    PrimitiveBalType
 } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../../Definitions";
@@ -32,9 +34,12 @@ import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
@@ -128,20 +133,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
             payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
         }
-        const selectedType = httpVar.typeData.typeSymbol.signature;
-        const defaultReturnType = httpVar.typedBindingPattern.typeDescriptor.source;
-        formFields.find(field => {
-            if (field.name === "targetType") {
-                // tslint:disable-next-line: no-conditional-assignment
-                if (selectedType === "string" || selectedType === "json" || selectedType === "xml") {
-                    field.selectedDataType = selectedType;
-                    field.fields.find(subFields => subFields.type === selectedType).value = field.value;
-                } else {
-                    field.selectedDataType = defaultReturnType;
-                    field.selectedDataType = field.value;
-                }
-            }
-        })
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -253,7 +244,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
                 defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
             }),
-        },
+    },
         payloadVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
@@ -265,7 +256,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 id: "lowcode.develop.configForms.HTTP.responseVariableNametooltip.title",
                 defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
             }),
-        }
+    }
     };
 
     let payloadComponent: React.ReactNode = null;
@@ -278,7 +269,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         payloadComponent = payloadState.isPayloadSelected && (
             <>
                 <div className={classes.labelWrapper}>
-                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :" /></FormHelperText>
+                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :"/></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
                 <div
@@ -309,7 +300,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         connectorConfig.responsePayloadMap.selectedPayloadType ||
         !connectorConfig.responsePayloadMap.isPayloadSelected);
     const isSaveDisabled: boolean = isMutationProgress || !(responseVarError === "" || responseVarError === undefined)
-        || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName);
+        || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
+            && isPayloadValid);
 
     const handleSwitchToggleChange = () => {
         if (connectorConfig.responsePayloadMap) {
@@ -362,9 +354,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setSelectedOperation(operation);
         const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID);
         const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
-        if (connector) {
-            const { orgName: org, moduleName: module, version } = connector;
-            diagramState.onAPIClient({ org, module, version, name }, operation);
+        if (connector){
+            const {orgName: org, moduleName: module, version} = connector;
+            diagramState.onAPIClient({org, module, version, name}, operation);
         }
         if (isNewConnectorInitWizard) {
             setReturnNameState({
@@ -429,7 +421,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     </Box>
                                 </>
                                 <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
-
                                 <div className={classNames(classes.groupedForm, classes.marginTB)}>
                                     {selectedOperationParams}
                                 </div>
@@ -447,6 +438,20 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         errorMessage={responseVarError}
                                     />
                                 </div>
+
+                                <SwitchToggle
+                                    text="Extract payload from response"
+                                    onChange={handleSwitchToggleChange}
+                                    initSwitch={connectorConfig.responsePayloadMap.isPayloadSelected}
+                                />
+                                {connectorConfig.responsePayloadMap.isPayloadSelected && (
+                                    <>
+                                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
+                                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
+                                            {payloadComponent}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                         <div className={classes.wizardBtnHolder}>

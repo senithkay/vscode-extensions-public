@@ -38,7 +38,7 @@ export function Form(props: FormProps) {
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (fields && isAllOptionalFields(fields)){
+        if (isAllOptionalFields(fields)){
             onValidate(true);
         }
     }, [])
@@ -56,10 +56,10 @@ export function Form(props: FormProps) {
         onValidate(allFieldsValid);
     };
 
-    fields?.map((field, index) => {
+    fields.map((field, index) => {
         if (!field.hide && (field.type === "string" || (field.type === 'record' && !field.isReference) || field.type === "int"
             || field.type === "boolean" || field.type === "float" || field.type === "collection"
-            || field.type === "map" || field.type === "union" || field.type === "json" ||  field.type === "xml" ||
+            || field.type === "map" || field.type === "union" || field.type === "json" ||
             field.type === "httpRequest" || field.type === "handle")) {
             const elementProps: FormElementProps = {
                 model: field,
@@ -74,7 +74,7 @@ export function Form(props: FormProps) {
             // validate union types
             // only union record types will get Union element
             // other union types will get expression editor
-            if (field.type === "union" && field.name !== "targetType"){
+            if (field.type === "union"){
                 field.fields?.forEach((subField: FormField) => {
                     if (subField.type !== "record"){
                         type = "expression";
