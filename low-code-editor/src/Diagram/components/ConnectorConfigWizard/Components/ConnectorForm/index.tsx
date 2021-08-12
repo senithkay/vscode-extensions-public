@@ -861,7 +861,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 connectorInfo.displayName,
                 config.connectionName,
                 userInfo.user.email,
-                formattedFieldValues
+                formattedFieldValues,
+                selectedType
               );
               apiResponseStatus =
                 response.status === 500 ? response.data.code : response.status;
