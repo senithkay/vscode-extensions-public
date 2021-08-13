@@ -2515,6 +2515,7 @@ export interface XmlTextContent extends STNode {
 export interface XmlTypeDesc extends STNode {
   xmlKeywordToken: XmlKeyword;
   xmlTypeParamsNode?: TypeParameter;
+  keywordToken: XmlKeyword;
 }
 
 // tslint:enable:ban-types
