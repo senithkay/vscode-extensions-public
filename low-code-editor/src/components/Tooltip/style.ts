@@ -72,15 +72,23 @@ const useStyles = makeStyles(() =>
             fontSize: "12px"
         },
         exampleCodeWrap: {
-            display: "flex",
-            alignItems: "baseline"
+            marginTop: "10px",
+            marginBottom: "5px",
+            lineHeight: "25px"
+        },
+        codeHintWrap: {
+            marginTop: "10px",
+            marginBottom: "5px",
+        },
+        codeHint: {
+            marginTop: "3px"
         },
         codeExample: {
             backgroundColor: "#eff1f5",
             color: "#526acf",
             fontSize: "12px",
             marginLeft: "5px",
-            padding: "5px"
+            padding: "5px",
         },
         divider: {
             margin: '5px 0px'

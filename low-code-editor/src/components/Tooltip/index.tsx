@@ -31,6 +31,7 @@ interface TooltipPropsExtended extends TooltipProps {
     disabled?: boolean;
     openInCodeView?: () => void;
     heading?: string;
+    typeExamples?: string;
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
@@ -46,7 +47,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView,  typeExamples, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -58,10 +59,23 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         TooltipComponentRef = TooltipBaseInverted;
     }
 
+    const GenericExamples = () => (
+        <pre className={styles.exampleCodeWrap}>
+            <span>E.g.</span><code ref={codeRef} data-lang="ballerina" className={styles.codeExample}>{typeExamples}</code>
+        </pre>
+    );
+    const GenericCodeHints = () => (
+        <div className={styles.codeHintWrap}>
+            <div className={styles.codeHint}><b>Hint:</b> Press Ctrl/Cmd+Space for suggestions</div>
+            <div className={styles.codeHint}><b>Hint:</b> Variables within the scope can also be used</div>
+        </ div>
+    );
+
     let tooltipTitle = (
         <div>
             {heading && (<h4 className={styles.heading}>{heading}</h4>)}
             <div>{title}</div>
+            {typeExamples && <><GenericExamples /><GenericCodeHints /></>}
             {actionText && (<a className={styles.buttonLink} href={actionLink} target="_blank">{actionText}</a>)}
         </div>
     );
@@ -105,6 +119,8 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
                 {heading && (<h4 className={styles.heading}>{heading}</h4>)}
                 {title && (<p>{title}</p>)}
                 <CodeSnippet />
+                <GenericExamples />
+                <GenericCodeHints />
             </>
         );
     }
