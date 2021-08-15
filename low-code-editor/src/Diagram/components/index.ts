@@ -15,11 +15,15 @@ import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
 import { ModulePartComponent } from "./ModulePart";
+import { ResourceAccessor } from "./ResourceAccessor";
+import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { While } from './While';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
+export { Service as ServiceDeclaration };
+export { ResourceAccessor as ResourceAccessorDefinition };
 export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };

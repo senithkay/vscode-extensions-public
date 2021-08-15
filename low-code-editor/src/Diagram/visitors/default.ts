@@ -74,8 +74,15 @@ export class DiagramConfig {
         y: 0,
         height: 1000,
         width: 1000,
-        paddingX: 300,
-        paddingY: 0,
+
+        servicePaddingX: 100,
+        servicePaddingY: 0,
+
+        resourcePaddingX: 200,
+        resourcePaddingY: 0,
+
+        childPaddingX: 300,
+        childPaddingY: 0,
     };
 
     public worker = {

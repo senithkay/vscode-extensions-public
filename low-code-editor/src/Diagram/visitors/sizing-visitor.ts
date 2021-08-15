@@ -27,11 +27,12 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition,
+    ResourceAccessorDefinition, ServiceDeclaration,
     STKindChecker,
     STNode,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
+import {versionInfo} from "graphql";
 
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
@@ -52,6 +53,7 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG"
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import {ServiceViewState} from "../view-state/service";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
@@ -126,6 +128,13 @@ class SizingVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const viewState: ServiceViewState = node.viewState;
+        // setting up service lifeline initial height
+        viewState.lifeLine.h = viewState.topOffset + (DefaultConfig.dotGap * 3) + viewState.bottomOffset;
+        viewState.bBox.h = viewState.topOffset;
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -215,6 +224,29 @@ class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h;
         viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+    }
+
+    public endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const viewState: ServiceViewState = node.viewState;
+        let height: number = viewState.bBox.h;
+        let width: number = viewState.bBox.w;
+
+        node.members.forEach(member => {
+            const memberVS = member.viewState;
+
+            if (memberVS) {
+                height += memberVS.bBox.h;
+
+                if (memberVS.bBox.w > width) {
+                    width = memberVS.bBox.w;
+                }
+            }
+        });
+
+        viewState.bBox.h = height;
+        viewState.bBox.w = width;
+
+        viewState.lifeLine.h += viewState.bBox.h
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {

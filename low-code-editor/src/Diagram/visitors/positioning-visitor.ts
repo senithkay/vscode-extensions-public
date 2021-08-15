@@ -21,9 +21,8 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition,
-    STKindChecker,
-    STNode,
+    ResourceAccessorDefinition, ServiceDeclaration,
+    STKindChecker, STNode,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -35,7 +34,7 @@ import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import {START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET} from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
@@ -56,6 +55,7 @@ import {
     ViewState,
     WhileViewState
 } from "../view-state";
+import { ServiceViewState } from "../view-state/service";
 
 import { DefaultConfig } from "./default";
 
@@ -67,8 +67,8 @@ class PositioningVisitor implements Visitor {
         // replaces beginVisitCompilationUnit
         const viewState: CompilationUnitViewState = node.viewState;
         if (node.members.length === 0) {
-            viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-            viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+            viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
+            viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
             const plusBtnViewState: PlusViewState = new PlusViewState();
             plusBtnViewState.bBox.cx = viewState.trigger.cx;
             plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2);
@@ -76,7 +76,7 @@ class PositioningVisitor implements Visitor {
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
         } else {
             let height = 0;
-            let index = 0;
+            const index = 0;
             const epGap = DefaultConfig.epGap;
             // Clean rendered labels
             node.members.forEach((member: STNode, i: number) => {
@@ -85,11 +85,14 @@ class PositioningVisitor implements Visitor {
                 if (memberVS) {
                     memberVS.bBox.cx = viewState.bBox.cx;
                     memberVS.bBox.cy = viewState.bBox.cy + memberVS.bBox.offsetFromTop + height;
+
+                    // adding the height of the sub component
+                    height += memberVS.bBox.h;
                 }
 
                 if (i !== node.members.length - 1) {
                     // todo: keep gap
-                    height += epGap;
+                    height += 150;
                 }
             });
 
@@ -103,7 +106,7 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = viewState.bBox.cx;
+        viewState.trigger.cx = viewState.bBox.cx + DefaultConfig.canvas.childPaddingX;
         viewState.trigger.cy = viewState.bBox.cy;
 
         if (viewState.triggerParams) {
@@ -126,8 +129,32 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const serviceVS: ServiceViewState = node.viewState;
+
+        serviceVS.lifeLine.cx = serviceVS.bBox.cx;
+        serviceVS.lifeLine.cy = serviceVS.bBox.cy - serviceVS.topOffset;
+
+        let height = 0;
+        node.members.forEach((member: STNode, i: number) => {
+            const memberVS = member.viewState;
+
+            if (memberVS) {
+                memberVS.bBox.cx = serviceVS.bBox.cx;
+                memberVS.bBox.cy = serviceVS.bBox.cy + serviceVS.topOffset + height;
+            }
+
+            // adding the height of the sub component
+            height += memberVS.bBox.h;
+            if (i !== node.members.length - 1) {
+                // todo: keep gap
+                height += DefaultConfig.horizontalGapBetweenComponents;
+            }
+        });
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -137,8 +164,8 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+        viewState.trigger.cx = DefaultConfig.canvas.childPaddingX + DefaultConfig.canvas.childPaddingX;
+        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
 
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
@@ -146,8 +173,8 @@ class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cx = viewState.workerLine.x;
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -157,8 +184,8 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+        viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
 
         if (viewState.triggerParams) {
             viewState.triggerParams.bBox.cx = viewState.trigger.cx;
@@ -179,8 +206,8 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
     }
 
     private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
