@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from 'react';
+import { useIntl } from 'react-intl';
 
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
@@ -39,6 +40,21 @@ const TooltipBaseInverted = withStyles(tooltipInvertedStyles)(TooltipBase);
 
 export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
+    const intl = useIntl();
+
+    const tooltipHintText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.hintText",
+        defaultMessage: "Hint: "
+    });
+
+    const tooltipHintSuggestionText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.suggestionText",
+        defaultMessage: "Press Ctrl/Cmd+Space for suggestions"
+    });
+    const tooltipHintVarScopeText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.varScopeText",
+        defaultMessage: "Variables within the scope can also be used"
+    });
 
     // Ref: <code>
     const codeRef = (ref: HTMLPreElement) => {
@@ -66,8 +82,8 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     );
     const GenericCodeHints = () => (
         <div className={styles.codeHintWrap}>
-            <div className={styles.codeHint}><b>Hint:</b> Press Ctrl/Cmd+Space for suggestions</div>
-            <div className={styles.codeHint}><b>Hint:</b> Variables within the scope can also be used</div>
+            <div className={styles.codeHint}><b>{tooltipHintText}</b>{tooltipHintSuggestionText}</div>
+            <div className={styles.codeHint}><b>{tooltipHintText}</b>{tooltipHintVarScopeText}</div>
         </ div>
     );
 
