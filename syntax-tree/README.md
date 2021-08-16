@@ -31,5 +31,5 @@ Currently you can't test `syntaxt-tree` locally without support of `choreo-conso
 - Open your terminal and change to `syntax-tree` directory. (`cd /syntaxt-tree/`)
 - Login to your npm account using `npm login`
 - Run `npm version <major|minor|patch>` to state package version you want to publish. It'll update `package.json`.
-- Run `npm publish` to publish your package.
+- Run `npm publish --tag latest` to publish your package.
 - Create a separate branch `syntaxt-tree/vx.x.x` with latest changes, and send a PR against master.

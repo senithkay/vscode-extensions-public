@@ -42,6 +42,6 @@ npm version <major|minor|patch>
 ```
 - Run the following command inside `low-code-editor` directory.
 ```bash
-npm publish
+npm publish --tag latest
 ```
 - This will publish the package to `@wso2-enterprise` github package registry. You can check the published package from the [packages page](https://github.com/wso2-enterprise/ballerina-low-code-editor/packages).
