@@ -133,7 +133,7 @@ class SizingVisitor implements Visitor {
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const viewState: ServiceViewState = node.viewState;
         // setting up service lifeline initial height
-        viewState.lifeLine.h = viewState.topOffset + (DefaultConfig.dotGap * 3) + viewState.bottomOffset;
+        viewState.lifeLine.h = viewState.topOffset;
         viewState.bBox.h = viewState.topOffset;
     }
 
@@ -256,20 +256,36 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
+        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
+        if (triggerParams) {
+            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        }
+
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        if (body.statements.length > 0) {
+        if (viewState.triggerParams) {
+            viewState.triggerParams.visible ?
+                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
+                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        } else {
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        }
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
-        viewState.bBox.h = lifeLine.h;
+        // adding end component height and + (plus) height for a resource
+        viewState.bBox.h = lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) + viewState.bottomOffset;
         viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
     }
 

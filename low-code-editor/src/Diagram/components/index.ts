@@ -23,7 +23,7 @@ import { While } from './While';
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
 export { Service as ServiceDeclaration };
-export { ResourceAccessor as ResourceAccessorDefinition };
+export { Function as ResourceAccessorDefinition };
 export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
