@@ -474,7 +474,7 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         viewState.isUnsupported = true;
         viewState.warningTooltip = 'Unsupported variable type of stream, please use variables of types string, int, float, decimal, boolean, record and json.'
     } else if (typeDescriptor.kind === 'ParameterizedTypeDesc' && typeDescriptor.parameterizedType
-        && STKindChecker.isMapKeyword(typeDescriptor.parameterizedType) {
+        && STKindChecker.isMapKeyword(typeDescriptor.parameterizedType)) {
         viewState.type = 'map';
     }
 }
