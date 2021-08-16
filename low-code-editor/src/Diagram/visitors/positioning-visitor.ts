@@ -67,29 +67,26 @@ class PositioningVisitor implements Visitor {
         // replaces beginVisitCompilationUnit
         const viewState: CompilationUnitViewState = node.viewState;
         if (node.members.length === 0) {
-            viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-            viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+            viewState.trigger.cx = viewState.bBox.cx + DefaultConfig.epGap / 2;
+            viewState.trigger.cy = DefaultConfig.epGap / 2;
             const plusBtnViewState: PlusViewState = new PlusViewState();
             plusBtnViewState.bBox.cx = viewState.trigger.cx;
-            plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2);
+            plusBtnViewState.bBox.cy = viewState.trigger.cy;
             plusBtnViewState.expanded = false;
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
         } else {
             let height = 0;
-            let index = 0;
-            const epGap = DefaultConfig.epGap;
             // Clean rendered labels
             node.members.forEach((member: STNode, i: number) => {
                 const memberVS = member.viewState;
 
                 if (memberVS) {
-                    memberVS.bBox.cx = viewState.bBox.cx;
-                    memberVS.bBox.cy = viewState.bBox.cy + memberVS.bBox.offsetFromTop + height;
+                    memberVS.bBox.cx = viewState.bBox.cx + DefaultConfig.epGap;
+                    memberVS.bBox.cy = viewState.bBox.cy + height;
                 }
 
                 if (i !== node.members.length - 1) {
-                    // todo: keep gap
-                    height += epGap;
+                    height += DefaultConfig.epGap;
                 }
             });
 

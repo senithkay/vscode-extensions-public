@@ -10,33 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React from 'react';
 
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { ModulePart } from "@ballerina/syntax-tree";
 
-import { getSTComponent } from "../../utils";
-import { BigPlus } from "../BigPlus";
+import { CompilationUnitViewState, PlusViewState } from '../../view-state';
 
-export interface ModulePartProps {
+export interface BigPlusProps {
     model: ModulePart
 }
 
-export function ModulePartComponent(props: ModulePartProps) {
+export function BigPlus(props: BigPlusProps) {
     const { model } = props;
-
-    const moduleMembers: JSX.Element[] = [];
-
-    if (model.members.length === 0) {
-        moduleMembers.push(<BigPlus {...props} />)
-    } else {
-        model.members.forEach((member: STNode) => {
-            moduleMembers.push(getSTComponent(member))
-        });
-    }
+    const compilationVS: CompilationUnitViewState = model.viewState as CompilationUnitViewState;
+    const plusBtnViewState: PlusViewState = compilationVS.initPlus as PlusViewState;
 
     return (
         <>
-            {moduleMembers}
+            <circle
+                cx={plusBtnViewState.bBox.cx}
+                cy={plusBtnViewState.bBox.cy}
+                r="40"
+                stroke="black"
+                stroke-width="3"
+                fill="red"
+            />
         </>
-    );
+    )
 }
