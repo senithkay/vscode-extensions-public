@@ -830,7 +830,12 @@ export interface FunctionDefinition extends STNode {
   functionName: IdentifierToken;
   functionSignature: FunctionSignature;
   metadata?: Metadata;
-  qualifierList: (IsolatedKeyword | PublicKeyword | TransactionalKeyword | ResourceKeyword)[];
+  qualifierList: (
+    | IsolatedKeyword
+    | PublicKeyword
+    | TransactionalKeyword
+    | ResourceKeyword
+  )[];
   relativeResourcePath: any;
 }
 
@@ -961,7 +966,13 @@ export interface IndexedExpression extends STNode {
     | IndexedExpression
     | MethodCall
     | SimpleNameReference;
-  keyExpression: (FieldAccess | MethodCall | NumericLiteral | SimpleNameReference | StringLiteral)[];
+  keyExpression: (
+    | FieldAccess
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+  )[];
   openBracket: OpenBracketToken;
 }
 
@@ -1057,11 +1068,11 @@ export interface LetVarDecl extends STNode {
   annotations: any;
   equalsToken: EqualToken;
   expression:
-  | BinaryExpression
-  | FunctionCall
-  | NumericLiteral
-  | SimpleNameReference
-  | StringLiteral;
+    | BinaryExpression
+    | FunctionCall
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral;
   source: string;
   typedBindingPattern: TypedBindingPattern;
 }
@@ -1460,7 +1471,11 @@ export interface NumericLiteral extends STNode {
 export interface ObjectConstructor extends STNode {
   annotations: any;
   closeBraceToken: CloseBraceToken;
-  members: (ObjectField | ObjectMethodDefinition | ResourceAccessorDefinition)[];
+  members: (
+    | ObjectField
+    | ObjectMethodDefinition
+    | ResourceAccessorDefinition
+  )[];
   objectKeyword: ObjectKeyword;
   objectTypeQualifiers: (ServiceKeyword | any)[];
   openBraceToken: OpenBraceToken;
@@ -1738,7 +1753,7 @@ export interface RecordField extends STNode {
 
 export interface RecordFieldWithDefaultValue extends STNode {
   equalsToken: EqualToken;
-  expression:  BooleanLiteral | NumericLiteral | StringLiteral;
+  expression: BooleanLiteral | NumericLiteral | StringLiteral;
   fieldName: IdentifierToken;
   semicolonToken: SemicolonToken;
   typeName: BooleanTypeDesc | FloatTypeDesc | IntTypeDesc | StringTypeDesc;
@@ -2271,7 +2286,10 @@ export interface TypeTestExpression extends STNode {
 }
 
 export interface TypedBindingPattern extends STNode {
-  bindingPattern: CaptureBindingPattern | ListBindingPattern | MappingBindingPattern;
+  bindingPattern:
+    | CaptureBindingPattern
+    | ListBindingPattern
+    | MappingBindingPattern;
   typeDescriptor:
     | AnyTypeDesc
     | AnydataTypeDesc
@@ -2301,7 +2319,11 @@ export interface TypedBindingPattern extends STNode {
 }
 
 export interface UnaryExpression extends STNode {
-  expression: BracedExpression | MethodCall | NumericLiteral | SimpleNameReference;
+  expression:
+    | BracedExpression
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference;
   unaryOperator: ExclamationMarkToken | MinusToken;
 }
 
@@ -2493,6 +2515,7 @@ export interface XmlTextContent extends STNode {
 export interface XmlTypeDesc extends STNode {
   xmlKeywordToken: XmlKeyword;
   xmlTypeParamsNode?: TypeParameter;
+  keywordToken: XmlKeyword;
 }
 
 // tslint:enable:ban-types

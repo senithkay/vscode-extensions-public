@@ -114,6 +114,7 @@ export function JsonType(props: JsonTypeProps) {
     let type = viewState.type;
 
     switch (type) {
+        case 'map':
         case 'json':
             if (viewState.hasMappedConstructorInitializer) {
                 let mappingConstructorNode: MappingConstructor;
