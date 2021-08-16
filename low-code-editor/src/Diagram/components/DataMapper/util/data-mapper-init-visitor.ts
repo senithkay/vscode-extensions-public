@@ -22,7 +22,6 @@ import {
     LocalVarDecl,
     MethodCall,
     PositionalArg,
-    QualifiedNameReference,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
@@ -410,7 +409,7 @@ function setTypeFromTypeSymbol(viewstate: FieldViewState, typeSymbol: any) {
     }
 }
 
-function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: STNode, parentNode: STNode) {
+function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: any, parentNode: STNode) {
     if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
         viewState.type = PrimitiveBalType.Var;
     } else if (STKindChecker.isDecimalTypeDesc(typeDescriptor)) {
@@ -474,6 +473,9 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         viewState.type = 'stream';
         viewState.isUnsupported = true;
         viewState.warningTooltip = 'Unsupported variable type of stream, please use variables of types string, int, float, decimal, boolean, record and json.'
+    } else if (typeDescriptor.kind === 'ParameterizedTypeDesc' && typeDescriptor.parameterizedType
+        && STKindChecker.isMapKeyword(typeDescriptor.parameterizedType) {
+        viewState.type = 'map';
     }
 }
 
