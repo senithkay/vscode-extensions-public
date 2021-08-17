@@ -19,7 +19,7 @@ import {
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
-    ResourceKeyword,
+    ResourceKeyword, ServiceDeclaration,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -46,6 +46,7 @@ import {
     ViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import {ServiceViewState} from "../view-state/service";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
@@ -97,6 +98,10 @@ class InitVisitor implements Visitor {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        node.viewState = new ServiceViewState();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {

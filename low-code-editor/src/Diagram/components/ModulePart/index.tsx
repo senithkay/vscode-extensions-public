@@ -14,8 +14,8 @@ import React from "react";
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
-import { StartButton } from "../Start"
 import { getSTComponent } from "../../utils";
+import { StartButton } from "../Start"
 
 export interface ModulePartProps {
     model: ModulePart
@@ -26,7 +26,7 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     const child: JSX.Element[] = [];
 
-    model.members.forEach((member:STNode) => {
+    model.members.forEach((member: STNode) => {
         child.push(getSTComponent(member))
     });
 

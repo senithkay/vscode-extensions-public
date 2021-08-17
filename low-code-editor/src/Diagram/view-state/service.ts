@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,31 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { OnFailClause } from "@ballerina/syntax-tree";
-
 import { STOP_SVG_HEIGHT } from "../components/End/StopSVG";
 import { START_SVG_HEIGHT } from "../components/Start/StartSVG";
 import { DefaultConfig } from "../visitors/default";
 
 import { BlockViewState } from "./block";
-import { EndViewState } from "./end";
-import { PlusViewState } from "./plus";
 import { SimpleBBox } from "./simple-bbox";
-import { TriggerParamsViewState } from "./triggerParams";
-import { ViewState } from "./view-state";
+import { StatementViewState } from "./statement";
 
-export class FunctionViewState extends ViewState {
-    public topOffset: number = START_SVG_HEIGHT / 2 ;
+export class ServiceViewState extends StatementViewState {
+    public topOffset: number = START_SVG_HEIGHT / 2 + (2 * DefaultConfig.dotGap) ;
     public bottomOffset: number = STOP_SVG_HEIGHT + (2 * DefaultConfig.dotGap);
-    public lifeLine: SimpleBBox = new SimpleBBox();
     public wrapper: SimpleBBox = new SimpleBBox();
-    public trigger: SimpleBBox = new SimpleBBox();
-    public workerLine: SimpleBBox = new SimpleBBox();
-    public workerBody: BlockViewState = new BlockViewState();
-    public end: EndViewState = new EndViewState();
-    public initPlus: PlusViewState = undefined;
-    public onFail: OnFailClause = undefined;
-    public triggerParams: TriggerParamsViewState = new TriggerParamsViewState();
+    public serviceBody: BlockViewState = new BlockViewState();
+    public serviceBodyRect: SimpleBBox = new SimpleBBox();
 
     constructor() {
         super();

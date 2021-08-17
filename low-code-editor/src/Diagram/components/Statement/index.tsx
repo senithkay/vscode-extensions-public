@@ -95,7 +95,7 @@ export function StatementC(props: StatementProps) {
         );
     } else if (STKindChecker.isDoStatement(model) && model.viewState.isFirstInFunctionBody) {
         doStatement = <DoStatement model={model} />;
-    } else {
+    } else if (!STKindChecker.isObjectMethodDefinition(model)) {
         statements.push(
             <g>
                 <DataProcessor model={model} />
