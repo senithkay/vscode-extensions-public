@@ -2,10 +2,8 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import LowCodeEditor, { LowCodeEditorProps } from './../index';
-
-interface test {
-    
-}
+import syntaxTree from "./data/st-raw.json"
+import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 
 export default {
   title: 'LowCodeEditor/Diagram',
@@ -16,5 +14,8 @@ const Template: ComponentStory<typeof LowCodeEditor> = (args) => <LowCodeEditor 
 
 export const Diagram = Template.bind({});
 
-const args = {};
+const args: LowCodeEditorProps = {
+  syntaxTree: sizingAndPositioningST(syntaxTree),
+  getAiSuggestions: async ({ mapFrom, userID, mapTo }) => ({ jobNumber: "000", suggestedMappings: [] }),
+};
 Diagram.args = args;
