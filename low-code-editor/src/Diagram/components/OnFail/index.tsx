@@ -92,9 +92,9 @@ export function OnFailClause(props: OnFailClauseProps) {
             >
                 ON FAIL
             </text>
-            {...pluses}
-            {...drafts}
-            {...children}
+            {pluses}
+            {drafts}
+            {children}
         </g>
     );
 }
