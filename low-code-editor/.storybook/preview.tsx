@@ -1,7 +1,8 @@
 import React from 'react';
-
 import { IntlProvider } from 'react-intl';
-import messages from '../src/lang/en.json'
+
+import messages from '../src/lang/en.json';
+
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
