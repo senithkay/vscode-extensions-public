@@ -11,8 +11,8 @@
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
     "prebuild": "npm run lint",
-    "build": "npm run build:tsc && npm run copy:assets",
-    "build:tsc": "tsc --pretty",
+    "build": "npm run build:webpack",
+    "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js",
     "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
     "clean": "rimraf build/",
