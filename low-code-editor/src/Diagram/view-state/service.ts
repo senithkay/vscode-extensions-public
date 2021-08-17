@@ -21,7 +21,7 @@ import { StatementViewState } from "./statement";
 export class ServiceViewState extends StatementViewState {
     public topOffset: number = START_SVG_HEIGHT / 2 + (2 * DefaultConfig.dotGap) ;
     public bottomOffset: number = STOP_SVG_HEIGHT + (2 * DefaultConfig.dotGap);
-    public lifeLine: SimpleBBox = new SimpleBBox();
+    public wrapper: SimpleBBox = new SimpleBBox();
     public serviceBody: BlockViewState = new BlockViewState();
     public serviceBodyRect: SimpleBBox = new SimpleBBox();
 

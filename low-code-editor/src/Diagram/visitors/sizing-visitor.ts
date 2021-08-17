@@ -133,7 +133,7 @@ class SizingVisitor implements Visitor {
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const viewState: ServiceViewState = node.viewState;
         // setting up service lifeline initial height
-        viewState.lifeLine.h = viewState.topOffset;
+        viewState.wrapper.h = viewState.topOffset;
         viewState.bBox.h = viewState.topOffset;
     }
 
@@ -141,6 +141,9 @@ class SizingVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
+
+        viewState.wrapper.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
+        viewState.bBox.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
@@ -224,6 +227,8 @@ class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h;
         viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+
+        viewState.wrapper.h = viewState.bBox.h;
     }
 
     public endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -243,10 +248,13 @@ class SizingVisitor implements Visitor {
             }
         });
 
-        viewState.bBox.h = height;
+        // calculate the service member gap that we have and add them to component height
+        const serviceMemberGaps = node.members.length > 0 ?
+            (node.members.length - 1) * DefaultConfig.horizontalGapBetweenComponents : 0;
+        viewState.bBox.h = height + serviceMemberGaps + viewState.bBox.offsetFromBottom;
         viewState.bBox.w = width;
 
-        viewState.lifeLine.h += viewState.bBox.h
+        viewState.wrapper.h += viewState.bBox.h;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -285,8 +293,17 @@ class SizingVisitor implements Visitor {
         }
 
         // adding end component height and + (plus) height for a resource
-        viewState.bBox.h = lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) + viewState.bottomOffset;
-        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        viewState.bBox.h += (lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) +
+            viewState.bottomOffset + viewState.wrapper.offsetFromBottom);
+
+        if (body.statements.length > 0) {
+            viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        } else {
+            // setting default width with there are no statements in the function
+            viewState.bBox.w = PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH;
+        }
+
+        viewState.wrapper.h = viewState.bBox.h;
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {

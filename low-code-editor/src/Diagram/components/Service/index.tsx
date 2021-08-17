@@ -51,28 +51,28 @@ export function Service(props: ServiceProps) {
         <g className={"service-wrapper"}>
             <g>
                 <line
-                    x1={viewState.lifeLine.cx}
-                    y1={viewState.lifeLine.cy}
-                    x2={viewState.lifeLine.cx + (viewState.bBox.w * 2)}
-                    y2={viewState.lifeLine.cy}
+                    x1={viewState.wrapper.cx}
+                    y1={viewState.wrapper.cy}
+                    x2={viewState.wrapper.cx + (viewState.bBox.w * 2)}
+                    y2={viewState.wrapper.cy}
                 />
                 <line
-                    x1={viewState.lifeLine.cx + (viewState.bBox.w * 2)}
-                    y1={viewState.lifeLine.cy}
-                    x2={viewState.lifeLine.cx + (viewState.bBox.w * 2)}
-                    y2={viewState.lifeLine.cy + viewState.lifeLine.h}
+                    x1={viewState.wrapper.cx + (viewState.bBox.w * 2)}
+                    y1={viewState.wrapper.cy}
+                    x2={viewState.wrapper.cx + (viewState.bBox.w * 2)}
+                    y2={viewState.wrapper.cy + viewState.wrapper.h}
                 />
                 <line
-                    x1={viewState.lifeLine.cx + (viewState.bBox.w * 2)}
-                    y1={viewState.lifeLine.cy + viewState.lifeLine.h}
-                    x2={viewState.lifeLine.cx}
-                    y2={viewState.lifeLine.cy + viewState.lifeLine.h}
+                    x1={viewState.wrapper.cx + (viewState.bBox.w * 2)}
+                    y1={viewState.wrapper.cy + viewState.wrapper.h}
+                    x2={viewState.wrapper.cx}
+                    y2={viewState.wrapper.cy + viewState.wrapper.h}
                 />
                 <line
-                    x1={viewState.lifeLine.cx}
-                    y1={viewState.lifeLine.cy + viewState.lifeLine.h}
-                    x2={viewState.lifeLine.cx}
-                    y2={viewState.lifeLine.cy}
+                    x1={viewState.wrapper.cx}
+                    y1={viewState.wrapper.cy + viewState.wrapper.h}
+                    x2={viewState.wrapper.cx}
+                    y2={viewState.wrapper.cy}
                 />
                 {children}
                 {/*{pluses}*/}

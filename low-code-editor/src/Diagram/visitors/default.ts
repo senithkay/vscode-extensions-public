@@ -26,6 +26,8 @@ export class DiagramConfig {
 
     public epGap: number = 120;
 
+    public horizontalGapBetweenParentComponents: number = 150;
+
     public horizontalGapBetweenComponents: number = 25;
 
     public actionArrowPadding: number = 5;

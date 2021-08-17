@@ -67,7 +67,7 @@ class PositioningVisitor implements Visitor {
         // replaces beginVisitCompilationUnit
         const viewState: CompilationUnitViewState = node.viewState;
         if (node.members.length === 0) {
-            viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
+            viewState.trigger.cx = DefaultConfig.horizontalGapBetweenParentComponents;
             viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
             const plusBtnViewState: PlusViewState = new PlusViewState();
             plusBtnViewState.bBox.cx = viewState.trigger.cx;
@@ -83,8 +83,8 @@ class PositioningVisitor implements Visitor {
                 const memberVS = member.viewState;
 
                 if (memberVS) {
-                    memberVS.bBox.cx = viewState.bBox.cx;
-                    memberVS.bBox.cy = viewState.bBox.cy + memberVS.bBox.offsetFromTop + height;
+                    memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                    memberVS.bBox.y = viewState.bBox.y + memberVS.bBox.offsetFromTop + height;
 
                     // adding the height of the sub component
                     height += memberVS.bBox.h;
@@ -99,12 +99,19 @@ class PositioningVisitor implements Visitor {
         }
     }
 
-    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+
+    public beginFunctionTypeNodes(node: ResourceAccessorDefinition | FunctionDefinition) {
         if (!node.functionBody) {
             return;
         }
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
+
+        viewState.wrapper.cx = viewState.bBox.x;
+        viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
+
+        viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
 
         viewState.trigger.cx = viewState.bBox.cx;
         viewState.trigger.cy = viewState.bBox.cy;
@@ -129,66 +136,113 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.end.bBox.cx = viewState.bBox.cx;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+    }
+
+    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+        // if (!node.functionBody) {
+        //     return;
+        // }
+        // const viewState: FunctionViewState = node.viewState;
+        // const bodyViewState: BlockViewState = node.functionBody.viewState;
+        //
+        // viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        // viewState.bBox.cy = viewState.bBox.y;
+        //
+        // viewState.trigger.cx = viewState.bBox.cx;
+        // viewState.trigger.cy = viewState.bBox.cy;
+        //
+        // if (viewState.triggerParams) {
+        //     viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+        //     viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        // }
+        //
+        // viewState.workerLine.x = viewState.trigger.cx;
+        // viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+        //
+        // bodyViewState.bBox.cx = viewState.workerLine.x;
+        // // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        //
+        // if (viewState.triggerParams) {
+        //     node?.functionSignature?.parameters?.length > 0 ?
+        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        //     viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+        //         : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // } else {
+        //     bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // }
+        //
+        // viewState.end.bBox.cx = viewState.bBox.cx;
+        // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+
+        this.beginFunctionTypeNodes(node);
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const serviceVS: ServiceViewState = node.viewState;
 
-        serviceVS.lifeLine.cx = serviceVS.bBox.cx;
-        serviceVS.lifeLine.cy = serviceVS.bBox.cy - serviceVS.topOffset;
+        serviceVS.wrapper.cx = serviceVS.bBox.x;
+        serviceVS.wrapper.cy = serviceVS.bBox.y - serviceVS.topOffset;
+        serviceVS.bBox.cx = serviceVS.wrapper.cx + (serviceVS.bBox.w / 2);
 
         let height = 0;
         node.members.forEach((member: STNode, i: number) => {
             const memberVS = member.viewState;
 
             if (memberVS) {
-                memberVS.bBox.cx = serviceVS.bBox.cx + DefaultConfig.canvas.childPaddingX;
-                memberVS.bBox.cy = serviceVS.bBox.cy + serviceVS.topOffset + height;
+                memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                memberVS.bBox.y = serviceVS.bBox.y + serviceVS.topOffset + height;
             }
 
             // adding the height of the sub component
             height += memberVS.bBox.h;
             if (i !== node.members.length - 1) {
-                // todo: keep gap
+                // todo: keep gap between service components like resources
                 height += DefaultConfig.horizontalGapBetweenComponents;
             }
         });
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        if (!node.functionBody) {
-            return;
-        }
-        const viewState: FunctionViewState = node.viewState;
-        const bodyViewState: BlockViewState = node.functionBody.viewState;
-
-        viewState.trigger.cx = viewState.bBox.cx;
-        viewState.trigger.cy = viewState.bBox.cy;
-
-        if (viewState.triggerParams) {
-            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        }
-
-        viewState.workerLine.x = viewState.trigger.cx;
-        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
-
-        bodyViewState.bBox.cx = viewState.workerLine.x;
-        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        }
-
-        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        // if (!node.functionBody) {
+        //     return;
+        // }
+        // const viewState: FunctionViewState = node.viewState;
+        // const bodyViewState: BlockViewState = node.functionBody.viewState;
+        //
+        // viewState.wrapper.cx = viewState.bBox.x;
+        // viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
+        //
+        // viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        // viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
+        //
+        // viewState.trigger.cx = viewState.bBox.cx;
+        // viewState.trigger.cy = viewState.bBox.cy;
+        //
+        // if (viewState.triggerParams) {
+        //     viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+        //     viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        // }
+        //
+        // viewState.workerLine.x = viewState.trigger.cx;
+        // viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+        //
+        // bodyViewState.bBox.cx = viewState.workerLine.x;
+        // // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        //
+        // if (viewState.triggerParams) {
+        //     node?.functionSignature?.parameters?.length > 0 ?
+        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        //     viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+        //         : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // } else {
+        //     bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // }
+        //
+        // viewState.end.bBox.cx = viewState.bBox.cx;
+        // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        this.beginFunctionTypeNodes(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -312,7 +366,9 @@ class PositioningVisitor implements Visitor {
 
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // todo need to verify this
+        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
