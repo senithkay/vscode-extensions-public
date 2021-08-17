@@ -296,12 +296,9 @@ class SizingVisitor implements Visitor {
         viewState.bBox.h += (lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) +
             viewState.bottomOffset + viewState.wrapper.offsetFromBottom);
 
-        if (body.statements.length > 0) {
-            viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
-        } else {
-            // setting default width with there are no statements in the function
-            viewState.bBox.w = PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH;
-        }
+        // setting default width with there are no statements in the function
+        viewState.bBox.w = body.statements.length > 0 ? (trigger.w > bodyViewState.bBox.w ?
+            trigger.w : bodyViewState.bBox.w) : (PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH);
 
         viewState.wrapper.h = viewState.bBox.h;
     }
