@@ -249,8 +249,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
                         startLineNumber: 1,
                         startColumn: inRange ? (range.start.character - snippetTargetPosition) + 2 : 1,
-                        endLineNumber: 1,
-                        endColumn: inRange ? (range.end.character - snippetTargetPosition) + 2 : 1,
+                        endLineNumber: inRange ? 1 : 2,
+                        endColumn: inRange ? (range.end.character - snippetTargetPosition) + 2 : 1000,
                         message,
                         severity: monaco.MarkerSeverity.Error
                     }]);
