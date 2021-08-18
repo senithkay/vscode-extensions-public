@@ -10,12 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { STOP_SVG_HEIGHT } from "../components/End/StopSVG";
+import { START_SVG_HEIGHT } from "../components/Start/StartSVG";
+import { DefaultConfig } from "../visitors/default";
 
-import { PlusViewState } from "./plus";
-import { ViewState } from "./view-state";
+import { BlockViewState } from "./block";
+import { SimpleBBox } from "./simple-bbox";
+import { StatementViewState } from "./statement";
 
-export class ServiceDeclarationViewState extends ViewState {
-    public precedingPlus: PlusViewState = undefined;
+export class ServiceViewState extends StatementViewState {
+    public topOffset: number = START_SVG_HEIGHT / 2 + (2 * DefaultConfig.dotGap) ;
+    public bottomOffset: number = STOP_SVG_HEIGHT + (2 * DefaultConfig.dotGap);
+    public wrapper: SimpleBBox = new SimpleBBox();
+    public serviceBody: BlockViewState = new BlockViewState();
+    public serviceBodyRect: SimpleBBox = new SimpleBBox();
 
     constructor() {
         super();

@@ -21,10 +21,15 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
+<<<<<<< HEAD
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
     STNode,
+=======
+    ResourceAccessorDefinition, ServiceDeclaration,
+    STKindChecker, STNode,
+>>>>>>> eb6fc7da4a57c18fdb864270fbfa115d242939d3
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -36,7 +41,7 @@ import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import {START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET} from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
@@ -57,6 +62,7 @@ import {
     ViewState,
     WhileViewState
 } from "../view-state";
+import { ServiceViewState } from "../view-state/service";
 
 import { DefaultConfig } from "./default";
 
@@ -77,33 +83,42 @@ class PositioningVisitor implements Visitor {
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
         } else {
             let height = 0;
+            const index = 0;
+            const epGap = DefaultConfig.epGap;
             // Clean rendered labels
             node.members.forEach((member: STNode, i: number) => {
                 const memberVS = member.viewState;
 
                 if (memberVS) {
-                    memberVS.bBox.cx = viewState.bBox.cx + DefaultConfig.epGap;
-                    memberVS.bBox.cy = viewState.bBox.cy + height;
+                    memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                    memberVS.bBox.y = viewState.bBox.y + memberVS.bBox.offsetFromTop + height;
+
+                    // adding the height of the sub component
+                    height += memberVS.bBox.h;
                 }
 
                 if (i !== node.members.length - 1) {
-                    height += DefaultConfig.epGap;
+                    // todo: keep gap
+                    height += 150;
                 }
             });
 
         }
     }
 
-    public beginVisitServiceDeclaration(node: ServiceDeclaration) {
 
-    }
-
-    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+    public beginFunctionTypeNodes(node: ResourceAccessorDefinition | FunctionDefinition) {
         if (!node.functionBody) {
             return;
         }
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
+
+        viewState.wrapper.cx = viewState.bBox.x;
+        viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
+
+        viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
 
         viewState.trigger.cx = viewState.bBox.cx;
         viewState.trigger.cy = viewState.bBox.cy;
@@ -128,28 +143,113 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        viewState.end.bBox.cx = viewState.bBox.cx;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+    }
+
+    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+        // if (!node.functionBody) {
+        //     return;
+        // }
+        // const viewState: FunctionViewState = node.viewState;
+        // const bodyViewState: BlockViewState = node.functionBody.viewState;
+        //
+        // viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        // viewState.bBox.cy = viewState.bBox.y;
+        //
+        // viewState.trigger.cx = viewState.bBox.cx;
+        // viewState.trigger.cy = viewState.bBox.cy;
+        //
+        // if (viewState.triggerParams) {
+        //     viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+        //     viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        // }
+        //
+        // viewState.workerLine.x = viewState.trigger.cx;
+        // viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+        //
+        // bodyViewState.bBox.cx = viewState.workerLine.x;
+        // // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        //
+        // if (viewState.triggerParams) {
+        //     node?.functionSignature?.parameters?.length > 0 ?
+        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        //     viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+        //         : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // } else {
+        //     bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // }
+        //
+        // viewState.end.bBox.cx = viewState.bBox.cx;
+        // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+
+        this.beginFunctionTypeNodes(node);
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const serviceVS: ServiceViewState = node.viewState;
+
+        serviceVS.wrapper.cx = serviceVS.bBox.x;
+        serviceVS.wrapper.cy = serviceVS.bBox.y - serviceVS.topOffset;
+        serviceVS.bBox.cx = serviceVS.wrapper.cx + (serviceVS.bBox.w / 2);
+
+        let height = 0;
+        node.members.forEach((member: STNode, i: number) => {
+            const memberVS = member.viewState;
+
+            if (memberVS) {
+                memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                memberVS.bBox.y = serviceVS.bBox.y + serviceVS.topOffset + height;
+            }
+
+            // adding the height of the sub component
+            height += memberVS.bBox.h;
+            if (i !== node.members.length - 1) {
+                // todo: keep gap between service components like resources
+                height += DefaultConfig.horizontalGapBetweenComponents;
+            }
+        });
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        if (!node.functionBody) {
-            return;
-        }
-        const viewState: FunctionViewState = node.viewState;
-        const bodyViewState: BlockViewState = node.functionBody.viewState;
-
-        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
-
-        viewState.workerLine.x = viewState.trigger.cx;
-        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
-
-        bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        // if (!node.functionBody) {
+        //     return;
+        // }
+        // const viewState: FunctionViewState = node.viewState;
+        // const bodyViewState: BlockViewState = node.functionBody.viewState;
+        //
+        // viewState.wrapper.cx = viewState.bBox.x;
+        // viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
+        //
+        // viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
+        // viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
+        //
+        // viewState.trigger.cx = viewState.bBox.cx;
+        // viewState.trigger.cy = viewState.bBox.cy;
+        //
+        // if (viewState.triggerParams) {
+        //     viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+        //     viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        // }
+        //
+        // viewState.workerLine.x = viewState.trigger.cx;
+        // viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+        //
+        // bodyViewState.bBox.cx = viewState.workerLine.x;
+        // // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        //
+        // if (viewState.triggerParams) {
+        //     node?.functionSignature?.parameters?.length > 0 ?
+        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        //     viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+        //         : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // } else {
+        //     bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        // }
+        //
+        // viewState.end.bBox.cx = viewState.bBox.cx;
+        // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        this.beginFunctionTypeNodes(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -159,8 +259,8 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = DefaultConfig.canvas.paddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.paddingY;
+        viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
 
         if (viewState.triggerParams) {
             viewState.triggerParams.bBox.cx = viewState.trigger.cx;
@@ -181,8 +281,8 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.paddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.paddingY;
+        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
     }
 
     private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
@@ -273,7 +373,9 @@ class PositioningVisitor implements Visitor {
 
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+
+        // todo need to verify this
+        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);

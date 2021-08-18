@@ -15,7 +15,7 @@ import React from "react";
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponent } from "../../utils";
-import { BigPlus } from "../BigPlus";
+import { StartButton } from "../Start"
 
 export interface ModulePartProps {
     model: ModulePart
@@ -26,13 +26,9 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     const moduleMembers: JSX.Element[] = [];
 
-    if (model.members.length === 0) {
-        moduleMembers.push(<BigPlus {...props} />)
-    } else {
-        model.members.forEach((member: STNode) => {
-            moduleMembers.push(getSTComponent(member))
-        });
-    }
+    model.members.forEach((member: STNode) => {
+        moduleMembers.push(getSTComponent(member))
+    });
 
     return (
         <>
