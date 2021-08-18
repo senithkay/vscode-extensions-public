@@ -73,7 +73,8 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         stSymbolInfo,
         originalSyntaxTree,
         onEvent,
-        modifyTrigger
+        modifyTrigger,
+        modifyDiagram
     } = state;
     const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
