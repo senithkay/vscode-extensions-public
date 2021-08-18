@@ -100,7 +100,7 @@ class PositioningVisitor implements Visitor {
     }
 
 
-    public beginFunctionTypeNodes(node: ResourceAccessorDefinition | FunctionDefinition) {
+    public beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
         if (!node.functionBody) {
             return;
         }
@@ -176,7 +176,7 @@ class PositioningVisitor implements Visitor {
         // viewState.end.bBox.cx = viewState.bBox.cx;
         // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
-        this.beginFunctionTypeNodes(node);
+        this.beginFunctionTypeNode(node);
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -242,7 +242,7 @@ class PositioningVisitor implements Visitor {
         //
         // viewState.end.bBox.cx = viewState.bBox.cx;
         // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-        this.beginFunctionTypeNodes(node);
+        this.beginFunctionTypeNode(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
