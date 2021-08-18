@@ -178,7 +178,7 @@ function getType(typeNode: any): any {
         STKindChecker.isStringTypeDesc(typeNode) || STKindChecker.isJsonTypeDesc(typeNode)) {
         return typeNode.name.value;
     } else if (STKindChecker.isXmlTypeDesc(typeNode)) {
-        return typeNode.keywordToken.value;
+        return typeNode.xmlKeywordToken.value;
     } else if (STKindChecker.isQualifiedNameReference(typeNode)) {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";
