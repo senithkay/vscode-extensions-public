@@ -787,9 +787,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 });
             });
 
-            setCursorOnEditor(false);
-            if (subEditor) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+            if (monacoRef.current) {
+                setCursorOnEditor(false);
+                if (subEditor) {
+                    monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
+                }
             }
         }
     }
@@ -870,7 +872,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Disabling ctrl/cmd + (f || g)
                 event.stopPropagation();
             }
-            const suggestWidgetStatus = (monacoEditor as any)._contentWidgets["editor.widget.suggestWidget"].widget.state;
+            const suggestWidgetStatus = (monacoEditor as any)._contentWidgets["editor.widget.suggestWidget"]?.widget?._widget?._state;
             // When suggest widget is open => suggestWidgetStatus = 3
             if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3){
                 event.stopPropagation();
