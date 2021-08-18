@@ -18,7 +18,6 @@ import { STNode } from "@ballerina/syntax-tree";
 import { Context } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions/lang-client-extended";
 import { STSymbolInfo } from "../../../../Definitions/store";
-import { DiagramContext } from "../../../../providers/contexts";
 import { removeStatement } from "../../../utils/modification-util";
 import { DefaultConfig } from "../../../visitors/default";
 import { DeleteConfirmDialog } from "../../Portals/Overlay/Elements";
@@ -37,8 +36,7 @@ export interface DeleteBtnProps {
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
-    const { state: { isReadOnly, stSymbolInfo } } = useContext(Context);
+    const { state: { isReadOnly, stSymbolInfo, modifyDiagram } } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
 

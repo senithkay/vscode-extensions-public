@@ -37,7 +37,6 @@ import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
 import { AccountAvatar } from "../../../../../../../../Diagram/components/OauthConnectButton/AccountAvatar";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
-import { DiagramContext } from "../../../../../../../../providers/contexts";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -64,7 +63,6 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
@@ -74,7 +72,8 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
         getGcalendarList,
         stSymbolInfo,
         originalSyntaxTree,
-        onEvent
+        onEvent,
+        modifyTrigger
     } = state;
     const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();

@@ -17,10 +17,10 @@
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile } from "../api/models";
+import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile, ConnectorApiResponse } from "../api/models";
 import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo } from "../Definitions";
-import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
-import { LowcodeEvent } from "../Diagram/models";
+import { BallerinaConnectorsInfo, STModification } from "../Definitions/lang-client-extended";
+import { LowcodeEvent, TriggerType } from "../Diagram/models";
 
 import {
     APIViewState, AppViewState, ConnectionData, Feedback, HomeViewState, LinkerState, Notification, OauthProviderConfigState,
@@ -113,6 +113,22 @@ export interface LowCodeEditorProps {
     onEvent?: (event: LowcodeEvent) => void;
     hasConfigurables?: (templateST: ModulePart) => boolean;
     triggerUpdated?: boolean;
+    diagramPanLocation?: (appId: number, panX: number, panY: number) => void,
+    createManualConnection?: (orgHandle: string, displayName: string, connectorName: string,
+                              userAccountIdentifier: string,
+                              tokens: { name: string; value: string }[],
+                              selectedType: string) => Promise<ConnectorApiResponse>,
+    updateManualConnection?: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
+                              userAccountIdentifier: string, tokens: { name: string; value: string }[],
+                              type?: string, activeConnectionHandler?: string) => Promise<ConnectorApiResponse>,
+    triggerErrorNotification?: (msg: Error | string) => void,
+    triggerSuccessNotification?: (msg: Error | string) => void,
+    modifyDiagram?: (mutations: STModification[], options: any) => void,
+    modifyTrigger?: (
+        triggerType: TriggerType,
+        model?: any,
+        configObject?: any
+    ) => void
 }
 
 export interface STSymbolInfo {

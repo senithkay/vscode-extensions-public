@@ -20,7 +20,6 @@ import {STKindChecker} from "@ballerina/syntax-tree";
 import {DiagramOverlayPosition} from "../../../..";
 import {ConnectionDetails} from "../../../../../../../../api/models";
 import {Context} from "../../../../../../../../Contexts/Diagram";
-import {DiagramContext} from "../../../../../../../../providers/contexts";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -44,13 +43,13 @@ export interface ConnectorEvents {
 }
 
 export function SlackConfigureForm(props: SlackConfigureFormProps) {
-    const {modifyTrigger} = useContext(DiagramContext).callbacks;
     const {state} = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
         isLoadingSuccess: isFileSaved,
         syntaxTree,
-        onEvent
+        onEvent,
+        modifyTrigger
     } = state;
     const {onComplete} = props;
     const classes = useStyles();

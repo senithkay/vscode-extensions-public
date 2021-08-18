@@ -10,12 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import React, { useReducer } from "react";
+
 import { STNode } from "@ballerina/syntax-tree";
 
 import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
-
-import createContext from "./createContext";
+import { LowCodeEditorProps } from "../types";
 
 const reducer = (state: any, action: any) => {
     switch (action.type) {
@@ -108,8 +109,23 @@ const actions = {
 
 const initialState: any = {};
 
-export const { Context, Provider } = createContext(
-    reducer,
-    actions,
-    initialState
-);
+export const Context = React.createContext(initialState);
+
+export const Provider = (props: any) => {
+  const { children } = props;
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const boundActions: any = {};
+  /* tslint:disable-next-line */
+  for (const key in actions) {
+    boundActions[key] = actions[key](dispatch);
+  }
+
+  // FIXME Refactor this in the next phase of type intro to context
+  const castedState = state as LowCodeEditorProps;
+  return (
+    <Context.Provider value={{ castedState, ...boundActions }}>
+      {children}
+    </Context.Provider>
+  );
+}

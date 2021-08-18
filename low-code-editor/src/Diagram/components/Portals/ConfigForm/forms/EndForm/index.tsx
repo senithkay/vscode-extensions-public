@@ -19,7 +19,6 @@ import { STNode } from "@ballerina/syntax-tree";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram"
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
-import { DiagramContext } from "../../../../../../providers/contexts";
 import { createCheckedRespond, createReturnStatement, updateCheckedRespond, updateReturnStatement } from "../../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../../view-state/draft";
 import { EndConfig, RespondConfig } from "../../types";
@@ -36,8 +35,7 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
-    const { isReadOnly } = useContext(Context).state;
+    const { isReadOnly, modifyDiagram } = useContext(Context).state;
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddEndFormProps;
 
     const endConfig: EndConfig = {
