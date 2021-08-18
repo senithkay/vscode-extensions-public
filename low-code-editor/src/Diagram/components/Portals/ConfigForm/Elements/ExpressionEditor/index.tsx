@@ -960,7 +960,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
                                     {needElvis && monacoRef.current && (
-                                        <ExpressionEditorHint type={HintType.ADD_ELVIS_OPERATOR} onClickHere={addElvisOperatorToExpression} expEditorType={varType} editorContent={monacoRef.current.editor.getModel().getValue()}/>
+                                        <ExpressionEditorHint type={HintType.ADD_ELVIS_OPERATOR} onClickHere={addElvisOperatorToExpression}/>
                                     )}
                                     {!needElvis && stringCheck && needToString && monacoRef.current && (
                                         <ExpressionEditorHint type={HintType.ADD_TO_STRING} onClickHere={addToStringToExpression}/>

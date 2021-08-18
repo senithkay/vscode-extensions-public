@@ -33,11 +33,10 @@ interface ExpressionEditorHintProps {
     onClickHere: () => void;
     type: HintType;
     editorContent?: string;
-    expEditorType?: string;
 }
 
 export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
-    const { type, onClickHere, editorContent, expEditorType } = props;
+    const { type, onClickHere, editorContent } = props;
 
     const formClasses = useFormStyles();
     const intl = useIntl();
