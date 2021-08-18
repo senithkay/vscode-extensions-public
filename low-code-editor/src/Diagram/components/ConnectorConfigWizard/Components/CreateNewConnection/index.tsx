@@ -157,13 +157,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const handleOnSave = () => {
         // update config connector name, when user click next button
-        if (isNewConnectorInitWizard) {
-            connectorConfig.connectionName = connectionNameState.value;
-            connectorConfig.name = nameState.value;
-        } else {
-            connectorConfig.connectionName = connectionNameState.value;
-            connectorConfig.name = isEndpointNameUpdated ? nameState.value : undefined;
-        }
+        connectorConfig.connectionName = connectionNameState.value;
+        connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         state.onAPIClient(connector);
         onSave();

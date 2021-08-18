@@ -1,5 +1,6 @@
 const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
@@ -13,7 +14,12 @@ module.exports = {
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".mjs"],
         alias: {
-            handlebars: 'handlebars/dist/handlebars.min.js'
+            handlebars: 'handlebars/dist/handlebars.min.js',
+            "vscode": require.resolve('monaco-languageclient/lib/vscode-compatibility'),
+            "crypto": false,
+            "net": false,
+            "os": false,
+            "path": false
         }
     },
     module: {
@@ -79,9 +85,9 @@ module.exports = {
         "react-dom": "ReactDOM"
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin(), // run TSC on a separate thread
-    ],
-    node: {
-        fs: "empty"
-    }
+        new ForkTsCheckerWebpackPlugin(), // run TSC on a separate thread,
+        new MonacoWebpackPlugin({
+            languages: ['ballerina', 'yaml', 'json']
+        }),
+    ]
 }
