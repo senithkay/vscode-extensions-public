@@ -21,15 +21,8 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-<<<<<<< HEAD
-    ResourceAccessorDefinition,
-    ServiceDeclaration,
-    STKindChecker,
-    STNode,
-=======
     ResourceAccessorDefinition, ServiceDeclaration,
     STKindChecker, STNode,
->>>>>>> eb6fc7da4a57c18fdb864270fbfa115d242939d3
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -347,7 +340,7 @@ class PositioningVisitor implements Visitor {
         }
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
+        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -375,7 +368,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
 
         // todo need to verify this
-        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
