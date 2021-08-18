@@ -158,12 +158,12 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
 }
 
 // FIXME: Use the response of ballerinaSymbol/type for the below logic
-export function addElvisChecker(diagnostics: Diagnostic[]) {
+export function addElvisChecker(diagnostics: Diagnostic[], varType: string) {
     if (!diagnostics) {
         return false;
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
-        const selectedDiagnostic: Diagnostic = diagnostics[0];
+        const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
         if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
             const trimmedErrorMessage = selectedDiagnostic.message.replace("incompatible types: expected ", "");
             const types: string[] = trimmedErrorMessage.replace(/'/g, "").split(", found ");

@@ -229,7 +229,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validate(model.name, true);
             setNeedQuotes(addQuotesChecker(expressionEditorState.diagnostic));
             setNeedToString(addToStringChecker(expressionEditorState.diagnostic));
-            setNeedElvis(addElvisChecker(expressionEditorState.diagnostic));
+            setNeedElvis(addElvisChecker(expressionEditorState.diagnostic, varType));
             if (monacoRef.current) {
                 if (updateState) {
                     monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
