@@ -64,67 +64,74 @@ const reducer = (state: any, action: any) => {
     }
 };
 
-const actions = {
-    updateState: (dispatch: any) => {
-        return (payload: any) => {
-            dispatch({ type: 'UPDATE_STATE', payload });
-        };
-    },
-    diagramCleanDraw: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'DIAGRAM_CLEAN_DRAW', payload });
-        }
-    },
-    diagramRedraw: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'DIAGRAM_REDRAW', payload })
-        }
-    },
-    insertComponentStart: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'INSERT_COMPONENT_START', payload })
-        }
-    },
-    editorComponentStart: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'EDITOR_COMPONENT_START', payload })
-        }
-    },
-    dataMapperStart: (dispatch: any) => {
-        return (dataMapperConfig: DataMapperConfig) => {
-            dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
-        }
-    },
-    toggleDiagramOverlay: (dispatch: any) => {
-        return () => {
-            dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
-        }
-    },
-    updateDataMapperConfig: (dispatch: any) => {
-        return (dataMapperConfig: DataMapperConfig) => {
-            dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
-        }
+const updateState = (dispatch: any) => {
+    return (payload: any) => {
+        dispatch({ type: 'UPDATE_STATE', payload });
+    };
+}
+
+const diagramCleanDraw = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'DIAGRAM_CLEAN_DRAW', payload });
     }
-};
+}
 
-const initialState: any = {};
+const diagramRedraw = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'DIAGRAM_REDRAW', payload })
+    }
+}
 
-export const Context = React.createContext(initialState);
+const insertComponentStart = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'INSERT_COMPONENT_START', payload })
+    }
+}
+
+const editorComponentStart = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'EDITOR_COMPONENT_START', payload })
+    }
+}
+
+const dataMapperStart = (dispatch: any) => {
+    return (dataMapperConfig: DataMapperConfig) => {
+        dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
+    }
+}
+
+const toggleDiagramOverlay = (dispatch: any) => {
+    return () => {
+        dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
+    }
+}
+
+const updateDataMapperConfig = (dispatch: any) => {
+    return (dataMapperConfig: DataMapperConfig) => {
+        dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
+    }
+}
+const defaultState: any = {};
+
+export const Context = React.createContext(defaultState);
 
 export const Provider = (props: any) => {
-  const { children } = props;
+  const { children, initialState } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const boundActions: any = {};
-  /* tslint:disable-next-line */
-  for (const key in actions) {
-    boundActions[key] = actions[key](dispatch);
-  }
+  const boundActions = {
+    updateState: updateState(dispatch),
+    diagramCleanDraw: diagramCleanDraw(dispatch),
+    diagramRedraw: diagramRedraw(dispatch),
+    insertComponentStart: insertComponentStart(dispatch),
+    editorComponentStart: editorComponentStart(dispatch),
+    dataMapperStart: dataMapperStart(dispatch),
+    toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
+    updateDataMapperConfig: updateDataMapperConfig(dispatch),
+  };
 
-  // FIXME Refactor this in the next phase of type intro to context
-  const castedState = state as LowCodeEditorProps;
   return (
-    <Context.Provider value={{ castedState, ...boundActions }}>
+    <Context.Provider value={{ state, ...boundActions }}>
       {children}
     </Context.Provider>
   );
