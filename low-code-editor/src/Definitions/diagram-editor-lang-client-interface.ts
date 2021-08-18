@@ -18,10 +18,12 @@ import {
 } from "monaco-languageclient";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
+import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
 	BallerinaConnectorRequest,
 	BallerinaConnectorResponse,
 	BallerinaConnectorsResponse,
+	BallerinaProjectParams,
 	BallerinaRecordRequest,
 	BallerinaRecordResponse,
 	BallerinaSTModifyRequest,
@@ -53,7 +55,6 @@ export interface GetSyntaxTreeResponse {
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-	registerPublishDiagnostics: () => void;
 	syntaxTreeModify: (
 		params: BallerinaSyntaxTreeModifyRequest
 	) => Thenable<BallerinaSyntaxTreeResponse>;
@@ -79,4 +80,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	getDocumentSymbol: (
 		params: DocumentSymbolParams
 	) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
+	diagnostics: (
+		params: BallerinaProjectParams
+	) => Thenable<PublishDiagnosticsParams[]>;
 }

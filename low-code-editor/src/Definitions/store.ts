@@ -12,7 +12,7 @@
  */
 // tslint:disable-next-line: no-submodule-imports
 import { STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic } from "monaco-languageclient";
 
 import { BlockViewState } from "../Diagram/view-state";
 

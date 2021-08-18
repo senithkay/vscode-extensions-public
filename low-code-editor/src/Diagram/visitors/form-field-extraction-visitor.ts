@@ -123,7 +123,7 @@ class FieldVisitor implements Visitor {
             viewState.optional = true;
             if ((node?.expression as any)?.literalToken?.value) {
                 // casted to any since literal token is not accessible according to ST interfaces
-                viewState.value = (node?.expression as any)?.literalToken?.value;
+                viewState.defaultValue = (node?.expression as any)?.literalToken?.value;
             }
             viewState.isDefaultableParam = true;
 
@@ -186,7 +186,6 @@ class FieldVisitor implements Visitor {
             viewState.type = PrimitiveBalType.Nil;
         }
     }
-
 
     beginVisitJsonTypeDesc(node: JsonTypeDesc) {
         if (node.viewState && node.viewState.isParam) {
@@ -511,8 +510,6 @@ class FieldVisitor implements Visitor {
             };
         }
     }
-
-
 
     endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
         const functionQualifierList: string[] = node.qualifierList.map(qualifier => qualifier.kind);

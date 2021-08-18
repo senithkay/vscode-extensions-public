@@ -12,7 +12,9 @@
  */
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic, Range } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic, Range } from "monaco-languageclient";
+
+import * as monaco from 'monaco-editor';
 
 import { ExpressionEditorState } from '../../../../../../Definitions';
 import { DraftInsertPosition } from '../../../../../view-state/draft';

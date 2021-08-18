@@ -78,7 +78,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 generationType = GenerationType.NEW;
                 const typedBindingPattern = outputST.typedBindingPattern as TypedBindingPattern;
                 const bindingPattern = typedBindingPattern.bindingPattern as CaptureBindingPattern;
-                const typeDescriptor = typedBindingPattern.typeDescriptor;
+                const typeDescriptor = typedBindingPattern.typeDescriptor as any;
                 outputVarName = bindingPattern.variableName.value;
 
                 if (STKindChecker.isVarTypeDesc(typeDescriptor)) {
@@ -109,6 +109,9 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                     }
                 } else if (STKindChecker.isRecordTypeDesc(typeDescriptor)) {
                     outputVarType = PrimitiveBalType.Record;
+                } else if (typeDescriptor.kind === 'ParameterizedTypeDesc' && typeDescriptor.parameterizedType
+                    && STKindChecker.isMapKeyword(typeDescriptor.parameterizedType)) {
+                        outputVarType = 'map';
                 }
             }
 

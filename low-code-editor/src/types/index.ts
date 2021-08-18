@@ -15,9 +15,9 @@
 // Should move these to ../Definitions/*
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic } from "monaco-languageclient";
 
-import { AppInfo, ApplicationFile } from "../api/models";
+import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile } from "../api/models";
 import { ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo } from "../Definitions";
 import { BallerinaConnectorsInfo } from "../Definitions/lang-client-extended";
 import { LowcodeEvent } from "../Diagram/models";
@@ -102,7 +102,7 @@ export interface LowCodeEditorProps {
     getConnectorConfig?: any;
     editComponentStart?: any;
     insertComponentStart?: any;
-    getAiSuggestions?: any;
+    getAiSuggestions?: (params: AiSuggestionsReq) => Promise<AiSuggestionsRes>;
     getGsheetList?: any;
     getGcalendarList?: (orgHandle: string, handler: string) => Promise<Gcalendar[]>;
     getGithubRepoList?: (orgHandle: string, handler: string, username: string) => Promise<GithubRepo[]>;

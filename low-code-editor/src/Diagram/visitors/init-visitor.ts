@@ -25,7 +25,7 @@ import {
     Visitor,
     WhileStatement
 } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic } from "monaco-languageclient";
 
 import { Endpoint, isSTActionInvocation } from "../utils/st-util";
 import {

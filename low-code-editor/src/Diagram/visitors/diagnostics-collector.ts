@@ -2,7 +2,7 @@ import {
     STNode,
     Visitor
 } from "@ballerina/syntax-tree";
-import { Diagnostic, DiagnosticSeverity } from "monaco-languageclient/lib/monaco-language-client";
+import { Diagnostic, DiagnosticSeverity } from "monaco-languageclient";
 
 let allDiagnostics: Diagnostic[] = [];
 

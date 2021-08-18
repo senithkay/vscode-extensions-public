@@ -15,7 +15,7 @@ import React from 'react';
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
-import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import * as MonacoEditor from 'monaco-editor';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 
