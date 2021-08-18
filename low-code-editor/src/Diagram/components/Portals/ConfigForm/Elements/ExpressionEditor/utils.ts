@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { Diagnostic, Range } from "monaco-languageclient";
 
 import * as monaco from 'monaco-editor';
 
@@ -401,12 +401,23 @@ export const getValueWithoutSemiColon = (currentContent: string) => {
     return currentContent;
 }
 
-export function getDiagnosticMessage(diagnostics: any, varType: string): string {
+export function getSelectedDiagnostics(diagnostics: any, varType: string): Diagnostic {
     if (varType === 'string') {
         const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
         const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
-        return quotesError ? quotesError.message : undefSymbolError ? undefSymbolError.message : diagnostics[0]?.message;
+        return quotesError ? quotesError : undefSymbolError ? undefSymbolError : diagnostics[0];
     } else {
-        return diagnostics[0]?.message;
+        return diagnostics[0];
     }
+}
+
+export function getDiagnosticMessage(diagnostics: any, varType: string): string {
+    return getSelectedDiagnostics(diagnostics, varType)?.message;
+}
+
+export function diagnosticInRange(diagnosticRange: Range, targetPosition: any, targetColumn: any) {
+    const targetLine = targetPosition.line;
+    const currentLine = diagnosticRange.start.line;
+    const currentColumn = diagnosticRange.start.character;
+    return (targetLine === currentLine) && ((targetColumn - 1) <= currentColumn);
 }

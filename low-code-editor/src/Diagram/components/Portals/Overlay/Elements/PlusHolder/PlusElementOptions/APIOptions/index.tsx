@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
@@ -646,42 +646,45 @@ export function APIOptions(props: APIOptionsProps) {
         });
     }
 
-
+    const preventDiagramScrolling = (e: SyntheticEvent) => {
+        e.stopPropagation();
+    }
 
     return (
-        <div className="connector-option-holder" >
+        <div onWheel={preventDiagramScrolling} className="connector-option-holder" >
             {isExistingConnectors &&
                 (
-                    <div className="existing-connect-wrapper">
-                        <div className="title-wrapper">
-                            <p className="plus-section-title">Choose existing connection </p>
-                            {isToggledSelectConnector ?
+                    <>
+                        <div className="existing-connect-wrapper">
+                            <div className="title-wrapper">
+                                <p className="plus-section-title">Choose existing connection </p>
+                                {isToggledSelectConnector ?
+                                    (
+                                        <div onClick={toggleExistingCon} className="existing-connector-toggle">
+                                            {isToggledExistingConnector ?
+                                                <img src="../../../../../../images/exp-editor-expand.svg" />
+                                                :
+                                                <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                            }
+                                        </div>
+                                    )
+                                    :
+                                    null
+                                }
+                            </div>
+
+                            {isToggledExistingConnector &&
                                 (
-                                    <div onClick={toggleExistingCon} className="existing-connector-toggle">
-                                        {isToggledExistingConnector ?
-                                            <img src="../../../../../../images/exp-editor-expand.svg" />
-                                            :
-                                            <img src="../../../../../../images/exp-editor-collapse.svg" />
-                                        }
+                                    <div className="existing-connector-wrapper">
+                                        {exsitingConnectors}
                                     </div>
                                 )
-                                :
-                                null
                             }
                         </div>
-
-                        {isToggledExistingConnector &&
-                            (
-                                <div className="existing-connector-wrapper">
-                                    {exsitingConnectors}
-                                </div>
-                            )
-                        }
-                    </div>
+                        <Divider />
+                    </>
                 )
             }
-
-            <Divider />
 
             <div className="element-option-holder" >
                 <div className="title-wrapper">
@@ -712,7 +715,7 @@ export function APIOptions(props: APIOptionsProps) {
                                     className='search-wrapper'
                                 />
                             </div>
-                            <div className="options-wrapper">
+                            <div className={`api-options options-wrapper ${isExistingConnectors ? 'with-existing-con' : ''}`}>
                                 {updatedConnectorComponents}
                             </div>
                         </>

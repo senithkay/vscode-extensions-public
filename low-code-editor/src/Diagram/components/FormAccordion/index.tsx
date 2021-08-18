@@ -44,7 +44,7 @@ export default function FormAccordion(props: FormAccordionProps) {
         <div className={classes.accordionWrapper}>
             { !isEmptyMandatoryFields && isEmptyOptionalFields && (
                 <div className={classes.groupedForm}>
-                    {...mandatoryFields}
+                    {mandatoryFields}
                 </div >
             ) }
             { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
@@ -62,7 +62,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                     ) }
                     <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
-                            {...mandatoryFields}
+                            {mandatoryFields}
                         </div >
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -80,7 +80,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
-                            {...optionalFields}
+                            {optionalFields}
                         </div >
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
