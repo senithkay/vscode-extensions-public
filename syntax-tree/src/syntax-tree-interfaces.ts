@@ -2194,7 +2194,8 @@ export interface TypeCastExpression extends STNode {
     | IndexedExpression
     | MethodCall
     | SimpleNameReference
-    | TypeCastExpression;
+    | TypeCastExpression
+    | RemoteMethodCallAction;
   gtToken: GtToken;
   ltToken: LtToken;
   typeCastParam: TypeCastParam;
