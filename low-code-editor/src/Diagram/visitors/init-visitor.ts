@@ -39,6 +39,7 @@ import {
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    ListenerStatementViewState,
     OnErrorViewState,
     PlusViewState,
     SimpleBBox,
@@ -63,7 +64,9 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
-        node.viewState = new CompilationUnitViewState();
+        if (!node.viewState) {
+            node.viewState = new CompilationUnitViewState();
+        }
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
@@ -80,7 +83,7 @@ class InitVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
         if (!node.viewState) {
-            const viewState = new StatementViewState();
+            const viewState = new ListenerStatementViewState();
             node.viewState = viewState;
         }
     }

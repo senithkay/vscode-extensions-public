@@ -50,7 +50,7 @@ import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../componen
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, ListenerStatementViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
@@ -81,14 +81,17 @@ class SizingVisitor implements Visitor {
             let width: number = 0;
 
             node.members.forEach(member => {
-                const memberVS = member.viewState;
-
+                const memberVS = member.viewState as any;
                 if (memberVS) {
                     height = memberVS.bBox.h;
 
                     if (memberVS.bBox.w > width) {
                         width = memberVS.bBox.w
                     }
+                }
+
+                if (memberVS.precedingPlus) {
+                    viewState.plusButtons.push(memberVS.precedingPlus);
                 }
             });
 
@@ -100,6 +103,7 @@ class SizingVisitor implements Visitor {
     public beginVisitListenerDeclaration(node: ListenerDeclaration) {
         if (node.viewState) {
             this.sizeStatement(node);
+            const viewState = node.viewState as ListenerStatementViewState;
         }
     }
 

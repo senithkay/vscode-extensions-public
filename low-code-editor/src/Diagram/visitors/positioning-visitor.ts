@@ -22,6 +22,7 @@ import {
     ObjectMethodDefinition,
     OnFailClause,
     ResourceAccessorDefinition,
+    ServiceDeclaration,
     STKindChecker,
     STNode,
     VisibleEndpoint,
@@ -91,6 +92,10 @@ class PositioningVisitor implements Visitor {
             });
 
         }
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration) {
+
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {

@@ -16,7 +16,8 @@ import { ViewState } from "./view-state";
 
 export class CompilationUnitViewState extends ViewState {
     public trigger: SimpleBBox = new SimpleBBox();
-    public initPlus: PlusViewState = undefined;
+    public initPlus: PlusViewState = undefined; // TODO: Remove
+    public plusButtons: PlusViewState[] = [];
     constructor() {
         super();
     }
