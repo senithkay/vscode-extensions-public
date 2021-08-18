@@ -24,7 +24,7 @@
     "deploy": "npm publish"
   },
   "dependencies": {
-    "@ballerina/syntax-tree": "^1.0.4",
+    "@ballerina/syntax-tree": "^1.0.5",
     "@date-io/date-fns": "^1.3.13",
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
