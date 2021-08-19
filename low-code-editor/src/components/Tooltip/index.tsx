@@ -44,7 +44,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 
     const tooltipHintText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.hintText",
-        defaultMessage: "Hint: "
+        defaultMessage: "Hints:"
     });
 
     const tooltipHintSuggestionText = intl.formatMessage({
@@ -53,7 +53,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     });
     const tooltipHintVarScopeText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.varScopeText",
-        defaultMessage: "Variables within the scope can also be used"
+        defaultMessage: "You can use variables within the scope"
     });
 
     // Ref: <code>
@@ -82,8 +82,11 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     );
     const GenericCodeHints = () => (
         <div className={styles.codeHintWrap}>
-            <div className={styles.codeHint}><b>{tooltipHintText}</b>{tooltipHintSuggestionText}</div>
-            <div className={styles.codeHint}><b>{tooltipHintText}</b>{tooltipHintVarScopeText}</div>
+            <div className={styles.codeHint}><b>{tooltipHintText}</b></div>
+            <ul className={styles.tooltipHints}>
+                <li className={styles.codeHint}>{tooltipHintSuggestionText}</li>
+                <li className={styles.codeHint}>{tooltipHintVarScopeText}</li>
+            </ul>
         </ div>
     );
 

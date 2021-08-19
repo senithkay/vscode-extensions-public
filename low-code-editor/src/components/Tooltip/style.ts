@@ -108,6 +108,9 @@ const useStyles = makeStyles(() =>
             textTransform: 'uppercase',
             color: '#3f414a',
             marginBottom: 9,
+        },
+        tooltipHints: {
+            padding: "0 15px",
         }
     }),
 );
