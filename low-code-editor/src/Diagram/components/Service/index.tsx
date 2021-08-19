@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
-import React, { ReactNode, useContext, useState } from "react"
+import React from "react"
 
 import { ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
 import { ServiceViewState } from "../../view-state/service";
+import { PlusButton } from "../Plus";
 
 import "./style.scss";
 
@@ -35,17 +36,14 @@ export function Service(props: ServiceProps) {
 
     const viewState: ServiceViewState = serviceModel.viewState;
 
-    // const x: number = viewState.foreachHead.cx;
-    // const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
-
     const drafts: React.ReactNode[] = [];
     // if (bodyViewState.draft) {
     //     drafts = getDraftComponent(bodyViewState, state, insertComponentStart);
     // }
 
-    // for (const plusView of modelForeach.blockStatement.viewState.plusButtons) {
-    //     pluses.push(<PlusButton viewState={plusView} model={modelForeach.blockStatement} initPlus={false} />)
-    // }
+    for (const plusView of viewState.plusButtons) {
+        pluses.push(<PlusButton viewState={plusView} initPlus={false} />)
+    }
 
     return (
         <g className={"service-wrapper"}>
@@ -75,7 +73,7 @@ export function Service(props: ServiceProps) {
                     y2={viewState.wrapper.cy}
                 />
                 {children}
-                {/*{pluses}*/}
+                {pluses}
             </g>
         </g>
     );

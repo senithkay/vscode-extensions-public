@@ -15,10 +15,12 @@ import { START_SVG_HEIGHT } from "../components/Start/StartSVG";
 import { DefaultConfig } from "../visitors/default";
 
 import { BlockViewState } from "./block";
+import { PlusViewState } from "./plus";
 import { SimpleBBox } from "./simple-bbox";
 import { StatementViewState } from "./statement";
 
 export class ServiceViewState extends StatementViewState {
+    public plusButtons: PlusViewState[] = [];
     public topOffset: number = START_SVG_HEIGHT / 2 + (2 * DefaultConfig.dotGap) ;
     public bottomOffset: number = STOP_SVG_HEIGHT + (2 * DefaultConfig.dotGap);
     public wrapper: SimpleBBox = new SimpleBBox();

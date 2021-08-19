@@ -27,12 +27,12 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition, ServiceDeclaration,
+    ResourceAccessorDefinition,
+    ServiceDeclaration,
     STKindChecker,
     STNode,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
-import {versionInfo} from "graphql";
 
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
@@ -53,7 +53,7 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG"
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import {ServiceViewState} from "../view-state/service";
+import { ServiceViewState } from "../view-state/service";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
@@ -105,7 +105,7 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    public beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
+    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
@@ -164,6 +164,26 @@ class SizingVisitor implements Visitor {
         // setting up service lifeline initial height
         viewState.wrapper.h = viewState.topOffset;
         viewState.bBox.h = viewState.topOffset;
+
+        node.members.forEach((member, i) => {
+            const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
+            if (!plusViewState) {
+                const plusBtnViewBox: PlusViewState = new PlusViewState();
+                plusBtnViewBox.index = i;
+                plusBtnViewBox.expanded = false;
+                plusBtnViewBox.isLast = true;
+                viewState.plusButtons.push(plusBtnViewBox);
+            }
+        });
+
+        const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
+        if (!lastPlusViewState) {
+            const plusBtnViewBox: PlusViewState = new PlusViewState();
+            plusBtnViewBox.index = node.members.length;
+            plusBtnViewBox.expanded = false;
+            plusBtnViewBox.isLast = true;
+            viewState.plusButtons.push(plusBtnViewBox);
+        }
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -195,7 +215,7 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    public endVisitFunctionTypeNode(node: FunctionDefinition) {
+    private endVisitFunctionTypeNode(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;

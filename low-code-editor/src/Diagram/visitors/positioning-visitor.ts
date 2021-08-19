@@ -100,7 +100,7 @@ class PositioningVisitor implements Visitor {
     }
 
 
-    public beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
+    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
         if (!node.functionBody) {
             return;
         }
@@ -195,6 +195,15 @@ class PositioningVisitor implements Visitor {
                 memberVS.bBox.y = serviceVS.bBox.y + serviceVS.topOffset + height;
             }
 
+            // calculating plus button positions
+            const plusViewState: PlusViewState = getPlusViewState(i, serviceVS.plusButtons);
+            if (plusViewState) {
+                // adding the x `1/2 location` difference between service box and
+                // child member box to service member box x
+                plusViewState.bBox.cx = serviceVS.bBox.x + (memberVS.bBox.x - serviceVS.bBox.x) / 2;
+                plusViewState.bBox.cy = serviceVS.bBox.y + height;
+            }
+
             // adding the height of the sub component
             height += memberVS.bBox.h;
             if (i !== node.members.length - 1) {
@@ -202,6 +211,10 @@ class PositioningVisitor implements Visitor {
                 height += DefaultConfig.horizontalGapBetweenComponents;
             }
         });
+
+        const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
+        lastPlusViewState.bBox.cx = serviceVS.bBox.x + (DefaultConfig.horizontalGapBetweenParentComponents / 2);
+        lastPlusViewState.bBox.cy = serviceVS.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
