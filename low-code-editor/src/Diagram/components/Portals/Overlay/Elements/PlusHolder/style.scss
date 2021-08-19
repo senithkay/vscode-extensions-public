@@ -145,6 +145,17 @@
             padding: 2rem 0 1rem;
         }
 
+        .api-options {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            max-height: 401px;
+            margin-top: 12px;
+        }
+
+        .with-existing-con {
+            max-height: 219px !important;
+        }
+
         .options-wrapper {
             display: flex;
             flex-wrap: wrap;
