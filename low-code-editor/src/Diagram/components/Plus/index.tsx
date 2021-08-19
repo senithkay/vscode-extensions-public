@@ -31,7 +31,7 @@ import "./style.scss";
 
 export interface PlusProps {
     viewState: PlusViewState,
-    model: BlockStatement | FunctionBodyBlock,
+    model?: BlockStatement | FunctionBodyBlock,
     initPlus: boolean
 }
 
@@ -54,7 +54,7 @@ export const PlusButton = (props: PlusProps) => {
         isCollapsePlusDuoShown: false,
         isSmallPlusShown: false,
         // check if the app is in initial state and has no statements, and has no drafted component in the diagram
-        isPlusHolderShown: initPlus && !(model.statements.length > 0) && !viewState.draftSubType,
+        isPlusHolderShown: initPlus && !(model?.statements.length > 0) && !viewState.draftSubType,
     });
 
     const classes = states.isSmallPlusShown ? cn("holder-show") : cn("holder-hide");
