@@ -157,22 +157,26 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
-// FIXME: Use the response of ballerinaSymbol/type for the below logic
 export function addElvisChecker(diagnostics: Diagnostic[], varType: string) {
     if (!diagnostics) {
         return false;
     }
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
-        if (selectedDiagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
-            const trimmedErrorMessage = selectedDiagnostic.message.replace("incompatible types: expected ", "");
-            const types: string[] = trimmedErrorMessage.replace(/'/g, "").split(", found ");
-            return `${types[0]}?` === types[1];
-        } else {
-            return false;
-        }
+        const types: string[] = getTypesFromDiagnostics(selectedDiagnostic);
+        return types.length === 2 ? `${types[0]}?` === types[1] : false;
     }
     return false;
+}
+
+// FIXME: Use the response of ballerinaSymbol/type instead of below function
+function getTypesFromDiagnostics(diagnostic: Diagnostic): string[] {
+    if (diagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
+        const trimmedErrorMessage = diagnostic.message.replace("incompatible types: expected ", "");
+        return trimmedErrorMessage.replace(/'/g, "").split(", found ");
+    } else {
+        return [];
+    }
 }
 
 export function getDefaultValue(expEditorType: string): string {
