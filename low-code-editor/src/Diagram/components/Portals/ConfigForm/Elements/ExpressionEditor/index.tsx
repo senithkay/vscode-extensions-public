@@ -944,6 +944,31 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     setDefaultTooltips();
 
+    const expEditorHints: React.ReactNode[] = [];
+    if (monacoRef.current) {
+        if (needElvis) {
+            expEditorHints.push(
+                <ExpressionEditorHint type={HintType.ADD_ELVIS_OPERATOR} onClickHere={addElvisOperatorToExpression}/>
+            );
+        } else if (stringCheck) {
+            if (needToString) {
+                expEditorHints.push(
+                    <ExpressionEditorHint type={HintType.ADD_TO_STRING} onClickHere={addToStringToExpression}/>
+                );
+            } else if (needQuotes) {
+                if (monacoRef.current.editor.getModel().getValue() === "") {
+                    expEditorHints.push(
+                        <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
+                    );
+                } else {
+                    expEditorHints.push(
+                        <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion} editorContent={monacoRef.current.editor.getModel().getValue()}/>
+                    );
+                }
+            }
+        }
+    }
+
     return (
         <>
             <ExpressionEditorLabel {...props} />
@@ -974,19 +999,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
-                                    {needElvis && monacoRef.current && (
-                                        <ExpressionEditorHint type={HintType.ADD_ELVIS_OPERATOR} onClickHere={addElvisOperatorToExpression}/>
-                                    )}
-                                    {!needElvis && stringCheck && needToString && monacoRef.current && (
-                                        <ExpressionEditorHint type={HintType.ADD_TO_STRING} onClickHere={addToStringToExpression}/>
-                                    )}
-                                    {!needElvis && stringCheck && needQuotes && monacoRef.current ?
-                                        (monacoRef.current.editor.getModel().getValue() === "") ? (
-                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES_EMPTY} onClickHere={addDoubleQuotesToExpresssion}/>
-                                        ) : (
-                                            <ExpressionEditorHint type={HintType.ADD_DOUBLE_QUOTES} onClickHere={addDoubleQuotesToExpresssion} editorContent={monacoRef.current.editor.getModel().getValue()}/>
-                                        ) : null
-                                    }
+                                    {expEditorHints}
                                 </>
                             ) : null
             }
