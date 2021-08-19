@@ -157,6 +157,45 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
+export function addElvisChecker(diagnostics: Diagnostic[], varType: string) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
+        const types: string[] = getTypesFromDiagnostics(selectedDiagnostic);
+        return types.length === 2 ? `${types[0]}?` === types[1] : false;
+    }
+    return false;
+}
+
+// FIXME: Use the response of ballerinaSymbol/type instead of below function
+function getTypesFromDiagnostics(diagnostic: Diagnostic): string[] {
+    if (diagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
+        const trimmedErrorMessage = diagnostic.message.replace("incompatible types: expected ", "");
+        return trimmedErrorMessage.replace(/'/g, "").split(", found ");
+    } else {
+        return [];
+    }
+}
+
+export function getDefaultValue(expEditorType: string): string {
+    switch (expEditorType) {
+        case 'var': return `""`;
+        case 'string': return `""`;
+        case 'int': return `0`;
+        case 'float': return `0.0`;
+        case 'decimal': return `0d`;
+        case 'boolean': return `false`;
+        case 'json': return `{}`;
+        case 'xml': return `xml \`\``;
+        case 'error': return `()`;
+        case 'any': return `""`;
+        case 'anydata': return `""`;
+        default: return '<dafault-value>';
+    }
+}
+
 /**
  * Helper function to convert the model type into string.
  * Currently simply returns the type name for non primitive types.
