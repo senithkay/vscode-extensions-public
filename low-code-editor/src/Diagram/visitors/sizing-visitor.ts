@@ -27,12 +27,12 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition, ServiceDeclaration,
+    ResourceAccessorDefinition,
+    ServiceDeclaration,
     STKindChecker,
     STNode,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
-import {versionInfo} from "graphql";
 
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../components/Assignment";
@@ -53,7 +53,7 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG"
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, ListenerStatementViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import {ServiceViewState} from "../view-state/service";
+import { ServiceViewState } from "../view-state/service";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
@@ -109,39 +109,7 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    public beginVisitFunctionDefinition(node: FunctionDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
-            const plusBtnViewState: PlusViewState = new PlusViewState();
-            if (!bodyViewState.draft && !viewState.initPlus) {
-                plusBtnViewState.index = body.statements.length;
-                plusBtnViewState.expanded = true;
-                plusBtnViewState.selectedComponent = "PROCESS";
-                plusBtnViewState.collapsedClicked = false;
-                plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isLast = true;
-                bodyViewState.plusButtons = [];
-                bodyViewState.plusButtons.push(plusBtnViewState);
-                viewState.initPlus = plusBtnViewState;
-            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
-                viewState.initPlus = undefined;
-            }
-        }
-    }
-
-    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
-        const viewState: ServiceViewState = node.viewState;
-        // setting up service lifeline initial height
-        viewState.wrapper.h = viewState.topOffset;
-        viewState.bBox.h = viewState.topOffset;
-    }
-
-    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
@@ -169,6 +137,63 @@ class SizingVisitor implements Visitor {
         }
     }
 
+    public beginVisitFunctionDefinition(node: FunctionDefinition) {
+        // const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        // const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        // const bodyViewState: BlockViewState = body.viewState;
+        //
+        // // If body has no statements and doesn't have a end component
+        // // Add the plus button to show up on the start end
+        // if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        //     const plusBtnViewState: PlusViewState = new PlusViewState();
+        //     if (!bodyViewState.draft && !viewState.initPlus) {
+        //         plusBtnViewState.index = body.statements.length;
+        //         plusBtnViewState.expanded = true;
+        //         plusBtnViewState.selectedComponent = "PROCESS";
+        //         plusBtnViewState.collapsedClicked = false;
+        //         plusBtnViewState.collapsedPlusDuoExpanded = false;
+        //         plusBtnViewState.isLast = true;
+        //         bodyViewState.plusButtons = [];
+        //         bodyViewState.plusButtons.push(plusBtnViewState);
+        //         viewState.initPlus = plusBtnViewState;
+        //     } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
+        //         viewState.initPlus = undefined;
+        //     }
+        // }
+        this.beginFunctionTypeNode(node);
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const viewState: ServiceViewState = node.viewState;
+        // setting up service lifeline initial height
+        viewState.wrapper.h = viewState.topOffset;
+        viewState.bBox.h = viewState.topOffset;
+
+        node.members.forEach((member, i) => {
+            const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
+            if (!plusViewState) {
+                const plusBtnViewBox: PlusViewState = new PlusViewState();
+                plusBtnViewBox.index = i;
+                plusBtnViewBox.expanded = false;
+                plusBtnViewBox.isLast = true;
+                viewState.plusButtons.push(plusBtnViewBox);
+            }
+        });
+
+        const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
+        if (!lastPlusViewState) {
+            const plusBtnViewBox: PlusViewState = new PlusViewState();
+            plusBtnViewBox.index = node.members.length;
+            plusBtnViewBox.expanded = false;
+            plusBtnViewBox.isLast = true;
+            viewState.plusButtons.push(plusBtnViewBox);
+        }
+    }
+
+    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        this.beginFunctionTypeNode(node);
+    }
+
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -194,75 +219,7 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    public endVisitFunctionDefinition(node: FunctionDefinition) {
-        // replaces endVisitFunction
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const triggerParams = viewState.triggerParams;
-        const end = viewState.end;
-
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
-
-        if (triggerParams) {
-            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
-
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        }
-
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.h = STOP_SVG_HEIGHT;
-
-        if (viewState.triggerParams) {
-            viewState.triggerParams.visible ?
-                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        } else {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        }
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
-
-        viewState.bBox.h = lifeLine.h;
-        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
-
-        viewState.wrapper.h = viewState.bBox.h;
-    }
-
-    public endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
-        const viewState: ServiceViewState = node.viewState;
-        let height: number = viewState.bBox.h;
-        let width: number = viewState.bBox.w;
-
-        node.members.forEach(member => {
-            const memberVS = member.viewState;
-
-            if (memberVS) {
-                height += memberVS.bBox.h;
-
-                if (memberVS.bBox.w > width) {
-                    width = memberVS.bBox.w;
-                }
-            }
-        });
-
-        // calculate the service member gap that we have and add them to component height
-        const serviceMemberGaps = node.members.length > 0 ?
-            (node.members.length - 1) * DefaultConfig.horizontalGapBetweenComponents : 0;
-        viewState.bBox.h = height + serviceMemberGaps + viewState.bBox.offsetFromBottom;
-        viewState.bBox.w = width;
-
-        viewState.wrapper.h += viewState.bBox.h;
-    }
-
-    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        // replaces endVisitFunction
+    private endVisitFunctionTypeNode(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
@@ -300,14 +257,87 @@ class SizingVisitor implements Visitor {
         viewState.bBox.h += (lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) +
             viewState.bottomOffset + viewState.wrapper.offsetFromBottom);
 
-        if (body.statements.length > 0) {
-            viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
-        } else {
-            // setting default width with there are no statements in the function
-            viewState.bBox.w = PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH;
+        // setting default width with there are no statements in the function
+        const defaultWidth = (PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH);
+
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w);
+        if (viewState.bBox.w < defaultWidth) {
+            viewState.bBox.w = defaultWidth;
         }
 
         viewState.wrapper.h = viewState.bBox.h;
+    }
+
+    public endVisitFunctionDefinition(node: FunctionDefinition) {
+        // // replaces endVisitFunction
+        // const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        // const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        // const bodyViewState: BlockViewState = body.viewState;
+        // const lifeLine = viewState.workerLine;
+        // const trigger = viewState.trigger;
+        // const triggerParams = viewState.triggerParams;
+        // const end = viewState.end;
+        //
+        // trigger.h = START_SVG_HEIGHT;
+        // trigger.w = START_SVG_WIDTH;
+        //
+        // if (triggerParams) {
+        //     triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+        //     triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+        //
+        //     node?.functionSignature?.parameters?.length > 0 ?
+        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        // }
+        //
+        // end.bBox.w = STOP_SVG_WIDTH;
+        // end.bBox.h = STOP_SVG_HEIGHT;
+        //
+        // if (viewState.triggerParams) {
+        //     viewState.triggerParams.visible ?
+        //         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
+        //         : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        // } else {
+        //     lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        // }
+        // if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+        //     lifeLine.h += end.bBox.offsetFromTop;
+        // }
+        //
+        // viewState.bBox.h = lifeLine.h;
+        // viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        //
+        // viewState.wrapper.h = viewState.bBox.h;
+        this.endVisitFunctionTypeNode(node);
+    }
+
+    public endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        const viewState: ServiceViewState = node.viewState;
+        let height: number = viewState.bBox.h;
+        let width: number = viewState.bBox.w;
+
+        node.members.forEach(member => {
+            const memberVS = member.viewState;
+
+            if (memberVS) {
+                height += memberVS.bBox.h;
+
+                if (memberVS.bBox.w > width) {
+                    width = memberVS.bBox.w;
+                }
+            }
+        });
+
+        // calculate the service member gap that we have and add them to component height
+        const serviceMemberGaps = node.members.length > 0 ?
+            (node.members.length - 1) * DefaultConfig.horizontalGapBetweenComponents : 0;
+        viewState.bBox.h = height + serviceMemberGaps + viewState.bBox.offsetFromBottom;
+        viewState.bBox.w = width;
+
+        viewState.wrapper.h += viewState.bBox.h;
+    }
+
+    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        this.endVisitFunctionTypeNode(node);
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
