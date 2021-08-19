@@ -457,13 +457,12 @@ class InitVisitor implements Visitor {
                         if (typeInfo?.name === "BulkClient") {
                             stmtViewState.hidden = true;
                         }
-                        const typeCastViewState: StatementViewState = typeCastExpression.viewState as
-                            StatementViewState;
-                        stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
-                        stmtViewState.action.actionName = typeCastViewState.action.actionName;
-                        stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
-                        stmtViewState.isAction = typeCastViewState.isAction;
                     }
+                    const typeCastViewState: StatementViewState = typeCastExpression.viewState as StatementViewState;
+                    stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
+                    stmtViewState.action.actionName = typeCastViewState.action.actionName;
+                    stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
+                    stmtViewState.isAction = typeCastViewState.isAction;
                 }
                 if (!stmtViewState.isCallerAction) {
                     // Set icon id for an action.
