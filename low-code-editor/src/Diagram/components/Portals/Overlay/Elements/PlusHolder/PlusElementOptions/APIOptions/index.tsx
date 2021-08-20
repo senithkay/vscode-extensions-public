@@ -406,6 +406,16 @@ export function APIOptions(props: APIOptionsProps) {
                 defaultMessage: "Set data provider, Set data consumer"
             })
         },
+        mysql: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.title",
+                defaultMessage: "Connect with MySQL API to access data and perform operations in MySQL."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.content",
+                defaultMessage: "Query the database, Execute DDL or DML SQL queries"
+            })
+        },
     }
     // tslint:disable-next-line: no-shadowed-variable
     const tooltipTitles: Record<any, string> = {
@@ -443,6 +453,7 @@ export function APIOptions(props: APIOptionsProps) {
         "SENDGRID": connectionsTooltipMessages.sendgrid.title,
         "MEDIUM": connectionsTooltipMessages.medium.title,
         "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.title,
+        MYSQL: connectionsTooltipMessages.mysql.title,
     };
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -481,6 +492,7 @@ export function APIOptions(props: APIOptionsProps) {
         "SENDGRID": connectionsTooltipMessages.sendgrid.content,
         "MEDIUM": connectionsTooltipMessages.medium.content,
         "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.content,
+        MYSQL: connectionsTooltipMessages.mysql.content,
     };
 
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);

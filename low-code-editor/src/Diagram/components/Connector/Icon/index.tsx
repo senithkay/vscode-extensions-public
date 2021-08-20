@@ -36,6 +36,7 @@ import { ImapLogo } from "./ImapLogo"
 import { LeanIXLogo } from "./LeanIXLogo";
 import { MediumLogo } from "./MediumLogo";
 import { MongoDBLogo } from "./MongoDBLogo";
+import { MySQLLogo } from "./MySQLLogo";
 import { NetsuiteLogo } from "./NetsuiteLogo";
 import { Pop3Logo } from "./Pop3Logo";
 import { PostgreSQLogo } from "./PostgreSQLogo";
@@ -95,3 +96,4 @@ export { ChoreoMailLogo as choreo_sendemail_Client };
 export { ChoreoSMSLogo as choreo_sendsms_Client };
 export { ChoreoWhatsAppLogo as choreo_sendwhatsapp_Client };
 export { LeanIXLogo as leanix_integrationapi_Client };
+export { MySQLLogo as mysql_Client};
