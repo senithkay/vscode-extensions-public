@@ -52,6 +52,7 @@ import { TwitterLogo } from "./TwitterLogo";
 import { WeatherLogo } from "./WeatherLogo";
 import { WorldBankAPILogo } from "./WorldBankAPILogo";
 import { ZoomLogo } from "./ZoomLogo";
+import { MySQLLogo } from "./MySQLLogo";
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
@@ -95,3 +96,4 @@ export { ChoreoMailLogo as choreo_sendemail_Client };
 export { ChoreoSMSLogo as choreo_sendsms_Client };
 export { ChoreoWhatsAppLogo as choreo_sendwhatsapp_Client };
 export { LeanIXLogo as leanix_integrationapi_Client };
+export { MySQLLogo as mysql_Client};
