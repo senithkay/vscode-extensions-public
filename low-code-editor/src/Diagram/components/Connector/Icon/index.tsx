@@ -36,6 +36,7 @@ import { ImapLogo } from "./ImapLogo"
 import { LeanIXLogo } from "./LeanIXLogo";
 import { MediumLogo } from "./MediumLogo";
 import { MongoDBLogo } from "./MongoDBLogo";
+import { MySQLLogo } from "./MySQLLogo";
 import { NetsuiteLogo } from "./NetsuiteLogo";
 import { Pop3Logo } from "./Pop3Logo";
 import { PostgreSQLogo } from "./PostgreSQLogo";
@@ -52,7 +53,6 @@ import { TwitterLogo } from "./TwitterLogo";
 import { WeatherLogo } from "./WeatherLogo";
 import { WorldBankAPILogo } from "./WorldBankAPILogo";
 import { ZoomLogo } from "./ZoomLogo";
-import { MySQLLogo } from "./MySQLLogo";
 
 export { BulkJobLogo as sfdc_BulkJob };
 export { QueryClientLogo as sfdc_QueryClient };
