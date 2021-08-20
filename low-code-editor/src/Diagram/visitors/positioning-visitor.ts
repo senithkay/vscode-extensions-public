@@ -84,7 +84,7 @@ class PositioningVisitor implements Visitor {
 
                 if (memberVS) {
                     memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
-                    memberVS.bBox.y = viewState.bBox.y + memberVS.bBox.offsetFromTop + height;
+                    memberVS.bBox.y = viewState.bBox.y + height;
 
                     // adding the height of the sub component
                     height += memberVS.bBox.h;
@@ -108,10 +108,11 @@ class PositioningVisitor implements Visitor {
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
         viewState.wrapper.cx = viewState.bBox.x;
-        viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
+        viewState.wrapper.cy = viewState.bBox.y;
 
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
-        viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
+        viewState.bBox.cy = viewState.bBox.y + topOffSet;
 
         viewState.trigger.cx = viewState.bBox.cx;
         viewState.trigger.cy = viewState.bBox.cy;
@@ -183,10 +184,11 @@ class PositioningVisitor implements Visitor {
         const serviceVS: ServiceViewState = node.viewState;
 
         serviceVS.wrapper.cx = serviceVS.bBox.x;
-        serviceVS.wrapper.cy = serviceVS.bBox.y - serviceVS.topOffset;
+        serviceVS.wrapper.cy = serviceVS.bBox.y;
         serviceVS.bBox.cx = serviceVS.wrapper.cx + (serviceVS.bBox.w / 2);
 
         let height = 0;
+        let prevMemberViewState: ViewState = null;
         node.members.forEach((member: STNode, i: number) => {
             const memberVS = member.viewState;
 
@@ -201,7 +203,13 @@ class PositioningVisitor implements Visitor {
                 // adding the x `1/2 location` difference between service box and
                 // child member box to service member box x
                 plusViewState.bBox.cx = serviceVS.bBox.x + (memberVS.bBox.x - serviceVS.bBox.x) / 2;
-                plusViewState.bBox.cy = serviceVS.bBox.y + height;
+                if (i === 0) {
+                    plusViewState.bBox.cy = serviceVS.bBox.y + (memberVS.bBox.y - serviceVS.bBox.y) / 2;
+                } else {
+                    const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+                    plusViewState.bBox.cy = prevComponentEndY + (memberVS.bBox.y - prevComponentEndY) / 2;
+                }
+                prevMemberViewState = memberVS;
             }
 
             // adding the height of the sub component
@@ -214,7 +222,14 @@ class PositioningVisitor implements Visitor {
 
         const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
         lastPlusViewState.bBox.cx = serviceVS.bBox.x + (DefaultConfig.horizontalGapBetweenParentComponents / 2);
-        lastPlusViewState.bBox.cy = serviceVS.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
+        if (node.members.length > 0) {
+            const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+            const wrapperEndY = serviceVS.bBox.y + serviceVS.bBox.h;
+            lastPlusViewState.bBox.cy = prevComponentEndY + (wrapperEndY - prevComponentEndY) / 2;
+        } else {
+            // initial plus position
+            lastPlusViewState.bBox.cy = serviceVS.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
+        }
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {

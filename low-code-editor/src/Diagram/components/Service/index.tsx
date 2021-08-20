@@ -22,6 +22,8 @@ import { PlusButton } from "../Plus";
 
 import "./style.scss";
 
+export const DEFAULT_SERVICE_WIDTH: number = 300;
+
 export interface ServiceProps {
     blockViewState?: BlockViewState;
     model: STNode;
@@ -35,6 +37,12 @@ export function Service(props: ServiceProps) {
     const children = getSTComponents(serviceModel.members);
 
     const viewState: ServiceViewState = serviceModel.viewState;
+    const rectProps = {
+        x: viewState.wrapper.cx,
+        y: viewState.wrapper.cy,
+        width: viewState.bBox.w,
+        height: viewState.wrapper.h,
+    };
 
     const drafts: React.ReactNode[] = [];
     // if (bodyViewState.draft) {

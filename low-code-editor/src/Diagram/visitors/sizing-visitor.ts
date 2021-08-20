@@ -58,6 +58,7 @@ import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
+import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -326,10 +327,15 @@ class SizingVisitor implements Visitor {
         // calculate the service member gap that we have and add them to component height
         const serviceMemberGaps = node.members.length > 0 ?
             (node.members.length - 1) * DefaultConfig.horizontalGapBetweenComponents : 0;
-        viewState.bBox.h = height + serviceMemberGaps + viewState.bBox.offsetFromBottom;
-        viewState.bBox.w = width;
+        viewState.bBox.h += (height + serviceMemberGaps + viewState.bBox.offsetFromBottom);
 
-        viewState.wrapper.h += viewState.bBox.h;
+        if (viewState.bBox.w > DEFAULT_SERVICE_WIDTH) {
+            viewState.bBox.w = width;
+        } else {
+            viewState.bBox.w = DEFAULT_SERVICE_WIDTH;
+        }
+
+        viewState.wrapper.h = viewState.bBox.h;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
