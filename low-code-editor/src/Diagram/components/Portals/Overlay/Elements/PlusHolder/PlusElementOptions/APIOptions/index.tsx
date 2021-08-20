@@ -413,7 +413,7 @@ export function APIOptions(props: APIOptionsProps) {
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.content",
-                defaultMessage: "Execute SQL queries"
+                defaultMessage: "Queries the database, Executes the provided DDL or DML SQL queries"
             })
         },
     }
