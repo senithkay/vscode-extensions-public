@@ -161,7 +161,7 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
-/** 
+/**
  * Check if the input type is equal to the same but nullable type
  * @example string? === string
  */
@@ -471,24 +471,42 @@ const hintHandlers = {
                 monacoRef.current.editor.focus();
             }
         }
+    },
+    /** Handler to prepend `check` statement to the expression editor input in order to handle expressions that could throw errors */
+    addCheck: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("check " + editorModel.getValue());
+                monacoRef.current.editor.focus();
+            }
+        }
     }
+}
+export interface ExpressionHints{
+    type: HintType;
+    handler: () => void;
+    editorContent?: string;
 }
 
 /** Get list of hints to be shown below the expression editor, for given diagnostics */
-export function getHints(diagnostics: Diagnostic[], varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) {
-    const hints: {type: HintType, handler: () => void, editorContent?: string}[] = [];
+export const getHints = (diagnostics: Diagnostic[], varType: string, varName: string, monacoRef: React.MutableRefObject<MonacoEditor>): ExpressionHints[] => {
+    const hints: ExpressionHints[] = [];
 
-    if (addElvisChecker(diagnostics, varType)){
+    if (typeCheckerExp(diagnostics, varName, varType)){
+        // Prepend `check` to input in order to handle expressions that could throw an error
+        hints.push({type: HintType.ADD_CHECK, handler: () => hintHandlers.addCheck(monacoRef)})
+    }else if (addElvisChecker(diagnostics, varType)){
         // Add a default value for nullable inputs via Elvis operator
         hints.push({type: HintType.ADD_ELVIS_OPERATOR, handler: () => hintHandlers.addElvisOperator(varType, monacoRef)})
-    }else if (checkIfStringExist(varType)){ 
+    }else if (checkIfStringExist(varType)){
         // handle string or string|other_types
         if (addToStringChecker(diagnostics)){
             // Add .toString to the input
             hints.push({type: HintType.ADD_TO_STRING, handler: () => hintHandlers.addToString(monacoRef)})
         }else if (addQuotesChecker(diagnostics)){
             const editorContent = monacoRef.current.editor.getModel().getValue();
-            if (editorContent=== "") {
+            if (editorContent === "") {
                 // Add empty double quotes if the input field is empty for string type
                 hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, handler: () => hintHandlers.addDoubleQuotes(monacoRef)})
             }else{

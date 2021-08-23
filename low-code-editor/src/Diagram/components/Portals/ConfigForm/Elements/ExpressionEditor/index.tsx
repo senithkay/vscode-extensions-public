@@ -45,6 +45,7 @@ import {
     customErrorMessage,
     diagnosticCheckerExp,
     diagnosticInRange,
+    ExpressionHints,
     getDefaultValue,
     getDiagnosticMessage,
     getFilteredDiagnostics,
@@ -56,7 +57,7 @@ import {
     getValueWithoutSemiColon,
     transformFormFieldTypeToString,
     truncateDiagnosticMsg,
-    typeCheckerExp
+    typeCheckerExp,
 } from "./utils";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
@@ -183,7 +184,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
     const [superExpand, setSuperExpand] = useState(false);
-    const [addCheck, setAddCheck] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model && model.displayName ? model.displayName : model.name;
@@ -195,7 +195,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const isCustomTemplate = !!customTemplate;
     const formClasses = useFormStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
-    const [hints, setHints] = useState<any[]>([]);
+    const [hints, setHints] = useState<ExpressionHints[]>([]);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -225,7 +225,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validExpEditor();
         } else {
             validate(model.name, true);
-            setHints(getHints(expressionEditorState.diagnostic, varType, monacoRef));
+            setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef));
             if (monacoRef.current) {
                 if (updateState) {
                     monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', [{
@@ -287,11 +287,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (monacoRef.current) {
                     validExpEditor();
                 }
-            }
-
-            // Suggest to add check depending on the diagnostic message
-            if (monacoRef.current) {
-                setAddCheck(typeCheckerExp(expressionEditorState.diagnostic, varName, varType))
             }
         }
     }
@@ -891,16 +886,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
     }
 
-    const addCheckToExpression = () => {
-        if (monacoRef.current) {
-            const editorModel = monacoRef.current.editor.getModel();
-            if (editorModel) {
-                editorModel.setValue("check " + editorModel.getValue());
-                monacoRef.current.editor.focus();
-            }
-        }
-    }
-
     setDefaultTooltips();
 
     return (
@@ -926,16 +911,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
-                    ) : addCheck ?
-                        (
-                            <ExpressionEditorHint type={HintType.ADD_CHECK} onClickHere={addCheckToExpression}/>
-                        ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                    ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
                                     {hints.map(hint => <ExpressionEditorHint key={hint.type} type={hint.type} onClickHere={hint.handler} editorContent={hint.editorContent}/>)}
                                 </>
-                            ) : null
+                        ) : null
             }
         </>
     );
