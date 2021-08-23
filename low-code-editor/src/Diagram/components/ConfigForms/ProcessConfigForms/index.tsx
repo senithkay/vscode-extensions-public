@@ -20,7 +20,6 @@ import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
-import { DiagramContext } from "../../../../providers/contexts";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
 import {
     createImportStatement,
@@ -50,8 +49,7 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
-    const { state: { trackAddStatement, onEvent, stSymbolInfo, currentApp } } = useContext(Context);
+    const { state: { trackAddStatement, onEvent, stSymbolInfo, currentApp, modifyDiagram } } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;

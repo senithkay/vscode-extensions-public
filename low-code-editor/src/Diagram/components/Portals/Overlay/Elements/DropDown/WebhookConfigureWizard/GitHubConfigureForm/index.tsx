@@ -36,7 +36,6 @@ import {
 } from "../../../../../../../../Definitions";
 import { AccountAvatar } from "../../../../../../../../Diagram/components/OauthConnectButton/AccountAvatar";
 import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
-import { DiagramContext } from "../../../../../../../../providers/contexts";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -75,12 +74,6 @@ const ACCESS_TOKEN_KEY = "accessTokenKey";
 const SSO_TYPE = "sso";
 
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
-  const {
-    modifyTrigger,
-    modifyDiagram,
-    updateManualConnection,
-    triggerErrorNotification,
-  } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
@@ -91,6 +84,10 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
     getGithubRepoList,
     stSymbolInfo,
     originalSyntaxTree,
+    modifyTrigger,
+    modifyDiagram,
+    updateManualConnection,
+    triggerErrorNotification,
   } = state;
   const {
     onComplete,

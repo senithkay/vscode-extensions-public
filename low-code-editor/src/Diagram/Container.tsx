@@ -16,6 +16,7 @@ export default function DiagramContainer(props: Props) {
         ...restProps
     } = props;
 
+    // FIXME remove the need for passing down current APP to low code editor
     const displayType = currentApp ? currentApp.displayType : "";
 
     useEffect(() => {
