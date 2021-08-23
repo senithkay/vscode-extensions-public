@@ -22,7 +22,7 @@ import { PlusButton } from "../Plus";
 
 import "./style.scss";
 
-export const DEFAULT_SERVICE_WIDTH: number = 300;
+export const DEFAULT_SERVICE_WIDTH: number = 150;
 
 export interface ServiceProps {
     blockViewState?: BlockViewState;
@@ -40,7 +40,7 @@ export function Service(props: ServiceProps) {
     const rectProps = {
         x: viewState.wrapper.cx,
         y: viewState.wrapper.cy,
-        width: viewState.bBox.w,
+        width: viewState.bBox.w * 2,
         height: viewState.wrapper.h,
     };
 
@@ -54,32 +54,9 @@ export function Service(props: ServiceProps) {
     }
 
     return (
-        <g className={"service-wrapper"}>
+        <g>
             <g>
-                <line
-                    x1={viewState.wrapper.cx}
-                    y1={viewState.wrapper.cy}
-                    x2={viewState.wrapper.cx + (viewState.bBox.w * 2)}
-                    y2={viewState.wrapper.cy}
-                />
-                <line
-                    x1={viewState.wrapper.cx + (viewState.bBox.w * 2)}
-                    y1={viewState.wrapper.cy}
-                    x2={viewState.wrapper.cx + (viewState.bBox.w * 2)}
-                    y2={viewState.wrapper.cy + viewState.wrapper.h}
-                />
-                <line
-                    x1={viewState.wrapper.cx + (viewState.bBox.w * 2)}
-                    y1={viewState.wrapper.cy + viewState.wrapper.h}
-                    x2={viewState.wrapper.cx}
-                    y2={viewState.wrapper.cy + viewState.wrapper.h}
-                />
-                <line
-                    x1={viewState.wrapper.cx}
-                    y1={viewState.wrapper.cy + viewState.wrapper.h}
-                    x2={viewState.wrapper.cx}
-                    y2={viewState.wrapper.cy}
-                />
+                <rect className={"service-rect"} {...rectProps} />
                 {children}
                 {pluses}
             </g>

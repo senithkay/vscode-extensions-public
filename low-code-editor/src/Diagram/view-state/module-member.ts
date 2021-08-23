@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { PlusViewState } from "./plus";
-import { DefaultConfig } from "../visitors/default";
 import { PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
+import { DefaultConfig } from "../visitors/default";
+
+import { PlusViewState } from "./plus";
 import { StatementViewState } from "./statement";
 
 export class ModuleMemberViewState extends StatementViewState {

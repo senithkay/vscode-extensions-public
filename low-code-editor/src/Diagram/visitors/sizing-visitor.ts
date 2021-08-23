@@ -46,6 +46,7 @@ import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndColla
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
+import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
@@ -58,7 +59,6 @@ import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
-import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -321,6 +321,10 @@ class SizingVisitor implements Visitor {
                 if (memberVS.bBox.w > width) {
                     width = memberVS.bBox.w;
                 }
+                if (memberVS.bBox.w < DEFAULT_SERVICE_WIDTH) {
+                    memberVS.bBox.w = DEFAULT_SERVICE_WIDTH;
+                    width = DEFAULT_SERVICE_WIDTH;
+                }
             }
         });
 
@@ -329,11 +333,8 @@ class SizingVisitor implements Visitor {
             (node.members.length - 1) * DefaultConfig.horizontalGapBetweenComponents : 0;
         viewState.bBox.h += (height + serviceMemberGaps + viewState.bBox.offsetFromBottom);
 
-        if (viewState.bBox.w > DEFAULT_SERVICE_WIDTH) {
-            viewState.bBox.w = width;
-        } else {
-            viewState.bBox.w = DEFAULT_SERVICE_WIDTH;
-        }
+        // this is to check width when there are no child members
+        viewState.bBox.w = (width > DEFAULT_SERVICE_WIDTH) ? width : DEFAULT_SERVICE_WIDTH;
 
         viewState.wrapper.h = viewState.bBox.h;
     }
