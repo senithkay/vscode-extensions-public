@@ -37,6 +37,8 @@ import {
     DIAGNOSTIC_MAX_LENGTH,
 } from "./constants";
 import "./style.scss";
+import { HintType } from "../ExpressionEditorHint";
+import MonacoEditor from "react-monaco-editor";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -129,6 +131,7 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
     return typeCheck;
 }
 
+/** Check if double quotes needs to be appended to input based on the diagnostics */
 export function addQuotesChecker(diagnostics: Diagnostic[]) {
     if (!diagnostics) {
         return false;
@@ -140,6 +143,7 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
+/** Check if `.toString()` needs to be appended to given input by checking `incompatible types: expected...` diagnostics */
 export function addToStringChecker(diagnostics: Diagnostic[]) {
     if (!diagnostics) {
         return false;
@@ -157,6 +161,10 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
+/** 
+ * Check if the input type is equal to the same but nullable type
+ * @example string? === string
+ */
 export function addElvisChecker(diagnostics: Diagnostic[], varType: string) {
     if (!diagnostics) {
         return false;
@@ -287,6 +295,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
     return PrimitiveBalType.Var.toString();
 }
 
+/** Check if varType is string or a union type containing string */
 export function checkIfStringExist(varType: string): boolean {
     if (varType.endsWith(")[]")) {
         // Check for union array
@@ -424,4 +433,73 @@ export function diagnosticInRange(diagnosticRange: Range, targetPosition: any, t
     const currentLine = diagnosticRange.start.line;
     const currentColumn = diagnosticRange.start.character;
     return (targetLine === currentLine) && ((targetColumn - 1) <= currentColumn);
+}
+
+/** Handlers to handler the click event for hints shown in the expression editor */
+const hintHandlers = {
+    /** Handle nullable inputs by adding default values via Elvis operator */
+    addElvisOperator: (varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`${editorContent} ?: ${getDefaultValue(varType)}`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handler to append `.toString` to the input */
+    addToString: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`(${editorContent}).toString()`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handler to add double quotes to input value in the expression editor */
+    addDoubleQuotes: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                const startQuote = editorContent.trim().startsWith("\"") ? "" : "\"";
+                const endQuote = editorContent.trim().endsWith("\"") ? "" : "\"";
+                editorModel.setValue(startQuote + editorContent + endQuote);
+                monacoRef.current.editor.focus();
+            }
+        }
+    }
+}
+
+/** Get list of hints to be shown below the expression editor, for given diagnostics */
+export function getHints(diagnostics: Diagnostic[], varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) {
+    const hints: {type: HintType, handler: () => void, editorContent?: string}[] = [];
+
+    if (addElvisChecker(diagnostics, varType)){
+        // Add a default value for nullable inputs via Elvis operator
+        hints.push({type: HintType.ADD_ELVIS_OPERATOR, handler: () => hintHandlers.addElvisOperator(varType, monacoRef)})
+    }else if (checkIfStringExist(varType)){ 
+        // handle string or string|other_types
+        if (addToStringChecker(diagnostics)){
+            // Add .toString to the input
+            hints.push({type: HintType.ADD_TO_STRING, handler: () => hintHandlers.addToString(monacoRef)})
+        }else if (addQuotesChecker(diagnostics)){
+            const editorContent = monacoRef.current.editor.getModel().getValue();
+            if (editorContent=== "") {
+                // Add empty double quotes if the input field is empty for string type
+                hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, handler: () => hintHandlers.addDoubleQuotes(monacoRef)})
+            }else{
+                // Add double quotes around the input, if its string input type
+                hints.push({type: HintType.ADD_DOUBLE_QUOTES, handler: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
+            }
+        }
+    }else {
+        // Handle all other types here
+        // Can consider using switch statements rather that if/else conditions
+    }
+
+    return hints;
 }
