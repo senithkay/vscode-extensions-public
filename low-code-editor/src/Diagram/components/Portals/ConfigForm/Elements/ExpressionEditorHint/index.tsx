@@ -26,7 +26,8 @@ export enum HintType {
     ADD_DOUBLE_QUOTES,
     ADD_DOUBLE_QUOTES_EMPTY,
     ADD_TO_STRING,
-    ADD_ELVIS_OPERATOR
+    ADD_ELVIS_OPERATOR,
+    SUGGEST_CAST
 }
 
 interface ExpressionEditorHintProps {
@@ -79,6 +80,11 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
     const addElvisOperator = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addElvisOperator.text",
         defaultMessage: " to handle optional value"
+    })
+
+    const suggetCast = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.suggetCast.text",
+        defaultMessage: " to cast to expected type"
     })
 
     let component: ReactNode;
@@ -141,6 +147,18 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addElvisOperator}
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.SUGGEST_CAST: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {suggetCast}
                     </FormHelperText>
                 </div>
             )

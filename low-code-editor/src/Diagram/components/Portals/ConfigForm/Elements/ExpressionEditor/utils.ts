@@ -35,6 +35,7 @@ import {
     SUGGEST_TO_STRING_TYPE,
     UNDEFINED_SYMBOL_ERR_CODE,
     DIAGNOSTIC_MAX_LENGTH,
+    SUGGEST_CAST_MAP,
 } from "./constants";
 import "./style.scss";
 import { HintType } from "../ExpressionEditorHint";
@@ -139,6 +140,24 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     if (Array.isArray(diagnostics) && diagnostics.length > 0) {
         // check if message contains incorrect string diagnostic code
         return Array.from(diagnostics).some((diagnostic: Diagnostic) => SUGGEST_DOUBLE_QUOTES_DIAGNOSTICS.includes((diagnostic.code).toString()));
+    }
+    return false;
+}
+
+/** Check if casting would correct `incompatible types` diagnostics */
+export function suggestCastChecker(diagnostics: Diagnostic[], varType: string) {
+    if (!diagnostics) {
+        return false;
+    }
+    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
+        const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
+        const types: string[] = getTypesFromDiagnostics(selectedDiagnostic);
+        if (types.length === 2) {
+            const expectedType = types[0];
+            const foundType = types[1];
+            const castFromTypes: string[] = SUGGEST_CAST_MAP[expectedType]
+            return castFromTypes && castFromTypes.includes(foundType)
+        }
     }
     return false;
 }
@@ -481,7 +500,18 @@ const hintHandlers = {
                 monacoRef.current.editor.focus();
             }
         }
-    }
+    },
+    /** Handle incompatible types by casting */
+    addTypeCast: (varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`<${varType}> ${editorContent}`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
 }
 export interface ExpressionHints{
     type: HintType;
@@ -514,9 +544,8 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
                 hints.push({type: HintType.ADD_DOUBLE_QUOTES, handler: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
             }
         }
-    }else {
-        // Handle all other types here
-        // Can consider using switch statements rather that if/else conditions
+    } else if (suggestCastChecker(diagnostics, varType)) {
+        hints.push({type: HintType.SUGGEST_CAST, handler: () => hintHandlers.addTypeCast(varType, monacoRef)})
     }
 
     return hints;
