@@ -38,7 +38,7 @@ export const DEFINE_LOG_EXR: string = "Define Log Expression";
 export const SELECT_PROPERTY: string = "Select Existing Property";
 
 export function AddLogForm(props: LogFormProps) {
-    const { isMutationProgress: isMutationInProgress } = useContext(Context).state;
+    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
     const formClasses = useFormStyles();
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;

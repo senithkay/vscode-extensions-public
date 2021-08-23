@@ -149,17 +149,19 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const { state } = useContext(Context);
-
     const {
-        diagnostics: mainDiagnostics,
-        targetPosition: targetPositionDraft,
-        currentFile,
-        currentApp,
-        langServerURL,
-        getExpressionEditorLangClient,
-        syntaxTree,
-    } = state;
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentApp,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient }
+        }
+    } = useContext(Context);
 
     const [expressionEditorState, setExpressionEditorState] = useState({
         name: undefined,

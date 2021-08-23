@@ -36,7 +36,10 @@ export interface DeleteBtnProps {
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
-    const { state: { isReadOnly, stSymbolInfo, modifyDiagram } } = useContext(Context);
+    const {
+        props: { isReadOnly, stSymbolInfo },
+        api: { code: { modifyDiagram } }
+    } = useContext(Context);
 
     const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
 

@@ -41,7 +41,7 @@ interface RecordTypeProps {
 }
 
 export function RecordType(props: RecordTypeProps) {
-    const { state: { currentApp } } = useContext(DiagramContext);
+    const { props: { currentApp } } = useContext(DiagramContext);
     const { model, isMain, onDataPointClick, offSetCorrection, isTarget, removeInputType } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);

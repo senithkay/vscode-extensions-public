@@ -70,37 +70,33 @@ export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/Co
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
 
-export default function LowCodeEditor(props: Props) {
-
-    const {
-        exprEditorState,
-        onMutate,
-        ...restProps
-    } = props;
+const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
     const modifyTrigger = (
         triggerType: TriggerType,
         model?: any,
         configObject?: any
     ) => {
-        onMutate("TRIGGER", { triggerType, model, configObject });
+        props.api.code.onMutate("TRIGGER", { triggerType, model, configObject });
     };
 
     const modifyDiagram = (mutations: STModification[], options: any = {}) => {
-        onMutate("DIAGRAM", { mutations, ...options });
+        props.api.code.onMutate("DIAGRAM", { mutations, ...options });
     };
 
     const newProps = {
         modifyDiagram,
         modifyTrigger,
-        ...restProps
+        ...props
     }
 
     return (
-            <DiagramProvider initialState={newProps} >
+            <DiagramProvider {...newProps} >
                 <div>
-                    <DiagramContainer {...newProps} />
+                    <DiagramContainer />
                 </div>
             </DiagramProvider>
     );
 }
+
+export default LowCodeEditor;

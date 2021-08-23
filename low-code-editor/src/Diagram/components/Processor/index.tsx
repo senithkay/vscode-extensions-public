@@ -48,19 +48,28 @@ export interface ProcessorProps {
 }
 
 export function DataProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw, dataMapperStart, toggleDiagramOverlay } = useContext(Context);
     const {
-        syntaxTree,
-        stSymbolInfo,
-        isMutationProgress,
-        isWaitingOnWorkspace,
-        isReadOnly,
-        maximize: maximizeCodeView,
-        handleRightPanelContent,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        currentApp,
-        isCodeEditorActive
-    } = state
+        actions: { diagramCleanDraw, toggleDiagramOverlay },
+        api: {
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent,
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+            }
+        },
+        props: {
+            currentApp,
+            isCodeEditorActive,
+            syntaxTree,
+            stSymbolInfo,
+            isMutationProgress,
+            isWaitingOnWorkspace,
+            isReadOnly,
+        }
+    } = useContext(Context);
+
     const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;

@@ -37,9 +37,13 @@ interface ReturnFormProps {
 }
 
 export function AddReturnForm(props: ReturnFormProps) {
-    const { state } = useContext(Context);
-    const { appInfo, isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
-    const { currentApp } = appInfo;
+    const {
+        props: {
+            isCodeEditorActive,
+            currentApp,
+            isMutationProgress: isMutationInProgress
+        }
+    } = useContext(Context);
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;
     const classes = useStyles();

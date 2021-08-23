@@ -51,8 +51,8 @@ interface NameState {
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const { onBackClick, onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled, onSave } = props;
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo } = state;
+    const { props: { stSymbolInfo: symbolInfo } } = useContext(Context);
+
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
     const [connectorInitFormFields] = useState(connectorConfigFormFields);
     const classes = useStyles();
@@ -97,7 +97,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("connector name", value, nameState.value, state);
+            const varValidationResponse = checkVariableName("connector name", value, nameState.value, symbolInfo);
             if (varValidationResponse?.error) {
                 setConnectorNameError(varValidationResponse.message);
                 return false;

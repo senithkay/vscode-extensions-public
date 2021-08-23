@@ -35,6 +35,7 @@ export interface User {
 export interface UserState {
     isAuthInProgress: boolean;
     isAuthenticated: boolean;
+    selectedOrgHandle?: string;
     user?: User;
     error?: any;
 }

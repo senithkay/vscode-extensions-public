@@ -35,8 +35,8 @@ export function StartSVG(props: {
     handleDropDown?: () => void,
     handleEdit: () => void
 }) {
-    const { state } = useContext(Context);
-    const { isMutationProgress, isWaitingOnWorkspace, isReadOnly } = state;
+    const { props: contextProps } = useContext(Context);
+    const { isMutationProgress, isWaitingOnWorkspace, isReadOnly } = contextProps;
     const { text, showIcon, handleDropDown, handleEdit, resourceText, ...xyProps } = props;
 
     return (

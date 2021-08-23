@@ -34,7 +34,7 @@ interface PayloadProps {
 
 export function PayloadEditor(props: PayloadProps) {
     const { payload, disabled, onChange, onError } = props;
-    const { state: diagramState } = useContext(Context);
+    const { props: { stSymbolInfo } } = useContext(Context);
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
 
     const classes = useStyles();
@@ -87,7 +87,7 @@ export function PayloadEditor(props: PayloadProps) {
 
     const validatePayloadNameValue = (value: string) => {
         const varValidationResponse = checkVariableName("payload name", value,
-            defaultPayloadVarName, diagramState);
+            defaultPayloadVarName, stSymbolInfo);
         setPayloadVarNameError(varValidationResponse.message);
         if (varValidationResponse?.error) {
             onError(true);

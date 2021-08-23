@@ -58,8 +58,17 @@ export interface ExisitingConnctorComponent {
 }
 
 export function APIOptions(props: APIOptionsProps) {
-    const { state } = useContext(Context);
-    const { connectors, stSymbolInfo, onEvent } = state;
+    const {
+        props: { connectors, stSymbolInfo },
+        api: {
+            helpPanel: {
+                openConnectorHelp,
+            },
+            insights: {
+                onEvent
+            }
+        }
+    } = useContext(Context);
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
     const intl = useIntl();
@@ -530,7 +539,7 @@ export function APIOptions(props: APIOptionsProps) {
         };
         onEvent(event);
         onSelect(connector, undefined);
-        state.onAPIClient(connector);
+        openConnectorHelp(connector);
     }
 
     const onSelectExistingConnector = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
@@ -540,7 +549,7 @@ export function APIOptions(props: APIOptionsProps) {
             property: connector.displayName
         };
         onEvent(event);
-        state.onAPIClient(connector);
+        openConnectorHelp(connector);
         onSelect(connector, selectedConnector);
     }
 

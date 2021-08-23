@@ -60,23 +60,23 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         })();
     }, [updated]);
 
-    function onZoomIn(appId: number) {
+    function onZoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
         setZoomStatus(newZoomStatus);
     }
 
-    function onZoomOut(appId: number) {
+    function onZoomOut() {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
         setZoomStatus(newZoomStatus);
     }
 
-    function onFitToScreen(appId: number) {
+    function onFitToScreen() {
         setZoomStatus(defaultZoomStatus);
     }
 
-    function onPanLocation(appId: number, newPanX: number, newPanY: number) {
+    function onPanLocation(newPanX: number, newPanY: number) {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
@@ -99,7 +99,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             <Grid container={true}>
                 <Grid item={true} xs={10} sm={11} md={11}>
                     <DiagramGenErrorBoundary>
-                        <LowCodeEditor isReadOnly={true} syntaxTree={syntaxTree} zoomStatus={zoomStatus} onZoomIn={onZoomIn} onZoomOut={onZoomOut} onFitToScreen={onFitToScreen} onPanLocation={onPanLocation}/>
+                        <LowCodeEditor
+                            isReadOnly={true}
+                            syntaxTree={syntaxTree}
+                            zoomStatus={zoomStatus}
+                        />
                     </DiagramGenErrorBoundary>
                 </Grid>
             </Grid>

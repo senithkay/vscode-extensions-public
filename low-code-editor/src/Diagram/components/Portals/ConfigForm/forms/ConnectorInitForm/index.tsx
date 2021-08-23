@@ -39,7 +39,7 @@ export interface ConnectorInitFormProps {
 }
 
 export function ConnectorInitForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).state;
+    const { api: { code: { modifyDiagram } } } = useContext(DiagramContext);
     const {
         connector, typeDef, targetPosition, wizardType, fieldsForFunctions,
         config

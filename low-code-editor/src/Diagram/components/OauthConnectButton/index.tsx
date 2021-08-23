@@ -60,14 +60,18 @@ export interface OauthConnectButtonProps {
 
 export function OauthConnectButton(props: OauthConnectButtonProps) {
   const {
-    oauthSessions,
-    dispatchGetAllConfiguration,
-    dispatchFetchConnectionList,
-    dispatchInitOauthSession,
-    dispatchResetOauthSession,
-    dispatchTimeoutOauthRequest,
-    dispatchDeleteOauthSession,
-  } = useContext(Context).state;
+    api: {
+      oauth: {
+        oauthSessions,
+        dispatchGetAllConfiguration,
+        dispatchFetchConnectionList,
+        dispatchInitOauthSession,
+        dispatchResetOauthSession,
+        dispatchTimeoutOauthRequest,
+        dispatchDeleteOauthSession,
+      }
+    }
+  } = useContext(Context);
 
   const {
     connectorName,
@@ -103,8 +107,7 @@ export function OauthConnectButton(props: OauthConnectButtonProps) {
   const isOngoingFetching = (isAuthenticating || isTokenExchanging || isConnectionFetching);
   const [configForm, setConfigForm] = useState(initFormFields);
   // tslint:disable-next-line:no-shadowed-variable
-  const { state } = useContext(Context);
-  const { stSymbolInfo } = state;
+  const { props: { stSymbolInfo} } = useContext(Context);
   const symbolInfo: STSymbolInfo = stSymbolInfo;
 
   useEffect(() => {

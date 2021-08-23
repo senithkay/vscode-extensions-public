@@ -76,7 +76,7 @@ enum FormStates {
 }
 
 export function GmailWizard(props: WizardProps) {
-    const { state: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(Context);
+    const { props: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(Context);
 
     const wizardClasses = wizardStyles();
     const classes = useStyles();

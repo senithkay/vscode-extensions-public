@@ -49,7 +49,11 @@ export interface DiagramOverlayContainerProps {
 }
 
 export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
-    const { isReadOnly } = useContext(Context).state;
+    const {
+        props: {
+            isReadOnly
+        }
+    } = useContext(Context);
     const { children, forceRender } = props;
 
     if (!forceRender && isReadOnly) {

@@ -44,8 +44,7 @@ export interface OperationFormProps {
 }
 
 export function OperationForm(props: OperationFormProps) {
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo } = state;
+    const { props: { stSymbolInfo: symbolInfo } } = useContext(Context);
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
             onOperationChange, mutationInProgress, hasReturn } = props;
     const wizardClasses = wizardStyles();
@@ -69,7 +68,7 @@ export function OperationForm(props: OperationFormProps) {
     };
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, state);
+            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, symbolInfo);
             if (varValidationResponse?.error){
                 setResponseVarError(varValidationResponse.message);
                 return false;

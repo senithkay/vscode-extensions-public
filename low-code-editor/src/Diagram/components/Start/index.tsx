@@ -48,26 +48,33 @@ export interface StartButtonProps {
 }
 
 export function StartButton(props: StartButtonProps) {
-    const { state, diagramRedraw } = useContext(Context);
-    const isMutationProgress = state.isMutationProgress || false;
-    const { syntaxTree, appInfo, originalSyntaxTree, currentAppType, isReadOnly, triggerUpdated } = state;
+    const {
+        actions: { diagramRedraw, setTriggerUpdated },
+        props: {
+            currentAppType,
+            currentApp,
+            originalSyntaxTree,
+            syntaxTree,
+            isReadOnly,
+            isMutationProgress,
+        },
+        state: {
+            triggerUpdated
+        }
+    } = useContext(Context);
 
-    const { currentApp } = appInfo || {};
-    let displayType = currentApp ? currentApp.displayType : "";
-    const [triggerType, setTriggerType] = useState(displayType as TriggerType);
-    const [istriggerUpdated, setTriggerUpdated] = useState(false);
+
+    const [triggerType, setTriggerType] = useState(currentAppType as TriggerType); // FIXME clean up currentAppType vs TriggerType mismatch
 
     const { model } = props;
 
     useEffect(() => {
-        displayType = currentApp ? currentApp.displayType : "";
-        setTriggerType(displayType);
-    }, [displayType]);
+        setTriggerType(currentAppType as TriggerType);
+    }, [currentAppType]);
 
     useEffect(() => {
         if (triggerUpdated) {
             setTimeout(() => {
-                state.triggerUpdated = false;
                 setTriggerUpdated(true);
             }, 4000);
         }
@@ -192,7 +199,7 @@ export function StartButton(props: StartButtonProps) {
     }, []);
 
     useEffect(() => {
-        if (isReadOnly && isReadOnly === true) setActiveTriggerType(currentAppType)
+        if (isReadOnly && isReadOnly === true) setActiveTriggerType(currentAppType as TriggerType)
     }, [])
 
     let block: FunctionBodyBlock;
@@ -244,7 +251,7 @@ export function StartButton(props: StartButtonProps) {
                 showIcon={true}
                 handleEdit={handleEditClick}
             />
-            {triggerUpdated && !istriggerUpdated && <TriggerUpdatedSVG className="animated fadeOut" x={cx + START_SVG_WIDTH_WITH_SHADOW / 2} y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2 - UPDATE_TRIGGER_SVG_HEIGHT / 2)} />}
+            {triggerUpdated && <TriggerUpdatedSVG className="animated fadeOut" x={cx + START_SVG_WIDTH_WITH_SHADOW / 2} y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2 - UPDATE_TRIGGER_SVG_HEIGHT / 2)} />}
             {block && initPlusAvailable && !showDropDownC && <PlusButton viewState={plusView} model={block} initPlus={true} />}
             <g>
                 {showDropDownC && dropDownC}

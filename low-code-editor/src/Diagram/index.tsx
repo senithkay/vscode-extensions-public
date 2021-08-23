@@ -33,43 +33,34 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
-export interface DiagramProps {
-    isReadOnly: boolean;
-    syntaxTree: STNode;
-    originalSyntaxTree: STNode;
-    isLoadingAST: boolean;
-    isWaitingOnWorkspace: boolean;
-    error?: Error;
-    isMutationInProgress: boolean;
-    isCodeEditorActive: boolean;
-    isConfigPanelOpen: boolean;
-    isConfigOverlayFormOpen: boolean;
-    triggerType?: TriggerType;
-    dispatchFileChange?: (content: string) => Promise<void>;
-    dispatchCodeChangeCommit?: () => Promise<void>;
-    hasConfigurables: (templateST: ModulePart) => boolean;
-}
 
-export function Diagram(props: DiagramProps) {
+export function Diagram() {
     const {
-        isReadOnly,
-        syntaxTree,
-        originalSyntaxTree,
-        isLoadingAST,
-        error,
-        isWaitingOnWorkspace,
-        isMutationInProgress,
-        isCodeEditorActive,
-        isConfigPanelOpen,
-        triggerType,
-        hasConfigurables
-    } = props;
-    const { state: {
-        diagnostics,
-        isDataMapperShown,
-        isConfigOverlayFormOpen,
-        warnings
-    } } = useContext(DiagramContext);
+        state: {
+            isDataMapperShown,
+            isConfigOverlayFormOpen,
+        },
+        api: {
+            code: { hasConfigurables },
+        },
+        props: {
+            diagnostics,
+            warnings,
+            syntaxTree,
+            isWaitingOnWorkspace,
+            isMutationProgress,
+            isReadOnly,
+            currentApp,
+            isConfigPanelOpen,
+            isCodeEditorActive,
+            isLoadingAST,
+            originalSyntaxTree,
+            error
+        },
+    } = useContext(DiagramContext);
+
+    // FIXME remove the need for passing down current APP to low code editor
+    const triggerType = currentApp ? currentApp.displayType : "";
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
@@ -155,7 +146,7 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <div id="canvas">
-            {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
+            {(codeTriggerredUpdateInProgress || isMutationProgress) && textLoader}
             {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledWithTextLoaderStatus}
             {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
 

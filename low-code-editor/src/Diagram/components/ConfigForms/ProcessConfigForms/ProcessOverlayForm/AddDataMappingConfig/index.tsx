@@ -50,8 +50,7 @@ enum DataMapperSteps {
 
 export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
     const { processConfig, onCancel, onSave } = props;
-    const { state, dataMapperStart, toggleDiagramOverlay } = useContext(DiagramContext);
-    const { stSymbolInfo } = state;
+    const { props: { stSymbolInfo }, actions: { dataMapperStart } } = useContext(DiagramContext);
 
     useEffect(() => {
         onCancel();

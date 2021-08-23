@@ -43,14 +43,11 @@ export interface ConditionConfigFormProps {
 }
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
-    const { state } = useContext(Context);
+    const { api } = useContext(Context);
     const {
-        isReadOnly,
-        configPanelStatus,
-        syntaxTree,
-        onEvent,
-        modifyDiagram
-    } = state;
+        insights: { onEvent },
+        code: { modifyDiagram  }
+    } = api;
     const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
     let conditionConfig: ConditionConfig;
     const { isLoading, isOpen, error, formArgs, formType } = configOverlayFormStatus;

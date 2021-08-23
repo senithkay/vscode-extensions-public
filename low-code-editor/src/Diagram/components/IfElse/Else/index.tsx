@@ -36,7 +36,7 @@ export interface ElseProps {
 }
 
 export function Else(props: ElseProps) {
-    const { state, insertComponentStart } = useContext(Context);
+    const { state, actions: { insertComponentStart } } = useContext(Context);
     const { model, defaultViewState } = props;
 
     let viewState: ElseViewState;

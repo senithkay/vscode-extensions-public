@@ -30,8 +30,13 @@ export interface FunctionProps {
 }
 
 export function Function(props: FunctionProps) {
-    const { state } = useContext(Context);
-    const { isWaitingOnWorkspace, isCodeEditorActive, isReadOnly } = state;
+    const {
+        props: {
+            isWaitingOnWorkspace,
+            isReadOnly,
+            isCodeEditorActive
+        }
+    } = useContext(Context);
 
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;

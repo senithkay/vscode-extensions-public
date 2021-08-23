@@ -389,8 +389,10 @@ export interface ConnectionDetails {
     connectorName: string;
     userAccountIdentifier: string;
     codeVariableKeys: ConnectionMetadata[];
-    type?: string;
     isUsed?: boolean;
+    type?: string;
+    code?: number;
+    message?: string;
 }
 export interface ConnectorApiResponse {
     data?: ConnectionDetails;

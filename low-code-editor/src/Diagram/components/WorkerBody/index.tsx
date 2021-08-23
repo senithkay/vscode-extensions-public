@@ -27,7 +27,7 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state, insertComponentStart } = useContext(Context);
+    const { state, actions: { insertComponentStart } } = useContext(Context);
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];

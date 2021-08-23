@@ -69,9 +69,22 @@ export enum ConnectorType {
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
-    const { state } = useContext(Context);
+    const {
+        props: {
+            originalSyntaxTree,
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved
+        },
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger
+            }
+        }
+    } = useContext(Context);
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent, modifyTrigger } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
