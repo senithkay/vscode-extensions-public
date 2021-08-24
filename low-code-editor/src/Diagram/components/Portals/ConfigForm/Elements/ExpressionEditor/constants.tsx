@@ -42,8 +42,9 @@ export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];
 export const DIAGNOSTIC_MAX_LENGTH = 125;
 
 export const SUGGEST_CAST_MAP : {[name: string]: string[]} = {
-    "int": ["float", "decimal", "json", "any", "anydata"],
-    "float": ["int", "decimal", "json", "any", "anydata"],
-    "decimal": ["int", "float", "json", "any", "anydata"],
-    "boolean": ["json", "any", "anydata"]
+    "int": ["string", "float", "decimal", "json", "any", "anydata"],
+    "float": ["string", "int", "decimal", "json", "any", "anydata"],
+    "decimal": ["string", "int", "float", "json", "any", "anydata"],
+    "boolean": ["string", "json", "any", "anydata"],
+    "xml": ["string"]
 }
