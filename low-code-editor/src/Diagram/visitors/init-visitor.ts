@@ -14,12 +14,14 @@ import {
     ListenerDeclaration,
     LocalVarDecl,
     ModulePart,
+    ModuleVarDecl,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
-    ResourceKeyword, ServiceDeclaration,
+    ResourceKeyword,
+    ServiceDeclaration,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -46,7 +48,8 @@ import {
     ViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import {ServiceViewState} from "../view-state/service";
+import { ModuleMemberViewState } from "../view-state/module-member";
+import { ServiceViewState } from "../view-state/service";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
@@ -82,6 +85,13 @@ class InitVisitor implements Visitor {
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
         if (!node.viewState) {
             const viewState = new StatementViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
         }
     }

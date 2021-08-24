@@ -25,6 +25,7 @@ import {
     ListenerDeclaration,
     LocalVarDecl,
     ModulePart,
+    ModuleVarDecl,
     ObjectMethodDefinition,
     OnFailClause,
     ResourceAccessorDefinition,
@@ -42,6 +43,7 @@ import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import { MODULE_VAR_HEIGHT, MODULE_VAR_WIDTH } from "../components/ModuleVariable/ModuleVariableSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
@@ -54,6 +56,7 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG"
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { ModuleMemberViewState } from "../view-state/module-member";
 import { ServiceViewState } from "../view-state/service";
 import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
@@ -104,6 +107,12 @@ class SizingVisitor implements Visitor {
         if (node.viewState) {
             this.sizeStatement(node);
         }
+    }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        const viewState = node.viewState as ModuleMemberViewState;
+        viewState.bBox.w = MODULE_VAR_WIDTH;
+        viewState.bBox.h = MODULE_VAR_HEIGHT;
     }
 
     private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {

@@ -31,6 +31,7 @@ import {
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../components/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
+import { GAP_BETWEEN_MEMBERS } from "../components/ModulePart";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
@@ -92,13 +93,12 @@ class PositioningVisitor implements Visitor {
 
                 if (i !== node.members.length - 1) {
                     // todo: keep gap
-                    height += 150;
+                    height += GAP_BETWEEN_MEMBERS;
                 }
             });
 
         }
     }
-
 
     private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
         if (!node.functionBody) {

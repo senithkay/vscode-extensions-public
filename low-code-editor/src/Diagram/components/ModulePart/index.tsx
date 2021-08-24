@@ -15,7 +15,8 @@ import React from "react";
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponent } from "../../utils";
-import { StartButton } from "../Start"
+
+export const GAP_BETWEEN_MEMBERS = 31;
 
 export interface ModulePartProps {
     model: ModulePart

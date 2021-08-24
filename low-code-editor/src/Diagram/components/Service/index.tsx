@@ -25,7 +25,6 @@ import "./style.scss";
 export const DEFAULT_SERVICE_WIDTH: number = 150;
 
 export interface ServiceProps {
-    blockViewState?: BlockViewState;
     model: STNode;
 }
 

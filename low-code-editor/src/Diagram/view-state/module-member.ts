@@ -10,17 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
 import { DefaultConfig } from "../visitors/default";
 
 import { PlusViewState } from "./plus";
 import { StatementViewState } from "./statement";
 
 export class ModuleMemberViewState extends StatementViewState {
-    public plusButtons: PlusViewState[] = [];
     public topOffset: number = DefaultConfig.offSet;
     public bottomOffset: number = DefaultConfig.offSet;
-    public initialWidthOffset: number = (PROCESS_SVG_WIDTH / 2);
 
     constructor() {
         super();
