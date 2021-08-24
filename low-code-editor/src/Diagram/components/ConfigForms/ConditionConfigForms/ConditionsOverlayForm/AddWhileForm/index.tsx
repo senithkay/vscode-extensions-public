@@ -63,7 +63,7 @@ export function AddWhileForm(props: WhileProps) {
     const whileStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionText",

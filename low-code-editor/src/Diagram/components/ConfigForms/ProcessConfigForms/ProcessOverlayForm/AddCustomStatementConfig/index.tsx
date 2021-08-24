@@ -76,7 +76,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const customStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",

@@ -99,7 +99,7 @@ export function AddLogConfig(props: LogConfigProps) {
     const logTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",

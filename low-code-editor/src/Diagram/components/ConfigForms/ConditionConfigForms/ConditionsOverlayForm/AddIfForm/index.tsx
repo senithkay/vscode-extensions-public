@@ -67,7 +67,7 @@ export function AddIfForm(props: IfProps) {
     const IFStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression"
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
