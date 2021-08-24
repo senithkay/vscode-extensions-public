@@ -69,9 +69,9 @@ export function DoStatement(props: DoStatementProps) {
             >
                 DO
             </text>
-            {...pluses}
-            {...drafts}
-            {...children}
+            {pluses}
+            {drafts}
+            {children}
             {onFailBlock}
         </g>
     );

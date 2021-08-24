@@ -19,7 +19,6 @@ import CloseIcon from "@material-ui/icons/Close";
 
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { DiagramContext } from "../../../../../../../providers/contexts";
 import { ServiceMethodType, TRIGGER_TYPE_WEBHOOK, WebhookMethodType, WEBHOOK_METHODS } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { RadioControl } from "../../../../ConfigForm/Elements/RadioControl/FormRadioControl";
@@ -40,9 +39,8 @@ export interface ConnectorEvents {
 }
 
 export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizardProps) {
-  const { modifyTrigger } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
-  const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree } = state;
+  const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, modifyTrigger } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);

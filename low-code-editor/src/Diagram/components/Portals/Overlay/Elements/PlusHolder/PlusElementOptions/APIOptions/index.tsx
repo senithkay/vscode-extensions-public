@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
@@ -406,6 +406,16 @@ export function APIOptions(props: APIOptionsProps) {
                 defaultMessage: "Set data provider, Set data consumer"
             })
         },
+        mysql: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.title",
+                defaultMessage: "Connect with MySQL API to access data and perform operations in MySQL."
+            }),
+            content: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.content",
+                defaultMessage: "Query the database, Execute DDL or DML SQL queries"
+            })
+        },
     }
     // tslint:disable-next-line: no-shadowed-variable
     const tooltipTitles: Record<any, string> = {
@@ -443,6 +453,7 @@ export function APIOptions(props: APIOptionsProps) {
         "SENDGRID": connectionsTooltipMessages.sendgrid.title,
         "MEDIUM": connectionsTooltipMessages.medium.title,
         "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.title,
+        MYSQL: connectionsTooltipMessages.mysql.title,
     };
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -481,6 +492,7 @@ export function APIOptions(props: APIOptionsProps) {
         "SENDGRID": connectionsTooltipMessages.sendgrid.content,
         "MEDIUM": connectionsTooltipMessages.medium.content,
         "LEANIX INTEGRATION": connectionsTooltipMessages.leanix.content,
+        MYSQL: connectionsTooltipMessages.mysql.content,
     };
 
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
@@ -646,42 +658,45 @@ export function APIOptions(props: APIOptionsProps) {
         });
     }
 
-
+    const preventDiagramScrolling = (e: SyntheticEvent) => {
+        e.stopPropagation();
+    }
 
     return (
-        <div className="connector-option-holder" >
+        <div onWheel={preventDiagramScrolling} className="connector-option-holder" >
             {isExistingConnectors &&
                 (
-                    <div className="existing-connect-wrapper">
-                        <div className="title-wrapper">
-                            <p className="plus-section-title">Choose existing connection </p>
-                            {isToggledSelectConnector ?
+                    <>
+                        <div className="existing-connect-wrapper">
+                            <div className="title-wrapper">
+                                <p className="plus-section-title">Choose existing connection </p>
+                                {isToggledSelectConnector ?
+                                    (
+                                        <div onClick={toggleExistingCon} className="existing-connector-toggle">
+                                            {isToggledExistingConnector ?
+                                                <img src="../../../../../../images/exp-editor-expand.svg" />
+                                                :
+                                                <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                            }
+                                        </div>
+                                    )
+                                    :
+                                    null
+                                }
+                            </div>
+
+                            {isToggledExistingConnector &&
                                 (
-                                    <div onClick={toggleExistingCon} className="existing-connector-toggle">
-                                        {isToggledExistingConnector ?
-                                            <img src="../../../../../../images/exp-editor-expand.svg" />
-                                            :
-                                            <img src="../../../../../../images/exp-editor-collapse.svg" />
-                                        }
+                                    <div className="existing-connector-wrapper">
+                                        {exsitingConnectors}
                                     </div>
                                 )
-                                :
-                                null
                             }
                         </div>
-
-                        {isToggledExistingConnector &&
-                            (
-                                <div className="existing-connector-wrapper">
-                                    {exsitingConnectors}
-                                </div>
-                            )
-                        }
-                    </div>
+                        <Divider />
+                    </>
                 )
             }
-
-            <Divider />
 
             <div className="element-option-holder" >
                 <div className="title-wrapper">
@@ -712,7 +727,7 @@ export function APIOptions(props: APIOptionsProps) {
                                     className='search-wrapper'
                                 />
                             </div>
-                            <div className="options-wrapper">
+                            <div className={`api-options options-wrapper ${isExistingConnectors ? 'with-existing-con' : ''}`}>
                                 {updatedConnectorComponents}
                             </div>
                         </>

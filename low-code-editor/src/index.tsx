@@ -13,9 +13,9 @@
 import React from "react";
 
 import { Provider as DiagramProvider } from "./Contexts/Diagram";
+import { STModification } from "./Definitions";
 import DiagramContainer from "./Diagram/Container";
-import { DiagramErrorBoundary } from "./ErrorBoundrary";
-import Provider from "./providers";
+import { TriggerType } from "./Diagram/models";
 import { LowCodeEditorProps as Props } from "./types";
 
 export { LowCodeEditorProps, PortalState } from "./types";
@@ -73,23 +73,34 @@ export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modific
 export default function LowCodeEditor(props: Props) {
 
     const {
-        currentApp,
         exprEditorState,
+        onMutate,
         ...restProps
     } = props;
 
-    const initialState = {
-        ...restProps,
-        currentApp
+    const modifyTrigger = (
+        triggerType: TriggerType,
+        model?: any,
+        configObject?: any
+    ) => {
+        onMutate("TRIGGER", { triggerType, model, configObject });
+    };
+
+    const modifyDiagram = (mutations: STModification[], options: any = {}) => {
+        onMutate("DIAGRAM", { mutations, ...options });
+    };
+
+    const newProps = {
+        modifyDiagram,
+        modifyTrigger,
+        ...restProps
     }
 
     return (
-        <Provider {...props}>
-            <DiagramProvider initialState={initialState} >
+            <DiagramProvider initialState={newProps} >
                 <div>
-                    <DiagramContainer {...props} />
+                    <DiagramContainer {...newProps} />
                 </div>
             </DiagramProvider>
-        </Provider>
     );
 }

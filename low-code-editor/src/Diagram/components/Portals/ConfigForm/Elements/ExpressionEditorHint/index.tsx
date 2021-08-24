@@ -25,7 +25,8 @@ export enum HintType {
     ADD_CHECK,
     ADD_DOUBLE_QUOTES,
     ADD_DOUBLE_QUOTES_EMPTY,
-    ADD_TO_STRING
+    ADD_TO_STRING,
+    ADD_ELVIS_OPERATOR
 }
 
 interface ExpressionEditorHintProps {
@@ -73,6 +74,11 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
     const codeSnippetToString = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.codeSnippetToString.text",
         defaultMessage: "toString()"
+    })
+
+    const addElvisOperator = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addElvisOperator.text",
+        defaultMessage: " to handle optional value"
     })
 
     let component: ReactNode;
@@ -123,6 +129,18 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addToString}
                         <CodeSnippet content={codeSnippetToString} />
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.ADD_ELVIS_OPERATOR: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {addElvisOperator}
                     </FormHelperText>
                 </div>
             )

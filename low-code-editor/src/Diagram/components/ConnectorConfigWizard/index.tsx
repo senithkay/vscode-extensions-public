@@ -28,7 +28,6 @@ import {
   Connector,
 } from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
-import { DiagramContext } from "../../../providers/contexts";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
 import { DraftInsertPosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
@@ -63,7 +62,6 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-  const { diagramPanLocation } = useContext(DiagramContext).callbacks;
   const { state, toggleDiagramOverlay } = useContext(Context);
   const {
     closeConfigOverlayForm: dispatchOverlayClose,
@@ -72,6 +70,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     triggerErrorNotification,
     onFitToScreen,
     appInfo,
+    diagramPanLocation
   } = state;
 
   const {

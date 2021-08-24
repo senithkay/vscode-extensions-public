@@ -27,7 +27,6 @@ import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
-import { DiagramContext } from "../../../../../../../../providers/contexts";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -53,7 +52,6 @@ export interface ConnectorEvents {
 }
 
 export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
-    const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
@@ -61,7 +59,9 @@ export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
         syntaxTree,
         originalSyntaxTree,
         trackTriggerSelection,
-        onEvent
+        onEvent,
+        modifyTrigger,
+        modifyDiagram
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;

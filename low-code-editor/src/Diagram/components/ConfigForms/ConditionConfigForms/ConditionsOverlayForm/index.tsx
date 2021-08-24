@@ -16,7 +16,6 @@ import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { DiagramContext } from "../../../../../providers/contexts";
 import { ConditionConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
@@ -35,11 +34,10 @@ interface ConditionsWizardProps {
 
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
-    const { diagramPanLocation } = useContext(DiagramContext).callbacks;
     const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const { state } = useContext(Context);
-    const { onFitToScreen, appInfo } = state;
+    const { onFitToScreen, appInfo, diagramPanLocation } = state;
 
     const currentAppid = appInfo?.currentApp?.id;
 

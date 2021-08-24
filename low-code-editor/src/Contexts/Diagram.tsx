@@ -10,12 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import React, { useReducer } from "react";
+
 import { STNode } from "@ballerina/syntax-tree";
 
 import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
-
-import createContext from "./createContext";
+import { LowCodeEditorProps } from "../types";
 
 const reducer = (state: any, action: any) => {
     switch (action.type) {
@@ -63,53 +64,75 @@ const reducer = (state: any, action: any) => {
     }
 };
 
-const actions = {
-    updateState: (dispatch: any) => {
-        return (payload: any) => {
-            dispatch({ type: 'UPDATE_STATE', payload });
-        };
-    },
-    diagramCleanDraw: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'DIAGRAM_CLEAN_DRAW', payload });
-        }
-    },
-    diagramRedraw: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'DIAGRAM_REDRAW', payload })
-        }
-    },
-    insertComponentStart: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'INSERT_COMPONENT_START', payload })
-        }
-    },
-    editorComponentStart: (dispatch: any) => {
-        return (payload: STNode) => {
-            dispatch({ type: 'EDITOR_COMPONENT_START', payload })
-        }
-    },
-    dataMapperStart: (dispatch: any) => {
-        return (dataMapperConfig: DataMapperConfig) => {
-            dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
-        }
-    },
-    toggleDiagramOverlay: (dispatch: any) => {
-        return () => {
-            dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
-        }
-    },
-    updateDataMapperConfig: (dispatch: any) => {
-        return (dataMapperConfig: DataMapperConfig) => {
-            dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
-        }
+const updateState = (dispatch: any) => {
+    return (payload: any) => {
+        dispatch({ type: 'UPDATE_STATE', payload });
+    };
+}
+
+const diagramCleanDraw = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'DIAGRAM_CLEAN_DRAW', payload });
     }
-};
+}
 
-const initialState: any = {};
+const diagramRedraw = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'DIAGRAM_REDRAW', payload })
+    }
+}
 
-export const { Context, Provider } = createContext(
-    reducer,
-    actions,
-    initialState
-);
+const insertComponentStart = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'INSERT_COMPONENT_START', payload })
+    }
+}
+
+const editorComponentStart = (dispatch: any) => {
+    return (payload: STNode) => {
+        dispatch({ type: 'EDITOR_COMPONENT_START', payload })
+    }
+}
+
+const dataMapperStart = (dispatch: any) => {
+    return (dataMapperConfig: DataMapperConfig) => {
+        dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
+    }
+}
+
+const toggleDiagramOverlay = (dispatch: any) => {
+    return () => {
+        dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
+    }
+}
+
+const updateDataMapperConfig = (dispatch: any) => {
+    return (dataMapperConfig: DataMapperConfig) => {
+        dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
+    }
+}
+const defaultState: any = {};
+
+export const Context = React.createContext(defaultState);
+
+export const Provider = (props: any) => {
+  const { children, initialState } = props;
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const boundActions = {
+    updateState: updateState(dispatch),
+    diagramCleanDraw: diagramCleanDraw(dispatch),
+    diagramRedraw: diagramRedraw(dispatch),
+    insertComponentStart: insertComponentStart(dispatch),
+    editorComponentStart: editorComponentStart(dispatch),
+    dataMapperStart: dataMapperStart(dispatch),
+    toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
+    updateDataMapperConfig: updateDataMapperConfig(dispatch),
+  };
+
+  return (
+    <Context.Provider value={{ state, ...boundActions }}>
+      {children}
+    </Context.Provider>
+  );
+}

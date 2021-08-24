@@ -23,6 +23,7 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
+    TypeCastExpression,
     Visitor,
     WhileStatement
 } from "@ballerina/syntax-tree";
@@ -228,6 +229,46 @@ class InitVisitor implements Visitor {
         }
     }
 
+    public endVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
+        node.viewState = new StatementViewState();
+        if (isSTActionInvocation(node) && node.expression) {
+            if (node.expression.kind === "RemoteMethodCallAction") {
+                const stmtViewState: StatementViewState = node.viewState as StatementViewState;
+                const remoteCall: RemoteMethodCallAction = node.expression as RemoteMethodCallAction;
+                const simpleName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
+                stmtViewState.action.endpointName = simpleName.name.value;
+                const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
+                stmtViewState.action.actionName = actionName.name.value;
+
+                // Set Icon Id for an action.
+                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
+                if (endPoint) {
+                    const visibleEp = endPoint.visibleEndpoint;
+                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
+                }
+
+                if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
+                    const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
+                    stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
+                }
+            } else {
+                const exprViewState: StatementViewState = node.expression.viewState;
+                const stmtViewState: StatementViewState = node.viewState as StatementViewState;
+                stmtViewState.isCallerAction = exprViewState.isCallerAction;
+                stmtViewState.isAction = exprViewState.isAction;
+                stmtViewState.action.endpointName = exprViewState.action.endpointName;
+                stmtViewState.action.actionName = exprViewState.action.actionName;
+
+                // Set Icon Id for an action.
+                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
+                if (endPoint) {
+                    const visibleEp = endPoint.visibleEndpoint;
+                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
+                }
+            }
+        }
+    }
+
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
         blockViewState.connectors = allEndpoints;
@@ -376,7 +417,7 @@ class InitVisitor implements Visitor {
         node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
         if (STKindChecker.isLocalVarDecl(node)) {
-            const localVarDecl: LocalVarDecl = node as LocalVarDecl;
+
             // todo: In here we need to catch only the action invocations.
             if (isSTActionInvocation(node)) {
                 stmtViewState.isAction = true;
@@ -387,7 +428,7 @@ class InitVisitor implements Visitor {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
                 const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
-                if (endpoint){
+                if (endpoint) {
                     const vEp = endpoint.visibleEndpoint;
                     stmtViewState.isEndpoint = true;
                     stmtViewState.endpoint.iconId = vEp.moduleName + "_" + vEp.typeName;
@@ -395,9 +436,9 @@ class InitVisitor implements Visitor {
             }
 
             // todo: need to fix these with invocation data
-            if (localVarDecl.initializer && stmtViewState.isAction) {
-                if (localVarDecl.initializer.kind === "RemoteMethodCallAction") {
-                    const remoteActionCall: RemoteMethodCallAction = localVarDecl.initializer as RemoteMethodCallAction;
+            if (node.initializer && stmtViewState.isAction) {
+                if (node.initializer.kind === "RemoteMethodCallAction") {
+                    const remoteActionCall: RemoteMethodCallAction = node.initializer as RemoteMethodCallAction;
                     const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
                     if (typeInfo?.name === "BaseClient") {
                         stmtViewState.hidden = true;
@@ -412,8 +453,8 @@ class InitVisitor implements Visitor {
                         const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                         stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
                     }
-                } else if (localVarDecl.initializer.kind === "CheckAction") {
-                    const checkExpr: CheckAction = localVarDecl.initializer as CheckAction;
+                } else if (node.initializer.kind === "CheckAction") {
+                    const checkExpr: CheckAction = node.initializer as CheckAction;
                     const remoteActionCall: RemoteMethodCallAction = checkExpr.expression as RemoteMethodCallAction;
                     const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
                     if (typeInfo?.name === "BulkClient") {
@@ -424,26 +465,25 @@ class InitVisitor implements Visitor {
                     stmtViewState.action.actionName = checkExprViewState.action.actionName;
                     stmtViewState.isCallerAction = checkExprViewState.isCallerAction;
                     stmtViewState.isAction = checkExprViewState.isAction;
-                } else if (localVarDecl.initializer.kind === "TypeCastExpression") {
-                    const checkExpr: CheckAction = localVarDecl.initializer as CheckAction;
-                    if (checkExpr.expression.kind === "CheckAction") {
-                        const remoteActionCall: RemoteMethodCallAction = checkExpr.expression as RemoteMethodCallAction;
+                } else if (node.initializer.kind === "TypeCastExpression") {
+                    const typeCastExpression: TypeCastExpression = node.initializer as TypeCastExpression;
+                    if (typeCastExpression.expression.kind === "RemoteMethodCallAction") {
+                        const remoteActionCall: RemoteMethodCallAction = typeCastExpression.expression as RemoteMethodCallAction;
                         const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
                         if (typeInfo?.name === "BulkClient") {
                             stmtViewState.hidden = true;
                         }
-                        const checkExprViewState: StatementViewState = checkExpr.expression.viewState as
-                            StatementViewState;
-                        stmtViewState.action.endpointName = checkExprViewState.action.endpointName;
-                        stmtViewState.action.actionName = checkExprViewState.action.actionName;
-                        stmtViewState.isCallerAction = checkExprViewState.isCallerAction;
-                        stmtViewState.isAction = checkExprViewState.isAction;
                     }
+                    const typeCastViewState: StatementViewState = typeCastExpression.viewState as StatementViewState;
+                    stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
+                    stmtViewState.action.actionName = typeCastViewState.action.actionName;
+                    stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
+                    stmtViewState.isAction = typeCastViewState.isAction;
                 }
                 if (!stmtViewState.isCallerAction) {
                     // Set icon id for an action.
                     const endpoint = allEndpoints.get(stmtViewState.action.endpointName);
-                    if (endpoint){
+                    if (endpoint) {
                         const vEp = endpoint.visibleEndpoint;
                         stmtViewState.action.iconId = vEp.moduleName + "_" + vEp.typeName;
                     }
