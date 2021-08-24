@@ -19,7 +19,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { useStyles } from './style';
+import {useStyles} from './style';
 
 interface FormAccordionProps {
     title?: string;
@@ -32,7 +32,7 @@ interface FormAccordionProps {
 export default function FormAccordion(props: FormAccordionProps) {
     const { title, depth, mandatoryFields, optionalFields, isMandatory } = props;
     const classes = useStyles();
-    const [expanded, setExpanded] = React.useState<string | false>('mandatory');
+    const [ expanded, setExpanded ] = React.useState<string | false>('mandatory');
 
     const isEmptyMandatoryFields = mandatoryFields?.length === 0;
     const isEmptyOptionalFields = optionalFields?.length === 0;
@@ -43,12 +43,12 @@ export default function FormAccordion(props: FormAccordionProps) {
 
     return (
         <div className={classes.accordionWrapper}>
-            {!isEmptyMandatoryFields && isEmptyOptionalFields && (
+            { !isEmptyMandatoryFields && isEmptyOptionalFields && (
                 <div className={classes.groupedForm}>
-                    {...mandatoryFields}
+                    {mandatoryFields}
                 </div >
-            )}
-            {!isEmptyMandatoryFields && !isEmptyOptionalFields && (
+            ) }
+            { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
                 <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
                     {title && (
                         <ExpansionPanelSummary
@@ -60,15 +60,15 @@ export default function FormAccordion(props: FormAccordionProps) {
                             <Typography className={classes.accordionHeading}>{title}</Typography>
                             <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>
                         </ExpansionPanelSummary>
-                    )}
+                    ) }
                     <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
-                            {...mandatoryFields}
+                            {mandatoryFields}
                         </div >
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
-            )}
-            {!isEmptyOptionalFields && (
+            ) }
+            { !isEmptyOptionalFields && (
                 <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={(isMandatory && isEmptyMandatoryFields) || expanded === 'optional'} onChange={handleChange('optional')}>
                     <ExpansionPanelSummary
                         className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
@@ -82,11 +82,11 @@ export default function FormAccordion(props: FormAccordionProps) {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
                         <div className={classes.groupedForm}>
-                            {...optionalFields}
+                            {optionalFields}
                         </div >
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
-            )}
+            ) }
         </div>
     );
 }
