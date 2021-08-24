@@ -99,6 +99,7 @@ export function Form(props: FormProps) {
                 depth={1}
                 mandatoryFields={elements}
                 optionalFields={optionalElements}
+                isMandatory={false}
             />
         </form>
     );

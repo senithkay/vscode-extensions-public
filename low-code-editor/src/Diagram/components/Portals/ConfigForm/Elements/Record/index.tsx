@@ -77,6 +77,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
+                isMandatory={!model.optional}
             />
         </div>
     );
