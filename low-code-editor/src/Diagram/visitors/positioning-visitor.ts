@@ -34,7 +34,7 @@ import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
-import {START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET} from "../components/Start/StartSVG";
+import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
@@ -83,7 +83,7 @@ class PositioningVisitor implements Visitor {
                 const memberVS = member.viewState;
 
                 if (memberVS) {
-                    memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                    memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
                     memberVS.bBox.y = viewState.bBox.y + height;
 
                     // adding the height of the sub component
@@ -183,94 +183,72 @@ class PositioningVisitor implements Visitor {
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const serviceVS: ServiceViewState = node.viewState;
 
-        serviceVS.wrapper.cx = serviceVS.bBox.x;
-        serviceVS.wrapper.cy = serviceVS.bBox.y;
-        serviceVS.bBox.cx = serviceVS.wrapper.cx + (serviceVS.bBox.w / 2);
+        let height = DefaultConfig.serviceMemberSpacing;
+        // let prevMemberViewState: ViewState = null;
 
-        let height = 0;
-        let prevMemberViewState: ViewState = null;
         node.members.forEach((member: STNode, i: number) => {
             const memberVS = member.viewState;
 
-            if (memberVS) {
-                memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
-                memberVS.bBox.y = serviceVS.bBox.y + serviceVS.topOffset + height;
-            }
-
-            // calculating plus button positions
             const plusViewState: PlusViewState = getPlusViewState(i, serviceVS.plusButtons);
+
             if (plusViewState) {
-                // adding the x `1/2 location` difference between service box and
-                // child member box to service member box x
-                plusViewState.bBox.cx = serviceVS.bBox.x + (memberVS.bBox.x - serviceVS.bBox.x) / 2;
-                if (i === 0) {
-                    plusViewState.bBox.cy = serviceVS.bBox.y + (memberVS.bBox.y - serviceVS.bBox.y) / 2;
-                } else {
-                    const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-                    plusViewState.bBox.cy = prevComponentEndY + (memberVS.bBox.y - prevComponentEndY) / 2;
-                }
-                prevMemberViewState = memberVS;
+                plusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+                plusViewState.bBox.cy = serviceVS.bBox.y + height;
+                height += DefaultConfig.serviceMemberSpacing;
             }
 
-            // adding the height of the sub component
-            height += memberVS.bBox.h;
-            if (i !== node.members.length - 1) {
-                // todo: keep gap between service components like resources
-                height += DefaultConfig.horizontalGapBetweenComponents;
+            if (memberVS) {
+                memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+                memberVS.bBox.y = serviceVS.bBox.y + height;
+                height += memberVS.bBox.h + DefaultConfig.serviceMemberSpacing;
             }
         });
 
         const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
-        lastPlusViewState.bBox.cx = serviceVS.bBox.x + (DefaultConfig.horizontalGapBetweenParentComponents / 2);
-        if (node.members.length > 0) {
-            const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-            const wrapperEndY = serviceVS.bBox.y + serviceVS.bBox.h;
-            lastPlusViewState.bBox.cy = prevComponentEndY + (wrapperEndY - prevComponentEndY) / 2;
-        } else {
-            // initial plus position
-            lastPlusViewState.bBox.cy = serviceVS.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
+
+        if (lastPlusViewState) {
+            lastPlusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+            lastPlusViewState.bBox.cy = serviceVS.bBox.y + height;
         }
+
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        // if (!node.functionBody) {
-        //     return;
-        // }
-        // const viewState: FunctionViewState = node.viewState;
-        // const bodyViewState: BlockViewState = node.functionBody.viewState;
-        //
-        // viewState.wrapper.cx = viewState.bBox.x;
-        // viewState.wrapper.cy = viewState.bBox.y - viewState.topOffset;
-        //
-        // viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
-        // viewState.bBox.cy = viewState.bBox.y + viewState.bBox.offsetFromTop + (viewState.wrapper.offsetFromTop * 3);
-        //
-        // viewState.trigger.cx = viewState.bBox.cx;
-        // viewState.trigger.cy = viewState.bBox.cy;
-        //
-        // if (viewState.triggerParams) {
-        //     viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-        //     viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        // }
-        //
-        // viewState.workerLine.x = viewState.trigger.cx;
-        // viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
-        //
-        // bodyViewState.bBox.cx = viewState.workerLine.x;
-        // // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        //
-        // if (viewState.triggerParams) {
-        //     node?.functionSignature?.parameters?.length > 0 ?
-        //         viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        //     viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-        //         : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        // } else {
-        //     bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        // }
-        //
-        // viewState.end.bBox.cx = viewState.bBox.cx;
-        // viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-        this.beginFunctionTypeNode(node);
+        if (!node.functionBody) {
+            return;
+        }
+        const viewState: FunctionViewState = node.viewState;
+        const bodyViewState: BlockViewState = node.functionBody.viewState;
+
+        viewState.bBox.cx = viewState.bBox.x;
+        viewState.bBox.cy = viewState.bBox.y;
+
+        viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
+        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2;
+
+        if (viewState.triggerParams) {
+            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
+            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
+        }
+
+        viewState.workerLine.x = viewState.trigger.cx;
+        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+
+        bodyViewState.bBox.cx = viewState.workerLine.x;
+        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        if (viewState.triggerParams) {
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
+                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        } else {
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+        }
+
+        viewState.end.bBox.cx = viewState.bBox.cx + + viewState.bBox.w / 2;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        // this.beginFunctionTypeNode(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -328,7 +306,7 @@ class PositioningVisitor implements Visitor {
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         viewState.workerBody = bodyViewState;
         viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
-        viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
+        // viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
@@ -380,7 +358,7 @@ class PositioningVisitor implements Visitor {
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         viewState.workerBody = bodyViewState;
         viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
-        viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
+        // viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
@@ -408,7 +386,7 @@ class PositioningVisitor implements Visitor {
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         viewState.workerBody = bodyViewState;
         viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
-        viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
+        // viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
