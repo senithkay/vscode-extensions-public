@@ -502,12 +502,17 @@ const hintHandlers = {
         }
     },
     /** Handle incompatible types by casting */
-    addTypeCast: (varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) => {
+    addTypeCast: (varType: string, diagnostics: Diagnostic[], monacoRef: React.MutableRefObject<MonacoEditor>) => {
         if (monacoRef.current) {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
+                const [expectedType, foundType] = getTypesFromDiagnostics(getSelectedDiagnostics(diagnostics, varType));
                 const editorContent = editorModel.getValue();
-                editorModel.setValue(`<${varType}> ${editorContent}`);
+                if (foundType === 'string'){
+                    editorModel.setValue(`check ${expectedType}:fromString(${editorContent})`);
+                }else{
+                    editorModel.setValue(`<${varType}> ${editorContent}`);
+                }
                 monacoRef.current.editor.focus();
             }
         }
@@ -545,7 +550,7 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
             }
         }
     } else if (suggestCastChecker(diagnostics, varType)) {
-        hints.push({type: HintType.SUGGEST_CAST, handler: () => hintHandlers.addTypeCast(varType, monacoRef)})
+        hints.push({type: HintType.SUGGEST_CAST, handler: () => hintHandlers.addTypeCast(varType, diagnostics, monacoRef)})
     }
 
     return hints;
