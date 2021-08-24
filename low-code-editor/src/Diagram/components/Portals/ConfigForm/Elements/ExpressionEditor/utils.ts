@@ -38,7 +38,7 @@ import {
     SUGGEST_CAST_MAP,
 } from "./constants";
 import "./style.scss";
-import { HintType } from "../ExpressionEditorHint";
+import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 
 
@@ -153,8 +153,7 @@ export function suggestCastChecker(diagnostics: Diagnostic[], varType: string) {
         const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
         const types: string[] = getTypesFromDiagnostics(selectedDiagnostic);
         if (types.length === 2) {
-            const expectedType = types[0];
-            const foundType = types[1];
+            const [ expectedType, foundType ] = types;
             const castFromTypes: string[] = SUGGEST_CAST_MAP[expectedType]
             return castFromTypes && castFromTypes.includes(foundType)
         }
@@ -518,39 +517,34 @@ const hintHandlers = {
         }
     },
 }
-export interface ExpressionHints{
-    type: HintType;
-    handler: () => void;
-    editorContent?: string;
-}
 
 /** Get list of hints to be shown below the expression editor, for given diagnostics */
-export const getHints = (diagnostics: Diagnostic[], varType: string, varName: string, monacoRef: React.MutableRefObject<MonacoEditor>): ExpressionHints[] => {
-    const hints: ExpressionHints[] = [];
+export const getHints = (diagnostics: Diagnostic[], varType: string, varName: string, monacoRef: React.MutableRefObject<MonacoEditor>): ExpressionEditorHintProps[] => {
+    const hints: ExpressionEditorHintProps[] = [];
 
     if (typeCheckerExp(diagnostics, varName, varType)){
         // Prepend `check` to input in order to handle expressions that could throw an error
-        hints.push({type: HintType.ADD_CHECK, handler: () => hintHandlers.addCheck(monacoRef)})
+        hints.push({type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef)})
     }else if (addElvisChecker(diagnostics, varType)){
         // Add a default value for nullable inputs via Elvis operator
-        hints.push({type: HintType.ADD_ELVIS_OPERATOR, handler: () => hintHandlers.addElvisOperator(varType, monacoRef)})
+        hints.push({type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef)})
     }else if (checkIfStringExist(varType)){
         // handle string or string|other_types
         if (addToStringChecker(diagnostics)){
             // Add .toString to the input
-            hints.push({type: HintType.ADD_TO_STRING, handler: () => hintHandlers.addToString(monacoRef)})
+            hints.push({type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef)})
         }else if (addQuotesChecker(diagnostics)){
             const editorContent = monacoRef.current.editor.getModel().getValue();
             if (editorContent === "") {
                 // Add empty double quotes if the input field is empty for string type
-                hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, handler: () => hintHandlers.addDoubleQuotes(monacoRef)})
+                hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef)})
             }else{
                 // Add double quotes around the input, if its string input type
-                hints.push({type: HintType.ADD_DOUBLE_QUOTES, handler: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
+                hints.push({type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
             }
         }
     } else if (suggestCastChecker(diagnostics, varType)) {
-        hints.push({type: HintType.SUGGEST_CAST, handler: () => hintHandlers.addTypeCast(varType, diagnostics, monacoRef)})
+        hints.push({type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(varType, diagnostics, monacoRef), expressionType: varType})
     }
 
     return hints;
