@@ -30,14 +30,15 @@ export enum HintType {
     SUGGEST_CAST
 }
 
-interface ExpressionEditorHintProps {
+export interface ExpressionEditorHintProps {
     onClickHere: () => void;
     type: HintType;
     editorContent?: string;
+    expressionType?: string;
 }
 
 export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
-    const { type, onClickHere, editorContent } = props;
+    const { type, onClickHere, editorContent, expressionType } = props;
 
     const formClasses = useFormStyles();
     const intl = useIntl();
@@ -84,7 +85,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
 
     const suggetCast = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.suggetCast.text",
-        defaultMessage: " to cast to expected type"
+        defaultMessage: " to convert to "
     })
 
     let component: ReactNode;
@@ -159,6 +160,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {suggetCast}
+                        <CodeSnippet content={expressionType} />
                     </FormHelperText>
                 </div>
             )
