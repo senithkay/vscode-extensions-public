@@ -95,6 +95,33 @@ export interface ExpressionEditorState {
     diagnostic?: Diagnostic[];
 }
 
+export interface AnalyzerEndPoint {
+    pkgID: string;
+    name: string;
+    baseUrl: string;
+    pos: string;
+}
+
+export interface AnalyzerEndPointData {
+    endPointPayload : { [s: string]: AnalyzerEndPoint; };
+}
+
+export interface AnalyzerRequestPayload {
+    endpoints:  { [s: string]: AnalyzerEndPoint };
+    actionInvocations: AnalyzerAction;
+}
+
+export interface AnalyzerAction {
+    nextNode?: AnalyzerAction;
+    endPointRef?: string;
+    name?: string;
+    path?: string;
+    pos?: string;
+    ifBody?: AnalyzerAction;
+    elseBody?: AnalyzerAction;
+    forBody?: AnalyzerAction;
+}
+
 export interface STSymbolInfo {
     endpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
