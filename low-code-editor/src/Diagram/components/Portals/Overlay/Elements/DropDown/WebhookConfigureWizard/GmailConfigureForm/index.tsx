@@ -23,7 +23,6 @@ import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
-import { DiagramContext } from "../../../../../../../../providers/contexts";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -46,7 +45,6 @@ export interface ConnectorEvents {
 }
 
 export function GmailConfigureForm(props: GmailConfigureFormProps) {
-    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isMutationProgress: isFileSaving,
@@ -57,7 +55,8 @@ export function GmailConfigureForm(props: GmailConfigureFormProps) {
         currentApp,
         getGcalendarList,
         stSymbolInfo,
-        originalSyntaxTree
+        originalSyntaxTree,
+        modifyTrigger
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const { onComplete, currentConnection } = props;

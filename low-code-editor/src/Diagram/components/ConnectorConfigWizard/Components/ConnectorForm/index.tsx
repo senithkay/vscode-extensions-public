@@ -45,7 +45,6 @@ import {
   STModification,
 } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { DiagramContext } from "../../../../../providers/contexts";
 import {
   ConnectionType,
   OauthConnectButton,
@@ -133,13 +132,6 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const wizardClasses = wizardStyles();
   const intl = useIntl();
-  const {
-    modifyDiagram,
-    triggerErrorNotification,
-    triggerSuccessNotification,
-    updateManualConnection,
-    createManualConnection,
-  } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     stSymbolInfo,
@@ -152,6 +144,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     getAllConnections,
     dispatchGetAllConfiguration,
     dispatchGetConfig,
+    modifyDiagram,
+    triggerErrorNotification,
+    triggerSuccessNotification,
+    updateManualConnection,
+    createManualConnection,
   } = state;
   const symbolInfo: STSymbolInfo = stSymbolInfo;
   const configurations: OauthProviderConfigState = oauthProviderConfigs;
@@ -861,7 +858,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 connectorInfo.displayName,
                 config.connectionName,
                 userInfo.user.email,
-                formattedFieldValues
+                formattedFieldValues,
+                selectedType
               );
               apiResponseStatus =
                 response.status === 500 ? response.data.code : response.status;

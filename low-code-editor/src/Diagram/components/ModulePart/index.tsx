@@ -27,12 +27,12 @@ export interface ModulePartProps {
 export function ModulePartComponent(props: ModulePartProps) {
     const { model } = props;
 
-    const child: JSX.Element[] = [];
+    const moduleMembers: JSX.Element[] = [];
     const pluses: React.ReactNode[] = [];
     const compilationUnitVS: CompilationUnitViewState = model.viewState as CompilationUnitViewState;
 
     model.members.forEach((member: STNode) => {
-        child.push(getSTComponent(member))
+        moduleMembers.push(getSTComponent(member))
     });
 
     for (const plusView of compilationUnitVS.plusButtons) {
@@ -41,7 +41,7 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     return (
         <>
-            {child}
+            {moduleMembers}
             {pluses}
         </>
     );

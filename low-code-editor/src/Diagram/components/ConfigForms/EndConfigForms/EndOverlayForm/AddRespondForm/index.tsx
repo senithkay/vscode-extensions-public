@@ -83,9 +83,12 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const statusCodeValidateExpression = (fieldName: string, isInvalid: boolean) => {
         const responseCodeNumber = Math.floor(statusCodeState);
-
-        if ((responseCodeNumber < 99) || (responseCodeNumber > 600)) {
-            setValidStatusCode(false);
+        if (statusCodeState) {
+            if ((responseCodeNumber < 99) || (responseCodeNumber > 600)) {
+                setValidStatusCode(false);
+            } else {
+                setValidStatusCode(true);
+            }
         } else {
             setValidStatusCode(true);
         }

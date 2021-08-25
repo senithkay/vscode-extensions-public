@@ -42,10 +42,10 @@ export function Function(props: FunctionProps) {
     let component: React.ReactNode;
 
     const rectProps = {
-        x: viewState.wrapper.cx,
-        y: viewState.wrapper.cy,
+        x: viewState.bBox.cx,
+        y: viewState.bBox.cy,
         width: viewState.bBox.w,
-        height: viewState.wrapper.h,
+        height: viewState.bBox.h,
     };
     if (isExpressionFuncBody) {
         component = (

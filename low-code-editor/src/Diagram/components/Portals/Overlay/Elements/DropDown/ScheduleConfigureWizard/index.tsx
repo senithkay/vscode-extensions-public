@@ -25,7 +25,6 @@ import { addMinutes, format } from "date-fns";
 import { DiagramOverlay, DiagramOverlayPosition } from '../../..';
 import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   LowcodeEvent,
@@ -61,14 +60,14 @@ export interface ConnectorEvents {
 }
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
-  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     onEvent,
-    originalSyntaxTree
+    originalSyntaxTree,
+    modifyTrigger, modifyDiagram
   } = state;
 
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;

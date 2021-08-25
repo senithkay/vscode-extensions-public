@@ -40,7 +40,6 @@ import { WebhookConfigureWizard } from '../WebhookConfigureWizard';
 import { ManualIcon, ScheduleIcon, CalendarIcon, GitHubIcon, SalesforceIcon } from "../../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getExistingConnectorIconSVG } from '../../../../utils';
-import { DiagramContext } from "../../../../../../../providers/contexts";
 import { CHOREO_DOCS } from '../../../../../../../utils/constants';
 
 interface TriggerDropDownProps {
@@ -71,9 +70,8 @@ export enum ConnectorType {
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
     const { state } = useContext(Context);
-    const { modifyTrigger } = useContext(DiagramContext).callbacks;
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent } = state;
+    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent, modifyTrigger } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 

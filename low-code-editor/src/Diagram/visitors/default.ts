@@ -181,6 +181,12 @@ export class DiagramConfig {
         h: 100,
         w: 200,
     }
+
+    // service wrapper related stuff
+    serviceVerticalPadding = 20; // top/bottom gap between service members
+    serviceFrontPadding = 20;
+    serviceRearPadding = 20;
+    serviceMemberSpacing = 20;
 }
 
 export const DefaultConfig = new DiagramConfig();

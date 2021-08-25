@@ -17,7 +17,6 @@ import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { DiagramContext } from "../../../../providers/contexts";
 import { Context } from "../../../../Contexts/Diagram";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
@@ -49,9 +48,8 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
-    const { onEvent, stSymbolInfo, configOverlayFormStatus } = state;
+    const { onEvent, stSymbolInfo, configOverlayFormStatus, modifyDiagram } = state;
 
     const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;

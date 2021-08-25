@@ -14,8 +14,8 @@
 import React, { ReactNode, useContext } from "react";
 
 import { ConnectorConfig, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
+import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../../../Definitions/lang-client-extended";
-import { DiagramContext } from "../../../../../../providers/contexts";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,
@@ -39,7 +39,7 @@ export interface ConnectorInitFormProps {
 }
 
 export function ConnectorInitForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
+    const { modifyDiagram } = useContext(DiagramContext).state;
     const {
         connector, typeDef, targetPosition, wizardType, fieldsForFunctions,
         config
