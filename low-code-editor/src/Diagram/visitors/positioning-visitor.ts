@@ -91,7 +91,6 @@ class PositioningVisitor implements Visitor {
                 }
 
                 if (i !== node.members.length - 1) {
-                    // todo: keep gap
                     height += GAP_BETWEEN_MEMBERS;
                 }
 
@@ -100,10 +99,10 @@ class PositioningVisitor implements Visitor {
                 if (plusViewState) {
                     plusViewState.bBox.cx = memberVS.bBox.x;
                     if (i === 0) {
-                        plusViewState.bBox.cy = viewState.bBox.y + (memberVS.bBox.y - viewState.bBox.y) / 2;
+                        plusViewState.bBox.cy = viewState.bBox.y + (GAP_BETWEEN_MEMBERS / 2);
                     } else {
                         const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-                        plusViewState.bBox.cy = prevComponentEndY + (memberVS.bBox.y - prevComponentEndY) / 2;
+                        plusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
                     }
                     prevMemberViewState = memberVS;
                 }
@@ -117,7 +116,7 @@ class PositioningVisitor implements Visitor {
             } else {
                 // initial plus position
                 lastPlusViewState.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
-                lastPlusViewState.bBox.cy = viewState.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
+                lastPlusViewState.bBox.cy = viewState.bBox.y + height + (GAP_BETWEEN_MEMBERS / 2);
             }
         }
     }
