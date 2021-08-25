@@ -76,9 +76,8 @@ class PositioningVisitor implements Visitor {
             plusBtnViewState.expanded = false;
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
         } else {
-            let height = 0;
-            const index = 0;
-            const epGap = DefaultConfig.epGap;
+            let height = GAP_BETWEEN_MEMBERS; // adding initial plus height
+            let prevMemberViewState: ViewState = null;
             // Clean rendered labels
             node.members.forEach((member: STNode, i: number) => {
                 const memberVS = member.viewState;
@@ -95,8 +94,31 @@ class PositioningVisitor implements Visitor {
                     // todo: keep gap
                     height += GAP_BETWEEN_MEMBERS;
                 }
+
+                // calculating plus button positions
+                const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
+                if (plusViewState) {
+                    plusViewState.bBox.cx = memberVS.bBox.x;
+                    if (i === 0) {
+                        plusViewState.bBox.cy = viewState.bBox.y + (memberVS.bBox.y - viewState.bBox.y) / 2;
+                    } else {
+                        const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+                        plusViewState.bBox.cy = prevComponentEndY + (memberVS.bBox.y - prevComponentEndY) / 2;
+                    }
+                    prevMemberViewState = memberVS;
+                }
             });
 
+            const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
+            if (node.members.length > 0) {
+                const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+                lastPlusViewState.bBox.cx = prevMemberViewState.bBox.x;
+                lastPlusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
+            } else {
+                // initial plus position
+                lastPlusViewState.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                lastPlusViewState.bBox.cy = viewState.bBox.y + height + DefaultConfig.horizontalGapBetweenComponents;
+            }
         }
     }
 

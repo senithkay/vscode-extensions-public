@@ -62,6 +62,7 @@ import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
+import {GAP_BETWEEN_MEMBERS} from "../components/ModulePart";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -74,23 +75,47 @@ class SizingVisitor implements Visitor {
         this.sizeStatement(node);
     }
 
+    public beginVisitModulePart(node: ModulePart, parent?: STNode) {
+        const viewState: CompilationUnitViewState = node.viewState;
+        node.members.forEach((member, i) => {
+            const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
+            if (!plusViewState) {
+                const plusBtnViewBox: PlusViewState = new PlusViewState();
+                plusBtnViewBox.index = i;
+                plusBtnViewBox.expanded = false;
+                plusBtnViewBox.isLast = true;
+                viewState.plusButtons.push(plusBtnViewBox);
+            }
+        });
+
+        const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
+        if (!lastPlusViewState) {
+            const plusBtnViewBox: PlusViewState = new PlusViewState();
+            plusBtnViewBox.index = node.members.length;
+            plusBtnViewBox.expanded = false;
+            plusBtnViewBox.isLast = true;
+            viewState.plusButtons.push(plusBtnViewBox);
+        }
+    }
+
     public endVisitModulePart(node: ModulePart) {
         const viewState: CompilationUnitViewState = node.viewState;
         if (node.members.length === 0) { // if the bal file is empty.
             viewState.trigger.h = START_SVG_HEIGHT;
             viewState.trigger.w = START_SVG_WIDTH;
 
-            viewState.bBox.h = DefaultConfig.canvas.height;
+            // adding the initial gap for initial plus
+            viewState.bBox.h = DefaultConfig.canvas.height + GAP_BETWEEN_MEMBERS;
             viewState.bBox.w = DefaultConfig.canvas.width;
         } else {
-            let height: number = 0;
+            let height: number = GAP_BETWEEN_MEMBERS;
             let width: number = 0;
 
-            node.members.forEach(member => {
+            node.members.forEach((member) => {
                 const memberVS = member.viewState;
 
                 if (memberVS) {
-                    height = memberVS.bBox.h;
+                    height += memberVS.bBox.h;
 
                     if (memberVS.bBox.w > width) {
                         width = memberVS.bBox.w
