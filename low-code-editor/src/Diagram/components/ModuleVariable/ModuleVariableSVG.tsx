@@ -74,7 +74,7 @@ export function ModuleVariableSVG(props: ModuleVariableSVGProps) {
             <text className={"module-type-text"} {...typeTextProps} >
                 {type}
             </text>
-            <text className={"module-type-text"} {...nameTextProps} >
+            <text className={"module-attribute-text"} {...nameTextProps} >
                 {name}
             </text>
             { value && (
