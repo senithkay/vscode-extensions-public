@@ -56,7 +56,6 @@ import {
     WhileViewState
 } from "../view-state";
 import { ServiceViewState } from "../view-state/service";
-
 import { DefaultConfig } from "./default";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
@@ -85,7 +84,8 @@ class PositioningVisitor implements Visitor {
                 if (memberVS) {
                     memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
                     memberVS.bBox.y = viewState.bBox.y + height;
-
+                    memberVS.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+                    memberVS.bBox.cy = viewState.bBox.y + height;
                     // adding the height of the sub component
                     height += memberVS.bBox.h;
                 }

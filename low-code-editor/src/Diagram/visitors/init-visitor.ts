@@ -40,7 +40,6 @@ import {
     ForEachViewState,
     FunctionViewState,
     IfViewState,
-    ListenerStatementViewState,
     OnErrorViewState,
     PlusViewState,
     SimpleBBox,
@@ -49,6 +48,7 @@ import {
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import {ServiceViewState} from "../view-state/service";
+import {ListenerViewState} from "../view-state/listener";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
@@ -85,7 +85,7 @@ class InitVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
         if (!node.viewState) {
-            const viewState = new ListenerStatementViewState();
+            const viewState = new ListenerViewState();
             node.viewState = viewState;
         }
     }

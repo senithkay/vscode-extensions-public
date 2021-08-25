@@ -18,6 +18,7 @@ import { ModulePartComponent } from "./ModulePart";
 import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { While } from './While';
+import { Listener } from './Listener';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
@@ -27,7 +28,7 @@ export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
-export { Statement as ListenerDeclaration };
+export { Listener as ListenerDeclaration };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
 export { Function as ResourceAccessorDefinition };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,19 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-import { PlusViewState } from "./plus";
 import { SimpleBBox } from "./simple-bbox";
 import { ViewState } from "./view-state";
 
-export class ListenerStatementViewState extends ViewState {
-    public precedingPlus: PlusViewState = undefined;
-    public listenerName: SimpleBBox = new SimpleBBox();
-    public listenerType: SimpleBBox = new SimpleBBox();
-    public portNumber: SimpleBBox = new SimpleBBox();
+import { STOP_SVG_HEIGHT } from "../components/End/StopSVG";
+import { START_SVG_HEIGHT } from "../components/Start/StartSVG";
+import { DefaultConfig } from "../visitors/default";
 
+export class ListenerViewState extends ViewState {
+    public topOffset: number = START_SVG_HEIGHT / 2 + (2 * DefaultConfig.dotGap) ;
+    public bottomOffset: number = STOP_SVG_HEIGHT + (2 * DefaultConfig.dotGap);
+    public wrapper: SimpleBBox = new SimpleBBox();
+    
     constructor() {
         super();
     }
-
 }
