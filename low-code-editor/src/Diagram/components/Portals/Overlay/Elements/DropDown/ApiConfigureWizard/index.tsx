@@ -25,7 +25,6 @@ import DeleteButton from "../../../../../../../assets/icons/DeleteButton";
 import ConfigPanel, { Section } from "../../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { updateResourceSignature } from '../../../../../../../Diagram/utils/modification-util';
-import { DiagramContext } from "../../../../../../../providers/contexts";
 import {
   isPathDuplicated,
   reCalculateDuplicatedResources,
@@ -93,14 +92,14 @@ export interface ConnectorEvents {
 export const getPathOfResources = (resources: any[] = []) => resources?.map((path: any) => path?.value || path?.source).join('');
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
-  const { modifyTrigger, modifyDiagram } = useContext(DiagramContext).callbacks;
   const { state } = useContext(Context);
   const {
     isMutationProgress: isFileSaving,
     isLoadingSuccess: isFileSaved,
     syntaxTree,
     originalSyntaxTree,
-    onEvent
+    onEvent,
+    modifyTrigger, modifyDiagram
   } = state;
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;

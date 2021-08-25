@@ -18,7 +18,6 @@ import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
-import { DiagramContext } from "../../../../providers/contexts";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
 import {
     createForeachStatement,
@@ -44,13 +43,13 @@ export interface ConditionConfigFormProps {
 }
 
 export function ConditionConfigForm(props: ConditionConfigFormProps) {
-    const { modifyDiagram } = useContext(DiagramContext).callbacks;
     const { state } = useContext(Context);
     const {
         isReadOnly,
         configPanelStatus,
         syntaxTree,
-        onEvent
+        onEvent,
+        modifyDiagram
     } = state;
     const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
     let conditionConfig: ConditionConfig;

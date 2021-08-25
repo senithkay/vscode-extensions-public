@@ -24,15 +24,15 @@ export interface ModulePartProps {
 export function ModulePartComponent(props: ModulePartProps) {
     const { model } = props;
 
-    const child: JSX.Element[] = [];
+    const moduleMembers: JSX.Element[] = [];
 
     model.members.forEach((member: STNode) => {
-        child.push(getSTComponent(member))
+        moduleMembers.push(getSTComponent(member))
     });
 
     return (
         <>
-            {child}
+            {moduleMembers}
         </>
     );
 }

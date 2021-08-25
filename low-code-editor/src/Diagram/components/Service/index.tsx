@@ -38,10 +38,10 @@ export function Service(props: ServiceProps) {
 
     const viewState: ServiceViewState = serviceModel.viewState;
     const rectProps = {
-        x: viewState.wrapper.cx,
-        y: viewState.wrapper.cy,
-        width: viewState.bBox.w * 2,
-        height: viewState.wrapper.h,
+        x: viewState.bBox.cx,
+        y: viewState.bBox.cy,
+        width: viewState.bBox.w,
+        height: viewState.bBox.h,
     };
 
     const drafts: React.ReactNode[] = [];

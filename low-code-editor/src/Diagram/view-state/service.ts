@@ -29,5 +29,6 @@ export class ServiceViewState extends StatementViewState {
 
     constructor() {
         super();
+        this.bBox.w = 300; // todo: make constant
     }
 }

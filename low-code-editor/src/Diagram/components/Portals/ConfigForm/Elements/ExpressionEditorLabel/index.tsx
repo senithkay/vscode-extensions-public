@@ -24,7 +24,7 @@ import { ExpressionEditorProps } from "../ExpressionEditor";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { useStyles as useTextInputStyles } from "../TextField/style";
 
-import { truncateText } from "./utils";
+import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
     const { model, customProps } = props;
@@ -70,6 +70,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                                 actionText={customProps?.tooltipActionText}
                                                 actionLink={customProps?.tooltipActionLink}
                                                 arrow={true}
+                                                typeExamples={getExampleForType(model)}
                                             />
                                         </div>
                                     )
@@ -90,6 +91,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                         actionText={customProps?.tooltipActionText || model?.tooltipActionText}
                                         actionLink={customProps?.tooltipActionLink || model?.tooltipActionLink}
                                         arrow={true}
+                                        typeExamples={getExampleForType(model)}
                                     />
                                 )
                             }
@@ -98,7 +100,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                 ) : null
             }
             {typeString && (
-                <TooltipCodeSnippet content={typeString} placement="right" arrow={true}>
+                <TooltipCodeSnippet disabled={typeString?.length <= variableNameMaxLength} content={typeString} placement="right" arrow={true}>
                     <div className={textFieldClasses.codeWrapper}>
                             <EditorType />
                     </div>

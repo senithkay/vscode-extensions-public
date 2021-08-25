@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from 'react';
+import { useIntl } from 'react-intl';
 
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
@@ -31,6 +32,7 @@ interface TooltipPropsExtended extends TooltipProps {
     disabled?: boolean;
     openInCodeView?: () => void;
     heading?: string;
+    typeExamples?: string;
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
@@ -38,6 +40,21 @@ const TooltipBaseInverted = withStyles(tooltipInvertedStyles)(TooltipBase);
 
 export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
+    const intl = useIntl();
+
+    const tooltipHintText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.hintText",
+        defaultMessage: "Hints:"
+    });
+
+    const tooltipHintSuggestionText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.suggestionText",
+        defaultMessage: "Press Ctrl/Cmd+Space for suggestions"
+    });
+    const tooltipHintVarScopeText = intl.formatMessage({
+        id: "lowcode.develop.elements.tooltip.varScopeText",
+        defaultMessage: "You can use variables within the scope"
+    });
 
     // Ref: <code>
     const codeRef = (ref: HTMLPreElement) => {
@@ -46,7 +63,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView,  typeExamples, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -58,10 +75,26 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
         TooltipComponentRef = TooltipBaseInverted;
     }
 
+    const GenericExamples = () => (
+        <pre className={styles.exampleCodeWrap}>
+            <span>E.g.</span><code ref={codeRef} data-lang="ballerina" className={styles.codeExample}>{typeExamples}</code>
+        </pre>
+    );
+    const GenericCodeHints = () => (
+        <div className={styles.codeHintWrap}>
+            <div className={styles.codeHint}><b>{tooltipHintText}</b></div>
+            <ul className={styles.tooltipHints}>
+                <li className={styles.codeHint}>{tooltipHintSuggestionText}</li>
+                <li className={styles.codeHint}>{tooltipHintVarScopeText}</li>
+            </ul>
+        </ div>
+    );
+
     let tooltipTitle = (
         <div>
             {heading && (<h4 className={styles.heading}>{heading}</h4>)}
             <div>{title}</div>
+            {typeExamples && <><GenericExamples /><GenericCodeHints /></>}
             {actionText && (<a className={styles.buttonLink} href={actionLink} target="_blank">{actionText}</a>)}
         </div>
     );
@@ -105,6 +138,8 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
                 {heading && (<h4 className={styles.heading}>{heading}</h4>)}
                 {title && (<p>{title}</p>)}
                 <CodeSnippet />
+                <GenericExamples />
+                <GenericCodeHints />
             </>
         );
     }
