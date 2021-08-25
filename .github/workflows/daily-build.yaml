@@ -25,7 +25,7 @@ jobs:
       - run: mkdir extractedDistribution
       - run: sudo apt-get install unzip
       - name: Download latest ballerina distribution
-        run: curl -s https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/latest | grep -wo "https.*ballerina-swan-lake-.*zip" | wget -qi - -O ballerina.zip
+        run: curl -s https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases | grep -wo -m1 "https.*ballerina-swan-lake-.*zip" | wget -qi - -O ballerina.zip
       - run: unzip -qq ./ballerina.zip -d ./extractedDistribution
       - run: rm ballerina.zip
       - name: Build repository with tests
