@@ -184,6 +184,8 @@ class PositioningVisitor implements Visitor {
         const serviceVS: ServiceViewState = node.viewState;
 
         let height = DefaultConfig.serviceMemberSpacing;
+        serviceVS.bBox.cx = serviceVS.bBox.x;
+        serviceVS.bBox.cy = serviceVS.bBox.y;
         // let prevMemberViewState: ViewState = null;
 
         node.members.forEach((member: STNode, i: number) => {
@@ -374,7 +376,7 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
 
         // todo need to verify this
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -400,7 +402,7 @@ class PositioningVisitor implements Visitor {
 
         updateConnectorCX(bodyViewState.bBox.w / 2, bodyViewState.bBox.cx, allEndpoints);
         // Add the connector max width to the diagram width.
-        viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
+        // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);

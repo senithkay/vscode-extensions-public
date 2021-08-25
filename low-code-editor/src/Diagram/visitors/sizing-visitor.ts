@@ -44,14 +44,14 @@ import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
+import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
-import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
+import { Endpoint, getDraftComponentSizes, getMaXWidthOfConnectors, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, ListenerStatementViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { ServiceViewState } from "../view-state/service";
@@ -271,7 +271,7 @@ class SizingVisitor implements Visitor {
         }
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding +  allEndpoints.size * 150 * 2;
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -784,15 +784,17 @@ class SizingVisitor implements Visitor {
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
-                viewState.variableName.w = VARIABLE_NAME_WIDTH;
-                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH;
+                viewState.variableName.w = VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset;
+                viewState.variableAssignment.w = ASSIGNMENT_NAME_WIDTH + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
                 viewState.bBox.h = viewState.dataProcess.h;
-                if (STKindChecker.isLocalVarDecl) {
-                    const varDeclatarion = node as LocalVarDecl
-                    viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
-                } else {
-                    viewState.bBox.w = viewState.dataProcess.w;
-                }
+                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
+
+                // todo: commented because this is always true
+                // if (STKindChecker.isLocalVarDecl) {
+                //     const varDeclatarion = node as LocalVarDecl
+                // } else {
+                //     viewState.bBox.w = viewState.dataProcess.w + viewState.variableAssignment.w;
+                // }
             }
         }
     }
