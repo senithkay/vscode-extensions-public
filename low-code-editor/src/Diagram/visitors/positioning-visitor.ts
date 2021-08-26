@@ -21,7 +21,8 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition, ServiceDeclaration,
+    ResourceAccessorDefinition,
+    ServiceDeclaration,
     STKindChecker, STNode,
     VisibleEndpoint,
     Visitor,
@@ -59,6 +60,7 @@ import {
 import { ServiceViewState } from "../view-state/service";
 
 import { DefaultConfig } from "./default";
+import {SERVICE_HEADER_HEIGHT} from "../components/Service/ServiceHeaderSVG";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
@@ -204,7 +206,7 @@ class PositioningVisitor implements Visitor {
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const serviceVS: ServiceViewState = node.viewState;
 
-        let height = DefaultConfig.serviceMemberSpacing;
+        let height = DefaultConfig.serviceMemberSpacing + SERVICE_HEADER_HEIGHT;
         serviceVS.bBox.cx = serviceVS.bBox.x;
         serviceVS.bBox.cy = serviceVS.bBox.y;
         // let prevMemberViewState: ViewState = null;

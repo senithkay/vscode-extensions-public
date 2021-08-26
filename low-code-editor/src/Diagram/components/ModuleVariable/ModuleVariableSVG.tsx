@@ -69,20 +69,20 @@ export function ModuleVariableSVG(props: ModuleVariableSVGProps) {
 
     return (
         <g>
-            <rect className={"module-rect"} {...rectProps} />
-            <rect className={"module-type-rect"} {...typeRectProps} />
-            <text className={"module-type-text"} {...typeTextProps} >
+            <rect className="module-rect" {...rectProps} />
+            <rect className="module-type-rect" {...typeRectProps} />
+            <text className="module-type-text" {...typeTextProps} >
                 {type}
             </text>
-            <text className={"module-attribute-text"} {...nameTextProps} >
+            <text className="module-attribute-text" {...nameTextProps} >
                 {name}
             </text>
             { value && (
                 <g>
-                    <text className={"module-attribute-text"} {...textSeparatorProps} >
+                    <text className="module-attribute-text" {...textSeparatorProps} >
                         {"|"}
                     </text>
-                    <text className={"module-attribute-text"} {...valueTextProps} >
+                    <text className="module-attribute-text" {...valueTextProps} >
                         {value}
                     </text>
                 </g>

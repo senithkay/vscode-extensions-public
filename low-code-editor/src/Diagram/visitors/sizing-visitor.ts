@@ -63,6 +63,7 @@ import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
+import {SERVICE_HEADER_HEIGHT} from "../components/Service/ServiceHeaderSVG";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -239,8 +240,11 @@ class SizingVisitor implements Visitor {
         });
 
         viewState.bBox.w = width + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding;
+        if (viewState.bBox.w < DEFAULT_SERVICE_WIDTH) {
+            viewState.bBox.w = DEFAULT_SERVICE_WIDTH;
+        }
         viewState.bBox.h = height + viewState.plusButtons.length * DefaultConfig.serviceMemberSpacing * 2
-            + DefaultConfig.serviceVerticalPadding; // memberHeights + plusbutton gap between
+            + DefaultConfig.serviceVerticalPadding + SERVICE_HEADER_HEIGHT; // memberHeights + plusbutton gap between
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
