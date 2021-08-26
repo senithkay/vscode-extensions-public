@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/theme",
-  "version": "2.1.0",
+  "version": "2.1.2",
   "description": "Theme for web components of Ballerina Tooling.",
   "keywords": [
     "ballerina",
