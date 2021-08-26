@@ -40,3 +40,11 @@ export const EXPAND_EDITOR_MAXIMUM_CHARACTERS = 60;
 export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];
 
 export const DIAGNOSTIC_MAX_LENGTH = 125;
+
+export const SUGGEST_CAST_MAP : {[name: string]: string[]} = {
+    "int": ["string", "float", "decimal", "json", "any", "anydata"],
+    "float": ["string", "int", "decimal", "json", "any", "anydata"],
+    "decimal": ["string", "int", "float", "json", "any", "anydata"],
+    "boolean": ["string", "json", "any", "anydata"],
+    "xml": ["string"]
+}

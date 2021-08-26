@@ -27,26 +27,20 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
-import { ExpressionEditorHint, HintType } from "../ExpressionEditorHint";
+import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import { acceptedKind, COLLAPSE_WIDGET_ID, DIAGNOSTIC_MAX_LENGTH, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
 import "./style.scss";
 import {
-    addElvisChecker,
     addImportModuleToCode,
-    addQuotesChecker,
-    addToStringChecker,
     addToTargetLine,
     addToTargetPosition,
-    checkIfStringExist,
     createContentWidget,
     createSortText,
     customErrorMessage,
     diagnosticCheckerExp,
     diagnosticInRange,
-    ExpressionHints,
-    getDefaultValue,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     getHints,
@@ -57,7 +51,6 @@ import {
     getValueWithoutSemiColon,
     transformFormFieldTypeToString,
     truncateDiagnosticMsg,
-    typeCheckerExp,
 } from "./utils";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
@@ -195,7 +188,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const isCustomTemplate = !!customTemplate;
     const formClasses = useFormStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
-    const [hints, setHints] = useState<ExpressionHints[]>([]);
+    const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -915,7 +908,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
-                                    {hints.map(hint => <ExpressionEditorHint key={hint.type} type={hint.type} onClickHere={hint.handler} editorContent={hint.editorContent}/>)}
+                                    {hints.map(hint => <ExpressionEditorHint key={hint.type} {...hint}/>)}
                                 </>
                         ) : null
             }
