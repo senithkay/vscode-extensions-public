@@ -271,7 +271,7 @@ class SizingVisitor implements Visitor {
         }
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding +  allEndpoints.size * 150 * 2;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -383,8 +383,9 @@ class SizingVisitor implements Visitor {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
-        viewState.bBox.h = lifeLine.h + trigger.h;
-        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
         // viewState.wrapper.h = viewState.bBox.h;
         // this.endVisitFunctionTypeNode(node);
