@@ -1,6 +1,6 @@
 # Change Log
 
-## **2.1.2**
+## **2.1.1**
 ### Improved
 - Ballerina syntax highlighting via TextMate grammar. [#105](https://github.com/wso2/ballerina-plugin-vscode/issues/105)
 
