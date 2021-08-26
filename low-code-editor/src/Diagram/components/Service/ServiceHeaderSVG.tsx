@@ -59,18 +59,18 @@ export function ServiceHeaderSVG(props: ServiceHeaderSVGProps) {
                             y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
 
     const listenerTextProps = { x: (typeRectProps.x + typeRectProps.width + SERVICE_LISTENER_AND_PATH_GAP),
-        y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
+                                y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
 
     return (
         <g>
-            <rect className={"service-type-rect"} {...typeRectProps} />
-            <text className={"service-type-text"} {...typeTextProps} >
+            <rect className="service-type-rect" {...typeRectProps} />
+            <text className="service-type-text" {...typeTextProps} >
                 {type}
             </text>
-            <text className={"service-attribute-text"} {...pathTextProps} >
+            <text className="service-attribute-text" {...pathTextProps} >
                 {path}
             </text>
-            <text className={"service-attribute-text"} {...listenerTextProps} >
+            <text className="service-attribute-text" {...listenerTextProps} >
                 {`listening on: ` + listener}
             </text>
         </g>

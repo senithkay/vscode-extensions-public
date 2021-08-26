@@ -50,6 +50,7 @@ import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAP
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
+import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
@@ -63,7 +64,6 @@ import { TriggerParamsViewState } from "../view-state/triggerParams";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
-import {SERVICE_HEADER_HEIGHT} from "../components/Service/ServiceHeaderSVG";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
