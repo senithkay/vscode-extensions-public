@@ -91,6 +91,7 @@ export default function LowCodeEditor(props: Props) {
     };
 
     const newProps = {
+        onMutate,
         modifyDiagram,
         modifyTrigger,
         ...restProps
