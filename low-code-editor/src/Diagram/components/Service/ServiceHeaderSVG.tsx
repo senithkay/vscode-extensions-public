@@ -59,7 +59,7 @@ export function ServiceHeaderSVG(props: ServiceHeaderSVGProps) {
                             y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
 
     const listenerTextProps = { x: (typeRectProps.x + typeRectProps.width + SERVICE_LISTENER_AND_PATH_GAP),
-        y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
+                                y: (typeRectProps.y + SERVICE_PATH_TEXT_PADDING_TOP) };
 
     return (
         <g>

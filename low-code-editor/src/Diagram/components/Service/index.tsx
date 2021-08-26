@@ -19,10 +19,10 @@ import { getSTComponents } from "../../utils";
 import { ServiceViewState } from "../../view-state/service";
 import { PlusButton } from "../Plus";
 
-import "./style.scss";
 import { ServiceHeaderSVG } from "./ServiceHeaderSVG";
+import "./style.scss";
 
-export const DEFAULT_SERVICE_WIDTH: number = 400;
+export const DEFAULT_SERVICE_WIDTH: number = 500;
 
 export interface ServiceProps {
     model: STNode;
@@ -54,11 +54,7 @@ export function Service(props: ServiceProps) {
 
     let listener = "";
     serviceModel.expressions.forEach((expression, index) => {
-        if (index === 0) {
-            listener = expression.source?.trim();
-        } else {
-            listener = `${listener}, ${expression.source?.trim()}`;
-        }
+        listener = (index === 0) ? expression.source?.trim() : `${listener}, ${expression.source?.trim()}`;
     });
 
     let absolutePath = "";

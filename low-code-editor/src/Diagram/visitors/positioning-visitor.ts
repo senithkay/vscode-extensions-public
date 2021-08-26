@@ -36,6 +36,7 @@ import { GAP_BETWEEN_MEMBERS } from "../components/ModulePart";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
 import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
@@ -60,7 +61,6 @@ import {
 import { ServiceViewState } from "../view-state/service";
 
 import { DefaultConfig } from "./default";
-import {SERVICE_HEADER_HEIGHT} from "../components/Service/ServiceHeaderSVG";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
