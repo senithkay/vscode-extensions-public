@@ -41,5 +41,6 @@ grammar/ballerina-grammar/extract-keywords.js
 grammar/ballerina-grammar/build-tm.js
 grammar/ballerina-grammar/build-monarch.js
 grammar/ballerina-grammar/test-scripts/
+grammar/ballerina-grammar/test/
 scripts/
 resources/jslibs/index.d.ts

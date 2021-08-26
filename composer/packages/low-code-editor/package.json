@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/low-code-editor",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Provides components for displaying Ballerina Low Code Editor",
   "main": "lib/src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^2.1.0"
+    "@ballerina/composer-cli": "^2.1.1"
   },
   "dependencies": {
     "@wso2-enterprise/low-code-editor": "^1.0.7"

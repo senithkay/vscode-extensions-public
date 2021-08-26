@@ -324,9 +324,8 @@ suite("Language Server Tests", function () {
                 }
             };
             langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                assert.equal(response.length, 2, 'Invalid number of code actions.');
-                assert.equal(response[0].command.title, 'Document this', 'Invalid \'Document this\' action.');
-                assert.equal(response[1].command.title, 'Document all', 'Invalid \'Document all\' action.');
+                assert.equal(response.length, 1, 'Invalid number of code actions.');
+                assert.equal(response[0].command.title, 'Document all', 'Invalid \'Document all\' action.');
                 done();
             });
         });
@@ -701,10 +700,9 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 3, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, 'Document this', 'Invalid document this action.');
-                    assert.equal(response[1].title, 'Document all', 'Invalid document all action.');
-                    assert.equal(response[2].title, 'Update documentation', 'Invalid update documentation action.');
+                    assert.equal(response.length, 2, 'Invalid number of code actions.');
+                    assert.equal(response[0].title, 'Document all', 'Invalid document all action.');
+                    assert.equal(response[1].title, 'Update documentation', 'Invalid update documentation action.');
                     done();
                 });
             });
