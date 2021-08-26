@@ -16,6 +16,7 @@ import { Function } from "./Function";
 import { IfElse } from './IfElse';
 import { ModulePartComponent } from "./ModulePart";
 import { ModuleVariable } from './ModuleVariable';
+import { Record } from "./Record";
 import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { While } from './While';
@@ -30,6 +31,7 @@ export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
 export { Statement as ListenerDeclaration };
 export { ModuleVariable as ModuleVarDecl };
+export { Record as TypeDefinition };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
 export { Function as ResourceAccessorDefinition };

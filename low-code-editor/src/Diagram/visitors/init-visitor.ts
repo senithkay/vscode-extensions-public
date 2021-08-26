@@ -25,7 +25,7 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    TypeCastExpression,
+    TypeCastExpression, TypeDefinition,
     Visitor,
     WhileStatement
 } from "@ballerina/syntax-tree";
@@ -94,6 +94,13 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitTypeDefinition(node: TypeDefinition) {
         if (!node.viewState) {
             const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
