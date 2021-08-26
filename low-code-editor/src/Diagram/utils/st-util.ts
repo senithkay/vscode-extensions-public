@@ -18,7 +18,7 @@ import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
 
-import { analyzePayloadVisiter, analyzerVisitorReset, getPayload, initVisitor, positionVisitor, sizingVisitor } from '../..';
+import { analyzePayloadVisitor, analyzerVisitorReset, getPayload, initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
@@ -654,7 +654,7 @@ export function sizingAndPositioningST(st: STNode): STNode {
 
 export function analyzerRequestPayload (st: STNode) {
     analyzerVisitorReset();
-    traversNode(st, analyzePayloadVisiter);
+    traversNode(st, analyzePayloadVisitor);
     return getPayload();
 }
 

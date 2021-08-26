@@ -30,7 +30,7 @@ import { AnalyzerAction, AnalyzerEndPoint, AnalyzerRequestPayload } from "../../
 let endPointIdDictionary: { id: string, variableName: string }[][] = [[]];
 let analyzerActionStack: AnalyzerAction[] = [];
 let analyzerPayload: AnalyzerAction;
-let endPointPayload: { [s: string]: AnalyzerEndPoint } = {};
+let endPointPayload: { [id: string]: AnalyzerEndPoint } = {};
 let endPointId = 1000;
 
 class AnalyzePayloadVisitor implements Visitor {
@@ -41,6 +41,9 @@ class AnalyzePayloadVisitor implements Visitor {
             if (result) {
                 return result.id;
             }
+            else {
+                console.error("No Endpoint found");
+            }
         }
     }
 
@@ -50,7 +53,8 @@ class AnalyzePayloadVisitor implements Visitor {
             const position = node.position as NodePosition;
             const analyzerEndPoint: AnalyzerEndPoint = {
                 name: node.typeData.typeSymbol.name,
-                baseUrl: ((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)?.parenthesizedArgList?.arguments[0]?.source.replace(/"/g, ""),
+                baseUrl: ((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)
+                    ?.parenthesizedArgList?.arguments[0]?.source.replace(/"/g, ""),
                 pkgID: node?.typeData?.typeSymbol?.moduleID?.orgName + "/" + node?.typeData?.typeSymbol?.moduleID?.moduleName,
                 pos: `(${position?.startLine}:${position?.startColumn},${position?.endLine}:${position?.endColumn})`
             }
@@ -63,27 +67,29 @@ class AnalyzePayloadVisitor implements Visitor {
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         const positionalArg = node?.arguments.filter(element => element.kind === "PositionalArg").map(element => element.source).join("/").replace(/"/g, "");
+        const endPointReference = this.getEndpointId(node?.expression?.source);
+        if (!endPointReference) {
+            return;
+        }
+
         const analyzerAction: AnalyzerAction = {
-            endPointRef: this.getEndpointId(node?.expression?.source),
+            endPointRef: endPointReference,
             name: node.methodName.name.value,
             path: positionalArg,
             pos: `choreo.ball:${(node.position as NodePosition).startLine}:${(node.position as NodePosition).startColumn}`
         }
 
-        if (!analyzerAction.endPointRef) {
-            return;
-        }
 
         if (analyzerActionStack.length) {
             const lastIndex = analyzerActionStack.length - 1;
-            if (analyzerActionStack[lastIndex].endPointRef || analyzerActionStack[lastIndex].elseBody || analyzerActionStack[lastIndex].ifBody || analyzerActionStack[lastIndex].forBody) {
-                analyzerActionStack[lastIndex].nextNode = analyzerAction;
-                analyzerActionStack[lastIndex] = analyzerAction;
-            } else {
-                analyzerActionStack[lastIndex].endPointRef = analyzerAction.endPointRef;
+            if (this.isEmptyNode(analyzerActionStack[lastIndex])) {
+                analyzerActionStack[lastIndex].endPointRef = endPointReference;
                 analyzerActionStack[lastIndex].name = analyzerAction.name;
                 analyzerActionStack[lastIndex].path = positionalArg;
                 analyzerActionStack[lastIndex].pos = analyzerAction.pos;
+            } else {
+                analyzerActionStack[lastIndex].nextNode = analyzerAction;
+                analyzerActionStack[lastIndex] = analyzerAction;
             }
         } else {
             analyzerPayload = analyzerAction;
@@ -131,27 +137,25 @@ class AnalyzePayloadVisitor implements Visitor {
         }
     }
 
-    private isEmtyNode(action: AnalyzerAction) {
-        return !(action.elseBody || action.ifBody || action.forBody || action.endPointRef || action.nextNode)
-    }
     public endVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        if (STKindChecker.isElseBlock(parent) || STKindChecker.isIfElseStatement(parent) || STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
+        if (STKindChecker.isElseBlock(parent) || STKindChecker.isIfElseStatement(parent)
+            || STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
             const lastBody = analyzerActionStack.pop();
             const newAction: AnalyzerAction = {};
             const lastIndex = analyzerActionStack.length - 1;
             if (STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-                if (this.isEmtyNode(lastBody)) {
+                if (this.isEmptyNode(lastBody)) {
                     analyzerActionStack[lastIndex].forBody = null;
                 } else {
                     analyzerActionStack[lastIndex].nextNode = newAction;
                     analyzerActionStack[lastIndex] = newAction;
                 }
             } else if (STKindChecker.isElseBlock(parent)) {
-                if (this.isEmtyNode(lastBody)) {
+                if (this.isEmptyNode(lastBody)) {
                     analyzerActionStack[lastIndex].elseBody = null;
                 }
             } else if (STKindChecker.isIfElseStatement(parent)) {
-                if (this.isEmtyNode(lastBody)) {
+                if (this.isEmptyNode(lastBody)) {
                     analyzerActionStack[lastIndex].ifBody = null;
                 }
             }
@@ -164,7 +168,16 @@ class AnalyzePayloadVisitor implements Visitor {
         const newAction: AnalyzerAction = {};
         const lastIndex = analyzerActionStack.length - 1;
         analyzerActionStack[lastIndex].nextNode = newAction;
+        analyzerActionStack[lastIndex] = newAction;
         endPointIdDictionary.push([]);
+    }
+
+    public endVisitFunctionDefinition(node: FunctionDefinition) {
+        endPointIdDictionary.push([]);
+    }
+
+    private isEmptyNode(action: AnalyzerAction) {
+        return !(action.elseBody || action.ifBody || action.forBody || action.endPointRef || action.nextNode)
     }
 }
 
