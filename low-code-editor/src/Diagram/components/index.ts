@@ -14,12 +14,12 @@ import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
+import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
 import { ModuleVariable } from './ModuleVariable';
 import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { While } from './While';
-import { Listener } from './Listener';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };

@@ -51,7 +51,6 @@ import {
 import { DraftStatementViewState } from "../view-state/draft";
 import { ModuleMemberViewState } from "../view-state/module-member";
 import { ServiceViewState } from "../view-state/service";
-import {ListenerViewState} from "../view-state/listener";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
@@ -88,7 +87,7 @@ class InitVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
         if (!node.viewState) {
-            const viewState = new ListenerViewState();
+            const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
         }
     }
