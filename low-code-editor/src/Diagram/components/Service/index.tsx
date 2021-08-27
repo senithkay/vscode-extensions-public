@@ -13,16 +13,16 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React from "react"
 
-import { ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
+import { ExplicitNewExpression, ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
-import { BlockViewState } from "../../view-state";
 import { ServiceViewState } from "../../view-state/service";
 import { PlusButton } from "../Plus";
 
+import { ServiceHeaderSVG } from "./ServiceHeaderSVG";
 import "./style.scss";
 
-export const DEFAULT_SERVICE_WIDTH: number = 150;
+export const DEFAULT_SERVICE_WIDTH: number = 500;
 
 export interface ServiceProps {
     model: STNode;
@@ -52,13 +52,34 @@ export function Service(props: ServiceProps) {
         pluses.push(<PlusButton viewState={plusView} initPlus={false} />)
     }
 
+    let listener = "";
+    serviceModel.expressions.forEach((expression, index) => {
+        listener = (index === 0) ? expression.source?.trim() : `${listener}, ${expression.source?.trim()}`;
+    });
+
+    let absolutePath = "";
+    serviceModel.absoluteResourcePath.forEach((path) => {
+        absolutePath += path.value;
+    });
+
+    let serviceType = "";
+    if ((serviceModel.expressions[0] as ExplicitNewExpression).typeDescriptor.source === "http:Listener") {
+        serviceType = "HTTP";
+    }
+
     return (
-        <g>
-            <g>
-                <rect className={"service-rect"} {...rectProps} />
-                {children}
-                {pluses}
-            </g>
+        <g className="service">
+            <rect className="service-rect" {...rectProps} />
+            <ServiceHeaderSVG
+                x={viewState.bBox.x}
+                y={viewState.bBox.y}
+                w={viewState.bBox.w}
+                type={serviceType}
+                path={absolutePath}
+                listener={listener}
+            />
+            {children}
+            {pluses}
         </g>
     );
 }

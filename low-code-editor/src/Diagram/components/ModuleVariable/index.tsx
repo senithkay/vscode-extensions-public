@@ -39,7 +39,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     const varValue = moduleMemberModel.initializer.source.trim();
 
     return (
-        <g className={"module-var"}>
+        <g className="module-var">
             <ModuleVariableSVG
                 x={viewState.bBox.x}
                 y={viewState.bBox.y}

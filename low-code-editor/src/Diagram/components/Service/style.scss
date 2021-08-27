@@ -10,9 +10,37 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+.service {
+    .service-rect {
+        stroke-width: 1;
+        stroke: #5567d5;
+        fill: #f7f8fb;
+    }
 
-.service-rect {
-    stroke-width: 1;
-    stroke: #5567d5;
-    fill: #f7f8fb;
+    .service-type-rect {
+        stroke-width: 1;
+        stroke: #8d91a3;
+        fill: #cbcedb;
+        rx: 4;
+    }
+
+    .service-type-text {
+        height: 24px;
+        width: 24px;
+        fill: #222228;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 0;
+        line-height: 24px;
+    }
+
+    .service-attribute-text {
+        height: 24px;
+        width: 24px;
+        fill: #8d91a3;
+        font-family: inherit;
+        font-size: 13px;
+        letter-spacing: 0;
+        line-height: 24px;
+    }
 }
