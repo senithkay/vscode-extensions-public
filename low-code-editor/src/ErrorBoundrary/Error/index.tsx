@@ -29,7 +29,7 @@ export default function Default() {
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle1" component="div" className={classes.errorMsg}>
-                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong.Refresh and try again."/>
+                    <FormattedMessage id="lowcode.develop.errorBoundary.tryAgainMessage.text" defaultMessage="Something went terribly wrong. Refresh and try again."/>
                     </Typography>
                 </Grid>
             </Grid>
