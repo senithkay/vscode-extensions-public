@@ -107,11 +107,11 @@ export function AddRespondForm(props: RespondFormProps) {
     const respondStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression"
+            defaultMessage: "Enter a Ballerina expression."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn Ballerina expressions."
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
