@@ -87,7 +87,6 @@ class PositioningVisitor implements Visitor {
                 if (memberVS) {
                     memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
                     memberVS.bBox.y = viewState.bBox.y + height;
-
                     // adding the height of the sub component
                     height += memberVS.bBox.h;
                 }
