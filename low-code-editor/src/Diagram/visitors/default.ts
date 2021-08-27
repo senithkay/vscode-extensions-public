@@ -187,6 +187,9 @@ export class DiagramConfig {
     serviceFrontPadding = 20;
     serviceRearPadding = 20;
     serviceMemberSpacing = 20;
+
+    // function header area height
+    functionHeaderHeight = 50;
 }
 
 export const DefaultConfig = new DiagramConfig();

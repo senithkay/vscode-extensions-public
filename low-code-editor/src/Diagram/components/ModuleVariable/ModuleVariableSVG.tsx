@@ -80,7 +80,7 @@ export function ModuleVariableSVG(props: ModuleVariableSVGProps) {
             { value && (
                 <g>
                     <text className={"module-attribute-text"} {...textSeparatorProps} >
-                        {"|"}
+                        {"="}
                     </text>
                     <text className={"module-attribute-text"} {...valueTextProps} >
                         {value}

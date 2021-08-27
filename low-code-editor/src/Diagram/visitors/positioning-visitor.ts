@@ -173,7 +173,8 @@ class PositioningVisitor implements Visitor {
         viewState.bBox.cy = viewState.bBox.y;
 
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2;
+        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
+            + DefaultConfig.functionHeaderHeight;
 
         if (viewState.triggerParams) {
             viewState.triggerParams.bBox.cx = viewState.trigger.cx;
@@ -247,7 +248,8 @@ class PositioningVisitor implements Visitor {
         viewState.bBox.cy = viewState.bBox.y;
 
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2;
+        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
+            + DefaultConfig.functionHeaderHeight;
 
         if (viewState.triggerParams) {
             viewState.triggerParams.bBox.cx = viewState.trigger.cx;

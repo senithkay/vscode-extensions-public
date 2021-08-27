@@ -23,6 +23,7 @@ import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
+import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
 
 export interface FunctionProps {
@@ -34,11 +35,12 @@ export interface FunctionProps {
 export function Function(props: FunctionProps) {
     const { state } = useContext(Context);
     const { isWaitingOnWorkspace, isCodeEditorActive, isReadOnly } = state;
-
     const { model } = props;
+
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
+
     let component: React.ReactNode;
 
     const rectProps = {
@@ -47,6 +49,7 @@ export function Function(props: FunctionProps) {
         width: viewState.bBox.w,
         height: viewState.bBox.h,
     };
+
     if (isExpressionFuncBody) {
         component = (
             <g>
@@ -65,6 +68,7 @@ export function Function(props: FunctionProps) {
                 <>
                     {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
                     <rect className={"function-rect"} {...rectProps} />
+                    <FunctionSignature model={model} />
                 </>
 
                 {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
