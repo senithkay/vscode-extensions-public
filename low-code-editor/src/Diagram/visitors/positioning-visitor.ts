@@ -21,7 +21,8 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
-    ResourceAccessorDefinition, ServiceDeclaration,
+    ResourceAccessorDefinition,
+    ServiceDeclaration,
     STKindChecker, STNode,
     VisibleEndpoint,
     Visitor,
@@ -35,6 +36,7 @@ import { GAP_BETWEEN_MEMBERS } from "../components/ModulePart";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
 import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
@@ -85,7 +87,6 @@ class PositioningVisitor implements Visitor {
                 if (memberVS) {
                     memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
                     memberVS.bBox.y = viewState.bBox.y + height;
-
                     // adding the height of the sub component
                     height += memberVS.bBox.h;
                 }
@@ -205,7 +206,7 @@ class PositioningVisitor implements Visitor {
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const serviceVS: ServiceViewState = node.viewState;
 
-        let height = DefaultConfig.serviceMemberSpacing;
+        let height = DefaultConfig.serviceMemberSpacing + SERVICE_HEADER_HEIGHT;
         serviceVS.bBox.cx = serviceVS.bBox.x;
         serviceVS.bBox.cy = serviceVS.bBox.y;
         // let prevMemberViewState: ViewState = null;

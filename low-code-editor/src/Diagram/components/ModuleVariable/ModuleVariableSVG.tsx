@@ -13,11 +13,11 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React from "react"
 
-import {ModuleVarDecl, ServiceDeclaration, STNode} from "@ballerina/syntax-tree";
+import { ModuleVarDecl, ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
 import { BlockViewState } from "../../view-state";
-import {ModuleMemberViewState} from "../../view-state/module-member";
+import { ModuleMemberViewState } from "../../view-state/module-member";
 import { ServiceViewState } from "../../view-state/service";
 import { PlusButton } from "../Plus";
 
@@ -52,14 +52,20 @@ export function ModuleVariableSVG(props: ModuleVariableSVGProps) {
 
     const rectProps = { x, y, width: w, height: h };
 
-    const typeRectProps = { x: (x + MODULE_VAR_TYPE_PADDING_LEFT), y: (y + MODULE_VAR_TYPE_PADDING_TOP),
-                            width: MODULE_VAR_TYPE_WIDTH, height: MODULE_VAR_TYPE_HEIGHT };
+    const typeRectProps = {
+        x: (x + MODULE_VAR_TYPE_PADDING_LEFT), y: (y + MODULE_VAR_TYPE_PADDING_TOP),
+        width: MODULE_VAR_TYPE_WIDTH, height: MODULE_VAR_TYPE_HEIGHT
+    };
 
-    const typeTextProps = { x: (typeRectProps.x + MODULE_VAR_TYPE_TEXT_PADDING_LEFT),
-                            y: (typeRectProps.y + MODULE_VAR_TYPE_TEXT_PADDING_TOP) };
+    const typeTextProps = {
+        x: (typeRectProps.x + MODULE_VAR_TYPE_TEXT_PADDING_LEFT),
+        y: (typeRectProps.y + MODULE_VAR_TYPE_TEXT_PADDING_TOP)
+    };
 
-    const nameTextProps = { x: (typeRectProps.x + typeRectProps.width + MODULE_VAR_NAME_TEXT_PADDING_LEFT),
-                            y: (typeRectProps.y + MODULE_VAR_NAME_TEXT_PADDING_TOP) };
+    const nameTextProps = {
+        x: (typeRectProps.x + typeRectProps.width + MODULE_VAR_NAME_TEXT_PADDING_LEFT),
+        y: (typeRectProps.y + MODULE_VAR_NAME_TEXT_PADDING_TOP)
+    };
 
     const separatorTextXPosition = nameTextProps.x + ((name.length + 3) * 7);
     const textSeparatorProps = { x: separatorTextXPosition, y: nameTextProps.y };
@@ -69,20 +75,20 @@ export function ModuleVariableSVG(props: ModuleVariableSVGProps) {
 
     return (
         <g>
-            <rect className={"module-rect"} {...rectProps} />
-            <rect className={"module-type-rect"} {...typeRectProps} />
-            <text className={"module-type-text"} {...typeTextProps} >
+            <rect className="module-rect" {...rectProps} />
+            <rect className="module-type-rect" {...typeRectProps} />
+            <text className="module-type-text" {...typeTextProps} >
                 {type}
             </text>
-            <text className={"module-attribute-text"} {...nameTextProps} >
+            <text className="module-attribute-text" {...nameTextProps} >
                 {name}
             </text>
-            { value && (
+            {value && (
                 <g>
                     <text className={"module-attribute-text"} {...textSeparatorProps} >
                         {"="}
                     </text>
-                    <text className={"module-attribute-text"} {...valueTextProps} >
+                    <text className="module-attribute-text" {...valueTextProps} >
                         {value}
                     </text>
                 </g>

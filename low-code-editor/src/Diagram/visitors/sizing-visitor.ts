@@ -15,7 +15,6 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
-    CaptureBindingPattern,
     DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
@@ -43,17 +42,20 @@ import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../components/Listener/ListenerSVG";
 import { MODULE_VAR_HEIGHT, MODULE_VAR_WIDTH } from "../components/ModuleVariable/ModuleVariableSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
+import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
+import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
-import { Endpoint, getDraftComponentSizes, getMaXWidthOfConnectors, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, ListenerStatementViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
+import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { ModuleMemberViewState } from "../view-state/module-member";
 import { ServiceViewState } from "../view-state/service";
@@ -129,8 +131,9 @@ class SizingVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration) {
         if (node.viewState) {
-            this.sizeStatement(node);
-            const viewState = node.viewState as ListenerStatementViewState;
+            const viewState = node.viewState as ModuleMemberViewState;
+            viewState.bBox.w = LISTENER_WIDTH;
+            viewState.bBox.h = LISTENER_HEIGHT;
         }
     }
 
@@ -236,8 +239,11 @@ class SizingVisitor implements Visitor {
         });
 
         viewState.bBox.w = width + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding;
+        if (viewState.bBox.w < DEFAULT_SERVICE_WIDTH) {
+            viewState.bBox.w = DEFAULT_SERVICE_WIDTH;
+        }
         viewState.bBox.h = height + viewState.plusButtons.length * DefaultConfig.serviceMemberSpacing * 2
-            + DefaultConfig.serviceVerticalPadding; // memberHeights + plusbutton gap between
+            + DefaultConfig.serviceVerticalPadding + SERVICE_HEADER_HEIGHT; // memberHeights + plusbutton gap between
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
