@@ -43,6 +43,7 @@ import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
+import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../components/Listener/ListenerSVG";
 import { GAP_BETWEEN_MEMBERS } from "../components/ModulePart";
 import { MODULE_VAR_HEIGHT, MODULE_VAR_WIDTH } from "../components/ModuleVariable/ModuleVariableSVG";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
@@ -56,7 +57,7 @@ import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../componen
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getMaXWidthOfConnectors, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, ListenerStatementViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 import { ModuleMemberViewState } from "../view-state/module-member";
 import { ServiceViewState } from "../view-state/service";
@@ -133,8 +134,9 @@ class SizingVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration) {
         if (node.viewState) {
-            this.sizeStatement(node);
-            const viewState = node.viewState as ListenerStatementViewState;
+            const viewState = node.viewState as ModuleMemberViewState;
+            viewState.bBox.w = LISTENER_WIDTH;
+            viewState.bBox.h = LISTENER_HEIGHT;
         }
     }
 

@@ -42,7 +42,6 @@ import {
     ForEachViewState,
     FunctionViewState,
     IfViewState,
-    ListenerStatementViewState,
     OnErrorViewState,
     PlusViewState,
     SimpleBBox,
@@ -88,7 +87,7 @@ class InitVisitor implements Visitor {
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
         if (!node.viewState) {
-            const viewState = new ListenerStatementViewState();
+            const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
         }
     }
