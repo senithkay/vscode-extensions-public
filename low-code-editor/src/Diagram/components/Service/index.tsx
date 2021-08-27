@@ -16,7 +16,7 @@ import React from "react"
 import { ExplicitNewExpression, ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
-import { ServiceViewState } from "../../view-state/service";
+import { ServiceViewState } from "../../view-state";
 import { PlusButton } from "../Plus";
 
 import { ServiceHeaderSVG } from "./ServiceHeaderSVG";

@@ -14,7 +14,7 @@ import React from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
-import { ModuleMemberViewState } from "../../view-state/module-member";
+import { ModuleMemberViewState } from "../../view-state";
 
 import { ListenerSVG } from "./ListenerSVG";
 import "./style.scss";

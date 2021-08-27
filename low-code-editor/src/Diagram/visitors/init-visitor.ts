@@ -42,16 +42,16 @@ import {
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    ModuleMemberViewState,
     OnErrorViewState,
     PlusViewState,
+    ServiceViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState
+    ViewState,
+    WhileViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import { ModuleMemberViewState } from "../view-state/module-member";
-import { ServiceViewState } from "../view-state/service";
-import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
