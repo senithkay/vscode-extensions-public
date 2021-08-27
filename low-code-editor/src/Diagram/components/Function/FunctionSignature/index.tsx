@@ -12,9 +12,10 @@
  */
 import React from 'react';
 
-import { FunctionDefinition, IdentifierToken, STKindChecker } from "@ballerina/syntax-tree";
+import { FunctionDefinition, IdentifierToken, RequiredParam, STKindChecker } from "@ballerina/syntax-tree";
 
 import { FunctionViewState } from '../../../view-state';
+import classNames from 'classnames';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition;
@@ -50,13 +51,35 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             }
         });
 
-        functionSignature.parameters.forEach(param => {
-            if (STKindChecker.isRequiredParam(param)) {
-                if (param.annotations.length === 0) {
-                    
-                }
-            }
-        })
+        const queryParamComponents: JSX.Element[] = [];
+        const otherParamComponents: JSX.Element[] = [];
+
+        functionSignature.parameters
+            .filter((param) => STKindChecker.isRequiredParam(param)
+                && (STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
+                    || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
+                    || STKindChecker.isDecimalTypeDesc(param.typeName)))
+            .forEach((param: RequiredParam, i) => {
+                queryParamComponents.push((
+                    <>
+                        {i !== 0 ? '&' : ''}
+                        {param.paramName.value}
+                        <tspan baselineShift='sub' >{(param.typeName as any)?.name?.value}</tspan>
+                    </>
+                ));
+            });
+
+        functionSignature.parameters
+            .filter((param) => STKindChecker.isRequiredParam(param)
+                && !(STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
+                    || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
+                    || STKindChecker.isDecimalTypeDesc(param.typeName)))
+            .forEach((param: RequiredParam, i) => {
+                otherParamComponents.push(
+                    <tspan dx={i > 0 ? 10 : 0}>{param.source}</tspan>
+                )
+
+            })
 
         component.push((
             <>
@@ -70,7 +93,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     xmlSpace="preserve"
                 >
                     <rect
-                        className={'resource-badge'}
+                        className={classNames('resource-badge', `${functionName.value}`)}
                         height={32}
                         width={74}
                         rx={4}
@@ -81,7 +104,14 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                         {functionName.value.toUpperCase()}
                     </text>
                 </svg>
-                <text x={rectProps.x + 74 + 20} y={rectProps.y + 30}>{pathConstruct}</text>
+                <text x={rectProps.x + 74 + 20} y={rectProps.y + 30}>
+                    {pathConstruct}
+                    {queryParamComponents.length > 0 && '?'}
+                    {...queryParamComponents}
+                </text>
+                <text x={'50%'} y={rectProps.y + 30} textAnchor={'right'} >
+                    {...otherParamComponents}
+                </text>
             </>
             // <text></text>
         ))
@@ -89,14 +119,17 @@ export function FunctionSignature(props: FunctionSignatureProps) {
 
     }
 
-
-
-
-
     return (
         <>
             <rect
-                className={'function-rect'}
+                // tslint:disable-next-line: jsx-no-multiline-js
+                className={
+                    classNames(
+                        'function-header-rect',
+                        STKindChecker.isResourceAccessorDefinition(model) ?
+                            model.functionName.value : ''
+                    )
+                }
                 {...rectProps}
                 height={50}
             />

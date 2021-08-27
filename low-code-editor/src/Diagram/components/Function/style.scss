@@ -17,11 +17,47 @@
     fill: #f7f8fb;
 }
 
-.resource-badge {
-    fill: #0095FF;
+.function-header-rect {
+    stroke-width: 1;
+    stroke: #5567d5;
+    fill: #f2f8ff;
+    
+    &.get {
+        fill: #ecf5fe;
+    }
+    &.post {
+        fill: #eaf9f2;
+    }
+    &.put {
+        fill: #fef3e9;
+    }
+    &.delete {
+        fill: #fee9e9;
+    }
+    &.patch {
+        fill: #ebfcf7;
+    }
 }
+
+.resource-badge {
+    &.get {
+        fill: #0095FF;
+    }
+    &.post {
+        fill: #3fc47d;
+    }
+    &.put {
+        fill: #f99026;
+    }
+    &.delete {
+        fill: #f5242e;
+    }
+    &.patch {
+        fill: #47e0b5;
+    }
+}
+
 
 .resource-badge-text {
-    fill: #fff
+    fill: #fff;
 }
-
