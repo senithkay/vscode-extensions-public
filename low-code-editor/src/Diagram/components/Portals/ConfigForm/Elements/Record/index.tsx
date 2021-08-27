@@ -18,21 +18,31 @@ import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
+import {isAllValid, isAllEmpty, isAllOptional} from "../../../../../../utils/validator";
 
 interface RecordProps {
-    validate?: (field: string, isInvalid: boolean) => void;
+    validate?: (field: string, isValid: boolean, isEmpty: boolean) => void;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
+    const { validate } = customProps;
     const classes = useStyles();
+    const validFieldChecker = new Map<string, boolean>();
+    const emptyFieldChecker = new Map<string, boolean>();
 
     const recordFields: React.ReactNode[] = [];
     const optionalRecordFields: React.ReactNode[] = [];
-    let fieldNecessity: string = "";
+
+
+    const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
+        validFieldChecker.set(field, isValid);
+        emptyFieldChecker.set(field, isEmpty);
+        validate(model.name, isAllValid(validFieldChecker, emptyFieldChecker, isAllOptional(model.fields), (model.optional ?? false)),
+            isAllEmpty(emptyFieldChecker));
+    };
 
     if (model) {
-        fieldNecessity = model.optional ? "(Optional)" : "*";
         if (model.fields && model.fields.length > 0) {
             model.fields.map((field: any, index: any) => {
                 if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
@@ -42,7 +52,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                         model: field,
                         index,
                         customProps: {
-                            validate: customProps.validate
+                            validate: validateField
                         }
                     };
 
