@@ -10,188 +10,78 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+
 import {
     BlockStatement,
-    CaptureBindingPattern,
     CheckExpression,
     ElseBlock,
     FunctionDefinition,
-    ImplicitNewExpression,
     LocalVarDecl,
-    NodePosition,
     RemoteMethodCallAction,
     STKindChecker,
     STNode,
     Visitor
 } from "@ballerina/syntax-tree";
 
-import { AnalyzerAction, AnalyzerEndPoint, AnalyzerRequestPayload } from "../../Definitions";
+import { AnalyzerRequestPayload } from "../../Definitions";
+import AnalyzerPayload from "./AnalyzerPayload";
 
-let endPointIdDictionary: { id: string, variableName: string }[][] = [[]];
-let analyzerActionStack: AnalyzerAction[] = [];
-let analyzerPayload: AnalyzerAction;
-let endPointPayload: { [id: string]: AnalyzerEndPoint } = {};
-let endPointId = 1000;
-
+const analyzerPayload = new AnalyzerPayload();
 class AnalyzePayloadVisitor implements Visitor {
 
-    private getEndpointId(variableName: string) {
-        for (const bodyData of endPointIdDictionary) {
-            const result = bodyData.find((endPointData) => endPointData.variableName === variableName);
-            if (result) {
-                return result.id;
-            }
-            else {
-                console.error("No Endpoint found");
-            }
-        }
-    }
-
-    public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
+    public beginVisitLocalVarDecl(node: LocalVarDecl) {
         if ((node.initializer as CheckExpression).typeData.isEndpoint) {
-            const variableName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
-            const position = node.position as NodePosition;
-            const analyzerEndPoint: AnalyzerEndPoint = {
-                name: node.typeData.typeSymbol.name,
-                baseUrl: ((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)
-                    ?.parenthesizedArgList?.arguments[0]?.source.replace(/"/g, ""),
-                pkgID: node?.typeData?.typeSymbol?.moduleID?.orgName + "/" + node?.typeData?.typeSymbol?.moduleID?.moduleName,
-                pos: `(${position?.startLine}:${position?.startColumn},${position?.endLine}:${position?.endColumn})`
-            }
-
-            const id = (++endPointId).toString();
-            endPointIdDictionary[endPointIdDictionary.length - 1].push({ id, variableName })
-            endPointPayload[id] = analyzerEndPoint;
+            analyzerPayload.pushEndPointNode(node);
         }
     }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
-        const positionalArg = node?.arguments.filter(element => element.kind === "PositionalArg").map(element => element.source).join("/").replace(/"/g, "");
-        const endPointReference = this.getEndpointId(node?.expression?.source);
-        if (!endPointReference) {
-            return;
-        }
-
-        const analyzerAction: AnalyzerAction = {
-            endPointRef: endPointReference,
-            name: node.methodName.name.value,
-            path: positionalArg,
-            pos: `choreo.ball:${(node.position as NodePosition).startLine}:${(node.position as NodePosition).startColumn}`
-        }
-
-
-        if (analyzerActionStack.length) {
-            const lastIndex = analyzerActionStack.length - 1;
-            if (this.isEmptyNode(analyzerActionStack[lastIndex])) {
-                analyzerActionStack[lastIndex].endPointRef = endPointReference;
-                analyzerActionStack[lastIndex].name = analyzerAction.name;
-                analyzerActionStack[lastIndex].path = positionalArg;
-                analyzerActionStack[lastIndex].pos = analyzerAction.pos;
-            } else {
-                analyzerActionStack[lastIndex].nextNode = analyzerAction;
-                analyzerActionStack[lastIndex] = analyzerAction;
-            }
-        } else {
-            analyzerPayload = analyzerAction;
-            analyzerActionStack = [analyzerAction];
-        }
+        analyzerPayload.pushActionNode(node);
     }
 
     public beginVisitElseBlock(node: ElseBlock) {
         if (STKindChecker.isIfElseStatement(node.elseBody)) {
-            const newAction: AnalyzerAction = {};
-            const lastIndex = analyzerActionStack.length - 1;
-            analyzerActionStack[lastIndex].elseBody = newAction;
-            analyzerActionStack.push(newAction);
+            analyzerPayload.pushElseBranch();
         }
     }
     public endVisitElseBlock(node: ElseBlock) {
         if (STKindChecker.isIfElseStatement(node.elseBody)) {
-
-            if (analyzerActionStack.length && (analyzerActionStack[analyzerActionStack.length - 1] === {})) {
-                delete analyzerActionStack[analyzerActionStack.length - 1]
-            } else {
-                analyzerActionStack.pop();
-            }
+            analyzerPayload.popBranch();
         }
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        endPointIdDictionary.push([]);
-        const newAction: AnalyzerAction = {};
-        const lastIndex = analyzerActionStack.length - 1;
-        if (analyzerActionStack[lastIndex].endPointRef) {
-            const nextAction: AnalyzerAction = {};
-            analyzerActionStack[lastIndex].nextNode = nextAction;
-            analyzerActionStack[lastIndex] = nextAction;
-        }
+        analyzerPayload.pushBody();
         if (STKindChecker.isElseBlock(parent)) {
-            analyzerActionStack[lastIndex].elseBody = newAction;
-            analyzerActionStack.push(newAction);
+            analyzerPayload.pushElseBranch();
         } else if (STKindChecker.isIfElseStatement(parent)) {
-            analyzerActionStack[lastIndex].ifBody = newAction;
-            analyzerActionStack.push(newAction);
+            analyzerPayload.pushIfBranch();
         } else if (STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-            analyzerActionStack[lastIndex].forBody = newAction;
-            analyzerActionStack.push(newAction);
+            analyzerPayload.pushForBranch();
         }
     }
 
     public endVisitBlockStatement(node: BlockStatement, parent?: STNode) {
         if (STKindChecker.isElseBlock(parent) || STKindChecker.isIfElseStatement(parent)
             || STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-            const lastBody = analyzerActionStack.pop();
-            const newAction: AnalyzerAction = {};
-            const lastIndex = analyzerActionStack.length - 1;
-            if (STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-                if (this.isEmptyNode(lastBody)) {
-                    analyzerActionStack[lastIndex].forBody = null;
-                } else {
-                    analyzerActionStack[lastIndex].nextNode = newAction;
-                    analyzerActionStack[lastIndex] = newAction;
-                }
-            } else if (STKindChecker.isElseBlock(parent)) {
-                if (this.isEmptyNode(lastBody)) {
-                    analyzerActionStack[lastIndex].elseBody = null;
-                }
-            } else if (STKindChecker.isIfElseStatement(parent)) {
-                if (this.isEmptyNode(lastBody)) {
-                    analyzerActionStack[lastIndex].ifBody = null;
-                }
-            }
+                analyzerPayload.popBranch();
         }
-        endPointIdDictionary.pop();
-
+        analyzerPayload.popBody();
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
-        const newAction: AnalyzerAction = {};
-        const lastIndex = analyzerActionStack.length - 1;
-        analyzerActionStack[lastIndex].nextNode = newAction;
-        analyzerActionStack[lastIndex] = newAction;
-        endPointIdDictionary.push([]);
+        analyzerPayload.pushBody();
+        analyzerPayload.addNextNode();
     }
 
-    public endVisitFunctionDefinition(node: FunctionDefinition) {
-        endPointIdDictionary.push([]);
-    }
-
-    private isEmptyNode(action: AnalyzerAction) {
-        return !(action.elseBody || action.ifBody || action.forBody || action.endPointRef || action.nextNode)
-    }
 }
 
 export function getPayload(): AnalyzerRequestPayload {
-    return { endpoints: endPointPayload, actionInvocations: analyzerPayload }
+    return analyzerPayload.getPayload() 
 }
 
 export function analyzerVisitorReset() {
-    const newAction: AnalyzerAction = {};
-    endPointPayload = {};
-    endPointIdDictionary = [];
-    analyzerPayload = newAction;
-    analyzerActionStack = [newAction];
-    endPointId = 1000;
+    analyzerPayload.cleanup();
 }
 
 export const visitor = new AnalyzePayloadVisitor();
