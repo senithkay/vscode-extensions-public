@@ -13,9 +13,9 @@
 import React from 'react';
 
 import { FunctionDefinition, IdentifierToken, RequiredParam, STKindChecker } from "@ballerina/syntax-tree";
+import classNames from 'classnames';
 
 import { FunctionViewState } from '../../../view-state';
-import classNames from 'classnames';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition;
@@ -115,8 +115,6 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             </>
             // <text></text>
         ))
-    } else {
-
     }
 
     return (
