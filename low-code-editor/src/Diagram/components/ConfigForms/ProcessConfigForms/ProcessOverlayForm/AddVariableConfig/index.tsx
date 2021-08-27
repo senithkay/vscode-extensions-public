@@ -215,7 +215,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions."
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",

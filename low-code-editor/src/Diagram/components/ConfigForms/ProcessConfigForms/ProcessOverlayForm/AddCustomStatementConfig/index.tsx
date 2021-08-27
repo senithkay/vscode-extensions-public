@@ -80,7 +80,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions."
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",

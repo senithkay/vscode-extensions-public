@@ -103,7 +103,7 @@ export function AddLogConfig(props: LogConfigProps) {
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions."
+            defaultMessage: "Learn Ballerina expressions"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",

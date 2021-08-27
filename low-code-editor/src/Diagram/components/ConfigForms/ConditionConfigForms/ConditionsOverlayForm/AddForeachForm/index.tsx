@@ -133,7 +133,7 @@ export function AddForeachForm(props: ForeachProps) {
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions."
+                defaultMessage: "Learn Ballerina expressions"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
@@ -159,7 +159,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const invalidConnectionErrorMessage = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
-        defaultMessage: "Invalid collection name"
+        defaultMessage: "Invalid collection name."
     });
 
     const cancelForEachButtonLabel = intl.formatMessage({
