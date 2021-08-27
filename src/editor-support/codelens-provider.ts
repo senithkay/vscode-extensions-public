@@ -143,6 +143,32 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
 async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
     : Promise<DebugConfiguration> {
 
+    let programArgs = [];
+    let commandOptions = [];
+    let env = {};
+    const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
+    if (debugConfigs.length > 0) {
+        let debugConfig: DebugConfiguration | undefined;
+        for (let i = 0; i < debugConfigs.length; i++) {
+            if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
+                (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
+                debugConfig = debugConfigs[i];
+                break;
+            }
+        }
+        if (debugConfig) {
+            if (debugConfig.programArgs) {
+                programArgs = debugConfig.programArgs;
+            }
+            if (debugConfig.commandOptions) {
+                commandOptions = debugConfig.commandOptions;
+            }
+            if (debugConfig.env) {
+                env = debugConfig.env;
+            }
+        }
+    }
+
     const debugConfig: DebugConfiguration = {
         type: LANGUAGE.BALLERINA,
         name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
@@ -153,8 +179,11 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         debuggeePort: '5010',
         'ballerina.home': ballerinaHome,
         'ballerina.command': ballerinaCmd,
-        debugTests: testDebug ? true : false,
-        tests: testDebug ? args : []
+        debugTests: testDebug,
+        tests: testDebug ? args : [],
+        programArgs,
+        commandOptions,
+        env
     };
     return debugConfig;
 }
