@@ -162,7 +162,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         </MenuItem>
                     ) : (
                         <MenuItem value="" disabled={true}>
-                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No Items to Select"/></span>
+                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No items to select"/></span>
                         </MenuItem>
                     )
                 }

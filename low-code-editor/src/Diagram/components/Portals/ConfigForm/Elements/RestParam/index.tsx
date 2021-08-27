@@ -138,7 +138,7 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
                                 <div>
                                     <div className={classes.divider} />
                                     <FormHelperText className={classes.inputLabelWrapper}>
-                                        <FormattedMessage id="lowcode.develop.elements.restParam.addedElements" defaultMessage="Added Items"/>
+                                        <FormattedMessage id="lowcode.develop.elements.restParam.addedElements" defaultMessage="Added items"/>
                                     </FormHelperText>
                                 </div>
                             )

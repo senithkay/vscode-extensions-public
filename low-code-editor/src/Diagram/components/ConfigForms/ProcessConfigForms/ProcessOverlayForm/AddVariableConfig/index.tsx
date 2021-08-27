@@ -205,7 +205,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         customVariableType: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
-                defaultMessage: "Enter the variable type"
+                defaultMessage: "Enter the variable type."
             })
     },
         expressionEditor: {

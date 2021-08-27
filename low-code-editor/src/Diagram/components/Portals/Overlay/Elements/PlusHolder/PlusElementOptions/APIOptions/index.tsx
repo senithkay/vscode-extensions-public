@@ -68,7 +68,7 @@ export function APIOptions(props: APIOptionsProps) {
         httpConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.title",
-                defaultMessage: "Communicate with external endpoints using the HTTP protocol."
+                defaultMessage: "Communicates with external endpoints using the HTTP protocol."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.HTTP.tooltip.content",
@@ -78,7 +78,7 @@ export function APIOptions(props: APIOptionsProps) {
         smtpConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.title",
-                defaultMessage: "Setup an email client to use the SMTP protocol."
+                defaultMessage: "Sets up an email client to use the SMTP protocol."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.SMTP.tooltip.content",
@@ -88,7 +88,7 @@ export function APIOptions(props: APIOptionsProps) {
         pop3Connector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.title",
-                defaultMessage: "Setup an email client to use the POP3 protocol."
+                defaultMessage: "Sets up an email client to use the POP3 protocol."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.POP3.tooltip.content",
@@ -98,8 +98,7 @@ export function APIOptions(props: APIOptionsProps) {
         imapConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.title",
-                defaultMessage: "Setup an email client to use the IMAP protocol.\
-                NOTE : There can be vendor-specific security settings to be setup before using this connector."
+                defaultMessage: "Sets up an email client to use the IMAP protocol. You can set up vendor-specific security settings before using this connector."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.IMAP.tooltip.content",
@@ -109,7 +108,7 @@ export function APIOptions(props: APIOptionsProps) {
         gitHubConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.title",
-                defaultMessage: "Connect with GitHub API to perform operations in GitHub."
+                defaultMessage: "Connects to GitHub API to perform operations in GitHub."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GitHub.tooltip.content",
@@ -119,7 +118,7 @@ export function APIOptions(props: APIOptionsProps) {
         gmailConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.title",
-                defaultMessage: "Connect with Gmail API to perform email operations."
+                defaultMessage: "Connects to Gmail API to perform email operations."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.Gmail.tooltip.content",
@@ -129,7 +128,7 @@ export function APIOptions(props: APIOptionsProps) {
         gCalendarConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.title",
-                defaultMessage: "Connect with Google Calendar API to perform operations in Google Calendar."
+                defaultMessage: "Connects to Google Calendar API to perform operations in Google Calendar."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GCalendar.tooltip.content",
@@ -139,7 +138,7 @@ export function APIOptions(props: APIOptionsProps) {
         gSheetConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.title",
-                defaultMessage: "Connect with Google Sheets API to perform operations in Google Sheets."
+                defaultMessage: "Connects to Google Sheets API to perform operations in Google Sheets."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.GSheet.tooltip.content",
@@ -149,7 +148,7 @@ export function APIOptions(props: APIOptionsProps) {
         slackConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.title",
-                defaultMessage: "Connect with Slack API to perform operations in Slack."
+                defaultMessage: "Connects to Slack API to perform operations in Slack."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.slack.tooltip.content",
@@ -159,7 +158,7 @@ export function APIOptions(props: APIOptionsProps) {
         twilioConnector: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.title",
-                defaultMessage: "Connect with Twilio API and communicate with external services."
+                defaultMessage: "Connects to Twilio API and communicate with external services."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.twilio.tooltip.content",
@@ -169,7 +168,7 @@ export function APIOptions(props: APIOptionsProps) {
         netsuite: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.title",
-                defaultMessage: "Connect with Netsuite API to perform Netsuite operations."
+                defaultMessage: "Connects to NetSuite API to perform NetSuite operations."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.netsuite.tooltip.content",
@@ -179,7 +178,7 @@ export function APIOptions(props: APIOptionsProps) {
         salesforce: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.title",
-                defaultMessage: "Connect with Salesforce API to perform Salesforce operations."
+                defaultMessage: "Connects to Salesforce API to perform Salesforce operations."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.salesforce.tooltip.content",
@@ -189,7 +188,7 @@ export function APIOptions(props: APIOptionsProps) {
         postgreSQL: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.title",
-                defaultMessage: "Connect with PostgreSQL API to access data and perform operations in PostgreSQL."
+                defaultMessage: "Connects to PostgreSQL API to access data and perform operations in PostgreSQL."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.postgreSQL.tooltip.content",
@@ -199,7 +198,7 @@ export function APIOptions(props: APIOptionsProps) {
         gDrive: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.title",
-                defaultMessage: "Connect with Google Drive API to perform file management operations in Google Drive."
+                defaultMessage: "Connects to Google Drive API to perform file management operations in Google Drive."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gDrive.tooltip.content",
@@ -209,7 +208,7 @@ export function APIOptions(props: APIOptionsProps) {
         gPeopleAPI: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.title",
-                defaultMessage: "Connect with Google People API to perform contant management operations in Google People."
+                defaultMessage: "Connects to Google People API to perform contant management operations in Google People."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.gPeopleAPI.tooltip.content",
@@ -219,7 +218,7 @@ export function APIOptions(props: APIOptionsProps) {
         azureEventHub: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.title",
-                defaultMessage: "Connect with Azure Event Hub to perform Event hub service operations."
+                defaultMessage: "Connects to Azure Event Hub to perform Event hub service operations."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureEventHub.tooltip.content",
@@ -229,7 +228,7 @@ export function APIOptions(props: APIOptionsProps) {
         azureCosmosDB: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.title",
-                defaultMessage: "Connect with Azure Cosmos DB to perform database operations in Cosmos DB."
+                defaultMessage: "Connects to Azure Cosmos DB to perform database operations in Cosmos DB."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureCosmosDB.tooltip.content",
@@ -239,7 +238,7 @@ export function APIOptions(props: APIOptionsProps) {
         azureFileService: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.title",
-                defaultMessage: "Connect with Azure Storage File Service to perform operations in Azure File Storage."
+                defaultMessage: "Connects to Azure Storage File Service to perform operations in Azure File Storage."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureFileService.tooltip.content",
@@ -249,7 +248,7 @@ export function APIOptions(props: APIOptionsProps) {
         azureBlobService: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.title",
-                defaultMessage: "Connect with Azure Blob to perform operations in Azure Blob Storage."
+                defaultMessage: "Connects to Azure Blob to perform operations in Azure Blob Storage."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.azureBlobService.tooltip.content",
@@ -259,7 +258,7 @@ export function APIOptions(props: APIOptionsProps) {
         mongoDB: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.title",
-                defaultMessage: "Connect with Mongo DB API to perform database operations."
+                defaultMessage: "Connects to Mongo DB API to perform database operations."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mongoDB.tooltip.content",
@@ -269,7 +268,7 @@ export function APIOptions(props: APIOptionsProps) {
         redis: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.title",
-                defaultMessage: "Connect with Redis to perform operations on a Redis data source."
+                defaultMessage: "Connects to Redis to perform operations on a Redis data source."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.redis.tooltip.content",
@@ -279,7 +278,7 @@ export function APIOptions(props: APIOptionsProps) {
         AWSS3: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.title",
-                defaultMessage: "Connect with Amazon S3 API to manage Amzon S3 buckets and objects."
+                defaultMessage: "Connects to Amazon S3 API to manage Amazon S3 buckets and objects."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSS3.tooltip.content",
@@ -289,7 +288,7 @@ export function APIOptions(props: APIOptionsProps) {
         AWSSQS: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.title",
-                defaultMessage: "Connect with Amazon Simple Queue Service API to manage queues and messages."
+                defaultMessage: "Connects to Amazon Simple Queue Service API to manage queues and messages."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.AWSSQS.tooltip.content",
@@ -299,7 +298,7 @@ export function APIOptions(props: APIOptionsProps) {
         mailByChoreo: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.title",
-                defaultMessage: "Send an email using a pre-configured mail server."
+                defaultMessage: "Sends an email using a preconfigured mail server."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mailByChoreo.tooltip.content",
@@ -309,7 +308,7 @@ export function APIOptions(props: APIOptionsProps) {
         smsByChoreo: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.title",
-                defaultMessage: "Send an SMS using a pre-configured SMS gateway."
+                defaultMessage: "Sends an SMS using a preconfigured SMS gateway."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.smsByChoreo.tooltip.content",
@@ -319,7 +318,7 @@ export function APIOptions(props: APIOptionsProps) {
         covid19Api: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.title",
-                defaultMessage: "Connect with COVID-19 API to get the latest statistics."
+                defaultMessage: "Connects to COVID-19 API to get the latest statistics."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.covid19Api.tooltip.content",
@@ -329,7 +328,7 @@ export function APIOptions(props: APIOptionsProps) {
         weatherApi: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.title",
-                defaultMessage: " Connect with Open Weather Map API to access the current weather data for any location."
+                defaultMessage: "Connects to Open Weather Map API to access the current weather data for any location."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.weatherApi.tooltip.content",
@@ -339,7 +338,7 @@ export function APIOptions(props: APIOptionsProps) {
         worldBankApi: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.title",
-                defaultMessage: "Connect with World Bank Open API to access global development data."
+                defaultMessage: "Connects to World Bank Open API to access global development data."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.worldBankApi.tooltip.content",
@@ -349,7 +348,7 @@ export function APIOptions(props: APIOptionsProps) {
         asb: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.title",
-                defaultMessage: "Connect with Microsoft Azure Service Bus to perform messaging services."
+                defaultMessage: "Connects to Microsoft Azure Service Bus to perform messaging services."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.asb.tooltip.content",
@@ -359,7 +358,7 @@ export function APIOptions(props: APIOptionsProps) {
         zoom: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.zoom.tooltip.title",
-                defaultMessage: "Connect with Zoom API to access your meeting information."
+                defaultMessage: "Connects to Zoom API to access your meeting information."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.zoom.tooltip.content",
@@ -379,7 +378,7 @@ export function APIOptions(props: APIOptionsProps) {
         sendgrid: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.sendgrid.tooltip.title",
-                defaultMessage: "Connect with SendGrid API to deliver transactional and marketing emails."
+                defaultMessage: "Connects to SendGrid API to deliver transactional and marketing emails."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.sendgrid.tooltip.content",
@@ -389,7 +388,7 @@ export function APIOptions(props: APIOptionsProps) {
         medium: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.medium.tooltip.title",
-                defaultMessage: "Connect with Medium API to access online publications."
+                defaultMessage: "Connects to Medium API to access online publications."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.medium.tooltip.content",
@@ -399,7 +398,7 @@ export function APIOptions(props: APIOptionsProps) {
         leanix: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.leanix.tooltip.title",
-                defaultMessage: "Connect with LeanIX Integration API."
+                defaultMessage: "Connects to LeanIX Integration API."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.leanix.tooltip.content",
@@ -409,7 +408,7 @@ export function APIOptions(props: APIOptionsProps) {
         mysql: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.title",
-                defaultMessage: "Connect with MySQL API to access data and perform operations in MySQL."
+                defaultMessage: "Connects to MySQL API to access data and perform operations in MySQL."
             }),
             content: intl.formatMessage({
                 id: "lowcode.develop.configForms.plusHolder.plusElements.connections.mysql.tooltip.content",
