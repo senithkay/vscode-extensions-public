@@ -60,7 +60,7 @@ export {
     getLowCodeSTFnSelected,
     sizingAndPositioningST,
     recalculateSizingAndPositioningST,
-    analyzerRequestPayload
+    getAnalyzerRequestPayload
 } from './Diagram/utils/st-util';
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";

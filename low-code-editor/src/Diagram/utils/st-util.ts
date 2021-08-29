@@ -10,10 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
+import {
+    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
     ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     SimpleNameReference, STKindChecker,
-    STNode, traversNode, TypeCastExpression, VisibleEndpoint } from '@ballerina/syntax-tree';
+    STNode, traversNode, TypeCastExpression, VisibleEndpoint
+} from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
@@ -242,15 +244,15 @@ export function getDiagnosticsFromVisitor(st: ModulePart): Diagnostic[] {
 }
 
 
-export function checkEmptyBasePath (modulePart: ModulePart): Warning[] {
+export function checkEmptyBasePath(modulePart: ModulePart): Warning[] {
     const members: STNode[] = modulePart.members;
-    const warnings : Warning[] =  [];
+    const warnings: Warning[] = [];
     for (const member of members) {
-        const node : STNode = member;
+        const node: STNode = member;
         if (STKindChecker.isServiceDeclaration(node)) {
-            const serviceDef : ServiceDeclaration = node as ServiceDeclaration;
+            const serviceDef: ServiceDeclaration = node as ServiceDeclaration;
             if (serviceDef.absoluteResourcePath && serviceDef.absoluteResourcePath.length === 0) {
-                warnings.push({message: "Observability not supported for services with empty basepaths", type: "Empty Base Path", position: serviceDef.position });
+                warnings.push({ message: "Observability not supported for services with empty basepaths", type: "Empty Base Path", position: serviceDef.position });
             }
         }
     }
@@ -258,7 +260,7 @@ export function checkEmptyBasePath (modulePart: ModulePart): Warning[] {
 }
 
 
-export function getWarningsFromST (modulePart: ModulePart): Warning[] {
+export function getWarningsFromST(modulePart: ModulePart): Warning[] {
     const servicesWithEmptyBasePaths = checkEmptyBasePath(modulePart);
     return servicesWithEmptyBasePaths;
 }
@@ -604,7 +606,7 @@ export function getConfigDataFromSt(triggerType: TriggerType, model: any, curren
     }
 }
 
-export function getCronFromUtcCron(utcCron: string) : string {
+export function getCronFromUtcCron(utcCron: string): string {
     const cronSplit = utcCron?.split(" ", 5);
     if (getSchType(utcCron) === "Day") {
         const updateCronStartTime = new Date();
@@ -620,7 +622,7 @@ export function getCronFromUtcCron(utcCron: string) : string {
     }
 }
 
-export function getSchType(cron: string) : string {
+export function getSchType(cron: string): string {
     const cronSplit = cron?.split(" ", 5);
     const count = cronSplit.filter(value => value === "*").length;
 
@@ -652,7 +654,7 @@ export function sizingAndPositioningST(st: STNode): STNode {
     return clone;
 }
 
-export function analyzerRequestPayload (st: STNode) {
+export function getAnalyzerRequestPayload(st: STNode) {
     analyzerVisitorReset();
     traversNode(st, analyzePayloadVisitor);
     return getPayload();
