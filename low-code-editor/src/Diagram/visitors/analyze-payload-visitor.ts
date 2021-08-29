@@ -24,6 +24,7 @@ import {
 } from "@ballerina/syntax-tree";
 
 import { AnalyzerRequestPayload } from "../../Definitions";
+
 import AnalyzerPayload from "./AnalyzerPayload";
 
 const analyzerPayload = new AnalyzerPayload();
@@ -77,7 +78,7 @@ class AnalyzePayloadVisitor implements Visitor {
 }
 
 export function getPayload(): AnalyzerRequestPayload {
-    return analyzerPayload.getPayload() 
+    return analyzerPayload.getPayload();
 }
 
 export function analyzerVisitorReset() {

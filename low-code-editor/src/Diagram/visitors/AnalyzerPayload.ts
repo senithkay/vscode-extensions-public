@@ -11,7 +11,8 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, CheckExpression, ImplicitNewExpression, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, StringLiteral} from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckExpression, ImplicitNewExpression, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, StringLiteral } from "@ballerina/syntax-tree";
+
 import { AnalyzerAction, AnalyzerEndPoint } from "../../Definitions";
 
 export default class AnalyzerPayload {
@@ -21,12 +22,30 @@ export default class AnalyzerPayload {
     private endPointPayload: { [id: string]: AnalyzerEndPoint } = {};
     private endPointId = 1000;
 
-    private getLastIndex(array: Array<any>) {
+    private getLastIndex(array: any[]) {
         if (array.length) {
             return array.length - 1;
         } else {
             return 0;
         }
+    }
+
+    private getEndpointId(variableName: string) {
+        for (const bodyData of this.endPointIdDictionary) {
+            const result = bodyData.find((endPointData) => endPointData.variableName === variableName);
+            if (result) {
+                return result.id;
+            }
+        }
+    }
+
+    private isEmptyNode(action: AnalyzerAction) {
+        return !(action.elseBody || action.ifBody || action.forBody
+            || action.endPointRef || action.nextNode);
+    }
+
+    private isEmptyNodeForElse(action: AnalyzerAction) {
+        return !(action.forBody);
     }
 
     public addNextNode() {
@@ -35,7 +54,6 @@ export default class AnalyzerPayload {
         const newNode: AnalyzerAction = {};
         parentBranch.nextNode = newNode;
         this.analyzerActionStack[lastIndex] = newNode;
-
     }
 
     public pushIfBranch() {
@@ -101,19 +119,10 @@ export default class AnalyzerPayload {
         }
     }
 
-    private getEndpointId(variableName: string) {
-        for (const bodyData of this.endPointIdDictionary) {
-            const result = bodyData.find((endPointData) => endPointData.variableName === variableName);
-            if (result) {
-                return result.id;
-            }
-        }
-    }
-
     public pushActionNode(node: RemoteMethodCallAction) {
         const endPointReference = this.getEndpointId(node?.expression?.source);
 
-        // Abort the execution on no reference end point found
+        // Abort the execution when no reference found
         if (!endPointReference) {
             return;
         }
@@ -148,13 +157,13 @@ export default class AnalyzerPayload {
         this.endPointIdDictionary.pop();
     }
 
-    public pushEndPointNode(node: LocalVarDecl,) {
+    public pushEndPointNode(node: LocalVarDecl) {
         const variableName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
         const position = node.position as NodePosition;
         const analyzerEndPoint: AnalyzerEndPoint = {
             name: node.typeData.typeSymbol.name,
             baseUrl: ((((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)
-                ?.parenthesizedArgList?.arguments[0] as PositionalArg )?.expression as StringLiteral)?.literalToken?.value.replace(/"/g, ""),
+                ?.parenthesizedArgList?.arguments[0] as PositionalArg)?.expression as StringLiteral)?.literalToken?.value.replace(/"/g, ""),
             pkgID: node?.typeData?.typeSymbol?.moduleID?.orgName + "/" + node?.typeData?.typeSymbol?.moduleID?.moduleName,
             pos: `(${position?.startLine}:${position?.startColumn},${position?.endLine}:${position?.endColumn})`
         }
@@ -162,15 +171,6 @@ export default class AnalyzerPayload {
         const id = (++this.endPointId).toString();
         this.endPointIdDictionary[this.getLastIndex(this.endPointIdDictionary)].push({ id, variableName })
         this.endPointPayload[id] = analyzerEndPoint;
-    }
-
-
-    private isEmptyNode(action: AnalyzerAction) {
-        return !(action.elseBody || action.ifBody || action.forBody || action.endPointRef || action.nextNode)
-    }
-
-    private isEmptyNodeForElse(action: AnalyzerAction) {
-        return !(action.forBody)
     }
 
     public cleanup() {
