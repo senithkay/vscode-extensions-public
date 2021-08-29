@@ -14,11 +14,11 @@
 import React from "react";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
+import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../../utils/validator";
 import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
-import {isAllValid, isAllEmpty, isAllOptional} from "../../../../../../utils/validator";
 
 interface RecordProps {
     validate?: (field: string, isValid: boolean, isEmpty: boolean) => void;
@@ -87,7 +87,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
-                isMandatory={!model.optional}
+                isMandatory={!(model.optional ?? false)}
             />
         </div>
     );

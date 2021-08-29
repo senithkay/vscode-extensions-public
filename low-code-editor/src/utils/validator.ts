@@ -150,8 +150,8 @@ export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
     return result;
 }
 
-export function isAllValid (validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
-                    isAllChildrenOptional: boolean, isOptional: boolean): boolean {
+export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
+                           isAllChildrenOptional: boolean, isOptional: boolean): boolean {
     let result = true;
     validFields.forEach((isValid, key) => {
         if (!isValid) {

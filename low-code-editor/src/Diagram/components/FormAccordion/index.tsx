@@ -30,63 +30,60 @@ interface FormAccordionProps {
 }
 
 export default function FormAccordion(props: FormAccordionProps) {
-    const { title, depth, mandatoryFields, optionalFields, isMandatory } = props;
+    const {title, depth, mandatoryFields, optionalFields, isMandatory} = props;
     const classes = useStyles();
-    const [ expanded, setExpanded ] = React.useState<string | false>('mandatory');
+    const [expanded, setExpanded] = React.useState<string | false>('mandatory');
 
-    const isEmptyMandatoryFields = mandatoryFields?.length === 0;
-    const isEmptyOptionalFields = optionalFields?.length === 0;
+    const isMandatoryFieldsExist = mandatoryFields?.length > 0;
+    const isOptionalFieldsExist = optionalFields?.length > 0;
 
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : false);
     };
-
     return (
         <div className={classes.accordionWrapper}>
-            { !isEmptyMandatoryFields && isEmptyOptionalFields && (
-                <div className={classes.groupedForm}>
-                    {mandatoryFields}
-                </div >
-            ) }
-            { !isEmptyMandatoryFields && !isEmptyOptionalFields && (
-                <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
-                    {title && (
-                        <ExpansionPanelSummary
-                            className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1bh-content"
-                            id="panel1bh-header"
-                        >
-                            <Typography className={classes.accordionHeading}>{title}</Typography>
-                            <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>
-                        </ExpansionPanelSummary>
-                    ) }
-                    <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
-                        <div className={classes.groupedForm}>
-                            {mandatoryFields}
-                        </div >
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
-            ) }
-            { !isEmptyOptionalFields && (
-                <ExpansionPanel TransitionProps={{ mountOnEnter: true }} className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={(isMandatory && isEmptyMandatoryFields) || expanded === 'optional'} onChange={handleChange('optional')}>
+            {isMandatoryFieldsExist && (
+                <ExpansionPanel TransitionProps={{mountOnEnter: true}} className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst} expanded={true}>
+                {title && (
                     <ExpansionPanelSummary
                         className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
-                        expandIcon={<ExpandMoreIcon />}
+                        expandIcon={<ExpandMoreIcon/>}
                         aria-controls="panel1bh-content"
                         id="panel1bh-header"
                     >
-                        {title && isEmptyMandatoryFields && (<Typography className={classes.accordionHeading}>{title}</Typography>)}
-                        {title !== "optional" && !isMandatory && <Typography className={classes.accordionSecondaryHeading}>&nbsp; Optional</Typography>}
-                        {title !== "optional" && isMandatory && <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>}
+                        <Typography className={classes.accordionHeading}>{title}</Typography>
+                        <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>
                     </ExpansionPanelSummary>
-                    <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
-                        <div className={classes.groupedForm}>
-                            {optionalFields}
-                        </div >
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
-            ) }
+                )}
+                <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
+                    <div className={classes.groupedForm}>
+                        {mandatoryFields}
+                    </div>
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+            )}
+            {isOptionalFieldsExist && (
+                <ExpansionPanel TransitionProps={{mountOnEnter: true}} className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst} expanded={(!isMandatoryFieldsExist && isMandatory) || expanded === 'optional'} onChange={handleChange('optional')}>
+                <ExpansionPanelSummary
+                    className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}
+                    expandIcon={<ExpandMoreIcon/>}
+                    aria-controls="panel1bh-content"
+                    id="panel1bh-header"
+                >
+                    {!isMandatoryFieldsExist && title && title !== "Optional" && (
+                        <Typography className={classes.accordionHeading}>{title}</Typography>)}
+                    {(isMandatoryFieldsExist || (!isMandatoryFieldsExist && !isMandatory)) &&
+                    <Typography className={classes.accordionSecondaryHeading}>&nbsp; Optional</Typography>}
+                    {title !== "Optional" && !isMandatoryFieldsExist && isMandatory &&
+                    <Typography className={classes.accordionSecondaryRedHeading}>*</Typography>}
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={depth > 1 ? classes.accordionDetails : classes.accordionDetailsFirst}>
+                    <div className={classes.groupedForm}>
+                        {optionalFields}
+                    </div>
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+            )}
         </div>
     );
 }
