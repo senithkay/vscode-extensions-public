@@ -28,18 +28,18 @@ export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
     const { validate } = customProps;
     const classes = useStyles();
-    const validFieldChecker = new Map<string, boolean>();
-    const emptyFieldChecker = new Map<string, boolean>();
+    const validFieldChecker = React.useRef(new Map<string, boolean>());
+    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
 
     const recordFields: React.ReactNode[] = [];
     const optionalRecordFields: React.ReactNode[] = [];
 
 
     const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.set(field, isValid);
-        emptyFieldChecker.set(field, isEmpty);
-        validate(model.name, isAllValid(validFieldChecker, emptyFieldChecker, isAllOptional(model.fields), (model.optional ?? false)),
-            isAllEmpty(emptyFieldChecker));
+        validFieldChecker.current.set(field, isValid);
+        emptyFieldChecker.current.set(field, isEmpty);
+        validate(model.name, isAllValid(validFieldChecker.current, emptyFieldChecker.current,
+                isAllOptional(model.fields), (model.optional ?? false)), isAllEmpty(emptyFieldChecker.current));
     };
 
     if (model) {

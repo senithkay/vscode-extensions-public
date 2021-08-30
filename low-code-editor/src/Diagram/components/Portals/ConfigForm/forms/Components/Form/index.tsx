@@ -33,8 +33,8 @@ export function Form(props: FormProps) {
     const classes = useStyles();
     const elements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
-    const validFieldChecker = new Map<string, boolean>();
-    const emptyFieldChecker = new Map<string, boolean>();
+    const validFieldChecker = React.useRef(new Map<string, boolean>());
+    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
@@ -44,9 +44,9 @@ export function Form(props: FormProps) {
     }, [])
 
     const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.set(field, isValid);
-        emptyFieldChecker.set(field, isEmpty);
-        onValidate(isAllValid(validFieldChecker, emptyFieldChecker, false, true));
+        validFieldChecker.current.set(field, isValid);
+        emptyFieldChecker.current.set(field, isEmpty);
+        onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true));
     };
 
     fields.map((field, index) => {
