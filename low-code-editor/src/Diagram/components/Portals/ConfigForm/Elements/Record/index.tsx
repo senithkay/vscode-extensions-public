@@ -14,25 +14,35 @@
 import React from "react";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
+import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../../utils/validator";
 import FormAccordion from "../../../../../components/FormAccordion";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 
 interface RecordProps {
-    validate?: (field: string, isInvalid: boolean) => void;
+    validate?: (field: string, isValid: boolean, isEmpty: boolean) => void;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
+    const { validate } = customProps;
     const classes = useStyles();
+    const validFieldChecker = React.useRef(new Map<string, boolean>());
+    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
 
     const recordFields: React.ReactNode[] = [];
     const optionalRecordFields: React.ReactNode[] = [];
-    let fieldNecessity: string = "";
+
+
+    const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
+        validFieldChecker.current.set(field, isValid);
+        emptyFieldChecker.current.set(field, isEmpty);
+        validate(model.name, isAllValid(validFieldChecker.current, emptyFieldChecker.current,
+                isAllOptional(model.fields), (model.optional ?? false)), isAllEmpty(emptyFieldChecker.current));
+    };
 
     if (model) {
-        fieldNecessity = model.optional ? "(Optional)" : "*";
         if (model.fields && model.fields.length > 0) {
             model.fields.map((field: any, index: any) => {
                 if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
@@ -42,7 +52,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                         model: field,
                         index,
                         customProps: {
-                            validate: customProps.validate
+                            validate: validateField
                         }
                     };
 
@@ -77,6 +87,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                 depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
+                isMandatory={!(model.optional ?? false)}
             />
         </div>
     );

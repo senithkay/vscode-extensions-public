@@ -122,7 +122,7 @@ monaco.editor.defineTheme('exp-theme', {
 const BALLERINA_EXPR = "ballerina-exp";
 
 export interface ExpressionEditorProps {
-    validate?: (field: string, isInvalid: boolean) => void;
+    validate?: (field: string, isValid: boolean, isEmpty: boolean) => void;
     clearInput?: boolean;
     tooltipTitle?: any;
     tooltipActionText?: string;
@@ -197,15 +197,16 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
+        const isEmpty = (model.value ?? "") === "";
         if (model.validationRegex && model.type === PrimitiveBalType.String) {
             if ((!model.value.trim().startsWith("\"") && !model.value.trim().endsWith("\"")) || monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
-                validate(model.name, false);
+                validate(model.name, true, isEmpty);
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             } else {
                 notValidExpEditor(`Invalid ${textLabel}`);
             }
         } else {
-            validate(model.name, false);
+            validate(model.name, true, isEmpty);
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             }
@@ -217,7 +218,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.optional === true && (currentContent === undefined || currentContent === "") && !invalidSourceCode) {
             validExpEditor();
         } else {
-            validate(model.name, true);
+            validate(model.name, false, false);
             setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef));
             if (monacoRef.current) {
                 if (updateState) {
