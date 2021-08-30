@@ -12,15 +12,11 @@
  */
 import React from "react"
 
-import {CaptureBindingPattern, ModuleVarDecl, ServiceDeclaration, STNode} from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-tree";
 
-import { getSTComponents } from "../../utils";
-import { BlockViewState } from "../../view-state";
-import {ModuleMemberViewState} from "../../view-state/module-member";
-import { ServiceViewState } from "../../view-state/service";
-import { PlusButton } from "../Plus";
+import { ModuleMemberViewState } from "../../view-state";
 
-import {ModuleVariableSVG} from "./ModuleVariableSVG";
+import { ModuleVariableSVG } from "./ModuleVariableSVG";
 import "./style.scss";
 
 export interface ModuleVariableProps {

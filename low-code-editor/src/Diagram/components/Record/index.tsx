@@ -10,45 +10,38 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react'
+import React from "react"
 
-import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
 
-import { ModuleMemberViewState } from "../../view-state";
+import { ModuleMemberViewState } from "../../view-state/module-member";
 
-import { ListenerSVG } from "./ListenerSVG";
+import { RecordSVG } from "./RecordSVG";
 import "./style.scss";
 
-export interface ListenerProps {
+export interface RecordProps {
     model: STNode;
 }
 
-export function ListenerC(props: ListenerProps) {
+export function Record(props: RecordProps) {
     const { model } = props;
 
-    const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
+    const recordModel: TypeDefinition = model as TypeDefinition;
+    const viewState: ModuleMemberViewState = recordModel.viewState;
 
-    const viewState: ModuleMemberViewState = listenerModel.viewState;
-    const listenerName = listenerModel.variableName.value;
-    let listenerPort = "";
-    listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
-        listenerPort += argument.source.trim();
-    });
-    const type = listenerModel.typeDescriptor.identifier.value;
+    const varName = recordModel.typeName.value;
+    const type = (recordModel.typeDescriptor as RecordTypeDesc).recordKeyword.value;
 
     return (
-        <g className={"listener"}>
-            <ListenerSVG
+        <g className="record">
+            <RecordSVG
                 x={viewState.bBox.x}
                 y={viewState.bBox.y}
                 h={viewState.bBox.h}
                 w={viewState.bBox.w}
                 type={type}
-                name={listenerName}
-                port={listenerPort}
+                name={varName}
             />
         </g>
     );
 }
-
-export const Listener = ListenerC;
