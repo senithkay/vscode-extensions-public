@@ -197,7 +197,7 @@ class PositioningVisitor implements Visitor {
             bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
         }
 
-        viewState.end.bBox.cx = viewState.bBox.cx;
+        viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         // this.beginFunctionTypeNode(node);

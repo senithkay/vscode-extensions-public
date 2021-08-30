@@ -48,6 +48,7 @@ export function Function(props: FunctionProps) {
         y: viewState.bBox.cy,
         width: viewState.bBox.w,
         height: viewState.bBox.h,
+        rx: 4
     };
 
     if (isExpressionFuncBody) {

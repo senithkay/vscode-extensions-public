@@ -113,7 +113,38 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     {...otherParamComponents}
                 </text>
             </>
-            // <text></text>
+        ))
+    } else {
+        const functionSignature = model.functionSignature;
+        const functionName: IdentifierToken = model.functionName as IdentifierToken;
+
+        const params: JSX.Element[] = [];
+        functionSignature.parameters
+            .forEach((param: RequiredParam, i) => {
+                params.push(
+                    <tspan dx={i > 0 ? 10 : 0}>{param.source}</tspan>
+                )
+            })
+
+        component.push((
+            <>
+                <svg
+                    x={rectProps.x + 10}
+                    y={rectProps.y + 10}
+                    height={32}
+                    width={74}
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    xmlSpace="preserve"
+                >
+                    <text x={0} y={"50%"} dy={'.3em'} >
+                        {functionName.value}
+                    </text>
+                    <text x={'50%'} y={rectProps.y + 30} textAnchor={'right'} >
+                        {...params}
+                    </text>
+                </svg>
+            </>
         ))
     }
 

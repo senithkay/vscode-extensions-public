@@ -245,6 +245,8 @@ class SizingVisitor implements Visitor {
             }
         });
 
+        // node.members.forEach(mem)
+
         viewState.bBox.w = width + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding;
         if (viewState.bBox.w < DEFAULT_SERVICE_WIDTH) {
             viewState.bBox.w = DEFAULT_SERVICE_WIDTH;
