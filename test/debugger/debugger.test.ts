@@ -169,59 +169,59 @@ suite('Ballerina Debug Adapter', () => {
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
         });
 
-        test('step In, hello world service - package', async () => {
-            const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
-            const debuggeePort = await getAvailablePort(5009);
-            const launchArgs = {
-                script: program,
-                "ballerina.home": BALLERINA_HOME,
-                request: "launch",
-                name: "Ballerina Debug",
-                "debugServer": DEBUG_PORT,
-                "debuggeePort": debuggeePort
-            };
+        // test('step In, hello world service - package', async () => {
+        //     const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
+        //     const debuggeePort = await getAvailablePort(5009);
+        //     const launchArgs = {
+        //         script: program,
+        //         "ballerina.home": BALLERINA_HOME,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //         "debugServer": DEBUG_PORT,
+        //         "debuggeePort": debuggeePort
+        //     };
 
-            const location = { path: program, line: 17, column: undefined };
-            return await Promise.all([
-                dc.waitForEvent('initialized').then(_event => {
-                    return dc.setBreakpointsRequest({
-                        lines: [location.line],
-                        breakpoints: [{ line: location.line, column: location.column }],
-                        source: { path: location.path }
-                    });
-                }).then(response => {
-                    const bp = response.body.breakpoints[0];
-                    assert.equal(bp.verified, true, 'breakpoint verification mismatch: verified');
-                    const actualLocation = {
-                        column: bp.column,
-                        line: bp.line,
-                        path: bp.source && bp.source.path
-                    };
-                    if (actualLocation.path) {
-                        assert.equal(actualLocation.path, location.path, 'breakpoint verification mismatch: path');
-                    }
-                    if (typeof actualLocation.line === 'number') {
-                        assert.equal(actualLocation.line, location.line, 'breakpoint verification mismatch: line');
-                    }
-                    if (typeof location.column === 'number' && typeof actualLocation.column === 'number') {
-                        assert.equal(actualLocation.column, location.column, 'breakpoint verification mismatch: column');
-                    }
-                    return dc.configurationDoneRequest();
-                }),
-                dc.launch(launchArgs),
-                dc.waitForEvent('stopped').then(async event => {
-                    assert.equal(event.body.reason, 'breakpoint', 'Invalid \'breakpoint\' stopped event.');
-                    await dc.stepInRequest({
-                        threadId: event.body.threadId
-                    });
-                    const stepInEvent = await dc.waitForEvent('stopped', 25000);
-                    assert.equal(stepInEvent.body.reason, "step", 'Invalid \'step\' stopped event.');
-                    return await dc.stackTraceRequest({
-                        threadId: stepInEvent.body.threadId,
-                    });
-                })
-            ]);
-        });
+        //     const location = { path: program, line: 17, column: undefined };
+        //     return await Promise.all([
+        //         dc.waitForEvent('initialized').then(_event => {
+        //             return dc.setBreakpointsRequest({
+        //                 lines: [location.line],
+        //                 breakpoints: [{ line: location.line, column: location.column }],
+        //                 source: { path: location.path }
+        //             });
+        //         }).then(response => {
+        //             const bp = response.body.breakpoints[0];
+        //             assert.equal(bp.verified, true, 'breakpoint verification mismatch: verified');
+        //             const actualLocation = {
+        //                 column: bp.column,
+        //                 line: bp.line,
+        //                 path: bp.source && bp.source.path
+        //             };
+        //             if (actualLocation.path) {
+        //                 assert.equal(actualLocation.path, location.path, 'breakpoint verification mismatch: path');
+        //             }
+        //             if (typeof actualLocation.line === 'number') {
+        //                 assert.equal(actualLocation.line, location.line, 'breakpoint verification mismatch: line');
+        //             }
+        //             if (typeof location.column === 'number' && typeof actualLocation.column === 'number') {
+        //                 assert.equal(actualLocation.column, location.column, 'breakpoint verification mismatch: column');
+        //             }
+        //             return dc.configurationDoneRequest();
+        //         }),
+        //         dc.launch(launchArgs),
+        //         dc.waitForEvent('stopped').then(async event => {
+        //             assert.equal(event.body.reason, 'breakpoint', 'Invalid \'breakpoint\' stopped event.');
+        //             await dc.stepInRequest({
+        //                 threadId: event.body.threadId
+        //             });
+        //             const stepInEvent = await dc.waitForEvent('stopped', 25000);
+        //             assert.equal(stepInEvent.body.reason, "step", 'Invalid \'step\' stopped event.');
+        //             return await dc.stackTraceRequest({
+        //                 threadId: stepInEvent.body.threadId,
+        //             });
+        //         })
+        //     ]);
+        // });
     });
 });
 
