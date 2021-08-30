@@ -12,7 +12,6 @@
  */
 import { DefaultConfig } from "../visitors/default";
 
-import { PlusViewState } from "./plus";
 import { StatementViewState } from "./statement";
 
 export class ModuleMemberViewState extends StatementViewState {

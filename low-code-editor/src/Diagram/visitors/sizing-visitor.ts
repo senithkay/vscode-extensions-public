@@ -30,7 +30,7 @@ import {
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
-    STNode,
+    STNode, TypeDefinition,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
@@ -47,6 +47,7 @@ import { MODULE_VAR_HEIGHT, MODULE_VAR_WIDTH } from "../components/ModuleVariabl
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/Processor/ProcessSVG";
+import {RECORD_HEIGHT, RECORD_WIDTH} from "../components/Record/RecordSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
@@ -141,6 +142,12 @@ class SizingVisitor implements Visitor {
         const viewState = node.viewState as ModuleMemberViewState;
         viewState.bBox.w = MODULE_VAR_WIDTH;
         viewState.bBox.h = MODULE_VAR_HEIGHT;
+    }
+
+    public beginVisitTypeDefinition(node: TypeDefinition) {
+        const viewState = node.viewState as ModuleMemberViewState;
+        viewState.bBox.w = RECORD_WIDTH;
+        viewState.bBox.h = RECORD_HEIGHT;
     }
 
     private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
