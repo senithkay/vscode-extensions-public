@@ -24,6 +24,7 @@ import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
+import { runSemanticTokensTestCases } from './semantic-tokens.test';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -767,6 +768,12 @@ suite("Language Server Tests", function () {
         }, (reason) => {
             done(reason);
         });
+    });
+
+    test("Test Semantic Highlighting", async function (): Promise<void> {
+        const result: boolean = await runSemanticTokensTestCases(langClient);
+        assert.equal(result, true, "Semantic highlighting test cases failed.");
+        return Promise.resolve();
     });
 
     test("Test Language Server Stop", (done) => {
