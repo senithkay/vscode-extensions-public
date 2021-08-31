@@ -186,7 +186,8 @@ export function OutputTypeConfigForm() {
         config.outputType = {
             ...option,
             generationType,
-            variableName
+            variableName,
+            typeDefInSameModule: true
         }
     }
 
@@ -278,7 +279,7 @@ export function OutputTypeConfigForm() {
             generationType,
             typeInfo,
             variableName: variableOption.name,
-            sampleStructure
+            sampleStructure,
         }
         setVariableName(variableOption.name);
     }
@@ -335,7 +336,7 @@ export function OutputTypeConfigForm() {
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;
-                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                    outputType = config.outputType?.typeDefInSameModule ?
                         outputTypeInfo.name
                         : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                     break;
@@ -358,7 +359,7 @@ export function OutputTypeConfigForm() {
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;
-                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                    outputType = config.outputType?.typeDefInSameModule ?
                         outputTypeInfo.name
                         : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                     break;

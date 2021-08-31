@@ -100,7 +100,7 @@ export function DataMapper(props: DataMapperProps) {
             switch (dataMapperConfig.outputType.type) {
                 case 'record':
                     const typeInfo = dataMapperConfig.outputType.typeInfo;
-                    outputType = typeInfo.moduleName !== currentApp.name ?
+                    outputType = !dataMapperConfig.outputType.typeDefInSameModule ?
                         `${typeInfo.moduleName}:${typeInfo.name}`
                         : typeInfo.name;
                     break;
