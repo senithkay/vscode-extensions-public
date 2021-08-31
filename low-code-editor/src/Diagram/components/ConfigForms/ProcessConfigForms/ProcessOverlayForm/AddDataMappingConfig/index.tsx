@@ -161,7 +161,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 generationType,
                 typeInfo: outputTypeInfo,
                 startLine: outputST.position.startLine,
-                typeDefInSameModule: outputTypeInfo.moduleName === outputSymbol.moduleID?.moduleName
+                typeDefInSameModule: outputTypeInfo?.moduleName === outputSymbol.moduleID?.moduleName
             }
 
             dataMapperStart(dataMapperConfig);
