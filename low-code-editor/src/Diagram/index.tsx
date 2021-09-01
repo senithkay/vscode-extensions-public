@@ -33,6 +33,7 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
+import { CanvasDiagram } from "./components/CanvasContainer";
 export interface DiagramProps {
     isReadOnly: boolean;
     syntaxTree: STNode;
@@ -74,7 +75,7 @@ export function Diagram(props: DiagramProps) {
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics && diagnostics.length;
-    const numberOfWarnings  = (warnings && warnings.length);
+    const numberOfWarnings = (warnings && warnings.length);
     const diagramErrors = diagnostics && diagnostics.length > 0;
     const diagramWarnings = warnings && warnings.length > 0;
     const warningsInDiagram = warnings && warnings.length > 0;
@@ -122,7 +123,7 @@ export function Diagram(props: DiagramProps) {
         </div>
     );
 
-    const diagramStatus = (diagnosticInDiagram ||  warningsInDiagram) ? diagramErrorMessage : null;
+    const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -174,7 +175,22 @@ export function Diagram(props: DiagramProps) {
 
             {isErrorDetailsOpen && <ErrorList />}
 
-            <PanAndZoom>
+            <Container className={classes.DesignContainer}>
+                <div id="canvas-overlay" className={classes.OverlayContainer} />
+                {isDataMapperShown && (
+                    <DataMapper width={w} />
+                )}
+                {!isDataMapperShown && (
+                    <CanvasDiagram>
+                        {child}
+                    </CanvasDiagram>
+                )}
+                {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                {isConfigOverlayFormOpen && <OverlayBackground />}
+            </Container>
+
+            {/* <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     {isDataMapperShown && (
@@ -189,7 +205,7 @@ export function Diagram(props: DiagramProps) {
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
-            </PanAndZoom>
+            </PanAndZoom> */}
         </div>
     );
 }
