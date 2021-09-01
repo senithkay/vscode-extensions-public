@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, CheckExpression, ImplicitNewExpression, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, StringLiteral } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckExpression, ImplicitNewExpression, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, STKindChecker, StringLiteral, StringLiteralToken } from "@ballerina/syntax-tree";
 
 import { AnalyzerAction, AnalyzerEndPoint } from "../../Definitions";
 
@@ -20,7 +20,6 @@ export default class AnalyzerPayload {
     private analyzerActionStack: AnalyzerAction[] = [];
     private analyzerPayload: AnalyzerAction;
     private endPointPayload: { [id: string]: AnalyzerEndPoint } = {};
-    private endPointId = 1000;
 
     private getLastIndex(array: any[]) {
         if (array.length) {
@@ -102,19 +101,19 @@ export default class AnalyzerPayload {
 
         if (this.isEmptyNode(lastBranch)) {
             if (parentBranch?.elseBody && this.isEmptyNode(parentBranch?.elseBody)) {
-                parentBranch.elseBody = null
+                parentBranch.elseBody = null;
             }
 
             if (parentBranch?.forBody && this.isEmptyNode(parentBranch?.forBody)) {
-                parentBranch.forBody = null
+                parentBranch.forBody = null;
             }
 
             if (parentBranch?.ifBody && this.isEmptyNode(parentBranch?.ifBody)) {
-                parentBranch.ifBody = null
+                parentBranch.ifBody = null;
             }
 
             if (parentBranch?.nextNode && this.isEmptyNode(parentBranch?.nextNode)) {
-                parentBranch.nextNode = null
+                parentBranch.nextNode = null;
             }
         }
     }
@@ -127,12 +126,15 @@ export default class AnalyzerPayload {
             return;
         }
 
-        const positionalArg = node?.arguments.filter(element => element.kind === "PositionalArg")
-            .map(element => element.source).join("/").replace(/"/g, "");
+        let path: string;
+        if (node?.arguments.length > 0 && STKindChecker.isStringLiteral((node?.arguments[0] as PositionalArg).expression)) {
+            path = ((node?.arguments[0] as PositionalArg).expression as StringLiteral).literalToken.value.replace(/"/g, "")
+        }
+
         const analyzerAction: AnalyzerAction = {
             endPointRef: endPointReference,
             name: node.methodName.name.value,
-            path: positionalArg,
+            path: path ? path : null,
             pos: `choreo.ball:${(node.position as NodePosition).startLine}:${(node.position as NodePosition).startColumn}`
         }
 
@@ -140,7 +142,7 @@ export default class AnalyzerPayload {
         if (this.isEmptyNode(this.analyzerActionStack[lastIndex])) {
             this.analyzerActionStack[lastIndex].endPointRef = endPointReference;
             this.analyzerActionStack[lastIndex].name = analyzerAction.name;
-            this.analyzerActionStack[lastIndex].path = positionalArg;
+            this.analyzerActionStack[lastIndex].path = path ? path : null;
             this.analyzerActionStack[lastIndex].pos = analyzerAction.pos;
         } else {
             this.analyzerActionStack[lastIndex].nextNode = analyzerAction;
@@ -160,16 +162,19 @@ export default class AnalyzerPayload {
     public pushEndPointNode(node: LocalVarDecl) {
         const variableName = (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
         const position = node.position as NodePosition;
+        const baseUrl = ((((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)
+            ?.parenthesizedArgList?.arguments[0] as PositionalArg)?.expression as StringLiteral)?.literalToken?.value.replace(/"/g, "")
+        const pkgID = node?.typeData?.typeSymbol?.moduleID?.orgName + "/" + node?.typeData?.typeSymbol?.moduleID?.moduleName;
+
         const analyzerEndPoint: AnalyzerEndPoint = {
             name: node.typeData.typeSymbol.name,
-            baseUrl: ((((node.initializer as CheckExpression)?.expression as ImplicitNewExpression)
-                ?.parenthesizedArgList?.arguments[0] as PositionalArg)?.expression as StringLiteral)?.literalToken?.value.replace(/"/g, ""),
-            pkgID: node?.typeData?.typeSymbol?.moduleID?.orgName + "/" + node?.typeData?.typeSymbol?.moduleID?.moduleName,
-            pos: `(${position?.startLine}:${position?.startColumn},${position?.endLine}:${position?.endColumn})`
+            baseUrl: baseUrl ? baseUrl : null,
+            pos: `(${position?.startLine}:${position?.startColumn},${position?.endLine}:${position?.endColumn})`,
+            pkgID
         }
 
-        const id = (++this.endPointId).toString();
-        this.endPointIdDictionary[this.getLastIndex(this.endPointIdDictionary)].push({ id, variableName })
+        const id = `${position.startLine.toString()}:${position.startColumn.toString()}:${position.endLine.toString()}:${position.endColumn.toString()}`;
+        this.endPointIdDictionary[this.getLastIndex(this.endPointIdDictionary)].push({ id, variableName });
         this.endPointPayload[id] = analyzerEndPoint;
     }
 
@@ -179,7 +184,6 @@ export default class AnalyzerPayload {
         this.endPointIdDictionary = [[]];
         this.analyzerPayload = newAction;
         this.analyzerActionStack = [newAction];
-        this.endPointId = 1000;
     }
 
     public getPayload() {
