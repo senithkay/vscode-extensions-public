@@ -13,13 +13,7 @@
 import React from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
-import { grey } from '@material-ui/core/colors';
-import { ViewQuilt } from '@material-ui/icons';
-import { relative } from 'path';
-
 import { ModuleMemberViewState, ViewState } from "../../view-state";
-
-import { ListenerSVG } from "./ListenerSVG";
 import "./style.scss";
 
 export interface ListenerProps {
