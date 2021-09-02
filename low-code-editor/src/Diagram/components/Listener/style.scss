@@ -10,39 +10,47 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.listener {
-    .listener-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #f7f8fb;
-        stroke-dasharray: 3;
-        rx: 6;
-    }
 
-    .listener-type-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #cbcedb;
-        rx: 4;
-    }
+.listener-comp {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    height: 49px;
+    width: 255px;
+    border: 1px solid #E6E7EC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    margin: 25px;
+}
 
-    .listener-type-text {
-        height: 24px;
-        width: 24px;
-        fill: #222228;
-        font-family: inherit;
-        font-size: 12px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.listener-icon {
+    height: 16px;
+    width: 13px;
+    background-color: #40404B;
+    margin-top: 16.5px;
+    margin-left: 17.5px;
+}
 
-    .listener-attribute-text {
-        height: 24px;
-        width: 24px;
-        fill: #8d91a3;
-        font-family: inherit;
-        font-size: 13px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.listener-type {
+    margin-left: 12px;
+    margin-top: 10.5px;
+    height: 24px;
+    width: 34px;
+    color: #222228;
+    font-family: Gilmer;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 24px;
+}
+
+.listener-name {
+    margin-left: 21px;
+    margin-top: 10.5px;
+    height: 24px;
+    width: 104px;
+    color: #8D91A3;
+    font-family: Gilmer;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 24px;
 }

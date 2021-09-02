@@ -14,9 +14,8 @@ import React from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
-import { ModuleMemberViewState } from "../../view-state";
+import { ModuleMemberViewState, ViewState } from "../../view-state";
 
-import { ListenerSVG } from "./ListenerSVG";
 import "./style.scss";
 
 export interface ListenerProps {
@@ -37,17 +36,15 @@ export function ListenerC(props: ListenerProps) {
     const type = listenerModel.typeDescriptor.identifier.value;
 
     return (
-        <g className={"listener"}>
-            <ListenerSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                h={viewState.bBox.h}
-                w={viewState.bBox.w}
-                type={type}
-                name={listenerName}
-                port={listenerPort}
-            />
-        </g>
+        <div className="listener-comp" >
+            <div className="listener-icon" />
+            <div className="listener-type">
+                HTTP
+            </div>
+            <div className="listener-name">
+                {listenerName}
+            </div>
+        </div>
     );
 }
 
