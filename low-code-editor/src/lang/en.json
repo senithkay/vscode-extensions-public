@@ -400,7 +400,7 @@
     "lowcode.develop.elements.dateLabelPicker.optional": "Optional",
     "lowcode.develop.elements.deleteConfirmationDialog.cancelButton.text": "Cancel",
     "lowcode.develop.elements.deleteConfirmationDialog.removeButton.text": "Remove",
-    "lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text": "No Items to Select",
+    "lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text": "No items to select",
     "lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label": "Optional",
     "lowcode.develop.elements.expressionEditor.expressionError.errorMessage": "This expression could cause an error.",
     "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage": "Error occurred in the code-editor. Please fix it first to continue.",
