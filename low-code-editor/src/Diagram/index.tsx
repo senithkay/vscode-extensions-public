@@ -21,6 +21,7 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
+import { CanvasDiagram } from "./components/CanvasContainer";
 import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
@@ -33,7 +34,6 @@ import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
-import { CanvasDiagram } from "./components/CanvasContainer";
 export interface DiagramProps {
     isReadOnly: boolean;
     syntaxTree: STNode;

@@ -18,6 +18,7 @@ import {
     CheckAction,
     ForeachStatement,
     FunctionDefinition,
+    ListenerDeclaration,
     LocalVarDecl,
     MethodCall, ModuleVarDecl, NumericLiteral,
     QualifiedNameReference,
@@ -40,6 +41,8 @@ const callStatement: Map<string, STNode[]> = new Map();
 const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
 const recordTypeDescriptions: Map<string, STNode> = new Map();
+const listeners: Map<string, STNode> = new Map();
+
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -145,6 +148,7 @@ class SymbolFindingVisitor implements Visitor {
             recordTypeDescriptions.set(recordMapKey, node);
         }
     }
+
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
             node.qualifiers.find(token => token.value === "configurable")) {
@@ -168,6 +172,10 @@ class SymbolFindingVisitor implements Visitor {
         } else {
             variables.set(type, [node]);
         }
+    }
+
+    public beginVisitListenerDeclaration(node: ListenerDeclaration) {
+        listeners.set(node.variableName.value, node);
     }
 
 }
@@ -237,7 +245,8 @@ export function getSymbolInfo(): STSymbolInfo {
         callStatement,
         variableNameReferences,
         assignmentStatement,
-        recordTypeDescriptions
+        recordTypeDescriptions,
+        listeners
     }
 }
 
