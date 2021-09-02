@@ -19,23 +19,22 @@ import { getSTComponents } from "../../utils";
 import { ServiceViewState } from "../../view-state";
 import { PlusButton } from "../Plus";
 
-import { ServiceHeaderSVG } from "./ServiceHeaderSVG";
+import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
 
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 
 export interface ServiceProps {
-    model: STNode;
+    model: ServiceDeclaration;
 }
 
 export function Service(props: ServiceProps) {
     const { model } = props;
 
     const pluses: React.ReactNode[] = [];
-    const serviceModel: ServiceDeclaration = model as ServiceDeclaration;
-    const children = getSTComponents(serviceModel.members);
+    const children = getSTComponents(model.members);
 
-    const viewState: ServiceViewState = serviceModel.viewState;
+    const viewState: ServiceViewState = model.viewState;
     const rectProps = {
         x: viewState.bBox.cx,
         y: viewState.bBox.cy,
@@ -53,34 +52,20 @@ export function Service(props: ServiceProps) {
     }
 
     let listener = "";
-    serviceModel.expressions.forEach((expression, index) => {
+    model.expressions.forEach((expression, index) => {
         listener = (index === 0) ? expression.source?.trim() : `${listener}, ${expression.source?.trim()}`;
     });
 
     let absolutePath = "";
-    serviceModel.absoluteResourcePath.forEach((path) => {
+    model.absoluteResourcePath.forEach((path) => {
         absolutePath += path.value;
     });
 
-    let serviceType = "";
-    if ((serviceModel.expressions[0] as ExplicitNewExpression).typeDescriptor.source === "http:Listener") {
-        serviceType = "HTTP";
-    }
 
     return (
-        <g className="service">
-            <rect className="service-rect" {...rectProps} />
-            <ServiceHeaderSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                w={viewState.bBox.w}
-                type={serviceType}
-                path={absolutePath}
-                listener={listener}
-            />
-            {children}
-            {pluses}
-        </g>
+        <div className={'service'} >
+            <ServiceHeader model={model} />
+        </div>
     );
 }
 

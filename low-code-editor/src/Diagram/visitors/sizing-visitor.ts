@@ -50,7 +50,7 @@ import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHA
 import {RECORD_HEIGHT, RECORD_WIDTH} from "../components/Record/RecordSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
-import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeaderSVG";
+import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeader";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";

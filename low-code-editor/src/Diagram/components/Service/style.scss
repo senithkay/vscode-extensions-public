@@ -11,36 +11,25 @@
  * associated services.
  */
 .service {
-    .service-rect {
-        stroke-width: 1;
-        stroke: #5567d5;
-        fill: #f7f8fb;
+    box-sizing: border-box;
+    border: 1px solid #E6E7EC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    margin-left: 25px;
+    margin-right: 25px;
+
+    .selected {
+        margin-left: 0px;
     }
 
-    .service-type-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #cbcedb;
-        rx: 4;
+    .service-header {
+        display: flex;
+        flex-direction: row;
+        padding: 15px;
+        border-bottom: 1px #E6E7EC solid;
     }
 
-    .service-type-text {
-        height: 24px;
-        width: 24px;
-        fill: #222228;
-        font-family: inherit;
-        font-size: 12px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
-
-    .service-attribute-text {
-        height: 24px;
-        width: 24px;
-        fill: #8d91a3;
-        font-family: inherit;
-        font-size: 13px;
-        letter-spacing: 0;
-        line-height: 24px;
+    .icon {
+        margin-right: 15px;
     }
 }

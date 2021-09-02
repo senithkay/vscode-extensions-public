@@ -20,7 +20,7 @@ export function CanvasDiagram(props: CanvasDiagramProps) {
     const { children } = props;
 
     return (
-        <div>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
             {children}
         </div>
     );
