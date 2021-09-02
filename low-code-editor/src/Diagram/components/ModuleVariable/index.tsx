@@ -17,7 +17,8 @@ import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { useStyles } from "../diagram-styles";
+
+import "./style.scss";
 
 export const MIN_MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MIN_MODULE_VAR_MARGIN_TOP: number = 31;
@@ -30,7 +31,6 @@ export interface ModuleVariableProps {
 
 export function ModuleVariable(props: ModuleVariableProps) {
     const { model } = props;
-    const moduleVarClasses = useStyles();
 
     const [isEditable, setIsEditable] = useState(false);
 
@@ -49,7 +49,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
 
     return (
         <div
-            className={moduleVarClasses.moduleVariableContainer}
+            className={"moduleVariableContainer"}
             style={{
                 marginLeft: MIN_MODULE_VAR_MARGIN_LEFT,
                 marginTop: MIN_MODULE_VAR_MARGIN_TOP,
@@ -59,22 +59,22 @@ export function ModuleVariable(props: ModuleVariableProps) {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <div className={moduleVarClasses.moduleVariableWrapper}>
-                <div className={moduleVarClasses.moduleVariableIcon}>
+            <div className={"moduleVariableWrapper"}>
+                <div className={"moduleVariableIcon"}>
                     {/*    todo add icon */}
                 </div>
-                <p className={moduleVarClasses.moduleVariableTypeText}>
+                <p className={"moduleVariableTypeText"}>
                     {varType}
                 </p>
-                <p className={moduleVarClasses.moduleVariableNameText}>
+                <p className={"moduleVariableNameText"}>
                     {`${varName} = ${varValue}`}
                 </p>
                 { isEditable && (
                     <>
-                        <div className={moduleVarClasses.editBtnWrapper}>
+                        <div className={"editBtnWrapper"}>
                             <EditButton/>
                         </div>
-                        <div className={moduleVarClasses.deleteBtnWrapper}>
+                        <div className={"deleteBtnWrapper"}>
                             <DeleteButton/>
                         </div>
                     </>

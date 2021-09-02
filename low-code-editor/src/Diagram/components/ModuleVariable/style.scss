@@ -10,49 +10,44 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+.moduleVariableContainer {
+    border: 1px solid #e6e7ec;
+    border-radius: 6px;
+    background-color: #fff;
+}
 
-.listener-comp {
+.moduleVariableWrapper {
     display: flex;
     flex-direction: row;
-    box-sizing: border-box;
-    height: 49px;
-    width: 275px;
-    border: 1px solid #E6E7EC;
-    border-radius: 6px;
-    background-color: #FFFFFF;
-    margin-top: 31px;
-    margin-left: 24.5px;
 }
 
-.listener-icon {
-    height: 16px;
-    width: 13px;
-    background-color: #40404B;
-    margin-top: 16.5px;
-    margin-left: 17.5px;
+.moduleVariableIcon {
+    height: 18px;
+    width: 18px;
+    // background-color: `#40404B`;
+    background-color: red;
+    margin: 15.5px 12px 15.5px 14.5px;
 }
 
-.listener-type {
-    margin-left: 12px;
-    margin-top: 10.5px;
+.moduleVariableTypeText {
     height: 24px;
-    width: 34px;
-    color: #222228;
-    font-family: Gilmer;
+    width: 60px;
+    margin: 10.5px 0 14.5px 0;
+    font-family: inherit;
     font-size: 13px;
     letter-spacing: 0;
+    color: #222228;
     line-height: 24px;
 }
 
-.listener-name {
-    margin-left: 21px;
-    margin-top: 10.5px;
+.moduleVariableNameText {
     height: 24px;
     width: 104px;
-    color: #8D91A3;
-    font-family: Gilmer;
+    margin: 10.5px 0 14.5px 0;
+    font-family: inherit;
     font-size: 13px;
     letter-spacing: 0;
+    color: #8d91a3;
     line-height: 24px;
 }
 

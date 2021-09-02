@@ -17,7 +17,6 @@ import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { useStyles } from "../diagram-styles";
 
 import "./style.scss";
 
@@ -27,7 +26,6 @@ export interface ListenerProps {
 
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
-    const classes = useStyles();
 
     const [isEditable, setIsEditable] = useState(false);
 
@@ -57,10 +55,10 @@ export function ListenerC(props: ListenerProps) {
             </div>
             { isEditable && (
                 <>
-                    <div className={classes.editBtnWrapper}>
+                    <div className={"editBtnWrapper"}>
                         <EditButton/>
                     </div>
-                    <div className={classes.deleteBtnWrapper}>
+                    <div className={"deleteBtnWrapper"}>
                         <DeleteButton/>
                     </div>
                 </>
