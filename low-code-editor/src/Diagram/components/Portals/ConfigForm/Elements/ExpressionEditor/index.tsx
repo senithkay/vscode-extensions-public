@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { FormHelperText } from "@material-ui/core";
+import { FormHelperText, LinearProgress } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
@@ -30,7 +30,14 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, DIAGNOSTIC_MAX_LENGTH, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
+import {
+    acceptedKind,
+    COLLAPSE_WIDGET_ID,
+    DIAGNOSTIC_MAX_LENGTH,
+    EDITOR_MAXIMUM_CHARACTERS,
+    EXPAND_EDITOR_MAXIMUM_CHARACTERS,
+    EXPAND_WIDGET_ID, TRIGGER_CHARACTERS
+} from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -189,6 +196,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
+    const [validating, setValidating] = useState<boolean>(false);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -201,12 +209,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.validationRegex && model.type === PrimitiveBalType.String) {
             if ((!model.value.trim().startsWith("\"") && !model.value.trim().endsWith("\"")) || monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
                 validate(model.name, false, isEmpty);
+                setValidating(false);
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             } else {
                 notValidExpEditor(`Invalid ${textLabel}`);
             }
         } else {
             validate(model.name, false, isEmpty);
+            setValidating(false);
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             }
@@ -219,6 +229,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validExpEditor();
         } else {
             validate(model.name, true, false);
+            setValidating(false);
             setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef));
             if (monacoRef.current) {
                 if (updateState) {
@@ -268,9 +279,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             notValidExpEditor("Code has errors, please fix them first.");
         } else if (expressionEditorState?.name === model.name) {
             if (!expressionEditorState.diagnostic) {
-                if (monacoRef.current) {
-                    notValidExpEditor("Please wait for validation");
-                }
+                return
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
                     notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
@@ -313,7 +322,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the content of the editor has changed
             disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
                 const lastPressedKey = event.changes && event.changes.length > 0 && event.changes[0].text;
-                notValidExpEditor("Please wait for validation");
+                setValidating(true)
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
                     // Trim EOL chars onPasteEvent
@@ -885,9 +894,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }}>
+            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }} >
+                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -896,6 +905,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
                         />
+                        {validating && <LinearProgress className="exp-linear-loader"/>}
                     </div>
                 </div>
             </div>
@@ -905,7 +915,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
-                    ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                    ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
