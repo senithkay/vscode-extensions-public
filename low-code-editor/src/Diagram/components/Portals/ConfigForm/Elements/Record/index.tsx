@@ -21,7 +21,7 @@ import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 
 interface RecordProps {
-    validate?: (field: string, isValid: boolean, isEmpty: boolean) => void;
+    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
@@ -35,10 +35,10 @@ export function Record(props: FormElementProps<RecordProps>) {
     const optionalRecordFields: React.ReactNode[] = [];
 
 
-    const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.current.set(field, isValid);
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
+        validFieldChecker.current.set(field, !isInvalid);
         emptyFieldChecker.current.set(field, isEmpty);
-        validate(model.name, isAllValid(validFieldChecker.current, emptyFieldChecker.current,
+        validate(model.name, !isAllValid(validFieldChecker.current, emptyFieldChecker.current,
                 isAllOptional(model.fields), (model.optional ?? false)), isAllEmpty(emptyFieldChecker.current));
     };
 

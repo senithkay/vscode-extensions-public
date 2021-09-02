@@ -43,8 +43,8 @@ export function Form(props: FormProps) {
         }
     }, [])
 
-    const validateField = (field: string, isValid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.current.set(field, isValid);
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
+        validFieldChecker.current.set(field, !isInvalid);
         emptyFieldChecker.current.set(field, isEmpty);
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true));
     };
