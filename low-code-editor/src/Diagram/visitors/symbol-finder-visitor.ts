@@ -148,6 +148,7 @@ class SymbolFindingVisitor implements Visitor {
             recordTypeDescriptions.set(recordMapKey, node);
         }
     }
+
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
             node.qualifiers.find(token => token.value === "configurable")) {

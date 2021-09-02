@@ -13,6 +13,7 @@
 import React, { useContext } from "react"
 
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+
 import { Context as DiagramContext } from '../../../Contexts/Diagram'
 
 import "./style.scss";
@@ -47,7 +48,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     });
 
     let serviceType = "";
-    let listeningOnText = "";
+    const listeningOnText = "";
 
     if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
         if (STKindChecker.isQualifiedNameReference(model.expressions[0].typeDescriptor)) {
