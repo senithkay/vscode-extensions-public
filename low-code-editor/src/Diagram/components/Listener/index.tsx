@@ -14,10 +14,13 @@ import React from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
-import { ModuleMemberViewState } from "../../view-state";
+import { ModuleMemberViewState, ViewState } from "../../view-state";
 
 import { ListenerSVG } from "./ListenerSVG";
 import "./style.scss";
+import { relative } from 'path';
+import { ViewQuilt } from '@material-ui/icons';
+import { grey } from '@material-ui/core/colors';
 
 export interface ListenerProps {
     model: STNode;
@@ -37,17 +40,16 @@ export function ListenerC(props: ListenerProps) {
     const type = listenerModel.typeDescriptor.identifier.value;
 
     return (
-        <g className={"listener"}>
-            <ListenerSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                h={viewState.bBox.h}
-                w={viewState.bBox.w}
-                type={type}
-                name={listenerName}
-                port={listenerPort}
-            />
-        </g>
+        <div className="rectangle-copy-29" >
+            <div className="listener-icon" >
+            </div>
+            <div className="listener-type">
+                HTTP
+            </div>
+            <div className="listener-name">
+                {listenerName}
+            </div>
+        </div>
     );
 }
 
