@@ -13,7 +13,9 @@
 import React from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
+
 import { ModuleMemberViewState, ViewState } from "../../view-state";
+
 import "./style.scss";
 
 export interface ListenerProps {
