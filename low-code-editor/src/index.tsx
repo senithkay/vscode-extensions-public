@@ -63,7 +63,7 @@ export {
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
-export { cleanAll, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
+export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
