@@ -16,11 +16,12 @@
     flex-direction: row;
     box-sizing: border-box;
     height: 49px;
-    width: 255px;
+    width: 275px;
     border: 1px solid #E6E7EC;
     border-radius: 6px;
     background-color: #FFFFFF;
-    margin: 25px;
+    margin-top: 31px;
+    margin-left: 24.5px;
 }
 
 .listener-icon {
@@ -53,4 +54,15 @@
     font-size: 13px;
     letter-spacing: 0;
     line-height: 24px;
+}
+
+.editBtnWrapper {
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.deleteBtnWrapper {
+    cursor: pointer;
+    margin-top: 15px;
+    margin-left: 20px;
 }

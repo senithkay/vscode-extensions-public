@@ -43,7 +43,7 @@ import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/ForEach/For
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/ForEach/ThreeDotsSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../components/Listener/ListenerSVG";
-import { MODULE_VAR_HEIGHT, MODULE_VAR_WIDTH } from "../components/ModuleVariable/ModuleVariableSVG";
+import { MIN_MODULE_VAR_WIDTH, MODULE_VAR_HEIGHT } from "../components/ModuleVariable";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/Processor/ProcessSVG";
@@ -140,7 +140,7 @@ class SizingVisitor implements Visitor {
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         const viewState = node.viewState as ModuleMemberViewState;
-        viewState.bBox.w = MODULE_VAR_WIDTH;
+        viewState.bBox.w = MIN_MODULE_VAR_WIDTH;
         viewState.bBox.h = MODULE_VAR_HEIGHT;
     }
 
