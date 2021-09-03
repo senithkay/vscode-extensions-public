@@ -12,12 +12,15 @@
  */
 import React from "react"
 
-import { RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, RecordFieldWithDefaultValue, STNode, TypeDefinition } from "@ballerina/syntax-tree";
 
 import { ModuleMemberViewState } from "../../view-state/module-member";
 
-import { RecordSVG } from "./RecordSVG";
+import DeleteButton from "../../../assets/icons/DeleteButton";
+import EditButton from "../../../assets/icons/EditButton";
+
 import "./style.scss";
+
 
 export interface RecordProps {
     model: STNode;
@@ -32,16 +35,50 @@ export function Record(props: RecordProps) {
     const varName = recordModel.typeName.value;
     const type = (recordModel.typeDescriptor as RecordTypeDesc).recordKeyword.value;
 
+    const record = [];
+    for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
+        if (field.kind === "RecordField") {
+            const fieldName = field.fieldName.value;
+            const fieldType = field.typeName.source?.trim();
+            record.push([fieldType, fieldName]);
+        } else if (field.kind === "RecordFieldWithDefaultValue") {
+            const fieldName = field.fieldName.value;
+            const fieldType = field.typeName.source?.trim();
+            const fieldValue = (field as RecordFieldWithDefaultValue).expression.source
+            record.push([fieldType, fieldName + " = " + fieldValue]);
+        }
+    }
+
     return (
-        <g className="record">
-            <RecordSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                h={viewState.bBox.h}
-                w={viewState.bBox.w}
-                type={type}
-                name={varName}
-            />
-        </g>
+        <div className="record-comp" >
+            <div className="record-header" >
+                <div className="record-icon" />
+                <div className="record-type">
+                    Record
+                </div>
+                <div className="record-name">
+                    {varName}
+                </div>
+                <div className="record-edit">
+                    <EditButton />
+                </div>
+                <div className="record-delete">
+                    <DeleteButton />
+                </div>
+            </div>
+            <div className="record-separator" />
+            <div className="record-fields" >
+                {record.map(recordfield => (
+                    <div className="record-field">
+                        <div className="record-field-type">
+                            {recordfield[0]}
+                        </div>
+                        <div className="record-field-name">
+                            {recordfield[1]};
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }
