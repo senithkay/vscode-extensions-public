@@ -17,7 +17,7 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } f
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { ModuleMemberPlus } from "../ModuleMemberPlus";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -98,7 +98,7 @@ export function Record(props: RecordProps) {
                     </>
                 )}
             </div>
-            <ModuleMemberPlus
+            <TopLevelPlus
                 margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
             />
         </>

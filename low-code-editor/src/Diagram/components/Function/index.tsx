@@ -21,9 +21,9 @@ import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
-import { ModuleMemberPlus } from "../ModuleMemberPlus";
 import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
+import { TopLevelPlus } from "../TopLevelPlus";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
@@ -113,7 +113,7 @@ export function Function(props: FunctionProps) {
                     {/* </Container> */}
                 </div>
             </div>
-            <ModuleMemberPlus
+            <TopLevelPlus
                 margin={{ top: FUNCTION_PLUS_MARGIN_TOP, bottom : FUNCTION_PLUS_MARGIN_BOTTOM, left: FUNCTION_PLUS_MARGIN_LEFT }}
             />
         </>

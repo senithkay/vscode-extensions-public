@@ -17,7 +17,7 @@ import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
 import { FUNCTION_PLUS_MARGIN_LEFT } from "../Function";
-import { ModuleMemberPlus } from "../ModuleMemberPlus";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
@@ -40,14 +40,14 @@ export function Service(props: ServiceProps) {
             <div className={'service'} >
                 <ServiceHeader model={model} />
                 {/* initial plus inside a resource function */}
-                <ModuleMemberPlus
+                <TopLevelPlus
                     margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: FUNCTION_PLUS_MARGIN_LEFT }}
                 />
                 <div className={'content-container'}>
                     {children}
                 </div>
             </div>
-            <ModuleMemberPlus
+            <TopLevelPlus
                 margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: SERVICE_MARGIN_LEFT }}
             />
         </>

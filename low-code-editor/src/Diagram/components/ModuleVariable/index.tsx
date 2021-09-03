@@ -17,7 +17,7 @@ import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { ModuleMemberPlus } from "../ModuleMemberPlus";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -82,7 +82,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     )}
                 </div>
             </div>
-            <ModuleMemberPlus
+            <TopLevelPlus
                 margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
             />
         </div>
