@@ -11,53 +11,113 @@
  * associated services.
  */
 
-.function-rect {
-    stroke-width: 1;
-    stroke: #5567d5;
-    fill: #f7f8fb;
-}
+.function-box {
+    box-sizing: border-box;
+    border: 1px solid #C1E4FC;
+    border-radius: 6px;
+    background-color: #F4FAFF;
+    margin: 10px;
+    height: 100px;
 
-.function-header-rect {
-    stroke-width: 1;
-    stroke: #5567d5;
-    fill: #f2f8ff;
-    
     &.get {
-        fill: #ecf5fe;
+        background-color: #F4FAFF;
+        border: 1px dashed #C1E4FC;
+        &.expanded {
+            border: 1px solid #C1E4FC;
+        }
     }
     &.post {
-        fill: #eaf9f2;
+        background-color: #F5FFF7;
+        border: 1px dashed #CDF1DF;
+        &.expanded {
+            border: 1px solid #CDF1DF;
+        }
     }
     &.put {
-        fill: #fef3e9;
+        background-color: #FFFBF6;
+        border: 1px dashed #FEE6C8;
+        &.expanded {
+            border: 1px solid #FEE6C8;
+        }
     }
     &.delete {
-        fill: #fee9e9;
+        background-color: #fceded;
+        border: 1px dashed #F8C2C2;
+        &.expanded {
+            border: 1px solid #F8C2C2;
+        }
     }
     &.patch {
-        fill: #ebfcf7;
+        background-color: #F4FAFF;
+        border: 1px dashed #C1E4FC;
+        &.expanded {
+            border: 1px solid #C1E4FC;
+        }
+    }
+
+    .function-signature {
+        height: 48px;
+        display: flex;
+        flex-direction: row;
+        border-bottom: 1px #C1E4FC solid;
+
+        &.get {
+            border-bottom: 1px solid #C1E4FC;
+        }
+        &.post {
+            border-bottom: 1px solid #CDF1DF;
+        }
+        &.put {
+            border-bottom: 1px solid #FEE6C8;
+        }
+        &.delete {
+            border-bottom: 1px solid #F8C2C2;
+        }
+        &.patch {
+            border-bottom: 1px solid #C1E4FC;
+        }
+        
+        .path-text {
+            margin-top: 10px;
+            margin-left: 8px;
+        }
+
+        .resource-badge {
+            height: 32px;
+            width: 67px;
+            margin: 8px 0 8px 8px;
+            border-radius: 4px;
+
+            .text {
+                color: #FFFFFF;
+                font-size: 12px;
+                letter-spacing: 0;
+                line-height: 14px;
+                text-align: center;
+                margin-top: 8px;
+            }
+
+            &.get {
+                background-color: #0095FF;
+            }
+            &.post {
+                background-color: #3fc47d;
+            }
+            &.put {
+                background-color: #FF9D52;
+            }
+            &.delete {
+                background-color: #f5242e;
+            }
+            &.patch {
+                background-color: #5567D5;
+            }
+        }
     }
 }
 
-.resource-badge {
-    &.get {
-        fill: #0095FF;
-    }
-    &.post {
-        fill: #3fc47d;
-    }
-    &.put {
-        fill: #f99026;
-    }
-    &.delete {
-        fill: #f5242e;
-    }
-    &.patch {
-        fill: #47e0b5;
-    }
-}
-
-
-.resource-badge-text {
-    fill: #fff;
+.param-container {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
 }

@@ -25,6 +25,7 @@ import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
+import classNames from "classnames";
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -85,8 +86,15 @@ export function Function(props: FunctionProps) {
     }
 
     return (
-        <g>
-            {component}
-        </g>
+        <div
+            className={
+                classNames(
+                    'function-box',
+                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                )
+            }
+        >
+            <FunctionSignature model={model} />
+        </div>
     );
 }

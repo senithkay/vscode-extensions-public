@@ -48,16 +48,18 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     });
 
     let serviceType = "";
-    const listeningOnText = "";
+    let listeningOnText = "";
 
     if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
         if (STKindChecker.isQualifiedNameReference(model.expressions[0].typeDescriptor)) {
             serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+            listeningOnText = model.expressions[0].source;
         }
     } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
         const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(model.expressions[0].name.value);
         if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
             serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
+            listeningOnText = model.expressions[0].source;
         }
     }
 
@@ -77,7 +79,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 {servicePath}
             </div>
             <div className={'icon'}>
-                {listeningOnText.length > 0 ? listeningOnText : ''}
+                {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ''}
             </div>
         </div >
     );
