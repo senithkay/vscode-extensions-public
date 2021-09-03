@@ -18,10 +18,10 @@
  */
 
 import { isSupportedVersion, VERSION } from "../utils";
-import { languages } from "vscode";
+import { languages, Uri, workspace, EventEmitter } from "vscode";
 import { BallerinaExtension, LANGUAGE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
-import { ReadOnlyFileProvider } from "./readonly-file-provider";
+import { createBalaContentProvider } from "./readonly-file-provider";
 import { StringSplitFeature, StringSplitter } from "./split-provider";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -39,6 +39,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
-    // Create a read only file provider
-    new ReadOnlyFileProvider(ballerinaExtInstance).markReadOnlyFiles();
+    // Create a read only content provider
+    const blProvider = createBalaContentProvider(new EventEmitter<Uri>());
+    ballerinaExtInstance.context.subscriptions.push(workspace.registerTextDocumentContentProvider('bala', blProvider));
 }
