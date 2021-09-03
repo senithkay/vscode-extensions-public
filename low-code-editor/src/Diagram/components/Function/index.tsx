@@ -20,6 +20,7 @@ import classNames from "classnames";
 import { Context } from "../../../Contexts/Diagram";
 import { useStyles } from "../../../Diagram/styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
+import { Canvas } from "../Canvas";
 import { End } from "../End";
 import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
@@ -29,7 +30,6 @@ import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
-import { Canvas } from "../Canvas";
 
 export interface FunctionProps {
     model: FunctionDefinition;
