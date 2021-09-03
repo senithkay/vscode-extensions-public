@@ -24,5 +24,4 @@ export function CanvasDiagram(props: CanvasDiagramProps) {
             {children}
         </div>
     );
-};
-
+}

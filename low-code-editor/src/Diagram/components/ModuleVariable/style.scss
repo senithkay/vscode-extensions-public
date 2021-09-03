@@ -10,39 +10,54 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.module-var {
-    .module-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #f7f8fb;
-        stroke-dasharray: 3;
-        rx: 6;
-    }
+.moduleVariableContainer {
+    border: 1px solid #e6e7ec;
+    border-radius: 6px;
+    background-color: #fff;
+}
 
-    .module-type-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #cbcedb;
-        rx: 4;
-    }
+.moduleVariableWrapper {
+    display: flex;
+    flex-direction: row;
+}
 
-    .module-type-text {
-        height: 24px;
-        width: 24px;
-        fill: #222228;
-        font-family: inherit;
-        font-size: 12px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.moduleVariableIcon {
+    height: 18px;
+    width: 18px;
+    // background-color: `#40404B`;
+    background-color: red;
+    margin: 15.5px 12px 15.5px 14.5px;
+}
 
-    .module-attribute-text {
-        height: 24px;
-        width: 24px;
-        fill: #8d91a3;
-        font-family: inherit;
-        font-size: 13px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.moduleVariableTypeText {
+    height: 24px;
+    width: 60px;
+    margin: 10.5px 0 14.5px 0;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0;
+    color: #222228;
+    line-height: 24px;
+}
+
+.moduleVariableNameText {
+    height: 24px;
+    width: 104px;
+    margin: 10.5px 0 14.5px 0;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0;
+    color: #8d91a3;
+    line-height: 24px;
+}
+
+.editBtnWrapper {
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.deleteBtnWrapper {
+    cursor: pointer;
+    margin-top: 15px;
+    margin-left: 20px;
 }

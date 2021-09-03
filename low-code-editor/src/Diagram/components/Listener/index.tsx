@@ -10,13 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react'
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
-import { ModuleMemberViewState } from "../../view-state";
+import DeleteButton from "../../../assets/icons/DeleteButton";
+import EditButton from "../../../assets/icons/EditButton";
 
-import { ListenerSVG } from "./ListenerSVG";
 import "./style.scss";
 
 export interface ListenerProps {
@@ -26,9 +27,9 @@ export interface ListenerProps {
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
 
-    const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
+    const [isEditable, setIsEditable] = useState(false);
 
-    const viewState: ModuleMemberViewState = listenerModel.viewState;
+    const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
     let listenerPort = "";
     listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
@@ -36,18 +37,33 @@ export function ListenerC(props: ListenerProps) {
     });
     const type = listenerModel.typeDescriptor.identifier.value;
 
+    const handleMouseEnter = () => {
+        setIsEditable(true);
+    };
+    const handleMouseLeave = () => {
+        setIsEditable(false);
+    };
+
     return (
-        <g className={"listener"}>
-            <ListenerSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                h={viewState.bBox.h}
-                w={viewState.bBox.w}
-                type={type}
-                name={listenerName}
-                port={listenerPort}
-            />
-        </g>
+        <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
+            <div className="listener-icon" />
+            <div className="listener-type">
+                HTTP
+            </div>
+            <div className="listener-name">
+                {listenerName}
+            </div>
+            { isEditable && (
+                <>
+                    <div className={"editBtnWrapper"}>
+                        <EditButton/>
+                    </div>
+                    <div className={"deleteBtnWrapper"}>
+                        <DeleteButton/>
+                    </div>
+                </>
+            )}
+        </div>
     );
 }
 
