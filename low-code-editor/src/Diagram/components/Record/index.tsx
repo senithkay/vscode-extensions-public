@@ -10,14 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react"
 
-import { RecordTypeDesc, RecordFieldWithDefaultValue, STNode, TypeDefinition } from "@ballerina/syntax-tree";
-
-import { ModuleMemberViewState } from "../../view-state/module-member";
+import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import { ModuleMemberViewState } from "../../view-state/module-member";
 
 import "./style.scss";
 
@@ -84,7 +84,7 @@ export function Record(props: RecordProps) {
                 <>
                     <div className="record-fields" >
                         {record.map(recordfield => (
-                            <div className="record-field">
+                            <div className="record-field" key={recordfield[1]}>
                                 <div className="record-field-type">
                                     {recordfield[0]}
                                 </div>
