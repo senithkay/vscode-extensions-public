@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react"
+import React, { useState } from "react"
 
 import { RecordTypeDesc, RecordFieldWithDefaultValue, STNode, TypeDefinition } from "@ballerina/syntax-tree";
 
@@ -29,11 +29,20 @@ export interface RecordProps {
 export function Record(props: RecordProps) {
     const { model } = props;
 
+    const [isEditable, setIsEditable] = useState(false);
+
     const recordModel: TypeDefinition = model as TypeDefinition;
     const viewState: ModuleMemberViewState = recordModel.viewState;
 
     const varName = recordModel.typeName.value;
     const type = (recordModel.typeDescriptor as RecordTypeDesc).recordKeyword.value;
+
+    const handleMouseEnter = () => {
+        setIsEditable(true);
+    };
+    const handleMouseLeave = () => {
+        setIsEditable(false);
+    };
 
     const record = [];
     for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
@@ -50,7 +59,7 @@ export function Record(props: RecordProps) {
     }
 
     return (
-        <div className="record-comp" >
+        <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
             <div className="record-header" >
                 <div className="record-icon" />
                 <div className="record-type">
@@ -59,26 +68,35 @@ export function Record(props: RecordProps) {
                 <div className="record-name">
                     {varName}
                 </div>
-                <div className="record-edit">
-                    <EditButton />
-                </div>
-                <div className="record-delete">
-                    <DeleteButton />
-                </div>
+                {isEditable && (
+                    <>
+                        <div className="record-edit">
+                            <EditButton />
+                        </div>
+                        <div className="record-delete">
+                            <DeleteButton />
+                        </div>
+                    </>
+                )}
             </div>
             <div className="record-separator" />
-            <div className="record-fields" >
-                {record.map(recordfield => (
-                    <div className="record-field">
-                        <div className="record-field-type">
-                            {recordfield[0]}
-                        </div>
-                        <div className="record-field-name">
-                            {recordfield[1]};
-                        </div>
+            {isEditable && (
+                <>
+                    <div className="record-fields" >
+                        {record.map(recordfield => (
+                            <div className="record-field">
+                                <div className="record-field-type">
+                                    {recordfield[0]}
+                                </div>
+                                <div className="record-field-name">
+                                    {recordfield[1]};
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </>
+            )}
+
         </div>
     );
 }
