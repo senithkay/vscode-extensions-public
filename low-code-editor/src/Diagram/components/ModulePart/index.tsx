@@ -15,10 +15,12 @@ import React from "react";
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponent } from "../../utils";
-import { CompilationUnitViewState } from "../../view-state";
-import { PlusButton } from "../Plus";
+import { ModuleMemberPlus } from "../ModuleMemberPlus";
 
 export const GAP_BETWEEN_MEMBERS = 31;
+export const INIT_PLUS_MARGIN_LEFT = 24.5;
+export const INIT_PLUS_MARGIN_TOP = 7.5;
+export const INIT_PLUS_MARGIN_BOTTOM = 7.5;
 
 export interface ModulePartProps {
     model: ModulePart
@@ -28,21 +30,16 @@ export function ModulePartComponent(props: ModulePartProps) {
     const { model } = props;
 
     const moduleMembers: JSX.Element[] = [];
-    const pluses: React.ReactNode[] = [];
-    const compilationUnitVS: CompilationUnitViewState = model.viewState as CompilationUnitViewState;
-
     model.members.forEach((member: STNode) => {
         moduleMembers.push(getSTComponent(member))
     });
 
-    for (const plusView of compilationUnitVS.plusButtons) {
-        pluses.push(<PlusButton viewState={plusView} initPlus={false} />)
-    }
-
     return (
         <>
+            <ModuleMemberPlus
+                margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
+            />
             {moduleMembers}
-            {pluses}
         </>
     );
 }
