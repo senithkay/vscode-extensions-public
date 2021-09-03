@@ -14,10 +14,14 @@
 import React, { useContext } from "react";
 
 import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
+import { Container } from "@material-ui/core";
+import classNames from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
+import { useStyles } from "../../../Diagram/styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { End } from "../End";
+import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
@@ -25,7 +29,7 @@ import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
-import classNames from "classnames";
+import { Canvas } from "../Canvas";
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -34,6 +38,7 @@ export interface FunctionProps {
 }
 
 export function Function(props: FunctionProps) {
+    const classes = useStyles();
     const { state } = useContext(Context);
     const { isWaitingOnWorkspace, isCodeEditorActive, isReadOnly } = state;
     const { model } = props;
@@ -42,7 +47,7 @@ export function Function(props: FunctionProps) {
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
 
-    let component: React.ReactNode;
+    let component: JSX.Element;
 
     const rectProps = {
         x: viewState.bBox.cx,
@@ -69,7 +74,6 @@ export function Function(props: FunctionProps) {
             <g>
                 <>
                     {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
-                    <rect className={"function-rect"} {...rectProps} />
                     <FunctionSignature model={model} />
                 </>
 
@@ -95,6 +99,22 @@ export function Function(props: FunctionProps) {
             }
         >
             <FunctionSignature model={model} />
+            <div>
+                {/* <Container className={classes.DesignContainer}> */}
+                    <div id="canvas-overlay" className={classes.OverlayContainer} />
+                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
+                        {component}
+                    </Canvas>
+                    {/* {isDataMapperShown && (
+                        <DataMapper width={w} />
+                    )} */}
+                    {/* {!isDataMapperShown && (
+                    )} */}
+                    {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                    {isConfigOverlayFormOpen && <OverlayBackground />} */}
+                {/* </Container> */}
+            </div>
         </div>
     );
 }
