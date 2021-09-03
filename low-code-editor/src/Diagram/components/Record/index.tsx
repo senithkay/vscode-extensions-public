@@ -10,14 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react"
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from "react"
 
-import { RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
+import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
 
+import DeleteButton from "../../../assets/icons/DeleteButton";
+import EditButton from "../../../assets/icons/EditButton";
 import { ModuleMemberViewState } from "../../view-state/module-member";
 
-import { RecordSVG } from "./RecordSVG";
 import "./style.scss";
+
 
 export interface RecordProps {
     model: STNode;
@@ -26,22 +29,74 @@ export interface RecordProps {
 export function Record(props: RecordProps) {
     const { model } = props;
 
+    const [isEditable, setIsEditable] = useState(false);
+
     const recordModel: TypeDefinition = model as TypeDefinition;
     const viewState: ModuleMemberViewState = recordModel.viewState;
 
     const varName = recordModel.typeName.value;
     const type = (recordModel.typeDescriptor as RecordTypeDesc).recordKeyword.value;
 
+    const handleMouseEnter = () => {
+        setIsEditable(true);
+    };
+    const handleMouseLeave = () => {
+        setIsEditable(false);
+    };
+
+    const record = [];
+    for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
+        if (field.kind === "RecordField") {
+            const fieldName = field.fieldName.value;
+            const fieldType = field.typeName.source?.trim();
+            record.push([fieldType, fieldName]);
+        } else if (field.kind === "RecordFieldWithDefaultValue") {
+            const fieldName = field.fieldName.value;
+            const fieldType = field.typeName.source?.trim();
+            const fieldValue = (field as RecordFieldWithDefaultValue).expression.source
+            record.push([fieldType, fieldName + " = " + fieldValue]);
+        }
+    }
+
     return (
-        <g className="record">
-            <RecordSVG
-                x={viewState.bBox.x}
-                y={viewState.bBox.y}
-                h={viewState.bBox.h}
-                w={viewState.bBox.w}
-                type={type}
-                name={varName}
-            />
-        </g>
+        <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
+            <div className="record-header" >
+                <div className="record-icon" />
+                <div className="record-type">
+                    Record
+                </div>
+                <div className="record-name">
+                    {varName}
+                </div>
+                {isEditable && (
+                    <>
+                        <div className="record-edit">
+                            <EditButton />
+                        </div>
+                        <div className="record-delete">
+                            <DeleteButton />
+                        </div>
+                    </>
+                )}
+            </div>
+            <div className="record-separator" />
+            {isEditable && (
+                <>
+                    <div className="record-fields" >
+                        {record.map(recordfield => (
+                            <div className="record-field" key={recordfield[1]}>
+                                <div className="record-field-type">
+                                    {recordfield[0]}
+                                </div>
+                                <div className="record-field-name">
+                                    {recordfield[1]};
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+        </div>
     );
 }
