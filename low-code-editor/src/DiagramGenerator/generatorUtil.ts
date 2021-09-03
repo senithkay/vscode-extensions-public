@@ -3,7 +3,7 @@ import { FunctionDefinition, ModulePart, STKindChecker, STNode, traversNode } fr
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "..";
 import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
 import { getLowCodeSTFnSelected } from "../Diagram/utils/st-util";
-import { cleanAll } from "../Diagram/visitors/symbol-finder-visitor";
+import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -29,7 +29,7 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
             }
             const fnDef = getLowCodeSTFnSelected(payload, node, true);
             const st: STNode = sizingAndPositioningST(fnDef);
-            cleanAll();
+            cleanLocalSymbols();
             traversNode(st, SymbolVisitor);
             responseST = st;
             break;
@@ -45,7 +45,7 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
                     && functionDef.functionName.position.startColumn.toString() === startColumn) {
                     const fnDef = getLowCodeSTFnSelected(payload, resource, false);
                     const st: STNode = sizingAndPositioningST(fnDef);
-                    cleanAll();
+                    cleanLocalSymbols();
                     traversNode(st, SymbolVisitor);
                     responseST = st;
                     break;
