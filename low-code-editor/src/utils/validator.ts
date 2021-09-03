@@ -153,7 +153,7 @@ export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
 export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
                            isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
     let result = true;
-    let allEmpty = isAllEmpty(emptyFields);
+    const allEmpty = isAllEmpty(emptyFields);
     if (!isRoot && isOptional && allEmpty) {
         result = true;
     } else {
