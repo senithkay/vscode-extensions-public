@@ -39,7 +39,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         validFieldChecker.current.set(field, !isInvalid);
         emptyFieldChecker.current.set(field, isEmpty);
         validate(model.name, !isAllValid(validFieldChecker.current, emptyFieldChecker.current,
-                isAllOptional(model.fields), (model.optional ?? false)), isAllEmpty(emptyFieldChecker.current));
+                isAllOptional(model.fields), (model.optional ?? false), false), isAllEmpty(emptyFieldChecker.current));
     };
 
     if (model) {

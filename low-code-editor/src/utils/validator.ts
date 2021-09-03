@@ -151,16 +151,20 @@ export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
 }
 
 export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
-                           isAllChildrenOptional: boolean, isOptional: boolean): boolean {
+                           isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
     let result = true;
-    validFields.forEach((isValid, key) => {
-        if (!isValid) {
-            result = false;
+    const allEmpty = isAllEmpty(emptyFields);
+    if (!isRoot && isOptional && allEmpty) {
+        result = true;
+    } else {
+        validFields.forEach((isValid, key) => {
+            if (!isValid) {
+                result = false;
+            }
+        });
+        if (result && isAllChildrenOptional && !isOptional) {
+            result = !allEmpty;
         }
-    });
-
-    if (result && isAllChildrenOptional && !isOptional) {
-        result = !isAllEmpty(emptyFields);
     }
     return result;
 }

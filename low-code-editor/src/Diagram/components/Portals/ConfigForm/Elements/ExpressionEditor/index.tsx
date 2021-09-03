@@ -228,7 +228,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.optional === true && (currentContent === undefined || currentContent === "") && !invalidSourceCode) {
             validExpEditor();
         } else {
-            validate(model.name, true, false);
+            validate(model.name, true, (model.value ?? "") === "");
             setValidating(false);
             setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef));
             if (monacoRef.current) {
