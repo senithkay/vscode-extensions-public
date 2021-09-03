@@ -114,6 +114,12 @@
             }
         }
     }
+
+    .lowcode-diagram {
+        background-image: url('/images/PatternBg.svg');
+        background-repeat: repeat;
+        overflow: hidden;
+    }
 }
 
 .param-container {

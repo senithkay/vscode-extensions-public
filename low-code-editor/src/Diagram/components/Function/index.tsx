@@ -99,7 +99,7 @@ export function Function(props: FunctionProps) {
             }
         >
             <FunctionSignature model={model} />
-            <div>
+            <div className={'lowcode-diagram'}>
                 {/* <Container className={classes.DesignContainer}> */}
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
