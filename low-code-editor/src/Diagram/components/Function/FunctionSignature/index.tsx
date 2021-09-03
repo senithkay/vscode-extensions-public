@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import { FunctionDefinition, IdentifierToken, RequiredParam, STKindChecker } from "@ballerina/syntax-tree";
@@ -64,7 +65,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     <>
                         {i !== 0 ? '&' : ''}
                         {param.paramName.value}
-                        <tspan baselineShift='sub' >{(param.typeName as any)?.name?.value}</tspan>
+                        <span ><sub>{(param.typeName as any)?.name?.value}</sub></span>
                     </>
                 ));
             });
@@ -76,44 +77,37 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     || STKindChecker.isDecimalTypeDesc(param.typeName)))
             .forEach((param: RequiredParam, i) => {
                 otherParamComponents.push(
-                    <tspan dx={i > 0 ? 10 : 0}>{param.source}</tspan>
+                    <span>{param.source}</span>
                 )
-
-            })
+            });
 
         component.push((
-            <>
-                <svg
-                    x={rectProps.x + 10}
-                    y={rectProps.y + 10}
-                    height={32}
-                    width={74}
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    xmlSpace="preserve"
-                >
-                    <rect
-                        className={classNames('resource-badge', `${functionName.value}`)}
-                        height={32}
-                        width={74}
-                        rx={4}
-                        x={0}
-                        y={0}
-                    />
-                    <text className={'resource-badge-text'} x={"50%"} y={"50%"} dy={'.3em'} textAnchor={'middle'} >
-                        {functionName.value.toUpperCase()}
-                    </text>
-                </svg>
-                <text x={rectProps.x + 74 + 20} y={rectProps.y + 30}>
-                    {pathConstruct}
-                    {queryParamComponents.length > 0 && '?'}
-                    {...queryParamComponents}
-                </text>
-                <text x={'50%'} y={rectProps.y + 30} textAnchor={'right'} >
-                    {...otherParamComponents}
-                </text>
-            </>
-        ))
+            <div
+                className={
+                    classNames(
+                        'function-signature',
+                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                    )
+                }
+            >
+                <div className={'param-container'} >
+                    <div
+                        className={
+                            classNames(
+                                'resource-badge',
+                                STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                            )
+                        }
+                    >
+                        <p className={'text'}>{model.functionName.value.toUpperCase()}</p>
+                    </div>
+                    <p className={'path-text'} >{pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}</p>
+                </div>
+                <div className={'param-container'} >
+                    <p className={'path-text'} >{otherParamComponents}</p>
+                </div>
+            </div>
+        ));
     } else {
         const functionSignature = model.functionSignature;
         const functionName: IdentifierToken = model.functionName as IdentifierToken;
@@ -127,41 +121,21 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             })
 
         component.push((
-            <>
-                <svg
-                    x={rectProps.x + 10}
-                    y={rectProps.y + 10}
-                    height={32}
-                    width={74}
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    xmlSpace="preserve"
-                >
-                    <text x={0} y={"50%"} dy={'.3em'} >
-                        {functionName.value}
-                    </text>
-                    <text x={'50%'} y={rectProps.y + 30} textAnchor={'right'} >
-                        {...params}
-                    </text>
-                </svg>
-            </>
-        ))
+            <div
+                className={
+                    classNames(
+                        'function-signature',
+                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                    )
+                }
+            >
+                <p className={'path-text'}>{functionName.value}</p>
+            </div>
+        ));
     }
 
     return (
         <>
-            <rect
-                // tslint:disable-next-line: jsx-no-multiline-js
-                className={
-                    classNames(
-                        'function-header-rect',
-                        STKindChecker.isResourceAccessorDefinition(model) ?
-                            model.functionName.value : ''
-                    )
-                }
-                {...rectProps}
-                height={50}
-            />
             {component}
         </>
     )

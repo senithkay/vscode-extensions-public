@@ -78,47 +78,47 @@ class PositioningVisitor implements Visitor {
             plusBtnViewState.expanded = false;
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
         } else {
-            let height = GAP_BETWEEN_MEMBERS; // adding initial plus height
-            let prevMemberViewState: ViewState = null;
-            // Clean rendered labels
-            node.members.forEach((member: STNode, i: number) => {
-                const memberVS = member.viewState;
+            // let height = GAP_BETWEEN_MEMBERS; // adding initial plus height
+            // let prevMemberViewState: ViewState = null;
+            // // Clean rendered labels
+            // node.members.forEach((member: STNode, i: number) => {
+            //     const memberVS = member.viewState;
 
-                if (memberVS) {
-                    memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
-                    memberVS.bBox.y = viewState.bBox.y + height;
-                    // adding the height of the sub component
-                    height += memberVS.bBox.h;
-                }
+            //     if (memberVS) {
+            //         memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
+            //         memberVS.bBox.y = viewState.bBox.y + height;
+            //         // adding the height of the sub component
+            //         height += memberVS.bBox.h;
+            //     }
 
-                if (i !== node.members.length - 1) {
-                    height += GAP_BETWEEN_MEMBERS;
-                }
+            //     if (i !== node.members.length - 1) {
+            //         height += GAP_BETWEEN_MEMBERS;
+            //     }
 
-                // calculating plus button positions
-                const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
-                if (plusViewState) {
-                    plusViewState.bBox.cx = memberVS.bBox.x;
-                    if (i === 0) {
-                        plusViewState.bBox.cy = viewState.bBox.y + (GAP_BETWEEN_MEMBERS / 2);
-                    } else {
-                        const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-                        plusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
-                    }
-                    prevMemberViewState = memberVS;
-                }
-            });
+            //     // calculating plus button positions
+            //     const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
+            //     if (plusViewState) {
+            //         plusViewState.bBox.cx = memberVS.bBox.x;
+            //         if (i === 0) {
+            //             plusViewState.bBox.cy = viewState.bBox.y + (GAP_BETWEEN_MEMBERS / 2);
+            //         } else {
+            //             const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+            //             plusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
+            //         }
+            //         prevMemberViewState = memberVS;
+            //     }
+            // });
 
-            const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
-            if (node.members.length > 0) {
-                const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-                lastPlusViewState.bBox.cx = prevMemberViewState.bBox.x;
-                lastPlusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
-            } else {
-                // initial plus position
-                lastPlusViewState.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
-                lastPlusViewState.bBox.cy = viewState.bBox.y + height + (GAP_BETWEEN_MEMBERS / 2);
-            }
+            // const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
+            // if (node.members.length > 0) {
+            //     const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
+            //     lastPlusViewState.bBox.cx = prevMemberViewState.bBox.x;
+            //     lastPlusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
+            // } else {
+            //     // initial plus position
+            //     lastPlusViewState.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
+            //     lastPlusViewState.bBox.cy = viewState.bBox.y + height + (GAP_BETWEEN_MEMBERS / 2);
+            // }
         }
     }
 
@@ -204,37 +204,37 @@ class PositioningVisitor implements Visitor {
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
-        const serviceVS: ServiceViewState = node.viewState;
+        // const serviceVS: ServiceViewState = node.viewState;
 
-        let height = DefaultConfig.serviceMemberSpacing + SERVICE_HEADER_HEIGHT;
-        serviceVS.bBox.cx = serviceVS.bBox.x;
-        serviceVS.bBox.cy = serviceVS.bBox.y;
-        // let prevMemberViewState: ViewState = null;
+        // let height = DefaultConfig.serviceMemberSpacing + SERVICE_HEADER_HEIGHT;
+        // serviceVS.bBox.cx = serviceVS.bBox.x;
+        // serviceVS.bBox.cy = serviceVS.bBox.y;
+        // // let prevMemberViewState: ViewState = null;
 
-        node.members.forEach((member: STNode, i: number) => {
-            const memberVS = member.viewState;
+        // node.members.forEach((member: STNode, i: number) => {
+        //     const memberVS = member.viewState;
 
-            const plusViewState: PlusViewState = getPlusViewState(i, serviceVS.plusButtons);
+        //     const plusViewState: PlusViewState = getPlusViewState(i, serviceVS.plusButtons);
 
-            if (plusViewState) {
-                plusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-                plusViewState.bBox.cy = serviceVS.bBox.y + height;
-                height += DefaultConfig.serviceMemberSpacing;
-            }
+        //     if (plusViewState) {
+        //         plusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+        //         plusViewState.bBox.cy = serviceVS.bBox.y + height;
+        //         height += DefaultConfig.serviceMemberSpacing;
+        //     }
 
-            if (memberVS) {
-                memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-                memberVS.bBox.y = serviceVS.bBox.y + height;
-                height += memberVS.bBox.h + DefaultConfig.serviceMemberSpacing;
-            }
-        });
+        //     if (memberVS) {
+        //         memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+        //         memberVS.bBox.y = serviceVS.bBox.y + height;
+        //         height += memberVS.bBox.h + DefaultConfig.serviceMemberSpacing;
+        //     }
+        // });
 
-        const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
+        // const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
 
-        if (lastPlusViewState) {
-            lastPlusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-            lastPlusViewState.bBox.cy = serviceVS.bBox.y + height;
-        }
+        // if (lastPlusViewState) {
+        //     lastPlusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
+        //     lastPlusViewState.bBox.cy = serviceVS.bBox.y + height;
+        // }
 
     }
 

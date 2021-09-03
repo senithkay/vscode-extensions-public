@@ -11,6 +11,8 @@
  * associated services.
  */
 .service {
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
     border: 1px solid #E6E7EC;
     border-radius: 6px;
@@ -31,5 +33,11 @@
 
     .icon {
         margin-right: 15px;
+    }
+
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
     }
 }

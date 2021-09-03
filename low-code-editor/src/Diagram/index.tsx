@@ -176,7 +176,7 @@ export function Diagram(props: DiagramProps) {
             {isErrorDetailsOpen && <ErrorList />}
 
             <Container className={classes.DesignContainer}>
-                <div id="canvas-overlay" className={classes.OverlayContainer} />
+                {/* <div id="canvas-overlay" className={classes.OverlayContainer} /> */}
                 {isDataMapperShown && (
                     <DataMapper width={w} />
                 )}

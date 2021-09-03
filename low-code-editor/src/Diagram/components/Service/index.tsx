@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React from "react"
 
-import { ExplicitNewExpression, ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
+import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
 import { ServiceViewState } from "../../view-state";
@@ -34,37 +34,12 @@ export function Service(props: ServiceProps) {
     const pluses: React.ReactNode[] = [];
     const children = getSTComponents(model.members);
 
-    const viewState: ServiceViewState = model.viewState;
-    const rectProps = {
-        x: viewState.bBox.cx,
-        y: viewState.bBox.cy,
-        width: viewState.bBox.w,
-        height: viewState.bBox.h,
-    };
-
-    const drafts: React.ReactNode[] = [];
-    // if (bodyViewState.draft) {
-    //     drafts = getDraftComponent(bodyViewState, state, insertComponentStart);
-    // }
-
-    for (const plusView of viewState.plusButtons) {
-        pluses.push(<PlusButton viewState={plusView} initPlus={false} />)
-    }
-
-    let listener = "";
-    model.expressions.forEach((expression, index) => {
-        listener = (index === 0) ? expression.source?.trim() : `${listener}, ${expression.source?.trim()}`;
-    });
-
-    let absolutePath = "";
-    model.absoluteResourcePath.forEach((path) => {
-        absolutePath += path.value;
-    });
-
-
     return (
         <div className={'service'} >
             <ServiceHeader model={model} />
+            <div className={'content-container'}>
+                {children}
+            </div>
         </div>
     );
 }
