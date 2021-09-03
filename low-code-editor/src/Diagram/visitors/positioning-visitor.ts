@@ -303,6 +303,7 @@ class PositioningVisitor implements Visitor {
         const epGap = DefaultConfig.epGap;
         // Clean rendered labels
         blockViewState.controlFlow.executionTimeStates = [];
+        blockViewState.controlFlow.lineStates=[];
         node.statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;
