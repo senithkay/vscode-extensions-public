@@ -80,7 +80,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
 
     const addElvisOperator = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addElvisOperator.text",
-        defaultMessage: " to handle optional value"
+        defaultMessage: " to handle the optional value"
     })
 
     const suggetCast = intl.formatMessage({
