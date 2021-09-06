@@ -17,6 +17,7 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { PlusOptions } from "./PlusOptions";
 import "./style.scss";
+import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -67,7 +68,7 @@ export const TopLevelPlus = (props: PlusProps) => {
     return (
         <div className="plus-container">
             <div className="plus-icon" style={plusIconMargin} onClick={handlePlusClick}>
-                {/*todo: Add plus Icon here*/}
+                <TopLevelPlusIcon />
             </div>
             {isPlusOptionsVisible && (
                 <PlusOptions margin={optionContainerMargin} onClose={handlePlusOptionsClose} />
