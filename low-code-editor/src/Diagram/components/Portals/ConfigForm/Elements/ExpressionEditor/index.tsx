@@ -905,7 +905,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
                         />
-                        {validating && <LinearProgress className="exp-linear-loader"/>}
+                        {validating && <LinearProgress data-testid='expr-validating-loader' className="exp-linear-loader"/>}
                     </div>
                 </div>
             </div>
