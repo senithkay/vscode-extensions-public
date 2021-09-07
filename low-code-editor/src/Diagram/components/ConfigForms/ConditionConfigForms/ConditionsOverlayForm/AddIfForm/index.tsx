@@ -39,8 +39,12 @@ export const DEFINE_CONDITION: string = "Define Condition Expression";
 export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 export function AddIfForm(props: IfProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
+    const {
+        props: {
+            isCodeEditorActive,
+            isMutationProgress: isMutationInProgress
+        }
+    } = useContext(Context);
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();

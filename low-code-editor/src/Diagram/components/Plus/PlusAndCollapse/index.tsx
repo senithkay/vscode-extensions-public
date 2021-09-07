@@ -31,7 +31,7 @@ export interface PlusCollapseProps {
 }
 
 export function PlusAndCollapseSVG(props: PlusCollapseProps) {
-    const { isReadOnly } = useContext(Context).state;
+    const { props: { isReadOnly } } = useContext(Context);
 
     const { x, y, handlePlusClick, handleCollapseClick, collapseDisabled } = props;
     const collapseClassName: string = collapseDisabled ? "disabled" : "";

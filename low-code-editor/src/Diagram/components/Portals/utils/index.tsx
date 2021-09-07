@@ -28,6 +28,7 @@ import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
+import { LowCodeEditorState } from "../../../../types";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
@@ -712,8 +713,12 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
     return mapTo;
 }
 
-export async function fetchConnectorInfo(connector: Connector, model?: STNode, state?: any): Promise<ConfigWizardState> {
-    const { stSymbolInfo: symbolInfo, langServerURL, getDiagramEditorLangClient } = state;
+export async function fetchConnectorInfo(connector: Connector, model?: STNode, symbolInfo?: STSymbolInfo,
+                                         langServerURL?: string,
+                                         getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>,
+                                         userEmail?: string)
+                                         : Promise<ConfigWizardState> {
+
     // get form fields from browser cache
     let functionDefInfo = await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
@@ -770,7 +775,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     }
 
     // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, state);
+    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
@@ -1234,8 +1239,7 @@ export interface VariableNameValidationResponse {
  * @param text current value of the text field
  * @param existingText default value. this will skip from variable list
  */
-export function checkVariableName(varName: string, text: string, existingText?: string, state?: any): VariableNameValidationResponse {
-    const symbolInfo = state.stSymbolInfo;
+export function checkVariableName(varName: string, text: string, existingText?: string, symbolInfo?: STSymbolInfo): VariableNameValidationResponse {
     const lowerCasedAllVariables = retrieveVariables(symbolInfo).map(name => name.toLowerCase());
     const nameRegex = new RegExp("^'?[a-zA-Z][a-zA-Z0-9_]*$");
     let response: VariableNameValidationResponse = { error: false };

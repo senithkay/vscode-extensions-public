@@ -35,29 +35,31 @@ interface PanningEvent {
 }
 
 export default function PanAndZoom(props: PanAndZoomProps) {
-    const { state } = useContext(DiagramContext);
-    const [appId, setAppId] = useState(-1);
+    const {
+        props: { zoomStatus },
+        api: {
+            panNZoom: {
+                zoomOut,
+                zoomIn,
+                fitToScreen,
+                pan
+            }
+        }
+    } = useContext(DiagramContext);
 
-    const { onZoomIn, onZoomOut, onFitToScreen, onPanLocation, appInfo } = state;
-    const zoomStatus = state.zoomStatus || { scale: 1, panX: 34, panY: 23 }; // Find a better way to set zoomStatus
+    const { scale, panX, panY }  = zoomStatus || { scale: 1, panX: 34, panY: 23 }; // Find a better way to set zoomStatus
 
     const { children } = props;
     const classes = useStyles();
-    const { scale, panX, panY } = zoomStatus;
-
-    useEffect(() => {
-        const { currentApp } = appInfo || {};
-        if (currentApp && currentApp.id) setAppId(currentApp.id);
-    }, [appInfo])
 
     function onClickZoomIn() {
-        onZoomIn(appId);
+        zoomIn();
     }
     function onClickZoomOut() {
-        onZoomOut(appId)
+        zoomOut()
     }
     function onClickFitToScreen() {
-        onFitToScreen(appId);
+        fitToScreen();
     }
     function onPanningStart() {
         document.body.style.cursor = 'grabbing';
@@ -67,7 +69,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
         document.body.style.cursor = 'default';
         const { positionX, positionY } = e;
         if ((zoomStatus.panX !== positionX) || (zoomStatus.panY !== positionY)) {
-            onPanLocation(appId, positionX, positionY);
+            pan(positionX, positionY);
         }
     }
 
@@ -78,8 +80,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                 // TODO: implement pinch to zoom
             } else {
                 // Multiplication by 0.8, is to reduce sensitivity a little.
-                onPanLocation(
-                    appId,
+                pan(
                     zoomStatus.panX + -0.8 * e.deltaX,
                     zoomStatus.panY + -0.8 * e.deltaY,
                 );

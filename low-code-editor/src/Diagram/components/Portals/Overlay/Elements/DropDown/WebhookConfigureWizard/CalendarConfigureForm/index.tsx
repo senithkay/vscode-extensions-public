@@ -63,19 +63,29 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { state } = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        currentApp,
-        getGcalendarList,
-        stSymbolInfo,
-        originalSyntaxTree,
-        onEvent,
-        modifyTrigger,
-        modifyDiagram
-    } = state;
+        props: {
+            currentApp,
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+            stSymbolInfo,
+            originalSyntaxTree
+        },
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger,
+                modifyDiagram,
+            },
+            data: {
+                getGcalendarList
+            }
+        }
+    } = useContext(Context);
+
     const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();

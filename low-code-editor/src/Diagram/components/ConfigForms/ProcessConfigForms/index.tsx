@@ -49,7 +49,15 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { state: { trackAddStatement, onEvent, stSymbolInfo, currentApp, modifyDiagram } } = useContext(Context);
+    const {
+        api: {
+            insights: { onEvent },
+            code: {
+                modifyDiagram,
+            }
+        },
+        props: { currentApp, stSymbolInfo }
+    } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;

@@ -39,15 +39,17 @@ export interface ConnectorProcessProps {
 
 export function ConnectorProcess(props: ConnectorProcessProps) {
     const {
-        state: {
+        actions: {
+            diagramCleanDraw
+        },
+        props: {
+            connectors,
             syntaxTree,
             stSymbolInfo,
             isMutationProgress,
             isWaitingOnWorkspace,
-            connectors,
             isReadOnly
-        },
-        diagramCleanDraw
+        }
     } = useContext(Context);
 
     const {

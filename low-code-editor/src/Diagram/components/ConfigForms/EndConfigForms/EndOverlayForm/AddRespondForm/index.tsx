@@ -41,8 +41,17 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const overlayClasses = wizardStyles();
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, goToNextTourStep: dispatchGoToNextTourStep, isCodeEditorActive } = state;
+    const {
+        props: {
+            isCodeEditorActive,
+            isMutationProgress: isMutationInProgress
+        },
+        api: {
+            tour: {
+                goToNextTourStep: dispatchGoToNextTourStep
+            }
+        }
+    } = useContext(Context);
     const { config, onCancel, onSave } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;

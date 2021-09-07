@@ -31,7 +31,7 @@ export interface APIConfigFormProps {
 }
 
 export function APIConfigForm(props: APIConfigFormProps) {
-    const { isMutationProgress: isMutationInProgress } = useContext(Context).state;
+    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
 
     const { onComplete, onClose, methods: currentMethod = ["GET"] } = props;
     let { path: currentPath = "" } = props;

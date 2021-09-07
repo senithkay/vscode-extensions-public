@@ -15,7 +15,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, ModulePart, STKindChecker } from "@ballerina/syntax-tree";
 import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
 
@@ -92,15 +92,24 @@ export interface ConnectorEvents {
 export const getPathOfResources = (resources: any[] = []) => resources?.map((path: any) => path?.value || path?.source).join('');
 
 export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
-  const { state } = useContext(Context);
   const {
-    isMutationProgress: isFileSaving,
-    isLoadingSuccess: isFileSaved,
-    syntaxTree,
-    originalSyntaxTree,
-    onEvent,
-    modifyTrigger, modifyDiagram
-  } = state;
+    api: {
+      insights: {
+        onEvent,
+      },
+      code: {
+        modifyTrigger,
+        modifyDiagram
+      }
+    },
+    props: {
+      originalSyntaxTree,
+      isMutationProgress: isFileSaving,
+      isLoadingSuccess: isFileSaved,
+      syntaxTree,
+    }
+  } = useContext(Context);
+
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);
@@ -141,7 +150,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [defaultResourceSignature, setDefaultResourceSignature] = useState<string>("");
 
   useEffect(() => {
-    const members = syntaxTree && syntaxTree.members;
+    const members = syntaxTree && (syntaxTree as ModulePart).members;
     if (!members) setIsNewService(false);
   }, []);
 

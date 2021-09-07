@@ -23,7 +23,7 @@ export interface CollapsEProps {
 }
 
 export function Collapse(props: CollapsEProps) {
-    const { state: { syntaxTree }, diagramCleanDraw } = useContext(Context);
+    const { props: { syntaxTree }, actions: { diagramCleanDraw } } = useContext(Context);
 
     const { blockViewState } = props;
     const viewState = blockViewState.collapseView;

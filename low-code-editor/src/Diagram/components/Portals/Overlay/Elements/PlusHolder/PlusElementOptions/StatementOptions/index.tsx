@@ -51,9 +51,8 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { state } = useContext(Context);
+    const { props: { syntaxTree }, api: { insights: { onEvent }} } = useContext(Context);
     const intl = useIntl();
-    const { syntaxTree, onEvent } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
     let isCallerAdded = false;
     if (STKindChecker.isFunctionDefinition(syntaxTree)) {

@@ -29,7 +29,7 @@ import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
 export function VariablePicker() {
-    const { updateDataMapperConfig } = useContext(DiagramContext);
+    const { actions: { updateDataMapperConfig }} = useContext(DiagramContext);
     const {
         state: {
             stSymbolInfo,

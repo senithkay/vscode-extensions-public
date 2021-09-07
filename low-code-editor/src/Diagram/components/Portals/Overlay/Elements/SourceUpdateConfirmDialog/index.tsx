@@ -37,9 +37,11 @@ export const overlayPosition: DiagramOverlayPosition = {
 }
 
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
-    const { state } = useContext(Context);
     const intl = useIntl();
     const { onConfirm, onCancel, title, subTitle } = props;
+    const {
+        actions: { setTriggerUpdated },
+    } = useContext(Context);
 
     const triggerUpdateWarningMessage = intl.formatMessage({
         id: "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text",
@@ -47,8 +49,8 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
     });
 
     const handleOnConfirm = () => {
-        state.triggerUpdated = true;
         onConfirm();
+        setTriggerUpdated(true);
     }
 
     return (

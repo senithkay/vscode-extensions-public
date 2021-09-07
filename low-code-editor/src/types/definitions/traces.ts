@@ -1,6 +1,16 @@
 export interface Span {
     position: string;
     duration: number;
+    errorStatus: boolean;
+    httpStatusCode: string;
+    errorMsg: string;
+    checkpoints: Checkpoint[];
+}
+
+export interface Checkpoint {
+    moduleId: string;
+    positionId: string;
+    timestamp: number;
 }
 
 export interface Trace {
@@ -9,6 +19,7 @@ export interface Trace {
     duration: number;
     errorStatus: "true" | "false";
     httpStatusCode: string;
+    errorMsg : string;
 }
 
 export interface TraceInfo {

@@ -40,22 +40,32 @@ export interface ProcessorProps {
 }
 
 export function ActionProcessor(props: ProcessorProps) {
-    const { state, diagramCleanDraw } = useContext(Context);
     const {
-        syntaxTree,
-        stSymbolInfo,
-        isMutationProgress,
-        isWaitingOnWorkspace,
-        isReadOnly,
-        dispactchConfigOverlayForm: openNewProcessorConfig,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        maximize: maximizeCodeView,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        handleRightPanelContent,
-        currentApp,
-        isCodeEditorActive,
-        connectors
-    } = state
+        actions: { diagramCleanDraw },
+        api: {
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+            },
+            configPanel: {
+                dispactchConfigOverlayForm: openNewProcessorConfig,
+                closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+            }
+        },
+        props: {
+            currentApp,
+            isCodeEditorActive,
+            connectors,
+            syntaxTree,
+            stSymbolInfo,
+            isMutationProgress,
+            isWaitingOnWorkspace,
+            isReadOnly,
+        }
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;

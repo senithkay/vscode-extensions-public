@@ -52,16 +52,25 @@ export interface ConnectorEvents {
 }
 
 export function SalesforceConfigureForm(props: SalesforceConfigureFormProps) {
-    const { state } = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        originalSyntaxTree,
-        trackTriggerSelection,
-        onEvent,
-        modifyTrigger,
-        modifyDiagram
+        state,
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger,
+                modifyDiagram
+            }
+        },
+        props: {
+            originalSyntaxTree,
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+        }
+    } = useContext(Context);
+    const {
     } = state;
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;

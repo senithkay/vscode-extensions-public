@@ -65,19 +65,30 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const { state, diagramCleanDraw, insertComponentStart, toggleDiagramOverlay } = useContext(Context);
     const {
-        isMutationProgress,
-        syntaxTree,
-        stSymbolInfo,
-        isReadOnly,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        handleRightPanelContent,
-        maximize: maximizeCodeView,
-        isCodeEditorActive,
-        currentApp,
-        isWaitingOnWorkspace
-    } = state;
+        state,
+        actions: {
+            diagramCleanDraw, insertComponentStart, toggleDiagramOverlay
+        },
+        api: {
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight
+            },
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            }
+        },
+        props: {
+            isCodeEditorActive,
+            currentApp,
+            isMutationProgress,
+            syntaxTree,
+            stSymbolInfo,
+            isReadOnly,
+            isWaitingOnWorkspace
+        }
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
     const { model, blockViewState, name } = props;
 

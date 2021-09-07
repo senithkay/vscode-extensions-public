@@ -41,7 +41,11 @@ export interface AddProcessFormProps {
 }
 
 export function ProcessConfigForm(props: any) {
-    const { modifyDiagram } = useContext(DiagramContext).state;
+    const {
+        api: {
+            code: { modifyDiagram }
+        }
+    } = useContext(DiagramContext);
 
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddProcessFormProps;
 

@@ -41,19 +41,28 @@ interface DataMapperProps {
 
 export function DataMapper(props: DataMapperProps) {
     const {
-        state, dataMapperStart, updateDataMapperConfig
+        state: {
+            dataMapperConfig,
+        },
+        actions: {
+            dataMapperStart, updateDataMapperConfig
+        },
+        api: {
+            panNZoom: { fitToScreen },
+            code: {
+                onMutate,
+            },
+            ls: {
+                getDiagramEditorLangClient
+            }
+        },
+        props: {
+            currentApp,
+            stSymbolInfo,
+            isMutationProgress,
+            langServerURL
+        }
     } = useContext(DiagramContext);
-
-    const {
-        appInfo,
-        stSymbolInfo,
-        onMutate,
-        dataMapperConfig,
-        currentApp,
-        onFitToScreen,
-        langServerURL,
-        getDiagramEditorLangClient
-    } = state;
 
     // ToDo: Get the modifyDiagram from the proper context.
     const dispatchMutations = (mutations: STModification[], options: any = {}) => {
@@ -61,7 +70,7 @@ export function DataMapper(props: DataMapperProps) {
     }
 
     useEffect(() => {
-        onFitToScreen(appInfo?.currentApp?.id);
+        fitToScreen();
     }, []);
 
     const [showAddVariableForm, setShowAddVariableForm] = useState(false);
@@ -146,7 +155,7 @@ export function DataMapper(props: DataMapperProps) {
         outputSTNode,
         stSymbolInfo,
         showAddVariableForm: false,
-        showConfigureOutputForm: state.isMutationProgress ? false : outputSTNode === undefined,
+        showConfigureOutputForm: isMutationProgress ? false : outputSTNode === undefined,
         isExistingOutputSelected: false,
         isJsonRecordTypeSelected: false,
         showAddJsonFieldForm: false,

@@ -66,8 +66,7 @@ enum FormStates {
 export function NetSuiteWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
+    const { props: { stSymbolInfo: symbolInfo, isMutationProgress } } = useContext(Context);
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const [config] = useState<ConnectorConfig>(connectorConfig ? connectorConfig : new ConnectorConfig());

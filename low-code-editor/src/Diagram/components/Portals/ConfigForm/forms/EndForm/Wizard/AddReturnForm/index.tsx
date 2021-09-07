@@ -38,8 +38,13 @@ export const DEFINE_RETURN_EXR: string = "Define Return Expression";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddReturnForm(props: ReturnFormProps) {
-    const { state } = useContext(Context);
-    const { currentApp, isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
+    const {
+        props: {
+            currentApp,
+            isMutationProgress: isMutationInProgress,
+            stSymbolInfo
+        }
+    } = useContext(Context);
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;
     let initCustomExpression = !(config.scopeSymbols.length > 0);

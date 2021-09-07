@@ -46,8 +46,9 @@ export const DEFINE_RANGE: string = "Define Range";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, stSymbolInfo } = state;
+    const {
+        props: { isMutationProgress: isMutationInProgress, stSymbolInfo }
+    } = useContext(Context);
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);

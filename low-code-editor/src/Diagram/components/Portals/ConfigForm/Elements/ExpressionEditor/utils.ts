@@ -67,10 +67,6 @@ export function addToTargetPosition(oldLine: string, targetColumn: number, codeS
     return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(targetColumn);
 }
 
-export function getExpState(state: any): ExpressionEditorState {
-    return state?.exprEditorState
-}
-
 export function getDiagnostics(state: any): Diagnostic[] {
     return state?.diagnostics
 }

@@ -74,21 +74,35 @@ const ACCESS_TOKEN_KEY = "accessTokenKey";
 const SSO_TYPE = "sso";
 
 export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
-  const { state } = useContext(Context);
   const {
-    isMutationProgress: isFileSaving,
-    isLoadingSuccess: isFileSaved,
-    syntaxTree,
-    onEvent,
-    currentApp,
-    getGithubRepoList,
-    stSymbolInfo,
-    originalSyntaxTree,
-    modifyTrigger,
-    modifyDiagram,
-    updateManualConnection,
-    triggerErrorNotification,
-  } = state;
+    api: {
+      insights: {
+        onEvent,
+      },
+      code: {
+        modifyTrigger,
+        modifyDiagram,
+      },
+      connections: {
+        updateManualConnection,
+      },
+      notifications: {
+        triggerErrorNotification,
+      },
+      data: {
+        getGithubRepoList
+      }
+    },
+    props: {
+      currentApp,
+      isMutationProgress: isFileSaving,
+      isLoadingSuccess: isFileSaved,
+      syntaxTree,
+      stSymbolInfo,
+      originalSyntaxTree
+    }
+  } = useContext(Context);
+
   const {
     onComplete,
     currentEvent,

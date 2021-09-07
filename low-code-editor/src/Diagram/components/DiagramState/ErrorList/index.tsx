@@ -34,22 +34,33 @@ export function ErrorList() {
     const [visibleActions, setVisibleActions] = useState([]);
     const open = Boolean(anchorEl);
 
-    const { state: {
-        diagnostics,
-        warnings,
-        handleRightPanelContent,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        maximize: maximizeCodeView,
-        currentApp,
-        langServerURL,
-        currentFile,
-        getDiagramEditorLangClient,
-        dispatchFileChange,
-        dispatchCodeChangeCommit,
-        appInfo : { isCodeChangeInProgress, isWaitingOnWorkspace },
-        isCodeEditorActive,
-        isReadOnly,
-    } } = useContext(Context);
+    const {
+        api: {
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+                dispatchFileChange,
+                dispatchCodeChangeCommit,
+            },
+            ls: {
+                getDiagramEditorLangClient,
+            }
+        },
+        props: {
+            currentApp,
+            langServerURL,
+            currentFile,
+            isCodeEditorActive,
+            diagnostics,
+            warnings,
+            isCodeChangeInProgress,
+            isWaitingOnWorkspace,
+            isReadOnly,
+        }
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
     const onJumpToCodeClick = (range: any) => {

@@ -60,15 +60,23 @@ export interface ConnectorEvents {
 }
 
 export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
-  const { state } = useContext(Context);
   const {
-    isMutationProgress: isFileSaving,
-    isLoadingSuccess: isFileSaved,
-    syntaxTree,
-    onEvent,
-    originalSyntaxTree,
-    modifyTrigger, modifyDiagram
-  } = state;
+    api: {
+      insights: {
+        onEvent,
+      },
+      code: {
+        modifyTrigger,
+        modifyDiagram
+      }
+    },
+    props: {
+      originalSyntaxTree,
+      isMutationProgress: isFileSaving,
+      isLoadingSuccess: isFileSaved,
+      syntaxTree,
+    }
+  } = useContext(Context);
 
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;

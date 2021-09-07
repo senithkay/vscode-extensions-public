@@ -45,19 +45,21 @@ export interface ConnectorEvents {
 }
 
 export function GmailConfigureForm(props: GmailConfigureFormProps) {
-    const { state } = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        trackTriggerSelection,
-        onEvent,
-        currentApp,
-        getGcalendarList,
-        stSymbolInfo,
-        originalSyntaxTree,
-        modifyTrigger
-    } = state;
+        api: {
+            insights: {
+                onEvent
+            },
+            code: {
+                modifyTrigger,
+            }
+        },
+        props: {
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+        }
+    } = useContext(Context);
     const model: FunctionDefinition = syntaxTree as FunctionDefinition;
     const { onComplete, currentConnection } = props;
     const classes = useStyles();

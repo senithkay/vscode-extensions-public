@@ -42,9 +42,14 @@ export interface PlusStates {
 }
 
 export const PlusButton = (props: PlusProps) => {
-    const { state, diagramCleanDraw, diagramRedraw } = useContext(Context);
-    const { syntaxTree, isReadOnly } = state;
-    const isWaitingOnWorkspace = state.isWaitingOnWorkspace || false;
+    const {
+        props: {
+            syntaxTree,
+            isReadOnly,
+            isWaitingOnWorkspace
+        },
+        actions: { diagramCleanDraw, diagramRedraw }
+    } = useContext(Context);
 
     const { viewState, model, initPlus } = props;
     const plusRef = useRef(null);

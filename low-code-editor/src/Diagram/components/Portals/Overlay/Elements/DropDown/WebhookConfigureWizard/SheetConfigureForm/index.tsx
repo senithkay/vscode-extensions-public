@@ -43,14 +43,22 @@ export interface ConnectorEvents {
 }
 
 export function SheetConfigureForm(props: SheetConfigureFormProps) {
-    const {state} = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        onEvent,
-        modifyTrigger
-    } = state;
+        api: {
+            insights: {
+                onEvent
+            },
+            code: {
+                modifyTrigger
+            }
+        },
+        props: {
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+        }
+    } = useContext(Context);
+
     const { onComplete } = props;
     const classes = useStyles();
     const intl = useIntl();

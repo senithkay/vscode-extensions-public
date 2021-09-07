@@ -97,7 +97,7 @@ const headerVal = [
 ]
 
 export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FunctionDefinitionInfo>,
-                                         connectorConfig: ConnectorConfig, state?: any): Map<string, FunctionDefinitionInfo> {
+                                         connectorConfig: ConnectorConfig, userEmail?: string): Map<string, FunctionDefinitionInfo> {
     let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorName: string = connector.org + "_" + connector.module + "_" + connector.name;
 
@@ -256,7 +256,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                         } else if (param.name === "'from") {
                             // const state = store.getState();
                             param.tooltip = tooltipMessages.SMTP.from
-                            param.value = state.userInfo?.user?.email ? "\"" + state.userInfo?.user?.email + "\"" : undefined;
+                            param.value = userEmail ? "\"" + userEmail + "\"" : undefined;
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
                             param.type = "collection";

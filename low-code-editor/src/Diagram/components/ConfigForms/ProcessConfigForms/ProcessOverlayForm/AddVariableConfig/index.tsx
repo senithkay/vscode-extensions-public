@@ -49,8 +49,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const intl = useIntl();
     const { config, onCancel, onSave } = props;
 
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
+    const {
+        props: {
+            isCodeEditorActive,
+            isMutationProgress: isMutationInProgress,
+            stSymbolInfo
+        }
+    } = useContext(Context);
 
     let initialModelType: string = 'json';
     let modelType;
@@ -129,7 +134,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const validateNameValue = (value: string) => {
         if (value !== undefined && value !== null) {
-            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, state);
+            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, stSymbolInfo);
             if (varValidationResponse?.error) {
                 setVarNameError(varValidationResponse.message);
                 setIsValidVarName(false);

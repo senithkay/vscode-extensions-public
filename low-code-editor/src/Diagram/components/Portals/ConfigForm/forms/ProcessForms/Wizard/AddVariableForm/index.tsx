@@ -45,7 +45,7 @@ export const DEFINE_VALUE: string = "Define Value";
 export const DEFINE_EXPRESSION: string = "Define Expression";
 
 export function AddVariableForm(props: AddVariableProps) {
-    const { state: { isMutationProgress: isMutationInProgress, stSymbolInfo } } = useContext(Context);
+    const { props: { isMutationProgress: isMutationInProgress, stSymbolInfo } } = useContext(Context);
 
     const classes = useStyles();
     const { config, onCancel, onSave } = props;
