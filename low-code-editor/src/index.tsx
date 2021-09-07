@@ -85,7 +85,6 @@ const LowCodeEditor: React.FC<Props> = (props: Props) => {
     };
 
     const newProps = {
-        onMutate,
         modifyDiagram,
         modifyTrigger,
         ...props
