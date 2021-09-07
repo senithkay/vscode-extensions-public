@@ -16,6 +16,7 @@ import { Function } from "./Function";
 import { IfElse } from './IfElse';
 import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
+import { Constant } from './Constant';
 import { ModuleVariable } from './ModuleVariable';
 import { Record } from "./Record";
 import { Service } from "./Service";
@@ -31,6 +32,7 @@ export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
 export { Listener as ListenerDeclaration };
+export { Constant as ConstDeclaration };
 export { ModuleVariable as ModuleVarDecl };
 export { Record as TypeDefinition };
 export { End as ReturnStatement };
