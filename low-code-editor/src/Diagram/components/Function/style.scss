@@ -56,7 +56,7 @@
     }
 
     .function-signature {
-        height: 48px;
+        min-height: 48px;
         display: flex;
         flex-direction: row;
         border-bottom: 1px #C1E4FC solid;
@@ -127,3 +127,11 @@
     display: flex;
     flex-direction: row;
 }
+
+.design-container {
+    min-width: 100vw;
+    scrollbar-width: none;
+    margin: 0;
+    padding: 0;
+}
+

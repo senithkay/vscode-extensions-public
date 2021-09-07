@@ -185,9 +185,11 @@ export function Diagram(props: DiagramProps) {
                         {child}
                     </CanvasDiagram>
                 )}
+                {/*
                 {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                 {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                 {isConfigOverlayFormOpen && <OverlayBackground />}
+                */}
             </Container>
 
             {/* <PanAndZoom>

@@ -11,7 +11,8 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import { Container } from "@material-ui/core";
@@ -46,6 +47,11 @@ export function Function(props: FunctionProps) {
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
+    const [diagramExpanded, setDiagramExpanded] = useState(false);
+
+    const onExpandClick = () => {
+        setDiagramExpanded(!diagramExpanded);
+    }
 
     let component: JSX.Element;
 
@@ -74,7 +80,7 @@ export function Function(props: FunctionProps) {
             <g>
                 <>
                     {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
-                    <FunctionSignature model={model} />
+                    {/* <FunctionSignature model={model} onExpandClick={onExpandClick} /> */}
                 </>
 
                 {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
@@ -89,32 +95,60 @@ export function Function(props: FunctionProps) {
         );
     }
 
+    const componentBody = (
+        <div className={'lowcode-diagram'}>
+            {/* <Container className={classes.DesignContainer}> */}
+            <TransformWrapper
+                wheel={{ disabled: true }}
+                doubleClick={{ disabled: true }}
+                scale={1}
+                positionX={34}
+                options={{ limitToBounds: false, maxScale: 2, minScale: 0.6, centerContent: false }}
+            >
+                {({ zoomIn, zoomOut, resetTransform, ...rest }: any) => (
+                    <React.Fragment>
+                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <TransformComponent>
+                                <div className={'design-container'}>
+                                    <div id="canvas-overlay" className={classes.OverlayContainer} />
+                                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
+                                        {component}
+                                    </Canvas>
+                                </div>
+                            </TransformComponent>
+                            <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                                <button onClick={() => zoomIn()}>+</button>
+                                <button onClick={() => zoomOut()}>-</button>
+                                <button onClick={() => resetTransform()}>x</button>
+                            </div>
+                        </div>
+                    </React.Fragment>
+                )}
+            </TransformWrapper>
+            {/* {isDataMapperShown && (
+                        <DataMapper width={w} />
+                    )} */}
+            {/* {!isDataMapperShown && (
+                    )} */}
+            {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                    {isConfigOverlayFormOpen && <OverlayBackground />} */}
+            {/* </Container> */}
+        </div>
+    )
+
     return (
         <div
             className={
                 classNames(
                     'function-box',
-                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
+                    { expanded: diagramExpanded }
                 )
             }
         >
-            <FunctionSignature model={model} />
-            <div className={'lowcode-diagram'}>
-                {/* <Container className={classes.DesignContainer}> */}
-                    <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
-                        {component}
-                    </Canvas>
-                    {/* {isDataMapperShown && (
-                        <DataMapper width={w} />
-                    )} */}
-                    {/* {!isDataMapperShown && (
-                    )} */}
-                    {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                    {isConfigOverlayFormOpen && <OverlayBackground />} */}
-                {/* </Container> */}
-            </div>
+            <FunctionSignature model={model} onExpandClick={onExpandClick} />
+            {diagramExpanded && componentBody}
         </div>
     );
 }

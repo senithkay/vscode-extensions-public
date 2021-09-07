@@ -20,10 +20,11 @@ import { FunctionViewState } from '../../../view-state';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition;
+    onExpandClick: () => void;
 }
 
 export function FunctionSignature(props: FunctionSignatureProps) {
-    const { model } = props;
+    const { model, onExpandClick } = props;
     const viewState: FunctionViewState = model.viewState as FunctionViewState;
 
     const component: JSX.Element[] = [];
@@ -105,6 +106,9 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                 </div>
                 <div className={'param-container'} >
                     <p className={'path-text'} >{otherParamComponents}</p>
+                </div>
+                <div >
+                    <p onClick={onExpandClick} className={'path-text'} >expand</p>
                 </div>
             </div>
         ));
