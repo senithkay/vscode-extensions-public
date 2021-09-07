@@ -10,39 +10,101 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.record {
-    .record-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #f7f8fb;
-        stroke-dasharray: 3;
-        rx: 6;
-    }
 
-    .record-type-rect {
-        stroke-width: 1;
-        stroke: #8d91a3;
-        fill: #cbcedb;
-        rx: 4;
-    }
+.record-comp {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: auto;
+    width: 275px;
+    border: 1px solid #E6E7EC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    margin-top: 25px;
+    margin-left: 25px;
+}
+.record-header {
+    display: flex;
+    flex-direction: row;
+    height: 49px;
+    width: 275px;
+}
 
-    .record-type-text {
-        height: 24px;
-        width: 24px;
-        fill: #222228;
-        font-family: inherit;
-        font-size: 12px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.record-icon {
+    height: 16px;
+    width: 13px;
+    background-color: #40404B;
+    margin-top: 16.5px;
+    margin-left: 17.5px;
+}
 
-    .record-attribute-text {
-        height: 24px;
-        width: 24px;
-        fill: #8d91a3;
-        font-family: inherit;
-        font-size: 13px;
-        letter-spacing: 0;
-        line-height: 24px;
-    }
+.record-type {
+    margin-left: 12px;
+    margin-top: 10.5px;
+    height: 24px;
+    width: 34px;
+    color: #222228;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 24px;
+}
+
+.record-name {
+    margin-left: 21px;
+    margin-top: 10.5px;
+    height: 24px;
+    width: 104px;
+    color: #8D91A3;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 24px;
+}
+
+.record-edit {
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.record-delete {
+    cursor: pointer;
+    margin-top: 15px;
+    margin-left: 20px;
+}
+
+.record-separator {
+    height: 1px;
+    width: auto;
+    background-color: #E6E7EC;
+}
+
+.record-fields {
+    height: auto;
+    width: 104px;
+    margin-top: 8px;
+    margin-left: 44.5px;
+}
+
+
+.record-field {
+    height: 30px;
+    width: 104px;
+    display: flex;
+    flex-direction: row;
+}
+
+.record-field-type {
+    color: dodgerblue;
+    font-family: "Droid Sans Mono";
+    font-size: 12px;
+    letter-spacing: 0;
+    line-height: 24px;
+}
+
+.record-field-name {
+    color: #1D2028;
+    font-family: "Droid Sans Mono";
+    font-size: 12px;
+    letter-spacing: 0;
+    line-height: 24px;
+    margin-left: 10px;
 }
