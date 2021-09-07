@@ -15,6 +15,12 @@ import React from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 
+import ClassIcon from "../../../../assets/icons/ClassIcon";
+import ConstantIcon from "../../../../assets/icons/ConstantIcon";
+import ListenerIcon from "../../../../assets/icons/ListenerIcon";
+import RecordIcon from "../../../../assets/icons/RecordIcon";
+import ServiceIcon from "../../../../assets/icons/ServiceIcon";
+import VariableIcon from "../../../../assets/icons/VariableIcon";
 import { Margin } from "../index";
 
 import "./style.scss";
@@ -41,7 +47,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
             <div className="plus-option-container" style={optionContainerMargin}>
                 <div className="plus-option" style={{ borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
                     <div className="plus-option-icon">
-                    {/*  todo add Icon  */}
+                        <RecordIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Record
@@ -50,7 +56,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
                 <div className="plus-option-separator"/>
                 <div className="plus-option">
                     <div className="plus-option-icon">
-                        {/*  todo add Icon  */}
+                        <ConstantIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Constant
@@ -59,7 +65,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
                 <div className="plus-option-separator"/>
                 <div className="plus-option">
                     <div className="plus-option-icon">
-                        {/*  todo add Icon  */}
+                        <VariableIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Variable
@@ -68,7 +74,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
                 <div className="plus-option-separator"/>
                 <div className="plus-option">
                     <div className="plus-option-icon">
-                        {/*  todo add Icon  */}
+                        <ServiceIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Service
@@ -77,7 +83,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
                 <div className="plus-option-separator"/>
                 <div className="plus-option">
                     <div className="plus-option-icon">
-                        {/*  todo add Icon  */}
+                        <ClassIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Class
@@ -86,7 +92,7 @@ export const PlusOptions = (props: PlusOptionsProps) => {
                 <div className="plus-option-separator"/>
                 <div className="plus-option" style={{ borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }}>
                     <div className="plus-option-icon">
-                        {/*  todo add Icon  */}
+                        <ListenerIcon color={"#CBCEDB"}/>
                     </div>
                     <p className="plus-option-text">
                         Listener

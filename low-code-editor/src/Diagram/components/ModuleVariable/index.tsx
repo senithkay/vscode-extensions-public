@@ -15,6 +15,7 @@ import React, { useState } from "react"
 
 import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-tree";
 
+import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import { TopLevelPlus } from "../TopLevelPlus";
@@ -63,7 +64,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
             >
                 <div className={"moduleVariableWrapper"}>
                     <div className={"moduleVariableIcon"}>
-                        {/*    todo add icon */}
+                        <ConstantIcon />
                     </div>
                     <p className={"moduleVariableTypeText"}>
                         {varType}
