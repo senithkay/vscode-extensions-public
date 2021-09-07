@@ -12,11 +12,11 @@
  */
 import React from 'react';
 
-export interface ModuleVarIconProps {
+export interface ConstantIconProps {
     color?: string
 }
 
-export default function ConstantIcon(props: ModuleVarIconProps) {
+export default function ConstantIcon(props: ConstantIconProps) {
     return (
         <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <title>B072B13A-4E9C-4CC2-8015-6C2BC793FF3A</title>

@@ -18,6 +18,7 @@ import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import VariableIcon from "../../../assets/icons/VariableIcon";
 import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
@@ -64,7 +65,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
             >
                 <div className={"moduleVariableWrapper"}>
                     <div className={"moduleVariableIcon"}>
-                        <ConstantIcon />
+                        <VariableIcon />
                     </div>
                     <p className={"moduleVariableTypeText"}>
                         {varType}
