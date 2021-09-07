@@ -15,7 +15,7 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
-import listenerDecl from "./data/record-def-raw.json"
+import recordDef from "./data/record-def-raw.json"
 import { Record, RecordProps } from "./index";
 
 export default {
@@ -29,5 +29,5 @@ const Template: Story<RecordProps> = (args: RecordProps) =>
 
 export const RecordComponent = Template.bind({});
 RecordComponent.args = {
-    model: listenerDecl
+    model: recordDef
 };
