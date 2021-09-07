@@ -15,9 +15,10 @@ import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
+
 import { PlusOptions } from "./PlusOptions";
 import "./style.scss";
-import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;

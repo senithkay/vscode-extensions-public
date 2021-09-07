@@ -59,6 +59,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                data-test-id="module-var"
             >
                 <div className={"moduleVariableWrapper"}>
                     <div className={"moduleVariableIcon"}>
