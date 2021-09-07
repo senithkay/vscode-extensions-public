@@ -116,14 +116,14 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
 
     const sheetIdPlaceholder = intl.formatMessage({
         id: "lowcode.develop.GSheetConfigWizard.sheetId.placeholder",
-        defaultMessage: "Sheet Id"
+        defaultMessage: "Sheet ID"
     });
 
     const sheetConfigTooltips = {
         sheetTrigger: {
             sheetId: intl.formatMessage({
                 id: "lowcode.develop.triggerDropDown.sheetTrigger.sheetId.tooltip.title",
-                defaultMessage: "Google Sheet Id"
+                defaultMessage: "Google Sheet ID"
             }),
         }
     };

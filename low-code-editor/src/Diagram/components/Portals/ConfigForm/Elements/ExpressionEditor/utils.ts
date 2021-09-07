@@ -35,8 +35,11 @@ import {
     SUGGEST_TO_STRING_TYPE,
     UNDEFINED_SYMBOL_ERR_CODE,
     DIAGNOSTIC_MAX_LENGTH,
+    SUGGEST_CAST_MAP,
 } from "./constants";
 import "./style.scss";
+import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
+import MonacoEditor from "react-monaco-editor";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -125,6 +128,7 @@ export function typeCheckerExp(diagnostics: Diagnostic[], varName: string, varTy
     return typeCheck;
 }
 
+/** Check if double quotes needs to be appended to input based on the diagnostics */
 export function addQuotesChecker(diagnostics: Diagnostic[]) {
     if (!diagnostics) {
         return false;
@@ -136,6 +140,12 @@ export function addQuotesChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
+/** Check if casting would correct `incompatible types` diagnostics */
+export function suggestCastChecker(expectedType?: string, foundType?: string) {
+    return !!expectedType && !!foundType && SUGGEST_CAST_MAP[expectedType] && SUGGEST_CAST_MAP[expectedType].includes(foundType)
+}
+
+/** Check if `.toString()` needs to be appended to given input by checking `incompatible types: expected...` diagnostics */
 export function addToStringChecker(diagnostics: Diagnostic[]) {
     if (!diagnostics) {
         return false;
@@ -153,16 +163,12 @@ export function addToStringChecker(diagnostics: Diagnostic[]) {
     return false;
 }
 
-export function addElvisChecker(diagnostics: Diagnostic[], varType: string) {
-    if (!diagnostics) {
-        return false;
-    }
-    if (Array.isArray(diagnostics) && diagnostics.length > 0) {
-        const selectedDiagnostic: Diagnostic = getSelectedDiagnostics(diagnostics, varType);
-        const types: string[] = getTypesFromDiagnostics(selectedDiagnostic);
-        return types.length === 2 ? `${types[0]}?` === types[1] : false;
-    }
-    return false;
+/**
+ * Check if the input type is equal to the same but nullable type
+ * @example string? === string
+ */
+export function addElvisChecker(expectedType?: string, foundType?: string) {
+    return !!expectedType && !!foundType && `${expectedType}?` === foundType;
 }
 
 // FIXME: Use the response of ballerinaSymbol/type instead of below function
@@ -283,6 +289,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
     return PrimitiveBalType.Var.toString();
 }
 
+/** Check if varType is string or a union type containing string */
 export function checkIfStringExist(varType: string): boolean {
     if (varType.endsWith(")[]")) {
         // Check for union array
@@ -401,17 +408,17 @@ export const getValueWithoutSemiColon = (currentContent: string) => {
     return currentContent;
 }
 
-export function getSelectedDiagnostics(diagnostics: any, varType: string): Diagnostic {
+export function getSelectedDiagnostics(diagnostics: Diagnostic[], varType: string): Diagnostic {
     if (varType === 'string') {
-        const quotesError = diagnostics.find((diagnostic: any) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
-        const undefSymbolError = diagnostics.find((diagnostic: any) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
+        const quotesError = diagnostics.find((diagnostic) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
+        const undefSymbolError = diagnostics.find((diagnostic) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
         return quotesError ? quotesError : undefSymbolError ? undefSymbolError : diagnostics[0];
     } else {
         return diagnostics[0];
     }
 }
 
-export function getDiagnosticMessage(diagnostics: any, varType: string): string {
+export function getDiagnosticMessage(diagnostics: Diagnostic[], varType: string): string {
     return getSelectedDiagnostics(diagnostics, varType)?.message;
 }
 
@@ -420,4 +427,104 @@ export function diagnosticInRange(diagnosticRange: Range, targetPosition: any, t
     const currentLine = diagnosticRange.start.line;
     const currentColumn = diagnosticRange.start.character;
     return (targetLine === currentLine) && ((targetColumn - 1) <= currentColumn);
+}
+
+/** Handlers to handler the click event for hints shown in the expression editor */
+const hintHandlers = {
+    /** Handle nullable inputs by adding default values via Elvis operator */
+    addElvisOperator: (varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`${editorContent} ?: ${getDefaultValue(varType)}`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handler to append `.toString` to the input */
+    addToString: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                editorModel.setValue(`(${editorContent}).toString()`);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handler to add double quotes to input value in the expression editor */
+    addDoubleQuotes: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                const startQuote = editorContent.trim().startsWith("\"") ? "" : "\"";
+                const endQuote = editorContent.trim().endsWith("\"") ? "" : "\"";
+                editorModel.setValue(startQuote + editorContent + endQuote);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handler to prepend `check` statement to the expression editor input in order to handle expressions that could throw errors */
+    addCheck: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                editorModel.setValue("check " + editorModel.getValue());
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+    /** Handle incompatible types by casting */
+    addTypeCast: (foundType: string, varType: string, monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                if (foundType === 'string'){
+                    editorModel.setValue(`check ${varType}:fromString(${editorContent})`);
+                }else{
+                    editorModel.setValue(`<${varType}> ${editorContent}`);
+                }
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
+}
+
+/** Get list of hints to be shown below the expression editor, for given diagnostics */
+export const getHints = (diagnostics: Diagnostic[], varType: string, varName: string, monacoRef: React.MutableRefObject<MonacoEditor>): ExpressionEditorHintProps[] => {
+
+    const hints: ExpressionEditorHintProps[] = [];
+    if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
+        const [expectedType, foundType] = getTypesFromDiagnostics(getSelectedDiagnostics(diagnostics, varType));
+
+        if (typeCheckerExp(diagnostics, varName, varType)){
+            // Prepend `check` to input in order to handle expressions that could throw an error
+            hints.push({type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef)})
+        }else if (addElvisChecker(expectedType, foundType)){
+            // Add a default value for nullable inputs via Elvis operator
+            hints.push({type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef)})
+        }else if (checkIfStringExist(varType)){
+            // handle string or string|other_types
+            if (addToStringChecker(diagnostics)){
+                // Add .toString to the input
+                hints.push({type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef)})
+            }else if (addQuotesChecker(diagnostics)){
+                const editorContent = monacoRef.current.editor.getModel().getValue();
+                if (editorContent === "") {
+                    // Add empty double quotes if the input field is empty for string type
+                    hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef)})
+                }else{
+                    // Add double quotes around the input, if its string input type
+                    hints.push({type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
+                }
+            }
+        } else if (suggestCastChecker(expectedType, foundType)) {
+            hints.push({type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType})
+        }
+    }
+
+    return hints;
 }

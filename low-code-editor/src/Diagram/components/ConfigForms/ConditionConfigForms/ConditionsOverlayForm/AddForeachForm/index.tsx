@@ -164,7 +164,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const invalidConnectionErrorMessage = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
-        defaultMessage: "Invalid Collection Name"
+        defaultMessage: "Invalid collection name."
     });
 
     const cancelForEachButtonLabel = intl.formatMessage({

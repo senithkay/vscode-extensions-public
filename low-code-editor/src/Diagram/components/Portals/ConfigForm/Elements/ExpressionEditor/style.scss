@@ -20,7 +20,7 @@
         position: relative;
 
         .exp-editor {
-            height: 32px;
+            height: 34px;
             border: 1px solid #5567d5;
             border-radius: 5px;
             padding: 0.25rem 0.25rem 0.25rem 0.5rem;
@@ -89,7 +89,7 @@ div[class^="exp-wrapper"] {
     .exp-container {
         .exp-absolute-wrapper {
             position: absolute;
-            width: 79% !important;
+            width: 82% !important;
         }
     }
 }
@@ -116,4 +116,10 @@ div[class^="exp-wrapper"] {
     top: unset !important;
     opacity: 100;
     visibility: inherit !important;
+}
+
+.exp-linear-loader {
+    height: 2px !important;
+    width: 98% !important;
+    border-radius: 1px !important;
 }

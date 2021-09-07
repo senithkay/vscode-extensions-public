@@ -49,7 +49,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 
     const tooltipHintSuggestionText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.suggestionText",
-        defaultMessage: "Press Ctrl/Cmd+Space for suggestions"
+        defaultMessage: "Press Ctrl/Cmd+Spacebar for suggestions"
     });
     const tooltipHintVarScopeText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.varScopeText",

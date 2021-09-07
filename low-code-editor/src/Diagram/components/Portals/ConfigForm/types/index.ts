@@ -113,6 +113,7 @@ export interface DataMapperOutputTypeInfo {
     sampleStructure?: string;
     fieldsGenerated?: boolean;
     saved?: boolean
+    typeDefInSameModule?: boolean;
 }
 
 export interface DataMapperConfig {

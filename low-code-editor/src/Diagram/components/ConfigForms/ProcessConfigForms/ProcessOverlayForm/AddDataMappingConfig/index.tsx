@@ -69,6 +69,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
             let outputVarName: string;
             let outputVarType: string;
             let outputTypeInfo;
+            const outputSymbol = outputST.typeData.symbol;
 
             if (STKindChecker.isAssignmentStatement(outputST)) {
                 generationType = GenerationType.ASSIGNMENT;
@@ -159,6 +160,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                 generationType,
                 typeInfo: outputTypeInfo,
                 startLine: outputST.position.startLine,
+                typeDefInSameModule: outputTypeInfo?.moduleName === outputSymbol.moduleID?.moduleName
             }
 
             dataMapperStart(dataMapperConfig);

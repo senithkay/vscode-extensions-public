@@ -217,15 +217,19 @@ function getType(typeNode: any): any {
     }
 }
 
-export function cleanAll() {
+export function cleanLocalSymbols() {
     endPoints.clear();
     actions.clear();
     variables.clear();
-    configurables.clear();
     callStatement.clear();
     variableNameReferences.clear();
     assignmentStatement.clear();
+}
+
+export function cleanModuleLevelSymbols(){
+    configurables.clear();
     recordTypeDescriptions.clear();
+
 }
 
 export function getSymbolInfo(): STSymbolInfo {
