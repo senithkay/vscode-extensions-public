@@ -15,22 +15,26 @@ import React, { useContext, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
-import { Container } from "@material-ui/core";
 import classNames from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
-import { useStyles } from "../../../Diagram/styles";
+import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
 import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
+import { TopLevelPlus } from "../TopLevelPlus";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
+
+export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
+export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
+export const FUNCTION_PLUS_MARGIN_LEFT = 10;
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -54,14 +58,6 @@ export function Function(props: FunctionProps) {
     }
 
     let component: JSX.Element;
-
-    const rectProps = {
-        x: viewState.bBox.cx,
-        y: viewState.bBox.cy,
-        width: viewState.bBox.w,
-        height: viewState.bBox.h,
-        rx: 4
-    };
 
     if (isExpressionFuncBody) {
         component = (

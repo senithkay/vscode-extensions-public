@@ -17,10 +17,12 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } f
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { ModuleMemberViewState } from "../../view-state/module-member";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
+export const RECORD_MARGIN_LEFT: number = 24.5;
+export const RECORD_PLUS_OFFSET: number = 7.5;
 
 export interface RecordProps {
     model: STNode;
@@ -32,10 +34,8 @@ export function Record(props: RecordProps) {
     const [isEditable, setIsEditable] = useState(false);
 
     const recordModel: TypeDefinition = model as TypeDefinition;
-    const viewState: ModuleMemberViewState = recordModel.viewState;
 
     const varName = recordModel.typeName.value;
-    const type = (recordModel.typeDescriptor as RecordTypeDesc).recordKeyword.value;
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -59,44 +59,48 @@ export function Record(props: RecordProps) {
     }
 
     return (
-        <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
-            <div className="record-header" >
-                <div className="record-icon" />
-                <div className="record-type">
-                    Record
+        <>
+            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
+                <div className="record-header" >
+                    <div className="record-icon" />
+                    <div className="record-type">
+                        Record
+                    </div>
+                    <div className="record-name">
+                        {varName}
+                    </div>
+                    {isEditable && (
+                        <>
+                            <div className="record-edit">
+                                <EditButton />
+                            </div>
+                            <div className="record-delete">
+                                <DeleteButton />
+                            </div>
+                        </>
+                    )}
                 </div>
-                <div className="record-name">
-                    {varName}
-                </div>
+                <div className="record-separator" />
                 {isEditable && (
                     <>
-                        <div className="record-edit">
-                            <EditButton />
-                        </div>
-                        <div className="record-delete">
-                            <DeleteButton />
+                        <div className="record-fields" >
+                            {record.map(recordfield => (
+                                <div className="record-field" key={recordfield[1]}>
+                                    <div className="record-field-type">
+                                        {recordfield[0]}
+                                    </div>
+                                    <div className="record-field-name">
+                                        {recordfield[1]};
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </>
                 )}
             </div>
-            <div className="record-separator" />
-            {isEditable && (
-                <>
-                    <div className="record-fields" >
-                        {record.map(recordfield => (
-                            <div className="record-field" key={recordfield[1]}>
-                                <div className="record-field-type">
-                                    {recordfield[0]}
-                                </div>
-                                <div className="record-field-name">
-                                    {recordfield[1]};
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
-
-        </div>
+            <TopLevelPlus
+                margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
+            />
+        </>
     );
 }
