@@ -117,9 +117,9 @@ export function Function(props: FunctionProps) {
                                 </div>
                             </TransformComponent>
                             <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
-                                <button onClick={() => zoomIn()}>+</button>
-                                <button onClick={() => zoomOut()}>-</button>
-                                <button onClick={() => resetTransform()}>x</button>
+                                <button >+</button>
+                                <button >-</button>
+                                <button >x</button>
                             </div>
                         </div>
                     </React.Fragment>
