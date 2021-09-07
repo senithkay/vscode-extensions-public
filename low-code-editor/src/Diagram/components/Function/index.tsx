@@ -14,22 +14,26 @@
 import React, { useContext } from "react";
 
 import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
-import { Container } from "@material-ui/core";
 import classNames from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
-import { useStyles } from "../../../Diagram/styles";
+import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
 import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
+import { TopLevelPlus } from "../TopLevelPlus";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
 import "./style.scss";
+
+export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
+export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
+export const FUNCTION_PLUS_MARGIN_LEFT = 10;
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -48,14 +52,6 @@ export function Function(props: FunctionProps) {
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
 
     let component: JSX.Element;
-
-    const rectProps = {
-        x: viewState.bBox.cx,
-        y: viewState.bBox.cy,
-        width: viewState.bBox.w,
-        height: viewState.bBox.h,
-        rx: 4
-    };
 
     if (isExpressionFuncBody) {
         component = (
@@ -90,17 +86,18 @@ export function Function(props: FunctionProps) {
     }
 
     return (
-        <div
-            className={
-                classNames(
-                    'function-box',
-                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                )
-            }
-        >
-            <FunctionSignature model={model} />
-            <div className={'lowcode-diagram'}>
-                {/* <Container className={classes.DesignContainer}> */}
+        <>
+            <div
+                className={
+                    classNames(
+                        'function-box',
+                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                    )
+                }
+            >
+                <FunctionSignature model={model} />
+                <div className={'lowcode-diagram'}>
+                    {/* <Container className={classes.DesignContainer}> */}
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
                         {component}
@@ -113,8 +110,12 @@ export function Function(props: FunctionProps) {
                     {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />} */}
-                {/* </Container> */}
+                    {/* </Container> */}
+                </div>
             </div>
-        </div>
+            <TopLevelPlus
+                margin={{ top: FUNCTION_PLUS_MARGIN_TOP, bottom : FUNCTION_PLUS_MARGIN_BOTTOM, left: FUNCTION_PLUS_MARGIN_LEFT }}
+            />
+        </>
     );
 }

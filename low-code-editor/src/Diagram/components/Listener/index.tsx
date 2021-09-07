@@ -17,8 +17,12 @@ import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
+
+export const LISTENER_MARGIN_LEFT: number = 24.5;
+export const LISTENER_PLUS_OFFSET: number = 7.5;
 
 export interface ListenerProps {
     model: STNode;
@@ -45,25 +49,30 @@ export function ListenerC(props: ListenerProps) {
     };
 
     return (
-        <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
-            <div className="listener-icon" />
-            <div className="listener-type">
-                HTTP
+        <>
+            <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
+                <div className="listener-icon" />
+                <div className="listener-type">
+                    HTTP
+                </div>
+                <div className="listener-name">
+                    {listenerName}
+                </div>
+                { isEditable && (
+                    <>
+                        <div className={"editBtnWrapper"}>
+                            <EditButton/>
+                        </div>
+                        <div className={"deleteBtnWrapper"}>
+                            <DeleteButton/>
+                        </div>
+                    </>
+                )}
             </div>
-            <div className="listener-name">
-                {listenerName}
-            </div>
-            { isEditable && (
-                <>
-                    <div className={"editBtnWrapper"}>
-                        <EditButton/>
-                    </div>
-                    <div className={"deleteBtnWrapper"}>
-                        <DeleteButton/>
-                    </div>
-                </>
-            )}
-        </div>
+            <TopLevelPlus
+                margin={{ top: LISTENER_PLUS_OFFSET, bottom: LISTENER_PLUS_OFFSET, left: LISTENER_MARGIN_LEFT }}
+            />
+        </>
     );
 }
 

@@ -16,13 +16,15 @@ import React from "react"
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
 import { getSTComponents } from "../../utils";
-import { ServiceViewState } from "../../view-state";
-import { PlusButton } from "../Plus";
+import { FUNCTION_PLUS_MARGIN_LEFT } from "../Function";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
 
 export const DEFAULT_SERVICE_WIDTH: number = 500;
+export const SERVICE_MARGIN_LEFT: number = 24.5;
+export const SERVICE_PLUS_OFFSET: number = 7.5;
 
 export interface ServiceProps {
     model: ServiceDeclaration;
@@ -31,16 +33,24 @@ export interface ServiceProps {
 export function Service(props: ServiceProps) {
     const { model } = props;
 
-    const pluses: React.ReactNode[] = [];
     const children = getSTComponents(model.members);
 
     return (
-        <div className={'service'} >
-            <ServiceHeader model={model} />
-            <div className={'content-container'}>
-                {children}
+        <>
+            <div className={'service'} >
+                <ServiceHeader model={model} />
+                {/* initial plus inside a resource function */}
+                <TopLevelPlus
+                    margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: FUNCTION_PLUS_MARGIN_LEFT }}
+                />
+                <div className={'content-container'}>
+                    {children}
+                </div>
             </div>
-        </div>
+            <TopLevelPlus
+                margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: SERVICE_MARGIN_LEFT }}
+            />
+        </>
     );
 }
 
