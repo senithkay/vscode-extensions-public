@@ -3,7 +3,7 @@ name: Ubuntu Build
 
 on:
   workflow_dispatch:
-    branches: [semantic]
+    branches: [master]
 
 jobs:
   build:

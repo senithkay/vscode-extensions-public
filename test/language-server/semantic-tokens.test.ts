@@ -68,7 +68,7 @@ export async function runSemanticTokensTestCases(langClient: ExtendedLangClient)
                     const end = new Date();
                     const diff = end.getTime() - start.getTime();
                     log(`Time taken for ${filePath}: ${diff}`);
-                    assert.equal(diff < 2000, true, `Semantic token response took more than 2 seconds for ${filePath}.`)
+                    assert.equal(diff < 5000, true, `Semantic token response took more than 5 seconds for ${filePath}.`)
                 });
             });
         });
