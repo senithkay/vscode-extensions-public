@@ -157,16 +157,60 @@ export interface BallerinaRecordRequest {
     name: string;
 }
 
-export interface BallerinaConnectorsResponse {
-    connectors: any;
+export interface FormField {
+    type: string;
+    name?: string;
+    label?: string;
+    displayName?: string;
+    collectionDataType?: FormField;
+    selectedDataType?: string;
+    typeName?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    fields?: FormField[];
+    references?: FormField[];
+    isReturn?: boolean;
+    isParam?: boolean;
+    isUnion?: boolean;
+    isArray?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string; // only for http form used when there's a request object in the request
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isDefaultableParam?: boolean;
+    isRestParam?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+}
+export interface FunctionDefinitionInfo {
+    name: string;
+    documentation: string;
+    parameters: FormField[];
+    returnType?: FormField;
+    isRemote?: boolean;
 }
 
-export interface BallerinaConnectorResponse {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-    ast?: STNode;
+export interface BallerinaConnectorInfo extends Connector {
+    functions: FunctionDefinitionInfo[];
+    documentation?: string;
+    displayAnnotation?: any;
+}
+export interface BallerinaConnectorsResponse {
+    connectors: BallerinaConnectorInfo[];
+}
+
+export interface BallerinaConnectorResponse extends Connector{
+    connector: BallerinaConnectorInfo;
+    error?: string;
 }
 
 // tslint:disable-next-line: no-empty-interface
@@ -174,14 +218,15 @@ export interface BallerinaConnectorRequest extends Connector {
 }
 
 export interface Connector {
-    org: string;
-    module: string;
-    version: string;
+    id: string;
     name: string;
-    displayName: string;
-    beta: boolean;
-    category: string;
-    cacheVersion: string;
+    orgName: string;
+    packageName: string;
+    version: string;
+    platform: string;
+    ballerinaVersion: string;
+    displayName?: string;
+    moduleName?: string;
 }
 export interface IBallerinaLangClient {
 

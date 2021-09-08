@@ -56,9 +56,11 @@ export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 export type ExpressionEditorType = BallerinaType | BallerinaType[];
 
 export interface FunctionDefinitionInfo {
-    label?: string;
+    name: string;
+    documentation: string;
     parameters: FormField[];
-    returnType: FormField;
+    returnType?: FormField;
+    isRemote?: boolean;
 }
 
 export interface FormField {

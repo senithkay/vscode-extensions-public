@@ -13,6 +13,8 @@
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { FunctionDefinitionInfo } from "../ConfigurationSpec/types";
+
 export type STModificationConfig = {};
 
 export interface STModification {
@@ -37,14 +39,15 @@ export interface BallerinaSyntaxTreeResponse {
 }
 
 export interface Connector {
-    org: string;
-    module: string;
-    version: string;
-    cacheVersion?: string; // to keep track of frontend cache file changes
+    id: string;
     name: string;
-    displayName: string;
-    beta: boolean;
-    category: string;
+    orgName: string;
+    packageName: string;
+    version: string;
+    platform: string;
+    ballerinaVersion: string;
+    displayName?: string;
+    moduleName?: string;
 }
 
 export interface BallerinaRecord {
@@ -54,20 +57,18 @@ export interface BallerinaRecord {
     name: string;
 }
 
-export interface BallerinaConnectorsInfo extends Connector {
-    logoBase64Encoded: string;
+export interface BallerinaConnectorInfo extends Connector {
+    functions: FunctionDefinitionInfo[];
+    documentation?: string;
+    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorsResponse {
-    connectors: any;
+    connectors: BallerinaConnectorInfo[];
 }
-
-export interface BallerinaConnectorResponse {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-    ast?: STNode;
+export interface BallerinaConnectorResponse extends Connector{
+    connector: BallerinaConnectorInfo;
+    error?: string;
 }
 
 // tslint:disable-next-line: no-empty-interface

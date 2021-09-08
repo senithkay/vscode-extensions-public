@@ -27,8 +27,7 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 import { ConnectionDetails } from "../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
-import { BallerinaConnectorsInfo, Connector } from "../../../../Definitions/lang-client-extended";
-import { LowCodeEditorState } from "../../../../types";
+import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
@@ -40,7 +39,6 @@ import {
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { cleanFields, functionDefinitionMap, visitor as FormFieldVisitor } from "../../../visitors/form-field-extraction-visitor";
 import * as Icons from "../../Connector/Icon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
@@ -108,100 +106,6 @@ export function getConnectorComponent(type: string, args: any) {
     return ConnectorExtensionComponent ? (
         <ConnectorExtensionComponent {...args} />
     ) : undefined;
-}
-
-export async function getRecordFields(formFields: any, records: object, langClient: any, loadedRecords: Map<string, STNode>, depth = 1) {
-    return new Promise(async (resolve) => {
-        const maxDepth = 10;
-        for (const formField of formFields) {
-            // check primitive types if it's not a primitive go and fetch record
-            if (!formField.noCodeGen) {
-                switch (formField.type) {
-                    case 'string':
-                    case 'boolean':
-                    case 'int':
-                    case 'float':
-                    case 'json':
-                    case 'xml':
-                    case 'collection':
-                        // fine as it is
-                        break;
-                    case 'union':
-                        if (formField.fields) {
-                            await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
-                            formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                if (property?.length > 0) {
-                                    formField.fields = [...formField.fields, ...property.fields];
-                                }
-                            });
-                        }
-                        break;
-                    default:
-                        // every other type can be a record or union
-                        if (formField.typeInfo) {
-                            let recordRes: STNode;
-                            const typeInfo = formField.typeInfo;
-                            const recordKey = `${typeInfo.orgName}/${typeInfo.modName}:${typeInfo.version}:${typeInfo.name}`;
-                            recordRes = receivedRecords.get(recordKey);
-                            const ignoredRecord = ignoreList.includes(recordKey) || (depth > maxDepth);
-                            if (!recordRes) {
-                                recordRes = loadedRecords.get(recordKey);
-                            }
-                            if (!ignoredRecord && recordRes === undefined) {
-                                if (recordRes === undefined) {
-                                    const record = await langClient.getRecord({
-                                        module: typeInfo.modName,
-                                        org: typeInfo.orgName,
-                                        version: typeInfo.version,
-                                        name: typeInfo.name
-                                    });
-
-                                    if (record && record.ast) {
-                                        recordRes = record.ast;
-                                        loadedRecords.set(recordKey, recordRes);
-                                    }
-                                }
-                            }
-
-                            if (recordRes) {
-                                if (recordRes.typeData?.records) {
-                                    Object.keys(recordRes.typeData.records).forEach((key) => {
-                                        receivedRecords.set(key, recordRes.typeData.records[key])
-                                    })
-                                }
-                            }
-
-                            if (!recordRes) {
-                                const keys: string[] = Object.keys(records);
-                                for (const key of keys) {
-                                    if (key.includes(formField.typeName)) {
-                                        recordRes = (records as any)[key] as STNode;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (recordRes) {
-                                recordRes.viewState = formField;
-                                traversNode(recordRes, FormFieldVisitor);
-                                if (formField.fields) {
-                                    if (depth < maxDepth) {
-                                        await getRecordFields(formField.fields, records, langClient, loadedRecords, depth + 1);
-                                    }
-
-                                    formField.fields.filter((property: any) => property?.isReference).forEach((property: any) => {
-                                        if (property.fields?.length > 0) {
-                                            formField.fields = [...formField.fields, ...property.fields]
-                                        }
-                                    })
-                                }
-                            }
-                        }
-                }
-            }
-        }
-        resolve(formFields);
-    });
 }
 
 export function getFieldName(fieldName: string): string {
@@ -568,7 +472,7 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
     ) : <DefaultIcon {...props} />;
 }
 
-export function getConnectorIconSVG(connector: BallerinaConnectorsInfo, scale: number = 1): React.ReactNode {
+export function getConnectorIconSVG(connector: BallerinaConnectorInfo, scale: number = 1): React.ReactNode {
     const iconId = getConnectorIconId(connector);
     const Icon = (Icons as any)[iconId.replace('.', '_')];
     const DefaultIcon = (Icons as any).default;
@@ -591,8 +495,8 @@ export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): 
     ) : <DefaultIcon {...props} />;
 }
 
-export function getConnectorIconId(connector: BallerinaConnectorsInfo) {
-    return `${connector.module}_${connector.name}`;
+export function getConnectorIconId(connector: BallerinaConnectorInfo) {
+    return `${connector.moduleName}_${connector.name}`;
 }
 
 export function genVariableName(defaultName: string, variables: string[]): string {
@@ -723,55 +627,31 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     let functionDefInfo = await getFromFormFieldCache(connector);
     const connectorConfig = new ConnectorConfig();
 
-    if (!functionDefInfo) {
-        // get form fields from file cache
-        functionDefInfo = await getFormFieldFromFileCache(connector);
-        // save form fields in browser cache
-        if (functionDefInfo) {
-            await addToFormFieldCache(connector, functionDefInfo);
-        }
-    }
+    // if (!functionDefInfo) {
+    //     // get form fields from file cache
+    //     functionDefInfo = await getFormFieldFromFileCache(connector);
+    //     // save form fields in browser cache
+    //     if (functionDefInfo) {
+    //         await addToFormFieldCache(connector, functionDefInfo);
+    //     }
+    // }
 
     if (!functionDefInfo) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-        let connectorDef = connector ? await getConnectorDefFromCache(connector) : undefined;
-        if (!connectorDef && connector) {
+        const functionDefMap: Map<string, FunctionDefinitionInfo> = new Map();
+
+        if (connector) {
             const connectorResp = await langClient.getConnector(connector);
-            connectorDef = connectorResp.ast;
-        }
-        if (!connectorDef) {
-            // handle error when connector loading form
-            return null;
-        }
-        connectorDef.viewState = {};
-
-        cleanFields();
-        traversNode(connectorDef, FormFieldVisitor);
-
-        functionDefInfo = filterCodeGenFunctions(connector, functionDefinitionMap);
-
-        for (const value of Array.from(functionDefInfo.values())) {
-            const loadedRecords: Map<string, STNode> = new Map();
-            await getRecordFields(value.parameters, connectorDef.typeData.records, langClient, loadedRecords);
-            if (value.returnType) {
-                if (value.returnType.type === 'union') {
-                    await getRecordFields((value.returnType.fields as any), connectorDef.typeData.records, langClient, loadedRecords);
-                } else {
-                    await getRecordFields([value.returnType], connectorDef.typeData.records, langClient, loadedRecords);
-                }
+            if (connectorResp.connector?.functions) {
+                connectorResp.connector?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
+                    functionDefMap.set(functionInfo.name, functionInfo);
+                });
+                functionDefInfo = functionDefMap;
             }
         }
         // save form fields in browser cache
         await addToFormFieldCache(connector, functionDefInfo);
-
-        // INFO: uncomment below code to get connector form field json object
-        // const formFieldJsonObject: any = {};
-        // functionDefInfo.forEach((value, key) => {
-        //     formFieldJsonObject[key] = value;
-        // });
-        // console.warn("save this field.json file in here >>>", `/connectors/cache/${connector.org}/${connector.module}/${connector.version}/${connector.name}/${connector.cacheVersion || "0"}/fields.json`)
-        // console.warn("form field json >>>", JSON.stringify(formFieldJsonObject))
     }
 
     // Filter connector functions to have better usability.
@@ -843,7 +723,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.module) + ":" + connector.name);
+    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.packageName) + ":" + connector.name);
 
     return {
         isLoading: false,

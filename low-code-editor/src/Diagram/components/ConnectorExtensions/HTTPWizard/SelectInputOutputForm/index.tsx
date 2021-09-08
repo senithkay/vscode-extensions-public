@@ -11,35 +11,29 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CallStatement, CaptureBindingPattern, CheckAction, LocalVarDecl, MethodCall, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, StringLiteral, TypeCastExpression } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import classNames from "classnames";
 
-import { TooltipIcon } from "../../../../../components/Tooltip";
 import {
     ActionConfig,
     ConnectorConfig,
     FormField,
-    FunctionDefinitionInfo,
-    httpRequest,
-    PrimitiveBalType
-} from "../../../../../ConfigurationSpec/types";
+    FunctionDefinitionInfo} from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { SwitchToggle } from "../../../Portals/ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../Portals/utils";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'

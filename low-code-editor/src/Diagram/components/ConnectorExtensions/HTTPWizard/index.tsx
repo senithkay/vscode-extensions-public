@@ -186,14 +186,14 @@ export function HTTPWizard(props: WizardProps) {
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
-                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(
+                `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(
                     connectorConfig.connectorInit).join()});`, connectorConfig.initPosition);
             modifications.push(updatedConnectorInit);
         } else {
             // Add an import.
             const addImport: STModification = createImportStatement(
-                connector.org,
-                connector.module,
+                connector.orgName,
+                connector.moduleName,
                 targetPosition
             );
             modifications.push(addImport);
@@ -201,7 +201,7 @@ export function HTTPWizard(props: WizardProps) {
             // Add an connector client initialization.
             if (!connectorConfig.isExistingConnection) {
                 const addConnectorInit = createPropertyStatement(
-                    `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                    `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                     targetPosition
                 );
                 modifications.push(addConnectorInit);
@@ -264,8 +264,8 @@ export function HTTPWizard(props: WizardProps) {
                 if (targetPosition) {
                     // Add an import.
                     const addImport: STModification = createImportStatement(
-                        connector.org,
-                        connector.module,
+                        connector.orgName,
+                        connector.moduleName,
                         targetPosition
                     );
                     modifications.push(addImport);
@@ -273,7 +273,7 @@ export function HTTPWizard(props: WizardProps) {
                     // Add an connector client initialization.
                     if (!connectorConfig.isExistingConnection) {
                         const addConnectorInit = createPropertyStatement(
-                            `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                            `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                             targetPosition
                         );
                         modifications.push(addConnectorInit);
@@ -329,7 +329,7 @@ export function HTTPWizard(props: WizardProps) {
             let actionInitializer: CheckAction;
 
             const updatedConnectorInit = updatePropertyStatement(
-                `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                 connectorConfig.initPosition
             );
             modifications.push(updatedConnectorInit);
@@ -556,8 +556,8 @@ export function HTTPWizard(props: WizardProps) {
                 modifications = [];
                 // Add an import.
                 const addImport: STModification = createImportStatement(
-                    connector.org,
-                    connector.module,
+                    connector.orgName,
+                    connector.moduleName,
                     targetPosition
                 );
                 modifications.push(addImport);
@@ -565,7 +565,7 @@ export function HTTPWizard(props: WizardProps) {
                 // Add an connector client initialization.
                 if (!connectorConfig.isExistingConnection) {
                     const addConnectorInit = createPropertyStatement(
-                        `${connector.module}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
+                        `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
                         targetPosition
                     );
                     modifications.push(addConnectorInit);
@@ -646,7 +646,7 @@ export function HTTPWizard(props: WizardProps) {
                     icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={wizardClasses.titleWrapper}>
-                    <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.module}_${connector.name}`)}</div>
+                    <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.moduleName}_${connector.name}`)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
                 </div>
             </div>

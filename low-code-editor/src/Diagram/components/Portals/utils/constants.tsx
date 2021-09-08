@@ -93,3 +93,9 @@ export const connectorCategories = {
     SERVICE_CONNECTORS: "service-connectors",
     CHOREO_CONNECTORS: "choreo-connectors"
 }
+
+export const defaultOrgs = {
+    WSO2: "wso2",
+    BALLERINA:  "ballerina",
+    BALLERINAX:  "ballerinax"
+}
