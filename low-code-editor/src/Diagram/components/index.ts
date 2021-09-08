@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Constant } from './Constant';
 import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
 import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
-import { Constant } from './Constant';
 import { ModuleVariable } from './ModuleVariable';
 import { Record } from "./Record";
 import { Service } from "./Service";
