@@ -100,7 +100,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             kind
                         }
                     };
-                    const diagram = ballerinaComposer.renderDiagramEditor(options);
+                    const diagram = BLCEditor.renderDiagramEditor(options);
                     webViewRPCHandler.addMethod("updateDiagram", (args) => {
                         diagram.update({
                             langClient: getLangClient(),
@@ -138,7 +138,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions(),
+        ...getComposerWebViewOptions("BLCEditor"),
         body, scripts, styles, bodyCss
     };
 

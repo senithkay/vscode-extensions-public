@@ -25,7 +25,7 @@ configurations {
 
 npmBuild() {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        dependsOn ':composer:composerBuild'
+        // dependsOn ':composer:composerBuild'
         PatternSet patternSet = new PatternSet();
         patternSet.exclude("**/dist/**");
         patternSet.exclude("**/out/**");
