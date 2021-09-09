@@ -202,11 +202,14 @@ export class BallerinaExtension {
                 throw new Error(msg);
             });
         } catch (ex) {
-            const msg = "Error while activating plugin. " + (ex.message ? ex.message : ex);
-            // If any failure occurs while initializing show an error message
-            this.showPluginActivationError();
-            sendTelemetryException(this, ex, CMP_EXTENSION_CORE, msg);
-            this.telemetryReporter.dispose();
+            let msg = "Error happened.";
+            if (ex instanceof Error) {
+                msg = "Error while activating plugin. " + (ex.message ? ex.message : ex);
+                // If any failure occurs while initializing show an error message
+                this.showPluginActivationError();
+                sendTelemetryException(this, ex, CMP_EXTENSION_CORE, msg);
+                this.telemetryReporter.dispose();
+            }
             return Promise.reject(msg);
         }
     }
@@ -339,7 +342,9 @@ export class BallerinaExtension {
             const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
             return Promise.resolve(parsedVersion);
         } catch (error) {
-            sendTelemetryException(this, error, CMP_EXTENSION_CORE);
+            if (error instanceof Error) {
+                sendTelemetryException(this, error, CMP_EXTENSION_CORE);
+            }
             return Promise.reject(error);
         }
     }
@@ -460,14 +465,17 @@ export class BallerinaExtension {
             if (balHomeOutput === "" && isWindows()) {
                 isOldBallerinaDist = true;
             }
-        } catch ({ message }) {
-            // ballerina is installed, but ballerina home command is not found
-            isOldBallerinaDist = message.includes("bal: unknown command 'home'");
-            // ballerina is not installed
-            isBallerinaNotFound = message.includes('command not found')
-                || message.includes('unknown command')
-                || message.includes('is not recognized as an internal or external command');
-            log(`Error executing 'bal home'.\n<---- cmd output ---->\n${message}<---- cmd output ---->\n`);
+        } catch (er) {
+            if (er instanceof Error) {
+                const { message } = er;
+                // ballerina is installed, but ballerina home command is not found
+                isOldBallerinaDist = message.includes("bal: unknown command 'home'");
+                // ballerina is not installed
+                isBallerinaNotFound = message.includes('command not found')
+                    || message.includes('unknown command')
+                    || message.includes('is not recognized as an internal or external command');
+                log(`Error executing 'bal home'.\n<---- cmd output ---->\n${message}<---- cmd output ---->\n`);
+            }
         }
 
         return {
