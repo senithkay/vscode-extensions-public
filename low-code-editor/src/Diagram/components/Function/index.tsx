@@ -12,9 +12,8 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
@@ -22,9 +21,8 @@ import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
-import PanAndZoom from "../PanAndZoom";
+import PanAndZoom from "./PanAndZoom";
 import { StartButton } from "../Start";
-import { TopLevelPlus } from "../TopLevelPlus";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
@@ -93,43 +91,12 @@ export function Function(props: FunctionProps) {
 
     const componentBody = (
         <div className={'lowcode-diagram'}>
-            {/* <Container className={classes.DesignContainer}> */}
-            <TransformWrapper
-                wheel={{ disabled: true }}
-                doubleClick={{ disabled: true }}
-                scale={1}
-                positionX={34}
-                options={{ limitToBounds: false, maxScale: 2, minScale: 0.6, centerContent: false }}
-            >
-                {({ zoomIn, zoomOut, resetTransform, ...rest }: any) => (
-                    <React.Fragment>
-                        <div style={{ display: 'flex', flexDirection: 'row' }}>
-                            <TransformComponent>
-                                <div className={'design-container'}>
-                                    <div id="canvas-overlay" className={classes.OverlayContainer} />
-                                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
-                                        {component}
-                                    </Canvas>
-                                </div>
-                            </TransformComponent>
-                            <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
-                                <button >+</button>
-                                <button >-</button>
-                                <button >x</button>
-                            </div>
-                        </div>
-                    </React.Fragment>
-                )}
-            </TransformWrapper>
-            {/* {isDataMapperShown && (
-                        <DataMapper width={w} />
-                    )} */}
-            {/* {!isDataMapperShown && (
-                    )} */}
-            {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                    {isConfigOverlayFormOpen && <OverlayBackground />} */}
-            {/* </Container> */}
+            <PanAndZoom >
+                <div id="canvas-overlay" className={classes.OverlayContainer} />
+                <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
+                    {component}
+                </Canvas>
+            </PanAndZoom>
         </div>
     )
 
@@ -143,7 +110,7 @@ export function Function(props: FunctionProps) {
                 )
             }
         >
-            <FunctionSignature model={model} onExpandClick={onExpandClick} />
+            <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
             {diagramExpanded && componentBody}
         </div>
     );

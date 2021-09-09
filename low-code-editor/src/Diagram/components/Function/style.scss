@@ -16,7 +16,7 @@
     border: 1px solid #C1E4FC;
     border-radius: 6px;
     background-color: #F4FAFF;
-    margin: 0 10px;
+    margin: 10px;
     // height: 100px;
 
     &.get {
@@ -133,5 +133,23 @@
     scrollbar-width: none;
     margin: 0;
     padding: 0;
+}
+
+.zoom-control-wrapper {
+    height: 32px;
+    width: 32px;
+    border-radius: 20px;
+    box-shadow: 0 1px 1px 0 #CBCFDA;
+    background:  #fff;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+        &:focus {
+            box-shadow: 0 1px 2px 0 #CBCFDA;
+            background: "#f1f1f1";
+        }
+    }
 }
 
