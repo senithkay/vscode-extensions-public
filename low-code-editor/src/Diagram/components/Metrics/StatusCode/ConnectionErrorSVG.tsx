@@ -17,6 +17,7 @@ import { Grid, IconButton,  withStyles } from "@material-ui/core";
 import TooltipBase from '@material-ui/core/Tooltip';
 
 import { CopyToClipboard } from '../../../../components/CopyToClipboard';
+import ErrorCopyIcon from "../../../../assets/icons/ErrorCopyIcon";
 
 export const ERROR_LABEL_SVG_WIDTH_WITH_SHADOW = 65;
 export const ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW = 31;
@@ -55,7 +56,7 @@ export function ConnectionErrorSVG(props: { x: number, y: number, text: string, 
                 className={"copy"}
                 disableRipple={true}
             >
-                {<img src="/images/error-copy-icon.svg" />}
+                {<ErrorCopyIcon />}
             </IconButton>
         )
     };

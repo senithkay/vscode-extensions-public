@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
@@ -8,7 +9,7 @@ const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
 module.exports = {
     mode: 'none',
     entry: {
-        app: path.join(__dirname, 'src', 'index.tsx')
+        BLCEditor: path.join(__dirname, 'src', 'index.tsx')
     },
     target: 'web',
     resolve: {
@@ -77,17 +78,33 @@ module.exports = {
         ],
     },
     output: {
-        filename: 'index.js',
-        path: path.resolve(__dirname, 'build')
+        filename: 'BLCEditor.js',
+        path: path.resolve(__dirname, 'build'),
+        library: {
+            name: "BLCEditor",
+            type: "umd"
+        }
     },
-    externals: {
-        "react": "React",
-        "react-dom": "ReactDOM"
+    devServer: {
+        allowedHosts: 'all',
+        port: 9000,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        },
+        devMiddleware: {
+            mimeTypes: { 'text/css': ['css'] },
+        },
     },
     plugins: [
+        new webpack.optimize.LimitChunkCountPlugin({
+            maxChunks: 1
+        }),
         new ForkTsCheckerWebpackPlugin(), // run TSC on a separate thread,
         new MonacoWebpackPlugin({
             languages: ['ballerina', 'yaml', 'json']
         }),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('development')
+        })
     ]
 }

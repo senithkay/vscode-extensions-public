@@ -30,6 +30,8 @@ import {
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
+import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
+import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
 
 // import { BetaSVG } from "./BetaSVG";
 
@@ -682,9 +684,9 @@ export function APIOptions(props: APIOptionsProps) {
                                     (
                                         <div onClick={toggleExistingCon} className="existing-connector-toggle">
                                             {isToggledExistingConnector ?
-                                                <img src="../../../../../../images/exp-editor-expand.svg" />
+                                                <ExpEditorExpandIcon />
                                                 :
-                                                <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                                <ExpEditorCollapseIcon />
                                             }
                                         </div>
                                     )
@@ -713,9 +715,9 @@ export function APIOptions(props: APIOptionsProps) {
                         (
                             <div onClick={toggleSelectCon}>
                                 {isToggledSelectConnector ?
-                                    <img src="../../../../../../images/exp-editor-expand.svg" />
+                                    <ExpEditorExpandIcon />
                                     :
-                                    <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                    <ExpEditorCollapseIcon />
                                 }
                             </div>
                         )

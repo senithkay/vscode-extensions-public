@@ -27,6 +27,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { CloseRounded } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -104,7 +105,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                             />
                             <div className={formClasses.formTitleWrapper}>
                                 <div className={formClasses.mainTitleWrapper}>
-                                    <img src="../../../../../../images/Logo_Circle.svg" />
+                                    <LogoCircleIcon />
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
                                             <FormattedMessage

@@ -102,6 +102,7 @@ export interface LowCodeEditorAPI {
         getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
         getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
     }
+    // This has to come from Lang-server
     insights: {
         onEvent?: (event: LowcodeEvent) => void;
         trackTriggerSelection: (trigger: string) => void;
@@ -117,6 +118,7 @@ export interface LowCodeEditorAPI {
         dispatchCodeChangeCommit?: () => Promise<void>;
         dispatchFileChange?: (content: string, callback?: () => void) => Promise<void>;
         hasConfigurables?: (templateST: ModulePart) => boolean;
+        // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight: (position: ModelCodePosition) => void,
     }
     connections: {
@@ -133,6 +135,7 @@ export interface LowCodeEditorAPI {
                         ): Promise<ConnectionDetails[]>;
     }
     ai: {
+        // should moved inside lang-server
         getAiSuggestions?: (params: AiSuggestionsReq) => Promise<AiSuggestionsRes>;
     }
     splitPanel: {

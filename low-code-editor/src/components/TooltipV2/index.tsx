@@ -18,6 +18,7 @@ import TooltipBase, {TooltipProps} from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
 import useStyles, {tooltipBaseStyles} from "./style";
+import { InfoIcon } from '../../assets/icons';
 
 interface TooltipPropsExtended extends TooltipProps {
     type: string,
@@ -90,10 +91,9 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const classes = useStyles();
     const { children } = props;
-    const infoIcon = <img src="../../../../../../images/info.svg"  alt="info-icon"/>;
-    let iconComponent = infoIcon;
+    let iconComponent = <InfoIcon />;
     if (children) {
-        iconComponent = <><div>{children}</div> <div className={classes.iconWrapper}>{infoIcon}</div></>;
+        iconComponent = <><div>{children}</div> <div className={classes.iconWrapper}>{iconComponent}</div></>;
     }
 
     return (

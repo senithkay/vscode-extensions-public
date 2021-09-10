@@ -50,6 +50,7 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;
@@ -301,7 +302,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         } }
                         onClick={handleOnDeselectConnection}
                     >
-                        <img src="../../../../../../images/edit-dark.svg"/>
+                        <EditDarkIcon />
                     </IconButton>
                 </div>
             </div>

@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { CloseRounded } from "../../../../../../assets/icons";
+import { CloseRounded, RespondIcon } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
@@ -158,7 +158,7 @@ export function AddRespondForm(props: RespondFormProps) {
                             />
 
                             <div className={formClasses.mainTitleWrapper}>
-                                <img src="../../../../../../images/Respond.svg" />
+                                <RespondIcon />
                                 <Typography variant="h4">
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
                                 </Typography>
