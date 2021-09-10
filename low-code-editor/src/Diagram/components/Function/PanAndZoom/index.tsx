@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
@@ -20,7 +20,6 @@ import ZoomInSVG from "../../PanAndZoom/images/zoom-in";
 import ZoomOutSVG from "../../PanAndZoom/images/zoom-out";
 
 export default function PanAndZoom(props: any) {
-    const classes = useStyles();
 
     return (
         <TransformWrapper
@@ -30,15 +29,11 @@ export default function PanAndZoom(props: any) {
             positionX={34}
             options={{ limitToBounds: false, maxScale: 2, minScale: 0.6, centerContent: false }}
         >
-            {({ zoomIn, zoomOut, resetTransform, ...rest }: any) => (
+            {({ zoomIn, zoomOut, resetTransform }: any) => (
                 <React.Fragment>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <TransformComponent>
                             <div className={'design-container'}>
-                                {/* <div id="canvas-overlay" className={classes.OverlayContainer} />
-                                <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
-                                    {component}
-                                </Canvas> */}
                                 {props.children}
                             </div>
                         </TransformComponent>

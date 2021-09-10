@@ -30,6 +30,7 @@ export function ModulePartComponent(props: ModulePartProps) {
     const { model } = props;
 
     const moduleMembers: JSX.Element[] = [];
+
     model.members.forEach((member: STNode) => {
         moduleMembers.push(getSTComponent(member))
     });

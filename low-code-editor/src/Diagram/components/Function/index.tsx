@@ -21,13 +21,13 @@ import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
-import PanAndZoom from "./PanAndZoom";
 import { StartButton } from "../Start";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
+import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
@@ -89,7 +89,7 @@ export function Function(props: FunctionProps) {
         );
     }
 
-    const componentBody = (
+    const functionBody = (
         <div className={'lowcode-diagram'}>
             <PanAndZoom >
                 <div id="canvas-overlay" className={classes.OverlayContainer} />
@@ -100,18 +100,38 @@ export function Function(props: FunctionProps) {
         </div>
     )
 
+    const functionComponent =
+        STKindChecker.isResourceAccessorDefinition(model) || STKindChecker.isObjectMethodDefinition(model) ?
+            (
+                <div
+                    className={
+                        classNames(
+                            'function-box',
+                            STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
+                            { expanded: diagramExpanded }
+                        )
+                    }
+                >
+                    <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
+                    {diagramExpanded && functionBody}
+                </div>
+            ) :
+            (
+                <div
+                    className={
+                        classNames(
+                            'module-level-function',
+                            { expanded: diagramExpanded }
+                        )
+                    }
+                >
+                    <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
+                    {diagramExpanded && functionBody}
+                </div>
+            )
+
+
     return (
-        <div
-            className={
-                classNames(
-                    'function-box',
-                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
-                    { expanded: diagramExpanded }
-                )
-            }
-        >
-            <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
-            {diagramExpanded && componentBody}
-        </div>
+        functionComponent
     );
 }
