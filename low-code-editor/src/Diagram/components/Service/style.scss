@@ -24,11 +24,18 @@
         flex-direction: row;
         padding: 15px;
         border-bottom: 1px #E6E7EC solid;
+
+        .header-segement-container {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+
+            .header-segment {
+                margin-right: 15px;
+            }
+        }
     }
 
-    .icon {
-        margin-right: 15px;
-    }
 
     .content-container {
         display: flex;
