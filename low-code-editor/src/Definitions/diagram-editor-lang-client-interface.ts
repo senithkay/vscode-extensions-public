@@ -83,4 +83,13 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	diagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
+	getOpenAPIYaml: (
+		params: OpenAPIRequest
+	) => Thenable<OpenAPIResponse>;
+}
+export interface OpenAPIRequest {
+    documentFilePath: string;
+}
+export interface OpenAPIResponse {
+    yamlContent: string;
 }
