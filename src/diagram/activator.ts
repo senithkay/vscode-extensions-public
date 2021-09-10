@@ -17,12 +17,12 @@
  *
  */
 
-import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable } from 'vscode';
+import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension, Change } from '../core';
-import { getCommonWebViewOptions, isWindows, WebViewRPCHandler } from '../utils';
+import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
@@ -146,7 +146,20 @@ class DiagramPanel {
 				'resources/images/icons/design-view-inverse.svg'))
 		};
 
-		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient);
+		const remoteMethods: WebViewMethod[] = [
+			{
+				methodName: "getFileContent",
+				handler: async (args: any[]): Promise<string|undefined> => {
+					// Get the active text editor
+					const filePath = args[0];
+					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					const content =  doc ? doc.getText() : "";
+					return content;
+				}
+			}
+		];
+
+		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);
 		DiagramPanel.currentPanel = new DiagramPanel(panel);
 	}
 

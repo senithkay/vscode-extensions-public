@@ -87,6 +87,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             let startColumn = ${JSON.stringify(startColumn.toString())};
             let name = ${JSON.stringify(name)};
             let kind = ${JSON.stringify(kind)};
+            function getFileContent(url) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getFileContent',
+                        [url],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
             function drawDiagram() {
                 try {
                     const options = {
@@ -97,7 +108,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             startLine,
                             startColumn,
                             name,
-                            kind
+                            kind,
+                            getFileContent
                         }
                     };
                     const diagram = BLCEditor.renderDiagramEditor(options);

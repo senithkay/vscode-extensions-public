@@ -31,6 +31,30 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         }
     },
     {
+        methodName: 'getCompletion',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.getCompletion(args[0]);
+            });
+        }
+    },
+    {
+        methodName: 'getType',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.getType(args[0]);
+            });
+        }
+    },
+    {
+        methodName: 'getDiagnostics',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.getDiagnostics(args[0]);
+            });
+        }
+    },
+    {
         methodName: 'getExamples',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {

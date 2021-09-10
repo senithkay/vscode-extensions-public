@@ -22,9 +22,15 @@ import { ClientCapabilities, LanguageClient } from "vscode-languageclient";
 import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
-    DiagramEditorLangClientInterface, BallerinaSyntaxTreeModifyRequest, BallerinaSyntaxTreeResponse,
+    BallerinaSyntaxTreeModifyRequest, BallerinaSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
-    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest
+    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
+    PublishDiagnosticsParams,
+    BallerinaProjectParams,
+    CompletionParams,
+    CompletionResponse,
+    ExpressionTypeRequest,
+    ExpressionTypeResponse
 } from "@wso2-enterprise/low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
@@ -144,10 +150,7 @@ export interface ExecutorPosition {
     name: string;
 }
 
-export interface LowCodeLangClient extends Omit<DiagramEditorLangClientInterface, 'init'> {
-}
-
-export class ExtendedLangClient extends LanguageClient implements LowCodeLangClient {
+export class ExtendedLangClient extends LanguageClient {
     isInitialized: boolean = true;
 
     didOpen(params: DidOpenParams): void {
@@ -165,6 +168,15 @@ export class ExtendedLangClient extends LanguageClient implements LowCodeLangCli
     }
     syntaxTreeModify(params: BallerinaSyntaxTreeModifyRequest): Thenable<BallerinaSyntaxTreeResponse> {
         return this.sendRequest<BallerinaSyntaxTreeResponse>("ballerinaDocument/syntaxTreeModify", params);
+    }
+    getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+        return this.sendRequest<PublishDiagnosticsParams[]>("ballerinaDocument/diagnostics", params);
+    }
+    getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+        return this.sendRequest("textDocument/completion", params);
+    }
+    getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
+        return this.sendRequest("ballerinaSymbol/type", params);
     }
     getConnectors(): Thenable<BallerinaConnectorsResponse> {
         return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
