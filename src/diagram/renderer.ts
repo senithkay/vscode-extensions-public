@@ -98,6 +98,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                     );
                 })
             }
+            function updateFileContent(url, content) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'updateFileContent',
+                        [url, content],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
             function drawDiagram() {
                 try {
                     const options = {
@@ -109,7 +120,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             startColumn,
                             name,
                             kind,
-                            getFileContent
+                            getFileContent,
+                            updateFileContent
                         }
                     };
                     const diagram = BLCEditor.renderDiagramEditor(options);

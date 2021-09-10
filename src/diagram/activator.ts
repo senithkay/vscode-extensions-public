@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace } from 'vscode';
+import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
@@ -155,6 +155,21 @@ class DiagramPanel {
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
 					const content =  doc ? doc.getText() : "";
 					return content;
+				}
+			},
+			{
+				methodName: "updateFileContent",
+				handler: async (args: any[]): Promise<boolean> => {
+					// Get the active text editor
+					const filePath = args[0];
+					const fileContent = args[1];
+					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					if (doc) {
+						const edit = new WorkspaceEdit();
+						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
+						return await workspace.applyEdit(edit);
+					}
+					return false;
 				}
 			}
 		];
