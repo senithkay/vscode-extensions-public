@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
 
-import LowCodeEditor, { BlockViewState, DraftInsertPosition, getSymbolInfo } from "..";
+import LowCodeEditor, { BlockViewState, DraftInsertPosition, getSymbolInfo, InsertorDelete } from "..";
 import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from "../Definitions";
@@ -29,6 +29,7 @@ export interface DiagramGeneratorProps {
     panX: string;
     panY: string;
     getFileContent?: (url?: string) => Promise<string>;
+    updateFileContent?: (url: string, content: string) => Promise<boolean>;
 }
 
 const ZOOM_STEP = 0.1;
@@ -153,8 +154,26 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         trackTriggerSelection: (trigger: string) => undefined,
                                     },
                                     code: {
-                                        modifyDiagram: (mutations: STModification[], options?: any) => undefined,
-                                        onMutate: (type: string, options: any) => undefined,
+                                        modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                            const { parseSuccess, source, syntaxTree: newST } = await diagramLangClient.stModify({
+                                                astModifications: await InsertorDelete(mutations),
+                                                documentIdentifier : {
+                                                    uri: `file://${filePath}`
+                                                }
+                                            });
+                                            if (parseSuccess) {
+                                                const vistedSyntaxTree : STNode = getLowcodeST(newST, startLine, startCharacter);
+                                                setSyntaxTree(vistedSyntaxTree);
+                                                setFileContent(source);
+                                                props.updateFileContent(filePath, source);
+                                            } else {
+                                                // TODO show error
+                                            }
+
+                                        },
+                                        onMutate: (type: string, options: any) => {
+                                            console.log("OnMutate Digram Received" + type + options);
+                                        },
                                         modifyTrigger: (
                                             triggerType: TriggerType,
                                             model?: any,

@@ -16,7 +16,8 @@ export interface DiagramStates {
     name: string;
     startColumn: number;
     startLine: number;
-    getFileContent?: (url?: string) => Promise<string>;
+    getFileContent?: (url: string) => Promise<string>;
+    updateFileContent?: (url: string, content: string) => Promise<boolean>;
 }
 
 /**
@@ -52,6 +53,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
                         updated={this.updated}
                         startCharacter={this.state.startColumn.toString()}
                         getFileContent={this.props.editorProps.getFileContent}
+                        updateFileContent={this.props.editorProps.updateFileContent}
                         panX="-30"
                         panY="0"
                         scale="0.9"

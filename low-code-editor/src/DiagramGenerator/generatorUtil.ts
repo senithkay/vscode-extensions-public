@@ -53,6 +53,26 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
             }
         }
     }
+
+    // TODO falling back to showing first fn available
+    // Now that editing is enabled in vscode, start positions are going to change
+    // We need a proper way to persist lastly shown construct not from position
+    // Or we have to show all the constructs in a given file
+    if (!responseST) {
+        if (fnMembers && fnMembers.length > 0) {
+            const fnDef = getLowCodeSTFnSelected(payload, fnMembers[0], true);
+            const st: STNode = sizingAndPositioningST(fnDef);
+            cleanLocalSymbols();
+            traversNode(st, SymbolVisitor);
+            responseST = st;
+        } else if (serviceMembers && serviceMembers.length > 0) {
+            const fnDef = getLowCodeSTFnSelected(payload, serviceMembers[0], true);
+            const st: STNode = sizingAndPositioningST(fnDef);
+            cleanLocalSymbols();
+            traversNode(st, SymbolVisitor);
+            responseST = st;
+        }
+    }
     return responseST;
 }
 
