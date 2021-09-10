@@ -70,6 +70,7 @@ export function Function(props: FunctionProps) {
         const isStatementsAvailable: boolean = block.statements.length > 0;
         const bodyViewState: BlockViewState = block.viewState;
         const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
+
         component = (
             <g>
                 <>
@@ -100,38 +101,22 @@ export function Function(props: FunctionProps) {
         </div>
     )
 
-    const functionComponent =
-        STKindChecker.isResourceAccessorDefinition(model) || STKindChecker.isObjectMethodDefinition(model) ?
-            (
-                <div
-                    className={
-                        classNames(
-                            'function-box',
-                            STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
-                            { expanded: diagramExpanded }
-                        )
-                    }
-                >
-                    <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
-                    {diagramExpanded && functionBody}
-                </div>
-            ) :
-            (
-                <div
-                    className={
-                        classNames(
-                            'module-level-function',
-                            { expanded: diagramExpanded }
-                        )
-                    }
-                >
-                    <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
-                    {diagramExpanded && functionBody}
-                </div>
-            )
-
-
     return (
-        functionComponent
+        <div
+            className={
+                classNames(
+                    {
+                        'function-box': STKindChecker.isResourceAccessorDefinition(model)
+                            || STKindChecker.isObjectMethodDefinition(model),
+                        'module-level-function': STKindChecker.isFunctionDefinition(model),
+                        expanded: diagramExpanded
+                    },
+                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
+                )
+            }
+        >
+            <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
+            {diagramExpanded && functionBody}
+        </div>
     );
 }
