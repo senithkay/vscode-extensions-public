@@ -556,13 +556,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -579,7 +579,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            await langClient.diagnostics({
+            await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -592,7 +592,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         // Revert the file content
-        expressionEditorState.content = atob(currentFile.content);
+        expressionEditorState.content = (currentFile.content);
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -616,17 +616,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
             const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -643,7 +643,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            await langClient.diagnostics({
+            await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -686,12 +686,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
                 const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-                newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
                 const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-                newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             }
 
@@ -705,32 +705,27 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.didChange({
-                    contentChanges: [
-                        {
-                            text: expressionEditorState.content
-                        }
-                    ],
-                    textDocument: {
-                        uri: expressionEditorState.uri,
-                        version: 1
+            const langClient = await getExpressionEditorLangClient(langServerURL);
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
                     }
-                });
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
+                }
             });
-
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.diagnostics({
-                    documentIdentifier: {
-                        uri: expressionEditorState.uri,
-                    }
-                }).then((diagResp: any) => {
-                    setExpressionEditorState({
-                        ...expressionEditorState,
-                        diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-                    })
-                });
-            });
+            const diagResp = await langClient.getDiagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            })
+            setExpressionEditorState({
+                ...expressionEditorState,
+                diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
+            })
 
             // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
             // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
@@ -781,7 +776,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         if (expressionEditorState?.uri) {
             expressionEditorState.name = model.name;
-            expressionEditorState.content = atob(currentFile.content);
+            expressionEditorState.content = (currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
             await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {

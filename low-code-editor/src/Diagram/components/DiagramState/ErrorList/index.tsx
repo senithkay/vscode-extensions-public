@@ -91,7 +91,7 @@ export function ErrorList() {
                     },
                     range: diagnostic.range,
                     textDocument: {
-                        uri: `file://${currentApp.workingFile}`
+                        uri: `file://${currentFile.path}`
                     }
                 }
                 const action = await langClient.codeAction(params);
@@ -109,13 +109,13 @@ export function ErrorList() {
             setAnchorEl(null);
             const action = actions[0];
 
-            const uri = monaco.Uri.file(`file://${currentApp.workingFile}`)
+            const uri = monaco.Uri.file(`file://${currentFile.path}`)
             let monacoModel = monaco.editor.getModel(uri);
             if (!monacoModel){
-                monacoModel = monaco.editor.createModel(atob(currentFile.content), "ballerina", uri)
+                monacoModel = monaco.editor.createModel((currentFile.content), "ballerina", uri)
             }
 
-            monacoModel.setValue(atob(currentFile.content))
+            monacoModel.setValue(currentFile.content)
             for (const docChange of action.edit.documentChanges){
                 const docEdit = docChange as TextDocumentEdit;
                 if (docEdit.edits){

@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
 
-import LowCodeEditor, { BlockViewState, DraftInsertPosition } from "..";
+import LowCodeEditor, { BlockViewState, DraftInsertPosition, getSymbolInfo } from "..";
 import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from "../Definitions";
@@ -28,6 +28,7 @@ export interface DiagramGeneratorProps {
     scale: string;
     panX: string;
     panY: string;
+    getFileContent?: (url?: string) => Promise<string>;
 }
 
 const ZOOM_STEP = 0.1;
@@ -49,6 +50,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
+    const [fileContent, setFileContent] = React.useState("");
 
     React.useEffect(() => {
         (async () => {
@@ -59,11 +61,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
+                const content = await props.getFileContent(filePath);
+                console.log(filePath + "file out file out file out")
+                setFileContent(content);
             } catch (err) {
                 throw err;
             }
         })();
     }, [updated]);
+
 
     function onZoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -114,6 +120,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 isReadOnly={false}
                                 syntaxTree={syntaxTree}
                                 zoomStatus={zoomStatus}
+                                stSymbolInfo={getSymbolInfo()}
+                                // tslint:disable-next-line: jsx-no-multiline-js
+                                currentFile={{
+                                    content: fileContent,
+                                    path: filePath,
+                                    size: 1,
+                                    type: "File"
+                                }}
                                 // tslint:disable-next-line: jsx-no-multiline-js
                                 api={{
                                     tour: {
@@ -128,10 +142,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     },
                                     ls: {
                                         getDiagramEditorLangClient: (url: string) => {
-                                        return {} as any;
+                                            return Promise.resolve(diagramLangClient);
                                         },
                                         getExpressionEditorLangClient: (url: string) => {
-                                        return {} as any;
+                                            return Promise.resolve(diagramLangClient);
                                         }
                                     },
                                     insights: {

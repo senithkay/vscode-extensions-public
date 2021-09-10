@@ -16,6 +16,7 @@ export interface DiagramStates {
     name: string;
     startColumn: number;
     startLine: number;
+    getFileContent?: (url?: string) => Promise<string>;
 }
 
 /**
@@ -43,9 +44,6 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
     public render() {
         return (
             <div className="low-code-container">
-                <div className="header-wrapper">
-                    {this.state.kind}: {this.state.name}
-                </div>
                 <DiagramGenErrorBoundary>
                     <DiagramGenerator
                         diagramLangClient={this.languageClient}
@@ -53,6 +51,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
                         startLine={this.state.startLine.toString()}
                         updated={this.updated}
                         startCharacter={this.state.startColumn.toString()}
+                        getFileContent={this.props.editorProps.getFileContent}
                         panX="-30"
                         panY="0"
                         scale="0.9"
