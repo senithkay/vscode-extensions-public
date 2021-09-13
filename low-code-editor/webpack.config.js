@@ -6,7 +6,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
 
-module.exports = {
+module.exports = (env, argv) => ({
     mode: 'none',
     entry: {
         BLCEditor: path.join(__dirname, 'src', 'index.tsx')
@@ -105,7 +105,8 @@ module.exports = {
             languages: ['ballerina', 'yaml', 'json']
         }),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('development')
+            'process.env.NODE_ENV': JSON.stringify(argv.mode)
         })
     ]
-}
+});
+
