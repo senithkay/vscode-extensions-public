@@ -18,8 +18,9 @@ import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
-import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 import { InfoIcon } from '../../assets/icons';
+
+import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 

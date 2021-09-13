@@ -28,6 +28,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import {
@@ -55,7 +56,6 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
-import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 
 interface GitHubConfigureFormProps {
   position: DiagramOverlayPosition;

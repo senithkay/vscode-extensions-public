@@ -17,6 +17,8 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
+import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
+import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
 import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
@@ -30,8 +32,6 @@ import {
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
-import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
-import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
 
 // import { BetaSVG } from "./BetaSVG";
 

@@ -63,7 +63,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 const content = await props.getFileContent(filePath);
-                console.log(filePath + "file out file out file out")
                 setFileContent(content);
             } catch (err) {
                 throw err;
@@ -171,9 +170,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
 
                                         },
-                                        onMutate: (type: string, options: any) => {
-                                            console.log("OnMutate Digram Received" + type + options);
-                                        },
+                                        onMutate: (type: string, options: any) => undefined,
                                         modifyTrigger: (
                                             triggerType: TriggerType,
                                             model?: any,

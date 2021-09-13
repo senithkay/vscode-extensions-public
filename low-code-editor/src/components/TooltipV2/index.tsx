@@ -17,8 +17,9 @@ import {withStyles} from "@material-ui/core/styles";
 import TooltipBase, {TooltipProps} from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
-import useStyles, {tooltipBaseStyles} from "./style";
 import { InfoIcon } from '../../assets/icons';
+
+import useStyles, {tooltipBaseStyles} from "./style";
 
 interface TooltipPropsExtended extends TooltipProps {
     type: string,

@@ -32,6 +32,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
@@ -50,7 +51,6 @@ import { PrimaryButton } from "../../../../../ConfigForm/Elements/Button/Primary
 import { getKeyFromConnection } from "../../../../../utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
-import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 
 interface CalendarConfigureFormProps {
     position: DiagramOverlayPosition;

@@ -17,8 +17,8 @@ import { useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor';
 
-import { useStyles as useFormStyles } from "../../forms/style";
 import { ErrorSvg } from "../../../../../../assets";
+import { useStyles as useFormStyles } from "../../forms/style";
 
 import { truncateText } from "./utils";
 
