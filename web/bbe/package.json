@@ -5,7 +5,7 @@
   "main": "build/BBEViewer",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "prebuild": "npm run clean && npm run lint",
+    "prebuild": "npm i && npm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
     "build": "npm run build:theme && webpack --mode=production",

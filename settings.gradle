@@ -9,6 +9,6 @@
 
 rootProject.name = 'ballerina-plugin-vscode'
 
-// include(':bbe-viewer')
+include(':bbe-viewer')
 
-// project(':bbe-viewer').projectDir = file('web/bbe')
+project(':bbe-viewer').projectDir = file('web/bbe')

@@ -311,13 +311,13 @@
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
-        "package": "vsce package",
+        "package": "vsce package --yarn",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
         "@types/vscode": "^1.57.0",
-        "@wso2-enterprise/low-code-editor": "^1.0.7",
+        "@wso2-enterprise/low-code-editor": "^1.0.8",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
@@ -326,7 +326,8 @@
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^6.1.4",
-        "vscode-test": "^1.5.1"
+        "vscode-test": "^1.5.1",
+        "yarn": "^1.22.11"
     },
     "devDependencies": {
         "@types/chai": "^4.2.18",

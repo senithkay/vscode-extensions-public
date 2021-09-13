@@ -20,20 +20,20 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
-    composer
+    bbeviewer
 }
 
-task composerBuild {
+task buildBBEViewer {
     PatternSet patternSet = new PatternSet();
 	patternSet.exclude("**/node_modules/**");
-    patternSet.exclude("**/packages/**/build/**");
-    patternSet.exclude("**/packages/**/lib/**");
-    patternSet.exclude("**/packages/**/coverage/**");
+    patternSet.exclude("**/build/**");
+    patternSet.exclude("**/lib/**");
+    patternSet.exclude("**/coverage/**");
 
     FileTree src = files('.').asFileTree;
     inputs.files(src.matching(patternSet))
 
-    outputs.dir("packages/distribution/build")
+    outputs.dir("build")
     outputs.cacheIf { true }
     doFirst {
         exec {
@@ -44,16 +44,16 @@ task composerBuild {
             }
         }
         copy {
-            from './packages/distribution/build'
-            into './../resources/jslibs'
-            include 'composer.js'
+            from './build'
+            into './../../resources/jslibs'
+            include 'BBEViewer.js'
             include 'themes/**'
             exclude 'themes/assets'
         }
     }
 }
 
-task testComposer() {
+task testBBEViewer() {
     onlyIf {
         !assemble.state.upToDate
     }
@@ -68,8 +68,8 @@ task testComposer() {
     }
 }
 
-artifacts.add('composer', file("packages/distribution/build/"))
+artifacts.add('bbeviewer', file("build/"))
 
 check {
-    dependsOn testComposer
+    dependsOn testBBEViewer
 }

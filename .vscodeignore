@@ -44,3 +44,4 @@ grammar/ballerina-grammar/test-scripts/
 grammar/ballerina-grammar/test/
 scripts/
 resources/jslibs/index.d.ts
+web/
