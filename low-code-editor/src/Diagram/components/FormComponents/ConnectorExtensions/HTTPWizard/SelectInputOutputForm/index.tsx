@@ -132,6 +132,20 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
             payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
         }
+        const selectedType = httpVar.typeData.typeSymbol.signature;
+        const defaultReturnType = httpVar.typedBindingPattern.typeDescriptor.source;
+        formFields.find(field => {
+            if (field.name === "targetType") {
+                // tslint:disable-next-line: no-conditional-assignment
+                if (selectedType === "string" || selectedType === "json" || selectedType === "xml") {
+                    field.selectedDataType = selectedType;
+                    field.fields.find(subFields => subFields.type === selectedType).value = field.value;
+                } else {
+                    field.selectedDataType = defaultReturnType;
+                    field.selectedDataType = field.value;
+                }
+            }
+        })
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -299,8 +313,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         connectorConfig.responsePayloadMap.selectedPayloadType ||
         !connectorConfig.responsePayloadMap.isPayloadSelected);
     const isSaveDisabled: boolean = isMutationProgress || !(responseVarError === "" || responseVarError === undefined)
-        || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
-            && isPayloadValid);
+        || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName);
 
     const handleSwitchToggleChange = () => {
         if (connectorConfig.responsePayloadMap) {
@@ -437,20 +450,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         errorMessage={responseVarError}
                                     />
                                 </div>
-
-                                <SwitchToggle
-                                    text="Extract payload from response"
-                                    onChange={handleSwitchToggleChange}
-                                    initSwitch={connectorConfig.responsePayloadMap.isPayloadSelected}
-                                />
-                                {connectorConfig.responsePayloadMap.isPayloadSelected && (
-                                    <>
-                                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
-                                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                                            {payloadComponent}
-                                        </div>
-                                    </>
-                                )}
                             </div>
                         </div>
                         <div className={classes.wizardBtnHolder}>

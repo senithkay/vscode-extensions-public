@@ -113,7 +113,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
         const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (!formField.noCodeGen && !skipDefaultValue) {
+        if (!skipDefaultValue) {
             if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -237,7 +237,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
-                    paramString += "xml `" + formField.value + "`";
+                    paramString += formField.value;
                 }
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
