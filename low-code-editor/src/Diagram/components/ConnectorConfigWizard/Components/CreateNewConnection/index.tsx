@@ -50,8 +50,13 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo } = state;
+    const {
+        props: { stSymbolInfo },
+        api: {
+            helpPanel: { openConnectorHelp }
+        }
+    } = useContext(Context);
+
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
             onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus } = props;
     const classes = useStyles();
@@ -96,7 +101,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         setIsGenFieldsFilled(isRequiredFieldsFilled);
     };
 
-    const symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.name);
+    const symbolRefArray = stSymbolInfo.variableNameReferences.get(connectorConfig.name);
     if (hasReference === undefined) {
         if (!symbolRefArray) {
             setHasReference(false);
@@ -109,7 +114,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("connector name", value, defaultConnectorName, state);
+            const varValidationResponse = checkVariableName("connector name", value, defaultConnectorName, stSymbolInfo);
             if (varValidationResponse?.error) {
                 setConnectorNameError(varValidationResponse.message);
                 return false;
@@ -160,7 +165,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectionName = connectionNameState.value;
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
-        state.onAPIClient(connector);
+        openConnectorHelp(connector);
         onSave();
     };
 
@@ -219,7 +224,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         connectorConfig.connectionName = connectionNameState.value;
-        state.onAPIClient(connector);
+        openConnectorHelp(connector);
         onSaveNext();
     };
 
@@ -248,7 +253,17 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;
-    const isSaveDisabled = isNewConnectorInitWizard ? isEnabled : (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
+    let isSaveDisabled;
+
+    if (isNewConnectorInitWizard) {
+        isSaveDisabled = isEnabled;
+    } else {
+        if (connectionNameState.isNameProvided) {
+            isSaveDisabled = (isEndpointNameUpdated || isTokenFieldsUpdated || connectorConfig.isConnectionNameUpdated) && isFieldsValid;
+        } else {
+            isSaveDisabled = nameState.isValidName && nameState.isNameProvided;
+        }
+    }
 
     return (
         <div>

@@ -30,7 +30,7 @@ const DOTEXTWIDTH: number = 14;
 
 export function DoStatement(props: DoStatementProps) {
 
-    const { state, insertComponentStart } = useContext(DiagramContext);
+    const { state, actions: { insertComponentStart } } = useContext(DiagramContext);
 
     const { model } = props;
     const pluses: React.ReactNode[] = [];

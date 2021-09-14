@@ -34,22 +34,33 @@ export function ErrorList() {
     const [visibleActions, setVisibleActions] = useState([]);
     const open = Boolean(anchorEl);
 
-    const { state: {
-        diagnostics,
-        warnings,
-        handleRightPanelContent,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        maximize: maximizeCodeView,
-        currentApp,
-        langServerURL,
-        currentFile,
-        getDiagramEditorLangClient,
-        dispatchFileChange,
-        dispatchCodeChangeCommit,
-        appInfo : { isCodeChangeInProgress, isWaitingOnWorkspace },
-        isCodeEditorActive,
-        isReadOnly,
-    } } = useContext(Context);
+    const {
+        api: {
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+                dispatchFileChange,
+                dispatchCodeChangeCommit,
+            },
+            ls: {
+                getDiagramEditorLangClient,
+            }
+        },
+        props: {
+            currentApp,
+            langServerURL,
+            currentFile,
+            isCodeEditorActive,
+            diagnostics,
+            warnings,
+            isCodeChangeInProgress,
+            isWaitingOnWorkspace,
+            isReadOnly,
+        }
+    } = useContext(Context);
     const { id: appId } = currentApp || {};
 
     const onJumpToCodeClick = (range: any) => {
@@ -80,7 +91,7 @@ export function ErrorList() {
                     },
                     range: diagnostic.range,
                     textDocument: {
-                        uri: `file://${currentApp.workingFile}`
+                        uri: `file://${currentFile.path}`
                     }
                 }
                 const action = await langClient.codeAction(params);
@@ -98,13 +109,13 @@ export function ErrorList() {
             setAnchorEl(null);
             const action = actions[0];
 
-            const uri = monaco.Uri.file(`file://${currentApp.workingFile}`)
+            const uri = monaco.Uri.file(`file://${currentFile.path}`)
             let monacoModel = monaco.editor.getModel(uri);
             if (!monacoModel){
-                monacoModel = monaco.editor.createModel(atob(currentFile.content), "ballerina", uri)
+                monacoModel = monaco.editor.createModel((currentFile.content), "ballerina", uri)
             }
 
-            monacoModel.setValue(atob(currentFile.content))
+            monacoModel.setValue(currentFile.content)
             for (const docChange of action.edit.documentChanges){
                 const docEdit = docChange as TextDocumentEdit;
                 if (docEdit.edits){

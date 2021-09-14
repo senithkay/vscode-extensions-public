@@ -37,22 +37,33 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const { state, diagramCleanDraw, toggleDiagramOverlay } = useContext(Context);
     const {
-        syntaxTree,
-        stSymbolInfo,
-        isWaitingOnWorkspace,
-        isMutationProgress,
-        isReadOnly,
-        isCodeEditorActive,
-        currentApp,
-        setCodeLocationToHighlight: setCodeToHighlight,
-        maximize: maximizeCodeView,
-        handleRightPanelContent,
-        closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        closeConfigPanel: dispatchCloseConfigPanel,
-        dispactchConfigOverlayForm: openNewEndConfig
-    } = state;
+        actions: {
+            diagramCleanDraw, toggleDiagramOverlay
+        },
+        props: {
+            currentApp,
+            isCodeEditorActive,
+            syntaxTree,
+            stSymbolInfo,
+            isWaitingOnWorkspace,
+            isMutationProgress,
+            isReadOnly,
+        },
+        api: {
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight
+            },
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent
+            },
+            configPanel: {
+                dispactchConfigOverlayForm: openNewEndConfig,
+            }
+        }
+    } = useContext(Context);
+
     const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;

@@ -15,6 +15,8 @@ import * as React from "react";
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import DisableDigramIcon from "../../../../assets/icons/DisableDigram";
+
 const LightTooltip = withStyles((theme) => ({
     tooltip: {
       backgroundColor: 'rgba(235, 236, 241, 0.6)',
@@ -35,7 +37,7 @@ const LightTooltip = withStyles((theme) => ({
 export function DiagramDisableState() {
     return (
             <LightTooltip title="Diagram is inactive" interactive={true} placement='right'>
-                <img height='35px' src="../../../../../../images/disable-diagram-icon.svg" />
+                <DisableDigramIcon />
             </LightTooltip>
     );
 }

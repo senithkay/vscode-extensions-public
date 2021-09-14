@@ -16,9 +16,10 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
-import { LowCodeEditorProps } from "../types";
+import { DraftInsertPosition } from "../Diagram/view-state/draft";
+import { LowCodeEditorContext, LowCodeEditorProps, LowCodeEditorState } from "../types";
 
-const reducer = (state: any, action: any) => {
+const reducer = (state: LowCodeEditorState, action: any) => {
     switch (action.type) {
         case 'UPDATE_STATE':
             return { ...state, ...action.payload, targetPosition: state.targetPosition };
@@ -26,6 +27,11 @@ const reducer = (state: any, action: any) => {
             return {
                 ...state,
                 syntaxTree: sizingAndPositioning(action.payload),
+            }
+        case 'SET_TRIGGER_UPDATED':
+            return {
+                ...state,
+                triggerUpdated: action.payload,
             }
         case 'DIAGRAM_REDRAW':
             return {
@@ -83,7 +89,7 @@ const diagramRedraw = (dispatch: any) => {
 }
 
 const insertComponentStart = (dispatch: any) => {
-    return (payload: STNode) => {
+    return (payload: DraftInsertPosition) => {
         dispatch({ type: 'INSERT_COMPONENT_START', payload })
     }
 }
@@ -106,6 +112,12 @@ const toggleDiagramOverlay = (dispatch: any) => {
     }
 }
 
+const setTriggerUpdated = (dispatch: any) => {
+    return (isUpdated: boolean) => {
+        dispatch({ type: 'SET_TRIGGER_UPDATED', payload: isUpdated })
+    }
+}
+
 const updateDataMapperConfig = (dispatch: any) => {
     return (dataMapperConfig: DataMapperConfig) => {
         dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
@@ -113,25 +125,26 @@ const updateDataMapperConfig = (dispatch: any) => {
 }
 const defaultState: any = {};
 
-export const Context = React.createContext(defaultState);
+export const Context = React.createContext<LowCodeEditorContext>(defaultState); // FIXME: Add proper deafault state
 
-export const Provider = (props: any) => {
-  const { children, initialState } = props;
-  const [state, dispatch] = useReducer(reducer, initialState);
+export const Provider: React.FC<LowCodeEditorProps> = (props) => {
+    const { children, api, ...restProps } = props;
+    const [state, dispatch] = useReducer(reducer, {});
 
-  const boundActions = {
-    updateState: updateState(dispatch),
-    diagramCleanDraw: diagramCleanDraw(dispatch),
-    diagramRedraw: diagramRedraw(dispatch),
-    insertComponentStart: insertComponentStart(dispatch),
-    editorComponentStart: editorComponentStart(dispatch),
-    dataMapperStart: dataMapperStart(dispatch),
-    toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
-    updateDataMapperConfig: updateDataMapperConfig(dispatch),
-  };
+    const actions = {
+        updateState: updateState(dispatch),
+        diagramCleanDraw: diagramCleanDraw(dispatch),
+        diagramRedraw: diagramRedraw(dispatch),
+        insertComponentStart: insertComponentStart(dispatch),
+        editorComponentStart: editorComponentStart(dispatch),
+        dataMapperStart: dataMapperStart(dispatch),
+        toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
+        updateDataMapperConfig: updateDataMapperConfig(dispatch),
+        setTriggerUpdated: setTriggerUpdated(dispatch)
+    };
 
-  return (
-    <Context.Provider value={{ state, ...boundActions }}>
+    return (
+    <Context.Provider value={{ state, actions, api, props: restProps }}>
       {children}
     </Context.Provider>
   );

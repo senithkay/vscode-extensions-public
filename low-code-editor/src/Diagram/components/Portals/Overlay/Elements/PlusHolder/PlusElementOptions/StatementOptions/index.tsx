@@ -51,9 +51,8 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { state } = useContext(Context);
+    const { props: { syntaxTree }, api: { insights: { onEvent }} } = useContext(Context);
     const intl = useIntl();
-    const { syntaxTree, onEvent } = state;
     const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
     let isCallerAdded = false;
     if (STKindChecker.isFunctionDefinition(syntaxTree)) {
@@ -70,18 +69,18 @@ export function StatementOptions(props: StatementOptionsProps) {
         logStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the 'Run & Test' console . If the event has occured, you can view the logs from the Observability page."
+                defaultMessage: "A log statement logs an event with an information statement, an error that occurs in a service, or an integration. If the event has not yet occurred, you can view the logs from the 'Run & Test' console . If the event has occurred, you can view the logs from the Observability page."
             })},
         variableStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
-                defaultMessage: "A variable statement holds a value of a specific data type (string, integer, etc.,) so that it can be used later in the logical process of the service/integration."
+                defaultMessage: "A variable statement holds the value of a specific data type (string, integer, etc.) so that it can be used later in the logical process of the service or integration."
             })
         },
         ifStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
-                defaultMessage: "An if statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
+                defaultMessage: "An if statement lets you specify two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
         })},
         foreachStatement: {
             title: intl.formatMessage({
@@ -104,7 +103,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         respondStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.respond.tooltip.title",
-                defaultMessage: "A respond statement sends the response of a service back to the client."
+                defaultMessage: "A respond statement sends the response from a service back to the client."
             })
         },
         customStatement: {
@@ -203,7 +202,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="icon-wrapper">
                         <ForEachIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.foreach.title" defaultMessage="ForEach" /></div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.foreach.title" defaultMessage="Foreach" /></div>
                 </ div>
             </Tooltip>
         )

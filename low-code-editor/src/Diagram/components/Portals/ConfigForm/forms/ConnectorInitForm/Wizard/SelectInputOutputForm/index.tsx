@@ -54,8 +54,7 @@ const SELECT_PAYLOAD = "Select Payload";
 const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, syntaxTree, stSymbolInfo } = state;
+    const { props: { isMutationProgress: isMutationInProgress, stSymbolInfo} } = useContext(Context);
     const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();

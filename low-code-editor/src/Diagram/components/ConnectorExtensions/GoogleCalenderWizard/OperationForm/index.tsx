@@ -53,8 +53,12 @@ export function OperationForm(props: OperationFormProps) {
     const { selectedOperation, showConnectionName, formFields, onSave, connectionDetails, onConnectionChange,
             onOperationChange, mutationInProgress, isManualConnection, isNewConnectorInitWizard,
             connectionInfo } = props;
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo, currentApp, getGcalendarList } = state;
+    const {
+        props: { currentApp, stSymbolInfo: symbolInfo },
+        api: {
+            data: { getGcalendarList }
+        }
+    } = useContext(Context);
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -81,7 +85,7 @@ export function OperationForm(props: OperationFormProps) {
     };
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, state);
+            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, symbolInfo);
             if (varValidationResponse?.error){
                 setResponseVarError(varValidationResponse.message);
                 return false;
@@ -100,6 +104,7 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     // validate custom forms
+
     const validateFields = (field: string, isInvalid: boolean): void => {
         fieldChecker.set(field, isInvalid);
         let allFieldsValid = true;

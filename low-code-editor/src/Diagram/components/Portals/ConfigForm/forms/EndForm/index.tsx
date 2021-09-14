@@ -35,7 +35,12 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { isReadOnly, modifyDiagram } = useContext(Context).state;
+    const {
+        props: { isReadOnly },
+        api: {
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
     const { type, targetPosition, onCancel, scopeSymbols, model, wizardType } = props as AddEndFormProps;
 
     const endConfig: EndConfig = {

@@ -13,7 +13,7 @@
 import React, { ReactNode } from "react";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
-import { validateFormFields } from "../../../../../../../utils/validator";
+import {isAllValid} from "../../../../../../../utils/validator";
 import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
 import { getFormElement } from "../../../../utils";
@@ -33,8 +33,8 @@ export function Form(props: FormProps) {
     const classes = useStyles();
     const elements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
-
-    const [emptyFieldChecker] = React.useState(new Map<string, boolean>());
+    const validFieldChecker = React.useRef(new Map<string, boolean>());
+    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
@@ -43,17 +43,10 @@ export function Form(props: FormProps) {
         }
     }, [])
 
-    const validateField = (field: string, isInvalid: boolean): void => {
-        emptyFieldChecker.set(field, isInvalid);
-        let allFieldsValid = true;
-
-        for (const formValue of fields) {
-            allFieldsValid = validateFormFields(formValue, emptyFieldChecker);
-            if (!allFieldsValid) {
-                break;
-            }
-        }
-        onValidate(allFieldsValid);
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
+        validFieldChecker.current.set(field, !isInvalid);
+        emptyFieldChecker.current.set(field, isEmpty);
+        onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
     fields.map((field, index) => {
@@ -99,6 +92,7 @@ export function Form(props: FormProps) {
                 depth={1}
                 mandatoryFields={elements}
                 optionalFields={optionalElements}
+                isMandatory={false}
             />
         </form>
     );

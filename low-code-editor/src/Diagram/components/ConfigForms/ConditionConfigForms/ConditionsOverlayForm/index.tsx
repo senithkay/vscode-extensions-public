@@ -36,14 +36,18 @@ interface ConditionsWizardProps {
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
-    const { state } = useContext(Context);
-    const { onFitToScreen, appInfo, diagramPanLocation } = state;
-
-    const currentAppid = appInfo?.currentApp?.id;
+    const {
+        api: {
+            panNZoom: {
+                pan,
+                fitToScreen
+            }
+        }
+    } = useContext(Context);
 
     React.useEffect(() => {
-        onFitToScreen(currentAppid);
-        diagramPanLocation(currentAppid, 0, (-position.y + (DefaultConfig.dotGap * 3)));
+        fitToScreen();
+        pan(0, (-position.y + (DefaultConfig.dotGap * 3)));
     }, []);
 
     if (formType === "if" || formType === "While") {

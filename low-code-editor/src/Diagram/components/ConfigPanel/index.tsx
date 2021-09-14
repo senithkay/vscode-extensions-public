@@ -25,10 +25,22 @@ export const CONFIG_PANEL_PORTAL_DIV_ID = "config-div-portal";
 
 export function ConfigPanel() {
     const classes = useStyles();
-    const { state, diagramCleanDraw } = useContext(Context);
-    const { syntaxTree, configPanelStatus, appInfo} = state;
-    const { currentApp: { id: appId } } = appInfo;
-    const { maximize, minimize, setPrimaryRatio, setSecondaryRatio} = state;
+    const {
+        actions: {
+            diagramCleanDraw
+        },
+        api: {
+            splitPanel: {
+                maximize, minimize, setPrimaryRatio, setSecondaryRatio
+            }
+        },
+        props: {
+            currentApp,
+            configPanelStatus,
+            syntaxTree
+        }
+    } = useContext(Context);
+    const { id: appId } = currentApp;
     const maximizePanel = (applicationId: number | string) => maximize("home-lowcode", "vertical", applicationId);
     const minimizePanel = (applicationId: number | string) => minimize("home-lowcode", "vertical", applicationId);
     const dispatchPrimaryRatio = (applicationId: number | string) => setPrimaryRatio("home", "vertical", applicationId);

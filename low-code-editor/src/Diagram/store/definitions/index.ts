@@ -11,10 +11,11 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { STNode } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BallerinaConnectorsInfo } from "../../../Definitions/lang-client-extended";
+import { STSymbolInfo } from "../../../Definitions/store";
 import { BlockViewState } from "../../view-state";
 
 export interface DiagramCoordinates {
@@ -64,7 +65,7 @@ export interface ConfigOverlayFormStatus {
 
 export interface DiagramState {
     size?: DiagramSize;
-    originalSyntaxTree?: STNode;
+    originalSyntaxTree?: ModulePart;
     syntaxTree?: STNode;
     positions?: DiagramCoordinates;
     isLoadingAST?: boolean;
@@ -79,7 +80,6 @@ export interface DiagramState {
     diagnostics?: Diagnostic[];
     stSymbolInfo?: STSymbolInfo;
     isLoadingSuccess: boolean;
-    exprEditorState?: ExpressionEditorState;
     targetPosition?: any;
     isDataMapperActive?: boolean;
 }
@@ -89,15 +89,6 @@ export interface ExpressionEditorState {
     content?: string;
     uri?: string;
     diagnostic?: Diagnostic[];
-}
-
-export interface STSymbolInfo {
-    endpoints: Map<string, STNode>;
-    actions: Map<string, STNode>;
-    variables: Map<string, STNode[]>;
-    callStatement: Map<string, STNode[]>;
-    variableNameReferences: Map<string, STNode[]>;
-    assignmentStatement: Map<string, STNode[]>;
 }
 
 export interface ComponentInitCoordinates {

@@ -17,6 +17,7 @@ import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 
 import { ConnectionDetails, CONNECTION_TYPE_MANUAL } from "../../../../api/models";
+import EditDarkIcon from '../../../../assets/icons/EditDarkIcon';
 import { AccountAvatar } from '../AccountAvatar';
 import { useStyles } from "../styles";
 
@@ -50,7 +51,7 @@ export function ConnectedButton(props: ConnectedButtonProps) {
                         } }
                         onClick={onChangeConnection}
                     >
-                        <img src="../../../../../../images/edit-dark.svg"/>
+                        <EditDarkIcon />
                     </IconButton>
                 </div>
             </div>

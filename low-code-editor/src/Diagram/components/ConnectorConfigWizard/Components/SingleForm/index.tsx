@@ -42,8 +42,7 @@ export interface SingleFormProps {
 }
 
 export function SingleForm(props: SingleFormProps) {
-    const { state } = useContext(Context);
-    const { stSymbolInfo } = state;
+    const { props: { stSymbolInfo } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
@@ -104,7 +103,7 @@ export function SingleForm(props: SingleFormProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, state);
+            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, symbolInfo);
             if (varValidationResponse?.error) {
                 setResponseVarError(varValidationResponse.message);
                 return false;

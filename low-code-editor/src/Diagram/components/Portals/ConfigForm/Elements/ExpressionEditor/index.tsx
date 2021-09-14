@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { FormHelperText } from "@material-ui/core";
+import { FormHelperText, LinearProgress } from "@material-ui/core";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
@@ -30,7 +30,14 @@ import { FormElementProps } from "../../types";
 import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
-import { acceptedKind, COLLAPSE_WIDGET_ID, DIAGNOSTIC_MAX_LENGTH, EDITOR_MAXIMUM_CHARACTERS, EXPAND_EDITOR_MAXIMUM_CHARACTERS, EXPAND_WIDGET_ID, TRIGGER_CHARACTERS } from "./constants";
+import {
+    acceptedKind,
+    COLLAPSE_WIDGET_ID,
+    DIAGNOSTIC_MAX_LENGTH,
+    EDITOR_MAXIMUM_CHARACTERS,
+    EXPAND_EDITOR_MAXIMUM_CHARACTERS,
+    EXPAND_WIDGET_ID, TRIGGER_CHARACTERS
+} from "./constants";
 import "./style.scss";
 import {
     addImportModuleToCode,
@@ -122,7 +129,7 @@ monaco.editor.defineTheme('exp-theme', {
 const BALLERINA_EXPR = "ballerina-exp";
 
 export interface ExpressionEditorProps {
-    validate?: (field: string, isInvalid: boolean) => void;
+    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
     clearInput?: boolean;
     tooltipTitle?: any;
     tooltipActionText?: string;
@@ -144,17 +151,19 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    const { state } = useContext(Context);
-
     const {
-        diagnostics: mainDiagnostics,
-        targetPosition: targetPositionDraft,
-        currentFile,
-        currentApp,
-        langServerURL,
-        getExpressionEditorLangClient,
-        syntaxTree,
-    } = state;
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentApp,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient }
+        }
+    } = useContext(Context);
 
     const [expressionEditorState, setExpressionEditorState] = useState({
         name: undefined,
@@ -189,6 +198,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const formClasses = useFormStyles();
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
+    const [validating, setValidating] = useState<boolean>(false);
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -197,15 +207,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current?.editor?.getModel()?.getValue());
             }
         }
+        const isEmpty = (model.value ?? "") === "";
         if (model.validationRegex && model.type === PrimitiveBalType.String) {
             if ((!model.value.trim().startsWith("\"") && !model.value.trim().endsWith("\"")) || monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
-                validate(model.name, false);
+                validate(model.name, false, isEmpty);
+                setValidating(false);
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             } else {
                 notValidExpEditor(`Invalid ${textLabel}`);
             }
         } else {
-            validate(model.name, false);
+            validate(model.name, false, isEmpty);
+            setValidating(false);
             if (monacoRef.current) {
                 monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), 'expression editor', []);
             }
@@ -217,7 +230,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (model.optional === true && (currentContent === undefined || currentContent === "") && !invalidSourceCode) {
             validExpEditor();
         } else {
-            validate(model.name, true);
+            validate(model.name, true, (model.value ?? "") === "");
+            setValidating(false);
             setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef));
             if (monacoRef.current) {
                 if (updateState) {
@@ -267,9 +281,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             notValidExpEditor("Code has errors, please fix them first.");
         } else if (expressionEditorState?.name === model.name) {
             if (!expressionEditorState.diagnostic) {
-                if (monacoRef.current) {
-                    notValidExpEditor("Please wait for validation");
-                }
+                return
             } else if (diagnosticCheckerExp(expressionEditorState.diagnostic)) {
                 if (monacoRef.current) {
                     notValidExpEditor(getDiagnosticMessage(expressionEditorState.diagnostic, varType), false);
@@ -312,7 +324,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // event emitted when the content of the editor has changed
             disposableTriggers.push(monacoRef.current.editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
                 const lastPressedKey = event.changes && event.changes.length > 0 && event.changes[0].text;
-                notValidExpEditor("Please wait for validation");
+                setValidating(true)
 
                 if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
                     // Trim EOL chars onPasteEvent
@@ -544,13 +556,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -567,7 +579,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            await langClient.diagnostics({
+            await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -580,7 +592,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         // Revert the file content
-        expressionEditorState.content = atob(currentFile.content);
+        expressionEditorState.content = (currentFile.content);
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -604,17 +616,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
             const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentApp?.workingFile).toString();
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.didChange({
@@ -631,7 +643,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
 
         await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-            await langClient.diagnostics({
+            await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
                 }
@@ -674,12 +686,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
                 const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-                newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
                 const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-                newModel = addToTargetLine(atob(currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             }
 
@@ -693,32 +705,27 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.didChange({
-                    contentChanges: [
-                        {
-                            text: expressionEditorState.content
-                        }
-                    ],
-                    textDocument: {
-                        uri: expressionEditorState.uri,
-                        version: 1
+            const langClient = await getExpressionEditorLangClient(langServerURL);
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: expressionEditorState.content
                     }
-                });
+                ],
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    version: 1
+                }
             });
-
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.diagnostics({
-                    documentIdentifier: {
-                        uri: expressionEditorState.uri,
-                    }
-                }).then((diagResp: any) => {
-                    setExpressionEditorState({
-                        ...expressionEditorState,
-                        diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-                    })
-                });
-            });
+            const diagResp = await langClient.getDiagnostics({
+                documentIdentifier: {
+                    uri: expressionEditorState.uri,
+                }
+            })
+            setExpressionEditorState({
+                ...expressionEditorState,
+                diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
+            })
 
             // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS
             // await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
@@ -769,7 +776,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         if (expressionEditorState?.uri) {
             expressionEditorState.name = model.name;
-            expressionEditorState.content = atob(currentFile.content);
+            expressionEditorState.content = (currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
             await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
@@ -884,9 +891,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }}>
+            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}>
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '32px' }} >
+                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }} >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -895,6 +902,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
                         />
+                        {validating && <LinearProgress data-testid='expr-validating-loader' className="exp-linear-loader"/>}
                     </div>
                 </div>
             </div>
@@ -904,7 +912,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                             <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                         </>
-                    ) : expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                    ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                         (
                                 <>
                                     {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
