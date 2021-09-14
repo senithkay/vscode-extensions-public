@@ -31,7 +31,7 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse
-} from "@wso2-enterprise/low-code-editor/build/Definitions";
+} from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
 

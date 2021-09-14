@@ -24,7 +24,7 @@ configurations {
 }
 
 task copyDeps(type: Copy) {
-    from "$rootDir/node_modules/@wso2-enterprise/low-code-editor/build/"
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor/build/"
     into "$rootDir/resources/jslibs"
     include "BLCEditor.js"
 }
