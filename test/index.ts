@@ -2,8 +2,6 @@
  * Adopted code from https://github.com/codecov/example-typescript-vscode-extension/blob/master/test/index.ts (MIT license)
  */
 
-"use strict";
-
 declare var global: any;
 
 import * as fs from "fs";

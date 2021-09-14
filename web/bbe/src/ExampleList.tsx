@@ -164,7 +164,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                                     <Form.Field inline>
                                         <Input
                                             ref={(ref) => {
-                                               this.searchInput = ref as Input;
+                                                this.searchInput = ref as Input;
                                             }}
                                             loading={!this.state || !this.state.samples}
                                             placeholder="Search"
