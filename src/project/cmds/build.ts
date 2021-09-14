@@ -80,8 +80,12 @@ export function activateBuildCommand() {
             }
 
         } catch (error) {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_BUILD);
-            window.showErrorMessage(error);
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_BUILD);
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage("Unkown error occurred.");
+            }
         }
     });
 }

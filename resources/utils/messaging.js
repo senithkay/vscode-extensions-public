@@ -75,6 +75,27 @@ function getLangClient() {
                 });
             });
         },
+        getCompletion: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getCompletion', [params], (resp) => {
+                    resolve(resp);
+                });
+            });
+        },
+        getType: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getType', [params], (resp) => {
+                    resolve(resp);
+                });
+            });
+        },
+        getDiagnostics: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getDiagnostics', [params], (resp) => {
+                    resolve(resp);
+                });
+            });
+        },
         getEndpoints: () => {
             return new Promise((resolve, _reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getEndpoints', [], (resp) => {

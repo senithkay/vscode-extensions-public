@@ -81,8 +81,12 @@ export function activateTestRunner() {
                 }
             }
         } catch (error) {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_TEST);
-            window.showErrorMessage(error);
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_TEST);
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage("Unkown error occurred.");
+            }
         }
     });
 }

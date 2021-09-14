@@ -23,18 +23,24 @@ configurations {
     ballerinaTools
 }
 
-npmBuild() {
-    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        dependsOn ':composer:composerBuild'
-        PatternSet patternSet = new PatternSet();
-        patternSet.exclude("**/dist/**");
-        patternSet.exclude("**/out/**");
-        patternSet.exclude("**/*.vsix/**");
-        patternSet.exclude("**/coverage/**");
+task copyDeps(type: Copy) {
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor/build/"
+    into "$rootDir/resources/jslibs"
+    include "BLCEditor.js"
+}
 
-        FileTree src = files('.').asFileTree;
-        inputs.files(src.matching(patternSet))
-    }    
+npmBuild() {
+    dependsOn ':bbe-viewer:buildBBEViewer'
+    dependsOn copyDeps
+    PatternSet patternSet = new PatternSet();
+    patternSet.exclude("**/node_modules/**");
+    patternSet.exclude("**/dist/**");
+    patternSet.exclude("**/out/**");
+    patternSet.exclude("**/*.vsix/**");
+    patternSet.exclude("**/coverage/**");
+
+    FileTree src = files('.').asFileTree;
+    inputs.files(src.matching(patternSet))  
 
     outputs.dir("out")
     outputs.dir("dist")

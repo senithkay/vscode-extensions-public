@@ -34,7 +34,7 @@ export function render(_context: ExtensionContext, _langClient: ExtendedLangClie
                     }
                     const langClient = getLangClient();
                     function renderSamples() {
-                        ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample,
+                        BBEViewer.renderSamplesList(document.getElementById("examples"), openExample,
                         langClient.getExamples, () => {});
                     }
                     renderSamples();
@@ -42,7 +42,7 @@ export function render(_context: ExtensionContext, _langClient: ExtendedLangClie
         `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions(),
+        ...getComposerWebViewOptions("BBEViewer"),
         body, scripts, styles, bodyCss
     };
 

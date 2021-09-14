@@ -87,6 +87,28 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
             let startColumn = ${JSON.stringify(startColumn.toString())};
             let name = ${JSON.stringify(name)};
             let kind = ${JSON.stringify(kind)};
+            function getFileContent(url) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getFileContent',
+                        [url],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function updateFileContent(url, content) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'updateFileContent',
+                        [url, content],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
             function drawDiagram() {
                 try {
                     const options = {
@@ -97,10 +119,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             startLine,
                             startColumn,
                             name,
-                            kind
+                            kind,
+                            getFileContent,
+                            updateFileContent
                         }
                     };
-                    const diagram = ballerinaComposer.renderDiagramEditor(options);
+                    const diagram = BLCEditor.renderDiagramEditor(options);
                     webViewRPCHandler.addMethod("updateDiagram", (args) => {
                         diagram.update({
                             langClient: getLangClient(),
@@ -138,7 +162,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions(),
+        ...getComposerWebViewOptions("BLCEditor"),
         body, scripts, styles, bodyCss
     };
 

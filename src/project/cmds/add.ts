@@ -47,8 +47,12 @@ function activateAddCommand() {
             }
 
         } catch (error) {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
-            window.showErrorMessage(error);
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage("Unkown error occurred.");
+            }
         }
     });
 }

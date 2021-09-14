@@ -148,22 +148,22 @@ function getComposerPath(): string {
         : getComposerURI();
 }
 
-function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
+function getComposerJSFiles(componentName: string): string[] {
     return [
-        join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
+        join(getComposerPath(), componentName + '.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
-function getComposerCSSFiles(): string[] {
+function getComposerCSSFiles(componentName: string): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css')
     ];
 }
 
-export function getComposerWebViewOptions(): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string): Partial<WebViewOptions> {
     return {
-        jsFiles: getComposerJSFiles(),
-        cssFiles: getComposerCSSFiles()
+        jsFiles: getComposerJSFiles(componentName),
+        cssFiles: getComposerCSSFiles(componentName)
     };
 }

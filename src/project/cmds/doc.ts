@@ -82,8 +82,12 @@ function activateDocCommand() {
             }
 
         } catch (error) {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_DOC);
-            window.showErrorMessage(error);
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_DOC);
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage("Unkown error occurred.");
+            }
         }
     });
 }
