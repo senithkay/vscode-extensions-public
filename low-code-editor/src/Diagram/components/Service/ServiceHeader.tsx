@@ -42,7 +42,7 @@ export interface ServiceHeaderProps {
 
 export function ServiceHeader(props: ServiceHeaderProps) {
     const { model, isExpanded, onExpandClick } = props;
-    const { state: { stSymbolInfo } } = useContext(DiagramContext);
+    const { props: { stSymbolInfo } } = useContext(DiagramContext);
 
     let servicePath = '';
 
@@ -59,7 +59,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
             listeningOnText = model.expressions[0].source;
         }
     } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
-        const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(model.expressions[0].name.value);
+        const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(model.expressions[0].name.value) as ListenerDeclaration;
         if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
             serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
             listeningOnText = model.expressions[0].source;
